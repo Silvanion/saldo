@@ -1,0 +1,33 @@
+// Security rules for Saldo app - Updated 2026-07-22
+// Allowed keys: profiles, schemaVersion, updatedAt, activeProfileId, driveFileId, recurringRules, transactionRules, aiMode, localAiEndpoint, lastModifiedBy
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+      
+      // Strict schema validation
+      allow create, update: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.data.keys().hasAll(['profiles', 'schemaVersion', 'updatedAt'])
+                   // Allowed keys to prevent arbitrary data injection
+                   && request.resource.data.keys().hasOnly([
+                     'profiles', 'schemaVersion', 'updatedAt', 'activeProfileId', 'driveFileId',
+                     'recurringRules', 'transactionRules', 'aiMode', 'localAiEndpoint',
+                     'lastModifiedBy'
+                   ])
+                   && request.resource.data.schemaVersion is number
+                   && request.resource.data.updatedAt is string
+                   && request.resource.data.updatedAt.size() <= 40
+                   && request.resource.data.profiles is list
+                   && request.resource.data.profiles.size() <= 20
+                   && (!('driveFileId' in request.resource.data) || request.resource.data.driveFileId == null || (request.resource.data.driveFileId is string && request.resource.data.driveFileId.size() <= 256))
+                   && (!('lastModifiedBy' in request.resource.data) || (request.resource.data.lastModifiedBy is string && request.resource.data.lastModifiedBy.size() <= 320))
+                   && (!('recurringRules' in request.resource.data) || (request.resource.data.recurringRules is list && request.resource.data.recurringRules.size() <= 100))
+                   && (!('transactionRules' in request.resource.data) || (request.resource.data.transactionRules is list && request.resource.data.transactionRules.size() <= 100));
+    }
+  }
+}

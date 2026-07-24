@@ -1,0 +1,83 @@
+{
+  "collections": {
+    "users": {
+      "description": "Przechowuje prywatne dane finansowe każdego zalogowanego użytkownika, w tym transakcje, budżety i ustawienia.",
+      "documentId": "uid",
+      "fields": {
+        "profiles": {
+          "type": "array",
+          "description": "Lista profili finansowych użytkownika (np. Osobisty, Wspólny)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "kind": { "type": "string" },
+              "partnerName": { "type": "string" },
+              "pinHash": { "type": "string" },
+              "transactions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "category": { "type": "string" },
+                    "account": { "type": "string" },
+                    "amount": { "type": "number" },
+                    "type": { "type": "string" },
+                    "isoDate": { "type": "string" },
+                    "tags": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              },
+              "payments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "amount": { "type": "number" },
+                    "dueDate": { "type": "string" },
+                    "status": { "type": "string" }
+                  }
+                }
+              },
+              "goals": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "target": { "type": "number" },
+                    "saved": { "type": "number" }
+                  }
+                }
+              },
+              "investments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "amount": { "type": "number" },
+                    "isoDate": { "type": "string" }
+                  }
+                }
+              },
+              "budgets": {
+                "type": "map",
+                "description": "Limity budżetowe dla poszczególnych kategorii"
+              }
+            }
+          }
+        },
+        "activeProfileId": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    }
+  }
+}
