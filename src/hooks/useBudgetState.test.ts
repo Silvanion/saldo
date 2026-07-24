@@ -7,6 +7,48 @@ import { act, createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import * as localDb from "../services/localDb";
 import { LOCAL_STORAGE_KEY_V2 } from "../services/localDb";
+import { setDoc } from "firebase/firestore";
+import * as cryptoModule from "../services/crypto";
+
+vi.mock("firebase/firestore", async (importOriginal) => {
+  const actual = await importOriginal<any>();
+  return {
+    ...actual,
+    doc: vi.fn(() => "mocked-doc-ref"),
+    setDoc: vi.fn(),
+    onSnapshot: vi.fn(() => vi.fn()) // return mock unsubscribe
+  };
+});
+
+// Polyfill localStorage for node environment
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    }
+  };
+})();
+
+if (typeof globalThis.localStorage === "undefined" || typeof globalThis.localStorage.clear !== "function") {
+  Object.defineProperty(globalThis, "localStorage", {
+    value: localStorageMock,
+    writable: true
+  });
+}
+if (typeof window !== "undefined" && (typeof window.localStorage === "undefined" || typeof window.localStorage.clear !== "function")) {
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    writable: true
+  });
+}
 
 describe("validateAndMigrateState", () => {
   it("1. multi-profile, reguły BEZ profileId, raw.activeProfileId=null → WSZYSTKIE w state.recurringRules, profiles[*].recurringRules puste (anty-wyciek)", () => {
@@ -448,6 +490,130 @@ describe("useBudgetState hydration race condition protection", () => {
     // Equal updatedAt should ignore IDB and keep initial LS state
     expect(hookRef.current.state.lastModifiedBy).toBe("LS Origin");
     expect(hookRef.current.state.profiles[0].name).toBe("LS Profile");
+  });
+});
+
+describe("saveState — Firestore size limit handling", () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    localStorage.clear();
+    vi.restoreAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  function renderBudgetHookWithUser() {
+    const result: { current: ReturnType<typeof useBudgetState> | null } = { current: null };
+    function TestComponent() {
+      result.current = useBudgetState({ uid: "user123", email: "test@example.com" } as any);
+      return null;
+    }
+    act(() => {
+      root.render(createElement(TestComponent));
+    });
+    return result as { current: ReturnType<typeof useBudgetState> };
+  }
+
+  it("1. Test: payload >= FIRESTORE_DOC_HARD_LIMIT_BYTES -> blocks setDoc", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+
+    const hookRef = renderBudgetHookWithUser();
+
+    const hugeState = {
+      profiles: [{
+        id: "p1", name: "Huge Profile", kind: "personal",
+        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_HARD_LIMIT_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
+        payments: [], goals: [], investments: [], budgets: {}
+      }]
+    };
+
+    await act(async () => {
+      await hookRef.current!.saveState(hugeState as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    expect(mockedSetDoc).not.toHaveBeenCalled();
+    expect(hookRef.current!.apiError).toContain("zbyt duże");
+  });
+
+  it("2. Test: payload >= FIRESTORE_DOC_WARNING_BYTES ale < HARD_LIMIT -> allows setDoc but warns", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+
+    const hookRef = renderBudgetHookWithUser();
+
+    const warningState = {
+      profiles: [{
+        id: "p1", name: "Warning Profile", kind: "personal",
+        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_WARNING_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
+        payments: [], goals: [], investments: [], budgets: {}
+      }]
+    };
+
+    await act(async () => {
+      await hookRef.current!.saveState(warningState as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    expect(mockedSetDoc).toHaveBeenCalled();
+    expect(hookRef.current!.apiError).toContain("zbliżają się do limitu");
+  });
+
+  it("3. Test: setDoc rzuca błąd zawierający 'too large'", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+    mockedSetDoc.mockRejectedValueOnce(new Error("document is too large 1 mib"));
+
+    const hookRef = renderBudgetHookWithUser();
+
+    const normalState = {
+      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+    };
+
+    await act(async () => {
+      await hookRef.current!.saveState(normalState as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    expect(mockedSetDoc).toHaveBeenCalled();
+    expect(hookRef.current!.apiError).toContain("przekroczył limit rozmiaru");
+  });
+
+  it("4. Test: setDoc rzuca generyczny błąd sieciowy", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+    mockedSetDoc.mockRejectedValueOnce(new Error("permission-denied"));
+
+    const hookRef = renderBudgetHookWithUser();
+
+    const normalState = {
+      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+    };
+
+    await act(async () => {
+      await hookRef.current!.saveState(normalState as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    expect(mockedSetDoc).toHaveBeenCalled();
+    expect(hookRef.current!.apiError).toContain("Błąd synchronizacji z chmurą");
   });
 });
 
