@@ -12,14 +12,21 @@ dotenv.config();
 
 const PORT = Number(process.env.PORT ?? 3000);
 
-// Initialize Firebase Admin exactly once
+// Initialize Firebase Admin safely
 if (getApps().length === 0) {
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
   if (process.env.NODE_ENV === "production" && !projectId) {
     console.error("FIREBASE_PROJECT_ID missing");
     process.exit(1);
   }
-  initializeApp(projectId ? { projectId } : undefined);
+  if (!projectId) {
+    console.warn("FIREBASE_PROJECT_ID not set. Firebase Admin initialized with default project credentials.");
+  }
+  try {
+    initializeApp(projectId ? { projectId } : undefined);
+  } catch (err) {
+    console.warn("Failed to initialize Firebase Admin SDK:", err);
+  }
 }
 
 async function startServer() {
@@ -27,11 +34,15 @@ async function startServer() {
 
   // Security Middleware
   app.set("trust proxy", 1); // For express-rate-limit to work correctly behind proxy
-  
   if (process.env.NODE_ENV === "production" && !process.env.ALLOWED_ORIGINS) {
     console.error("ALLOWED_ORIGINS environment variable missing in production");
     process.exit(1);
   }
+
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
 
   // Use Helmet but configure CSP for Vite development and Firebase Auth
   app.use(helmet({
@@ -51,20 +62,21 @@ async function startServer() {
 
   // CORS configuration
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim()) 
+    ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
 
   app.use(cors({
     origin: (origin, callback) => {
-      if (process.env.NODE_ENV === "production") {
-        if (!origin) {
-          return callback(new Error("Missing Origin"), false);
-        }
-        if (allowedOrigins.length > 0 && allowedOrigins.indexOf(origin) === -1) {
-          const msg = 'Polityka CORS nie zezwala na dostęp z tego Origin.';
-          return callback(new Error(msg), false);
-        }
+      // Allow requests with no origin (like health checks, same-origin, curl)
+      if (!origin) {
         return callback(null, true);
+      }
+      if (process.env.NODE_ENV === "production" && allowedOrigins.length > 0) {
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+          return callback(null, true);
+        }
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        return callback(null, false);
       }
       return callback(null, true);
     }

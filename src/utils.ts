@@ -842,3 +842,14 @@ export function downloadFile(content: string, filename: string, type: string) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Zaokrągla kwotę pieniężną do 2 miejsc po przecinku.
+ * Używa Number.EPSILON, aby uniknąć błędów precyzji IEEE 754
+ * (np. 0.1 + 0.2 = 0.30000000000000004 → 0.3).
+ * Zwraca 0 dla NaN / Infinity / -Infinity.
+ */
+export function roundCurrency(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}

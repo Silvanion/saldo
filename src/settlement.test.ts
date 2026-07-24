@@ -182,3 +182,33 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
     });
   });
 });
+
+describe("R6b - roundCurrency w settlementEngine (precyzja float)", () => {
+  it("11. Dwie transakcje 0.1 i 0.2 (splitMode equal, paidBy me) -> historyNet dokładnie 0.15", () => {
+    const p: Profile = {
+      id: "p1", name: "User1", partnerName: "Anna", kind: "shared",
+      transactions: [
+        { id: "t1", name: "Drobne A", amount: 0.1, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" },
+        { id: "t2", name: "Drobne B", amount: 0.2, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
+      ],
+      payments: [], goals: [], investments: [], budgets: {}
+    };
+    const res = calculatePartnerSettlement(p);
+    // 0.1/2 + 0.2/2 = 0.05 + 0.1 = 0.15 (bez roundCurrency byłoby 0.15000000000000002)
+    expect(res.historyNet).toBe(0.15);
+    expect(res.myPaidSharedExpenses).toBe(0.3);
+  });
+
+  it("12. Transakcja 99.99 (splitMode equal, paidBy me) -> historyNet dokładnie 50", () => {
+    const p: Profile = {
+      id: "p1", name: "User1", partnerName: "Anna", kind: "shared",
+      transactions: [
+        { id: "t1", name: "Duży zakup", amount: 99.99, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
+      ],
+      payments: [], goals: [], investments: [], budgets: {}
+    };
+    const res = calculatePartnerSettlement(p);
+    // 99.99 / 2 = 49.995 -> roundCurrency -> 50
+    expect(res.historyNet).toBe(50);
+  });
+});

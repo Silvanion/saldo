@@ -1,4 +1,5 @@
 import { Profile } from "../types";
+import { roundCurrency } from "../utils";
 
 export interface SettlementResult {
   net: number; // total net = historyNet + upcomingNet (retained for backward compatibility)
@@ -108,15 +109,15 @@ export function calculatePartnerSettlement(profile: Profile): SettlementResult {
   const partnerPaidSharedExpenses = partnerPaidHistoryExpenses + partnerPaidUpcomingExpenses;
 
   return {
-    net,
-    historyNet,
-    upcomingNet,
-    myPaidSharedExpenses,
-    partnerPaidSharedExpenses,
-    myPaidHistoryExpenses,
-    partnerPaidHistoryExpenses,
-    myPaidUpcomingExpenses,
-    partnerPaidUpcomingExpenses,
-    settlementsTotal
+    net: roundCurrency(net),
+    historyNet: roundCurrency(historyNet),
+    upcomingNet: roundCurrency(upcomingNet),
+    myPaidSharedExpenses: roundCurrency(myPaidSharedExpenses),
+    partnerPaidSharedExpenses: roundCurrency(partnerPaidSharedExpenses),
+    myPaidHistoryExpenses: roundCurrency(myPaidHistoryExpenses),
+    partnerPaidHistoryExpenses: roundCurrency(partnerPaidHistoryExpenses),
+    myPaidUpcomingExpenses: roundCurrency(myPaidUpcomingExpenses),
+    partnerPaidUpcomingExpenses: roundCurrency(partnerPaidUpcomingExpenses),
+    settlementsTotal: roundCurrency(settlementsTotal)
   };
 }

@@ -1,5 +1,5 @@
 import { Profile, RecurringRule } from "../types";
-import { getLocalDateIso, addMonthsClamped } from "../utils";
+import { getLocalDateIso, addMonthsClamped, roundCurrency } from "../utils";
 
 export interface SafeToSpendBreakdown {
   currentBalance: number;
@@ -63,7 +63,7 @@ export function calculateBudgetWarnings(
     warnings.push({
       category,
       limit,
-      spent,
+      spent: roundCurrency(spent),
       ratio,
       percent,
       status
@@ -198,11 +198,11 @@ export function calculateEndOfMonthForecast(
   const forecastedBalance = Number.isFinite(rawForecast) ? rawForecast : 0;
 
   return {
-    currentBalance: Number.isFinite(currentBalance) ? currentBalance : 0,
-    unpaidPaymentsSum: Number.isFinite(unpaidPaymentsSum) ? unpaidPaymentsSum : 0,
-    futureRecurringIncomesSum: Number.isFinite(futureRecurringIncomesSum) ? futureRecurringIncomesSum : 0,
-    futureRecurringExpensesSum: Number.isFinite(futureRecurringExpensesSum) ? futureRecurringExpensesSum : 0,
-    forecastedBalance,
+    currentBalance: roundCurrency(Number.isFinite(currentBalance) ? currentBalance : 0),
+    unpaidPaymentsSum: roundCurrency(Number.isFinite(unpaidPaymentsSum) ? unpaidPaymentsSum : 0),
+    futureRecurringIncomesSum: roundCurrency(Number.isFinite(futureRecurringIncomesSum) ? futureRecurringIncomesSum : 0),
+    futureRecurringExpensesSum: roundCurrency(Number.isFinite(futureRecurringExpensesSum) ? futureRecurringExpensesSum : 0),
+    forecastedBalance: roundCurrency(forecastedBalance),
     isNegative: forecastedBalance < 0,
     forecastDate: endOfMonthStr
   };
@@ -325,11 +325,11 @@ export function calculateSafeToSpend(
   const safeToSpend = Number.isFinite(rawSafe) ? rawSafe : 0;
 
   return {
-    currentBalance: Number.isFinite(currentBalance) ? currentBalance : 0,
-    unpaidPaymentsSum: Number.isFinite(unpaidPaymentsSum) ? unpaidPaymentsSum : 0,
-    futureRecurringExpensesSum: Number.isFinite(futureRecurringExpensesSum) ? futureRecurringExpensesSum : 0,
-    reservedGoalsSum: Number.isFinite(reservedGoalsSum) ? reservedGoalsSum : 0,
-    safeToSpend,
+    currentBalance: roundCurrency(Number.isFinite(currentBalance) ? currentBalance : 0),
+    unpaidPaymentsSum: roundCurrency(Number.isFinite(unpaidPaymentsSum) ? unpaidPaymentsSum : 0),
+    futureRecurringExpensesSum: roundCurrency(Number.isFinite(futureRecurringExpensesSum) ? futureRecurringExpensesSum : 0),
+    reservedGoalsSum: roundCurrency(Number.isFinite(reservedGoalsSum) ? reservedGoalsSum : 0),
+    safeToSpend: roundCurrency(safeToSpend),
     isNegative: safeToSpend < 0
   };
 }

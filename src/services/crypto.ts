@@ -152,3 +152,21 @@ export async function prepareStateForRemoteSave(state: AppState): Promise<AppSta
   };
 }
 
+export const FIRESTORE_DOC_HARD_LIMIT_BYTES = 1048576;
+export const FIRESTORE_DOC_WARNING_BYTES = 900000;
+
+export function estimateJsonSizeBytes(value: unknown): number {
+  try {
+    return new TextEncoder().encode(JSON.stringify(value)).length;
+  } catch {
+    return 0;
+  }
+}
+
+export function estimateProfileSizes(state: AppState): Array<{ profileId: string; bytes: number }> {
+  return (state.profiles || []).map((profile) => ({
+    profileId: profile.id,
+    bytes: estimateJsonSizeBytes(profile)
+  }));
+}
+

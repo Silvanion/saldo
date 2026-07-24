@@ -4,7 +4,7 @@ import { User } from "firebase/auth";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
-import { decryptProfile, activeKeys, prepareStateForRemoteSave } from "../services/crypto";
+import { decryptProfile, activeKeys, prepareStateForRemoteSave, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
 import * as localDb from "../services/localDb";
 import { getLocalDateIso } from "../utils";
 
@@ -338,7 +338,7 @@ export function useBudgetState(googleUser: User | null) {
 
     try {
       await localDb.saveState(cleanState);
-      setApiError(null);
+      setApiError(prev => (prev && prev.includes("Rozważ archiwizację") ? prev : null));
     } catch (err: any) {
       if (err?.message?.includes("QUOTA_EXCEEDED")) {
         setApiError("Przekroczono limit pamięci urządzenia (QuotaExceeded). Niektóre zmiany nie mogły zostać zapisane lokalnie.");
@@ -364,11 +364,25 @@ export function useBudgetState(googleUser: User | null) {
         const dataToUpload = latestSaveDataRef.current;
         saveQueueRef.current = saveQueueRef.current.then(async () => {
           try {
+            const payloadBytes = estimateJsonSizeBytes(dataToUpload);
+            if (payloadBytes >= FIRESTORE_DOC_HARD_LIMIT_BYTES) {
+              setApiError("Dane są zbyt duże, aby zapisać je w chmurze. Zmiany pozostają lokalnie na urządzeniu. Rozważ archiwizację starszych transakcji.");
+              return;
+            } else if (payloadBytes >= FIRESTORE_DOC_WARNING_BYTES) {
+              setApiError("Dane zbliżają się do limitu chmury. Rozważ archiwizację starszych transakcji, aby uniknąć problemów z synchronizacją.");
+            }
+
             const docRef = doc(db, "users", googleUser.uid);
             await setDoc(docRef, dataToUpload, { merge: false });
-          } catch (err) {
+          } catch (err: any) {
             console.error("Firestore write failed:", err);
-            setApiError("Błąd synchronizacji z chmurą. Dane zapisano lokalnie na urządzeniu.");
+            const msg = String(err?.message || "").toLowerCase();
+            const isSizeError = msg.includes("size") || msg.includes("1 mib") || msg.includes("maximum") || msg.includes("too large");
+            if (isSizeError) {
+              setApiError("Nie udało się zapisać danych w chmurze, bo dokument przekroczył limit rozmiaru. Zmiany pozostają lokalnie. Rozważ archiwizację starszych transakcji.");
+            } else {
+              setApiError("Błąd synchronizacji z chmurą. Dane zapisano lokalnie na urządzeniu.");
+            }
           }
         });
       }, 500);

@@ -446,3 +446,28 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
     expect(food?.spent).toBe(800);
   });
 });
+
+describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
+  it("spent 10.10 + 10.20 zaokrąglone do 20.3 (bez błędu float)", () => {
+    const profile: Profile = {
+      id: "p1",
+      name: "Test",
+      kind: "personal",
+      transactions: [
+        { id: "t1", name: "A", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.10, isoDate: "2026-07-05" },
+        { id: "t2", name: "B", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.20, isoDate: "2026-07-06" }
+      ],
+      payments: [],
+      goals: [],
+      investments: [],
+      budgets: { "Jedzenie": 50 }
+    };
+    const res = calculateBudgetWarnings(profile, "2026-07-15");
+    const food = res.find(w => w.category === "Jedzenie");
+    expect(food).toBeDefined();
+    // Bez roundCurrency: 10.10 + 10.20 = 20.299999999999997
+    // Z roundCurrency: 20.3
+    expect(food!.spent).toBe(20.3);
+    expect(food!.status).toBe("normal");
+  });
+});
