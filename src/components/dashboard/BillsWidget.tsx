@@ -96,7 +96,7 @@ export const BillsWidget = memo(function BillsWidget({
                     <p className="text-sm font-bold text-slate-800 leading-tight group-hover:text-[#137566] transition-colors flex items-center gap-1.5 flex-wrap">
                       {p.name}
                       {p.paidBy && (
-                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100 whitespace-nowrap">
+                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-100 text-slate-600 border border-slate-200/60 whitespace-nowrap">
                           {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                           {p.splitMode === 'equal' ? ' (50-50)' : ''}
                         </span>
