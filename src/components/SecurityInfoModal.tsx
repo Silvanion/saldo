@@ -32,7 +32,7 @@ export function SecurityInfoModal() {
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+          <div className="p-3 bg-slate-100 text-slate-600 rounded-xl">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -43,7 +43,7 @@ export function SecurityInfoModal() {
 
         <div className="space-y-4">
           <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-            <Lock className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+            <Lock className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
             <div>
               <h3 className="text-sm font-bold text-slate-800 mb-1">Szyfrowanie End-to-End</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
