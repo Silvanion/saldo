@@ -42,6 +42,34 @@ export function getActiveSummary(filteredPayments: Payment[]) {
   };
 }
 
+export function getTimelineTexts(range: TimelineFilter) {
+  if (range === "week") {
+    return {
+      label: "W tym tygodniu",
+      emptySummary: "Brak płatności w tym tygodniu",
+      emptyTitle: "Brak zobowiązań",
+      emptyDesc: "W tym tygodniu masz spokój.",
+      overviewTitle: "Podsumowanie tygodnia"
+    };
+  }
+  if (range === "month") {
+    return {
+      label: "Najbliższe 30 dni",
+      emptySummary: "Brak płatności na najbliższe 30 dni",
+      emptyTitle: "Brak zobowiązań",
+      emptyDesc: "Przez najbliższe 30 dni masz spokój.",
+      overviewTitle: "Najbliższe 30 dni"
+    };
+  }
+  return {
+    label: "Wszystkie pozycje",
+    emptySummary: "Brak zaplanowanych płatności",
+    emptyTitle: "Brak zobowiązań",
+    emptyDesc: "Twój harmonogram jest czysty.",
+    overviewTitle: "Zestawienie ogólne"
+  };
+}
+
 export function groupPaymentsByTimeline(payments: Payment[]) {
   const overdue: Payment[] = [];
   const today: Payment[] = [];
@@ -94,6 +122,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(filteredPayments);
   const activeSummary = getActiveSummary(filteredPayments);
   const overdueCount = overdue.length;
+  const texts = getTimelineTexts(range);
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -136,9 +165,9 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     
     if (upcoming.length === 0 && overdue.length === 0) {
       return (
-        <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-full flex flex-col justify-center">
+        <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
           <div className="text-2xl mb-1 opacity-50">🏖️</div>
-          <p className="text-xs text-gray-500 font-medium">Brak nadchodzących zobowiązań na najbliższe 30 dni.</p>
+          <p className="text-xs text-slate-500 font-medium">Brak zobowiązań na najbliższe 30 dni.</p>
         </div>
       );
     }
@@ -166,7 +195,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <PieChart className="w-4 h-4 text-slate-500" />
-            <h4 className="text-sm font-bold text-slate-700">Nadchodzące 30 dni</h4>
+            <h4 className="text-sm font-bold text-slate-700">{texts.overviewTitle}</h4>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs text-slate-500">Liczba pozycji:</span>
@@ -226,7 +255,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
                 <div className="flex items-center gap-2">
                   <CalendarDays className="w-4 h-4 text-slate-500" />
                   <span className="text-xs font-semibold text-slate-700">
-                    {range === "all" ? "Wszystkie pozycje" : range === "week" ? "W tym tygodniu" : "Ostatnie 30 dni"} ({activeSummary.count})
+                    {texts.label} ({activeSummary.count})
                   </span>
                 </div>
                 <span className="text-sm font-bold text-slate-900">{formatPln(activeSummary.total)}</span>
@@ -244,7 +273,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
             <div className="flex items-center gap-2 text-slate-500">
               <span className="text-lg">🏖️</span>
               <span className="text-xs font-medium">
-                {range === "all" ? "Brak płatności" : range === "week" ? "Brak płatności w tym tygodniu" : "Brak płatności na najbliższe 30 dni"}
+                {texts.emptySummary}
               </span>
             </div>
           )}
@@ -253,8 +282,8 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         {activeSummary.count === 0 ? (
           <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
             <div className="text-2xl mb-1 opacity-50">🏖️</div>
-            <p className="text-xs text-slate-500 font-medium">Brak nadchodzących zobowiązań.</p>
-            <p className="text-[10px] text-slate-400">Twój harmonogram jest czysty.</p>
+            <p className="text-xs text-slate-500 font-medium">{texts.emptyTitle}</p>
+            <p className="text-[10px] text-slate-400">{texts.emptyDesc}</p>
           </div>
         ) : (
           viewMode === "compact" ? (
