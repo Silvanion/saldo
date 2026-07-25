@@ -209,7 +209,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         {/* Advice and alerts */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="text-base font-bold text-[#153a35]">Miesięczny przegląd (bez AI)</h3>
+            <h3 className="text-base font-bold text-slate-900">Miesięczny przegląd (bez AI)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Przychody</p>
@@ -232,13 +232,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 </p>
               </div>
             </div>
-            <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900 text-sm leading-relaxed">
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm leading-relaxed">
               {monthlyDigest.summaryText}
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-base font-bold text-[#153a35]">Wnioski i podpowiedzi</h3>
+            <h3 className="text-base font-bold text-slate-900">Wnioski i podpowiedzi</h3>
           <div className="space-y-3">
             {insightsList.map((ins, idx) => (
               <div
@@ -267,7 +267,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         {/* Breakdown box */}
         <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-[#153a35]">Struktura wydatków</h3>
+            <h3 className="text-sm font-bold text-slate-900">Struktura wydatków</h3>
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -332,7 +332,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
 
           {totalIncome > 0 && (
             <div className="border-t border-slate-100 mt-5 pt-4">
-              <h4 className="text-xs font-bold text-[#153a35] mb-2">Stopa oszczędności</h4>
+              <h4 className="text-xs font-bold text-slate-900 mb-2">Stopa oszczędności</h4>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full border-4 border-[#e7f3f0] flex items-center justify-center font-bold text-[#137566] text-sm flex-shrink-0">
                   {savingsRate}%
