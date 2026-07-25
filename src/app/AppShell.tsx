@@ -77,8 +77,8 @@ export function AppShell({
       >
         {/* Brand */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2 text-2xl font-black text-[#153a35] tracking-tight">
-            <span className="flex items-center justify-center bg-[#137566] text-white rounded-xl w-8 h-8 shadow-sm">
+          <div className="flex items-center gap-2 text-2xl font-black text-slate-900 tracking-tight">
+            <span className="flex items-center justify-center bg-slate-900 text-white rounded-xl w-8 h-8 shadow-sm">
               <Wallet className="w-5 h-5" />
             </span>
             <span>saldo</span>
@@ -97,7 +97,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "dashboard" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "dashboard" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-dashboard"
           >
@@ -111,7 +111,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "transactions" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "transactions" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-transactions"
           >
@@ -125,7 +125,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "payments" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "payments" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-payments"
           >
@@ -146,7 +146,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "budget" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "budget" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-budget"
           >
@@ -160,7 +160,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "goals" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "goals" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-goals"
           >
@@ -174,7 +174,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "analysis" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "analysis" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-analysis"
           >
@@ -191,7 +191,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "help" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "help" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-help"
           >
@@ -205,7 +205,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
-              activeView === "settings" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "settings" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-settings"
           >
@@ -230,7 +230,7 @@ export function AppShell({
 
           {activeProfile && (
             <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-150 rounded-2xl">
-              <span className="w-8 h-8 rounded-full bg-[#d7e8e3] text-[#137566] text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
+              <span className="w-8 h-8 rounded-full bg-slate-200 text-slate-900 text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
               <div className="min-w-0 text-left">
@@ -248,7 +248,7 @@ export function AppShell({
       <main className="flex-1 flex flex-col h-full overflow-hidden" id="main-viewport-panel">
         {/* Demo Mode Top Banner */}
         {isDemoMode && showDemoBanner && (
-          <div className="bg-[#137566]/10 text-[#137566] border-b border-[#137566]/20 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
+          <div className="bg-slate-100 text-slate-800 border-b border-slate-200 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 shrink-0" />
               <div className="text-xs">
@@ -258,13 +258,13 @@ export function AppShell({
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setIsDemoMode(false)}
-                className="flex-1 sm:flex-none bg-[#137566] text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm whitespace-nowrap"
+                className="flex-1 sm:flex-none bg-slate-900 text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-slate-800 transition shadow-sm whitespace-nowrap"
               >
                 Zaloguj się z Google
               </button>
               <button
                 onClick={() => setShowDemoBanner(false)}
-                className="p-1 text-[#137566] hover:bg-[#137566]/20 rounded-md transition"
+                className="p-1 text-slate-500 hover:bg-slate-200 rounded-md transition"
                 title="Ukryj"
               >
                 <X className="w-4 h-4" />
@@ -281,11 +281,11 @@ export function AppShell({
               className="p-1 rounded-xl border border-slate-200 hover:bg-slate-100 lg:hidden"
               id="btn-open-mobile-menu"
             >
-              <Menu className="w-5 h-5 text-[#153a35]" />
+              <Menu className="w-5 h-5 text-slate-900" />
             </button>
             <div>
               <p className="text-[10px] font-bold text-[#849590] tracking-widest uppercase">{getTodayFormatted()}</p>
-              <h1 className="text-lg md:text-xl font-bold text-[#153a35] tracking-tight">
+              <h1 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
                 {activeView === "dashboard" && "Dzień dobry"}
                 {activeView === "transactions" && "Księga Transakcji"}
                 {activeView === "payments" && "Zaplanowane Opłaty"}
@@ -323,7 +323,7 @@ export function AppShell({
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
-                className="bg-[#137566] text-white font-bold py-2 px-4 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-xs"
+                className="bg-slate-900 text-white font-bold py-2 px-4 rounded-xl hover:bg-slate-800 transition shadow-md text-xs"
                 id="btn-quick-add-tx"
               >
                 ＋ Dodaj wpis
@@ -358,13 +358,13 @@ export function AppShell({
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
             <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
-              <Database className="w-3.5 h-3.5 text-[#137566] dark:text-[#209f8c]" />
+              <Database className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
               <span>Autozapis</span>
             </span>
           </div>
           <button
             onClick={() => toggleSecurityInfo(true)}
-            className="flex items-center gap-1 text-[11px] text-[#137566] dark:text-[#209f8c] hover:underline font-bold cursor-pointer"
+            className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 hover:underline font-bold cursor-pointer"
             id="btn-security-details"
           >
             <Info className="w-3.5 h-3.5" />
@@ -394,7 +394,7 @@ export function AppShell({
       {onOpenAiChatModal && canUseAiChat && activeProfile && !isProfileLocked && (
         <button
           onClick={onOpenAiChatModal}
-          className="fixed bottom-6 right-6 z-40 bg-[#137566] text-white p-4 rounded-full shadow-lg hover:bg-[#1a9c88] hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-200 group cursor-pointer"
+          className="fixed bottom-6 right-6 z-40 bg-slate-900 text-white p-4 rounded-full shadow-lg hover:bg-slate-800 hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-slate-200 group cursor-pointer"
           title="Porozmawiaj z Asystentem AI"
         >
           <Sparkles className="w-6 h-6 animate-pulse" />
