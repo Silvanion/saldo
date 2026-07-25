@@ -51,6 +51,8 @@ describe("Payment status toggling in useAppActions", () => {
       toggleAutoSync: vi.fn(),
       backupToDriveManual: vi.fn(),
       restoreFromDriveManual: vi.fn(),
+      openModal: vi.fn(),
+      addToast: vi.fn()
     }));
 
     act(() => {
@@ -123,7 +125,9 @@ describe("Payment status toggling in useAppActions", () => {
       toggleAutoSync: vi.fn(),
       backupToDriveManual: vi.fn(),
       restoreFromDriveManual: vi.fn(),
-      setApiError: mockSetApiError
+      setApiError: mockSetApiError,
+      openModal: vi.fn(),
+      addToast: vi.fn()
     }));
 
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -196,8 +200,10 @@ describe("Payment status toggling in useAppActions", () => {
         disconnectGoogle: vi.fn(),
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
-        restoreFromDriveManual: vi.fn()
-      })
+        restoreFromDriveManual: vi.fn(),
+      openModal: vi.fn(),
+      addToast: vi.fn()
+    })
     );
 
     act(() => {
@@ -214,7 +220,7 @@ describe("Payment status toggling in useAppActions", () => {
   });
 
   describe("handleImportTransactions deduplication & sanity checks", () => {
-    it("1. Import 2x tego samego CSV (tych samych transakcji) -> liczba transakcji nie podwaja się", () => {
+    it("Import 2x tego samego CSV (tych samych transakcji) -> liczba transakcji nie podwaja się", () => {
       const mockSaveState = vi.fn();
       let currentProfile: Profile = {
         id: "p1",
@@ -254,8 +260,10 @@ describe("Payment status toggling in useAppActions", () => {
             disconnectGoogle: vi.fn(),
             toggleAutoSync: vi.fn(),
             backupToDriveManual: vi.fn(),
-            restoreFromDriveManual: vi.fn()
-          }),
+            restoreFromDriveManual: vi.fn(),
+      openModal: vi.fn(),
+      addToast: vi.fn()
+    }),
         { initialProps: { activeP: currentProfile } }
       );
 
@@ -282,7 +290,7 @@ describe("Payment status toggling in useAppActions", () => {
       expect(currentProfile.transactions).toHaveLength(2);
     });
 
-    it("2. Transakcja z amount NaN -> nie jest dodana", () => {
+    it("Transakcja z amount NaN -> nie jest dodana", () => {
       const mockSaveState = vi.fn();
       let currentProfile: Profile = {
         id: "p1",
@@ -321,8 +329,10 @@ describe("Payment status toggling in useAppActions", () => {
           disconnectGoogle: vi.fn(),
           toggleAutoSync: vi.fn(),
           backupToDriveManual: vi.fn(),
-          restoreFromDriveManual: vi.fn()
-        })
+          restoreFromDriveManual: vi.fn(),
+      openModal: vi.fn(),
+      addToast: vi.fn()
+    })
       );
 
       const invalidBatch = [
@@ -336,6 +346,95 @@ describe("Payment status toggling in useAppActions", () => {
 
       expect(currentProfile.transactions).toHaveLength(1);
       expect(currentProfile.transactions[0].id).toBe("tx-valid");
+    });
+  });
+
+  describe("handleDeletePayment", () => {
+    it("should delete only payment when mode is payment-only", () => {
+      let currentProfile: Profile = {
+        id: "p1",
+        name: "Test",
+        kind: "personal",
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
+        goals: [],
+        investments: [],
+        budgets: {}
+      };
+
+      const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+
+      act(() => {
+        result.current.handleDeletePayment("pay1", "payment-only");
+      });
+
+      expect(currentProfile.payments).toHaveLength(0);
+      expect(currentProfile.transactions).toHaveLength(1);
+    });
+
+    it("should delete payment and transaction when mode is payment-and-linked-transaction", () => {
+      let currentProfile: Profile = {
+        id: "p1",
+        name: "Test",
+        kind: "personal",
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
+        goals: [],
+        investments: [],
+        budgets: {}
+      };
+
+      const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+
+      act(() => {
+        result.current.handleDeletePayment("pay1", "payment-and-linked-transaction");
+      });
+
+      expect(currentProfile.payments).toHaveLength(0);
+      expect(currentProfile.transactions).toHaveLength(0);
+    });
+
+    it("should delete payment without linked tx normally", () => {
+      let currentProfile: Profile = {
+        id: "p1", name: "Test", kind: "personal",
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        transactions: [], goals: [], investments: [], budgets: {}
+      };
+      const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+
+      act(() => { result.current.handleDeletePayment("pay1", "payment-only"); });
+      expect(currentProfile.payments).toHaveLength(0);
+    });
+
+    it("missing linked tx still allows payment delete in payment-and-linked-transaction mode", () => {
+      let currentProfile: Profile = {
+        id: "p1", name: "Test", kind: "personal",
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        transactions: [{ id: "tx2", name: "Inne", amount: 100, type: "expense", category: "Inne", account: "Konto", isoDate: "2026-07-20", tags: [] }],
+        goals: [], investments: [], budgets: {}
+      };
+      const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+
+      act(() => { result.current.handleDeletePayment("pay1", "payment-and-linked-transaction"); });
+      expect(currentProfile.payments).toHaveLength(0);
+      expect(currentProfile.transactions).toHaveLength(1);
+    });
+
+    it("missing payment id results in safe no-op without crash", () => {
+      let currentProfile: Profile = {
+        id: "p1", name: "Test", kind: "personal",
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        transactions: [], goals: [], investments: [], budgets: {}
+      };
+      const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+
+      act(() => { result.current.handleDeletePayment("missing-id", "payment-and-linked-transaction"); });
+      expect(currentProfile.payments).toHaveLength(1);
     });
   });
 });

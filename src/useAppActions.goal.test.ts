@@ -6,7 +6,7 @@ import { applyGoalTransferToProfile, applyGoalTransfer } from "./services/goalTr
 import { calculateSafeToSpend } from "./services/budgetCalculations";
 import { AppState, Profile } from "./types";
 
-describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
+describe("Goal Deposit/Withdraw (Real Model A Handler)", () => {
   const baseProfile: Profile = {
     id: "p1",
     name: "Model A Profile",
@@ -22,7 +22,7 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
     budgets: {}
   };
 
-  it("1. Wpłata +200 zwiększa saved i dopisuje transfer", () => {
+  it("Wpłata +200 zwiększa saved i dopisuje transfer", () => {
     const updated = applyGoalTransferToProfile(baseProfile, "g1", 200, "2026-07-20", { note: "Wpłata na cele" });
     const goal = updated.goals.find((g) => g.id === "g1");
     expect(goal?.saved).toBe(700);
@@ -32,7 +32,7 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
     expect(goal?.transfers?.[0].isoDate).toBe("2026-07-20");
   });
 
-  it("2. Wypłata większa niż saved jest clampowana do -saved", () => {
+  it("Wypłata większa niż saved jest clampowana do -saved", () => {
     // Proba wyciągnięcia 600zł przy saved = 500zł -> clamp do -500zł
     const updated = applyGoalTransferToProfile(baseProfile, "g1", -600, "2026-07-20");
     const goal = updated.goals.find((g) => g.id === "g1");
@@ -42,14 +42,14 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
     expect(goal?.transfers?.[0].note).toBe("Wypłata");
   });
 
-  it("3. Wypłata przy saved = 0 nie zmienia celu ani nie dodaje transferu", () => {
+  it("Wypłata przy saved = 0 nie zmienia celu ani nie dodaje transferu", () => {
     const zeroSavedGoal = { id: "g2", name: "Auto", target: 1000, saved: 0, transfers: [] };
     const res = applyGoalTransfer(zeroSavedGoal, -100, "2026-07-20");
     expect(res.saved).toBe(0);
     expect(res.transfers).toHaveLength(0);
   });
 
-  it("4. Brak tworzenia transaction jako side effect (brak double-count)", () => {
+  it("Brak tworzenia transaction jako side effect (brak double-count)", () => {
     const initialTxsLength = baseProfile.transactions.length;
     const updated = applyGoalTransferToProfile(baseProfile, "g1", 300, "2026-07-20");
     
@@ -58,7 +58,7 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
     expect(updated.transactions).toEqual(baseProfile.transactions);
   });
 
-  it("5. calculateSafeToSpend pozostaje spójne z Model A przy wpłatach i wypłatach", () => {
+  it("calculateSafeToSpend pozostaje spójne z Model A przy wpłatach i wypłatach", () => {
     // Początkowo: saldo 4000, zaoszczędzone na cele 500 -> safeToSpend = 3500
     const initialSafe = calculateSafeToSpend(baseProfile, [], "2026-07-15");
     expect(initialSafe.currentBalance).toBe(4000);
@@ -81,7 +81,7 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
   });
 
   describe("handleDeleteGoal logic in useAppActions", () => {
-    it("1. Goal z saved=0 -> usuwa go z listy i wywołuje saveState", () => {
+    it("Goal z saved=0 -> usuwa go z listy i wywołuje saveState", () => {
       const mockSaveState = vi.fn();
       const profile: Profile = {
         ...baseProfile,
@@ -110,8 +110,10 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
           disconnectGoogle: vi.fn(),
           toggleAutoSync: vi.fn(),
           backupToDriveManual: vi.fn(),
-          restoreFromDriveManual: vi.fn()
-        })
+          restoreFromDriveManual: vi.fn(),
+      openModal: vi.fn(),
+      addToast: vi.fn()
+    })
       );
 
       act(() => {
@@ -123,7 +125,7 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
       expect(newState.profiles[0].goals).toHaveLength(0);
     });
 
-    it("2. Goal z saved>0 -> blokada usunięcia, expect(mockSaveState).not.toHaveBeenCalled()", () => {
+    it("Goal z saved>0 -> blokada usunięcia, expect(mockSaveState).not.toHaveBeenCalled()", () => {
       const mockSaveState = vi.fn();
       const profile: Profile = {
         ...baseProfile,
@@ -155,7 +157,9 @@ describe("PROMPT P0-3 - Goal Deposit/Withdraw (Real Model A Handler)", () => {
           toggleAutoSync: vi.fn(),
           backupToDriveManual: vi.fn(),
           restoreFromDriveManual: vi.fn(),
-          setApiError: mockSetApiError
+          setApiError: mockSetApiError,
+          openModal: vi.fn(),
+          addToast: vi.fn()
         })
       );
 

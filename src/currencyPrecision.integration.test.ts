@@ -4,7 +4,7 @@ import { calculateBudgetWarnings } from "./services/budgetCalculations";
 import { Profile } from "./types";
 import { getLocalDateIso } from "./utils";
 
-describe("R6 - Integracja: precyzja roundCurrency w całym pipeline", () => {
+describe("Integracja: precyzja roundCurrency w całym pipeline", () => {
   it("zwracane kwoty (settlement historyNet i budget spent) nie zawierają błędów float", () => {
     const today = getLocalDateIso();
     

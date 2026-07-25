@@ -644,7 +644,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 /**
  * Scans upcoming unpaid payments and displays a native browser notification if due.
  */
-export function checkAndNotifyPayments(payments: any[]) {
+export function checkAndNotifyPayments(payments: Payment[]) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
 
@@ -799,7 +799,7 @@ export function parseQuickAddText(text: string, rules: TransactionRule[]): Parti
 }
 
 
-export function generateCsvContent(transactions: any[]): string {
+export function generateCsvContent(transactions: Transaction[]): string {
   // UTF-8 BOM
   let csvContent = "\uFEFF";
   

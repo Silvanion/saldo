@@ -51,7 +51,7 @@ if (typeof window !== "undefined" && (typeof window.localStorage === "undefined"
 }
 
 describe("validateAndMigrateState", () => {
-  it("1. multi-profile, reguły BEZ profileId, raw.activeProfileId=null → WSZYSTKIE w state.recurringRules, profiles[*].recurringRules puste (anty-wyciek)", () => {
+  it("multi-profile, reguły BEZ profileId, raw.activeProfileId=null → WSZYSTKIE w state.recurringRules, profiles[*].recurringRules puste (anty-wyciek)", () => {
     const rawState = {
       activeProfileId: null,
       profiles: [
@@ -77,7 +77,7 @@ describe("validateAndMigrateState", () => {
     expect(p2?.recurringRules?.length).toBe(0);
   });
 
-  it("2. reguła.profileId=\"p2\" przy profilach p1,p2 → tylko p2 dostaje regułę; global empty", () => {
+  it("reguła.profileId=\"p2\" przy profilach p1,p2 → tylko p2 dostaje regułę; global empty", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
@@ -102,7 +102,7 @@ describe("validateAndMigrateState", () => {
     expect(migrated.recurringRules?.length).toBe(0);
   });
 
-  it("3. reguła.profileId=\"missing\" → unmigrated global", () => {
+  it("reguła.profileId=\"missing\" → unmigrated global", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
@@ -126,7 +126,7 @@ describe("validateAndMigrateState", () => {
     expect(p2?.recurringRules?.length).toBe(0);
   });
 
-  it("4. raw.activeProfileId=\"p1\", reguła bez profileId → p1; nie p2", () => {
+  it("raw.activeProfileId=\"p1\", reguła bez profileId → p1; nie p2", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
@@ -149,7 +149,7 @@ describe("validateAndMigrateState", () => {
     expect(migrated.recurringRules?.length).toBe(0);
   });
 
-  it("5. pojedynczy profil, reguła bez profileId → do tego profilu; global empty", () => {
+  it("pojedynczy profil, reguła bez profileId → do tego profilu; global empty", () => {
     const rawState = {
       activeProfileId: null,
       profiles: [
@@ -169,7 +169,7 @@ describe("validateAndMigrateState", () => {
     expect(migrated.recurringRules?.length).toBe(0);
   });
 
-  it("6. drugie wywołanie migrate na wyniku → brak duplikatów id", () => {
+  it("drugie wywołanie migrate na wyniku → brak duplikatów id", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
@@ -195,7 +195,7 @@ describe("validateAndMigrateState", () => {
     expect(migrated2.recurringRules?.length).toBe(0);
   });
 
-  it("7. junk w tablicy ([null, {id:\"x\", ...valid}]) → tylko valid migruje / junk drop", () => {
+  it("junk w tablicy ([null, {id:\"x\", ...valid}]) → tylko valid migruje / junk drop", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
@@ -222,7 +222,7 @@ describe("validateAndMigrateState", () => {
     expect(migrated.recurringRules?.length).toBe(0);
   });
 
-  it("8. recurring rule bez nextDueDate (lub niepoprawny) → fallback do formatu YYYY-MM-DD", () => {
+  it("recurring rule bez nextDueDate (lub niepoprawny) → fallback do formatu YYYY-MM-DD", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [{ id: "p1", name: "P1", kind: "personal" }],
@@ -365,7 +365,7 @@ describe("useBudgetState hydration race condition protection", () => {
     return result as { current: ReturnType<typeof useBudgetState> };
   }
 
-  it("1. IDB starszy niż LS/init -> po hydrate stan = init (nowszy), nie IDB", async () => {
+  it("IDB starszy niż LS/init -> po hydrate stan = init (nowszy), nie IDB", async () => {
     const lsState = validateAndMigrateState({
       updatedAt: "2026-07-23T10:00:00.000Z",
       profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
@@ -393,7 +393,7 @@ describe("useBudgetState hydration race condition protection", () => {
     expect(hookRef.current.state.updatedAt).toBe("2026-07-23T10:00:00.000Z");
   });
 
-  it("2. IDB nowszy niż init -> po hydrate stan = IDB", async () => {
+  it("IDB nowszy niż init -> po hydrate stan = IDB", async () => {
     const lsState = validateAndMigrateState({
       updatedAt: "2026-07-23T10:00:00.000Z",
       profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
@@ -420,7 +420,7 @@ describe("useBudgetState hydration race condition protection", () => {
     expect(hookRef.current.state.updatedAt).toBe("2026-07-23T12:00:00.000Z");
   });
 
-  it("3. saveState w trakcie pending loadState -> finalny stan = zapisany, nie stary IDB", async () => {
+  it("saveState w trakcie pending loadState -> finalny stan = zapisany, nie stary IDB", async () => {
     let resolveLoadState!: (value: AppState | null) => void;
     const loadStatePromise = new Promise<AppState | null>((res) => {
       resolveLoadState = res;
@@ -464,7 +464,7 @@ describe("useBudgetState hydration race condition protection", () => {
     expect(hookRef.current.state.profiles[0].name).toBe("User Saved Profile");
   });
 
-  it("4. equal updatedAt -> nie nadpisuj (stabilność)", async () => {
+  it("equal updatedAt -> nie nadpisuj (stabilność)", async () => {
     const time = "2026-07-23T10:00:00.000Z";
     const lsState = validateAndMigrateState({
       updatedAt: time,
@@ -526,7 +526,7 @@ describe("saveState — Firestore size limit handling", () => {
     return result as { current: ReturnType<typeof useBudgetState> };
   }
 
-  it("1. Test: payload >= FIRESTORE_DOC_HARD_LIMIT_BYTES -> blocks setDoc", async () => {
+  it("payload >= FIRESTORE_DOC_HARD_LIMIT_BYTES -> blocks setDoc", async () => {
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
     const mockedSetDoc = vi.mocked(setDoc);
     mockedSetDoc.mockClear();
@@ -550,7 +550,7 @@ describe("saveState — Firestore size limit handling", () => {
     expect(hookRef.current!.apiError).toContain("zbyt duże");
   });
 
-  it("2. Test: payload >= FIRESTORE_DOC_WARNING_BYTES ale < HARD_LIMIT -> allows setDoc but warns", async () => {
+  it("payload >= FIRESTORE_DOC_WARNING_BYTES ale < HARD_LIMIT -> allows setDoc but warns", async () => {
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
     const mockedSetDoc = vi.mocked(setDoc);
     mockedSetDoc.mockClear();
@@ -574,7 +574,7 @@ describe("saveState — Firestore size limit handling", () => {
     expect(hookRef.current!.apiError).toContain("zbliżają się do limitu");
   });
 
-  it("3. Test: setDoc rzuca błąd zawierający 'too large'", async () => {
+  it("setDoc rzuca błąd zawierający 'too large'", async () => {
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
     const mockedSetDoc = vi.mocked(setDoc);
     mockedSetDoc.mockClear();
@@ -595,7 +595,7 @@ describe("saveState — Firestore size limit handling", () => {
     expect(hookRef.current!.apiError).toContain("przekroczył limit rozmiaru");
   });
 
-  it("4. Test: setDoc rzuca generyczny błąd sieciowy", async () => {
+  it("setDoc rzuca generyczny błąd sieciowy", async () => {
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
     const mockedSetDoc = vi.mocked(setDoc);
     mockedSetDoc.mockClear();
