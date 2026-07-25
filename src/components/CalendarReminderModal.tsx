@@ -229,7 +229,7 @@ export function CalendarReminderModal({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm border border-indigo-100">
+            <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center shadow-sm border border-slate-200">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -279,7 +279,7 @@ export function CalendarReminderModal({
               
               {isLoadingSuggestion && (
                 <div className="flex flex-col items-center justify-center p-8 space-y-3 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
-                  <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                  <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
                   <p className="text-sm font-medium text-slate-600">Przygotowuję szczegóły z AI...</p>
                 </div>
               )}
@@ -411,7 +411,7 @@ export function CalendarReminderModal({
                     type="button"
                     disabled={isSubmitting || !calendarToken}
                     onClick={handleSubmitToCalendar}
-                    className="flex-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-xs font-bold text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-2 rounded-xl bg-[#137566] hover:bg-[#0f5d51] py-3 text-xs font-bold text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer"
                     id="btn-confirm-calendar"
                   >
                     {isSubmitting ? (
