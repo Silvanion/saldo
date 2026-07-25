@@ -396,7 +396,7 @@ export function SettingsView({
             <div>
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-[#137566]" />
-                <h3 className="text-base font-bold text-[#153a35]">Zarządzanie profilami budżetu</h3>
+                <h3 className="text-base font-bold text-slate-900">Zarządzanie profilami budżetu</h3>
               </div>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 Każdy profil posiada niezależne transakcje, limity, salda bankowe oraz cele oszczędnościowe.
@@ -419,14 +419,14 @@ export function SettingsView({
                     <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
                       <div className="flex items-center gap-2">
                         <Edit2 className="w-4 h-4 text-[#137566]" />
-                        <h4 className="text-sm font-extrabold text-[#153a35]">Edycja profilu: {p.name}</h4>
+                        <h4 className="text-sm font-extrabold text-slate-900">Edycja profilu: {p.name}</h4>
                       </div>
-                      <button onClick={cancelEditingProfile} className="text-gray-400 hover:text-slate-600 p-1 text-lg leading-none">&times;</button>
+                      <button onClick={cancelEditingProfile} className="text-slate-400 hover:text-slate-600 p-1 text-lg leading-none">&times;</button>
                     </div>
                     <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold text-[#153a35] mb-1">Nazwa profilu</label>
+                          <label className="block text-xs font-bold text-slate-900 mb-1">Nazwa profilu</label>
                           <input
                             type="text"
                             value={editProfileData.name}
@@ -437,14 +437,14 @@ export function SettingsView({
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-[#153a35] mb-1">Ikona profilu</label>
+                          <label className="block text-xs font-bold text-slate-900 mb-1">Ikona profilu</label>
                           <details className="group border border-slate-200 rounded-xl relative">
                             <summary className="p-2.5 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
                               <div className="flex items-center gap-3">
                                 <span className="text-xl leading-none">{editProfileData.avatar}</span>
                                 <span>Zmień ikonę</span>
                               </div>
-                              <span className="group-open:rotate-180 transition-transform mr-2 text-gray-400">▼</span>
+                              <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
                             </summary>
                             <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-xl">
                               <div className="grid grid-cols-6 gap-2">
@@ -470,7 +470,7 @@ export function SettingsView({
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-[#153a35] mb-1">Rodzaj profilu</label>
+                        <label className="block text-xs font-bold text-slate-900 mb-1">Rodzaj profilu</label>
                         <select
                           value={editProfileData.kind}
                           onChange={(e) => setEditProfileData(prev => prev ? { ...prev, kind: e.target.value as "personal" | "shared" } : null)}
@@ -483,7 +483,7 @@ export function SettingsView({
 
                       {editProfileData.kind === "shared" && (
                         <div>
-                          <label className="block text-xs font-bold text-[#153a35] mb-1">Imię partnera/współdzielącego</label>
+                          <label className="block text-xs font-bold text-slate-900 mb-1">Imię partnera/współdzielącego</label>
                           <input
                             type="text"
                             value={editProfileData.partnerName}
@@ -531,7 +531,7 @@ export function SettingsView({
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-base font-extrabold text-[#153a35] truncate">{p.name}</strong>
+                            <strong className="text-base font-extrabold text-slate-900 truncate">{p.name}</strong>
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#137566] text-white shadow-xs">
                               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
                               AKTYWNY
@@ -546,7 +546,7 @@ export function SettingsView({
                                 <Lock className="w-3 h-3 text-amber-600" /> Kod PIN
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-gray-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
                                 Bez PINu
                               </span>
                             )}
@@ -571,7 +571,7 @@ export function SettingsView({
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                          className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
                           title="Usuń profil"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -601,11 +601,11 @@ export function SettingsView({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-slate-50 border border-gray-150 flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                      <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                         {p.avatar || "👤"}
                       </div>
                       <div className="min-w-0">
-                        <strong className="block text-sm font-bold text-[#153a35] truncate">{p.name}</strong>
+                        <strong className="block text-sm font-bold text-slate-900 truncate">{p.name}</strong>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                             {isShared ? `Wspólny (${p.partnerName})` : "Osobisty"}
@@ -622,14 +622,14 @@ export function SettingsView({
                     <div className="flex items-center gap-0.5 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                        className="p-1.5 text-gray-400 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
                         title="Edytuj profil"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                        className="p-1.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition cursor-pointer"
                         title="Usuń profil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -666,7 +666,7 @@ export function SettingsView({
       {/* SECTION: ACTIVE PROFILE SETTINGS */}
       {activeProfile && editProfileData && (settingsTab === "all" || settingsTab === "profiles") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-active-profile-card">
-          <h3 className="text-base font-bold text-[#153a35] mb-2">Ustawienia aktywnego profilu</h3>
+          <h3 className="text-base font-bold text-slate-900 mb-2">Ustawienia aktywnego profilu</h3>
           <p className="text-xs text-slate-500 mb-5 leading-relaxed">
             Dostosuj nazwę, ikonę oraz rodzaj dla aktualnie wybranego profilu: <strong>{activeProfile.name}</strong>.
           </p>
@@ -674,7 +674,7 @@ export function SettingsView({
           <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#153a35] mb-1">Nazwa profilu</label>
+                <label className="block text-xs font-bold text-slate-900 mb-1">Nazwa profilu</label>
                 <input
                   type="text"
                   value={editProfileData.name}
@@ -685,14 +685,14 @@ export function SettingsView({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#153a35] mb-1">Ikona profilu</label>
+                <label className="block text-xs font-bold text-slate-900 mb-1">Ikona profilu</label>
                 <details className="group border border-slate-200 rounded-xl relative">
                   <summary className="p-2.5 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
                     <div className="flex items-center gap-3">
                       <span className="text-xl leading-none">{editProfileData.avatar}</span>
                       <span>Wybierz ikonę</span>
                     </div>
-                    <span className="group-open:rotate-180 transition-transform mr-2 text-gray-400">▼</span>
+                    <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
                   </summary>
                   <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-lg">
                     <div className="grid grid-cols-6 gap-2">
@@ -719,7 +719,7 @@ export function SettingsView({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#153a35] mb-1">Rodzaj profilu</label>
+              <label className="block text-xs font-bold text-slate-900 mb-1">Rodzaj profilu</label>
               <select
                 value={editProfileData.kind}
                 onChange={(e) => setEditProfileData(prev => prev ? { ...prev, kind: e.target.value as "personal" | "shared" } : null)}
@@ -732,7 +732,7 @@ export function SettingsView({
 
             {editProfileData.kind === "shared" && (
               <div>
-                <label className="block text-xs font-bold text-[#153a35] mb-1">Imię partnera/współdzielącego</label>
+                <label className="block text-xs font-bold text-slate-900 mb-1">Imię partnera/współdzielącego</label>
                 <input
                   type="text"
                   value={editProfileData.partnerName}
@@ -762,7 +762,7 @@ export function SettingsView({
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-theme-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Motyw i wygląd aplikacji</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Motyw i wygląd aplikacji</h3>
         <p className="text-xs text-slate-500 mb-5 leading-relaxed">
           Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji. Wybierz jasny motyw dla pełnej czytelności w dzień, ciemny dla ochrony oczu w nocy, lub pozwól systemowi na automatyczną zmianę.
         </p>
@@ -774,7 +774,7 @@ export function SettingsView({
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "light"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-gray-300"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
             id="btn-set-theme-light"
           >
@@ -782,8 +782,8 @@ export function SettingsView({
               <Sun className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-[#153a35]">Jasny motyw</strong>
-              <span className="text-[10px] text-gray-400 mt-0.5 block font-medium">Klasyczny i przejrzysty</span>
+              <strong className="block text-sm text-slate-900">Jasny motyw</strong>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Klasyczny i przejrzysty</span>
             </div>
           </button>
 
@@ -793,7 +793,7 @@ export function SettingsView({
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "dark"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-gray-300"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
             id="btn-set-theme-dark"
           >
@@ -801,8 +801,8 @@ export function SettingsView({
               <Moon className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-[#153a35]">Ciemny motyw</strong>
-              <span className="text-[10px] text-gray-400 mt-0.5 block font-medium">Komfortowy dla wzroku</span>
+              <strong className="block text-sm text-slate-900">Ciemny motyw</strong>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Komfortowy dla wzroku</span>
             </div>
           </button>
 
@@ -812,7 +812,7 @@ export function SettingsView({
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "system"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-gray-300"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
             id="btn-set-theme-system"
           >
@@ -820,8 +820,8 @@ export function SettingsView({
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-[#153a35]">Automatyczny</strong>
-              <span className="text-[10px] text-gray-400 mt-0.5 block font-medium">Zgodny z systemem OS</span>
+              <strong className="block text-sm text-slate-900">Automatyczny</strong>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Zgodny z systemem OS</span>
             </div>
           </button>
         </div>
@@ -831,7 +831,7 @@ export function SettingsView({
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-ai-provider-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Konfiguracja silnika AI</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Konfiguracja silnika AI</h3>
         <p className="text-xs text-slate-500 mb-5 leading-relaxed">
           Wybierz dostawcę inteligencji dla kategoryzacji transakcji, analizy wyciągów oraz asystenta finansowego. Możesz wyłączyć AI, użyć lokalnego modelu (Ollama) lub bezpiecznej chmury.
         </p>
@@ -844,7 +844,7 @@ export function SettingsView({
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               (state.aiMode || "none") === "none"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-gray-300"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
             id="btn-set-ai-mode-none"
           >
@@ -852,8 +852,8 @@ export function SettingsView({
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-[#153a35]">Brak AI</strong>
-              <span className="text-[10px] text-gray-400 mt-0.5 block font-medium">Standardowe reguły</span>
+              <strong className="block text-sm text-slate-900">Brak AI</strong>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Standardowe reguły</span>
             </div>
           </button>
 
@@ -864,7 +864,7 @@ export function SettingsView({
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               state.aiMode === "local"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-gray-300"
+                : "bg-white border-slate-200 hover:border-slate-300"
             }`}
             id="btn-set-ai-mode-local"
           >
@@ -872,8 +872,8 @@ export function SettingsView({
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-[#153a35]">Lokalne AI</strong>
-              <span className="text-[10px] text-gray-400 mt-0.5 block font-medium">Ollama / Serwer lokalny</span>
+              <strong className="block text-sm text-slate-900">Lokalne AI</strong>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Ollama / Serwer lokalny</span>
             </div>
           </button>
 
@@ -898,7 +898,7 @@ export function SettingsView({
         {state.aiMode === "local" && (
           <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3 animate-fade-in">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-[#153a35]">Lokalny punkt końcowy (Endpoint):</label>
+              <label className="text-xs font-bold text-slate-900">Lokalny punkt końcowy (Endpoint):</label>
               <button
                 type="button"
                 onClick={() => saveState({ ...state, localAiEndpoint: "http://localhost:11434/api/generate" })}
@@ -947,7 +947,7 @@ export function SettingsView({
             </p>
             
             <details className="group border border-emerald-200 rounded-xl bg-white overflow-hidden">
-              <summary className="p-3 text-xs font-bold text-[#153a35] cursor-pointer hover:bg-emerald-50 flex justify-between items-center list-none select-none">
+              <summary className="p-3 text-xs font-bold text-slate-900 cursor-pointer hover:bg-emerald-50 flex justify-between items-center list-none select-none">
                 Jak uruchomić lokalne AI na swoim komputerze?
                 <span className="group-open:rotate-180 transition-transform">▼</span>
               </summary>
@@ -968,7 +968,7 @@ export function SettingsView({
                     <li>Pobierz instalator Windows ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ollama.com</a>.</li>
                     <li>Aby aplikacja Saldo mogła połączyć się z modelem, musisz zezwolić na reguły <strong>CORS</strong>. W tym celu otwórz <strong>Wiersz polecenia (cmd)</strong> lub PowerShell i wpisz poniższe komendy jedna po drugiej:</li>
                   </ol>
-                  <div className="bg-gray-800 text-gray-200 p-2.5 rounded-xl font-mono text-[11px] leading-relaxed mx-2">
+                  <div className="bg-slate-800 text-slate-200 p-2.5 rounded-xl font-mono text-[11px] leading-relaxed mx-2">
                     set OLLAMA_ORIGINS="*"<br/>
                     ollama run llama3
                   </div>
@@ -984,17 +984,17 @@ export function SettingsView({
       {/* SECTION 2: PIN SECURITY */}
       {activeProfile && (settingsTab === "all" || settingsTab === "profiles") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-pin-card">
-          <h3 className="text-base font-bold text-[#153a35] mb-2">Zabezpieczenie aktywnego profilu</h3>
+          <h3 className="text-base font-bold text-slate-900 mb-2">Zabezpieczenie aktywnego profilu</h3>
           <p className="text-xs text-slate-500 mb-4 leading-relaxed">
             Dodaj kod PIN, aby zabezpieczyć swoje poufne transakcje i informacje budżetowe przed nieautoryzowanym wglądem innych użytkowników na tym urządzeniu.
           </p>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-gray-150">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
             <div>
               <span className="text-xs font-bold text-slate-700 block">
                 {activeProfile.pinHash ? "🛡️ Twój profil jest obecnie chroniony kodem PIN" : "🔓 Profil nie posiada zabezpieczenia PIN"}
               </span>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-[11px] text-slate-400 mt-0.5">
                 Każdorazowe otwarcie profilu będzie wymagać wpisania poprawnego kodu.
               </p>
             </div>
@@ -1014,7 +1014,7 @@ export function SettingsView({
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-google-drive-card">
         <div className="flex items-center gap-2 mb-2">
           <Cloud className="w-5 h-5 text-[#137566]" />
-          <h3 className="text-base font-bold text-[#153a35]">Kopia zapasowa w chmurze (Dysk Google)</h3>
+          <h3 className="text-base font-bold text-slate-900">Kopia zapasowa w chmurze (Dysk Google)</h3>
         </div>
         <p className="text-xs text-slate-500 mb-5 leading-relaxed">
           Podłącz swój osobisty Dysk Google, aby bezpiecznie archiwizować plik bazy danych budżetu (<code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">saldo_budget.json</code>). Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
@@ -1070,7 +1070,7 @@ export function SettingsView({
         )}
 
         {!googleUser ? (
-          <div className="bg-slate-50 border border-gray-150 rounded-2xl p-6 text-center space-y-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center space-y-4">
             <p className="text-xs text-slate-600 max-w-md mx-auto">
               Aplikacja Saldo nie posiada centralnej bazy danych do przechowywania Twoich finansów. Podłączenie Dysku Google utworzy bezpieczny plik, z którego możesz korzystać na każdym urządzeniu.
             </p>
@@ -1091,8 +1091,8 @@ export function SettingsView({
             </button>
             <details className="group mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden text-left max-w-md mx-auto">
               <summary className="p-3 text-[11px] font-bold text-slate-700 cursor-pointer hover:bg-slate-50 flex justify-between items-center list-none select-none">
-                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-indigo-500" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
-                <span className="group-open:rotate-180 transition-transform text-gray-400">▼</span>
+                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-slate-500" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
+                <span className="group-open:rotate-180 transition-transform text-slate-400">▼</span>
               </summary>
               <div className="p-4 border-t border-slate-100 text-[11px] text-slate-600 space-y-3 leading-relaxed">
                 <p>
@@ -1125,7 +1125,7 @@ export function SettingsView({
                   </div>
                 )}
                 <div>
-                  <span className="text-xs font-black text-[#153a35] flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                     Zalogowano jako: {googleUser.displayName || "Użytkownik Google"}
                   </span>
@@ -1143,18 +1143,18 @@ export function SettingsView({
             </div>
 
             {/* Backups Action Stats */}
-            <div className="p-4 bg-slate-50 rounded-xl border border-gray-150 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Nazwa pliku na dysku</span>
-                <span className="text-xs font-bold text-[#153a35] font-mono block mt-0.5">saldo_budget.json</span>
-                <span className="text-[10px] text-gray-400 block mt-1">Status: {gdriveFileId ? "🟢 Plik istnieje" : "⚪ Plik zostanie utworzony przy pierwszym zapisie"}</span>
+                <span className="text-xs font-bold text-slate-900 font-mono block mt-0.5">saldo_budget.json</span>
+                <span className="text-[10px] text-slate-400 block mt-1">Status: {gdriveFileId ? "🟢 Plik istnieje" : "⚪ Plik zostanie utworzony przy pierwszym zapisie"}</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Ostatni zapis w chmurze</span>
-                <span className="text-xs font-bold text-[#153a35] block mt-0.5">
+                <span className="text-xs font-bold text-slate-900 block mt-0.5">
                   {gdriveLastSynced || "Brak wykonanego zapisu"}
                 </span>
-                <span className="text-[10px] text-gray-400 block mt-1">Dostępny do wczytania</span>
+                <span className="text-[10px] text-slate-400 block mt-1">Dostępny do wczytania</span>
               </div>
             </div>
 
@@ -1189,13 +1189,13 @@ export function SettingsView({
             </div>
 
             {/* AutoSync Switch toggle */}
-            <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-gray-150 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-200 rounded-xl">
               <div className="pr-4">
-                <strong className="text-xs font-bold text-[#153a35] flex items-center gap-1">
+                <strong className="text-xs font-bold text-slate-900 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-[#137566] animate-pulse" />
                   Automatyczny zapis (Auto-Sync)
                 </strong>
-                <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
                   Każda zmiana w transakcjach lub celach będzie automatycznie zapisywana na Twoim Dysku Google.
                 </p>
               </div>
@@ -1206,10 +1206,10 @@ export function SettingsView({
                   onChange={(e) => onToggleDriveAutoSync(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
               </label>
             </div>
-            <p className="text-[10px] text-gray-400 italic text-center">
+            <p className="text-[10px] text-slate-400 italic text-center">
               Uwaga: Ze względów bezpieczeństwa tokeny Google Drive są przechowywane wyłącznie w pamięci RAM. Po odświeżeniu aplikacji wystarczy kliknąć przycisk autoryzacji ponownie.
             </p>
           </div>
@@ -1221,12 +1221,12 @@ export function SettingsView({
       {/* SECTION: BANK ACCOUNTS */}
       {activeProfile && (settingsTab === "all" || settingsTab === "automation") && (
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mb-8" id="settings-bank-accounts-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Konta i salda awaryjne</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Konta i salda awaryjne</h3>
         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
           Skonfiguruj konta bankowe, z których płacisz lub na które otrzymujesz dochód.
           Możesz również dodać informację o limicie odnawialnym (nie wlicza się do budżetu).
         </p>
-        <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-gray-150">
+        <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa (np. Konto główne)</label>
             <input required value={accName} onChange={(e) => setAccName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
@@ -1238,7 +1238,7 @@ export function SettingsView({
           <div className="flex items-center pt-5">
             <label className="flex items-center cursor-pointer">
               <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
               <span className="ml-2 text-xs font-bold text-slate-600">Limit odnaw.</span>
             </label>
           </div>
@@ -1258,7 +1258,7 @@ export function SettingsView({
         {(activeProfile.accounts || []).length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {activeProfile.accounts!.map(acc => (
-              <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-gray-150 rounded-xl hover:shadow-sm transition">
+              <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
                 <div>
                   <strong className="text-xs text-slate-800">{acc.name}</strong>
                   {acc.bankName && <span className="ml-2 text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
@@ -1266,26 +1266,26 @@ export function SettingsView({
                     <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Limit awaryjny: {acc.creditLimit} zł</p>
                   )}
                 </div>
-                <button onClick={() => handleDeleteAccount(acc.id)} className="text-gray-400 hover:text-rose-500 transition p-1">
+                <button onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1">
                   &times;
                 </button>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-400 italic">Brak skonfigurowanych kont. Tradycyjne wpisywanie nazw pozostanie domyślne.</p>
+          <p className="text-xs text-slate-400 italic">Brak skonfigurowanych kont. Tradycyjne wpisywanie nazw pozostanie domyślne.</p>
         )}
       </div>
       )}
       {/* SECTION: AUTOMATED CATEGORY RULES */}
       {(settingsTab === "all" || settingsTab === "automation") && (
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-category-rules-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Automatyczna kategoryzacja wydatków</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczna kategoryzacja wydatków</h3>
         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
           Zdefiniuj własne słowa kluczowe (np. „orlen”, „biedronka”), aby aplikacja mogła automatycznie przypisywać odpowiednią kategorię do nowych lub importowanych transakcji.
         </p>
 
-        <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-gray-150">
+        <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Słowo kluczowe (Fraza)</label>
             <input
@@ -1321,21 +1321,21 @@ export function SettingsView({
         </form>
 
         {transactionRules.length === 0 ? (
-          <p className="text-xs text-gray-400 italic text-center py-4">Brak zdefiniowanych reguł. Używane są domyślne reguły automatyczne.</p>
+          <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych reguł. Używane są domyślne reguły automatyczne.</p>
         ) : (
-          <div className="border border-gray-150 rounded-xl overflow-hidden">
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-gray-150 text-slate-500 font-bold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
                   <th className="py-2 px-3">Słowo kluczowe</th>
                   <th className="py-2 px-3">Kategoria docelowa</th>
                   <th className="py-2 px-3 text-right">Akcja</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-slate-100 bg-white">
                 {transactionRules.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                    <td className="py-2.5 px-3 font-mono font-bold text-[#153a35]">{r.pattern}</td>
+                    <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{r.pattern}</td>
                     <td className="py-2.5 px-3">
                       <span className="inline-flex items-center gap-1 bg-[#e7f3f0] text-[#137566] px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
                         <span>{r.categoryIcon || "✨"}</span>
@@ -1363,12 +1363,12 @@ export function SettingsView({
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
       {(settingsTab === "all" || settingsTab === "automation") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-recurring-rules-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Automatyczne transakcje cykliczne</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczne transakcje cykliczne</h3>
         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
           Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
         </p>
 
-        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-slate-50 border border-gray-150 space-y-3 mb-5">
+        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 mb-5">
           <strong className="block text-xs font-bold text-slate-700">Utwórz nową transakcję cykliczną</strong>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -1466,13 +1466,13 @@ export function SettingsView({
         </form>
 
         {recurringRules.length === 0 ? (
-          <p className="text-xs text-gray-400 italic text-center py-4">Brak zdefiniowanych transakcji cyklicznych.</p>
+          <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych transakcji cyklicznych.</p>
         ) : (
-          <div className="border border-gray-150 rounded-xl overflow-hidden">
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs min-w-[600px]">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-gray-150 text-slate-500 font-bold">
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
                     <th className="py-2 px-3">Nazwa / Kategoria</th>
                     <th className="py-2 px-3">Częstotliwość</th>
                     <th className="py-2 px-3">Najbliższy termin</th>
@@ -1482,7 +1482,7 @@ export function SettingsView({
                     <th className="py-2 px-3 text-right">Akcja</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="divide-y divide-slate-100 bg-white">
                   {recurringRules.map((r) => {
                     const freqLabels = {
                       weekly: "Co tydzień",
@@ -1495,7 +1495,7 @@ export function SettingsView({
                       <tr key={r.id} className={`hover:bg-slate-50/50 transition ${!r.isActive ? "opacity-60" : ""}`}>
                         <td className="py-2.5 px-3">
                           <strong className="block text-slate-800">{r.name}</strong>
-                          <span className="text-[10px] text-gray-400 font-medium">
+                          <span className="text-[10px] text-slate-400 font-medium">
                             {r.categoryIcon} {r.category}
                           </span>
                         </td>
@@ -1518,7 +1518,7 @@ export function SettingsView({
                             className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold cursor-pointer border ${
                               r.isActive
                                 ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                : "bg-slate-100 border-slate-200 text-gray-400"
+                                : "bg-slate-100 border-slate-200 text-slate-400"
                             }`}
                           >
                             {r.isActive ? "Aktywny" : "Wstrzymany"}
@@ -1547,7 +1547,7 @@ export function SettingsView({
       {/* SECTION 4: SYNC & SECURITY */}
       {(settingsTab === "all" || settingsTab === "automation" || settingsTab === "backup") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-sync-security-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-4 flex items-center gap-2">
+        <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
           <Shield className="w-5 h-5 text-[#137566]" />
           Synchronizacja i bezpieczeństwo
         </h3>
@@ -1569,14 +1569,14 @@ export function SettingsView({
                     </div>
                   ) : (
                     <div className="mt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-slate-700">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
                         Tryb lokalny
                       </span>
                     </div>
                   )}
                   
                   <div className="mt-3 pt-3 border-t border-slate-200">
-                    <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Baza danych (Firestore)</h5>
+                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Baza danych (Firestore)</h5>
                     {isFirebaseConfigured ? (
                       googleUser ? (
                         <span className="text-[11px] font-medium text-emerald-600">Aktywna (Synchronizacja w czasie rzeczywistym)</span>
@@ -1584,7 +1584,7 @@ export function SettingsView({
                         <span className="text-[11px] font-medium text-amber-600">Gotowa (Wymaga logowania)</span>
                       )
                     ) : (
-                      <span className="text-[11px] font-medium text-gray-400">Brak konfiguracji</span>
+                      <span className="text-[11px] font-medium text-slate-400">Brak konfiguracji</span>
                     )}
                   </div>
                 </div>
@@ -1594,7 +1594,7 @@ export function SettingsView({
             {/* AI State */}
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
               <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-indigo-500 shrink-0" />
+                <Sparkles className="w-5 h-5 text-slate-500 shrink-0" />
                 <div className="w-full">
                   <h4 className="text-sm font-bold text-slate-800 flex justify-between items-center">
                     Asystent AI
@@ -1609,7 +1609,7 @@ export function SettingsView({
                   </h4>
                   <div className="mt-1">
                     {state.aiMode === "cloud" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
                         AI w chmurze
                       </span>
                     ) : state.aiMode === "local" ? (
@@ -1617,7 +1617,7 @@ export function SettingsView({
                         AI Lokalne
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
                         Brak AI
                       </span>
                     )}
@@ -1643,7 +1643,7 @@ export function SettingsView({
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
                         Niepołączony
                       </span>
                     )}
@@ -1688,7 +1688,7 @@ export function SettingsView({
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
                         Niepołączony
                       </span>
                     )}
@@ -1728,7 +1728,7 @@ export function SettingsView({
                         )}
                       </>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
                         Nieaktywne
                       </span>
                     )}
@@ -1753,7 +1753,7 @@ export function SettingsView({
       {/* SECTION 5: LOCAL FILES & RESET */}
       {(settingsTab === "all" || settingsTab === "backup") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-local-tools-card">
-        <h3 className="text-base font-bold text-[#153a35] mb-2">Lokalna kopia zapasowa i reset</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Lokalna kopia zapasowa i reset</h3>
         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
           Zarządzaj lokalnymi kopiami zapasowymi. Możesz zapisać plik JSON z całą bazą danych na dysku komputera/telefonu lub wczytać go bezpośrednio do pamięci urządzenia.
         </p>
@@ -1768,7 +1768,7 @@ export function SettingsView({
             className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 ${
               dragActive
                 ? "border-[#137566] bg-[#e7f3f0]"
-                : "border-slate-200 hover:border-gray-300 bg-slate-50"
+                : "border-slate-200 hover:border-slate-300 bg-slate-50"
             }`}
             onClick={() => document.getElementById("local-backup-file-input")?.click()}
           >
@@ -1779,9 +1779,9 @@ export function SettingsView({
               className="hidden"
               onChange={handleFileChange}
             />
-            <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-            <span className="text-xs font-black text-[#153a35] block">Wczytaj kopię z pliku JSON</span>
-            <p className="text-[10px] text-gray-400 mt-1">
+            <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+            <span className="text-xs font-black text-slate-900 block">Wczytaj kopię z pliku JSON</span>
+            <p className="text-[10px] text-slate-400 mt-1">
               Przeciągnij i upuść plik kopii zapasowej tutaj lub kliknij aby wyszukać na urządzeniu
             </p>
           </div>
@@ -1911,7 +1911,7 @@ export function SettingsView({
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-[#153a35] mb-2">Usuwanie profilu</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Usuwanie profilu</h3>
             <p className="text-sm text-slate-600 mb-6">
               Czy na pewno chcesz usunąć ten profil? <strong>Wszystkie transakcje, cele i płatności zostaną bezpowrotnie usunięte.</strong>
               Ta operacja jest nieodwracalna.
