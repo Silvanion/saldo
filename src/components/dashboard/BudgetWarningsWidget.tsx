@@ -20,18 +20,18 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
   const globalBudgetRatio = totalPlannedBudget > 0 ? (totalActualSpentInBudget / totalPlannedBudget) * 100 : 0;
   
   return (
-    <div className="bg-amber-50/40 p-5 rounded-2xl border border-amber-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-budget-box">
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-budget-box">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-0.5">Plan Budżetu</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Plan Budżetu</p>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-amber-900">Użycie budżetów</h3>
-            <span className="text-[9px] uppercase tracking-wider bg-amber-200/70 text-amber-800 px-1.5 py-0.5 rounded-md font-black">Ważne</span>
+            <h3 className="text-base font-bold text-slate-900">Użycie budżetów</h3>
+            <span className="text-[9px] uppercase tracking-wider bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-black">Ważne</span>
           </div>
         </div>
         <button
           onClick={() => onChangeView("budget")}
-          className="text-[10px] font-bold text-amber-700 bg-amber-200/50 px-2.5 py-1.5 rounded-lg hover:bg-amber-200 transition"
+          className="text-[10px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition"
         >
           Szczegóły
         </button>
@@ -39,10 +39,10 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
 
       <div className="mb-4">
         <div className="flex justify-between items-end mb-1">
-          <span className="text-xs font-bold text-gray-700">Całkowity budżet</span>
-          <span className="text-xs font-bold text-gray-900">{formatPln(totalActualSpentInBudget)} <span className="text-gray-400 font-normal">/ {formatPln(totalPlannedBudget)}</span></span>
+          <span className="text-xs font-bold text-slate-700">Całkowity budżet</span>
+          <span className="text-xs font-bold text-slate-900">{formatPln(totalActualSpentInBudget)} <span className="text-slate-400 font-normal">/ {formatPln(totalPlannedBudget)}</span></span>
         </div>
-        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
           <div 
             className={`h-full rounded-full ${globalBudgetRatio > 90 ? 'bg-rose-500' : globalBudgetRatio > 75 ? 'bg-amber-400' : 'bg-[#137566]'}`}
             style={{ width: `${Math.min(globalBudgetRatio, 100)}%` }}
@@ -52,10 +52,10 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
 
       <div className="flex-1 flex flex-col justify-start overflow-hidden">
         {budgetWarnings.length === 0 ? (
-          <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-full flex flex-col justify-center">
+          <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
             <span className="text-2xl mb-1 block opacity-50">💡</span>
-            <p className="text-xs text-gray-500 font-bold">Brak budżetów</p>
-            <p className="text-[10px] text-gray-400">Skonfiguruj budżety dla kategorii.</p>
+            <p className="text-xs text-slate-500 font-bold">Brak budżetów</p>
+            <p className="text-[10px] text-slate-400">Skonfiguruj budżety dla kategorii.</p>
           </div>
         ) : (
           <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
@@ -98,10 +98,10 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         )}
       </div>
 
-      <div className="pt-4 mt-4 border-t border-amber-200/50">
+      <div className="pt-4 mt-4 border-t border-slate-100">
         <button
           onClick={onOpenBudgetModal}
-          className="w-full py-2.5 bg-white hover:bg-amber-100/50 text-amber-700 text-xs font-bold rounded-xl transition-colors border border-amber-200/60 shadow-sm"
+          className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors border border-slate-200/60 shadow-sm"
         >
           Konfiguruj budżety
         </button>
