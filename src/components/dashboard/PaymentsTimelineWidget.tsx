@@ -9,6 +9,39 @@ interface PaymentsTimelineWidgetProps {
   onChangeView: (view: string) => void;
 }
 
+export type TimelineFilter = "all" | "week" | "month";
+
+export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter): Payment[] {
+  if (range === "all") return payments;
+
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  return payments.filter(p => {
+    if (!p.dueDate) return false;
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    const diffTime = pDate.getTime() - todayDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return false;
+
+    if (range === "week") {
+      return diffDays <= 6;
+    }
+    if (range === "month") {
+      return diffDays <= 29;
+    }
+    return true;
+  });
+}
+
+export function getActiveSummary(filteredPayments: Payment[]) {
+  return {
+    count: filteredPayments.length,
+    total: filteredPayments.reduce((acc, p) => acc + p.amount, 0)
+  };
+}
+
 export function groupPaymentsByTimeline(payments: Payment[]) {
   const overdue: Payment[] = [];
   const today: Payment[] = [];
@@ -55,9 +88,12 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   onChangeView,
 }: PaymentsTimelineWidgetProps) {
   const [viewMode, setViewMode] = useState<"compact" | "monthly">("compact");
+  const [range, setRange] = useState<TimelineFilter>("all");
   
-  const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(unpaidPayments);
-  const totalInTimeline = overdue.length + today.length + next7Days.length + next30Days.length + later.length;
+  const filteredPayments = filterPaymentsByRange(unpaidPayments, range);
+  const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(filteredPayments);
+  const activeSummary = getActiveSummary(filteredPayments);
+  const overdueCount = overdue.length;
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -115,7 +151,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     return (
       <div className="flex flex-col gap-4 pt-2">
         {overdue.length > 0 && (
-          <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 flex flex-col gap-3">
+          <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-700" />
               <h4 className="text-sm font-bold text-rose-900">Zaległe płatności ({overdue.length})</h4>
@@ -127,22 +163,22 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           </div>
         )}
 
-        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex flex-col gap-3">
+        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-indigo-700" />
-            <h4 className="text-sm font-bold text-indigo-900">Nadchodzące 30 dni</h4>
+            <PieChart className="w-4 h-4 text-slate-500" />
+            <h4 className="text-sm font-bold text-slate-700">Nadchodzące 30 dni</h4>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-indigo-700">Liczba pozycji:</span>
-            <span className="text-sm font-bold text-indigo-900">{count}</span>
+            <span className="text-xs text-slate-500">Liczba pozycji:</span>
+            <span className="text-sm font-bold text-slate-700">{count}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-indigo-700">Suma kwot:</span>
-            <span className="text-sm font-bold text-indigo-900">{formatPln(sum)}</span>
+            <span className="text-xs text-slate-500">Suma kwot:</span>
+            <span className="text-sm font-bold text-slate-700">{formatPln(sum)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-indigo-700">Najbliższy termin:</span>
-            <span className="text-sm font-bold text-indigo-900">{nearest}</span>
+            <span className="text-xs text-slate-500">Najbliższy termin:</span>
+            <span className="text-sm font-bold text-slate-700">{nearest}</span>
           </div>
         </div>
       </div>
@@ -177,7 +213,44 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
-        {totalInTimeline === 0 ? (
+        <div className="flex gap-1 mb-4 bg-slate-100/50 p-1 rounded-xl w-fit">
+          <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Wszystkie</button>
+          <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "week" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Ten tydzień</button>
+          <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "month" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>30 dni</button>
+        </div>
+
+        <div className="mb-5 bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
+          {activeSummary.count > 0 ? (
+            <div className="flex flex-col w-full gap-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-slate-500" />
+                  <span className="text-xs font-semibold text-slate-700">
+                    {range === "all" ? "Wszystkie pozycje" : range === "week" ? "W tym tygodniu" : "Ostatnie 30 dni"} ({activeSummary.count})
+                  </span>
+                </div>
+                <span className="text-sm font-bold text-slate-900">{formatPln(activeSummary.total)}</span>
+              </div>
+              {range === "all" && overdueCount > 0 && (
+                <div className="flex justify-start mt-0.5">
+                  <span className="text-[10px] text-rose-600 font-medium flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded">
+                    <AlertCircle className="w-3 h-3" />
+                    Zaległe: {overdueCount}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-slate-500">
+              <span className="text-lg">🏖️</span>
+              <span className="text-xs font-medium">
+                {range === "all" ? "Brak płatności" : range === "week" ? "Brak płatności w tym tygodniu" : "Brak płatności na najbliższe 30 dni"}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {activeSummary.count === 0 ? (
           <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
             <div className="text-2xl mb-1 opacity-50">🏖️</div>
             <p className="text-xs text-slate-500 font-medium">Brak nadchodzących zobowiązań.</p>
@@ -188,9 +261,9 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
             <div className="pt-2">
               {renderSection("Zaległe", overdue, <AlertCircle className="w-4 h-4" />, "text-rose-700", "bg-rose-100")}
               {renderSection("Dzisiaj", today, <Clock className="w-4 h-4" />, "text-amber-700", "bg-amber-100")}
-              {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-indigo-700", "bg-indigo-100")}
-              {renderSection("Następne 30 dni", next30Days, <Calendar className="w-4 h-4" />, "text-blue-700", "bg-blue-100")}
-              {renderSection("Później", later, <Calendar className="w-4 h-4" />, "text-gray-600", "bg-gray-100")}
+              {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-slate-700", "bg-slate-100")}
+              {renderSection("Następne 30 dni", next30Days, <Calendar className="w-4 h-4" />, "text-slate-600", "bg-slate-100/50")}
+              {renderSection("Później", later, <Calendar className="w-4 h-4" />, "text-slate-400", "bg-slate-50")}
             </div>
           ) : (
             renderMonthlyOverview()

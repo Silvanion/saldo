@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { groupPaymentsByTimeline } from './PaymentsTimelineWidget';
+import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary } from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
 describe('groupPaymentsByTimeline', () => {
@@ -56,5 +56,74 @@ describe('groupPaymentsByTimeline', () => {
     
     expect(result.next30Days[0].name).toBe('Later 2');
     expect(result.next30Days[1].name).toBe('Later 1');
+  });
+});
+
+describe('filterPaymentsByRange', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const payments: Payment[] = [
+    { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20' }, // overdue (-5)
+    { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25' }, // today (0)
+    { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30' }, // week (5)
+    { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09' }, // month (15)
+    { id: '5', name: 'Za 40 dni', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-03' }, // > 30 (40)
+    { id: '6', name: 'Brak daty', amount: 600, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '' }, // no date
+  ];
+
+  it('all range preserves all payments', () => {
+    const result = filterPaymentsByRange(payments, 'all');
+    expect(result.length).toBe(6);
+  });
+
+  it('week range filters overdue, > 6 days, and no-date payments', () => {
+    const result = filterPaymentsByRange(payments, 'week');
+    expect(result.length).toBe(2);
+    expect(result.map(p => p.id)).toEqual(['2', '3']);
+  });
+
+  it('month range filters overdue, > 29 days, and no-date payments', () => {
+    const result = filterPaymentsByRange(payments, 'month');
+    expect(result.length).toBe(3);
+    expect(result.map(p => p.id)).toEqual(['2', '3', '4']);
+  });
+});
+
+describe('getActiveSummary', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calculates count and total amount correctly from filtered list', () => {
+    const payments: Payment[] = [
+      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20' }, // overdue
+      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25' }, // week
+      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30' }, // week
+      { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09' }, // month
+      { id: '5', name: 'Brak daty', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '' }, // no date
+    ];
+    
+    // Simulate what the component does: filter then get active summary
+    const weekFiltered = filterPaymentsByRange(payments, 'week');
+    const summary = getActiveSummary(weekFiltered);
+    expect(summary.count).toBe(2);
+    expect(summary.total).toBe(500); // 200 + 300
+
+    const allFiltered = filterPaymentsByRange(payments, 'all');
+    const allSummary = getActiveSummary(allFiltered);
+    expect(allSummary.count).toBe(5);
+    expect(allSummary.total).toBe(1500);
   });
 });
