@@ -53,7 +53,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plan Kontroli Kosztów</p>
-          <h2 className="text-xl font-bold text-[#153a35]">Budżety miesięczne</h2>
+          <h2 className="text-xl font-bold text-slate-900">Budżety miesięczne</h2>
           <p className="text-xs text-slate-500 mt-1">
             Przeznaczono łącznie <strong>{formatPln(totalPlannedBudget)}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatPln(totalActualSpent)}</strong>.
           </p>
@@ -85,11 +85,11 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               <div>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-xl bg-[#e7f3f0] text-xl flex items-center justify-center">
+                    <span className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 text-xl flex items-center justify-center">
                       {iconByCategory[category] || "📂"}
                     </span>
                     <div>
-                      <h4 className="text-sm font-bold text-[#153a35]">{category}</h4>
+                      <h4 className="text-sm font-bold text-slate-900">{category}</h4>
                       <p className="text-[10px] text-slate-400">Wykorzystano {percent}% limitu</p>
                     </div>
                   </div>
