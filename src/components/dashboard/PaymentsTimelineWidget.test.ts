@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds } from './PaymentsTimelineWidget';
+import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds, getGlobalOverdueCount } from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
 describe('groupPaymentsByTimeline', () => {
@@ -149,5 +149,25 @@ describe('getNearestHighlightedPaymentIds', () => {
   it('returns empty set if both today and next7Days are empty', () => {
     const result = getNearestHighlightedPaymentIds([], []);
     expect(result.size).toBe(0);
+  });
+});
+
+describe('getGlobalOverdueCount', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  it('counts only payments with dueDate in the past', () => {
+    const payments: Payment[] = [
+      { id: '1', dueDate: '2026-07-20' }, // overdue
+      { id: '2', dueDate: '2026-07-24' }, // overdue
+      { id: '3', dueDate: '2026-07-25' }, // today
+      { id: '4', dueDate: '2026-07-30' }, // future
+      { id: '5', dueDate: '' }, // no date
+    ] as Payment[];
+    expect(getGlobalOverdueCount(payments)).toBe(2);
   });
 });

@@ -80,6 +80,18 @@ export function getNearestHighlightedPaymentIds(today: Payment[], next7Days: Pay
   return highlighted;
 }
 
+export function getGlobalOverdueCount(payments: Payment[]): number {
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const todayTime = todayDate.getTime();
+
+  return payments.reduce((acc, p) => {
+    if (!p.dueDate) return acc;
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    return pDate.getTime() < todayTime ? acc + 1 : acc;
+  }, 0);
+}
+
 export function groupPaymentsByTimeline(payments: Payment[]) {
   const overdue: Payment[] = [];
   const today: Payment[] = [];
@@ -134,6 +146,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const overdueCount = overdue.length;
   const texts = getTimelineTexts(range);
   const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
+  const globalOverdueCount = getGlobalOverdueCount(unpaidPayments);
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -240,6 +253,12 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Oś Czasu</p>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-slate-900">Timeline Płatności</h3>
+            {globalOverdueCount > 0 && (
+              <span className="text-[10px] text-rose-600 font-medium flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100/50">
+                <AlertCircle className="w-3 h-3" />
+                Zaległe: {globalOverdueCount}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
