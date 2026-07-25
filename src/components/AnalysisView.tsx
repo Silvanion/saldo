@@ -208,25 +208,25 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Advice and alerts */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
             <h3 className="text-base font-bold text-[#153a35]">Miesięczny przegląd (bez AI)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Przychody</p>
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Przychody</p>
                 <p className="text-sm font-bold text-emerald-600">{formatPln(monthlyDigest.totalIncome)}</p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Wydatki</p>
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Wydatki</p>
                 <p className="text-sm font-bold text-rose-600">{formatPln(monthlyDigest.totalExpenses)}</p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Bilans</p>
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Bilans</p>
                 <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
                   {formatPln(monthlyDigest.balance)}
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Oszczędności</p>
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Oszczędności</p>
                 <p className="text-sm font-bold text-slate-700">
                   {monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}
                 </p>
@@ -265,13 +265,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         </div>
 
         {/* Breakdown box */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-[#153a35]">Struktura wydatków</h3>
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-800 transition bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200"
+                className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-800 transition bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200"
               >
                 <Settings2 className="w-3.5 h-3.5" />
                 Dostosuj
@@ -288,7 +288,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                         : expenseTxs.some(t => t.category === cat && t.amount > 0);
                       
                       return (
-                        <label key={cat} className="flex items-center gap-2.5 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                        <label key={cat} className="flex items-center gap-2.5 p-2 hover:bg-slate-50 rounded-xl cursor-pointer">
                           <input 
                             type="checkbox" 
                             className="hidden"
@@ -314,12 +314,12 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               categorySummary.map((cat) => (
                 <div key={cat.name} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-700 font-semibold">{cat.name}</span>
-                    <span className="text-gray-500">
+                    <span className="text-slate-700 font-bold">{cat.name}</span>
+                    <span className="text-slate-500">
                       {formatPln(cat.spent)} ({cat.pctOfExpense}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${cat.pctOfExpense}%` }}
                       className="bg-[#137566] h-full rounded-full"
@@ -331,13 +331,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </div>
 
           {totalIncome > 0 && (
-            <div className="border-t border-gray-100 mt-5 pt-4">
+            <div className="border-t border-slate-100 mt-5 pt-4">
               <h4 className="text-xs font-bold text-[#153a35] mb-2">Stopa oszczędności</h4>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full border-4 border-[#e7f3f0] flex items-center justify-center font-bold text-[#137566] text-sm flex-shrink-0">
                   {savingsRate}%
                 </div>
-                <p className="text-[11px] text-gray-500 leading-relaxed">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
                   Zabezpieczasz <strong>{formatPln(savings)}</strong> z miesięcznych przychodów rzędu <strong>{formatPln(totalIncome)}</strong>.
                 </p>
               </div>

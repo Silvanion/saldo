@@ -8,25 +8,25 @@ interface CashflowChartWidgetProps {
 
 export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData }: CashflowChartWidgetProps) {
   return (
-    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between h-full" id="widget-content-chart-box">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-chart-box">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Przepływy</p>
-          <h3 className="text-base font-bold text-gray-800">Ostatnie 6 miesięcy</h3>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Przepływy</p>
+          <h3 className="text-base font-bold text-slate-900">Ostatnie 6 miesięcy</h3>
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-[#137566]"></div>
-            <span className="text-[10px] text-gray-500 font-medium">Przych.</span>
+            <span className="text-[10px] text-slate-500 font-medium">Przych.</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-[#d55e50]"></div>
-            <span className="text-[10px] text-gray-500 font-medium">Wyd.</span>
+            <span className="text-[10px] text-slate-500 font-medium">Wyd.</span>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-end justify-between gap-1 sm:gap-2 pt-4 border-b border-gray-100 pb-2 h-32">
+      <div className="flex-1 flex items-end justify-between gap-1 sm:gap-2 pt-4 border-b border-slate-100 pb-2 h-32">
         {chartData.map((d, i) => (
           <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
             <div className="w-full flex items-end justify-center gap-0.5 sm:gap-1 h-full relative">
@@ -43,7 +43,7 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
                 style={{ height: `${d.expenseHeight}%` }}
               ></div>
             </div>
-            <span className={`text-[9px] mt-2 uppercase tracking-widest ${d.isCurrent ? 'font-black text-[#153a35]' : 'font-medium text-gray-400'}`}>
+            <span className={`text-[9px] mt-2 uppercase tracking-widest ${d.isCurrent ? 'font-black text-[#153a35]' : 'font-medium text-slate-400'}`}>
               {d.label}
             </span>
           </div>

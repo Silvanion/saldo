@@ -46,11 +46,11 @@ export function DashboardView({
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
 
   const DEFAULT_WIDGETS: Widget[] = [
-    { id: "stats", name: "Podsumowanie finansowe (Przychody, Wydatki, Bilans)", visible: true, icon: "📊" },
-    { id: "chart", name: "Wykres przepływów (6-miesięczny)", visible: true, icon: "📈" },
     { id: "bills", name: "Najbliższe opłaty i rachunki", visible: true, icon: "📅" },
     { id: "budget", name: "Plan budżetu i kategorie", visible: true, icon: "🎯" },
     { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "⏳" },
+    { id: "stats", name: "Podsumowanie finansowe (Przychody, Wydatki, Bilans)", visible: true, icon: "📊" },
+    { id: "chart", name: "Wykres przepływów (6-miesięczny)", visible: true, icon: "📈" },
     { id: "activity", name: "Ostatnie transakcje (Aktywność)", visible: true, icon: "⏱️" },
   ];
 

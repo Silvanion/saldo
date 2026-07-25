@@ -70,7 +70,7 @@ export function AppShell({
 
       {/* SIDEBAR CONTAINER */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white border-r border-gray-200 p-6 transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white border-r border-slate-200 p-6 transition-transform lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         id="sidebar-panel"
@@ -83,8 +83,8 @@ export function AppShell({
             </span>
             <span>saldo</span>
           </div>
-          <button className="lg:hidden p-1 rounded-lg hover:bg-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-            <X className="w-5 h-5 text-gray-500" />
+          <button className="lg:hidden p-1 rounded-xl hover:bg-slate-100" onClick={() => setIsMobileMenuOpen(false)}>
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
@@ -96,8 +96,8 @@ export function AppShell({
               setActiveView("dashboard");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "dashboard" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "dashboard" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-dashboard"
           >
@@ -110,8 +110,8 @@ export function AppShell({
               setActiveView("transactions");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "transactions" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "transactions" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-transactions"
           >
@@ -124,8 +124,8 @@ export function AppShell({
               setActiveView("payments");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "payments" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "payments" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-payments"
           >
@@ -145,8 +145,8 @@ export function AppShell({
               setActiveView("budget");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "budget" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "budget" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-budget"
           >
@@ -159,8 +159,8 @@ export function AppShell({
               setActiveView("goals");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "goals" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "goals" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-goals"
           >
@@ -173,8 +173,8 @@ export function AppShell({
               setActiveView("analysis");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "analysis" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "analysis" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-analysis"
           >
@@ -184,14 +184,14 @@ export function AppShell({
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-gray-150 pt-4 mt-auto">
+        <div className="border-t border-slate-150 pt-4 mt-auto">
           <button
             onClick={() => {
               setActiveView("help");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeView === "help" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+              activeView === "help" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-help"
           >
@@ -204,8 +204,8 @@ export function AppShell({
               setActiveView("settings");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition ${
-              activeView === "settings" ? "bg-[#e7f3f0] text-[#137566]" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
+              activeView === "settings" ? "bg-[#e7f3f0] text-[#137566]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
             id="nav-settings"
           >
@@ -218,24 +218,24 @@ export function AppShell({
               openModal("changelog");
               setIsMobileMenuOpen(false);
             }}
-            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-gray-50 border border-gray-150 rounded-xl hover:bg-gray-100 transition group"
+            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100 transition group"
           >
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <span className="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
-              <span className="text-xs font-bold text-gray-700 group-hover:text-gray-900">Co nowego?</span>
+              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900">Co nowego?</span>
             </div>
           </button>
 
           {activeProfile && (
-            <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-150 rounded-2xl">
+            <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-150 rounded-2xl">
               <span className="w-8 h-8 rounded-full bg-[#d7e8e3] text-[#137566] text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
               <div className="min-w-0 text-left">
-                <p className="text-xs font-black text-gray-800 truncate" id="profile-tag-name">{activeProfile.name}</p>
-                <span className="text-[10px] text-gray-400 block truncate">
+                <p className="text-xs font-black text-slate-800 truncate" id="profile-tag-name">{activeProfile.name}</p>
+                <span className="text-[10px] text-slate-400 block truncate">
                   {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
                 </span>
               </div>
@@ -258,7 +258,7 @@ export function AppShell({
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setIsDemoMode(false)}
-                className="flex-1 sm:flex-none bg-[#137566] text-white font-bold py-1.5 px-4 rounded-lg text-xs hover:bg-[#0f5d51] transition shadow-sm whitespace-nowrap"
+                className="flex-1 sm:flex-none bg-[#137566] text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm whitespace-nowrap"
               >
                 Zaloguj się z Google
               </button>
@@ -274,11 +274,11 @@ export function AppShell({
         )}
 
         {/* TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-white border-b border-gray-200 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
+        <header className="flex items-center justify-between bg-white border-b border-slate-200 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-lg border border-gray-200 hover:bg-gray-100 lg:hidden"
+              className="p-1 rounded-xl border border-slate-200 hover:bg-slate-100 lg:hidden"
               id="btn-open-mobile-menu"
             >
               <Menu className="w-5 h-5 text-[#153a35]" />
@@ -323,7 +323,7 @@ export function AppShell({
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
-                className="bg-[#137566] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#0f5d51] transition shadow-md text-xs"
+                className="bg-[#137566] text-white font-bold py-2 px-4 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-xs"
                 id="btn-quick-add-tx"
               >
                 ＋ Dodaj wpis
@@ -350,14 +350,14 @@ export function AppShell({
               )}
               <span>{isOnline ? "System Online" : "System Offline"}</span>
             </span>
-            <span className="text-gray-300 dark:text-gray-700">|</span>
-            <span className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-400">
+            <span className="text-slate-300 dark:text-slate-700">|</span>
+            <span className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span className="hidden xs:inline">Bezpieczeństwo:</span>
               <span className="font-medium">Ochrona aktywna</span>
             </span>
-            <span className="text-gray-300 dark:text-gray-700 hidden sm:inline">|</span>
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-gray-600 dark:text-gray-400">
+            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
               <Database className="w-3.5 h-3.5 text-[#137566] dark:text-[#209f8c]" />
               <span>Autozapis</span>
             </span>
@@ -376,7 +376,7 @@ export function AppShell({
           <div className="bg-rose-50 border-b border-rose-200 px-6 py-3 flex items-center justify-between text-rose-800 text-xs animate-fade-in shrink-0" id="api-error-banner">
             <div className="flex items-center gap-2">
               <span className="text-sm">⚠️</span>
-              <span className="font-semibold">{apiError}</span>
+              <span className="font-bold">{apiError}</span>
             </div>
             <button onClick={() => setApiError(null)} className="text-rose-500 hover:text-rose-700 font-bold text-sm shrink-0 leading-none">
               &times;
@@ -398,7 +398,7 @@ export function AppShell({
           title="Porozmawiaj z Asystentem AI"
         >
           <Sparkles className="w-6 h-6 animate-pulse" />
-          <span className="absolute -top-10 right-0 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
+          <span className="absolute -top-10 right-0 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
         </button>
       )}
 

@@ -25,7 +25,7 @@ export function SecurityInfoModal() {
       >
         <button
           onClick={() => toggleSecurityInfo(false)}
-          className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600 transition"
+          className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 transition"
           id="close-security-modal"
         >
           &times;
@@ -37,7 +37,7 @@ export function SecurityInfoModal() {
           </div>
           <div>
             <h2 className="text-xl font-extrabold text-slate-800">Szczegóły Ochrony</h2>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokalne Saldo Security</p>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lokalne Saldo Security</p>
           </div>
         </div>
 

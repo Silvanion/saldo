@@ -58,17 +58,17 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   };
 
   let statusText = "Wszystko rozliczone z historii";
-  let statusColor = "text-gray-600";
-  let bgColor = "bg-gray-50 border-gray-200";
+  let statusColor = "text-slate-600";
+  let bgColor = "bg-slate-50 border-slate-200/60";
 
   if (historyNet > 0) {
     statusText = `${partnerName} jest Ci winien: ${formatPln(historyNet)}`;
     statusColor = "text-emerald-700";
-    bgColor = "bg-emerald-50 border-emerald-200";
+    bgColor = "bg-emerald-50/70 border-emerald-200/60";
   } else if (historyNet < 0) {
     statusText = `Jesteś winien ${partnerName}: ${formatPln(Math.abs(historyNet))}`;
     statusColor = "text-rose-700";
-    bgColor = "bg-rose-50 border-rose-200";
+    bgColor = "bg-rose-50/70 border-rose-200/60";
   }
 
   let upcomingText = "";
@@ -81,14 +81,14 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   const settlementsList: SettlementEntry[] = profile.settlements || [];
 
   return (
-    <div className={`p-4 rounded-xl border ${bgColor} shadow-sm mb-6`} id="settlement-widget">
+    <div className={`p-5 rounded-2xl border ${bgColor} shadow-sm mb-6`} id="settlement-widget">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="group relative w-fit mb-1">
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider cursor-help border-b border-dashed border-gray-400">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-help border-b border-dashed border-slate-400">
               Do rozliczenia (Historia)
             </p>
-            <div className="hidden group-hover:block absolute z-10 bottom-full left-0 mb-2 w-64 bg-gray-800 text-white text-[10px] p-2 rounded shadow-lg normal-case font-normal tracking-normal">
+            <div className="hidden group-hover:block absolute z-10 bottom-full left-0 mb-2 w-56 bg-slate-800 text-white text-[10px] p-2 rounded-xl shadow-lg normal-case tracking-normal font-medium">
               Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych.
             </div>
           </div>
@@ -104,10 +104,9 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
           {onAddSettlement && (
             <button
               onClick={handleOpenModal}
-              id="settlement-mark-paid-btn"
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+              id="open-settlement-modal-btn"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
             >
-              <CheckCircle2 className="w-4 h-4" />
               Rozlicz
             </button>
           )}
@@ -116,9 +115,9 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={() => setShowHistory(!showHistory)}
               id="settlement-history-toggle-btn"
-              className="px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
-              <History className="w-4 h-4 text-gray-500" />
+              <History className="w-4 h-4 text-slate-500" />
               Historia ({settlementsList.length})
             </button>
           )}

@@ -62,7 +62,7 @@ export function PWABadge() {
       
       {offlineReady && !needRefresh && !isOffline && (
         <div className="bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-xl shadow-lg border border-emerald-100 flex items-center justify-between gap-2 animate-in slide-in-from-bottom-2 duration-300">
-          <span className="text-xs font-semibold">Aplikacja gotowa do pracy offline</span>
+          <span className="text-xs font-bold">Aplikacja gotowa do pracy offline</span>
           <button onClick={() => setOfflineReady(false)} className="text-emerald-600 hover:text-emerald-800 font-bold text-xs p-1">✕</button>
         </div>
       )}

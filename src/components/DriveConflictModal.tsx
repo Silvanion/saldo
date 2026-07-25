@@ -49,7 +49,7 @@ export function DriveConflictModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -57,79 +57,79 @@ export function DriveConflictModal({
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Wykryto konflikt wersji (Dysk Google)</h3>
-              <p className="text-xs text-gray-500">
+              <h3 className="text-lg font-bold text-slate-900">Wykryto konflikt wersji (Dysk Google)</h3>
+              <p className="text-xs text-slate-500">
                 Lokalna baza i plik w chmurze różnią się od ostatniej synchronizacji ({formatDate(lastSyncedAt)}).
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+            className="p-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Informational warning text */}
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-600">
           Wykryto nowsze modyfikacje po obu stronach. Aby uniknąć utraty danych, wybierz, którą wersję chcesz zachować:
         </p>
 
         {/* Comparison Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Local State Card */}
-          <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 flex flex-col gap-2">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-              <span className="font-semibold text-sm text-gray-800">Wersja lokalna</span>
+          <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="font-bold text-sm text-slate-800">Wersja lokalna</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                 To urządzenie
               </span>
             </div>
-            <div className="text-xs text-gray-600 space-y-1 mt-1">
+            <div className="text-xs text-slate-600 space-y-1 mt-1">
               <p>
-                <span className="text-gray-400">Ostatnia zmiana:</span>{" "}
-                <strong className="text-gray-800">{formatDate(localState.updatedAt)}</strong>
+                <span className="text-slate-400">Ostatnia zmiana:</span>{" "}
+                <strong className="text-slate-800">{formatDate(localState.updatedAt)}</strong>
               </p>
               <p>
-                <span className="text-gray-400">Przez:</span>{" "}
-                <span className="text-gray-700">{localState.lastModifiedBy || "użytkownik lokalny"}</span>
+                <span className="text-slate-400">Przez:</span>{" "}
+                <span className="text-slate-700">{localState.lastModifiedBy || "użytkownik lokalny"}</span>
               </p>
               <p>
-                <span className="text-gray-400">Liczba profili:</span>{" "}
-                <strong className="text-gray-800">{localState.profiles?.length || 0}</strong>
+                <span className="text-slate-400">Liczba profili:</span>{" "}
+                <strong className="text-slate-800">{localState.profiles?.length || 0}</strong>
               </p>
               <p>
-                <span className="text-gray-400">Łączna liczba transakcji:</span>{" "}
-                <strong className="text-gray-800">{countTransactions(localState)}</strong>
+                <span className="text-slate-400">Łączna liczba transakcji:</span>{" "}
+                <strong className="text-slate-800">{countTransactions(localState)}</strong>
               </p>
             </div>
           </div>
 
           {/* Remote State Card */}
-          <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 flex flex-col gap-2">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-              <span className="font-semibold text-sm text-gray-800">Wersja w chmurze</span>
+          <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <span className="font-bold text-sm text-slate-800">Wersja w chmurze</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
                 Dysk Google
               </span>
             </div>
-            <div className="text-xs text-gray-600 space-y-1 mt-1">
+            <div className="text-xs text-slate-600 space-y-1 mt-1">
               <p>
-                <span className="text-gray-400">Ostatnia zmiana:</span>{" "}
-                <strong className="text-gray-800">{formatDate(remoteState.updatedAt)}</strong>
+                <span className="text-slate-400">Ostatnia zmiana:</span>{" "}
+                <strong className="text-slate-800">{formatDate(remoteState.updatedAt)}</strong>
               </p>
               <p>
-                <span className="text-gray-400">Przez:</span>{" "}
-                <span className="text-gray-700">{remoteState.lastModifiedBy || "Dysk Google"}</span>
+                <span className="text-slate-400">Przez:</span>{" "}
+                <span className="text-slate-700">{remoteState.lastModifiedBy || "Dysk Google"}</span>
               </p>
               <p>
-                <span className="text-gray-400">Liczba profili:</span>{" "}
-                <strong className="text-gray-800">{remoteState.profiles?.length || 0}</strong>
+                <span className="text-slate-400">Liczba profili:</span>{" "}
+                <strong className="text-slate-800">{remoteState.profiles?.length || 0}</strong>
               </p>
               <p>
-                <span className="text-gray-400">Łączna liczba transakcji:</span>{" "}
-                <strong className="text-gray-800">{countTransactions(remoteState)}</strong>
+                <span className="text-slate-400">Łączna liczba transakcji:</span>{" "}
+                <strong className="text-slate-800">{countTransactions(remoteState)}</strong>
               </p>
             </div>
           </div>
@@ -151,24 +151,24 @@ export function DriveConflictModal({
         </div>
 
         {/* Actions (3 Polish buttons) */}
-        <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t border-gray-100 justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t border-slate-100 justify-end">
           <button
             onClick={() => onResolve("cancel")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-100 transition flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition flex items-center justify-center gap-1.5"
           >
             <X className="w-3.5 h-3.5" />
             Anuluj
           </button>
           <button
             onClick={() => onResolve("download_remote")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-xs hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             Pobierz i nadpisz lokalne
           </button>
           <button
             onClick={() => onResolve("upload_local")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#137566] text-white font-semibold text-xs hover:bg-[#0f5c50] transition flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#137566] text-white font-bold text-xs hover:bg-[#0f5c50] transition flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Upload className="w-3.5 h-3.5" />
             Wyślij i nadpisz remote

@@ -55,7 +55,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
@@ -64,7 +64,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             </div>
           </div>
           <h1 className="text-[34px] font-black text-[#153a35] tracking-tight">saldo</h1>
-          <p className="text-gray-500">Twój osobisty asystent finansowy</p>
+          <p className="text-slate-500">Twój osobisty asystent finansowy</p>
         </div>
 
         {error && !isDomainError && (
@@ -78,7 +78,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold mb-1">Brak autoryzacji domeny</p>
+                <p className="font-bold mb-1">Brak autoryzacji domeny</p>
                 <p className="mb-2">
                   Domena <strong>{window.location.hostname}</strong> nie jest dopisana do listy autoryzowanych domen w Firebase.
                 </p>
@@ -103,31 +103,31 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <div className="relative">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
                 placeholder="twoj@email.com"
               />
-              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hasło</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Hasło</label>
             <div className="relative">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
                 placeholder="••••••••"
               />
-              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
             </div>
           </div>
           <button
@@ -151,10 +151,10 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200"></div>
+            <div className="w-full border-t border-slate-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">lub</span>
+            <span className="px-2 bg-white text-slate-500">lub</span>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-sm"
+            className="w-full bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-50 transition flex items-center justify-center gap-2 shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

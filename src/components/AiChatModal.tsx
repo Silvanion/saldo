@@ -118,7 +118,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
           {(state.aiMode || "none") === "none" && (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-2 mb-2">
               <p className="font-bold">Tryb "Brak AI" jest obecnie aktywny</p>
@@ -136,7 +136,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
                 <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
                   msg.sender === "user" 
                     ? "bg-[#153a35] text-white rounded-tr-sm" 
-                    : "bg-white text-gray-800 border border-gray-150 rounded-tl-sm"
+                    : "bg-white text-slate-800 border border-slate-150 rounded-tl-sm"
                 }`}>
                   {msg.text}
                 </div>
@@ -149,9 +149,9 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
                 <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#137566] flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="px-5 py-4 rounded-2xl bg-white border border-gray-150 rounded-tl-sm flex items-center gap-2 shadow-sm">
+                <div className="px-5 py-4 rounded-2xl bg-white border border-slate-150 rounded-tl-sm flex items-center gap-2 shadow-sm">
                   <Loader2 className="w-4 h-4 animate-spin text-[#137566]" />
-                  <span className="text-xs text-gray-500 font-medium">Asystent pisze...</span>
+                  <span className="text-xs text-slate-500 font-medium">Asystent pisze...</span>
                 </div>
               </div>
             </div>
@@ -160,26 +160,26 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSend} className="p-4 bg-white border-t border-gray-150 shrink-0">
+        <form onSubmit={handleSend} className="p-4 bg-white border-t border-slate-150 shrink-0">
           <div className="relative flex items-center">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Zapytaj o swój budżet, inwestycje..."
-              className="w-full pl-4 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition text-sm"
+              className="w-full pl-4 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition text-sm"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="absolute right-2 p-2 bg-[#137566] text-white rounded-lg hover:bg-[#1a9c88] transition disabled:opacity-50 disabled:hover:bg-[#137566]"
+              className="absolute right-2 p-2 bg-[#137566] text-white rounded-xl hover:bg-[#1a9c88] transition disabled:opacity-50 disabled:hover:bg-[#137566]"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
           <div className="mt-2 text-center">
-            <span className="text-[10px] text-gray-400">Asystent ma dostęp do historii Twoich transakcji i celów, aby lepiej doradzać.</span>
+            <span className="text-[10px] text-slate-400">Asystent ma dostęp do historii Twoich transakcji i celów, aby lepiej doradzać.</span>
           </div>
         </form>
 

@@ -47,8 +47,8 @@ function StepHighlight({ step, label, description }: StepHighlightProps) {
         {step}
       </div>
       <div>
-        <h5 className="font-semibold text-gray-800 text-sm">{label}</h5>
-        <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{description}</p>
+        <h5 className="font-bold text-slate-800 text-sm">{label}</h5>
+        <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ interface MockScreenShotProps {
 
 function MockScreenShot({ title, badge, children, steps }: MockScreenShotProps) {
   return (
-    <div className="my-5 border border-gray-200 rounded-2xl overflow-hidden bg-slate-900 shadow-lg text-white">
+    <div className="my-5 border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-lg text-white">
       {/* Mock Window Header */}
       <div className="bg-slate-800/90 px-4 py-2.5 border-b border-slate-700/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-gray-200/80 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm hover:shadow-md transition-all">
+    <div className="border border-slate-200/80 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm hover:shadow-md transition-all">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-50/80 transition-colors"
@@ -119,22 +119,22 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-gray-800 text-base sm:text-lg">{title}</span>
+              <span className="font-bold text-slate-800 text-base sm:text-lg">{title}</span>
               {badge && (
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-[#137566] px-2 py-0.5 rounded-full">
                   {badge}
                 </span>
               )}
             </div>
-            <span className="text-xs text-gray-400 font-medium">{category}</span>
+            <span className="text-xs text-slate-400 font-medium">{category}</span>
           </div>
         </div>
-        <div className="text-gray-400 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+        <div className="text-slate-400 p-1 rounded-xl hover:bg-slate-100 transition-colors">
           {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
       {isOpen && (
-        <div className="p-5 pt-2 text-gray-600 border-t border-gray-100 leading-relaxed bg-[#fcfdfd]">
+        <div className="p-5 pt-2 text-slate-600 border-t border-slate-100 leading-relaxed bg-[#fcfdfd]">
           {children}
         </div>
       )}
@@ -185,7 +185,7 @@ export function HelpView() {
       {/* Header Banner */}
       <div className="bg-gradient-to-br from-[#137566] via-[#0f5c50] to-[#0a4239] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 border border-white/10">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-200 border border-white/10">
             <Sparkles className="w-3.5 h-3.5" /> Complete User Guide & Knowledge Base
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight flex items-center gap-3">
@@ -199,13 +199,13 @@ export function HelpView() {
           {/* Interactive Search Bar */}
           <div className="pt-2 max-w-xl">
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe to spend', 'IKE', 'PIN')..."
-                className="w-full pl-11 pr-4 py-3 bg-white text-gray-900 placeholder-gray-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full pl-11 pr-4 py-3 bg-white text-slate-900 placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
           </div>
@@ -222,10 +222,10 @@ export function HelpView() {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               selectedCategory === cat
                 ? "bg-[#137566] text-white shadow-sm scale-105"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
             }`}
           >
             {cat}
@@ -240,8 +240,8 @@ export function HelpView() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-bold text-gray-800 text-sm">Prywatność i Szyfrowanie</h4>
-            <p className="text-xs text-gray-600 mt-1">Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z kodem PIN.</p>
+            <h4 className="font-bold text-slate-800 text-sm">Prywatność i Szyfrowanie</h4>
+            <p className="text-xs text-slate-600 mt-1">Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z kodem PIN.</p>
           </div>
         </div>
 
@@ -250,8 +250,8 @@ export function HelpView() {
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-bold text-gray-800 text-sm">Wskaźnik Bezpieczeństwa</h4>
-            <p className="text-xs text-gray-600 mt-1">Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.</p>
+            <h4 className="font-bold text-slate-800 text-sm">Wskaźnik Bezpieczeństwa</h4>
+            <p className="text-xs text-slate-600 mt-1">Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.</p>
           </div>
         </div>
 
@@ -260,8 +260,8 @@ export function HelpView() {
             <FileSpreadsheet className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-bold text-gray-800 text-sm">Bezpieczny Import CSV</h4>
-            <p className="text-xs text-gray-600 mt-1">Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).</p>
+            <h4 className="font-bold text-slate-800 text-sm">Bezpieczny Import CSV</h4>
+            <p className="text-xs text-slate-600 mt-1">Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).</p>
           </div>
         </div>
       </div>
@@ -278,7 +278,7 @@ export function HelpView() {
             badge="Instrukcja wizualna"
             defaultOpen={true}
           >
-            <p className="mb-4 text-sm text-gray-700 leading-relaxed">
+            <p className="mb-4 text-sm text-slate-700 leading-relaxed">
               Witamy w Saldo! Aplikacja została zaprojektowana z myślą o maksymalnej przejrzystości i ochronie Twoich środków. Poniżej znajduje się wizualna instrukcja wykonania najważniejszych pierwszych kroków.
             </p>
 
@@ -319,8 +319,8 @@ export function HelpView() {
               </div>
             </MockScreenShot>
 
-            <div className="space-y-3 text-sm text-gray-700">
-              <h4 className="font-bold text-gray-900 text-base flex items-center gap-2">
+            <div className="space-y-3 text-sm text-slate-700">
+              <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
               </h4>
               <ol className="list-decimal pl-5 space-y-2">
@@ -340,34 +340,34 @@ export function HelpView() {
             title="Pulpit główny i wskaźniki finansowe (Safe-to-Spend, Prognoza)"
             icon={<LayoutDashboard className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Pulpit główny (Dashboard) to Twój kokpit finansowy. Łączy w sobie wszystkie dane z całego profilu i w czasie rzeczywistym przelicza kluczowe wskaźniki matematyczne.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
-                <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-2xs">
+                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
                   <h4 className="font-bold text-[#137566] flex items-center gap-2 mb-1">
                     <ShieldCheck className="w-4 h-4" /> Safe-to-Spend (Bezpieczny limit)
                   </h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">
-                    Formuła: <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-800">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Formuła: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
                     Chroni Cię przed wydaniem pieniędzy, które za kilka dni będą potrzebne na opłacenie raty kredytu lub rachunku za prąd.
                   </p>
                 </div>
 
-                <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-2xs">
+                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
                   <h4 className="font-bold text-teal-700 flex items-center gap-2 mb-1">
                     <LineChart className="w-4 h-4" /> Prognoza na koniec miesiąca
                   </h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     Analizuje średnie dzienne tempo wydatków w bieżącym miesiącu i prognozuje szacunkowe saldo na 30/31 dzień. Ostrzega, gdy przy obecnym tempie grozi Ci deficyt.
                   </p>
                 </div>
               </div>
 
-              <h4 className="font-bold text-gray-900 mt-4">Zależności z innymi modułami:</h4>
-              <ul className="list-disc pl-5 space-y-1.5 text-xs text-gray-600">
+              <h4 className="font-bold text-slate-900 mt-4">Zależności z innymi modułami:</h4>
+              <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
                 <li>Dodanie nowej płatności w zakładce <strong>Płatności</strong> natychmiast pomniejsza <em>Safe-to-Spend</em>.</li>
                 <li>Oznaczenie płatności jako "Opłacono" zamienia ją w transakcję i aktualizuje bilans przychodów/wydatków.</li>
                 <li>Wpłata na <strong>Cel oszczędnościowy</strong> blokuje środki i wyklucza je z bieżącego portfela.</li>
@@ -385,7 +385,7 @@ export function HelpView() {
             icon={<History className="w-5 h-5" />}
             badge="Deduplikacja & NaN protection"
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Moduł Transakcji odpowiada za śledzenie każdego przepływu pieniężnego. Oferuje inteligentne dopasowywanie kategorii, obsługę tagów oraz wbudowany bezpłatny importer wyciągów z banku.
               </p>
@@ -405,7 +405,7 @@ export function HelpView() {
                     <span className="font-bold text-emerald-400">Wyciąg_Bankowy_2026.csv</span>
                     <span className="text-slate-500">Wyryto 12 transakcji</span>
                   </div>
-                  <div className="bg-slate-950 p-3 rounded-lg font-mono text-[11px] text-slate-400 border border-slate-800 space-y-1">
+                  <div className="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-slate-400 border border-slate-800 space-y-1">
                     <div className="text-emerald-400">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 PLN (Zapisano)</div>
                     <div className="text-amber-400">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 PLN (Pominięto — Duplikat)</div>
                     <div className="text-red-400">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
@@ -413,8 +413,8 @@ export function HelpView() {
                 </div>
               </MockScreenShot>
 
-              <h4 className="font-bold text-gray-900">Mechanizm ochrony danych w imporcie CSV:</h4>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-gray-600">
+              <h4 className="font-bold text-slate-900">Mechanizm ochrony danych w imporcie CSV:</h4>
+              <ul className="list-disc pl-5 space-y-2 text-xs text-slate-600">
                 <li><strong>Ochrona przed podwójnym importem (Deduplikacja):</strong> Gdy importujesz ten sam plik CSV drugi raz, Saldo rozpoznaje istniejące Identyfikatory transakcji i nie dubluje wpisów.</li>
                 <li><strong>Sprawdzanie poprawności numerycznej:</strong> Jeśli wyciąg zawiera uszkodzone lub nieczytelne kwoty (np. tekstowe znaki zapytania zamienione na NaN), transakcja zostaje bezpiecznie odrzucona.</li>
                 <li><strong>Autokategoryzacja:</strong> Słowa kluczowe np. "Orlen", "Biedronka", "Uber" automatycznie przydzielają właściwą kategorię budżetową.</li>
@@ -431,7 +431,7 @@ export function HelpView() {
             title="Płatności, Subskrypcje i integracja z Kalendarzem Google"
             icon={<Clock className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane na osi czasu z wyraźnym oznaczeniem dni pozostałych do terminu wymagalności.
               </p>
@@ -445,13 +445,13 @@ export function HelpView() {
                 </p>
               </div>
 
-              <h4 className="font-bold text-gray-900">Cykl życia Płatności:</h4>
-              <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-gray-700 font-medium">
-                <div className="p-2.5 bg-slate-100 rounded-lg border border-gray-200 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 PLN)</div>
-                <ArrowRight className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" />
-                <div className="p-2.5 bg-amber-100 text-amber-900 rounded-lg border border-amber-200 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
-                <ArrowRight className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" />
-                <div className="p-2.5 bg-emerald-100 text-emerald-900 rounded-lg border border-emerald-200 text-center w-full">3. Przycisk "Opłacono" ➔ Wydatek zrobiony</div>
+              <h4 className="font-bold text-slate-900">Cykl życia Płatności:</h4>
+              <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-700 font-medium">
+                <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 PLN)</div>
+                <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
+                <div className="p-2.5 bg-amber-100 text-amber-900 rounded-xl border border-amber-200 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
+                <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
+                <div className="p-2.5 bg-emerald-100 text-emerald-900 rounded-xl border border-emerald-200 text-center w-full">3. Przycisk "Opłacono" ➔ Wydatek zrobiony</div>
               </div>
             </div>
           </HelpSection>
@@ -465,34 +465,34 @@ export function HelpView() {
             title="Budżety kategorii, paski postępu i alerty ostrzegawcze"
             icon={<Wallet className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Budżety pozwalają nałożyć miesięczny limit na poszczególne kategorie wydatków (np. 1500 zł na Jedzenie, 500 zł na Rozrywkę).
               </p>
 
               <div className="space-y-2 my-2">
                 <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold text-gray-700">
+                  <div className="flex justify-between text-xs font-bold text-slate-700">
                     <span>Kategoria: Jedzenie i Spożywcze</span>
                     <span className="text-emerald-700">65% (975 / 1500 PLN)</span>
                   </div>
-                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
                     <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
                   </div>
                 </div>
 
                 <div className="space-y-1 pt-2">
-                  <div className="flex justify-between text-xs font-semibold text-gray-700">
+                  <div className="flex justify-between text-xs font-bold text-slate-700">
                     <span>Kategoria: Rozrywka i Wyjścia</span>
                     <span className="text-red-600 font-bold">115% (575 / 500 PLN — PRZEKROCZENIE!)</span>
                   </div>
-                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
                     <div className="h-full bg-red-500 rounded-full w-full" />
                   </div>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-slate-600">
                 Gdy wydatek w danej kategorii przekroczy 80% lub 100% ustalonego limitu, na Pulpicie pojawia się specjalny widget <strong>Ostrzeżenia Budżetowe</strong> z propozycją korekty.
               </p>
             </div>
@@ -508,7 +508,7 @@ export function HelpView() {
             icon={<Target className="w-5 h-5" />}
             badge="Ochrona Rezerw"
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Ta sekcja pomaga budować długoterminowy majątek. Dzieli oszczędności na trzy niezależne filary:
               </p>
@@ -549,22 +549,22 @@ export function HelpView() {
             title="Profile (Osobisty / Wspólny), Szyfrowanie i blokada PIN"
             icon={<Lock className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Saldo umożliwia posiadanie wielu odizolowanych profili finansowych w ramach jednej aplikacji (np. "Mój budżet prywatny" oraz "Wspólny budżet z partnerem").
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
-                  <h5 className="font-bold text-gray-900 mb-1">Profil Wspólny i Podział Wydatków</h5>
-                  <p className="text-gray-600">
+                <div className="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+                  <h5 className="font-bold text-slate-900 mb-1">Profil Wspólny i Podział Wydatków</h5>
+                  <p className="text-slate-600">
                     W profilu typu Shared każda transakcja ma oznaczenie kto płacił (Ja / Partner) oraz tryb podziału (Równo 50/50 lub Tylko ja). Widget Rozliczeń automatycznie podlicza balans kto komu ile jest winien!
                   </p>
                 </div>
 
-                <div className="p-3.5 bg-white border border-gray-200 rounded-xl shadow-2xs">
-                  <h5 className="font-bold text-gray-900 mb-1">Blokada PIN dla prywatności</h5>
-                  <p className="text-gray-600">
+                <div className="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+                  <h5 className="font-bold text-slate-900 mb-1">Blokada PIN dla prywatności</h5>
+                  <p className="text-slate-600">
                     W Ustawieniach możesz włączyć 4-cyfrowy kod PIN dla dowolnego profilu. Po zablokowaniu, przełączenie na ten profil wymaga wpisania kodu.
                   </p>
                 </div>
@@ -581,12 +581,12 @@ export function HelpView() {
             title="Kopie zapasowe na Google Drive, eksport JSON i obsługa konfliktów"
             icon={<Database className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Twoje dane finansowe należą wyłącznie do Ciebie. Saldo nie korzysta z własnych serwerów bazy danych — zamiast tego zapisuje stan w przeglądarce (IndexedDB) oraz na Twoim prywatnym koncie Google Drive.
               </p>
 
-              <div className="space-y-2 text-xs text-gray-600">
+              <div className="space-y-2 text-xs text-slate-600">
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   <strong className="text-slate-900 block mb-1 font-bold">1. Synchronizacja z Google Drive:</strong>
                   W Ustawieniach połącz się ze swoim kontem Google. Aplikacja utworzy ukryty plik kopii zapasowej w dedykowanym folderze aplikacji na Twoim własnym Dysku.
@@ -599,7 +599,7 @@ export function HelpView() {
 
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   <strong className="text-slate-900 block mb-1 font-bold">3. Eksport/Import pliku JSON (Offline):</strong>
-                  Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-gray-200 px-1 py-0.5 rounded text-gray-800">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.
+                  Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.
                 </div>
               </div>
             </div>
@@ -614,7 +614,7 @@ export function HelpView() {
             title="Tryby pracy AI (None, Lokalne Ollama, Gemini) oraz Przyszłość"
             icon={<Sparkles className="w-5 h-5" />}
           >
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-slate-700">
               <p className="leading-relaxed">
                 Saldo wspiera 3 elastyczne tryby sztucznej inteligencji dopasowane do Twoich wymagań odnośnie prywatności:
               </p>
@@ -626,7 +626,7 @@ export function HelpView() {
                 </li>
                 <li>
                   <strong>Lokalne AI (local / Ollama) – Pełna prywatność Power-Usera:</strong><br />
-                  Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-gray-100 px-1 py-0.5 rounded">http://localhost:11434</code>).
+                  Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-slate-100 px-1 py-0.5 rounded">http://localhost:11434</code>).
                 </li>
               </ul>
 
@@ -664,7 +664,7 @@ export function HelpView() {
                 </div>
               </div>
 
-              <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-xs text-gray-700">
+              <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-xs text-slate-700">
                 <strong className="text-[#137566] block font-bold mb-1">Planowane funkcje w przyszłych wersjach:</strong>
                 Chmurowe AI (Gemini OCR dla skanowania paragonów), automatyczna synchronizacja z bankami przez bezpieczny Open Banking (PSD2), obsługa wielu walut z przeliczaniem kursów NBP w czasie rzeczywistym oraz wieloosobowe budżetowanie live!
               </div>
@@ -674,37 +674,37 @@ export function HelpView() {
       </div>
 
       {/* Interactive FAQ Box */}
-      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+        <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
           <HelpCircle className="w-6 h-6 text-[#137566]" />
           Najczęściej zadawane pytania (FAQ)
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
-            <h5 className="font-bold text-gray-900 text-sm">Czy moje dane trafiają na Wasze serwery?</h5>
-            <p className="text-gray-600 leading-relaxed">
+            <h5 className="font-bold text-slate-900 text-sm">Czy moje dane trafiają na Wasze serwery?</h5>
+            <p className="text-slate-600 leading-relaxed">
               Nie. Saldo działa w architekturze Local-First. Twoje finanse są zapisywane wyłącznie na Twoim urządzeniu w bezpiecznej pamięci przeglądarki lub na Twoim osobistym koncie Google Drive.
             </p>
           </div>
 
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
-            <h5 className="font-bold text-gray-900 text-sm">Co się stanie, gdy zgubię kod PIN?</h5>
-            <p className="text-gray-600 leading-relaxed">
+            <h5 className="font-bold text-slate-900 text-sm">Co się stanie, gdy zgubię kod PIN?</h5>
+            <p className="text-slate-600 leading-relaxed">
               Kod PIN zabezpiecza dostęp do wybranego profilu. Możesz zresetować zapomniany PIN w Ustawieniach lub przywrócić niezabezpieczoną kopię zapasową z pliku JSON lub Google Drive.
             </p>
           </div>
 
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
-            <h5 className="font-bold text-gray-900 text-sm">Dlaczego import CSV odrzucił niektóre wiersze?</h5>
-            <p className="text-gray-600 leading-relaxed">
+            <h5 className="font-bold text-slate-900 text-sm">Dlaczego import CSV odrzucił niektóre wiersze?</h5>
+            <p className="text-slate-600 leading-relaxed">
               System posiada wbudowaną walidację unikania duplikatów oraz filtr usuwający błędne wartości (np. puste kwoty lub zakodowany tekst NaN), chroniąc spójność wyliczeń.
             </p>
           </div>
 
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
-            <h5 className="font-bold text-gray-900 text-sm">Jak powiązać rachunek z Kalendarzem Google?</h5>
-            <p className="text-gray-600 leading-relaxed">
+            <h5 className="font-bold text-slate-900 text-sm">Jak powiązać rachunek z Kalendarzem Google?</h5>
+            <p className="text-slate-600 leading-relaxed">
               Przejdź do zakładki Płatności i kliknij ikonę kalendarza obok wybranej płatności. Zostanie przygotowane wydarzenie ze szczegółami kwoty i terminu.
             </p>
           </div>
