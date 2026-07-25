@@ -55,18 +55,18 @@ export const BillsWidget = memo(function BillsWidget({
   const top3 = unpaidPayments.slice(0, 3);
 
   return (
-    <div className="bg-rose-50/40 p-5 rounded-2xl border border-rose-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-bills-box">
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-bills-box">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">Rachunki i opłaty</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Rachunki i opłaty</p>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-rose-900">Nadchodzące</h3>
-            <span className="text-[9px] uppercase tracking-wider bg-rose-200/70 text-rose-800 px-1.5 py-0.5 rounded-md font-black">Priorytet</span>
+            <h3 className="text-base font-bold text-slate-900">Nadchodzące</h3>
+            <span className="text-[9px] uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100/50 px-1.5 py-0.5 rounded font-bold">Priorytet</span>
           </div>
         </div>
         <button
           onClick={() => onChangeView("payments")}
-          className="text-[10px] font-bold text-rose-700 bg-rose-200/50 px-2.5 py-1.5 rounded-lg hover:bg-rose-200 transition"
+          className="text-[10px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition"
         >
           Zarządzaj
         </button>
@@ -74,10 +74,10 @@ export const BillsWidget = memo(function BillsWidget({
 
       <div className="flex-1 flex flex-col justify-center">
         {unpaidPayments.length === 0 ? (
-          <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
             <div className="text-2xl mb-1 opacity-50">🍵</div>
-            <p className="text-xs text-gray-500 font-medium">Brak rachunków do opłacenia.</p>
-            <p className="text-[10px] text-gray-400">Możesz spać spokojnie.</p>
+            <p className="text-xs text-slate-500 font-medium">Brak rachunków do opłacenia.</p>
+            <p className="text-[10px] text-slate-400">Możesz spać spokojnie.</p>
           </div>
         ) : (
           <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
@@ -132,10 +132,10 @@ export const BillsWidget = memo(function BillsWidget({
         )}
       </div>
 
-      <div className="pt-4 mt-4 border-t border-rose-200/50">
+      <div className="pt-4 mt-4 border-t border-slate-100">
         <button
           onClick={onOpenPaymentModal}
-          className="w-full py-2.5 bg-white hover:bg-rose-100/50 text-rose-700 text-xs font-bold rounded-xl transition-colors border border-rose-200/60 shadow-sm"
+          className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors border border-slate-200/60 shadow-sm flex items-center justify-center gap-1.5"
         >
           + Dodaj płatność
         </button>
