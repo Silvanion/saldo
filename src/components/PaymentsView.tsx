@@ -152,7 +152,7 @@ export function PaymentsView({
       {/* Overview ribbon */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#e7f3f0] p-5 rounded-2xl border border-[#137566]/20">
         <div>
-          <h3 className="text-sm font-bold text-[#153a35] uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
+          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
           <p className="text-xs text-slate-600">
             Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.
           </p>
@@ -227,16 +227,16 @@ export function PaymentsView({
       </div>
 
       {suggestedPayments.length > 0 && (
-        <div className="bg-indigo-50/50 rounded-2xl border border-indigo-100 shadow-sm p-6 mb-6">
+        <div className="bg-slate-50/50 rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="bg-indigo-100 text-indigo-700 p-1.5 rounded-xl">
+            <span className="bg-slate-100 text-slate-700 p-1.5 rounded-xl">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
-            <h3 className="text-sm font-bold text-indigo-900">Sugestie z poprzedniego miesiąca</h3>
+            <h3 className="text-sm font-bold text-slate-800">Sugestie z poprzedniego miesiąca</h3>
           </div>
-          <p className="text-xs text-indigo-700 mb-4">
+          <p className="text-xs text-slate-600 mb-4">
             W poprzednim miesiącu opłacono te rachunki. Chcesz je powtórzyć w tym miesiącu z podobną kwotą i terminem?
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -247,13 +247,13 @@ export function PaymentsView({
                 newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
               }
               return (
-                <div key={`sugg-${sp.id}`} className="bg-white rounded-xl border border-indigo-200 p-3 shadow-sm hover:border-indigo-300 transition">
+                <div key={`sugg-${sp.id}`} className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm hover:border-slate-300 transition">
                   <h4 className="text-sm font-bold text-slate-800">{sp.name}</h4>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-xs text-slate-500">{formatPln(sp.amount)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
                     <button
                       onClick={() => handleAddSuggestedPayment(sp)}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-1.5 rounded-xl text-xs font-semibold transition"
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-1.5 rounded-xl text-xs font-semibold transition"
                       title="Skopiuj do tego miesiąca"
                     >
                       + Dodaj
@@ -268,14 +268,14 @@ export function PaymentsView({
 
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-          <h3 className="text-base font-bold text-[#153a35]">Lista Twoich opłat</h3>
+          <h3 className="text-base font-bold text-slate-900">Lista Twoich opłat</h3>
           
           {profile.kind === "shared" && (
-            <div className="flex bg-indigo-50/50 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-indigo-100/50">
+            <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-slate-200">
               <button
                 onClick={() => setPaidByFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "all" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                  paidByFilter === "all" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 Wszystkie
@@ -283,7 +283,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("me")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "me" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                  paidByFilter === "me" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 Ja
@@ -291,7 +291,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("partner")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "partner" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                  paidByFilter === "partner" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 Partner
@@ -299,7 +299,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("joint")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "joint" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                  paidByFilter === "joint" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
                 }`}
               >Wspólne/50-50</button>
             </div>
@@ -343,10 +343,10 @@ export function PaymentsView({
                     </span>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-sm font-bold text-[#153a35] flex items-center gap-1.5">
+                        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                           {p.name}
                           {profile.kind === "shared" && p.paidBy && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-100 text-slate-700 border border-slate-200">
                               {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {p.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -374,7 +374,7 @@ export function PaymentsView({
                       {!isPaid && (
                         <button
                           onClick={() => onTriggerCalendarAi(p)}
-                          className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-indigo-200"
+                          className="bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-slate-200"
                           title="Dodaj przypomnienie do Kalendarza Google (AI)"
                           id={`btn-calendar-ai-${p.id}`}
                         >
@@ -394,7 +394,7 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => onOpenPaymentModal(p)}
-                        className="p-1.5 text-slate-400 hover:text-indigo-600 rounded transition"
+                        className="p-1.5 text-slate-400 hover:text-slate-800 rounded transition"
                         title="Edytuj rachunek"
                         id={`btn-edit-payment-${p.id}`}
                       >
@@ -420,7 +420,7 @@ export function PaymentsView({
       {paymentToDelete && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-[#153a35] mb-2">Usunąć płatność?</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Usunąć płatność?</h3>
             
             {profile.transactions.some(tx => tx.sourcePaymentId === paymentToDelete.id) ? (
               <>
