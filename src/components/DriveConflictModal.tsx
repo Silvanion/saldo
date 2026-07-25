@@ -110,7 +110,7 @@ export function DriveConflictModal({
           <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <span className="font-bold text-sm text-slate-800">Wersja w chmurze</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
                 Dysk Google
               </span>
             </div>
@@ -161,7 +161,7 @@ export function DriveConflictModal({
           </button>
           <button
             onClick={() => onResolve("download_remote")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-900 transition flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             Pobierz i nadpisz lokalne
