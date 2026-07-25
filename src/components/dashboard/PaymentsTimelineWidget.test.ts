@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary } from './PaymentsTimelineWidget';
+import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds } from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
 describe('groupPaymentsByTimeline', () => {
@@ -125,5 +125,29 @@ describe('getActiveSummary', () => {
     const allSummary = getActiveSummary(allFiltered);
     expect(allSummary.count).toBe(5);
     expect(allSummary.total).toBe(1500);
+  });
+});
+
+describe('getNearestHighlightedPaymentIds', () => {
+  it('highlights all payments from today if there are any', () => {
+    const today = [{ id: '1' } as Payment, { id: '2' } as Payment];
+    const next7Days = [{ id: '3' } as Payment];
+    const result = getNearestHighlightedPaymentIds(today, next7Days);
+    expect(result.size).toBe(2);
+    expect(result.has('1')).toBe(true);
+    expect(result.has('2')).toBe(true);
+  });
+
+  it('highlights the first payment from next7Days if today is empty', () => {
+    const today: Payment[] = [];
+    const next7Days = [{ id: '3' } as Payment, { id: '4' } as Payment];
+    const result = getNearestHighlightedPaymentIds(today, next7Days);
+    expect(result.size).toBe(1);
+    expect(result.has('3')).toBe(true);
+  });
+
+  it('returns empty set if both today and next7Days are empty', () => {
+    const result = getNearestHighlightedPaymentIds([], []);
+    expect(result.size).toBe(0);
   });
 });

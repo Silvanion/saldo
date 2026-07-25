@@ -70,6 +70,16 @@ export function getTimelineTexts(range: TimelineFilter) {
   };
 }
 
+export function getNearestHighlightedPaymentIds(today: Payment[], next7Days: Payment[]): Set<string> {
+  const highlighted = new Set<string>();
+  if (today.length > 0) {
+    today.forEach(p => highlighted.add(p.id));
+  } else if (next7Days.length > 0) {
+    highlighted.add(next7Days[0].id);
+  }
+  return highlighted;
+}
+
 export function groupPaymentsByTimeline(payments: Payment[]) {
   const overdue: Payment[] = [];
   const today: Payment[] = [];
@@ -123,6 +133,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const activeSummary = getActiveSummary(filteredPayments);
   const overdueCount = overdue.length;
   const texts = getTimelineTexts(range);
+  const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -135,26 +146,34 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           <h4 className={`text-xs font-bold uppercase tracking-wider ${colorClass}`}>{title}</h4>
         </div>
         <div className="space-y-2 border-l-2 border-gray-100 ml-3.5 pl-4 relative">
-          {items.map(p => (
-            <div key={p.id} className="bg-white border border-slate-200/60 rounded-xl p-3 shadow-sm hover:border-[#137566]/30 transition group flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-800">{p.name}</span>
-                <span className="text-[10px] text-slate-500 font-medium">{p.dueDate}</span>
+          {items.map(p => {
+            const isHighlighted = highlightedIds.has(p.id);
+            return (
+              <div key={p.id} className={`bg-white border ${isHighlighted ? "border-slate-300 shadow-sm ring-1 ring-slate-100" : "border-slate-200/60 shadow-sm"} rounded-xl p-3 hover:border-[#137566]/30 transition group flex items-center justify-between`}>
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-800">{p.name}</span>
+                    {isHighlighted && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Najbliższe</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">{p.dueDate}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-black text-slate-800">{formatPln(p.amount)}</span>
+                  <button
+                    onClick={() => onTogglePaymentStatus(p.id)}
+                    className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-transparent hover:border-[#137566] hover:bg-[#137566]/10 hover:text-[#137566] transition"
+                    title="Oznacz jako opłacone"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-black text-slate-800">{formatPln(p.amount)}</span>
-                <button
-                  onClick={() => onTogglePaymentStatus(p.id)}
-                  className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-transparent hover:border-[#137566] hover:bg-[#137566]/10 hover:text-[#137566] transition"
-                  title="Oznacz jako opłacone"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
