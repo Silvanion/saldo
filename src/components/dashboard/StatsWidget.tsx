@@ -75,7 +75,7 @@ export const StatsWidget = memo(function StatsWidget({
               </div>
             )}
             {investmentCushion > 0 && (
-              <div className="text-[10px] bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md border border-indigo-100 font-bold w-fit tracking-wide">
+              <div className="text-[10px] bg-slate-50 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200/60 font-bold w-fit tracking-wide">
                 Poduszka fin.: {formatPln(investmentCushion)}
               </div>
             )}
@@ -112,7 +112,7 @@ export const StatsWidget = memo(function StatsWidget({
             </div>
 
             <div className="bg-white p-3.5 rounded-lg border border-[#b8ded5] shadow-inner">
-              <span className="text-[10px] uppercase font-semibold text-gray-500 block">Prognozowane Saldo</span>
+              <span className="text-[10px] uppercase font-semibold text-slate-500 block">Prognozowane Saldo</span>
               <span className={`text-lg font-black ${endOfMonthForecast.forecastedBalance >= 0 ? "text-[#137566]" : "text-[#d55e50]"}`}>
                 {formatPln(endOfMonthForecast.forecastedBalance)}
               </span>

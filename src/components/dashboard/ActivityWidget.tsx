@@ -54,7 +54,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                       {t.name || t.category}
                       {/* Note: we don't have access to profile.kind here easily, but we can check if t.paidBy exists since it's only set on shared profiles */}
                       {t.paidBy && (
-                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100 whitespace-nowrap">
+                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-100 text-slate-600 border border-slate-200/60 whitespace-nowrap">
                           {t.paidBy === 'me' ? 'Ja' : t.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                           {t.splitMode === 'equal' ? ' (50-50)' : ''}
                         </span>
