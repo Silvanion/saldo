@@ -177,7 +177,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Nowy Wpis</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">Dodaj transakcję</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Dodaj transakcję</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex rounded-xl bg-slate-100 p-1">
@@ -194,7 +194,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             <button
               type="button"
               className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
-                type === "income" ? "bg-white text-[#137566] shadow" : "text-slate-500 hover:text-slate-800"
+                type === "income" ? "bg-white text-slate-900 shadow" : "text-slate-500 hover:text-slate-800"
               }`}
               onClick={() => setType("income")}
               id="btn-type-income"
@@ -204,7 +204,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Kwota (zł)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota (zł)</label>
             <input
               required
               type="number"
@@ -213,31 +213,31 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-tx-amount"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Opis transakcji</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Opis transakcji</label>
             <input
               required
               maxLength={120}
               placeholder="np. Zakupy Biedronka"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-tx-name"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#153a35] mb-1">Kategoria</label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Kategoria</label>
               <select
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
                 id="select-tx-category"
               >
                 {categories.map((cat) => (
@@ -248,12 +248,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#153a35] mb-1">Konto / Portfel</label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Konto / Portfel</label>
 
               <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
                 id="select-tx-account"
               >
                 {(activeProfile?.accounts && activeProfile.accounts.length > 0) ? (
@@ -273,9 +273,9 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Ikona kategorii</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Ikona kategorii</label>
             <div className="flex items-center gap-3 p-2.5 border border-slate-200 rounded-xl">
-              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-[#e7f3f0] text-[#137566] rounded-xl border border-[#137566]/20 font-bold shrink-0">
+              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-900 rounded-xl border border-slate-200 font-bold shrink-0">
                 {categoryIcon}
               </span>
               <div className="flex-1 overflow-x-auto whitespace-nowrap py-1 flex gap-1.5 max-w-[310px] scrollbar-thin">
@@ -285,7 +285,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     type="button"
                     onClick={() => setCategoryIcon(ico)}
                     className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition shrink-0 ${
-                      categoryIcon === ico ? "bg-[#e7f3f0] border-2 border-[#137566]" : "border border-transparent"
+                      categoryIcon === ico ? "bg-slate-100 border-2 border-slate-900" : "border border-transparent"
                     }`}
                   >
                     {ico}
@@ -296,20 +296,20 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Data</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Data</label>
             <input
               required
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-tx-date"
             />
           </div>
 
           {/* Tagowanie wydatków */}
           <div className="border-t border-slate-100 pt-3">
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Tagi (opcjonalnie)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Tagi (opcjonalnie)</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -317,7 +317,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
-                className="flex-1 rounded-xl border border-slate-200 p-2 text-xs outline-none focus:border-[#137566]"
+                className="flex-1 rounded-xl border border-slate-200 p-2 text-xs outline-none focus:border-slate-400"
                 id="input-tx-tag"
               />
               <button
@@ -341,13 +341,13 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-100"
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200/60"
                   >
                     #{t}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-[10px] text-indigo-400 hover:text-indigo-600 font-semibold"
+                      className="text-[10px] text-slate-400 hover:text-slate-600 font-semibold"
                     >
                       &times;
                     </button>
@@ -369,7 +369,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       onClick={() => isSelected ? handleRemoveTag(sug) : handleAddTag(sug)}
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
                         isSelected
-                          ? "bg-indigo-600 text-white border-indigo-600"
+                          ? "bg-slate-800 text-white border-slate-800"
                           : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
@@ -394,7 +394,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
                       id="select-transaction-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -407,7 +407,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
                       id="select-transaction-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -432,7 +432,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             id="btn-tx-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz transakcję"}
@@ -518,23 +518,23 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">{initialData ? "Edycja Płatności" : "Nowa Płatność"}</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">{initialData ? "Edytuj rachunek" : "Dodaj rachunek"}</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">{initialData ? "Edytuj rachunek" : "Dodaj rachunek"}</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Nazwa (np. Internet Orange)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Nazwa (np. Internet Orange)</label>
             <input
               required
               maxLength={120}
               placeholder="np. Prąd Enea, Netflix, Internet"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-payment-name"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Kwota (zł)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota (zł)</label>
             <input
               required
               type="number"
@@ -543,18 +543,18 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-payment-amount"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Termin płatności</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Termin płatności</label>
             <input
               required
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-payment-date"
             />
           </div>
@@ -572,7 +572,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
                       id="select-payment-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -585,7 +585,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
                       id="select-payment-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -600,7 +600,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             id="btn-payment-submit"
           >
             {isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}
@@ -662,24 +662,24 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Oszczędności</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">Nowy cel oszczędnościowy</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Nowy cel oszczędnościowy</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Nazwa celu (np. Wakacje)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Nazwa celu (np. Wakacje)</label>
             <input
               required
               maxLength={120}
               placeholder="np. Poduszka finansowa, Remont, Nowy laptop"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-goal-name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Kwota docelowa (zł)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota docelowa (zł)</label>
             <input
               required
               type="number"
@@ -687,7 +687,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. 15000"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-goal-target"
             />
           </div>
@@ -695,7 +695,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz cel"}
@@ -755,11 +755,11 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Transfer Celu</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">Transfer: {goalName}</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Transfer: {goalName}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Kwota (wpłata lub wypłata)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota (wpłata lub wypłata)</label>
             <input
               required
               type="number"
@@ -767,7 +767,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
               placeholder="np. 100 (wpłata) lub -50 (wypłata)"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-goal-deposit-amount"
             />
           </div>
@@ -775,7 +775,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-deposit-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz wpłatę"}
@@ -849,13 +849,13 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Limity Miesięczne</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">Ustaw limity wydatków</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Ustaw limity wydatków</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
             {budgetCategories.map((category) => (
               <div key={category}>
-                <label className="block text-xs font-semibold text-[#153a35] mb-1">{category} (zł)</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1">{category} (zł)</label>
                 <input
                   type="number"
                   min="0"
@@ -863,7 +863,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
                   placeholder="Brak limitu"
                   value={budgets[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
                   id={`input-budget-${category}`}
                 />
               </div>
@@ -873,7 +873,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-budget-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz limity"}
@@ -945,24 +945,24 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Zarządzanie profilami</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-4">Utwórz profil</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Utwórz profil</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Nazwa profilu (np. Moje Finanse)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Nazwa profilu (np. Moje Finanse)</label>
             <input
               required
               maxLength={80}
               placeholder="np. Budżet Seweryna, Domowy"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-profile-name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Ikona profilu</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Ikona profilu</label>
             <details className="group border border-slate-200 rounded-xl relative">
               <summary className="p-2.5 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
                 <div className="flex items-center gap-3">
@@ -983,7 +983,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-[#137566] shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -994,11 +994,11 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Rodzaj profilu</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Rodzaj profilu</label>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
               id="select-profile-kind"
             >
               <option value="personal">Tylko dla mnie (osobisty)</option>
@@ -1008,7 +1008,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
 
           {kind === "shared" && (
             <div>
-              <label className="block text-xs font-semibold text-[#153a35] mb-1">Imię partnera / członka rodziny</label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Imię partnera / członka rodziny</label>
               <input
                 required
                 pattern=".*\S+.*"
@@ -1017,14 +1017,14 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                 placeholder="np. Ania, Marta, Piotr"
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
                 id="input-profile-partner"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
             <input
               type="password"
               inputMode="numeric"
@@ -1034,14 +1034,14 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="Wpisz 4 do 8 cyfr"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
               id="input-profile-pin"
             />
             <p className="text-[11px] text-slate-500 mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
-          <div className="rounded-xl bg-[#e7f3f0] p-4">
-            <p className="text-[12px] text-[#137566] leading-relaxed">
+          <div className="rounded-xl bg-slate-100 p-4">
+            <p className="text-[12px] text-slate-900 leading-relaxed">
               <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
             </p>
           </div>
@@ -1049,7 +1049,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-profile-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz profil"}
@@ -1109,7 +1109,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Ochrona profilu</p>
-        <h2 className="text-2xl font-bold text-[#153a35] mb-3">Ustaw kod PIN</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-3">Ustaw kod PIN</h2>
 
         {/* Warning Copy Box */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-xs text-amber-900 space-y-2">
@@ -1142,7 +1142,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#153a35] mb-1">Kod PIN (4-8 cyfr)</label>
+            <label className="block text-xs font-semibold text-slate-900 mb-1">Kod PIN (4-8 cyfr)</label>
             <input
               required
               type="password"
@@ -1151,7 +1151,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
               placeholder="np. 1234"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-3 text-center text-xl tracking-widest outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-3 text-center text-xl tracking-widest outline-none focus:border-slate-400"
               id="input-pin-code"
             />
           </div>
@@ -1161,7 +1161,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
               type="checkbox"
               checked={hasAcceptedWarning}
               onChange={(e) => setHasAcceptedWarning(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-[#137566] focus:ring-[#137566]"
+              className="mt-0.5 w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
               id="checkbox-pin-recovery-warning"
             />
             <span>Rozumiem, że utrata PIN = utrata danych profilu</span>
@@ -1170,7 +1170,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           <button
             type="submit"
             disabled={!hasAcceptedWarning || !/^\d{4,8}$/.test(pin)}
-            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             id="btn-pin-submit"
           >
             Zapisz PIN
@@ -1214,7 +1214,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#153a35]/95 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 p-4 backdrop-blur-xs"
       id="unlock-modal"
     >
       <motion.div
@@ -1225,13 +1225,13 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         className={`w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
       >
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-[#e7f3f0] rounded-full flex items-center justify-center text-[#137566]">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-900">
             <Lock className="w-8 h-8" />
           </div>
         </div>
         
         <p className="text-[10px] font-bold uppercase tracking-wider text-center text-[#849590]">Zabezpieczony Profil</p>
-        <h2 className="text-2xl font-bold text-[#153a35] text-center mb-2">Podaj PIN</h2>
+        <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">Podaj PIN</h2>
         <p className="text-sm text-slate-500 text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -1245,7 +1245,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
               autoFocus
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-100 focus:border-[#137566] text-slate-800'}`}
+              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-100 focus:border-slate-400 text-slate-800'}`}
               id="input-unlock-pin"
             />
           </div>
@@ -1259,7 +1259,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
           <div className="pt-4 space-y-3">
             <button
               type="submit"
-              className="w-full rounded-xl bg-[#137566] py-4 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] hover:scale-[1.02] transition-all"
+              className="w-full rounded-xl bg-slate-900 py-4 text-sm font-bold text-white shadow-lg hover:bg-slate-800 hover:scale-[1.02] transition-all"
               id="btn-unlock-submit"
             >
               Odblokuj profil
