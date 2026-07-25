@@ -210,17 +210,17 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               </div>
               
               {profile.kind === "shared" && (
-                <div className="flex bg-indigo-50/50 p-1 rounded-xl w-full xl:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-indigo-100/50">
+                <div className="flex bg-slate-100 p-1 rounded-xl w-full xl:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar">
                   <button
                     onClick={() => setPaidByFilter("all")}
                     className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "all" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                      paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >Wszystkie</button>
                   <button
                     onClick={() => setPaidByFilter("me")}
                     className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "me" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                      paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
                     Ja
@@ -228,7 +228,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   <button
                     onClick={() => setPaidByFilter("partner")}
                     className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "partner" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                      paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
                     Partner
@@ -236,7 +236,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   <button
                     onClick={() => setPaidByFilter("joint")}
                     className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "joint" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
+                      paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >Wspólne/50-50</button>
                 </div>
@@ -250,7 +250,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     type="date"
                     value={dateFrom}
                     onChange={e => setDateFrom(e.target.value)}
-                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -259,7 +259,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     type="date"
                     value={dateTo}
                     onChange={e => setDateTo(e.target.value)}
-                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -270,7 +270,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     placeholder="0"
                     value={minAmount}
                     onChange={e => setMinAmount(e.target.value)}
-                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -281,7 +281,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     placeholder="∞"
                     value={maxAmount}
                     onChange={e => setMaxAmount(e.target.value)}
-                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       onClick={() => setSelectedTag(isSelected ? null : tag)}
                       className={`text-xs px-2.5 py-1 rounded-full font-bold border transition ${
                         isSelected
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                          ? "bg-slate-700 text-white border-slate-700 shadow-sm"
                           : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
@@ -361,7 +361,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           </span>
                           <span className="font-bold text-slate-900">{tx.name}</span>
                           {profile.kind === "shared" && tx.paidBy && (
-                            <span className="ml-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <span className="ml-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-slate-100 text-slate-600 border border-slate-200">
                               {tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {tx.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -379,8 +379,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                                 }}
                                 className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                                   selectedTag === tag
-                                    ? "bg-indigo-600 text-white border-indigo-600"
-                                    : "bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100"
+                                    ? "bg-slate-700 text-white border-slate-700"
+                                    : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                                 }`}
                               >
                                 #{tag}
@@ -401,7 +401,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => onOpenTxModal(tx)}
-                            className="text-slate-400 hover:text-indigo-600 text-xs font-semibold px-2 py-1 rounded transition"
+                            className="text-slate-400 hover:text-slate-700 text-xs font-semibold px-2 py-1 rounded transition"
                             title="Edytuj transakcję"
                           >
                             Edytuj
@@ -441,7 +441,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                         <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                           {tx.name}
                           {profile.kind === "shared" && tx.paidBy && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-100 text-slate-600 border border-slate-200">
                               {tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {tx.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -468,7 +468,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onOpenTxModal(tx)}
-                        className="text-indigo-600 hover:text-indigo-700 text-[11px] font-semibold px-2.5 py-1 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition"
+                        className="text-slate-600 hover:text-slate-700 text-[11px] font-semibold px-2.5 py-1 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
                       >
                         Edytuj
                       </button>
@@ -493,8 +493,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           }}
                           className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                             selectedTag === tag
-                              ? "bg-indigo-600 text-white border-indigo-600"
-                              : "bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100"
+                              ? "bg-slate-700 text-white border-slate-700"
+                              : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                           }`}
                         >
                           #{tag}
@@ -525,7 +525,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
       {/* Tags Reporting Panel */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col" id="tags-analysis-card">
         <div className="mb-4">
-          <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Raportowanie i Analiza</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Raportowanie i Analiza</p>
           <h3 className="text-lg font-bold text-slate-900">Wydatki według tagów</h3>
         </div>
 
@@ -564,13 +564,13 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   onClick={() => setSelectedTag(isSelected ? null : tag.name)}
                   className={`group p-2.5 rounded-xl border transition cursor-pointer ${
                     isSelected
-                      ? "bg-indigo-50/80 border-indigo-200"
+                      ? "bg-slate-100 border-slate-200"
                       : "bg-white border-transparent hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex justify-between items-center text-xs mb-1.5">
                     <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
                       #{tag.name}
                     </span>
                     <span className="text-slate-500 font-medium text-[11px]">
@@ -580,7 +580,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${pctOfMax}%` }}
-                      className="bg-indigo-600 h-full rounded-full transition-all duration-500 group-hover:bg-indigo-500"
+                      className="bg-slate-400 h-full rounded-full transition-all duration-500 group-hover:bg-slate-500"
                     ></div>
                   </div>
                 </div>
@@ -590,8 +590,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
         </div>
 
         {/* Informational advice footer */}
-        <div className="mt-6 border-t border-slate-100 pt-4 text-[11px] text-slate-500 leading-relaxed bg-indigo-50/50 p-3 rounded-xl border border-indigo-50">
-          <span className="font-bold text-indigo-900 block mb-1">💡 Wskazówka:</span>
+        <div className="mt-6 border-t border-slate-100 pt-4 text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <span className="font-bold text-slate-700 block mb-1">💡 Wskazówka:</span>
           Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim wydatki i precyzyjnie przeanalizować ich udział.
         </div>
       </div>
