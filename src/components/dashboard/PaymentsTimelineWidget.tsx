@@ -288,21 +288,22 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
 
         <div className="mb-5 bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
           {activeSummary.count > 0 ? (
-            <div className="flex flex-col w-full gap-1">
+            <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-slate-500" />
-                  <span className="text-xs font-semibold text-slate-700">
-                    {texts.label} ({activeSummary.count})
-                  </span>
+                  <CalendarDays className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-xs font-semibold text-slate-700">{texts.label}</span>
+                    <span className="text-[10px] font-medium text-slate-500">({activeSummary.count})</span>
+                  </div>
                 </div>
                 <span className="text-sm font-bold text-slate-900">{formatPln(activeSummary.total)}</span>
               </div>
               {range === "all" && overdueCount > 0 && (
-                <div className="flex justify-start mt-0.5">
-                  <span className="text-[10px] text-rose-600 font-medium flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded">
-                    <AlertCircle className="w-3 h-3" />
-                    Zaległe: {overdueCount}
+                <div className="flex items-center gap-1.5 pl-6">
+                  <div className="w-1 h-1 rounded-full bg-rose-400"></div>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    W tym zaległe: <span className="text-rose-600 font-semibold">{overdueCount}</span>
                   </span>
                 </div>
               )}
