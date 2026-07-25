@@ -37,7 +37,7 @@ export function GoalsView({
         <div className="flex items-center justify-between gap-4 mb-4">
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Planowanie Przyszłości</p>
-            <h2 className="text-xl font-bold text-[#153a35]">Cele oszczędnościowe</h2>
+            <h2 className="text-xl font-bold text-slate-900">Cele oszczędnościowe</h2>
             <p className="text-[11px] text-slate-500 mt-1 max-w-sm leading-relaxed">
               <strong>Zarezerwowane na cele:</strong> wpłaty nie tworzą wydatków. Środki odłożone na cele są po prostu odejmowane od salda "Do wydania" jako rezerwa.
             </p>
@@ -93,7 +93,7 @@ export function GoalsView({
                     <span className="w-8 h-8 rounded-full bg-teal-50 text-[#137566] flex items-center justify-center font-bold text-sm mb-3 border border-teal-100">
                       🎯
                     </span>
-                    <h3 className="text-sm font-bold text-[#153a35] line-clamp-1">{g.name}</h3>
+                    <h3 className="text-sm font-bold text-slate-900 line-clamp-1">{g.name}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {formatPln(g.saved)} z {formatPln(g.target)}
                     </p>
@@ -131,12 +131,12 @@ export function GoalsView({
 
       {/* SECTION 2: LONG-TERM INVESTMENTS */}
       <div className="border-t border-slate-100 pt-6">
-        <h2 className="text-xl font-bold text-[#153a35] mb-4">Inwestycje długoterminowe</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Inwestycje długoterminowe</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick contribute form */}
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-[#153a35] mb-3">Rejestruj wpłatę inwestycyjną</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">Rejestruj wpłatę inwestycyjną</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-4">
               Zapisz kwoty odkładane na IKE, IKZE, fundusze inwestycyjne, akcje lub obligacje skarbowe.
             </p>
@@ -193,7 +193,7 @@ export function GoalsView({
           {/* Investment log book */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-[#153a35] mb-3">Podsumowanie inwestycji</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Podsumowanie inwestycji</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(
                   profile.investments.reduce((acc, inv) => {
@@ -214,7 +214,7 @@ export function GoalsView({
             </div>
 
             <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-[#153a35] mb-3">Historia wpłat kapitałowych</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Historia wpłat kapitałowych</h3>
               <div className="divide-y divide-slate-50 overflow-y-auto max-h-[14rem] pr-1">
                 {profile.investments.length === 0 ? (
                   <p className="text-xs text-slate-400 py-10 text-center italic">
