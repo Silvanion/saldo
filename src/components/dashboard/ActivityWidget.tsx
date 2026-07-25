@@ -32,15 +32,16 @@ export const ActivityWidget = memo(function ActivityWidget({
 
       <div className="flex-1 flex flex-col justify-center">
         {recentTransactions.length === 0 ? (
-          <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
+            <div className="text-2xl mb-1 opacity-50">🧾</div>
             <p className="text-xs text-slate-500 font-medium">
               {profileKind === "shared" ? "Dodaj pierwszy wspólny wydatek" : "Brak niedawnych transakcji."}
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {recentTransactions.map((t) => (
-              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-50 bg-slate-50/50 hover:bg-slate-50 transition">
+              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition shadow-sm group">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
                     t.type === 'income' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-100 border-slate-200'
