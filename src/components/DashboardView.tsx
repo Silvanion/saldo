@@ -132,27 +132,27 @@ export function DashboardView({
   const currentMonthIdx = selectedDate.getMonth();
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50/50 p-4 sm:p-6 lg:p-8 custom-scrollbar relative" id="dashboard-scroll-area">
+    <div className="flex-1 overflow-y-auto bg-slate-50/50 p-4 sm:p-6 lg:p-8 custom-scrollbar relative" id="dashboard-scroll-area">
       {/* Month Navigation */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900" id="dash-month-title">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900" id="dash-month-title">
             {getMonthNamePl(currentMonthIdx)} {currentYear}
           </h2>
-          <p className="text-sm text-gray-500">Podsumowanie i wskaźniki dla tego miesiąca.</p>
+          <p className="text-sm text-slate-500">Podsumowanie i wskaźniki dla tego miesiąca.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-1 sm:flex-none">
+          <div className="flex items-center bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="px-4 py-2 hover:bg-gray-50 transition text-gray-600 font-bold border-r border-gray-200"
+              className="px-4 py-2 hover:bg-slate-50 transition text-slate-600 font-bold border-r border-slate-200"
               id="dash-prev-month"
             >
               ← Poprzedni
             </button>
             <button
               onClick={onNextMonth}
-              className="px-4 py-2 hover:bg-gray-50 transition text-gray-600 font-bold"
+              className="px-4 py-2 hover:bg-slate-50 transition text-slate-600 font-bold"
               id="dash-next-month"
             >
               Następny →
@@ -160,7 +160,7 @@ export function DashboardView({
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-500 hover:text-indigo-600 hover:border-indigo-200 transition group"
+            className="p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-500 hover:text-slate-800 hover:border-slate-300 transition group"
             title="Dostosuj ekran"
           >
             <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
@@ -175,14 +175,14 @@ export function DashboardView({
       />
 
       {isEditMode && (
-        <div className="bg-indigo-50 border border-indigo-200 text-indigo-800 px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4">
+        <div className="bg-slate-100 border border-slate-200 text-slate-800 px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4">
           <div className="flex items-center gap-3">
-            <Move className="w-5 h-5" />
+            <Move className="w-5 h-5 text-slate-500" />
             <span className="text-sm font-bold">Tryb edycji włączony. Możesz przeciągać kafelki, aby zmienić ich kolejność.</span>
           </div>
           <button
             onClick={() => setIsEditMode(false)}
-            className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-sm"
+            className="px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-900 transition shadow-sm"
           >
             Zakończ
           </button>
@@ -190,7 +190,7 @@ export function DashboardView({
       )}
 
       {/* Flexible Masonry/Grid Layout for Widgets */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start relative z-0">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch relative z-0">
         {widgets.filter(w => w.visible || isEditMode).map((widget, index) => {
           let widgetContent = null;
 
@@ -260,21 +260,21 @@ export function DashboardView({
               onDragStart={(e: any) => handleDragStart(e, widget.id)}
               onDragOver={(e: any) => handleDragOver(e, widget.id)}
               onDragEnd={handleDragEnd}
-              className={`relative group ${isFullWidth ? "xl:col-span-2" : ""} ${!widget.visible && isEditMode ? "opacity-40 grayscale" : ""} ${isEditMode ? "cursor-move" : ""}`}
+              className={`relative group h-full ${isFullWidth ? "xl:col-span-2" : ""} ${!widget.visible && isEditMode ? "opacity-40 grayscale" : ""} ${isEditMode ? "cursor-move" : ""}`}
               style={{ minHeight: isEditMode ? '100px' : 'auto' }}
             >
               {isEditMode && (
-                <div className="absolute inset-0 bg-indigo-500/5 rounded-2xl border-2 border-indigo-500/20 z-20 pointer-events-none group-hover:border-indigo-500/50 transition flex items-start justify-between p-2">
-                  <div className="bg-white/90 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-indigo-100 flex items-center gap-1.5 text-indigo-700 pointer-events-auto">
+                <div className="absolute inset-0 bg-slate-900/5 rounded-2xl border-2 border-slate-900/10 z-20 pointer-events-none group-hover:border-slate-900/30 transition flex items-start justify-between p-2">
+                  <div className="bg-white/90 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-slate-200 flex items-center gap-1.5 text-slate-700 pointer-events-auto">
                     <GripVertical className="w-4 h-4" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">{widget.name.split(' ')[0]}</span>
                   </div>
                   
-                  <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-indigo-100 pointer-events-auto">
+                  <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-slate-200 pointer-events-auto">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveUp(index); }}
                       disabled={index === 0}
-                      className="p-1 rounded hover:bg-indigo-150 disabled:opacity-30 text-indigo-700 transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-slate-700 transition cursor-pointer z-30 relative"
                       title="Przesuń wyżej"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -282,14 +282,14 @@ export function DashboardView({
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveDown(index); }}
                       disabled={index === widgets.length - 1}
-                      className="p-1 rounded hover:bg-indigo-150 disabled:opacity-30 text-indigo-700 transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-slate-700 transition cursor-pointer z-30 relative"
                       title="Przesuń niżej"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleToggleVisibility(widget.id); }}
-                      className="p-1 rounded hover:bg-rose-150 text-rose-600 transition ml-1.5 cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-rose-50 text-rose-600 transition ml-1.5 cursor-pointer z-30 relative"
                       title={widget.visible ? "Ukryj" : "Pokaż"}
                     >
                       {widget.visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -298,7 +298,7 @@ export function DashboardView({
                 </div>
               )}
 
-              <div className={isEditMode ? "p-1 opacity-70" : ""}>
+              <div className={isEditMode ? "p-1 opacity-70 transition-opacity h-full" : "transition-opacity h-full"}>
                 {widgetContent}
               </div>
             </motion.div>
@@ -332,7 +332,7 @@ export function DashboardView({
               </button>
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shrink-0 text-xl">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 text-xl">
                   ⚙️
                 </div>
                 <div>
@@ -391,9 +391,9 @@ export function DashboardView({
                 ))}
               </div>
 
-              <div className="bg-slate-50/50 border border-slate-150 p-4 rounded-xl flex items-center justify-between gap-4 mb-6">
+              <div className="bg-slate-50/50 border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <Move className="w-5 h-5 text-indigo-500 shrink-0" />
+                  <Move className="w-5 h-5 text-slate-500 shrink-0" />
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">Tryb edycji na żywo</h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed">Pozwala układać elementy bezpośrednio na pulpicie za pomocą Drag & Drop.</p>
@@ -407,7 +407,7 @@ export function DashboardView({
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 ${
                     isEditMode
                       ? "bg-rose-500 hover:bg-rose-600 text-white"
-                      : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      : "bg-slate-800 hover:bg-slate-900 text-white"
                   }`}
                 >
                   {isEditMode ? "Wyłącz edycję" : "Włącz edycję"}
