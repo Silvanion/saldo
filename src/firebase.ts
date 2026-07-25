@@ -208,14 +208,30 @@ export const logout = async () => {
 export const saveUserStateToFirestore = async (uid: string, state: AppState): Promise<void> => {
   if (!uid || !isFirebaseConfigured || !db) return;
   const path = `users/${uid}`;
+
+  const payloadToSave = {
+    ...state,
+    updatedAt: new Date().toISOString()
+  };
+
   try {
+    const payloadString = JSON.stringify(payloadToSave);
+    // Use TextEncoder to get actual byte length (handles multi-byte characters)
+    const payloadSizeBytes = new TextEncoder().encode(payloadString).length;
+    
+    // 950KB safe threshold to prevent Firestore 1MB hard limit crash
+    if (payloadSizeBytes > 950 * 1024) {
+      throw new Error("CLOUD_LIMIT_EXCEEDED: Rozmiar danych przekracza bezpieczny limit chmury (1MB). Wyczyść starą historię lub zapisz kopię zapasową lokalnie.");
+    }
+
     const userDocRef = doc(db, "users", uid);
-    await setDoc(userDocRef, {
-      ...state,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+    await setDoc(userDocRef, payloadToSave, { merge: true });
     console.log("State successfully saved to Firestore for user:", uid);
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("CLOUD_LIMIT_EXCEEDED")) {
+      console.error("Firestore Size Limit Error:", error.message);
+      throw error;
+    }
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 };
