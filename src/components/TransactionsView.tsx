@@ -142,7 +142,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Historia finansowa</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Historia finansowa</p>
               <h2 className="text-xl font-bold text-slate-900">Zarejestrowane transakcje</h2>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
                   });
                 }}
-                className="bg-slate-100 text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 transition text-sm flex items-center gap-1.5 shadow-sm border border-slate-200"
+                className="bg-slate-100 text-slate-700 font-bold py-2 px-4 rounded-xl hover:bg-slate-200 transition text-sm flex items-center gap-1.5 shadow-sm border border-slate-200"
                 title="Eksportuj odfiltrowane dane"
                 id="btn-export-csv"
               >
@@ -161,14 +161,14 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               </button>
               <button
                 onClick={() => setIsCSVModalOpen(true)}
-                className="bg-[#e7f3f0] text-[#137566] font-bold py-2 px-4 rounded-lg hover:bg-[#d8ebe6] transition text-sm flex items-center gap-1.5 border border-[#137566]/20 shadow-sm"
+                className="bg-[#e7f3f0] text-[#137566] font-bold py-2 px-4 rounded-xl hover:bg-[#d8ebe6] transition text-sm flex items-center gap-1.5 border border-[#137566]/20 shadow-sm"
                 id="btn-import-csv"
               >
                 📥 Importuj CSV
               </button>
               <button
                 onClick={onOpenTxModal}
-                className="bg-[#137566] text-white font-bold py-2 px-5 rounded-lg hover:bg-[#0f5d51] transition shadow-md text-sm"
+                className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-sm"
                 id="btn-add-tx-view"
               >
                 ＋ Nowa transakcja
@@ -177,13 +177,13 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
           </div>
 
           {/* Filter and Search controls */}
-          <div className="flex flex-col gap-4 border-b border-gray-100 pb-5 mb-5">
+          <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 mb-5">
             <div className="flex flex-col xl:flex-row items-center justify-between gap-4 w-full">
-              <div className="flex bg-gray-100 p-1 rounded-xl w-full xl:w-auto overflow-x-auto whitespace-nowrap hide-scrollbar">
+              <div className="flex bg-slate-100 p-1 rounded-xl w-full xl:w-auto overflow-x-auto whitespace-nowrap hide-scrollbar">
                 <button
                   onClick={() => setFilterType("all")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition ${
-                    filterType === "all" ? "bg-white text-slate-800 shadow-sm" : "text-gray-500 hover:text-gray-800"
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    filterType === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                   }`}
                   id="filter-all"
                 >
@@ -191,8 +191,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 </button>
                 <button
                   onClick={() => setFilterType("expense")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition ${
-                    filterType === "expense" ? "bg-white text-[#d55e50] shadow-sm" : "text-gray-500 hover:text-gray-800"
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    filterType === "expense" ? "bg-white text-[#d55e50] shadow-sm" : "text-slate-500 hover:text-slate-800"
                   }`}
                   id="filter-expenses"
                 >
@@ -200,8 +200,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 </button>
                 <button
                   onClick={() => setFilterType("income")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition ${
-                    filterType === "income" ? "bg-white text-[#137566] shadow-sm" : "text-gray-500 hover:text-gray-800"
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    filterType === "income" ? "bg-white text-[#137566] shadow-sm" : "text-slate-500 hover:text-slate-800"
                   }`}
                   id="filter-incomes"
                 >
@@ -213,13 +213,13 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 <div className="flex bg-indigo-50/50 p-1 rounded-xl w-full xl:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-indigo-100/50">
                   <button
                     onClick={() => setPaidByFilter("all")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                       paidByFilter === "all" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                     }`}
                   >Wszystkie</button>
                   <button
                     onClick={() => setPaidByFilter("me")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                       paidByFilter === "me" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                     }`}
                   >
@@ -227,7 +227,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   </button>
                   <button
                     onClick={() => setPaidByFilter("partner")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                       paidByFilter === "partner" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                     }`}
                   >
@@ -235,7 +235,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   </button>
                   <button
                     onClick={() => setPaidByFilter("joint")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                       paidByFilter === "joint" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                     }`}
                   >Wspólne/50-50</button>
@@ -245,43 +245,43 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               {/* Advanced Filter row */}
               <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-bold text-gray-400">Od:</span>
+                  <span className="text-[10px] uppercase font-semibold text-slate-400">Od:</span>
                   <input
                     type="date"
                     value={dateFrom}
                     onChange={e => setDateFrom(e.target.value)}
-                    className="w-[125px] rounded-lg border border-gray-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-bold text-gray-400">Do:</span>
+                  <span className="text-[10px] uppercase font-semibold text-slate-400">Do:</span>
                   <input
                     type="date"
                     value={dateTo}
                     onChange={e => setDateTo(e.target.value)}
-                    className="w-[125px] rounded-lg border border-gray-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-bold text-gray-400">Min:</span>
+                  <span className="text-[10px] uppercase font-semibold text-slate-400">Min:</span>
                   <input
                     type="number"
                     min="0"
                     placeholder="0"
                     value={minAmount}
                     onChange={e => setMinAmount(e.target.value)}
-                    className="w-[70px] rounded-lg border border-gray-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-bold text-gray-400">Max:</span>
+                  <span className="text-[10px] uppercase font-semibold text-slate-400">Max:</span>
                   <input
                     type="number"
                     min="0"
                     placeholder="∞"
                     value={maxAmount}
                     onChange={e => setMaxAmount(e.target.value)}
-                    className="w-[70px] rounded-lg border border-gray-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
+                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -291,10 +291,10 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     placeholder="Szukaj..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 py-2 px-3 pl-9 outline-none focus:border-[#137566] text-sm"
+                    className="w-full rounded-xl border border-slate-200 py-2 px-3 pl-9 outline-none focus:border-[#137566] text-sm"
                     id="tx-search-input"
                   />
-                  <span className="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
+                  <span className="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
                 </div>
               </div>
             </div>
@@ -302,14 +302,14 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
             {/* Unique tags list for easy quick filtering */}
             {allUniqueTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 pt-2" id="tags-filter-bar">
-                <span className="text-[11px] font-bold text-gray-400 uppercase mr-1">Filtruj tagiem:</span>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase mr-1">Filtruj tagiem:</span>
                 {allUniqueTags.map((tag) => {
                   const isSelected = selectedTag === tag;
                   return (
                     <button
                       key={tag}
                       onClick={() => setSelectedTag(isSelected ? null : tag)}
-                      className={`text-xs px-2.5 py-1 rounded-full font-semibold border transition ${
+                      className={`text-xs px-2.5 py-1 rounded-full font-bold border transition ${
                         isSelected
                           ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
                           : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
@@ -335,7 +335,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse" id="tx-table">
               <thead>
-                <tr className="border-b border-gray-100 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                <tr className="border-b border-slate-100 text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
                   <th className="py-3 px-2">Opis / Transakcja</th>
                   <th className="py-3 px-2">Data</th>
                   <th className="py-3 px-2">Kategoria</th>
@@ -344,22 +344,22 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   <th className="py-3 px-2 text-center w-16">Akcja</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-50">
                 {visibleTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-sm text-gray-400">
+                    <td colSpan={6} className="py-10 text-center text-sm text-slate-400">
                       Brak transakcji spełniających kryteria.
                     </td>
                   </tr>
                 ) : (
                   visibleTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-gray-50/50 transition">
+                    <tr key={tx.id} className="hover:bg-slate-50/50 transition">
                       <td className="py-3 px-2 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-base shrink-0" title={tx.category}>
                             {tx.categoryIcon || iconByCategory[tx.category] || "📂"}
                           </span>
-                          <span className="font-semibold text-slate-900">{tx.name}</span>
+                          <span className="font-bold text-slate-900">{tx.name}</span>
                           {profile.kind === "shared" && tx.paidBy && (
                             <span className="ml-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-indigo-50 text-indigo-700 border border-indigo-100">
                               {tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
@@ -389,11 +389,11 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-2 text-xs text-gray-500 whitespace-nowrap">{formatDatePl(tx.isoDate)}</td>
-                      <td className="py-3 px-2 text-xs text-gray-600">
-                        <span className="bg-gray-100 px-2.5 py-1 rounded-full">{tx.category}</span>
+                      <td className="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">{formatDatePl(tx.isoDate)}</td>
+                      <td className="py-3 px-2 text-xs text-slate-600">
+                        <span className="bg-slate-100 px-2.5 py-1 rounded-full">{tx.category}</span>
                       </td>
-                      <td className="py-3 px-2 text-xs text-gray-500">{tx.account}</td>
+                      <td className="py-3 px-2 text-xs text-slate-500">{tx.account}</td>
                       <td className={`py-3 px-2 text-sm font-bold text-right whitespace-nowrap ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                         {tx.type === "income" ? "+" : "-"} {formatPln(tx.amount)}
                       </td>
@@ -401,14 +401,14 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => onOpenTxModal(tx)}
-                            className="text-gray-400 hover:text-indigo-600 text-xs font-semibold px-2 py-1 rounded transition"
+                            className="text-slate-400 hover:text-indigo-600 text-xs font-semibold px-2 py-1 rounded transition"
                             title="Edytuj transakcję"
                           >
                             Edytuj
                           </button>
                           <button
                             onClick={() => setTransactionToDelete(tx)}
-                            className="text-gray-400 hover:text-rose-600 text-xs font-semibold px-2 py-1 rounded transition"
+                            className="text-slate-400 hover:text-rose-600 text-xs font-semibold px-2 py-1 rounded transition"
                             title="Usuń transakcję"
                             id={`btn-delete-tx-${tx.id}`}
                           >
@@ -426,7 +426,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
           {/* Mobile Card List View (visible on mobile only) */}
           <div className="block md:hidden space-y-3" id="tx-mobile-list">
             {visibleTransactions.length === 0 ? (
-              <div className="py-10 text-center text-sm text-gray-400 bg-gray-50 rounded-xl">
+              <div className="py-10 text-center text-sm text-slate-400 bg-slate-50 rounded-lg">
   {profile.transactions.length === 0 && profile.kind === "shared" ? "Dodaj pierwszy wspólny wydatek." : "Brak transakcji spełniających kryteria."}
 </div>
             ) : (
@@ -447,7 +447,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                             </span>
                           )}
                         </h4>
-                        <p className="text-[11px] text-gray-400">{formatDatePl(tx.isoDate)}</p>
+                        <p className="text-[11px] text-slate-400">{formatDatePl(tx.isoDate)}</p>
                       </div>
                     </div>
                     <span className={`text-sm font-black whitespace-nowrap ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
@@ -468,13 +468,13 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onOpenTxModal(tx)}
-                        className="text-indigo-600 hover:text-indigo-700 text-[11px] font-bold px-2.5 py-1 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition"
+                        className="text-indigo-600 hover:text-indigo-700 text-[11px] font-semibold px-2.5 py-1 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition"
                       >
                         Edytuj
                       </button>
                       <button
                         onClick={() => setTransactionToDelete(tx)}
-                        className="text-rose-600 hover:text-rose-700 text-[11px] font-bold px-2.5 py-1 bg-rose-50 rounded-lg hover:bg-rose-100 transition"
+                        className="text-rose-600 hover:text-rose-700 text-[11px] font-semibold px-2.5 py-1 bg-rose-50 rounded-lg hover:bg-rose-100 transition"
                         id={`btn-delete-tx-mob-${tx.id}`}
                       >
                         Usuń
@@ -509,7 +509,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
 
           {/* Pagination / Show More button */}
           {filteredTransactions.length > itemsToShow && (
-            <div className="flex justify-center mt-4 border-t border-gray-50 pt-4" id="pagination-panel">
+            <div className="flex justify-center mt-4 border-t border-slate-50 pt-4" id="pagination-panel">
               <button
                 onClick={() => setItemsToShow((prev) => prev + 25)}
                 className="bg-[#e7f3f0] text-[#137566] hover:bg-[#d8ebe6] font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm"
@@ -548,7 +548,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
         {/* Tag distribution bar chart */}
         <div className="flex-1 overflow-y-auto space-y-4 max-h-[350px] pr-1">
           {tagSummaries.length === 0 ? (
-            <div className="text-center py-12 text-sm text-gray-400">
+            <div className="text-center py-12 text-sm text-slate-400">
               <span className="text-2xl block mb-2">🏷️</span>
               Brak otagowanych wydatków. Dodaj tagi do transakcji, aby wygenerować raport.
             </div>
@@ -630,7 +630,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               {/* Transaction Details Card */}
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-sm mb-5">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-semibold text-slate-900">{transactionToDelete.name}</span>
+                  <span className="font-bold text-slate-900">{transactionToDelete.name}</span>
                   <span className={`font-bold ${transactionToDelete.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                     {transactionToDelete.type === "income" ? "+" : "-"} {formatPln(transactionToDelete.amount)}
                   </span>
@@ -655,7 +655,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setTransactionToDelete(null)}
-                  className="px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                  className="px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer"
                 >
                   Anuluj
                 </button>
@@ -664,7 +664,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     onDeleteTransaction(transactionToDelete.id);
                     setTransactionToDelete(null);
                   }}
-                  className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition shadow-md flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Usuń transakcję</span>
                 </button>

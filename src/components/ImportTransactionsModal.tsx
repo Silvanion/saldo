@@ -211,15 +211,15 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* HEADER */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white sticky top-0 z-20">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white sticky top-0 z-20">
           <div>
             <h2 className="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-[#137566]" />
               Import historii transakcji bankowych
             </h2>
-            <p className="text-xs text-gray-500 font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
+            <p className="text-xs text-slate-500 font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition p-2 bg-gray-50 hover:bg-gray-100 rounded-full">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition p-2 bg-slate-50 hover:bg-slate-100 rounded-full">
             <span className="sr-only">Zamknij</span>
             &times;
           </button>
@@ -227,11 +227,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
         {/* TABS */}
         {step === 1 && isAiAvailable && (
-          <div className="flex border-b border-gray-200">
+          <div className="flex border-b border-slate-200">
             <button
               onClick={() => setTab("csv")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "csv" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-gray-500 hover:bg-gray-50"
+                tab === "csv" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-slate-500 hover:bg-slate-50"
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
@@ -239,7 +239,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             <button
               onClick={() => setTab("ai")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "ai" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-gray-500 hover:bg-gray-50"
+                tab === "ai" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-slate-500 hover:bg-slate-50"
               }`}
             >
               <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
@@ -262,9 +262,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
                 placeholder="Wklej historię transakcji z banku tutaj..."
-                className="w-full h-48 p-4 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#137566] resize-none"
+                className="w-full h-48 p-4 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#137566] resize-none"
               ></textarea>
-              {aiError && <p className="text-rose-500 text-xs font-bold">{aiError}</p>}
+              {aiError && <p className="text-rose-500 text-xs font-semibold">{aiError}</p>}
               <button
                 onClick={handleAiProcess}
                 disabled={isAiProcessing || !aiText.trim()}
@@ -280,7 +280,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             <div className="space-y-5">
               {/* Presets Selection Bar (Task D1 #1) */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
-                <label className="text-xs font-bold text-slate-700 block">
+                <label className="text-xs font-semibold text-slate-700 block">
                   1. Wybierz preset bankowy
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -292,14 +292,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                         selectedPresetId === preset.id
                           ? "border-[#137566] bg-emerald-50/50 ring-1 ring-[#137566]"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-slate-800">{preset.name}</span>
                         {selectedPresetId === preset.id && <CheckCircle2 className="w-4 h-4 text-[#137566]" />}
                       </div>
-                      <span className="text-[10px] text-gray-500 mt-1">{preset.description}</span>
+                      <span className="text-[10px] text-slate-500 mt-1">{preset.description}</span>
                     </button>
                   ))}
                 </div>
@@ -319,16 +319,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               {/* Drag & Drop File */}
               <div
                 className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                  dragActive ? "border-[#137566] bg-emerald-50/50" : "border-gray-200 bg-gray-50"
+                  dragActive ? "border-[#137566] bg-emerald-50/50" : "border-slate-200 bg-slate-50"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-[#137566]" : "text-gray-400"}`} />
-                <p className="text-xs font-bold text-gray-700 mb-0.5">2. Przeciągnij i upuść plik CSV z banku</p>
-                <p className="text-[11px] text-gray-500 mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
+                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-[#137566]" : "text-slate-400"}`} />
+                <p className="text-xs font-semibold text-slate-700 mb-0.5">2. Przeciągnij i upuść plik CSV z banku</p>
+                <p className="text-[11px] text-slate-500 mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -338,16 +338,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-white border border-gray-200 text-gray-700 font-bold py-2 px-5 rounded-lg hover:bg-gray-50 transition text-xs shadow-xs"
+                  className="bg-white border border-slate-200 text-slate-700 font-bold py-2 px-5 rounded-xl hover:bg-slate-50 transition text-xs shadow-xs"
                 >
                   Wybierz plik .csv
                 </button>
               </div>
 
               <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink mx-4 text-gray-400 text-[11px] font-bold uppercase tracking-wider">albo wklej zawartość pliku CSV</span>
-                <div className="flex-grow border-t border-gray-200"></div>
+                <div className="flex-grow border-t border-slate-200"></div>
+                <span className="flex-shrink mx-4 text-slate-400 text-[11px] font-semibold uppercase tracking-wider">albo wklej zawartość pliku CSV</span>
+                <div className="flex-grow border-t border-slate-200"></div>
               </div>
 
               <div className="space-y-2">
@@ -355,7 +355,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   value={csvText}
                   onChange={(e) => setCsvText(e.target.value)}
                   placeholder="Tutaj możesz wkleić skopiowane wiersze z pliku CSV (np. z nagłówkiem: Data;Kwota;Tytuł)..."
-                  className="w-full h-28 p-3 border border-gray-200 rounded-xl text-xs font-mono outline-none focus:border-[#137566] resize-none"
+                  className="w-full h-28 p-3 border border-slate-200 rounded-xl text-xs font-mono outline-none focus:border-[#137566] resize-none"
                 ></textarea>
                 <button
                   onClick={() => processRawCsvString(csvText, "Wklejony tekst CSV")}
@@ -370,16 +370,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
           {step === 2 && tab === "csv" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-bold text-slate-800">Mapowanie kolumn z {fileName}</h3>
-                <span className="text-[11px] font-mono bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md">
+                <span className="text-[11px] font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">
                   Wykryty separator: <strong className="text-slate-900">&quot;{detectedDelimiter}&quot;</strong>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-gray-600">Kolumna tytułu/nazwy</label>
-                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-lg border border-gray-200 p-2">
+                  <label className="text-[11px] font-semibold text-slate-600">Kolumna tytułu/nazwy</label>
+                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -389,8 +389,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-gray-600">Kolumna kwoty</label>
-                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-lg border border-gray-200 p-2">
+                  <label className="text-[11px] font-semibold text-slate-600">Kolumna kwoty</label>
+                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -400,8 +400,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-gray-600">Kolumna daty</label>
-                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-lg border border-gray-200 p-2">
+                  <label className="text-[11px] font-semibold text-slate-600">Kolumna daty</label>
+                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -411,8 +411,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-gray-600">Kategoria domyślna</label>
-                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-lg border border-gray-200 p-2">
+                  <label className="text-[11px] font-semibold text-slate-600">Kategoria domyślna</label>
+                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2">
                     {expenseCategories.concat(incomeCategories).map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -424,16 +424,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
               {/* Categorization Rules Notice */}
               {activeProfile?.transactionRules && activeProfile.transactionRules.length > 0 && (
-                <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
+                <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
                   ✨ Automatyczna kategoryzacja użyje Twoich <strong>{activeProfile.transactionRules.length} reguł transakcji</strong> z profilu.
                 </p>
               )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <button onClick={() => setStep(1)} className="px-4 py-2 text-xs font-bold text-gray-500">
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button onClick={() => setStep(1)} className="px-4 py-2 text-xs font-semibold text-slate-500">
                   Wstecz
                 </button>
-                <button onClick={handleGenerateCsvPreview} className="bg-[#137566] text-white font-bold py-2 px-5 rounded-lg text-xs">
+                <button onClick={handleGenerateCsvPreview} className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl text-xs">
                   Generuj podgląd &rarr;
                 </button>
               </div>
@@ -446,7 +446,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 <div className="bg-rose-50 px-4 py-3 rounded-xl border border-rose-200 flex items-start gap-2">
                   <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-rose-900">Podsumowanie problemów z parsowaniem pliku:</h4>
+                    <h4 className="text-xs font-semibold text-rose-900">Podsumowanie problemów z parsowaniem pliku:</h4>
                     <ul className="list-disc list-inside text-[11px] text-rose-700 mt-1 space-y-0.5">
                       {importStats.tooMany && <li>Osiągnięto limit 2000 transakcji. Pozostałe zostały zignorowane.</li>}
                       {importStats.invalidAmount > 0 && <li>Odrzucono {importStats.invalidAmount} wierszy ze względu na nieprawidłową kwotę (NaN lub 0).</li>}
@@ -458,10 +458,10 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               )}
 
               <div className="bg-emerald-50/50 px-4 py-3 rounded-xl border border-emerald-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-800">
+                <span className="text-xs font-semibold text-emerald-800">
                   Nowe transakcje gotowe do zaimportowania: <strong className="text-xl font-extrabold">{mappedTransactions.length}</strong>
                 </span>
-                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-[#137566] hover:underline font-semibold">
+                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-[#137566] hover:underline font-bold">
                   Wróć i popraw
                 </button>
               </div>
@@ -470,7 +470,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 <div className="bg-amber-50 px-4 py-3 rounded-xl border border-amber-200 flex items-start gap-2">
                   <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-amber-900">
+                    <h4 className="text-xs font-semibold text-amber-900">
                       Wykryto potencjalne duplikaty: {duplicateAnalysis.duplicateCount}
                     </h4>
                     <p className="text-[11px] text-amber-700 mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
@@ -478,10 +478,10 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 </div>
               )}
 
-              <div className="overflow-y-auto border border-gray-200 rounded-xl flex-1 max-h-[350px]">
+              <div className="overflow-y-auto border border-slate-200 rounded-xl flex-1 max-h-[350px]">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 font-bold text-gray-600 sticky top-0 z-10">
+                    <tr className="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 sticky top-0 z-10">
                       <th className="py-2.5 px-3">Opis</th>
                       <th className="py-2.5 px-3">Data</th>
                       <th className="py-2.5 px-3">Kategoria</th>
@@ -489,23 +489,23 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       <th className="py-2.5 px-3 text-right">Kwota</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
+                  <tbody className="divide-y divide-slate-100 bg-white">
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => (
-                      <tr key={idx} className={`transition ${warning ? "bg-amber-50/50" : "hover:bg-gray-50"}`}>
+                      <tr key={idx} className={`transition ${warning ? "bg-amber-50/50" : "hover:bg-slate-50"}`}>
                         <td className="py-2 px-3">
-                          <div className="font-semibold text-slate-800 flex items-center gap-1.5">
+                          <div className="font-bold text-slate-800 flex items-center gap-1.5">
                             {warning && <AlertTriangle className="w-3 h-3 text-amber-500" title={warning.reason} />}
                             {tx.name}
                           </div>
                         </td>
-                        <td className="py-2 px-3 text-gray-500 whitespace-nowrap">{tx.isoDate}</td>
+                        <td className="py-2 px-3 text-slate-500 whitespace-nowrap">{tx.isoDate}</td>
                         <td className="py-2 px-3">
-                          <span className="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">
+                          <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
                             <span>{tx.categoryIcon}</span>
                             {tx.category}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-gray-500">{tx.account}</td>
+                        <td className="py-2 px-3 text-slate-500">{tx.account}</td>
                         <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                           {tx.type === "income" ? "+" : "-"} {tx.amount.toFixed(2)} PLN
                         </td>
@@ -514,7 +514,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   </tbody>
                 </table>
               </div>
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                 {duplicateAnalysis.duplicateCount > 0 && (
                   <button
                     onClick={() => handleConfirmImport(true)}

@@ -153,13 +153,13 @@ export function PaymentsView({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#e7f3f0] p-5 rounded-2xl border border-[#137566]/20">
         <div>
           <h3 className="text-sm font-bold text-[#153a35] uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-slate-600">
             Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.
           </p>
         </div>
         <div className="flex justify-between sm:justify-end items-center gap-4 flex-wrap">
           <div className="text-right mr-2">
-            <span className="block text-[10px] uppercase font-bold text-gray-500">Do opłacenia</span>
+            <span className="block text-[10px] uppercase font-semibold text-slate-500">Do opłacenia</span>
             <span className="text-lg font-bold text-[#d55e50]">
               {unpaidCount} rachunki ({formatPln(totalUnpaidSum)})
             </span>
@@ -177,7 +177,7 @@ export function PaymentsView({
       </div>
 
       {/* Browser Notifications Setup Card */}
-      <div className="bg-white rounded-2xl border border-gray-150 shadow-xs p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-150 shadow-xs p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-3.5">
           <div className={`p-2.5 rounded-xl ${
             notificationPermission === "granted" 
@@ -196,7 +196,7 @@ export function PaymentsView({
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">Powiadomienia o płatnościach</h4>
-            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
               {notificationPermission === "granted"
                 ? "Włączone! Otrzymasz natychmiastowe powiadomienie na pulpicie, gdy zbliży się termin płatności rachunku (do 3 dni wstecz)."
                 : notificationPermission === "denied"
@@ -204,7 +204,7 @@ export function PaymentsView({
                   : "Chcesz dostawać powiadomienia na pulpicie o zbliżających się rachunkach? Włącz powiadomienia jednym kliknięciem."}
             </p>
             {notificationStatusMsg && (
-              <p className={`text-xs font-bold mt-2 ${notificationPermission === "granted" ? "text-[#137566]" : "text-rose-600"}`}>
+              <p className={`text-xs font-semibold mt-2 ${notificationPermission === "granted" ? "text-[#137566]" : "text-rose-600"}`}>
                 {notificationStatusMsg}
               </p>
             )}
@@ -214,9 +214,9 @@ export function PaymentsView({
         {notificationPermission !== "granted" && (
           <button
             onClick={handleEnableNotifications}
-            className={`font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer shrink-0 ${
+            className={`font-bold py-2.5 px-4 rounded-lg text-xs transition cursor-pointer shrink-0 ${
               notificationPermission === "denied"
-                ? "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200"
+                ? "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
                 : "bg-[#137566] text-white hover:bg-[#0f5d51] shadow-md"
             }`}
             id="btn-enable-desktop-notifications"
@@ -229,7 +229,7 @@ export function PaymentsView({
       {suggestedPayments.length > 0 && (
         <div className="bg-indigo-50/50 rounded-2xl border border-indigo-100 shadow-sm p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="bg-indigo-100 text-indigo-700 p-1.5 rounded-lg">
+            <span className="bg-indigo-100 text-indigo-700 p-1.5 rounded-xl">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -248,12 +248,12 @@ export function PaymentsView({
               }
               return (
                 <div key={`sugg-${sp.id}`} className="bg-white rounded-xl border border-indigo-200 p-3 shadow-sm hover:border-indigo-300 transition">
-                  <h4 className="text-sm font-bold text-gray-800">{sp.name}</h4>
+                  <h4 className="text-sm font-bold text-slate-800">{sp.name}</h4>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-gray-500">{formatPln(sp.amount)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
+                    <span className="text-xs text-slate-500">{formatPln(sp.amount)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
                     <button
                       onClick={() => handleAddSuggestedPayment(sp)}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-1.5 rounded-lg text-xs font-bold transition"
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-1.5 rounded-xl text-xs font-semibold transition"
                       title="Skopiuj do tego miesiąca"
                     >
                       + Dodaj
@@ -266,7 +266,7 @@ export function PaymentsView({
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
           <h3 className="text-base font-bold text-[#153a35]">Lista Twoich opłat</h3>
           
@@ -274,7 +274,7 @@ export function PaymentsView({
             <div className="flex bg-indigo-50/50 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-indigo-100/50">
               <button
                 onClick={() => setPaidByFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                   paidByFilter === "all" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                 }`}
               >
@@ -282,7 +282,7 @@ export function PaymentsView({
               </button>
               <button
                 onClick={() => setPaidByFilter("me")}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                   paidByFilter === "me" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                 }`}
               >
@@ -290,7 +290,7 @@ export function PaymentsView({
               </button>
               <button
                 onClick={() => setPaidByFilter("partner")}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                   paidByFilter === "partner" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                 }`}
               >
@@ -298,7 +298,7 @@ export function PaymentsView({
               </button>
               <button
                 onClick={() => setPaidByFilter("joint")}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
                   paidByFilter === "joint" ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-100"
                 }`}
               >Wspólne/50-50</button>
@@ -310,13 +310,13 @@ export function PaymentsView({
           {sortedPayments.length === 0 ? (
             <div className="text-center py-10">
               {profile.payments.length > 0 ? (
-                <p className="text-sm text-gray-400">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
+                <p className="text-sm text-slate-400">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
               ) : (
                 <>
-                  <p className="text-sm text-gray-400">Brak zdefiniowanych płatności.</p>
+                  <p className="text-sm text-slate-400">Brak zdefiniowanych płatności.</p>
                   <button
                     onClick={onOpenPaymentModal}
-                    className="text-[#137566] text-xs font-bold hover:underline mt-1"
+                    className="text-[#137566] text-xs font-semibold hover:underline mt-1"
                   >
                     Dodaj swój pierwszy rachunek już teraz &rarr;
                   </button>
@@ -330,7 +330,7 @@ export function PaymentsView({
                 <div
                   key={p.id}
                   className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition ${
-                    isPaid ? "bg-gray-50/50 border-gray-100 opacity-75" : "bg-white border-gray-200 shadow-sm hover:border-[#137566]/50"
+                    isPaid ? "bg-slate-50/50 border-slate-100 opacity-75" : "bg-white border-slate-200 shadow-sm hover:border-[#137566]/50"
                   }`}
                 >
                   <div className="flex items-center gap-4 mb-3 sm:mb-0">
@@ -364,12 +364,12 @@ export function PaymentsView({
                           return null;
                         })()}
                       </div>
-                      <p className="text-xs text-gray-500">Termin płatności: {formatDatePl(p.dueDate)}</p>
+                      <p className="text-xs text-slate-500">Termin płatności: {formatDatePl(p.dueDate)}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <span className="text-sm font-bold text-gray-800">{formatPln(p.amount)}</span>
+                    <span className="text-sm font-bold text-slate-800">{formatPln(p.amount)}</span>
                     <div className="flex items-center gap-2">
                       {!isPaid && (
                         <button
@@ -383,7 +383,7 @@ export function PaymentsView({
                       )}
                       <button
                         onClick={() => onTogglePaymentStatus(p.id)}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           isPaid
                             ? "bg-[#e7f3f0] text-[#137566] hover:bg-[#d1e8e2]"
                             : "bg-[#fff3dc] text-amber-800 hover:bg-[#137566] hover:text-white"
@@ -394,7 +394,7 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => onOpenPaymentModal(p)}
-                        className="p-1.5 text-gray-400 hover:text-indigo-600 rounded transition"
+                        className="p-1.5 text-slate-400 hover:text-indigo-600 rounded transition"
                         title="Edytuj rachunek"
                         id={`btn-edit-payment-${p.id}`}
                       >
@@ -402,7 +402,7 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => setPaymentToDelete(p)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 rounded transition"
+                        className="p-1.5 text-slate-400 hover:text-red-500 rounded transition"
                         title="Usuń rachunek"
                         id={`btn-delete-payment-${p.id}`}
                       >
@@ -424,7 +424,7 @@ export function PaymentsView({
             
             {profile.transactions.some(tx => tx.sourcePaymentId === paymentToDelete.id) ? (
               <>
-                <p className="text-sm text-gray-600 mb-6">
+                <p className="text-sm text-slate-600 mb-6">
                   Ta płatność ma powiązaną transakcję w historii wydatków. Możesz usunąć tylko płatność albo płatność razem z transakcją.
                 </p>
                 <div className="flex flex-col gap-3">
@@ -442,13 +442,13 @@ export function PaymentsView({
                       onDeletePayment(paymentToDelete.id, "payment-only");
                       setPaymentToDelete(null);
                     }}
-                    className="w-full bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl hover:bg-gray-200 transition text-sm"
+                    className="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition text-sm"
                   >
                     Usuń tylko płatność
                   </button>
                   <button
                     onClick={() => setPaymentToDelete(null)}
-                    className="w-full text-gray-500 font-bold py-2 hover:text-gray-700 transition text-sm"
+                    className="w-full text-slate-500 font-bold py-2 hover:text-slate-700 transition text-sm"
                   >
                     Anuluj
                   </button>
@@ -456,13 +456,13 @@ export function PaymentsView({
               </>
             ) : (
               <>
-                <p className="text-sm text-gray-600 mb-6">
+                <p className="text-sm text-slate-600 mb-6">
                   Tej operacji nie da się łatwo cofnąć.
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setPaymentToDelete(null)}
-                    className="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl hover:bg-gray-200 transition text-sm"
+                    className="flex-1 bg-slate-100 text-slate-700 font-bold py-2 rounded-xl hover:bg-slate-200 transition text-sm"
                   >
                     Anuluj
                   </button>

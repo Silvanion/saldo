@@ -173,18 +173,18 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-tx-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-tx-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Nowy Wpis</p>
         <h2 className="text-2xl font-bold text-[#153a35] mb-4">Dodaj transakcję</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex rounded-lg bg-gray-100 p-1">
+          <div className="flex rounded-xl bg-slate-100 p-1">
             <button
               type="button"
-              className={`w-1/2 rounded-md py-2 text-sm font-semibold transition ${
-                type === "expense" ? "bg-white text-[#d55e50] shadow" : "text-gray-500 hover:text-gray-800"
+              className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
+                type === "expense" ? "bg-white text-[#d55e50] shadow" : "text-slate-500 hover:text-slate-800"
               }`}
               onClick={() => setType("expense")}
               id="btn-type-expense"
@@ -193,8 +193,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             </button>
             <button
               type="button"
-              className={`w-1/2 rounded-md py-2 text-sm font-semibold transition ${
-                type === "income" ? "bg-white text-[#137566] shadow" : "text-gray-500 hover:text-gray-800"
+              className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
+                type === "income" ? "bg-white text-[#137566] shadow" : "text-slate-500 hover:text-slate-800"
               }`}
               onClick={() => setType("income")}
               id="btn-type-income"
@@ -213,7 +213,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-tx-amount"
             />
           </div>
@@ -226,7 +226,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               placeholder="np. Zakupy Biedronka"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-tx-name"
             />
           </div>
@@ -237,7 +237,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               <select
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
                 id="select-tx-category"
               >
                 {categories.map((cat) => (
@@ -253,7 +253,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
                 id="select-tx-account"
               >
                 {(activeProfile?.accounts && activeProfile.accounts.length > 0) ? (
@@ -274,7 +274,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           <div>
             <label className="block text-xs font-semibold text-[#153a35] mb-1">Ikona kategorii</label>
-            <div className="flex items-center gap-3 p-2.5 border border-gray-200 rounded-lg">
+            <div className="flex items-center gap-3 p-2.5 border border-slate-200 rounded-xl">
               <span className="text-2xl w-10 h-10 flex items-center justify-center bg-[#e7f3f0] text-[#137566] rounded-xl border border-[#137566]/20 font-bold shrink-0">
                 {categoryIcon}
               </span>
@@ -284,7 +284,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     key={ico}
                     type="button"
                     onClick={() => setCategoryIcon(ico)}
-                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition shrink-0 ${
+                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition shrink-0 ${
                       categoryIcon === ico ? "bg-[#e7f3f0] border-2 border-[#137566]" : "border border-transparent"
                     }`}
                   >
@@ -302,13 +302,13 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-tx-date"
             />
           </div>
 
           {/* Tagowanie wydatków */}
-          <div className="border-t border-gray-100 pt-3">
+          <div className="border-t border-slate-100 pt-3">
             <label className="block text-xs font-semibold text-[#153a35] mb-1">Tagi (opcjonalnie)</label>
             <div className="flex gap-2">
               <input
@@ -317,7 +317,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
-                className="flex-1 rounded-lg border border-gray-200 p-2 text-xs outline-none focus:border-[#137566]"
+                className="flex-1 rounded-xl border border-slate-200 p-2 text-xs outline-none focus:border-[#137566]"
                 id="input-tx-tag"
               />
               <button
@@ -328,7 +328,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     setTagInput("");
                   }
                 }}
-                className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-200 transition"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
                 id="btn-tx-add-tag"
               >
                 Dodaj
@@ -347,7 +347,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-[10px] text-indigo-400 hover:text-indigo-600 font-bold"
+                      className="text-[10px] text-indigo-400 hover:text-indigo-600 font-semibold"
                     >
                       &times;
                     </button>
@@ -358,7 +358,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
             {/* Sugerowane tagi */}
             <div className="mt-2.5">
-              <p className="text-[10px] text-gray-400 font-medium mb-1">Szybkie sugestie:</p>
+              <p className="text-[10px] text-slate-400 font-medium mb-1">Szybkie sugestie:</p>
               <div className="flex flex-wrap gap-1">
                 {suggestions.map((sug) => {
                   const isSelected = tags.includes(sug);
@@ -370,7 +370,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
                         isSelected
                           ? "bg-indigo-600 text-white border-indigo-600"
-                          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
                       +{sug}
@@ -382,7 +382,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           {activeProfile?.kind === "shared" && (
-            <div className="border-t border-gray-100 pt-3">
+            <div className="border-t border-slate-100 pt-3">
               {!activeProfile.partnerName ? (
                 <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
@@ -390,11 +390,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
                       id="select-transaction-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -403,11 +403,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Dzielimy 50/50?</label>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Dzielimy 50/50?</label>
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
                       id="select-transaction-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -420,10 +420,10 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           )}
 
           {duplicateWarning && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
               <span className="text-xl mt-0.5">⚠️</span>
               <div>
-                <p className="text-xs font-bold text-amber-900">Prawdopodobny duplikat</p>
+                <p className="text-xs font-semibold text-amber-900">Prawdopodobny duplikat</p>
                 <p className="text-[11px] text-amber-700">{duplicateWarning.reason}</p>
               </div>
             </div>
@@ -432,7 +432,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             id="btn-tx-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz transakcję"}
@@ -514,7 +514,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-payment-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-payment-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">{initialData ? "Edycja Płatności" : "Nowa Płatność"}</p>
@@ -529,7 +529,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="np. Prąd Enea, Netflix, Internet"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-payment-name"
             />
           </div>
@@ -543,7 +543,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-payment-amount"
             />
           </div>
@@ -554,13 +554,13 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-payment-date"
             />
           </div>
           
           {activeProfile?.kind === "shared" && (
-            <div className="border-t border-gray-100 pt-3">
+            <div className="border-t border-slate-100 pt-3">
               {!activeProfile.partnerName ? (
                 <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
@@ -568,11 +568,11 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Kto płaci?</label>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Kto płaci?</label>
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
                       id="select-payment-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -581,11 +581,11 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Dzielimy 50/50?</label>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Dzielimy 50/50?</label>
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
+                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-[#137566] bg-white"
                       id="select-payment-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -600,7 +600,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             id="btn-payment-submit"
           >
             {isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}
@@ -658,7 +658,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-goal-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Oszczędności</p>
@@ -673,7 +673,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. Poduszka finansowa, Remont, Nowy laptop"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-goal-name"
             />
           </div>
@@ -687,7 +687,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. 15000"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-goal-target"
             />
           </div>
@@ -695,7 +695,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz cel"}
@@ -751,7 +751,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-goal-deposit-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-deposit-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Transfer Celu</p>
@@ -767,7 +767,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
               placeholder="np. 100 (wpłata) lub -50 (wypłata)"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-goal-deposit-amount"
             />
           </div>
@@ -775,7 +775,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-deposit-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz wpłatę"}
@@ -845,7 +845,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-budget-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-budget-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Limity Miesięczne</p>
@@ -863,7 +863,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
                   placeholder="Brak limitu"
                   value={budgets[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
                   id={`input-budget-${category}`}
                 />
               </div>
@@ -873,7 +873,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-budget-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz limity"}
@@ -941,7 +941,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600" id="close-profile-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-profile-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Zarządzanie profilami</p>
@@ -956,22 +956,22 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="np. Budżet Seweryna, Domowy"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-profile-name"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[#153a35] mb-1">Ikona profilu</label>
-            <details className="group border border-gray-200 rounded-lg relative">
-              <summary className="p-2.5 text-xs font-semibold text-gray-700 cursor-pointer bg-gray-50 hover:bg-gray-100 flex items-center justify-between list-none select-none rounded-lg group-open:rounded-b-none group-open:border-b group-open:border-gray-200">
+            <details className="group border border-slate-200 rounded-xl relative">
+              <summary className="p-2.5 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{avatar}</span>
                   <span>Wybierz ikonę profilu</span>
                 </div>
-                <span className="group-open:rotate-180 transition-transform mr-2 text-gray-400">▼</span>
+                <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
               </summary>
-              <div className="p-3 border-t border-gray-200 bg-white absolute w-full z-10 shadow-lg rounded-b-lg">
+              <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-lg">
                 <div className="grid grid-cols-6 gap-2">
                   {AVATAR_OPTIONS.map(emoji => (
                     <button
@@ -983,7 +983,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-[#137566] shadow-sm' : 'bg-gray-50 border-gray-100 hover:bg-gray-100 grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-[#137566] shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -998,7 +998,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none bg-white focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-[#137566]"
               id="select-profile-kind"
             >
               <option value="personal">Tylko dla mnie (osobisty)</option>
@@ -1017,7 +1017,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                 placeholder="np. Ania, Marta, Piotr"
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
                 id="input-profile-partner"
               />
             </div>
@@ -1034,10 +1034,10 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="Wpisz 4 do 8 cyfr"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-[#137566]"
               id="input-profile-pin"
             />
-            <p className="text-[11px] text-gray-500 mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
+            <p className="text-[11px] text-slate-500 mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
           <div className="rounded-xl bg-[#e7f3f0] p-4">
@@ -1049,7 +1049,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-profile-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz profil"}
@@ -1105,7 +1105,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-gray-400 hover:text-gray-600 cursor-pointer" id="close-pin-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 cursor-pointer" id="close-pin-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Ochrona profilu</p>
@@ -1120,7 +1120,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           <p className="text-[11px] text-amber-800 leading-relaxed">
             Kod PIN służy do lokalnego szyfrowania danych profilu (AES-GCM / PBKDF2). Aplikacja działa w modelu zero-knowledge – <strong>Twój PIN nie jest przechowywany na żadnym serwerze</strong>.
           </p>
-          <p className="text-[11px] font-bold text-amber-900">
+          <p className="text-[11px] font-semibold text-amber-900">
             W przypadku utraty PIN-u dostęp do danych profilu zostanie trwale zablokowany bez możliwości resetu.
           </p>
 
@@ -1151,12 +1151,12 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
               placeholder="np. 1234"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-3 text-center text-xl tracking-widest outline-none focus:border-[#137566]"
+              className="w-full rounded-xl border border-slate-200 p-3 text-center text-xl tracking-widest outline-none focus:border-[#137566]"
               id="input-pin-code"
             />
           </div>
 
-          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-gray-200 bg-gray-50/80 cursor-pointer text-xs text-slate-700 font-medium">
+          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-slate-50/80 cursor-pointer text-xs text-slate-700 font-medium">
             <input
               type="checkbox"
               checked={hasAcceptedWarning}
@@ -1170,7 +1170,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           <button
             type="submit"
             disabled={!hasAcceptedWarning || !/^\d{4,8}$/.test(pin)}
-            className="w-full rounded-lg bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full rounded-xl bg-[#137566] py-3 text-sm font-bold text-white shadow-lg hover:bg-[#0f5d51] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             id="btn-pin-submit"
           >
             Zapisz PIN
@@ -1232,7 +1232,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         
         <p className="text-[10px] font-bold uppercase tracking-wider text-center text-[#849590]">Zabezpieczony Profil</p>
         <h2 className="text-2xl font-bold text-[#153a35] text-center mb-2">Podaj PIN</h2>
-        <p className="text-sm text-gray-500 text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
+        <p className="text-sm text-slate-500 text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -1245,13 +1245,13 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
               autoFocus
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-gray-100 focus:border-[#137566] text-gray-800'}`}
+              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-100 focus:border-[#137566] text-slate-800'}`}
               id="input-unlock-pin"
             />
           </div>
 
           {errorMsg && (
-            <p className="text-sm text-center text-[#d55e50] font-semibold animate-fade-in" id="unlock-error-msg">
+            <p className="text-sm text-center text-[#d55e50] font-bold animate-fade-in" id="unlock-error-msg">
               {errorMsg}
             </p>
           )}
@@ -1268,7 +1268,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             <button
               type="button"
               onClick={onSelectOtherProfile}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 transition"
+              className="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition"
               id="btn-unlock-other"
             >
               Wróć do wyboru profili
