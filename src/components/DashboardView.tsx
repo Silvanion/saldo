@@ -4,7 +4,7 @@ import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatPln, formatDatePl, getMonthNamePl, iconByCategory, monthsPl, budgetCategories } from "../utils";
 import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
-import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget } from "./dashboard";
+import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
 
 interface Widget {
   id: string;
@@ -50,11 +50,12 @@ export function DashboardView({
     { id: "chart", name: "Wykres przepływów (6-miesięczny)", visible: true, icon: "📈" },
     { id: "bills", name: "Najbliższe opłaty i rachunki", visible: true, icon: "📅" },
     { id: "budget", name: "Plan budżetu i kategorie", visible: true, icon: "🎯" },
+    { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "⏳" },
     { id: "activity", name: "Ostatnie transakcje (Aktywność)", visible: true, icon: "⏱️" },
   ];
 
   const [widgets, setWidgets] = useState<Widget[]>(() => {
-    const saved = localStorage.getItem("dashboard_widgets_v3");
+    const saved = localStorage.getItem("dashboard_widgets_v4");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -74,7 +75,7 @@ export function DashboardView({
 
   const saveWidgets = useCallback((newWidgets: Widget[]) => {
     setWidgets(newWidgets);
-    localStorage.setItem("dashboard_widgets_v3", JSON.stringify(newWidgets));
+    localStorage.setItem("dashboard_widgets_v4", JSON.stringify(newWidgets));
   }, []);
 
   const handleToggleVisibility = useCallback((id: string) => {
@@ -124,7 +125,7 @@ export function DashboardView({
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
-    localStorage.setItem("dashboard_widgets_v3", JSON.stringify(widgets));
+    localStorage.setItem("dashboard_widgets_v4", JSON.stringify(widgets));
   }, [widgets]);
 
   const currentYear = selectedDate.getFullYear();
@@ -216,6 +217,14 @@ export function DashboardView({
                 onTogglePaymentStatus={onTogglePaymentStatus}
                 onChangeView={onChangeView}
                 onOpenPaymentModal={onOpenPaymentModal}
+              />
+            );
+          } else if (widget.id === "timeline") {
+            widgetContent = (
+              <PaymentsTimelineWidget
+                unpaidPayments={metrics.unpaidPayments}
+                onTogglePaymentStatus={onTogglePaymentStatus}
+                onChangeView={onChangeView}
               />
             );
           } else if (widget.id === "budget") {

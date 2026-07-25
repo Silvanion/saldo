@@ -106,7 +106,6 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
   const endOfMonthForecast = calculateEndOfMonthForecast(profile, recurringRules);
   const selectedDateIso = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-15`;
   const budgetWarnings = calculateBudgetWarnings(profile, selectedDateIso)
-    .filter(w => w.status !== "normal")
     .sort((a, b) => b.ratio - a.ratio);
 
   const safeBreakdown = calculateSafeToSpend(profile, recurringRules);
