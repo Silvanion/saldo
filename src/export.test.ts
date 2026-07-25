@@ -9,7 +9,7 @@ describe("KROK 8G - Bezpieczny eksport CSV", () => {
       { id: "3", name: "Opis z\nnową linią", amount: 10, category: "Opłaty", account: "Główne", type: "expense", isoDate: "2026-07-22" },
     ];
     
-    const csv = generateCsvContent(txs);
+    const csv = generateCsvContent(txs as any);
     expect(csv.startsWith('\uFEFF')).toBe(true); // BOM
     expect(csv).toContain('"Zakupy ""Biedronka"""'); // escaped quotes
     expect(csv).toContain('"Opłata, prowizja"'); // escaped comma

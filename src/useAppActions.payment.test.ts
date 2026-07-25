@@ -51,8 +51,8 @@ describe("Payment status toggling in useAppActions", () => {
       toggleAutoSync: vi.fn(),
       backupToDriveManual: vi.fn(),
       restoreFromDriveManual: vi.fn(),
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     }));
 
     act(() => {
@@ -126,8 +126,8 @@ describe("Payment status toggling in useAppActions", () => {
       backupToDriveManual: vi.fn(),
       restoreFromDriveManual: vi.fn(),
       setApiError: mockSetApiError,
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     }));
 
     const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -201,8 +201,8 @@ describe("Payment status toggling in useAppActions", () => {
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
         restoreFromDriveManual: vi.fn(),
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     })
     );
 
@@ -261,8 +261,8 @@ describe("Payment status toggling in useAppActions", () => {
             toggleAutoSync: vi.fn(),
             backupToDriveManual: vi.fn(),
             restoreFromDriveManual: vi.fn(),
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     }),
         { initialProps: { activeP: currentProfile } }
       );
@@ -330,8 +330,8 @@ describe("Payment status toggling in useAppActions", () => {
           toggleAutoSync: vi.fn(),
           backupToDriveManual: vi.fn(),
           restoreFromDriveManual: vi.fn(),
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     })
       );
 
@@ -363,7 +363,7 @@ describe("Payment status toggling in useAppActions", () => {
       };
 
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
-      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
 
       act(() => {
         result.current.handleDeletePayment("pay1", "payment-only");
@@ -386,7 +386,7 @@ describe("Payment status toggling in useAppActions", () => {
       };
 
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
-      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
 
       act(() => {
         result.current.handleDeletePayment("pay1", "payment-and-linked-transaction");
@@ -403,7 +403,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [], goals: [], investments: [], budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
-      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
 
       act(() => { result.current.handleDeletePayment("pay1", "payment-only"); });
       expect(currentProfile.payments).toHaveLength(0);
@@ -417,7 +417,7 @@ describe("Payment status toggling in useAppActions", () => {
         goals: [], investments: [], budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
-      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
 
       act(() => { result.current.handleDeletePayment("pay1", "payment-and-linked-transaction"); });
       expect(currentProfile.payments).toHaveLength(0);
@@ -431,7 +431,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [], goals: [], investments: [], budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
-      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), openModal: vi.fn(), addToast: vi.fn(), setApiError: vi.fn() }));
+      const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
 
       act(() => { result.current.handleDeletePayment("missing-id", "payment-and-linked-transaction"); });
       expect(currentProfile.payments).toHaveLength(1);

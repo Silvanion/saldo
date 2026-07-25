@@ -111,8 +111,8 @@ describe("Goal Deposit/Withdraw (Real Model A Handler)", () => {
           toggleAutoSync: vi.fn(),
           backupToDriveManual: vi.fn(),
           restoreFromDriveManual: vi.fn(),
-      openModal: vi.fn(),
-      addToast: vi.fn()
+      
+      
     })
       );
 
@@ -158,8 +158,8 @@ describe("Goal Deposit/Withdraw (Real Model A Handler)", () => {
           backupToDriveManual: vi.fn(),
           restoreFromDriveManual: vi.fn(),
           setApiError: mockSetApiError,
-          openModal: vi.fn(),
-          addToast: vi.fn()
+          
+          
         })
       );
 
