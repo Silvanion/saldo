@@ -55,7 +55,11 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
   let totalExpense = 0;
   const categorySpentMap: Record<string, number> = {};
 
-  profile.transactions.forEach((t) => {
+  const transactions = profile.transactions || [];
+  const payments = profile.payments || [];
+  const budgets = profile.budgets || {};
+
+  transactions.forEach((t) => {
     const d = new Date(`${t.isoDate}T12:00:00`);
     if (d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx) {
       if (t.type === "income") {
@@ -83,7 +87,7 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     }
   });
 
-  const unpaidPayments = profile.payments
+  const unpaidPayments = payments
     .filter((p) => p.status !== "Opłacono")
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
@@ -99,7 +103,7 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
   let totalPlannedBudget = 0;
   let totalActualSpentInBudget = 0;
   budgetCategories.forEach(cat => {
-    totalPlannedBudget += (profile.budgets[cat] || 0);
+    totalPlannedBudget += (budgets[cat] || 0);
     totalActualSpentInBudget += (categorySpentMap[cat] || 0);
   });
 
@@ -124,7 +128,7 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     });
   }
 
-  profile.transactions.forEach((t) => {
+  transactions.forEach((t) => {
     const txDate = new Date(`${t.isoDate}T12:00:00`);
     const y = txDate.getFullYear();
     const m = txDate.getMonth();
@@ -143,7 +147,7 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     expenseHeight: Math.max(5, Math.round((d.expense / maxVal) * 100))
   }));
 
-  const recentTransactions = [...profile.transactions]
+  const recentTransactions = [...transactions]
     .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
     .slice(0, 4);
 
