@@ -31,7 +31,7 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
           <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
             <div className="w-full flex items-end justify-center gap-0.5 sm:gap-1 h-full relative">
               {/* Tooltip on hover */}
-              <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded-lg pointer-events-none whitespace-nowrap z-10 transition-opacity">
+              <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded-lg pointer-events-none whitespace-nowrap z-10 transition-opacity shadow-lg">
                 +{formatPln(d.income)}<br/>-{formatPln(d.expense)}
               </div>
               <div 
