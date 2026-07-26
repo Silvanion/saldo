@@ -53,7 +53,12 @@ export const findBudgetFile = async (accessToken: string): Promise<GoogleDriveFi
 
     const data = await res.json();
     if (data.files && data.files.length > 0) {
-      return data.files[0];
+      const sortedFiles = [...data.files].sort((a: GoogleDriveFile, b: GoogleDriveFile) => {
+        const timeA = a.modifiedTime ? new Date(a.modifiedTime).getTime() : 0;
+        const timeB = b.modifiedTime ? new Date(b.modifiedTime).getTime() : 0;
+        return timeB - timeA;
+      });
+      return sortedFiles[0];
     }
     return null;
   } catch (err) {
