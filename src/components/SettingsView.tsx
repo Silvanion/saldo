@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
-import { Profile, RecurringRule, TransactionRule, AppState } from "../types";
+import { Profile, RecurringRule, TransactionRule, AppState, BankAccount } from "../types";
 import { isFirebaseConfigured } from "../firebase";
 import {
   Cloud,
@@ -79,7 +79,100 @@ interface SettingsViewProps {
   onSaveRecurringRules: (rules: RecurringRule[]) => void;
   transactionRules: TransactionRule[];
   onSaveTransactionRules: (rules: TransactionRule[]) => void;
-  onSaveAccounts: (accounts: any[]) => void;
+  onSaveAccounts: (accounts: BankAccount[]) => void;
+}
+
+export function BankAccountsManager({
+  accounts,
+  onSaveAccounts
+}: {
+  accounts: BankAccount[];
+  onSaveAccounts: (accounts: BankAccount[]) => void;
+}) {
+  const [accName, setAccName] = useState("");
+  const [accBankName, setAccBankName] = useState("");
+  const [accHasLimit, setAccHasLimit] = useState(false);
+  const [accLimitAmount, setAccLimitAmount] = useState<number | "">("");
+
+  const handleAddAccount = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accName.trim()) return;
+    const newAcc: BankAccount = {
+      id: "acc-" + Date.now(),
+      name: accName.trim(),
+      bankName: accBankName.trim(),
+      hasCreditLimit: accHasLimit,
+      creditLimit: accHasLimit && typeof accLimitAmount === "number" ? accLimitAmount : 0
+    };
+    onSaveAccounts([...accounts, newAcc]);
+    setAccName("");
+    setAccBankName("");
+    setAccHasLimit(false);
+    setAccLimitAmount("");
+  };
+
+  const handleDeleteAccount = (id: string) => {
+    onSaveAccounts(accounts.filter((a) => a.id !== id));
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mb-8" id="settings-bank-accounts-card">
+      <h3 className="text-base font-bold text-slate-900 mb-2">Konta i salda awaryjne</h3>
+      <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+        Skonfiguruj konta bankowe, z których płacisz lub na które otrzymujesz dochód.
+        Możesz również dodać informację o limicie odnawialnym (nie wlicza się do budżetu).
+      </p>
+      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa (np. Konto główne)</label>
+          <input required value={accName} onChange={(e) => setAccName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa Banku (Opcjonalnie)</label>
+          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. mBank, PKO" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+        </div>
+        <div className="flex items-center pt-5">
+          <label className="flex items-center cursor-pointer">
+            <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
+            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
+            <span className="ml-2 text-xs font-bold text-slate-600">Limit odnaw.</span>
+          </label>
+        </div>
+        {accHasLimit && (
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota limitu</label>
+            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+          </div>
+        )}
+        <div className="flex items-end lg:col-span-1">
+          <button type="submit" className="w-full bg-white border border-slate-200 text-[#137566] font-bold py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition text-xs shadow-sm cursor-pointer">
+            + Dodaj konto
+          </button>
+        </div>
+      </form>
+
+      {accounts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {accounts.map((acc) => (
+            <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
+              <div>
+                <strong className="text-xs text-slate-800">{acc.name}</strong>
+                {acc.bankName && <span className="ml-2 text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
+                {acc.hasCreditLimit && (
+                  <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Limit awaryjny: {acc.creditLimit} zł</p>
+                )}
+              </div>
+              <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-slate-400 italic">Brak skonfigurowanych kont. Tradycyjne wpisywanie nazw pozostanie domyślne.</p>
+      )}
+    </div>
+  );
 }
 
 export function TransactionRulesManager({
@@ -276,42 +369,7 @@ export function SettingsView({
     setEditProfileData(null);
   };
 
-
-  
-  // Bank accounts states
-  const [accName, setAccName] = useState("");
   const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
-  const [accBankName, setAccBankName] = useState("");
-  const [accHasLimit, setAccHasLimit] = useState(false);
-  const [accLimitAmount, setAccLimitAmount] = useState<number | "">("");
-
-  const handleAddAccount = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accName.trim() || !activeProfile) return;
-    const newAcc = {
-      id: "acc-" + Date.now(),
-      name: accName.trim(),
-      bankName: accBankName.trim(),
-      hasCreditLimit: accHasLimit,
-      creditLimit: accHasLimit && typeof accLimitAmount === "number" ? accLimitAmount : 0
-    };
-    if (typeof accLimitAmount === "number") {
-      newAcc.creditLimit = accLimitAmount;
-    }
-    const currentAccounts = activeProfile.accounts || [];
-    onSaveAccounts([...currentAccounts, newAcc]);
-    setAccName("");
-    setAccBankName("");
-    setAccHasLimit(false);
-    setAccLimitAmount("");
-  };
-
-  const handleDeleteAccount = (id: string) => {
-    if (!activeProfile) return;
-    const currentAccounts = activeProfile.accounts || [];
-    onSaveAccounts(currentAccounts.filter(a => a.id !== id));
-  };
-
 
   // Form states for Recurring Rules
   const [recName, setRecName] = useState("");
@@ -1314,62 +1372,7 @@ export function SettingsView({
 
       {/* SECTION: BANK ACCOUNTS */}
       {activeProfile && (settingsTab === "all" || settingsTab === "automation") && (
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mb-8" id="settings-bank-accounts-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Konta i salda awaryjne</h3>
-        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-          Skonfiguruj konta bankowe, z których płacisz lub na które otrzymujesz dochód.
-          Możesz również dodać informację o limicie odnawialnym (nie wlicza się do budżetu).
-        </p>
-        <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa (np. Konto główne)</label>
-            <input required value={accName} onChange={(e) => setAccName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa Banku (Opcjonalnie)</label>
-            <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. mBank, PKO" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
-          </div>
-          <div className="flex items-center pt-5">
-            <label className="flex items-center cursor-pointer">
-              <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
-              <span className="ml-2 text-xs font-bold text-slate-600">Limit odnaw.</span>
-            </label>
-          </div>
-          {accHasLimit && (
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota limitu</label>
-              <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
-            </div>
-          )}
-          <div className="flex items-end lg:col-span-1">
-            <button type="submit" className="w-full bg-white border border-slate-200 text-[#137566] font-bold py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition text-xs shadow-sm">
-              + Dodaj konto
-            </button>
-          </div>
-        </form>
-
-        {(activeProfile.accounts || []).length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {activeProfile.accounts!.map(acc => (
-              <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
-                <div>
-                  <strong className="text-xs text-slate-800">{acc.name}</strong>
-                  {acc.bankName && <span className="ml-2 text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
-                  {acc.hasCreditLimit && (
-                    <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Limit awaryjny: {acc.creditLimit} zł</p>
-                  )}
-                </div>
-                <button onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1">
-                  &times;
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-slate-400 italic">Brak skonfigurowanych kont. Tradycyjne wpisywanie nazw pozostanie domyślne.</p>
-        )}
-      </div>
+        <BankAccountsManager accounts={activeProfile.accounts || []} onSaveAccounts={onSaveAccounts} />
       )}
       {/* SECTION: AUTOMATED CATEGORY RULES */}
       {(settingsTab === "all" || settingsTab === "automation") && (

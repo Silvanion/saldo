@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { prepareStateForRemoteSave, deriveKeyFromPin, activeKeys, clearActiveKeys } from "./services/crypto";
-import { validateAndMigrateState } from "./hooks/useBudgetState";
+import { validateAndMigrateState } from "./utils/stateMigration";
 import { AppState, Profile } from "./types";
 
 // Polyfill localStorage for node environment

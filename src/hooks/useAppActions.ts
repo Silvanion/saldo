@@ -1,9 +1,10 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
 import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, BankAccount, SettlementEntry } from "../types";
-import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
-import { validateAndMigrateState } from "./useBudgetState";
+import { autoCategorizeTransaction, hashPin } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
+import { useTransactionActions } from "./actions/useTransactionActions";
+import { useDataSyncActions } from "./actions/useDataSyncActions";
 
 interface UseAppActionsProps {
   state: AppState;
@@ -72,214 +73,7 @@ export function useAppActions({
     [activeProfile, state, saveState]
   );
 
-  // === TRANSACTIONS ===
-  const handleAddTransaction = useCallback(
-    (data: {
-      name: string;
-      amount: number;
-      category: string;
-      categoryIcon?: string;
-      account: string;
-      type: "income" | "expense";
-      isoDate: string;
-      paidBy?: "me" | "partner" | "joint";
-      splitMode?: "none" | "equal";
-    }) => {
-      if (!activeProfile) return;
 
-      const rules = activeProfile.transactionRules || [];
-      const categorized = autoCategorizeTransaction(data.name, rules, data.category);
-
-      const newTx: Transaction = {
-        id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        ...data,
-        category: categorized.category,
-        categoryIcon: categorized.categoryIcon
-      };
-
-      updateActiveProfile((p) => ({ transactions: [newTx, ...p.transactions] }));
-    },
-    [activeProfile, updateActiveProfile]
-  );
-
-  const handleUpdateTransaction = useCallback(
-    (txId: string, data: Partial<Transaction>) => {
-      updateActiveProfile((p) => {
-        const index = p.transactions.findIndex((t) => t.id === txId);
-        if (index === -1) return {};
-
-        const existing = p.transactions[index];
-        const updated = { ...existing, ...data };
-
-        // Keep technical fields intact
-        updated.id = existing.id;
-        updated.isRecurring = existing.isRecurring;
-        updated.recurringRuleId = existing.recurringRuleId;
-        updated.sourcePaymentId = existing.sourcePaymentId;
-
-        const newTransactions = [...p.transactions];
-        newTransactions[index] = updated;
-
-        return { transactions: newTransactions };
-      });
-    },
-    [updateActiveProfile]
-  );
-
-  const handleImportTransactions = useCallback(
-    (newTransactions: Transaction[]) => {
-      updateActiveProfile((p) => {
-        const existingIds = new Set(p.transactions.map((t) => t.id));
-        const validAndUnique: Transaction[] = [];
-
-        for (const tx of newTransactions) {
-          if (!tx || !tx.id || existingIds.has(tx.id)) {
-            continue;
-          }
-          const numAmount = Number(tx.amount);
-          if (!Number.isFinite(numAmount)) {
-            continue;
-          }
-
-          let enrichedTx = tx;
-          if (p.kind === "shared" && !tx.paidBy) {
-            enrichedTx = {
-              ...tx,
-              paidBy: "me",
-              splitMode: tx.type === "expense" ? "equal" : "none"
-            };
-          }
-
-          existingIds.add(tx.id);
-          validAndUnique.push(enrichedTx);
-        }
-
-        if (validAndUnique.length === 0) {
-          return {};
-        }
-
-        return { transactions: [...validAndUnique, ...p.transactions] };
-      });
-    },
-    [updateActiveProfile]
-  );
-
-  const handleDeleteTransaction = useCallback(
-    (txId: string) => {
-      updateActiveProfile((p) => ({ transactions: p.transactions.filter((t) => t.id !== txId) }));
-    },
-    [updateActiveProfile]
-  );
-
-  // === PAYMENTS ===
-  const handleAddPayment = useCallback(
-    (data: { name: string; amount: number; dueDate: string; paidBy?: "me" | "partner" | "joint"; splitMode?: "none" | "equal" }) => {
-      const newPayment: Payment = {
-        id: "pay-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        name: data.name,
-        amount: data.amount,
-        dueDate: data.dueDate,
-        status: "Do opłacenia",
-        paidBy: data.paidBy,
-        splitMode: data.splitMode
-      };
-      updateActiveProfile((p) => ({ payments: [...p.payments, newPayment] }));
-    },
-    [updateActiveProfile]
-  );
-
-  const handleUpdatePayment = useCallback(
-    (paymentId: string, data: Partial<Payment>) => {
-      updateActiveProfile((p) => {
-        const index = p.payments.findIndex((pay) => pay.id === paymentId);
-        if (index === -1) return {};
-
-        const existing = p.payments[index];
-        const updated = { ...existing, ...data };
-
-        // Keep technical fields intact
-        updated.id = existing.id;
-        updated.status = existing.status;
-        updated.isRecurring = existing.isRecurring;
-        updated.recurringRuleId = existing.recurringRuleId;
-
-        const newPayments = [...p.payments];
-        newPayments[index] = updated;
-
-        return { payments: newPayments };
-      });
-    },
-    [updateActiveProfile]
-  );
-
-  const handleDeletePayment = useCallback(
-    (payId: string, mode: "payment-only" | "payment-and-linked-transaction" = "payment-only") => {
-      updateActiveProfile((p) => {
-        const index = p.payments.findIndex((pay) => pay.id === payId);
-        if (index === -1) return {};
-
-        const newPayments = p.payments.filter((pay) => pay.id !== payId);
-
-        if (mode === "payment-and-linked-transaction") {
-          const newTransactions = p.transactions.filter((tx) => tx.sourcePaymentId !== payId);
-          return { payments: newPayments, transactions: newTransactions };
-        }
-
-        return { payments: newPayments };
-      });
-    },
-    [updateActiveProfile]
-  );
-
-  const handleTogglePaymentStatus = useCallback(
-    (paymentId: string) => {
-      updateActiveProfile((p) => {
-        const payment = p.payments.find((pay) => pay.id === paymentId);
-        if (!payment) return {};
-        if (payment.status === "Opłacono") {
-          console.warn("Cofanie statusu 'Opłacono' jest zablokowane.");
-          setApiError?.("Nie można cofnąć statusu „Opłacono”. Usuń powiązaną transakcję ręcznie, jeśli to pomyłka.");
-          return {};
-        }
-
-        const updatedPayments = p.payments.map((pay) => {
-          if (pay.id === paymentId) {
-            return {
-              ...pay,
-              status: "Opłacono" as const
-            };
-          }
-          return pay;
-        });
-
-        const existingTx = (p.transactions || []).find((tx) => tx.sourcePaymentId === paymentId);
-        if (existingTx) {
-          return {
-            payments: updatedPayments
-          };
-        }
-
-        const newTx: Transaction = {
-          id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-          name: payment.name,
-          amount: payment.amount,
-          category: payment.category || "Rachunki",
-          account: p.accounts?.[0]?.name || "Konto Główne",
-          type: "expense",
-          isoDate: getLocalDateIso(),
-          sourcePaymentId: payment.id,
-          paidBy: payment.paidBy,
-          splitMode: payment.splitMode
-        };
-
-        return { 
-          payments: updatedPayments,
-          transactions: [newTx, ...(p.transactions || [])]
-        };
-      });
-    },
-    [updateActiveProfile, setApiError]
-  );
 
   // === GOALS & INVESTMENTS ===
   const handleAddGoal = useCallback(
@@ -496,115 +290,28 @@ export function useAppActions({
     [state, saveState, unlockProfile, setActiveView]
   );
 
-  // === DATA & GOOGLE INTEGRATION ===
-  const handleExportData = useCallback(() => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `saldo-kopia-zapasowa-${getLocalDateIso()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [state]);
+  const txActions = useTransactionActions({
+    activeProfile,
+    updateActiveProfile,
+    setApiError
+  });
 
-  const handleResetData = useCallback(async () => {
-    // TODO: replace with app modal/toast system
-    const confirmed = window.confirm(
-      "OSTRZEŻENIE: Ta operacja usunie wszystkie dane profilów (transakcje, płatności, cele, budżety). Jesteś pewien?"
-    );
-    if (!confirmed) return;
-
-    try {
-      const res = await fetch("/api/state/reset", { method: "POST" });
-      if (res.ok) {
-        const result = await res.json();
-        makeUndoBackup();
-        saveState(result.data);
-        lockProfile();
-        setActiveView("dashboard");
-        alert("Baza danych została zresetowana do ustawień początkowych.");
-      }
-    } catch (err) {
-      console.error("Failed to reset data:", err);
-      alert("Nie udało się zresetować bazy danych.");
-    }
-  }, [makeUndoBackup, saveState, lockProfile, setActiveView]);
-
-  const handleImportLocalData = useCallback(
-    (importedState: AppState) => {
-      if (!importedState || !Array.isArray(importedState.profiles)) {
-        alert("Błędna struktura pliku JSON. Import przerwany.");
-        return;
-      }
-      const validated = validateAndMigrateState(importedState);
-      // TODO: replace with app modal/toast system
-      const confirmed = window.confirm(
-        "Czy chcesz zastąpić obecne dane danymi z pliku lokalnego? W razie potrzeby możesz cofnąć tę zmianę."
-      );
-      if (!confirmed) return;
-
-      makeUndoBackup();
-      saveState(validated);
-      alert("Kopia lokalna została pomyślnie wczytana!");
-    },
-    [makeUndoBackup, saveState]
-  );
-
-  const handleConnectGoogle = useCallback(async () => {
-    try {
-      await connectGoogle("drive");
-    } catch (e) {
-      console.error("Google connect error", e);
-    }
-  }, [connectGoogle]);
-
-  const handleDisconnectGoogle = useCallback(async () => {
-    await disconnectGoogle();
-    toggleAutoSync(false);
-  }, [disconnectGoogle, toggleAutoSync]);
-
-  const handleSyncToDrive = useCallback(
-    async (silent = false) => {
-      try {
-        await backupToDriveManual();
-        if (!silent) {
-          alert("Baza budżetu została pomyślnie zapisana na Dysku Google!");
-        }
-      } catch (err: any) {
-        if (!silent) {
-          alert(err.message || "Błąd zapisu na Dysku Google. Spróbuj ponownie później.");
-        }
-      }
-    },
-    [backupToDriveManual]
-  );
-
-  const handleLoadFromDrive = useCallback(async () => {
-    // TODO: replace with app modal/toast system
-    const confirmed = window.confirm(
-      "Czy na pewno chcesz pobrać plik 'saldo_budget.json' z Dysku Google i zastąpić całą lokalną bazę danych? Obecne lokalne dane zostaną trwale nadpisane."
-    );
-    if (!confirmed) return;
-
-    try {
-      await restoreFromDriveManual();
-      alert("Baza danych została pomyślnie przywrócona z Dysku Google!");
-    } catch (err: any) {
-      alert(err.message || "Nie udało się pobrać danych z Dysku Google.");
-    }
-  }, [restoreFromDriveManual]);
+  const syncActions = useDataSyncActions({
+    state,
+    saveState,
+    makeUndoBackup,
+    lockProfile,
+    setActiveView,
+    connectGoogle,
+    disconnectGoogle,
+    toggleAutoSync,
+    backupToDriveManual,
+    restoreFromDriveManual
+  });
 
   return {
-    handleAddTransaction,
-    handleUpdateTransaction,
-    handleImportTransactions,
-    handleDeleteTransaction,
-    handleAddPayment,
-    handleUpdatePayment,
-    handleDeletePayment,
-    handleTogglePaymentStatus,
+    ...txActions,
+    ...syncActions,
     handleAddGoal,
     handleDeleteGoal,
     handleAddGoalDeposit,
@@ -619,12 +326,5 @@ export function useAppActions({
     handleAddProfile,
     handleUpdateProfile,
     handleDeleteProfile,
-    handleResetData,
-    handleExportData,
-    handleImportLocalData,
-    handleConnectGoogle,
-    handleDisconnectGoogle,
-    handleSyncToDrive,
-    handleLoadFromDrive,
   };
 }

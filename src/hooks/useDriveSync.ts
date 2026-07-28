@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AppState } from "../types";
 import { findBudgetFile, readBudgetFile, updateBudgetFile, createBudgetFile, GoogleAuthError } from "../googleDrive";
-import { validateAndMigrateState } from "./useBudgetState";
+import { validateAndMigrateState } from "../utils/stateMigration";
 import { prepareStateForRemoteSave, decryptProfile, activeKeys } from "../services/crypto";
 
 export type ConflictResolutionChoice = "download_remote" | "upload_local" | "cancel";

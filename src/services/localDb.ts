@@ -1,5 +1,5 @@
 import { AppState } from "../types";
-import { validateAndMigrateState } from "../hooks/useBudgetState";
+import { validateAndMigrateState } from "../utils/stateMigration";
 
 export const LOCAL_STORAGE_KEY_V2 = "saldo-local-fallback-v2";
 export const LOCAL_STORAGE_KEY_V1 = "saldo-local-fallback";

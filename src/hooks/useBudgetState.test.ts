@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { useBudgetState, validateAndMigrateState } from "./useBudgetState";
+import { useBudgetState } from "./useBudgetState";
+import { validateAndMigrateState } from "../utils/stateMigration";
 import { AppState } from "../types";
 import { autoCategorizeTransaction } from "../utils";
 import { act, createElement } from "react";
