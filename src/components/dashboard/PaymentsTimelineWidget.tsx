@@ -9,7 +9,7 @@ interface PaymentsTimelineWidgetProps {
   onChangeView: (view: string) => void;
 }
 
-export type TimelineFilter = "all" | "week" | "month";
+export type TimelineFilter = "all" | "overdue" | "week" | "month";
 
 export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter): Payment[] {
   if (range === "all") return payments;
@@ -22,6 +22,10 @@ export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (range === "overdue") {
+      return diffDays < 0;
+    }
 
     if (diffDays < 0) return false;
 
@@ -42,7 +46,33 @@ export function getActiveSummary(filteredPayments: Payment[]) {
   };
 }
 
+export function getDueThisWeekTotal(payments: Payment[]): number {
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  return payments.reduce((acc, p) => {
+    if (!p.dueDate) return acc;
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    const diffTime = pDate.getTime() - todayDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays >= 0 && diffDays <= 6) {
+      return acc + p.amount;
+    }
+    return acc;
+  }, 0);
+}
+
 export function getTimelineTexts(range: TimelineFilter) {
+  if (range === "overdue") {
+    return {
+      label: "Zaległe",
+      emptySummary: "Brak zaległych płatności",
+      emptyTitle: "Brak zaległości",
+      emptyDesc: "Wszystko opłacone na czas.",
+      overviewTitle: "Podsumowanie zaległości"
+    };
+  }
   if (range === "week") {
     return {
       label: "W tym tygodniu",
@@ -147,6 +177,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const texts = getTimelineTexts(range);
   const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
   const globalOverdueCount = getGlobalOverdueCount(unpaidPayments);
+  const dueThisWeekTotal = getDueThisWeekTotal(unpaidPayments);
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -279,9 +310,18 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         </div>
       </div>
 
+      <div className="mb-4 bg-[#137566]/5 border border-[#137566]/20 rounded-xl p-3 flex justify-between items-center shadow-sm">
+        <div className="flex items-center gap-2">
+           <CalendarClock className="w-4 h-4 text-[#137566]" />
+           <span className="text-sm font-semibold text-[#137566]">Do zapłaty w tym tygodniu</span>
+        </div>
+        <span className="text-sm font-bold text-[#137566]">{formatPln(dueThisWeekTotal)}</span>
+      </div>
+
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
         <div className="flex gap-1 mb-4 bg-slate-100/50 p-1 rounded-xl w-fit">
           <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Wszystkie</button>
+          <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "overdue" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Zaległe</button>
           <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "week" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Ten tydzień</button>
           <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "month" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>30 dni</button>
         </div>

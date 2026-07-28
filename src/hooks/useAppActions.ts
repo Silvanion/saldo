@@ -1,7 +1,7 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
 import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, BankAccount, SettlementEntry } from "../types";
-import { autoCategorizeTransaction, hashPin } from "../utils";
+import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { useTransactionActions } from "./actions/useTransactionActions";
 import { useDataSyncActions } from "./actions/useDataSyncActions";

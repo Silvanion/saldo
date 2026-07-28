@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds, getGlobalOverdueCount } from './PaymentsTimelineWidget';
+import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds, getGlobalOverdueCount, getDueThisWeekTotal } from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
 describe('groupPaymentsByTimeline', () => {
@@ -81,6 +81,12 @@ describe('filterPaymentsByRange', () => {
   it('all range preserves all payments', () => {
     const result = filterPaymentsByRange(payments, 'all');
     expect(result.length).toBe(6);
+  });
+
+  it('overdue range filters only overdue payments', () => {
+    const result = filterPaymentsByRange(payments, 'overdue');
+    expect(result.length).toBe(1);
+    expect(result.map(p => p.id)).toEqual(['1']);
   });
 
   it('week range filters overdue, > 6 days, and no-date payments', () => {
@@ -169,5 +175,31 @@ describe('getGlobalOverdueCount', () => {
       { id: '5', dueDate: '' }, // no date
     ] as Payment[];
     expect(getGlobalOverdueCount(payments)).toBe(2);
+  });
+});
+
+describe('getDueThisWeekTotal', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calculates the total amount of payments due within the next 7 days (including today)', () => {
+    const payments: Payment[] = [
+      { id: '1', amount: 100, dueDate: '2026-07-20' }, // overdue
+      { id: '2', amount: 200, dueDate: '2026-07-24' }, // overdue
+      { id: '3', amount: 300, dueDate: '2026-07-25' }, // today
+      { id: '4', amount: 400, dueDate: '2026-07-30' }, // 5 days
+      { id: '5', amount: 500, dueDate: '2026-08-05' }, // > 6 days
+      { id: '6', amount: 600, dueDate: '' }, // no date
+    ] as Payment[];
+
+    // Only '3' and '4' are due this week (>= 0 and <= 6 days).
+    // 300 + 400 = 700
+    expect(getDueThisWeekTotal(payments)).toBe(700);
   });
 });
