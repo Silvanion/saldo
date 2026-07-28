@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Profile } from "../types";
-import { formatPln, getMonthNamePl, generateReportPdf, expenseCategories, budgetCategories } from "../utils";
+import { formatPln, getMonthNamePl, expenseCategories, budgetCategories } from "../utils";
+import { generateReportPdf } from "../services/pdfGenerator";
 import { Settings2, Check } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 

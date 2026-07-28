@@ -34,7 +34,8 @@ import {
   Plus,
   KeyRound
 } from "lucide-react";
-import { generateCsvContent, downloadFile, generateReportPdf } from "../utils";
+import { generateCsvContent, downloadFile } from "../utils";
+import { generateReportPdf } from "../services/pdfGenerator";
 import { prepareStateForRemoteSave } from "../services/crypto";
 
 interface SettingsViewProps {
