@@ -82,6 +82,116 @@ interface SettingsViewProps {
   onSaveAccounts: (accounts: any[]) => void;
 }
 
+export function TransactionRulesManager({
+  transactionRules,
+  onSaveTransactionRules
+}: {
+  transactionRules: TransactionRule[];
+  onSaveTransactionRules: (rules: TransactionRule[]) => void;
+}) {
+  const [rulePattern, setRulePattern] = useState("");
+  const [ruleCategory, setRuleCategory] = useState("Żywność");
+
+  const handleAddTransactionRule = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rulePattern.trim()) return;
+    const newRule: TransactionRule = {
+      id: `rule-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+      pattern: rulePattern.trim(),
+      category: ruleCategory,
+      categoryIcon: iconByCategory[ruleCategory] || "✨"
+    };
+    onSaveTransactionRules([...transactionRules, newRule]);
+    setRulePattern("");
+  };
+
+  const handleDeleteTransactionRule = (id: string) => {
+    onSaveTransactionRules(transactionRules.filter((r) => r.id !== id));
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-category-rules-card">
+      <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczna kategoryzacja wydatków</h3>
+      <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+        Zdefiniuj własne słowa kluczowe (np. „orlen”, „biedronka”), aby aplikacja mogła automatycznie przypisywać odpowiednią kategorię do nowych lub importowanych transakcji.
+      </p>
+
+      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Słowo kluczowe (Fraza)</label>
+          <input
+            type="text"
+            value={rulePattern}
+            onChange={(e) => setRulePattern(e.target.value)}
+            placeholder="np. biedronka, netflix, orlen"
+            className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Przypisz do kategorii</label>
+          <select
+            value={ruleCategory}
+            onChange={(e) => setRuleCategory(e.target.value)}
+            className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+          >
+            {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
+              <option key={cat} value={cat}>
+                {iconByCategory[cat] || "✨"} {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-end">
+          <button
+            type="submit"
+            className="w-full bg-[#137566] text-white font-bold py-2 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm cursor-pointer"
+          >
+            ＋ Dodaj regułę kategoryzacji
+          </button>
+        </div>
+      </form>
+
+      {transactionRules.length === 0 ? (
+        <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych reguł. Używane są domyślne reguły automatyczne.</p>
+      ) : (
+        <div className="border border-slate-200 rounded-xl overflow-hidden">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
+                <th className="py-2 px-3">Słowo kluczowe</th>
+                <th className="py-2 px-3">Kategoria docelowa</th>
+                <th className="py-2 px-3 text-right">Akcja</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {transactionRules.map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/50 transition">
+                  <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{r.pattern}</td>
+                  <td className="py-2.5 px-3">
+                    <span className="inline-flex items-center gap-1 bg-[#e7f3f0] text-[#137566] px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
+                      <span>{r.categoryIcon || "✨"}</span>
+                      {r.category}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTransactionRule(r.id)}
+                      className="text-[10px] font-bold text-[#d55e50] hover:underline"
+                    >
+                      Usuń
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SettingsView({
   state,
   saveState,
@@ -166,9 +276,7 @@ export function SettingsView({
     setEditProfileData(null);
   };
 
-  // Form states for Category Rules
-  const [rulePattern, setRulePattern] = useState("");
-  const [ruleCategory, setRuleCategory] = useState("Żywność");
+
   
   // Bank accounts states
   const [accName, setAccName] = useState("");
@@ -214,22 +322,7 @@ export function SettingsView({
   const [recFrequency, setRecFrequency] = useState<"weekly" | "biweekly" | "monthly" | "quarterly" | "yearly">("monthly");
   const [recNextDate, setRecNextDate] = useState("");
 
-  const handleAddTransactionRule = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!rulePattern.trim()) return;
-    const newRule: TransactionRule = {
-      id: `rule-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
-      pattern: rulePattern.trim(),
-      category: ruleCategory,
-      categoryIcon: iconByCategory[ruleCategory] || "✨"
-    };
-    onSaveTransactionRules([...transactionRules, newRule]);
-    setRulePattern("");
-  };
 
-  const handleDeleteTransactionRule = (id: string) => {
-    onSaveTransactionRules(transactionRules.filter((r) => r.id !== id));
-  };
 
   const handleAddRecurringRule = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1280,85 +1373,7 @@ export function SettingsView({
       )}
       {/* SECTION: AUTOMATED CATEGORY RULES */}
       {(settingsTab === "all" || settingsTab === "automation") && (
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-category-rules-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczna kategoryzacja wydatków</h3>
-        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-          Zdefiniuj własne słowa kluczowe (np. „orlen”, „biedronka”), aby aplikacja mogła automatycznie przypisywać odpowiednią kategorię do nowych lub importowanych transakcji.
-        </p>
-
-        <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Słowo kluczowe (Fraza)</label>
-            <input
-              type="text"
-              value={rulePattern}
-              onChange={(e) => setRulePattern(e.target.value)}
-              placeholder="np. biedronka, netflix, orlen"
-              className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Przypisz do kategorii</label>
-            <select
-              value={ruleCategory}
-              onChange={(e) => setRuleCategory(e.target.value)}
-              className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
-            >
-              {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
-                <option key={cat} value={cat}>
-                  {iconByCategory[cat] || "✨"} {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="w-full bg-[#137566] text-white font-bold py-2 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm cursor-pointer"
-            >
-              ＋ Dodaj regułę kategoryzacji
-            </button>
-          </div>
-        </form>
-
-        {transactionRules.length === 0 ? (
-          <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych reguł. Używane są domyślne reguły automatyczne.</p>
-        ) : (
-          <div className="border border-slate-200 rounded-xl overflow-hidden">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
-                  <th className="py-2 px-3">Słowo kluczowe</th>
-                  <th className="py-2 px-3">Kategoria docelowa</th>
-                  <th className="py-2 px-3 text-right">Akcja</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {transactionRules.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                    <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{r.pattern}</td>
-                    <td className="py-2.5 px-3">
-                      <span className="inline-flex items-center gap-1 bg-[#e7f3f0] text-[#137566] px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
-                        <span>{r.categoryIcon || "✨"}</span>
-                        {r.category}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteTransactionRule(r.id)}
-                        className="text-[10px] font-bold text-[#d55e50] hover:underline"
-                      >
-                        Usuń
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <TransactionRulesManager transactionRules={transactionRules} onSaveTransactionRules={onSaveTransactionRules} />
       )}
 
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
