@@ -83,6 +83,85 @@ export interface ForecastBreakdown {
   forecastDate: string;
 }
 
+function buildExistingRecurringInstances(profile: Profile): Set<string> {
+  const existingRecurringInstances = new Set<string>();
+  const transactions = Array.isArray(profile.transactions) ? profile.transactions : [];
+  for (const tx of transactions) {
+    if (tx.recurringRuleId && tx.isoDate) {
+      existingRecurringInstances.add(`${tx.recurringRuleId}_${tx.isoDate}`);
+    }
+  }
+  const payments = Array.isArray(profile.payments) ? profile.payments : [];
+  for (const p of payments) {
+    if (p.recurringRuleId && p.dueDate) {
+      existingRecurringInstances.add(`${p.recurringRuleId}_${p.dueDate}`);
+    }
+  }
+  return existingRecurringInstances;
+}
+
+function calculateFutureRecurring(
+  recurringRules: RecurringRule[],
+  existingRecurringInstances: Set<string>,
+  todayStr: string,
+  endOfMonthStr: string,
+  includeIncomes: boolean
+): { incomesSum: number; expensesSum: number } {
+  let incomesSum = 0;
+  let expensesSum = 0;
+
+  if (Array.isArray(recurringRules)) {
+    for (const rule of recurringRules) {
+      if (!rule || rule.isActive === false) continue;
+      if (!includeIncomes && rule.type !== "expense") continue;
+
+      const ruleAmount = Number(rule.amount) || 0;
+      if (ruleAmount <= 0) continue;
+
+      let currDueDate = rule.nextDueDate;
+      let occurrences = 0;
+      const MAX_OCCURRENCES = 100;
+
+      while (currDueDate && currDueDate <= endOfMonthStr && occurrences < MAX_OCCURRENCES) {
+        if (currDueDate >= todayStr) {
+          const instanceKey = `${rule.id}_${currDueDate}`;
+          if (!existingRecurringInstances.has(instanceKey)) {
+            if (rule.type === "income") {
+              incomesSum += ruleAmount;
+            } else if (rule.type === "expense") {
+              expensesSum += ruleAmount;
+            }
+          }
+        }
+
+        const prevDueDate = currDueDate;
+        if (rule.frequency === "weekly") {
+          const nextDate = new Date(currDueDate + "T00:00:00");
+          nextDate.setDate(nextDate.getDate() + 7);
+          currDueDate = getLocalDateIso(nextDate);
+        } else if (rule.frequency === "biweekly") {
+          const nextDate = new Date(currDueDate + "T00:00:00");
+          nextDate.setDate(nextDate.getDate() + 14);
+          currDueDate = getLocalDateIso(nextDate);
+        } else if (rule.frequency === "monthly") {
+          currDueDate = addMonthsClamped(currDueDate, 1);
+        } else if (rule.frequency === "quarterly") {
+          currDueDate = addMonthsClamped(currDueDate, 3);
+        } else if (rule.frequency === "yearly") {
+          currDueDate = addMonthsClamped(currDueDate, 12);
+        } else {
+          currDueDate = addMonthsClamped(currDueDate, 1);
+        }
+
+        if (currDueDate <= prevDueDate) break;
+        occurrences++;
+      }
+    }
+  }
+
+  return { incomesSum, expensesSum };
+}
+
 export function calculateEndOfMonthForecast(
   profile: Profile | null,
   recurringRules: RecurringRule[] = [],
@@ -130,69 +209,18 @@ export function calculateEndOfMonthForecast(
   }, 0);
 
   // Build a set of existing recurring instances to avoid double counting
-  const existingRecurringInstances = new Set<string>();
-  for (const tx of transactions) {
-    if (tx.recurringRuleId && tx.isoDate) {
-      existingRecurringInstances.add(`${tx.recurringRuleId}_${tx.isoDate}`);
-    }
-  }
-  for (const p of payments) {
-    if (p.recurringRuleId && p.dueDate) {
-      existingRecurringInstances.add(`${p.recurringRuleId}_${p.dueDate}`);
-    }
-  }
+  const existingRecurringInstances = buildExistingRecurringInstances(profile);
 
   // 4. Sum future mandatory recurring incomes and expenses from active rules until end of month
-  let futureRecurringIncomesSum = 0;
-  let futureRecurringExpensesSum = 0;
-
-  if (Array.isArray(recurringRules)) {
-    for (const rule of recurringRules) {
-      if (!rule || rule.isActive === false) continue;
-
-      const ruleAmount = Number(rule.amount) || 0;
-      if (ruleAmount <= 0) continue;
-
-      let currDueDate = rule.nextDueDate;
-      let occurrences = 0;
-      const MAX_OCCURRENCES = 100;
-
-      while (currDueDate && currDueDate <= endOfMonthStr && occurrences < MAX_OCCURRENCES) {
-        if (currDueDate >= todayStr) {
-          const instanceKey = `${rule.id}_${currDueDate}`;
-          if (!existingRecurringInstances.has(instanceKey)) {
-            if (rule.type === "income") {
-              futureRecurringIncomesSum += ruleAmount;
-            } else if (rule.type === "expense") {
-              futureRecurringExpensesSum += ruleAmount;
-            }
-          }
-        }
-
-        const prevDueDate = currDueDate;
-        if (rule.frequency === "weekly") {
-          const nextDate = new Date(currDueDate + "T00:00:00");
-          nextDate.setDate(nextDate.getDate() + 7);
-          currDueDate = getLocalDateIso(nextDate);
-        } else if (rule.frequency === "biweekly") {
-          const nextDate = new Date(currDueDate + "T00:00:00");
-          nextDate.setDate(nextDate.getDate() + 14);
-          currDueDate = getLocalDateIso(nextDate);
-        } else if (rule.frequency === "monthly") {
-          currDueDate = addMonthsClamped(currDueDate, 1);
-        } else if (rule.frequency === "quarterly") {
-          currDueDate = addMonthsClamped(currDueDate, 3);
-        } else if (rule.frequency === "yearly") {
-          currDueDate = addMonthsClamped(currDueDate, 12);
-        } else {
-          currDueDate = addMonthsClamped(currDueDate, 1);
-        }
-
-        if (currDueDate <= prevDueDate) break;
-        occurrences++;
-      }
-    }
-  }
+  const futureRecurring = calculateFutureRecurring(
+    recurringRules,
+    existingRecurringInstances,
+    todayStr,
+    endOfMonthStr,
+    true
+  );
+  const futureRecurringIncomesSum = futureRecurring.incomesSum;
+  const futureRecurringExpensesSum = futureRecurring.expensesSum;
 
   const rawForecast = currentBalance - unpaidPaymentsSum - futureRecurringExpensesSum + futureRecurringIncomesSum;
   const forecastedBalance = Number.isFinite(rawForecast) ? rawForecast : 0;
@@ -254,64 +282,17 @@ export function calculateSafeToSpend(
   }, 0);
 
   // Build a set of existing recurring instances to avoid double counting
-  const existingRecurringInstances = new Set<string>();
-  for (const tx of transactions) {
-    if (tx.recurringRuleId && tx.isoDate) {
-      existingRecurringInstances.add(`${tx.recurringRuleId}_${tx.isoDate}`);
-    }
-  }
-  for (const p of payments) {
-    if (p.recurringRuleId && p.dueDate) {
-      existingRecurringInstances.add(`${p.recurringRuleId}_${p.dueDate}`);
-    }
-  }
+  const existingRecurringInstances = buildExistingRecurringInstances(profile);
 
   // 4. Sum future mandatory recurring expenses from active recurring rules until end of month
-  let futureRecurringExpensesSum = 0;
-  if (Array.isArray(recurringRules)) {
-    for (const rule of recurringRules) {
-      if (!rule || rule.isActive === false || rule.type !== "expense") continue;
-
-      const ruleAmount = Number(rule.amount) || 0;
-      if (ruleAmount <= 0) continue;
-
-      let currDueDate = rule.nextDueDate;
-      let occurrences = 0;
-      const MAX_OCCURRENCES = 100;
-
-      while (currDueDate && currDueDate <= endOfMonthStr && occurrences < MAX_OCCURRENCES) {
-        if (currDueDate >= todayStr) {
-          const instanceKey = `${rule.id}_${currDueDate}`;
-          if (!existingRecurringInstances.has(instanceKey)) {
-            futureRecurringExpensesSum += ruleAmount;
-          }
-        }
-
-        const prevDueDate = currDueDate;
-        if (rule.frequency === "weekly") {
-          const nextDate = new Date(currDueDate + "T00:00:00");
-          nextDate.setDate(nextDate.getDate() + 7);
-          currDueDate = getLocalDateIso(nextDate);
-        } else if (rule.frequency === "biweekly") {
-          const nextDate = new Date(currDueDate + "T00:00:00");
-          nextDate.setDate(nextDate.getDate() + 14);
-          currDueDate = getLocalDateIso(nextDate);
-        } else if (rule.frequency === "monthly") {
-          currDueDate = addMonthsClamped(currDueDate, 1);
-        } else if (rule.frequency === "quarterly") {
-          currDueDate = addMonthsClamped(currDueDate, 3);
-        } else if (rule.frequency === "yearly") {
-          currDueDate = addMonthsClamped(currDueDate, 12);
-        } else {
-          currDueDate = addMonthsClamped(currDueDate, 1);
-        }
-
-        // Prevent infinite loops if date calculation fails to advance
-        if (currDueDate <= prevDueDate) break;
-        occurrences++;
-      }
-    }
-  }
+  const futureRecurring = calculateFutureRecurring(
+    recurringRules,
+    existingRecurringInstances,
+    todayStr,
+    endOfMonthStr,
+    false
+  );
+  const futureRecurringExpensesSum = futureRecurring.expensesSum;
 
   // 5. Sum reserved funds assigned to active goals
   const goals = Array.isArray(profile.goals) ? profile.goals : [];
