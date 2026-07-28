@@ -14,6 +14,41 @@ export interface SettlementResult {
   settlementsTotal: number;
 }
 
+interface SplitResult {
+  delta: number;
+  myPaid: number;
+  partnerPaid: number;
+}
+
+function calculateItemSplit(
+  amount: number,
+  type: "expense" | "income",
+  paidBy?: "me" | "partner" | "joint",
+  splitMode?: "none" | "equal"
+): SplitResult {
+  if (splitMode !== "equal") {
+    return { delta: 0, myPaid: 0, partnerPaid: 0 };
+  }
+
+  const half = amount / 2;
+
+  if (type === "expense") {
+    if (paidBy === "me") {
+      return { delta: half, myPaid: amount, partnerPaid: 0 };
+    } else if (paidBy === "partner") {
+      return { delta: -half, myPaid: 0, partnerPaid: amount };
+    }
+  } else if (type === "income") {
+    if (paidBy === "me") {
+      return { delta: -half, myPaid: 0, partnerPaid: 0 };
+    } else if (paidBy === "partner") {
+      return { delta: half, myPaid: 0, partnerPaid: 0 };
+    }
+  }
+
+  return { delta: 0, myPaid: 0, partnerPaid: 0 };
+}
+
 /**
  * Oblicza saldo rozliczeń partnerów dla profilu wspólnego (shared).
  * 
@@ -61,39 +96,19 @@ export function calculatePartnerSettlement(profile: Profile): SettlementResult {
 
   // 1. Transakcje (wydatek i przychód) -> historyNet
   for (const tx of profile.transactions || []) {
-    if (tx.splitMode === "equal") {
-      const half = tx.amount / 2;
-
-      if (tx.type === "expense") {
-        if (tx.paidBy === "me") {
-          myPaidHistoryExpenses += tx.amount;
-          historyNet += half; // Partner jest mi winien połowę
-        } else if (tx.paidBy === "partner") {
-          partnerPaidHistoryExpenses += tx.amount;
-          historyNet -= half; // Ja jestem winien partnerowi połowę
-        }
-      } else if (tx.type === "income") {
-        if (tx.paidBy === "me") {
-          historyNet -= half; // Przychód podział: ja oddaję 50% partnerowi
-        } else if (tx.paidBy === "partner") {
-          historyNet += half; // Partner oddaje 50% mi
-        }
-      }
-    }
+    const split = calculateItemSplit(tx.amount, tx.type, tx.paidBy, tx.splitMode);
+    historyNet += split.delta;
+    myPaidHistoryExpenses += split.myPaid;
+    partnerPaidHistoryExpenses += split.partnerPaid;
   }
 
   // 2. Płatności (nadchodzące nieopłacone rachunki) -> upcomingNet
   for (const p of profile.payments || []) {
-    if (p.splitMode === "equal" && p.status !== "Opłacono") {
-      const half = p.amount / 2;
-
-      if (p.paidBy === "me") {
-        myPaidUpcomingExpenses += p.amount;
-        upcomingNet += half; // Partner winien połowę nadchodzącego rachunku
-      } else if (p.paidBy === "partner") {
-        partnerPaidUpcomingExpenses += p.amount;
-        upcomingNet -= half; // Ja winien połowę nadchodzącego rachunku
-      }
+    if (p.status !== "Opłacono") {
+      const split = calculateItemSplit(p.amount, "expense", p.paidBy, p.splitMode);
+      upcomingNet += split.delta;
+      myPaidUpcomingExpenses += split.myPaid;
+      partnerPaidUpcomingExpenses += split.partnerPaid;
     }
   }
 
