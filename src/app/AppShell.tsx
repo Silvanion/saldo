@@ -1,6 +1,7 @@
 import { useApp } from "./providers/AppContext";
 import React, { useState } from "react";
-import { AppView, Profile } from "../types";
+import { Profile } from "../types";
+import { AppView } from "../uiTypes";
 import {
   LayoutDashboard,
   History,

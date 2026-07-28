@@ -1,6 +1,7 @@
 import { useApp } from "./providers/AppContext";
 import React from "react";
-import { ModalState, Profile, Goal, Payment } from "../types";
+import { Profile, Goal, Payment } from "../types";
+import { ModalState } from "../uiTypes";
 import {
   TransactionModal,
   PaymentModal,

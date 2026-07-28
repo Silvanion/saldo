@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ModalState, ModalType } from "../types";
+import { ModalState, ModalType } from "../uiTypes";
 
 export function useModalManager() {
   const [modalState, setModalState] = useState<ModalState>({ type: null });

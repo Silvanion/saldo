@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { AppView, Goal, Payment, AppState, Profile } from "../../types";
+import { Goal, Payment, AppState, Profile } from "../../types";
+import { AppView } from "../../uiTypes";
 import { useAuth } from "../../hooks/useAuth";
 import { useBudgetState } from "../../hooks/useBudgetState";
 import { useDriveSync } from "../../hooks/useDriveSync";
