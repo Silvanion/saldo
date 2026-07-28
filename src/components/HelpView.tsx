@@ -10,7 +10,8 @@ import {
   Zap,
   FileSpreadsheet
 } from "lucide-react";
-import { helpCategories, helpSectionsData, faqData, quickSummaryCards } from "../content/helpData";
+import { helpCategories, helpSectionsData, faqData, quickSummaryCards } from "../content/helpContent";
+
 
 interface HelpSectionProps {
   key?: React.Key;
