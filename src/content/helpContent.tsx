@@ -245,17 +245,19 @@ export const helpSectionsData: HelpSectionData[] = [
         </div>
 
         <MockScreenShot
-          title="Filtrowanie zaległości i podsumowanie tygodnia"
+          title="Filtrowanie horyzontu czasowego i podsumowanie tygodnia"
           badge="Zarządzanie Osią Czasu"
           steps={[
-            { step: 1, label: "Filtry statusu", description: "Użyj filtrów (np. 'Zaległe'), by wyświetlić wyłącznie płatności po terminie." },
+            { step: 1, label: "Filtry czasu", description: "Użyj filtrów (np. 'W tym tygodniu'), by skupić się na najpilniejszych zobowiązaniach." },
             { step: 2, label: "Podsumowanie 'W tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
           ]}
         >
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
-             <div className="flex gap-2">
-                <span className="bg-white text-slate-800 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Zaległe</span>
-                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Nadchodzące</span>
+             <div className="flex gap-2 flex-wrap">
+                <span className="bg-white text-slate-800 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Wszystkie</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">W tym tygodniu</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">W tym miesiącu</span>
              </div>
              <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
                <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
@@ -286,24 +288,34 @@ export const helpSectionsData: HelpSectionData[] = [
           Budżety pozwalają nałożyć miesięczny limit na poszczególne kategorie wydatków (np. 1500 zł na Jedzenie, 500 zł na Rozrywkę).
         </p>
 
-        <div className="space-y-2 my-2">
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs font-bold text-slate-700">
-              <span>Kategoria: Jedzenie i Spożywcze</span>
-              <span className="text-emerald-700">65% (975 / 1500 PLN)</span>
+        <div className="space-y-2 my-2 bg-slate-50 border border-slate-200 p-4 rounded-xl">
+          <div className="space-y-2">
+            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+              <div className="flex items-center gap-2">
+                 <span>Jedzenie i Spożywcze</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border-emerald-200">
+                   W normie
+                 </span>
+              </div>
+              <span className="text-emerald-700">975 z 1500 PLN</span>
             </div>
-            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
               <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
             </div>
           </div>
 
-          <div className="space-y-1 pt-2">
-            <div className="flex justify-between text-xs font-bold text-slate-700">
-              <span>Kategoria: Rozrywka i Wyjścia</span>
-              <span className="text-red-600 font-bold">115% (575 / 500 PLN — PRZEKROCZENIE!)</span>
+          <div className="space-y-2 pt-4">
+            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+              <div className="flex items-center gap-2">
+                 <span>Rozrywka i Wyjścia</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border-rose-200">
+                   Przekroczony
+                 </span>
+              </div>
+              <span className="text-rose-600 font-bold">575 z 500 PLN</span>
             </div>
-            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-              <div className="h-full bg-red-500 rounded-full w-full" />
+            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-rose-500 rounded-full w-[100%]" />
             </div>
           </div>
         </div>
@@ -326,7 +338,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Ta sekcja pomaga budować długoterminowy majątek. Dzieli oszczędności na trzy niezależne filary:
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
             <h5 className="font-bold text-emerald-900 mb-1">1. Cele krótkoterminowe</h5>
             <p className="text-emerald-800">Wakacje, nowy sprzęt, remont. Zbierasz określoną kwotę do konkretnej daty.</p>
@@ -342,6 +354,31 @@ export const helpSectionsData: HelpSectionData[] = [
             <p className="text-cyan-800">Konta emerytalne, lokaty, akcje, fundusze. Odłączone od codziennego portfela.</p>
           </div>
         </div>
+
+        <MockScreenShot
+          title="Odznaki postępu i statusy celów"
+          badge="Śledzenie Postępów"
+          steps={[
+            { step: 1, label: "Status i odznaka", description: "Otrzymujesz czytelną odznakę (np. 'W toku', 'Prawie u celu!', 'Osiągnięty 🎉')." },
+            { step: 2, label: "Wizualizacja paska", description: "Pasek postępu wypełnia się kolorem, a obok wyświetla się procent realizacji." }
+          ]}
+        >
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+             <div className="flex justify-between items-center">
+               <span className="font-bold text-slate-800">Nowy Mac</span>
+               <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-blue-50 text-blue-700 border-blue-200">
+                 W trakcie
+               </span>
+             </div>
+             <div className="flex justify-between text-xs text-slate-500 mb-1">
+               <span>Zgromadzono: 2 400 z 8 000 PLN</span>
+               <span className="font-bold text-blue-600">30%</span>
+             </div>
+             <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+               <div className="bg-blue-500 h-full rounded-full w-[30%]" />
+             </div>
+          </div>
+        </MockScreenShot>
 
         <div className="bg-red-50 border border-red-200 p-3.5 rounded-xl text-xs text-red-900 flex items-start gap-2.5">
           <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />

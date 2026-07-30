@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v0.8.9",
+    date: "Sierpień 2026",
+    title: "Priorytety, Statusy i Przejrzystość",
+    icon: <Sparkles className="w-5 h-5 text-indigo-500" />,
+    features: [
+      "[Płatności] Dodano filtry horyzontu czasowego (Dzisiaj, W tym tygodniu, W tym miesiącu) i mocniejsze oznaczenia zaległości.",
+      "[Cele] Dodano czytelne odznaki postępu, statusy (W toku, Czas minął, Ukończono) i szacunki czasu do osiągnięcia celu.",
+      "[Analiza] Wprowadzono nową warstwę interpretacyjną dla budżetów (W normie, Uwaga, Przekroczony).",
+      "[Dashboard] Przeprojektowano domyślną hierarchię, priorytetyzując oś czasu i pilne rachunki."
+    ]
+  },
+  {
     version: "v0.8.8",
     date: "Lipiec 2026",
     title: "Rozszerzenia Osi Czasu i Spójność Interfejsu",
