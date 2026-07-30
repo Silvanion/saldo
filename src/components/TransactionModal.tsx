@@ -365,7 +365,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       onClick={() => isSelected ? handleRemoveTag(sug) : handleAddTag(sug)}
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
                         isSelected
-                          ? "bg-slate-800 text-white border-slate-800"
+                          ? "bg-white text-[#137566] border-[#137566]/30 shadow-sm"
                           : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                       }`}
                     >

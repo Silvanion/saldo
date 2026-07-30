@@ -59,7 +59,7 @@ export function PaymentsView({
     today.setHours(0, 0, 0, 0);
     const pDate = new Date(`${dueDateStr}T00:00:00`);
     const diffTime = pDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
       return {
@@ -202,7 +202,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "all" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                  paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 Wszystkie
@@ -210,7 +210,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("me")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "me" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                  paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 Ja
@@ -218,7 +218,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("partner")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "partner" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                  paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 Partner
@@ -226,7 +226,7 @@ export function PaymentsView({
               <button
                 onClick={() => setPaidByFilter("joint")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "joint" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                  paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
               >Wspólne/50-50</button>
             </div>

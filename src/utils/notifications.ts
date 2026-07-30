@@ -19,7 +19,7 @@ export function checkAndNotifyPayments(payments: Payment[]) {
     if (p.status === "Opłacono") return false;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     // Notify if due today, tomorrow, or in the next 3 days
     return diffDays >= 0 && diffDays <= 3;
   });

@@ -23,7 +23,7 @@ export const BillsWidget = memo(function BillsWidget({
     today.setHours(0, 0, 0, 0);
     const pDate = new Date(`${dueDateStr}T00:00:00`);
     const diffTime = pDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
       return {

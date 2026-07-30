@@ -21,7 +21,7 @@ export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter
     if (!p.dueDate) return false;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     if (range === "overdue") {
       return diffDays < 0;
@@ -54,7 +54,7 @@ export function getDueThisWeekTotal(payments: Payment[]): number {
     if (!p.dueDate) return acc;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays >= 0 && diffDays <= 6) {
       return acc + p.amount;
@@ -136,7 +136,7 @@ export function groupPaymentsByTimeline(payments: Payment[]) {
     if (!p.dueDate) return;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
       overdue.push(p);

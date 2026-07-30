@@ -275,7 +275,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       onClick={() => setSelectedTag(isSelected ? null : tag)}
                       className={`text-xs px-2.5 py-1 rounded-full font-bold border transition ${
                         isSelected
-                          ? "bg-slate-700 text-white border-slate-700 shadow-sm"
+                          ? "bg-white text-slate-800 border-slate-200 shadow-sm"
                           : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
@@ -343,7 +343,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                                 }}
                                 className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                                   selectedTag === tag
-                                    ? "bg-slate-700 text-white border-slate-700"
+                                    ? "bg-white text-slate-800 border-slate-300 shadow-sm"
                                     : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                                 }`}
                               >
@@ -457,7 +457,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           }}
                           className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                             selectedTag === tag
-                              ? "bg-slate-700 text-white border-slate-700"
+                              ? "bg-white text-slate-800 border-slate-300 shadow-sm"
                               : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                           }`}
                         >
