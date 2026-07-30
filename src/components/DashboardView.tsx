@@ -46,16 +46,16 @@ export function DashboardView({
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
 
   const DEFAULT_WIDGETS: Widget[] = [
-    { id: "bills", name: "Najbliższe opłaty i rachunki", visible: true, icon: "📅" },
-    { id: "budget", name: "Plan budżetu i kategorie", visible: true, icon: "🎯" },
     { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "⏳" },
+    { id: "bills", name: "Najbliższe opłaty i rachunki", visible: true, icon: "📅" },
     { id: "stats", name: "Podsumowanie finansowe (Przychody, Wydatki, Bilans)", visible: true, icon: "📊" },
+    { id: "budget", name: "Plan budżetu i kategorie", visible: true, icon: "🎯" },
     { id: "chart", name: "Wykres przepływów (6-miesięczny)", visible: true, icon: "📈" },
     { id: "activity", name: "Ostatnie transakcje (Aktywność)", visible: true, icon: "⏱️" },
   ];
 
   const [widgets, setWidgets] = useState<Widget[]>(() => {
-    const saved = localStorage.getItem("dashboard_widgets_v4");
+    const saved = localStorage.getItem("dashboard_widgets_v5");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -75,7 +75,7 @@ export function DashboardView({
 
   const saveWidgets = useCallback((newWidgets: Widget[]) => {
     setWidgets(newWidgets);
-    localStorage.setItem("dashboard_widgets_v4", JSON.stringify(newWidgets));
+    localStorage.setItem("dashboard_widgets_v5", JSON.stringify(newWidgets));
   }, []);
 
   const handleToggleVisibility = useCallback((id: string) => {
@@ -125,7 +125,7 @@ export function DashboardView({
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
-    localStorage.setItem("dashboard_widgets_v4", JSON.stringify(widgets));
+    localStorage.setItem("dashboard_widgets_v5", JSON.stringify(widgets));
   }, [widgets]);
 
   const currentYear = selectedDate.getFullYear();
