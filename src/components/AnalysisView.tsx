@@ -312,22 +312,58 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             {categorySummary.length === 0 ? (
               <p className="text-xs text-slate-500 italic text-center py-4">Brak widocznych kategorii w wybranym miesiącu.</p>
             ) : (
-              categorySummary.map((cat) => (
-                <div key={cat.name} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-700 font-bold">{cat.name}</span>
-                    <span className="text-slate-500">
-                      {formatPln(cat.spent)} ({cat.pctOfExpense}%)
-                    </span>
+              categorySummary.map((cat) => {
+                const hasLimit = cat.limit > 0;
+                const limitPct = hasLimit ? (cat.spent / cat.limit) * 100 : 0;
+                
+                let barColor = "bg-[#137566]";
+                let badgeClass = "";
+                let badgeText = "";
+                
+                if (hasLimit) {
+                  if (limitPct > 100) {
+                    barColor = "bg-rose-500";
+                    badgeClass = "bg-rose-100 text-rose-700 border-rose-200";
+                    badgeText = "Przekroczony";
+                  } else if (limitPct >= 80) {
+                    barColor = "bg-amber-400";
+                    badgeClass = "bg-amber-100 text-amber-700 border-amber-200";
+                    badgeText = "Uwaga";
+                  } else {
+                    barColor = "bg-emerald-500";
+                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-200";
+                    badgeText = "W normie";
+                  }
+                }
+
+                return (
+                <div key={cat.name} className="space-y-2">
+                  <div className="flex justify-between items-end text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-700 font-bold">{cat.name}</span>
+                      {hasLimit && (
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${badgeClass}`}>
+                          {badgeText}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <strong className={hasLimit && limitPct > 100 ? "text-rose-600" : "text-slate-700"}>
+                        {formatPln(cat.spent)}
+                      </strong>
+                      <span className="text-slate-400 ml-1">
+                        {hasLimit ? `z ${formatPln(cat.limit)}` : `(${cat.pctOfExpense}%)`}
+                      </span>
+                    </div>
                   </div>
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${cat.pctOfExpense}%` }}
-                      className="bg-[#137566] h-full rounded-full"
+                      className={`${barColor} h-full rounded-full transition-all duration-300`}
                     ></div>
                   </div>
                 </div>
-              ))
+              )})
             )}
           </div>
 
