@@ -248,16 +248,16 @@ export const helpSectionsData: HelpSectionData[] = [
           title="Filtrowanie horyzontu czasowego i podsumowanie tygodnia"
           badge="Zarządzanie Osią Czasu"
           steps={[
-            { step: 1, label: "Filtry czasu", description: "Użyj filtrów (np. 'W tym tygodniu'), by skupić się na najpilniejszych zobowiązaniach." },
-            { step: 2, label: "Podsumowanie 'W tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
+            { step: 1, label: "Filtry czasu", description: "Użyj filtrów (np. 'Ten tydzień'), by skupić się na najpilniejszych zobowiązaniach." },
+            { step: 2, label: "Podsumowanie 'Do zapłaty w tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
           ]}
         >
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
              <div className="flex gap-2 flex-wrap">
                 <span className="bg-white text-slate-800 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Wszystkie</span>
-                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj</span>
-                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">W tym tygodniu</span>
-                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">W tym miesiącu</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj/Zaległe</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten tydzień</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten miesiąc</span>
              </div>
              <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
                <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
@@ -304,7 +304,22 @@ export const helpSectionsData: HelpSectionData[] = [
             </div>
           </div>
 
-          <div className="space-y-2 pt-4">
+          <div className="space-y-2 pt-4 border-t border-slate-100">
+            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+              <div className="flex items-center gap-2">
+                 <span>Transport i Paliwo</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-amber-100 text-amber-700 border-amber-200">
+                   Uwaga
+                 </span>
+              </div>
+              <span className="text-amber-700">420 z 500 PLN</span>
+            </div>
+            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-amber-400 rounded-full w-[84%]" />
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-4 border-t border-slate-100">
             <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
               <div className="flex items-center gap-2">
                  <span>Rozrywka i Wyjścia</span>
@@ -359,7 +374,7 @@ export const helpSectionsData: HelpSectionData[] = [
           title="Odznaki postępu i statusy celów"
           badge="Śledzenie Postępów"
           steps={[
-            { step: 1, label: "Status i odznaka", description: "Otrzymujesz czytelną odznakę (np. 'W toku', 'Prawie u celu!', 'Osiągnięty 🎉')." },
+            { step: 1, label: "Status i odznaka", description: "Otrzymujesz czytelną odznakę (np. 'W trakcie', 'Prawie u celu!', 'Osiągnięty 🎉')." },
             { step: 2, label: "Wizualizacja paska", description: "Pasek postępu wypełnia się kolorem, a obok wyświetla się procent realizacji." }
           ]}
         >

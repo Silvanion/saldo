@@ -17,7 +17,7 @@ export const changelogData: ChangelogEntry[] = [
     icon: <Sparkles className="w-5 h-5 text-indigo-500" />,
     features: [
       "[Płatności] Dodano filtry horyzontu czasowego (Dzisiaj, W tym tygodniu, W tym miesiącu) i mocniejsze oznaczenia zaległości.",
-      "[Cele] Dodano czytelne odznaki postępu, statusy (W toku, Czas minął, Ukończono) i szacunki czasu do osiągnięcia celu.",
+      "[Cele] Dodano czytelne odznaki postępu, statusy (W trakcie, Prawie u celu!, Osiągnięty 🎉) i szacunki czasu do osiągnięcia celu.",
       "[Analiza] Wprowadzono nową warstwę interpretacyjną dla budżetów (W normie, Uwaga, Przekroczony).",
       "[Dashboard] Przeprojektowano domyślną hierarchię, priorytetyzując oś czasu i pilne rachunki."
     ]
