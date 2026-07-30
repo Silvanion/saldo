@@ -30,6 +30,7 @@ export function PaymentsView({
   );
   const [notificationStatusMsg, setNotificationStatusMsg] = useState<string>("");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
+  const [timeFilter, setTimeFilter] = useState<"all" | "today" | "week" | "month">("all");
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null);
 
   const handleEnableNotifications = async () => {
@@ -88,11 +89,26 @@ export function PaymentsView({
     };
   };
 
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
   // Sorting payments: unpaid first, then paid. Both sorted by due date.
   const filteredPayments = profile.payments.filter(p => {
     if (profile.kind === "shared" && paidByFilter !== "all") {
-      return p.paidBy === paidByFilter;
+      if (p.paidBy !== paidByFilter) return false;
     }
+    
+    if (timeFilter !== "all") {
+      if (p.status === "Opłacono") return false;
+      const pDate = new Date(`${p.dueDate}T00:00:00`);
+      const diffTime = pDate.getTime() - todayDate.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (timeFilter === "today" && diffDays > 0) return false;
+      if (timeFilter === "week" && diffDays > 7) return false;
+      if (timeFilter === "month" && diffDays > 30) return false;
+    }
+    
     return true;
   });
 
@@ -194,43 +210,71 @@ export function PaymentsView({
       />
 
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
           <h3 className="text-base font-bold text-slate-900">Lista Twoich opłat</h3>
           
-          {profile.kind === "shared" && (
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
             <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-slate-200">
               <button
-                onClick={() => setPaidByFilter("all")}
+                onClick={() => setTimeFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
-              >
-                Wszystkie
-              </button>
+              >Wszystkie</button>
               <button
-                onClick={() => setPaidByFilter("me")}
+                onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "today" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
-              >
-                Ja
-              </button>
+              >Dzisiaj/Zaległe</button>
               <button
-                onClick={() => setPaidByFilter("partner")}
+                onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "week" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
-              >
-                Partner
-              </button>
+              >Ten tydzień</button>
               <button
-                onClick={() => setPaidByFilter("joint")}
+                onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "month" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                 }`}
-              >Wspólne/50-50</button>
+              >Ten miesiąc</button>
             </div>
-          )}
+            {profile.kind === "shared" && (
+              <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-slate-200">
+                <button
+                  onClick={() => setPaidByFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                    paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Wszystkie role
+                </button>
+                <button
+                  onClick={() => setPaidByFilter("me")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                    paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Ja
+                </button>
+                <button
+                  onClick={() => setPaidByFilter("partner")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                    paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Partner
+                </button>
+                <button
+                  onClick={() => setPaidByFilter("joint")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                    paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >Wspólne</button>
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="space-y-3">
