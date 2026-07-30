@@ -65,7 +65,7 @@ export function PaymentsView({
     if (diffDays < 0) {
       return {
         label: "Przeterminowane!",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-bold"
+        badgeClass: "bg-rose-100 text-rose-800 border-rose-300 text-[10px] font-bold shadow-sm"
       };
     } else if (diffDays === 0) {
       return {

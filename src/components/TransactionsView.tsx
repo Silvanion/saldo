@@ -109,161 +109,151 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Historia finansowa</p>
               <h2 className="text-xl font-bold text-slate-900">Zarejestrowane transakcje</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => {
-                  import('../utils').then(({ generateCsvContent, downloadFile }) => {
-                    const csv = generateCsvContent(filteredTransactions);
-                    downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
-                  });
-                }}
-                className="bg-slate-100 text-slate-700 font-bold py-2 px-4 rounded-xl hover:bg-slate-200 transition text-sm flex items-center gap-1.5 shadow-sm border border-slate-200"
-                title="Eksportuj odfiltrowane dane"
-                id="btn-export-csv"
-              >
-                📤 Eksportuj
-              </button>
-              <button
-                onClick={() => setIsCSVModalOpen(true)}
-                className="bg-[#e7f3f0] text-[#137566] font-bold py-2 px-4 rounded-xl hover:bg-[#d8ebe6] transition text-sm flex items-center gap-1.5 border border-[#137566]/20 shadow-sm"
-                id="btn-import-csv"
-              >
-                📥 Importuj CSV
-              </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button
+                  onClick={() => {
+                    import('../utils').then(({ generateCsvContent, downloadFile }) => {
+                      const csv = generateCsvContent(filteredTransactions);
+                      downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
+                    });
+                  }}
+                  className="text-slate-600 font-semibold py-1.5 px-3 rounded-lg hover:bg-white hover:text-slate-900 transition text-xs flex items-center gap-1.5"
+                  title="Eksportuj odfiltrowane dane"
+                  id="btn-export-csv"
+                >
+                  📤 Eksportuj
+                </button>
+                <div className="w-px bg-slate-200 mx-1 my-1"></div>
+                <button
+                  onClick={() => setIsCSVModalOpen(true)}
+                  className="text-slate-600 font-semibold py-1.5 px-3 rounded-lg hover:bg-white hover:text-slate-900 transition text-xs flex items-center gap-1.5"
+                  id="btn-import-csv"
+                >
+                  📥 Importuj CSV
+                </button>
+              </div>
               <button
                 onClick={onOpenTxModal}
-                className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-sm"
+                className="bg-[#137566] text-white font-bold py-2.5 px-5 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-sm flex items-center gap-1.5"
                 id="btn-add-tx-view"
               >
-                ＋ Nowa transakcja
+                <span>＋</span> Nowa transakcja
               </button>
             </div>
           </div>
-
-          {/* Filter and Search controls */}
+                    {/* Filter and Search controls */}
           <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 mb-5">
-            <div className="flex flex-col xl:flex-row items-center justify-between gap-4 w-full">
-              <div className="flex bg-slate-100 p-1 rounded-xl w-full xl:w-auto overflow-x-auto whitespace-nowrap hide-scrollbar">
-                <button
-                  onClick={() => setFilterType("all")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    filterType === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                  id="filter-all"
-                >
-                  Wszystkie
-                </button>
-                <button
-                  onClick={() => setFilterType("expense")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    filterType === "expense" ? "bg-white text-[#d55e50] shadow-sm" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                  id="filter-expenses"
-                >
-                  Wydatki
-                </button>
-                <button
-                  onClick={() => setFilterType("income")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    filterType === "income" ? "bg-white text-[#137566] shadow-sm" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                  id="filter-incomes"
-                >
-                  Przychody
-                </button>
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 w-full">
+              {/* Search */}
+              <div className="relative w-full lg:w-72 shrink-0">
+                <input
+                  type="search"
+                  placeholder="Szukaj transakcji, kategorii, tagów..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 py-2.5 px-4 pl-10 outline-none focus:border-[#137566] text-sm bg-slate-50 focus:bg-white transition"
+                  id="tx-search-input"
+                />
+                <span className="absolute left-3.5 top-2.5 text-slate-400 text-base">🔍</span>
               </div>
-              
-              {profile.kind === "shared" && (
-                <div className="flex bg-slate-100 p-1 rounded-xl w-full xl:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar">
+
+              {/* Type & Role Pills */}
+              <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto whitespace-nowrap hide-scrollbar">
                   <button
-                    onClick={() => setPaidByFilter("all")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    onClick={() => setFilterType("all")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      filterType === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >Wszystkie</button>
                   <button
-                    onClick={() => setPaidByFilter("me")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    onClick={() => setFilterType("expense")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      filterType === "expense" ? "bg-white text-[#d55e50] shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
-                  >
-                    Ja
-                  </button>
+                  >Wydatki</button>
                   <button
-                    onClick={() => setPaidByFilter("partner")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    onClick={() => setFilterType("income")}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      filterType === "income" ? "bg-white text-[#137566] shadow-sm" : "text-slate-500 hover:text-slate-800"
                     }`}
-                  >
-                    Partner
-                  </button>
-                  <button
-                    onClick={() => setPaidByFilter("joint")}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                      paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
-                    }`}
-                  >Wspólne/50-50</button>
+                  >Przychody</button>
                 </div>
-              )}
-
-              {/* Advanced Filter row */}
-              <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Od:</span>
-                  <input
-                    type="date"
-                    value={dateFrom}
-                    onChange={e => setDateFrom(e.target.value)}
-                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
-                  />
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Do:</span>
-                  <input
-                    type="date"
-                    value={dateTo}
-                    onChange={e => setDateTo(e.target.value)}
-                    className="w-[125px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
-                  />
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Min:</span>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={minAmount}
-                    onChange={e => setMinAmount(e.target.value)}
-                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
-                  />
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Max:</span>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="∞"
-                    value={maxAmount}
-                    onChange={e => setMaxAmount(e.target.value)}
-                    className="w-[70px] rounded-xl border border-slate-200 py-1 px-2 text-xs outline-none focus:border-[#137566]"
-                  />
-                </div>
-
-                <div className="relative w-full sm:w-56 mt-2 sm:mt-0 flex-grow sm:flex-grow-0">
-                  <input
-                    type="search"
-                    placeholder="Szukaj..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 py-2 px-3 pl-9 outline-none focus:border-[#137566] text-sm"
-                    id="tx-search-input"
-                  />
-                  <span className="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
-                </div>
+                
+                {profile.kind === "shared" && (
+                  <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto whitespace-nowrap hide-scrollbar">
+                    <button
+                      onClick={() => setPaidByFilter("all")}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                        paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >Wszystkie</button>
+                    <button
+                      onClick={() => setPaidByFilter("me")}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                        paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >Ja</button>
+                    <button
+                      onClick={() => setPaidByFilter("partner")}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                        paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >Partner</button>
+                    <button
+                      onClick={() => setPaidByFilter("joint")}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                        paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >Wspólne</button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Unique tags list for easy quick filtering */}
+            {/* Advanced Filters Row */}
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/70 p-3 rounded-xl border border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500">Okres:</span>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={e => setDateFrom(e.target.value)}
+                  className="w-[120px] rounded-lg border border-slate-200 py-1.5 px-2.5 text-xs outline-none focus:border-[#137566] bg-white shadow-sm"
+                />
+                <span className="text-slate-400 text-xs">-</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={e => setDateTo(e.target.value)}
+                  className="w-[120px] rounded-lg border border-slate-200 py-1.5 px-2.5 text-xs outline-none focus:border-[#137566] bg-white shadow-sm"
+                />
+              </div>
+              
+              <div className="hidden sm:block w-px h-6 bg-slate-200"></div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500">Kwota (PLN):</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Min"
+                  value={minAmount}
+                  onChange={e => setMinAmount(e.target.value)}
+                  className="w-[75px] rounded-lg border border-slate-200 py-1.5 px-2.5 text-xs outline-none focus:border-[#137566] bg-white shadow-sm"
+                />
+                <span className="text-slate-400 text-xs">-</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Max"
+                  value={maxAmount}
+                  onChange={e => setMaxAmount(e.target.value)}
+                  className="w-[75px] rounded-lg border border-slate-200 py-1.5 px-2.5 text-xs outline-none focus:border-[#137566] bg-white shadow-sm"
+                />
+              </div>
+            </div>
             {allUniqueTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 pt-2" id="tags-filter-bar">
                 <span className="text-[11px] font-semibold text-slate-400 uppercase mr-1">Filtruj tagiem:</span>
