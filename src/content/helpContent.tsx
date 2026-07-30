@@ -257,9 +257,9 @@ export const helpSectionsData: HelpSectionData[] = [
                 <span className="bg-white text-slate-800 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Zaległe</span>
                 <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Nadchodzące</span>
              </div>
-             <div className="bg-white border border-rose-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
-               <span className="text-rose-900 font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-rose-500" /> Do zapłaty w tym tygodniu</span>
-               <span className="text-rose-700 font-black text-sm">450,00 PLN</span>
+             <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
+               <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
+               <span className="text-[#137566] font-black text-sm">450,00 PLN</span>
              </div>
           </div>
         </MockScreenShot>
