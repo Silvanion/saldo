@@ -244,7 +244,27 @@ export const helpSectionsData: HelpSectionData[] = [
           </p>
         </div>
 
-        <h4 className="font-bold text-slate-900">Cykl życia Płatności:</h4>
+        <MockScreenShot
+          title="Filtrowanie zaległości i podsumowanie tygodnia"
+          badge="Zarządzanie Osią Czasu"
+          steps={[
+            { step: 1, label: "Filtry statusu", description: "Użyj filtrów (np. 'Zaległe'), by wyświetlić wyłącznie płatności po terminie." },
+            { step: 2, label: "Podsumowanie 'W tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
+          ]}
+        >
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
+             <div className="flex gap-2">
+                <span className="bg-white text-slate-800 border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Zaległe</span>
+                <span className="bg-slate-100 text-slate-500 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Nadchodzące</span>
+             </div>
+             <div className="bg-white border border-rose-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
+               <span className="text-rose-900 font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-rose-500" /> Do zapłaty w tym tygodniu</span>
+               <span className="text-rose-700 font-black text-sm">450,00 PLN</span>
+             </div>
+          </div>
+        </MockScreenShot>
+
+        <h4 className="font-bold text-slate-900 mt-6">Cykl życia Płatności:</h4>
         <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-700 font-medium">
           <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 PLN)</div>
           <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />

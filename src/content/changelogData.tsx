@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v0.8.8",
+    date: "Lipiec 2026",
+    title: "Rozszerzenia Osi Czasu i Spójność Interfejsu",
+    icon: <Sparkles className="w-5 h-5 text-indigo-500" />,
+    features: [
+      "[Dodano] Filtr 'Zaległe' na osi czasu oraz karta z podsumowaniem kwot do zapłaty w bieżącym tygodniu.",
+      "[Zmieniono] Subtelniejsze i bardziej spójne stany aktywne dla filtrów i tagów we wszystkich widokach list (jasny motyw).",
+      "[Poprawiono] Wyeliminowano błąd kategoryzacji płatności na osi czasu związany ze zmianami czasu na letni/zimowy (DST)."
+    ]
+  },
+  {
     version: "v0.8.7",
     date: "Lipiec 2026",
     title: "Ochrona Rezerw i Bezpieczny Import Transakcji",
