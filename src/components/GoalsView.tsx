@@ -66,40 +66,70 @@ export function GoalsView({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="goals-grid">
             {profile.goals.map((g) => {
               const percent = g.target > 0 ? Math.min(100, Math.round((g.saved / g.target) * 100)) : 0;
-              let requiredMonthlyStr = "";
-              if (g.targetDate && g.saved < g.target) {
-                const targetD = new Date(g.targetDate);
-                const now = new Date();
-                const monthsDiff = (targetD.getFullYear() - now.getFullYear()) * 12 + targetD.getMonth() - now.getMonth();
-                if (monthsDiff > 0) {
-                  const required = (g.target - g.saved) / monthsDiff;
-                  requiredMonthlyStr = `Potrzeba ok. ${formatPln(required)} / m-c`;
-                } else if (monthsDiff === 0) {
-                  requiredMonthlyStr = "To ostatni miesiąc!";
+              const isCompleted = g.saved >= g.target;
+              const remaining = Math.max(0, g.target - g.saved);
+              
+              let paceText = "";
+              let badgeInfo = null;
+
+              if (isCompleted) {
+                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+              } else if (percent >= 90) {
+                badgeInfo = { text: "Prawie u celu!", colorClass: "bg-amber-50 text-amber-700 border-amber-200" };
+              } else if (percent > 0) {
+                badgeInfo = { text: "W trakcie", colorClass: "bg-blue-50 text-blue-700 border-blue-200" };
+              } else {
+                badgeInfo = { text: "Do startu", colorClass: "bg-slate-50 text-slate-600 border-slate-200" };
+              }
+
+              if (!isCompleted) {
+                if (g.targetDate) {
+                  const targetD = new Date(g.targetDate);
+                  const now = new Date();
+                  const monthsDiff = (targetD.getFullYear() - now.getFullYear()) * 12 + targetD.getMonth() - now.getMonth();
+                  if (monthsDiff > 0) {
+                    const required = remaining / monthsDiff;
+                    paceText = `Potrzeba ok. ${formatPln(required)} / m-c`;
+                  } else if (monthsDiff === 0) {
+                    paceText = "To ostatni miesiąc na realizację!";
+                  } else {
+                    paceText = "Czas minął! Zaktualizuj termin.";
+                  }
+                } else {
+                  paceText = `Brakuje ${formatPln(remaining)}`;
                 }
               }
 
               return (
                 <div key={g.id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow transition flex flex-col justify-between h-[13rem] relative">
-                  <button
-                    onClick={() => onDeleteGoal(g.id)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-red-500 text-xs transition"
-                    title="Usuń cel"
-                    id={`btn-delete-goal-${g.id}`}
-                  >
-                    ✕
-                  </button>
                   <div>
-                    <span className="w-8 h-8 rounded-full bg-teal-50 text-[#137566] flex items-center justify-center font-bold text-sm mb-3 border border-teal-100">
-                      🎯
-                    </span>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border ${isCompleted ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-teal-50 text-[#137566] border-teal-100"}`}>
+                        {isCompleted ? "🏆" : "🎯"}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {badgeInfo && (
+                          <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeInfo.colorClass}`}>
+                            {badgeInfo.text}
+                          </span>
+                        )}
+                        <button
+                          onClick={() => onDeleteGoal(g.id)}
+                          className="text-slate-300 hover:text-red-500 text-xs transition px-1"
+                          title="Usuń cel"
+                          id={`btn-delete-goal-${g.id}`}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
                     <h3 className="text-sm font-bold text-slate-900 line-clamp-1">{g.name}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {formatPln(g.saved)} z {formatPln(g.target)}
                     </p>
-                    {requiredMonthlyStr && (
-                      <p className="text-[10px] text-amber-600 mt-1 font-medium bg-amber-50 inline-block px-2 py-0.5 rounded">
-                        {requiredMonthlyStr}
+                    {paceText && (
+                      <p className="text-[10px] text-amber-700 mt-1.5 font-semibold bg-amber-50/80 inline-block px-2 py-1 rounded-md border border-amber-100/50">
+                        {paceText}
                       </p>
                     )}
                   </div>
@@ -108,7 +138,7 @@ export function GoalsView({
                     <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-3 mb-1">
                       <div
                         style={{ width: `${percent}%` }}
-                        className="bg-[#137566] h-full rounded-full transition-all duration-500"
+                        className={`${isCompleted ? "bg-emerald-500" : "bg-[#137566]"} h-full rounded-full transition-all duration-500`}
                       ></div>
                     </div>
                     <div className="flex justify-between items-center">
