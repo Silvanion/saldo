@@ -160,13 +160,19 @@ export function GoalsView({
       </div>
 
       {/* SECTION 2: LONG-TERM INVESTMENTS */}
-      <div className="border-t border-slate-100 pt-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Inwestycje długoterminowe</h2>
+      <div className="border-t border-slate-200 pt-6 mt-8 p-6 bg-slate-50/50 rounded-3xl border-dashed">
+        <div className="flex items-center gap-3 mb-2">
+          <h2 className="text-xl font-bold text-slate-900">Inwestycje długoterminowe</h2>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md border border-slate-300">Moduł informacyjny</span>
+        </div>
+        <p className="text-[11px] text-slate-500 max-w-3xl leading-relaxed mb-6">
+          Ta sekcja służy wyłącznie do ewidencji wpłat kapitałowych. Wpisy <strong>nie są</strong> traktowane jako zysk, <strong>nie są</strong> oszczędnościami bieżącymi i <strong>nie wpływają</strong> na wynik budżetu ani <em>Safe-to-spend</em>.
+        </p>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick contribute form */}
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Rejestruj wpłatę inwestycyjną</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">Rejestruj wpłatę kapitałową</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-4">
               Zapisz kwoty odkładane na IKE, IKZE, fundusze inwestycyjne, akcje lub obligacje skarbowe.
             </p>
@@ -223,7 +229,7 @@ export function GoalsView({
           {/* Investment log book */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-3">Podsumowanie inwestycji</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Wniesiony kapitał (podsumowanie)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(
                   profile.investments.reduce((acc, inv) => {
