@@ -79,7 +79,7 @@ export function AppShell({
         {/* Brand */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-2 text-2xl font-black text-slate-900 tracking-tight">
-            <span className="flex items-center justify-center bg-slate-900 text-white rounded-xl w-8 h-8 shadow-sm">
+            <span className="flex items-center justify-center bg-[#137566] text-white rounded-xl w-8 h-8 shadow-sm">
               <Wallet className="w-5 h-5" />
             </span>
             <span>saldo</span>
@@ -287,7 +287,7 @@ export function AppShell({
             <div>
               <p className="text-[10px] font-bold text-[#849590] tracking-widest uppercase">{getTodayFormatted()}</p>
               <h1 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
-                {activeView === "dashboard" && "Dzień dobry"}
+                {activeView === "dashboard" && (new Date().getHours() >= 5 && new Date().getHours() < 18 ? "Dzień dobry" : "Dobry wieczór")}
                 {activeView === "transactions" && "Księga Transakcji"}
                 {activeView === "payments" && "Zaplanowane Opłaty"}
                 {activeView === "budget" && "Twoje Budżety"}

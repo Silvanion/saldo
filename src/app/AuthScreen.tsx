@@ -56,14 +56,14 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-10 space-y-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="bg-[#137566] text-white p-3 rounded-2xl shadow-lg">
+            <div className="bg-[#137566] text-white p-3.5 rounded-2xl shadow-lg">
               <Wallet className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-[34px] font-black text-[#153a35] tracking-tight">saldo</h1>
+          <h1 className="text-[34px] font-black text-slate-900 tracking-tight">saldo</h1>
           <p className="text-slate-500">Twój osobisty asystent finansowy</p>
         </div>
 
@@ -91,7 +91,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
                   <button 
                     type="button" 
                     onClick={() => window.open(window.location.href, "_blank")} 
-                    className="mt-2 text-[#137566] hover:underline font-medium"
+                    className="mt-2 text-slate-900 hover:underline font-bold"
                   >
                     Otwórz aplikację w nowej karcie
                   </button>
@@ -101,39 +101,39 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email</label>
             <div className="relative">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
                 placeholder="twoj@email.com"
               />
-              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
+              <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Hasło</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hasło</label>
             <div className="relative">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
                 placeholder="••••••••"
               />
-              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
+              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
             </div>
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#137566] text-white py-3 rounded-xl font-medium hover:bg-[#1a9c88] transition flex items-center justify-center gap-2"
+            className="w-full bg-[#137566] text-white py-3.5 rounded-xl font-bold hover:bg-[#0f5c50] transition flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(19,117,102,0.25)] hover:shadow-[0_6px_16px_rgba(19,117,102,0.4)] mt-2"
           >
             {loading ? "Przetwarzanie..." : isLogin ? <><LogIn className="w-5 h-5" /> Zaloguj się</> : <><UserPlus className="w-5 h-5" /> Zarejestruj się</>}
           </button>
@@ -143,7 +143,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-[#137566] font-medium hover:underline"
+            className="text-slate-600 font-bold hover:text-slate-900 hover:underline"
           >
             {isLogin ? "Nie masz konta? Zarejestruj się" : "Masz już konto? Zaloguj się"}
           </button>
@@ -163,7 +163,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-50 transition flex items-center justify-center gap-2 shadow-sm"
+            className="w-full bg-white border border-slate-200 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition flex items-center justify-center gap-2 shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -178,7 +178,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={onDemoClick}
             disabled={loading}
-            className="w-full bg-emerald-50 text-[#137566] py-3 rounded-xl font-medium hover:bg-emerald-100 transition shadow-sm"
+            className="w-full bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition"
           >
             Używaj offline (bez rejestracji)
           </button>

@@ -171,9 +171,23 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const [range, setRange] = useState<TimelineFilter>("all");
   
   const filteredPayments = filterPaymentsByRange(unpaidPayments, range);
-  const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(filteredPayments);
-  const activeSummary = getActiveSummary(filteredPayments);
-  const overdueCount = overdue.length;
+  
+  // Limit to max 7 items to prevent endless vertical growth on dashboard
+  const MAX_ITEMS = 7;
+  // Sort by date before slicing to ensure we show the most pressing ones
+  const sortedFiltered = [...filteredPayments].sort((a, b) => {
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+    return a.dueDate.localeCompare(b.dueDate);
+  });
+  const limitedPayments = sortedFiltered.slice(0, MAX_ITEMS);
+  const remainingCount = sortedFiltered.length - MAX_ITEMS;
+  
+  const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(limitedPayments);
+  const activeSummary = getActiveSummary(filteredPayments); // keep summary for all filtered
+  const overdueCount = getGlobalOverdueCount(limitedPayments); // wait, summary overdue uses limited?
+  // Let's use filteredPayments for overdueCount to keep summary accurate
+  const totalOverdueCountInView = getGlobalOverdueCount(filteredPayments);
   const texts = getTimelineTexts(range);
   const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
   const globalOverdueCount = getGlobalOverdueCount(unpaidPayments);
@@ -278,7 +292,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full">
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full max-h-[420px]">
       <div className="flex items-center justify-between mb-5">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Oś Czasu</p>
@@ -318,7 +332,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         <span className="text-sm font-bold text-[#137566]">{formatPln(dueThisWeekTotal)}</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
         <div className="flex gap-1 mb-4 bg-slate-100/50 p-1 rounded-xl w-fit">
           <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Wszystkie</button>
           <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "overdue" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Zaległe</button>
@@ -339,11 +353,11 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
                 </div>
                 <span className="text-sm font-bold text-slate-900">{formatPln(activeSummary.total)}</span>
               </div>
-              {range === "all" && overdueCount > 0 && (
+              {range === "all" && totalOverdueCountInView > 0 && (
                 <div className="flex items-center gap-1.5 pl-6">
                   <div className="w-1 h-1 rounded-full bg-rose-400"></div>
                   <span className="text-[10px] text-slate-500 font-medium">
-                    W tym zaległe: <span className="text-rose-600 font-semibold">{overdueCount}</span>
+                    W tym zaległe: <span className="text-rose-600 font-semibold">{totalOverdueCountInView}</span>
                   </span>
                 </div>
               )}
@@ -366,12 +380,18 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           </div>
         ) : (
           viewMode === "compact" ? (
-            <div className="pt-2">
+            <div className="pt-2 pb-2">
               {renderSection("Zaległe", overdue, <AlertCircle className="w-4 h-4" />, "text-rose-700", "bg-rose-100")}
               {renderSection("Dzisiaj", today, <Clock className="w-4 h-4" />, "text-amber-700", "bg-amber-100")}
               {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-slate-700", "bg-slate-100")}
               {renderSection("Następne 30 dni", next30Days, <Calendar className="w-4 h-4" />, "text-slate-600", "bg-slate-100/50")}
               {renderSection("Później", later, <Calendar className="w-4 h-4" />, "text-slate-400", "bg-slate-50")}
+              
+              {remainingCount > 0 && (
+                <p className="text-center text-[10px] text-slate-400 font-semibold pt-2 pb-1">
+                  + {remainingCount} innych wpisów (zobacz w zakładce Zarządzaj)
+                </p>
+              )}
             </div>
           ) : (
             renderMonthlyOverview()

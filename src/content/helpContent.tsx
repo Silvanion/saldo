@@ -46,21 +46,21 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     title: "Prywatność i Szyfrowanie",
     description: "Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z kodem PIN.",
     icon: <ShieldCheck className="w-5 h-5" />,
-    wrapperClass: "bg-emerald-50/60 border border-emerald-100 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-slate-50/80 border border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-emerald-600 text-white rounded-xl shrink-0"
   },
   {
     title: "Wskaźnik Bezpieczeństwa",
     description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.",
     icon: <Zap className="w-5 h-5" />,
-    wrapperClass: "bg-teal-50/60 border border-teal-100 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-slate-50/80 border border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-teal-600 text-white rounded-xl shrink-0"
   },
   {
     title: "Bezpieczny Import CSV",
     description: "Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).",
     icon: <FileSpreadsheet className="w-5 h-5" />,
-    wrapperClass: "bg-cyan-50/60 border border-cyan-100 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-slate-50/80 border border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-cyan-600 text-white rounded-xl shrink-0"
   }
 ];

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DelayedTooltip } from './DelayedTooltip';
 import { Profile, SettlementEntry } from '../../types';
 import { calculatePartnerSettlement } from '../../services/settlementEngine';
 import { formatPln, formatDatePl, getLocalDateIso } from '../../utils';
@@ -84,14 +85,15 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
     <div className={`p-5 rounded-2xl border ${bgColor} shadow-sm mb-6`} id="settlement-widget">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="group relative w-fit mb-1">
+          <DelayedTooltip
+            className="mb-1"
+            label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
+            tooltipClassName="w-48"
+          >
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-help border-b border-dashed border-slate-400">
               Do rozliczenia (Historia)
             </p>
-            <div className="hidden group-hover:block absolute z-10 bottom-full left-0 mb-2 w-56 bg-slate-800 text-white text-[10px] p-2 rounded-xl shadow-lg normal-case tracking-normal font-medium">
-              Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych.
-            </div>
-          </div>
+          </DelayedTooltip>
           <h3 className={`text-sm sm:text-base font-bold ${statusColor}`}>{statusText}</h3>
           {upcomingText && (
             <p className="text-xs text-slate-500 mt-1 font-medium" id="settlement-upcoming-info">

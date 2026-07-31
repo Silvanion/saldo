@@ -45,10 +45,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     }
   }, [type]);
 
+  const isEditing = initialData && typeof initialData === "object" && "amount" in initialData && "name" in initialData;
+
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
-      if (initialData) {
+      if (isEditing) {
         setType(initialData.type);
         setAmount(initialData.amount.toString());
         setName(initialData.name);
@@ -74,12 +76,23 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
   }, [isOpen, initialData]);
 
   useEffect(() => {
-    if (initialData && initialData.category) return; // Do not override if editing
+    if (isEditing && initialData.category) return; // Do not override if editing
     const defaultCats = type === "income" ? incomeCategories : expenseCategories;
     const initialCat = defaultCats[0];
     setCategory(initialCat);
     setCategoryIcon(iconByCategory[initialCat] || "✨");
   }, [type, initialData]);
+
+  const duplicateWarning = React.useMemo(() => {
+    if (!isOpen) return null;
+    const numAmt = parseFloat(amount.replace(",", "."));
+    if (isNaN(numAmt) || numAmt <= 0 || !name || !date) return null;
+    const res = checkDuplicate(
+      { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags },
+      activeProfile?.transactions || []
+    );
+    return res.isLikelyDuplicate ? res : null;
+  }, [name, amount, type, date, category, activeProfile, isOpen]);
 
   if (!isOpen) return null;
 
@@ -134,16 +147,6 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     setPaidBy("me");
     setSplitMode("equal");
   };
-
-  const duplicateWarning = React.useMemo(() => {
-    const numAmt = parseFloat(amount.replace(",", "."));
-    if (isNaN(numAmt) || numAmt <= 0 || !name || !date) return null;
-    const res = checkDuplicate(
-      { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags },
-      activeProfile?.transactions || []
-    );
-    return res.isLikelyDuplicate ? res : null;
-  }, [name, amount, type, date, category, activeProfile]);
 
   const categories = type === "income" ? incomeCategories : expenseCategories;
   const suggestions = ["wakacje", "remont", "rozrywka", "prezent", "zakupy", "dom", "hobby", "zdrowie"];
@@ -425,13 +428,22 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             </div>
           )}
 
+          {isEditing ? (
+            <button
+              type="button"
+              onClick={() => onClose()}
+              className="w-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
+            >
+              Anuluj
+            </button>
+          ) : null}
+
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-            id="btn-tx-submit"
+            disabled={!amount || !name || isSubmitting || !!duplicateWarning}
+            className="w-full bg-[#137566] text-white hover:bg-[#0f5d51] transition font-bold py-3.5 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#137566]/20 flex items-center justify-center gap-2"
           >
-            {isSubmitting ? "Zapisywanie..." : "Zapisz transakcję"}
+            {isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}
           </button>
         </form>
       </motion.div>

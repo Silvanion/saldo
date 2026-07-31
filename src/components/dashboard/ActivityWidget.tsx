@@ -77,7 +77,7 @@ export const ActivityWidget = memo(function ActivityWidget({
 
       <div className="pt-4 mt-4 border-t border-slate-100">
         <button
-          onClick={onOpenTxModal}
+          onClick={() => onOpenTxModal()}
           className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors border border-slate-200/60 shadow-sm"
         >
           + Szybki zapis

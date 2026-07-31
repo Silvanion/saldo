@@ -51,10 +51,10 @@ export function AppContent() {
       >
         {!isProfileLocked ? (
           <AppViewRouter
-            onOpenTxModal={(tx) => openModal("transaction", tx)}
+            onOpenTxModal={(tx: any) => openModal("transaction", tx?.nativeEvent ? undefined : tx)}
             onOpenBudgetModal={() => openModal("budget")}
-            onOpenPaymentModal={(p) => openModal("payment", p)}
-            onTriggerCalendarAi={(p) => openModal("calendarAi", p)}
+            onOpenPaymentModal={(p: any) => openModal("payment", p?.nativeEvent ? undefined : p)}
+            onTriggerCalendarAi={(p: any) => openModal("calendarAi", p?.nativeEvent ? undefined : p)}
             onOpenGoalModal={() => openModal("goal")}
             onOpenGoalDepositModal={(g) => openModal("goalDeposit", g)}
             onOpenProfileModal={() => openModal("profile")}

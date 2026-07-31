@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 
 export function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system" | any>(() => {
+  const [theme, setTheme] = useState<"light" | "dark" | "auto" | any>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("saldo_theme") as "light" | "dark" | "system") || "system";
+      const stored = localStorage.getItem("saldo_theme");
+      if (stored === "system") return "auto";
+      return (stored as "light" | "dark" | "auto") || "auto";
     }
-    return "system";
+    return "auto";
   });
 
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+  const handleThemeChange = (newTheme: "light" | "dark" | "auto") => {
     setTheme(newTheme);
     localStorage.setItem("saldo_theme", newTheme);
   };
@@ -23,7 +25,8 @@ export function useTheme() {
       } else if (theme === "light") {
         isDark = false;
       } else {
-        isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const currentHour = new Date().getHours();
+        isDark = currentHour >= 18 || currentHour < 6;
       }
 
       if (isDark) {
@@ -35,11 +38,9 @@ export function useTheme() {
 
     applyTheme();
 
-    if (theme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = () => applyTheme();
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
+    if (theme === "auto") {
+      const interval = setInterval(applyTheme, 60000);
+      return () => clearInterval(interval);
     }
   }, [theme]);
 

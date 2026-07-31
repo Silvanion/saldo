@@ -31,10 +31,10 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
     <div className="border border-slate-200/80 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm hover:shadow-md transition-all">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-50/80 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-3.5">
-          <div className="p-2.5 bg-[#f0f9f6] text-[#137566] rounded-xl shadow-xs shrink-0">
+          <div className="p-2.5 bg-indigo-50 text-[#137566] rounded-xl shadow-xs shrink-0">
             {icon}
           </div>
           <div>
@@ -46,15 +46,15 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
                 </span>
               )}
             </div>
-            <span className="text-xs text-slate-400 font-medium">{category}</span>
+            <span className="text-xs text-slate-500 font-medium">{category}</span>
           </div>
         </div>
-        <div className="text-slate-400 p-1 rounded-xl hover:bg-slate-100 transition-colors">
+        <div className="text-slate-500 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
           {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
       {isOpen && (
-        <div className="p-5 pt-2 text-slate-600 border-t border-slate-100 leading-relaxed bg-[#fcfdfd]">
+        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-slate-50/50">
           {children}
         </div>
       )}

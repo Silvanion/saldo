@@ -89,40 +89,51 @@ export function PaymentsView({
     };
   };
 
-  const todayDate = new Date();
-  todayDate.setHours(0, 0, 0, 0);
-
-  // Sorting payments: unpaid first, then paid. Both sorted by due date.
-  const filteredPayments = profile.payments.filter(p => {
-    if (profile.kind === "shared" && paidByFilter !== "all") {
-      if (p.paidBy !== paidByFilter) return false;
+  const { unpaidCount, totalUnpaidSum } = React.useMemo(() => {
+    let count = 0;
+    let sum = 0;
+    for (const p of profile.payments) {
+      if (p.status !== "Opłacono") {
+        count++;
+        sum += p.amount;
+      }
     }
-    
-    if (timeFilter !== "all") {
-      if (p.status === "Opłacono") return false;
-      const pDate = new Date(`${p.dueDate}T00:00:00`);
-      const diffTime = pDate.getTime() - todayDate.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return { unpaidCount: count, totalUnpaidSum: sum };
+  }, [profile.payments]);
+
+  const filteredPayments = React.useMemo(() => {
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const todayTime = todayDate.getTime();
+
+    return profile.payments.filter(p => {
+      if (profile.kind === "shared" && paidByFilter !== "all") {
+        if (p.paidBy !== paidByFilter) return false;
+      }
       
-      if (timeFilter === "today" && diffDays > 0) return false;
-      if (timeFilter === "week" && diffDays > 7) return false;
-      if (timeFilter === "month" && diffDays > 30) return false;
-    }
-    
-    return true;
-  });
+      if (timeFilter !== "all") {
+        if (p.status === "Opłacono") return false;
+        const pDate = new Date(`${p.dueDate}T00:00:00`);
+        const diffTime = pDate.getTime() - todayTime;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (timeFilter === "today" && diffDays > 0) return false;
+        if (timeFilter === "week" && diffDays > 7) return false;
+        if (timeFilter === "month" && diffDays > 30) return false;
+      }
+      
+      return true;
+    });
+  }, [profile.payments, profile.kind, paidByFilter, timeFilter]);
 
-  const sortedPayments = [...filteredPayments].sort((a, b) => {
-    if (a.status !== b.status) {
-      return a.status === "Do opłacenia" ? -1 : 1;
-    }
-    return a.dueDate.localeCompare(b.dueDate);
-  });
-
-  const unpaidCount = profile.payments.filter((p) => p.status !== "Opłacono").length;
-  const totalUnpaidSum = profile.payments
-    .filter((p) => p.status !== "Opłacono")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const sortedPayments = React.useMemo(() => {
+    return [...filteredPayments].sort((a, b) => {
+      if (a.status !== b.status) {
+        return a.status === "Do opłacenia" ? -1 : 1;
+      }
+      return a.dueDate.localeCompare(b.dueDate);
+    });
+  }, [filteredPayments]);
 
   return (
     <div className="space-y-6" id="payments-view-container">
@@ -143,7 +154,7 @@ export function PaymentsView({
           </div>
           <div className="flex gap-2">
             <button
-              onClick={onOpenPaymentModal}
+              onClick={() => onOpenPaymentModal()}
               className="bg-[#137566] text-white font-bold py-2 px-4 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-xs flex items-center gap-1 cursor-pointer"
               id="btn-add-payment"
             >
@@ -173,7 +184,7 @@ export function PaymentsView({
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">Powiadomienia o płatnościach</h4>
-            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+            <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
               {notificationPermission === "granted"
                 ? "Włączone! Otrzymasz natychmiastowe powiadomienie na pulpicie, gdy zbliży się termin płatności rachunku (do 3 dni wstecz)."
                 : notificationPermission === "denied"
@@ -218,25 +229,25 @@ export function PaymentsView({
               <button
                 onClick={() => setTimeFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                 }`}
               >Wszystkie</button>
               <button
                 onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "today" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "today" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                 }`}
               >Dzisiaj/Zaległe</button>
               <button
                 onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "week" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "week" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                 }`}
               >Ten tydzień</button>
               <button
                 onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "month" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  timeFilter === "month" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                 }`}
               >Ten miesiąc</button>
             </div>
@@ -245,7 +256,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("all")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    paidByFilter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   Wszystkie role
@@ -253,7 +264,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("me")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    paidByFilter === "me" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   Ja
@@ -261,7 +272,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("partner")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    paidByFilter === "partner" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   Partner
@@ -269,7 +280,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("joint")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                    paidByFilter === "joint" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
                   }`}
                 >Wspólne</button>
               </div>
@@ -281,12 +292,12 @@ export function PaymentsView({
           {sortedPayments.length === 0 ? (
             <div className="text-center py-10">
               {profile.payments.length > 0 ? (
-                <p className="text-sm text-slate-400">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
+                <p className="text-sm text-slate-500">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
               ) : (
                 <>
-                  <p className="text-sm text-slate-400">Brak zdefiniowanych płatności.</p>
+                  <p className="text-sm text-slate-500">Brak zdefiniowanych płatności.</p>
                   <button
-                    onClick={onOpenPaymentModal}
+                    onClick={() => onOpenPaymentModal()}
                     className="text-[#137566] text-xs font-semibold hover:underline mt-1"
                   >
                     Dodaj swój pierwszy rachunek już teraz &rarr;
@@ -357,7 +368,7 @@ export function PaymentsView({
                         className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           isPaid
                             ? "bg-[#e7f3f0] text-[#137566] hover:bg-[#d1e8e2]"
-                            : "bg-[#fff3dc] text-amber-800 hover:bg-[#137566] hover:text-white"
+                            : "bg-[#fff3dc] text-amber-800 hover:bg-[#137566] hover:text-white border border-transparent dark:bg-amber-900/40 dark:text-amber-100 dark:border-amber-700/50"
                         }`}
                         id={`btn-toggle-payment-${p.id}`}
                       >

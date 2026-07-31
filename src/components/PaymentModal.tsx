@@ -24,7 +24,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
-      if (initialData) {
+      if (initialData && typeof initialData === "object" && !("nativeEvent" in initialData) && "amount" in initialData) {
         setName(initialData.name);
         setAmount(initialData.amount.toString());
         setDueDate(initialData.dueDate);

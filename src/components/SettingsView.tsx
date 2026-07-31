@@ -67,8 +67,8 @@ interface SettingsViewProps {
   onImportLocalData: (state: AppState) => void;
   
   // Theme settings
-  theme: "light" | "dark" | "system";
-  onThemeChange: (newTheme: "light" | "dark" | "system") => void;
+  theme: "light" | "dark" | "auto";
+  onThemeChange: (newTheme: "light" | "dark" | "auto") => void;
 
   calendarToken?: string | null;
   onConnectCalendar?: () => Promise<void>;
@@ -484,7 +484,7 @@ export function SettingsView({
   const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
 
   return (
-    <div className="space-y-6 max-w-4xl" id="settings-view-container">
+    <div className="space-y-6 max-w-5xl xl:max-w-6xl mx-auto pb-16" id="settings-view-container">
       {/* CATEGORY SUB-NAVIGATION BAR */}
       <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-3 mb-6">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -674,11 +674,11 @@ export function SettingsView({
                 return (
                   <div
                     key={p.id}
-                    className="col-span-1 sm:col-span-2 bg-gradient-to-br from-[#f0f9f6] via-white to-[#e6f4f0] border-2 border-[#137566] rounded-2xl p-5 shadow-md ring-1 ring-[#137566]/20 relative overflow-hidden flex flex-col justify-between gap-4"
+                    className="col-span-1 sm:col-span-2 bg-gradient-to-br from-[#f0f9f6] via-white to-[#e6f4f0] dark:from-[#137566]/15 dark:via-slate-900 dark:to-[#137566]/10 border-2 border-[#137566] dark:border-[#137566]/40 rounded-2xl p-5 shadow-md ring-1 ring-[#137566]/20 dark:ring-[#137566]/10 relative overflow-hidden flex flex-col justify-between gap-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-12 h-12 rounded-2xl bg-white border border-[#137566]/20 shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-[#137566]/20 dark:border-[#137566]/30 shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
                           {p.avatar || "👤"}
                         </div>
                         <div className="min-w-0">
@@ -690,7 +690,7 @@ export function SettingsView({
                             </span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-white/80 border border-slate-200/80 px-2.5 py-0.5 rounded-md">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-white/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-2.5 py-0.5 rounded-md">
                               {isShared ? `👪 Wspólny (z ${p.partnerName})` : "👤 Osobisty"}
                             </span>
                             {p.pinHash ? (
@@ -706,7 +706,7 @@ export function SettingsView({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0 bg-white/80 p-1 rounded-xl border border-slate-200/60 shadow-xs">
+                      <div className="flex items-center gap-1 shrink-0 bg-white/80 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-xs">
                         <button
                           onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
                           className="p-2 text-slate-600 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
@@ -731,7 +731,7 @@ export function SettingsView({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-3 border-t border-[#137566]/15 text-[#137566] font-bold">
+                    <div className="flex items-center justify-between text-xs pt-3 border-t border-[#137566]/15 dark:border-[#137566]/30 text-[#137566] font-bold">
                       <span className="flex items-center gap-1">
                         <CheckCircle className="w-4 h-4 text-[#137566]" /> Aktualnie pracujesz na tym profilu
                       </span>
@@ -958,22 +958,22 @@ export function SettingsView({
             </div>
           </button>
 
-          {/* System Theme Option */}
+          {/* Auto Theme Option */}
           <button
-            onClick={() => onThemeChange("system")}
+            onClick={() => onThemeChange("auto")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-              theme === "system"
+              theme === "auto"
                 ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
                 : "bg-white border-slate-200 hover:border-slate-300"
             }`}
-            id="btn-set-theme-system"
+            id="btn-set-theme-auto"
           >
-            <div className={`p-2 rounded-xl ${theme === "system" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
               <strong className="block text-sm text-slate-900">Automatyczny</strong>
-              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Zgodny z systemem OS</span>
+              <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Zależny od pory dnia</span>
             </div>
           </button>
         </div>

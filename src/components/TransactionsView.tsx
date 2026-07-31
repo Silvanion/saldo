@@ -134,7 +134,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 </button>
               </div>
               <button
-                onClick={onOpenTxModal}
+                onClick={() => onOpenTxModal()}
                 className="bg-[#137566] text-white font-bold py-2.5 px-5 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-sm flex items-center gap-1.5"
                 id="btn-add-tx-view"
               >
@@ -301,7 +301,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <tbody className="divide-y divide-slate-50">
                 {visibleTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-sm text-slate-400">
+                    <td colSpan={7} className="py-12 text-center text-sm text-slate-400 bg-slate-50/70 border-y border-slate-100">
                       Brak transakcji spełniających kryteria.
                     </td>
                   </tr>
@@ -380,7 +380,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
           {/* Mobile Card List View (visible on mobile only) */}
           <div className="block md:hidden space-y-3" id="tx-mobile-list">
             {visibleTransactions.length === 0 ? (
-              <div className="py-10 text-center text-sm text-slate-400 bg-slate-50 rounded-lg">
+              <div className="py-10 text-center text-sm text-slate-400 bg-slate-50/70 border border-slate-100 rounded-xl">
   {profile.transactions.length === 0 && profile.kind === "shared" ? "Dodaj pierwszy wspólny wydatek." : "Brak transakcji spełniających kryteria."}
 </div>
             ) : (

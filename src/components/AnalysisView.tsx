@@ -187,7 +187,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   }, [totalIncome, savingsRate, savings, categorySummary, totalPlannedBudget, totalActualSpent]);
 
   return (
-    <div className="space-y-6" id="analysis-view-container">
+    <div className="space-y-6 pb-12" id="analysis-view-container">
       {/* Report download header */}
       <div className="bg-gradient-to-r from-[#137566] to-[#155e51] p-6 rounded-2xl text-white shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -246,10 +246,10 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 key={idx}
                 className={`p-4 rounded-xl border flex items-start gap-3.5 transition ${
                   ins.type === "success"
-                    ? "bg-emerald-50/80 border-emerald-100 text-emerald-950"
+                    ? "bg-emerald-50/80 border-emerald-100 text-emerald-950 dark:bg-emerald-900/40 dark:border-emerald-800/50 dark:text-emerald-100"
                     : ins.type === "warning"
-                    ? "bg-rose-50/80 border-rose-100 text-rose-950"
-                    : "bg-blue-50/80 border-blue-100 text-blue-950"
+                    ? "bg-rose-50/80 border-rose-100 text-rose-950 dark:bg-rose-900/40 dark:border-rose-800/50 dark:text-rose-100"
+                    : "bg-blue-50/80 border-blue-100 text-blue-950 dark:bg-blue-900/40 dark:border-blue-800/50 dark:text-blue-100"
                 }`}
               >
                 <span className="text-lg">
@@ -257,7 +257,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 </span>
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wide mb-1">{ins.title}</h4>
-                  <p className="text-xs leading-relaxed opacity-90">{ins.desc}</p>
+                  <p className="text-xs leading-relaxed">{ins.desc}</p>
                 </div>
               </div>
             ))}

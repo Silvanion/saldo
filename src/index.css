@@ -204,14 +204,19 @@ textarea:focus {
 @variant dark (&:where(.dark, .dark *));
 
 .dark body {
-  background-color: #0f172a !important; /* slate-900 */
+  background-color: #020617 !important; /* slate-950 */
   color: #f8fafc !important; /* slate-50 */
 }
 
 /* 1. Cards & Main Containers */
-.dark .bg-white {
-  background-color: #1e293b !important; /* slate-800 */
-  border-color: #334155 !important; /* slate-700 */
+.dark .bg-white,
+.dark .bg-white\/10,
+.dark .bg-white\/20,
+.dark .bg-white\/50,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: #0f172a !important; /* slate-900 */
+  border-color: #1e293b !important; /* slate-800 */
   color: #f8fafc !important;
 }
 
@@ -221,11 +226,12 @@ textarea:focus {
 .dark .bg-neutral-50,
 .dark .bg-slate-50\/50,
 .dark .bg-slate-50\/70,
+.dark .bg-slate-50\/80,
 .dark .bg-gray-50\/30,
 .dark .bg-gray-50\/50,
 .dark .bg-gray-50\/70,
 .dark .bg-\[\#f6f8f7\] {
-  background-color: #0f172a !important; /* slate-900 */
+  background-color: #020617 !important; /* slate-950 */
 }
 
 .dark .bg-gray-100,
@@ -233,9 +239,10 @@ textarea:focus {
 .dark .bg-zinc-100,
 .dark .bg-neutral-100,
 .dark .bg-slate-100\/50,
+.dark .bg-slate-100\/80,
 .dark .bg-gray-100\/50,
 .dark .bg-gray-100\/70 {
-  background-color: #0f172a !important; /* slate-900 for inner badge/strip backgrounds against slate-800 cards */
+  background-color: #1e293b !important; /* slate-800 */
   color: #e2e8f0 !important; /* slate-200 */
 }
 
@@ -252,7 +259,8 @@ textarea:focus {
 .dark .hover\:bg-gray-100:hover,
 .dark .hover\:bg-slate-100:hover,
 .dark .hover\:bg-gray-200:hover,
-.dark .hover\:bg-slate-200:hover {
+.dark .hover\:bg-slate-200:hover,
+.dark .hover\:bg-slate-200\/50:hover {
   background-color: #334155 !important; /* slate-700 */
   color: #ffffff !important;
 }
@@ -295,13 +303,10 @@ textarea:focus {
 }
 
 .dark .text-slate-700,
-.dark .text-gray-700 {
-  color: #e2e8f0 !important; /* slate-200 */
-}
-
+.dark .text-gray-700,
 .dark .text-slate-600,
 .dark .text-gray-600 {
-  color: #cbd5e1 !important; /* slate-300 */
+  color: #e2e8f0 !important; /* slate-200 */
 }
 
 .dark .text-slate-500,
@@ -310,7 +315,7 @@ textarea:focus {
 .dark .text-gray-400,
 .dark .text-\[\#849590\],
 .dark .text-\[\#739087\] {
-  color: #94a3b8 !important; /* slate-400 */
+  color: #cbd5e1 !important; /* slate-300 */
 }
 
 .dark .text-\[\#137566\] {
@@ -323,9 +328,13 @@ textarea:focus {
 .dark .bg-emerald-50,
 .dark .bg-emerald-50\/30,
 .dark .bg-emerald-50\/50,
+.dark .bg-emerald-50\/60,
+.dark .bg-emerald-50\/70,
 .dark .bg-emerald-50\/80,
 .dark .bg-emerald-100,
-.dark .bg-emerald-200 {
+.dark .bg-emerald-200,
+.dark .hover\:bg-emerald-50:hover,
+.dark .hover\:bg-emerald-100:hover {
   background-color: rgba(16, 185, 129, 0.15) !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
 }
@@ -350,10 +359,17 @@ textarea:focus {
 .dark .bg-\[\#d55e50\],
 .dark .bg-rose-50,
 .dark .bg-rose-50\/50,
+.dark .bg-rose-50\/70,
+.dark .bg-rose-50\/80,
+.dark .bg-rose-50\/90,
 .dark .bg-rose-100,
+.dark .bg-rose-100\/50,
 .dark .bg-rose-200,
 .dark .bg-red-50,
-.dark .bg-red-100 {
+.dark .bg-red-100,
+.dark .hover\:bg-rose-50:hover,
+.dark .hover\:bg-rose-100:hover,
+.dark .hover\:bg-red-50:hover {
   background-color: rgba(244, 63, 94, 0.15) !important;
   border-color: rgba(244, 63, 94, 0.3) !important;
 }
@@ -362,11 +378,12 @@ textarea:focus {
 .dark .bg-amber-50,
 .dark .bg-amber-50\/50,
 .dark .bg-amber-50\/80,
-.dark .bg-amber-50\/90,
 .dark .bg-amber-100,
 .dark .bg-amber-200,
 .dark .bg-yellow-50,
-.dark .bg-yellow-100 {
+.dark .bg-yellow-100,
+.dark .hover\:bg-amber-50:hover,
+.dark .hover\:bg-yellow-50:hover {
   background-color: rgba(245, 158, 11, 0.15) !important;
   border-color: rgba(245, 158, 11, 0.3) !important;
 }
@@ -384,12 +401,15 @@ textarea:focus {
 .dark .bg-indigo-100,
 .dark .bg-blue-50,
 .dark .bg-blue-50\/50,
+.dark .bg-blue-50\/80,
 .dark .bg-blue-100,
 .dark .bg-purple-50,
 .dark .bg-purple-50\/50,
 .dark .bg-purple-100,
 .dark .bg-sky-50,
-.dark .bg-sky-100 {
+.dark .bg-sky-100,
+.dark .hover\:bg-indigo-50:hover,
+.dark .hover\:bg-blue-50:hover {
   background-color: rgba(99, 102, 241, 0.15) !important;
   border-color: rgba(99, 102, 241, 0.3) !important;
 }
@@ -409,18 +429,25 @@ textarea:focus {
 /* 5. Borders & Dividers */
 .dark .border-gray-100,
 .dark .border-slate-100,
+.dark .border-slate-100\/50,
+.dark .border-slate-100\/60,
+.dark .border-slate-100\/80,
 .dark .border-zinc-100,
 .dark .border-emerald-100,
 .dark .border-amber-100,
 .dark .border-rose-100,
 .dark .border-indigo-100 {
-  border-color: #334155 !important; /* slate-700 */
+  border-color: #1e293b !important; /* slate-800 */
 }
 
 .dark .border-gray-150,
 .dark .border-gray-200,
 .dark .border-slate-150,
 .dark .border-slate-200,
+.dark .border-slate-200\/50,
+.dark .border-slate-200\/60,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90,
 .dark .border-slate-300,
 .dark .border-gray-300 {
   border-color: #334155 !important; /* slate-700 */
@@ -430,22 +457,22 @@ textarea:focus {
 .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
 .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
 .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #334155 !important; /* slate-700 */
+  border-color: #1e293b !important; /* slate-800 */
 }
 
 /* 6. Form Inputs & Select Controls */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #0f172a !important; /* slate-900 for inset contrast */
-  border-color: #475569 !important; /* slate-600 */
+  background-color: #020617 !important; /* slate-950 */
+  border-color: #334155 !important; /* slate-700 */
   color: #f8fafc !important; /* slate-50 */
 }
 
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
-  background-color: #0f172a !important;
+  background-color: #020617 !important;
   border-color: #6366f1 !important; /* indigo-500 */
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
 }
@@ -453,11 +480,11 @@ textarea:focus {
 /* Prevent focus:bg-white and focus:bg-gray-50 from flashing white on focus in dark mode! */
 .dark .focus\:bg-white:focus,
 .dark .focus\:bg-gray-50:focus {
-  background-color: #0f172a !important;
+  background-color: #020617 !important;
 }
 
 .dark option {
-  background-color: #1e293b !important;
+  background-color: #0f172a !important;
   color: #f8fafc !important;
 }
 
@@ -536,3 +563,47 @@ textarea:focus {
   background: #475569; /* slate-600 */
 }
 
+
+/* 10. Buttons & Interactive Elements */
+.dark button.bg-white,
+.dark a.bg-white {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important; /* slate-700 */
+}
+
+.dark button.bg-slate-50,
+.dark button.bg-gray-50,
+.dark a.bg-slate-50 {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important; /* slate-700 */
+}
+
+.dark button.bg-slate-100,
+.dark button.bg-gray-100 {
+  background-color: #334155 !important; /* slate-700 */
+}
+
+/* Ensure active/selected tabs have visible contrast within slate-800 containers */
+.dark .bg-slate-100 button.bg-white,
+.dark .bg-gray-100 button.bg-white {
+  background-color: #334155 !important; /* slate-700 */
+  border-color: #334155 !important;
+}
+
+/* Hover over these interactive elements */
+.dark button.bg-white:hover,
+.dark a.bg-white:hover,
+.dark .bg-slate-100 button.bg-white:hover {
+  background-color: #334155 !important; /* slate-700 */
+}
+.dark button.bg-slate-50:hover,
+.dark button.bg-gray-50:hover {
+  background-color: #334155 !important; /* slate-700 */
+}
+
+/* Disabled buttons */
+.dark button:disabled,
+.dark button.disabled {
+  opacity: 0.4 !important;
+  pointer-events: none;
+}
