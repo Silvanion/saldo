@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 import { Profile, AppLanguage } from "../types";
 import { getMonthName, cleanPolishChars, expenseCategories } from "../utils";
-export function generateReportPdf(profile: Profile, year: number, monthIndex: number, currency: string = 'PLN', lang?: AppLanguage) {
+export function generateReportPdf(profile: Profile, year: number, monthIndex: number, currency: string = 'PLN') {
   const doc = new jsPDF();
   const monthName = getMonthName(monthIndex);
   

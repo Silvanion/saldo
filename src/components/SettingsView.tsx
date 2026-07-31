@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount } from "../types";
+import { formatMoney } from "../utils/format";
 import { isFirebaseConfigured } from "../firebase";
 import {
   Cloud,
@@ -163,7 +164,7 @@ export function BankAccountsManager({
                   </div>
                   {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
-                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} PLN</p>
+                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit)}</p>
                   )}
                 </div>
                 <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
@@ -1914,7 +1915,7 @@ export function SettingsView({
                 onClick={() => {
                   if (activeProfile) {
                     const now = new Date();
-                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN", "pl");
+                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN");
                   }
                 }}
                 className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"

@@ -198,7 +198,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </p>
         </div>
         <button
-          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, (profile.currency || "PLN"), "pl")}
+          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN")}
           className="bg-white text-[#137566] font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 transition shadow self-start md:self-auto text-sm"
           id="btn-download-pdf-report"
         >
