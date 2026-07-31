@@ -7,7 +7,7 @@ export class NoAiProvider implements AiProvider {
    */
   async suggestEvent(payment: any, currentDate: string): Promise<any> {
     const name = payment.name || "Rachunek";
-    const amount = payment.amount ? `${payment.amount} PLN` : "nieznaną kwotę";
+    const amount = payment.amount ? `${payment.amount} ${payment.currency || 'PLN'}` : "nieznaną kwotę";
     const refDate = payment.dueDate || currentDate || getLocalDateIso();
 
     return {
@@ -26,7 +26,7 @@ export class NoAiProvider implements AiProvider {
     const lower = raw.toLowerCase();
     const today = new Date(currentDate || getLocalDateIso());
 
-    // 1. Amount Extraction (matches e.g. 120 zł, 120.50PLN, 45,99)
+    // 1. Amount Extraction (matches e.g. 120 zł, 120.50 {waluta}, 45,99)
     let amount = 0;
     const amountMatch = raw.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:zł|pln|eur|usd|$)/i) || raw.match(/(\d+(?:[.,]\d{1,2})?)/);
     if (amountMatch) {

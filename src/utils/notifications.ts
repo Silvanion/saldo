@@ -50,7 +50,7 @@ export function checkAndNotifyPayments(payments: Payment[]) {
     else timeLabel = `za ${diffDays} dni`;
 
     new Notification("Zbliżający się termin płatności!", {
-      body: `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} PLN jest do opłacenia ${timeLabel} (${p.dueDate}).`,
+      body: `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} ${p.currency || 'PLN'} jest do opłacenia ${timeLabel} (${p.dueDate}).`,
     });
   } else {
     const listNames = toNotify.map((p) => p.name).join(", ");

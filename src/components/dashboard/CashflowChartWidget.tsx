@@ -1,6 +1,7 @@
+import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import { DelayedTooltip } from "./DelayedTooltip";
-import { formatPln } from "../../utils";
+import {} from "../../utils";
 import { DashboardChartPoint } from "../../hooks/useDashboardMetrics";
 
 interface CashflowChartWidgetProps {
@@ -8,6 +9,7 @@ interface CashflowChartWidgetProps {
 }
 
 export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData }: CashflowChartWidgetProps) {
+  const { formatMoney } = useI18n();
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-chart-box">
       <div className="flex items-center justify-between mb-5">
@@ -33,7 +35,7 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
             <div className="w-full flex items-end justify-center gap-0.5 sm:gap-1 h-full relative">
               <DelayedTooltip
                 className="absolute -top-10 left-1/2 -translate-x-1/2"
-                label={<>{`+${formatPln(d.income)}`}<br />{`-${formatPln(d.expense)}`}</>}
+                label={<>{`+${formatMoney(d.income)}`}<br />{`-${formatMoney(d.expense)}`}</>}
                 tooltipClassName="whitespace-nowrap rounded-lg py-1 px-2"
               >
                 <div className="w-full h-full absolute inset-0" />

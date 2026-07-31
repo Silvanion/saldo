@@ -1,6 +1,7 @@
+import { useI18n } from "../i18n/I18nProvider";
 import React, { useState } from "react";
 import { Profile, Goal, Investment } from "../types";
-import { formatPln, formatDate } from "../utils";
+import { formatDate } from "../utils";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -17,6 +18,7 @@ export function GoalsView({
   onAddInvestment,
   onDeleteGoal
 }: GoalsViewProps) {
+  const { formatMoney } = useI18n();
   const [invName, setInvName] = useState("");
   const [invAmount, setInvAmount] = useState("");
   const [invType, setInvType] = useState("Poduszka finansowa");
@@ -89,14 +91,14 @@ export function GoalsView({
                   const monthsDiff = (targetD.getFullYear() - now.getFullYear()) * 12 + targetD.getMonth() - now.getMonth();
                   if (monthsDiff > 0) {
                     const required = remaining / monthsDiff;
-                    paceText = `Potrzeba ok. ${formatPln(required)} / m-c`;
+                    paceText = `Potrzeba ok. ${formatMoney(required)} / m-c`;
                   } else if (monthsDiff === 0) {
                     paceText = "To ostatni miesiąc na realizację!";
                   } else {
                     paceText = "Czas minął! Zaktualizuj termin.";
                   }
                 } else {
-                  paceText = `Brakuje ${formatPln(remaining)}`;
+                  paceText = `Brakuje ${formatMoney(remaining)}`;
                 }
               }
 
@@ -125,7 +127,7 @@ export function GoalsView({
                     </div>
                     <h3 className="text-sm font-bold text-slate-900 line-clamp-1">{g.name}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      {formatPln(g.saved)} z {formatPln(g.target)}
+                      {formatMoney(g.saved)} z {formatMoney(g.target)}
                     </p>
                     {paceText && (
                       <p className="text-[10px] text-amber-700 mt-1.5 font-semibold bg-amber-50/80 inline-block px-2 py-1 rounded-md border border-amber-100/50">
@@ -240,7 +242,7 @@ export function GoalsView({
                 ).map(([type, total]) => (
                   <div key={type} className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
                     <span className="block text-[10px] text-slate-500 uppercase tracking-wide truncate" title={type}>{type}</span>
-                    <strong className="text-sm text-slate-800">{formatPln(total)}</strong>
+                    <strong className="text-sm text-slate-800">{formatMoney(total)}</strong>
                   </div>
                 ))}
                 {profile.investments.length === 0 && (
@@ -270,7 +272,7 @@ export function GoalsView({
                             )}
                           </div>
                         </div>
-                        <strong className="text-sm text-[#137566]">{formatPln(inv.amount)}</strong>
+                        <strong className="text-sm text-[#137566]">{formatMoney(inv.amount)}</strong>
                       </div>
                     ))
                 )}

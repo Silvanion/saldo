@@ -1,6 +1,7 @@
+import { useI18n } from "../i18n/I18nProvider";
 import React, { useMemo } from "react";
 import { Profile } from "../types";
-import { formatPln, iconByCategory, budgetCategories } from "../utils";
+import { iconByCategory, budgetCategories } from "../utils";
 
 interface BudgetViewProps {
   profile: Profile;
@@ -9,6 +10,7 @@ interface BudgetViewProps {
 }
 
 export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetViewProps) {
+  const { formatMoney } = useI18n();
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
 
@@ -55,7 +57,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plan Kontroli Kosztów</p>
           <h2 className="text-xl font-bold text-slate-900">Budżety miesięczne</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Przeznaczono łącznie <strong>{formatPln(totalPlannedBudget)}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatPln(totalActualSpent)}</strong>.
+            Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget)}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent)}</strong>.
           </p>
         </div>
         <button
@@ -95,9 +97,9 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                   </div>
                   
                   <div className="text-right">
-                    <span className="block text-xs font-bold text-slate-800">{formatPln(spent)}</span>
+                    <span className="block text-xs font-bold text-slate-800">{formatMoney(spent)}</span>
                     <span className="text-[10px] text-slate-400">
-                      {limit > 0 ? `Limit: ${formatPln(limit)}` : "brak limitu"}
+                      {limit > 0 ? `Limit: ${formatMoney(limit)}` : "brak limitu"}
                     </span>
                   </div>
                 </div>
@@ -114,12 +116,12 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
 
                 {isOver && (
                   <p className="text-[11px] text-[#d55e50] font-bold mt-2" id={`alert-budget-over-${category}`}>
-                    Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatPln(spent - limit)}!
+                    Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit)}!
                   </p>
                 )}
                 {isClose && (
                   <p className="text-[11px] text-amber-600 font-bold mt-2" id={`alert-budget-close-${category}`}>
-                    Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatPln(limit - spent)}.
+                    Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent)}.
                   </p>
                 )}
               </div>
@@ -134,7 +136,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                     {catTransactions.slice(0, 3).map((t) => (
                       <div key={t.id} className="flex justify-between items-center text-xs">
                         <span className="text-slate-600 truncate max-w-[150px]">{t.name}</span>
-                        <span className="font-bold text-slate-700">{formatPln(t.amount)}</span>
+                        <span className="font-bold text-slate-700">{formatMoney(t.amount)}</span>
                       </div>
                     ))}
                   </div>

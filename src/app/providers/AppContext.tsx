@@ -147,6 +147,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       <I18nProvider
         preference={budgetData.state.languagePreference}
         setPreference={actionsData.handleSaveAppLanguagePreference}
+        currencyPreference={budgetData.state.currencyPreference}
+        setCurrencyPreference={actionsData.handleSaveAppCurrencyPreference}
       >
         {children}
       </I18nProvider>

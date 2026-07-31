@@ -316,10 +316,18 @@ export function useAppActions({
     [state, saveState]
   );
 
+  const handleSaveAppCurrencyPreference = useCallback(
+    (pref: AppState["currencyPreference"]) => {
+      saveState({ ...state, currencyPreference: pref });
+    },
+    [state, saveState]
+  );
+
   return {
     ...txActions,
     ...syncActions,
     handleSaveAppLanguagePreference,
+    handleSaveAppCurrencyPreference,
     handleAddGoal,
     handleDeleteGoal,
     handleAddGoalDeposit,

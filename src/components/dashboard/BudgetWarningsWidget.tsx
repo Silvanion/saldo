@@ -1,5 +1,6 @@
+import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
-import { formatPln } from "../../utils";
+import {} from "../../utils";
 import { BudgetWarning } from "../../services/budgetCalculations";
 
 interface BudgetWarningsWidgetProps {
@@ -17,6 +18,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
   onChangeView,
   onOpenBudgetModal
 }: BudgetWarningsWidgetProps) {
+  const { formatMoney } = useI18n();
   const globalBudgetRatio = totalPlannedBudget > 0 ? (totalActualSpentInBudget / totalPlannedBudget) * 100 : 0;
   
   return (
@@ -40,7 +42,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
       <div className="mb-4">
         <div className="flex justify-between items-end mb-1">
           <span className="text-xs font-bold text-slate-700">Całkowity budżet</span>
-          <span className="text-xs font-bold text-slate-900">{formatPln(totalActualSpentInBudget)} <span className="text-slate-400 font-normal">/ {formatPln(totalPlannedBudget)}</span></span>
+          <span className="text-xs font-bold text-slate-900">{formatMoney(totalActualSpentInBudget)} <span className="text-slate-400 font-normal">/ {formatMoney(totalPlannedBudget)}</span></span>
         </div>
         <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
           <div 
@@ -82,8 +84,8 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium px-0.5">
-                    <span>{formatPln(w.spent)}</span>
-                    <span>Limit: {formatPln(w.limit)}</span>
+                    <span>{formatMoney(w.spent)}</span>
+                    <span>Limit: {formatMoney(w.limit)}</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div 

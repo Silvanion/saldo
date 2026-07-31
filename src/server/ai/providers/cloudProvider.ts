@@ -14,10 +14,10 @@ export class CloudProvider implements AiProvider {
     const ai = getGemini();
     const prompt = `Zaplanuj przypomnienie kalendarza dla płatności:
 - Nazwa: ${payment.name}
-- Kwota: ${payment.amount} PLN
+- Kwota: ${payment.amount}
 - Termin: ${payment.dueDate}
 Dzisiejsza data: ${currentDate || getLocalDateIso()}
-Zwróć JSON: summary (np. "💸 Płatność: [Nazwa] ([Kwota] PLN)"), description (stworzony profesjonalny szablon z przypomnieniem o kwocie, dacie i dodaną krótką, przyjazną poradą finansową), suggestedTime (HH:MM:SS), reminders (minuty, np [1440, 120]).`;
+Zwróć JSON: summary (np. "💸 Płatność: [Nazwa] ([Kwota])"), description (stworzony profesjonalny szablon z przypomnieniem o kwocie, dacie i dodaną krótką, przyjazną poradą finansową), suggestedTime (HH:MM:SS), reminders (minuty, np [1440, 120]).`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",

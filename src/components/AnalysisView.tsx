@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useI18n } from "../i18n/I18nProvider";
 import { Profile } from "../types";
-import { formatPln, getMonthName, expenseCategories, budgetCategories } from "../utils";
+import { getMonthName, expenseCategories, budgetCategories } from "../utils";
 import { generateReportPdf } from "../services/pdfGenerator";
 import { Settings2, Check } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
@@ -12,7 +12,8 @@ interface AnalysisViewProps {
 }
 
 export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
-  const { language } = useI18n();
+  const { formatMoney } = useI18n();
+  const { language, currencyPreference } = useI18n();
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -119,7 +120,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "success",
           title: "Świetna stopa oszczędności!",
-          desc: `Oszczędzasz obecnie ${savingsRate}% swoich dochodów (${formatPln(savings)}). To powyżej zalecanego minimum 15%!`
+          desc: `Oszczędzasz obecnie ${savingsRate}% swoich dochodów (${formatMoney(savings)}). To powyżej zalecanego minimum 15%!`
         });
       } else if (savingsRate > 0 && savingsRate < 20) {
         insights.push({
@@ -131,7 +132,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "warning",
           title: "Deficyt budżetowy",
-          desc: `Twoje wydatki w tym miesiącu przewyższyły przychody o ${formatPln(Math.abs(savings))}. Przejrzyj kategorie Rozrywka i Inne, aby znaleźć oszczędności.`
+          desc: `Twoje wydatki w tym miesiącu przewyższyły przychody o ${formatMoney(Math.abs(savings))}. Przejrzyj kategorie Rozrywka i Inne, aby znaleźć oszczędności.`
         });
       }
     } else {
@@ -148,7 +149,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
       insights.push({
         type: "info",
         title: `Największy wydatek: ${topCategory.name}`,
-        desc: `Kategoria "${topCategory.name}" stanowi ${topCategory.pctOfExpense}% wszystkich Twoich wydatków w tym miesiącu (${formatPln(topCategory.spent)}).`
+        desc: `Kategoria "${topCategory.name}" stanowi ${topCategory.pctOfExpense}% wszystkich Twoich wydatków w tym miesiącu (${formatMoney(topCategory.spent)}).`
       });
     }
 
@@ -158,7 +159,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "warning",
           title: "Wzrost wydatków",
-          desc: `Wydałeś w tym miesiącu o ${expenseChange}% więcej niż w zeszłym (${formatPln(totalExpense)} vs ${formatPln(lastMonthExpense)}). Zwróć uwagę na rosnące koszty.`
+          desc: `Wydałeś w tym miesiącu o ${expenseChange}% więcej niż w zeszłym (${formatMoney(totalExpense)} vs ${formatMoney(lastMonthExpense)}). Zwróć uwagę na rosnące koszty.`
         });
       } else if (expenseChange < -5) {
         insights.push({
@@ -199,7 +200,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </p>
         </div>
         <button
-          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, language)}
+          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, currencyPreference, language)}
           className="bg-white text-[#137566] font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 transition shadow self-start md:self-auto text-sm"
           id="btn-download-pdf-report"
         >
@@ -216,16 +217,16 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Przychody</p>
-                <p className="text-sm font-bold text-emerald-600">{formatPln(monthlyDigest.totalIncome)}</p>
+                <p className="text-sm font-bold text-emerald-600">{formatMoney(monthlyDigest.totalIncome)}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Wydatki</p>
-                <p className="text-sm font-bold text-rose-600">{formatPln(monthlyDigest.totalExpenses)}</p>
+                <p className="text-sm font-bold text-rose-600">{formatMoney(monthlyDigest.totalExpenses)}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Bilans</p>
                 <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                  {formatPln(monthlyDigest.balance)}
+                  {formatMoney(monthlyDigest.balance)}
                 </p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
@@ -351,10 +352,10 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                     </div>
                     <div className="text-right">
                       <strong className={hasLimit && limitPct > 100 ? "text-rose-600" : "text-slate-700"}>
-                        {formatPln(cat.spent)}
+                        {formatMoney(cat.spent)}
                       </strong>
                       <span className="text-slate-400 ml-1">
-                        {hasLimit ? `z ${formatPln(cat.limit)}` : `(${cat.pctOfExpense}%)`}
+                        {hasLimit ? `z ${formatMoney(cat.limit)}` : `(${cat.pctOfExpense}%)`}
                       </span>
                     </div>
                   </div>
@@ -377,7 +378,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                   {savingsRate}%
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Zabezpieczasz <strong>{formatPln(savings)}</strong> z miesięcznych przychodów rzędu <strong>{formatPln(totalIncome)}</strong>.
+                  Zabezpieczasz <strong>{formatMoney(savings)}</strong> z miesięcznych przychodów rzędu <strong>{formatMoney(totalIncome)}</strong>.
                 </p>
               </div>
             </div>

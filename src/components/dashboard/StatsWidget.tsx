@@ -1,6 +1,7 @@
+import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import { DelayedTooltip } from "./DelayedTooltip";
-import { formatPln } from "../../utils";
+import {} from "../../utils";
 import { SafeToSpendBreakdown } from "../../services/budgetCalculations";
 
 interface StatsWidgetProps {
@@ -24,6 +25,7 @@ export const StatsWidget = memo(function StatsWidget({
   safeBreakdown,
   onChangeView
 }: StatsWidgetProps) {
+  const { formatMoney } = useI18n();
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="widget-content-stats-grid">
@@ -34,7 +36,7 @@ export const StatsWidget = memo(function StatsWidget({
           </span>
           <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Przychody</p>
           <h2 className="text-2xl font-bold text-[#137566] dark:text-emerald-400 mb-1" id="dash-income-total">
-            {formatPln(totalIncome)}
+            {formatMoney(totalIncome)}
           </h2>
           <small className="text-[11px] text-slate-500 font-medium">W tym okresie rozliczeniowym</small>
         </div>
@@ -46,7 +48,7 @@ export const StatsWidget = memo(function StatsWidget({
           </span>
           <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Wydatki</p>
           <h2 className="text-2xl font-bold text-[#d55e50] dark:text-rose-400 mb-1" id="dash-expense-total">
-            {formatPln(totalExpense)}
+            {formatMoney(totalExpense)}
           </h2>
           <small className="text-[11px] text-slate-500 font-medium">
             {totalExpense > 0 ? "Wydatki w wybranym miesiącu" : "Brak zarejestrowanych wydatków"}
@@ -61,7 +63,7 @@ export const StatsWidget = memo(function StatsWidget({
           <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Pozostaje (Bilans)</p>
 
           <h2 className={`text-2xl font-bold mb-1 ${balance >= 0 ? "text-[#137566] dark:text-emerald-400" : "text-[#d55e50] dark:text-rose-400"}`} id="dash-balance-total">
-            {formatPln(balance)}
+            {formatMoney(balance)}
           </h2>
           <DelayedTooltip
             label="Aktualna nadwyżka finansowa (suma przychodów minus suma wydatków w wybranym miesiącu)."
@@ -74,12 +76,12 @@ export const StatsWidget = memo(function StatsWidget({
           <div className="flex flex-col gap-1 mt-2">
             {emergencyLimit > 0 && (
               <div className="text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-100 dark:border-emerald-800/50 font-bold w-fit tracking-wide">
-                Limit awaryjny: {formatPln(emergencyLimit)}
+                Limit awaryjny: {formatMoney(emergencyLimit)}
               </div>
             )}
             {investmentCushion > 0 && (
               <div className="text-[10px] bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-md border border-slate-200/60 dark:border-slate-700 font-bold w-fit tracking-wide">
-                Poduszka fin.: {formatPln(investmentCushion)}
+                Poduszka fin.: {formatMoney(investmentCushion)}
               </div>
             )}
           </div>
@@ -106,18 +108,18 @@ export const StatsWidget = memo(function StatsWidget({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-[#cce3df] dark:border-emerald-800/40">
             <div className="bg-white/50 dark:bg-slate-800/50 p-3.5 rounded-lg border border-[#e1f0ed]/60 dark:border-slate-700/60">
               <span className="text-[10px] uppercase font-semibold text-[#739087] dark:text-emerald-600 block">Planowane Wydatki</span>
-              <span className="text-lg font-bold text-[#d55e50] dark:text-rose-400">{formatPln(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum)}</span>
+              <span className="text-lg font-bold text-[#d55e50] dark:text-rose-400">{formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum)}</span>
             </div>
 
             <div className="bg-white/50 dark:bg-slate-800/50 p-3.5 rounded-lg border border-[#e1f0ed]/60 dark:border-slate-700/60">
               <span className="text-[10px] uppercase font-semibold text-[#739087] dark:text-emerald-600 block">Planowane Przychody</span>
-              <span className="text-lg font-bold text-[#137566] dark:text-emerald-400">{formatPln(endOfMonthForecast.futureRecurringIncomesSum)}</span>
+              <span className="text-lg font-bold text-[#137566] dark:text-emerald-400">{formatMoney(endOfMonthForecast.futureRecurringIncomesSum)}</span>
             </div>
 
             <div className="bg-white dark:bg-slate-800/90 p-3.5 rounded-lg border border-[#b8ded5] dark:border-emerald-700/50 shadow-inner dark:shadow-none">
               <span className="text-[10px] uppercase font-semibold text-slate-500 dark:text-slate-400 block">Prognozowane Saldo</span>
               <span className={`text-lg font-black ${endOfMonthForecast.forecastedBalance >= 0 ? "text-[#137566] dark:text-emerald-400" : "text-[#d55e50] dark:text-rose-400"}`}>
-                {formatPln(endOfMonthForecast.forecastedBalance)}
+                {formatMoney(endOfMonthForecast.forecastedBalance)}
               </span>
             </div>
           </div>
@@ -167,7 +169,7 @@ export const StatsWidget = memo(function StatsWidget({
             <div className="flex-1">
               <span className="text-[10px] uppercase tracking-wider font-bold opacity-60 block mb-0.5">Dostępne dzisiaj</span>
               <span className={`text-2xl sm:text-3xl font-black ${safeBreakdown.isNegative ? "text-rose-700 dark:text-rose-400" : "text-emerald-800 dark:text-emerald-400"}`}>
-                {formatPln(safeBreakdown.safeToSpend)}
+                {formatMoney(safeBreakdown.safeToSpend)}
               </span>
             </div>
             
@@ -183,13 +185,13 @@ export const StatsWidget = memo(function StatsWidget({
                     </span>
                   </DelayedTooltip>
                 </div>
-                <span className="text-sm font-bold opacity-90">{formatPln(safeBreakdown.reservedGoalsSum)}</span>
+                <span className="text-sm font-bold opacity-90">{formatMoney(safeBreakdown.reservedGoalsSum)}</span>
               </div>
               <div className="flex flex-col items-end justify-start min-w-[96px]">
                 <div className="h-5 flex items-end mb-1">
                   <span className="text-[11px] font-medium opacity-70 border-b border-transparent pb-0.5">Rezerwa opłat</span>
                 </div>
-                <span className="text-sm font-bold opacity-90">{formatPln(safeBreakdown.futureRecurringExpensesSum + safeBreakdown.unpaidPaymentsSum)}</span>
+                <span className="text-sm font-bold opacity-90">{formatMoney(safeBreakdown.futureRecurringExpensesSum + safeBreakdown.unpaidPaymentsSum)}</span>
               </div>
             </div>
           </div>

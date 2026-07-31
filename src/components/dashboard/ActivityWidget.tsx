@@ -1,5 +1,6 @@
+import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
-import { formatPln, formatDate, iconByCategory } from "../../utils";
+import { formatDate, iconByCategory } from "../../utils";
 import { Transaction } from "../../types";
 
 interface ActivityWidgetProps {
@@ -15,6 +16,7 @@ export const ActivityWidget = memo(function ActivityWidget({
   onOpenTxModal,
   profileKind
 }: ActivityWidgetProps) {
+  const { formatMoney } = useI18n();
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-activity-box">
       <div className="flex items-center justify-between mb-5">
@@ -66,7 +68,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                 </div>
                 <div className="text-right shrink-0 pl-2">
                   <p className={`text-xs font-black ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'income' ? '+' : '-'}{formatPln(t.amount)}
+                    {t.type === 'income' ? '+' : '-'}{formatMoney(t.amount)}
                   </p>
                 </div>
               </div>

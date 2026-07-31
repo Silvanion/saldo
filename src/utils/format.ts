@@ -23,21 +23,7 @@ export const parseAmount = (val: string): number => {
 };
 
 
-// We still keep the default one for backward compatibility or when language is not available
-export const plnFormatter = new Intl.NumberFormat('pl-PL', {
-  style: 'currency',
-  currency: 'PLN'
-});
 
-export const formatPln = (val: number, lang?: AppLanguage): string => {
-  if (!lang) return plnFormatter.format(val);
-  
-  const formatter = new Intl.NumberFormat(getLocaleForLanguage(lang), {
-    style: 'currency',
-    currency: 'PLN'
-  });
-  return formatter.format(val);
-};
 
 export function cleanPolishChars(text: string): string {
   const map: Record<string, string> = {

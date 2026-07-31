@@ -1,6 +1,7 @@
+import { useI18n } from "../i18n/I18nProvider";
 import React, { useMemo } from "react";
 import { Transaction } from "../types";
-import { formatPln } from "../utils";
+import {} from "../utils";
 
 interface TransactionsTagsAnalysisProps {
   transactions: Transaction[];
@@ -13,6 +14,7 @@ export function TransactionsTagsAnalysis({
   selectedTag,
   onSelectTag
 }: TransactionsTagsAnalysisProps) {
+  const { formatMoney } = useI18n();
   const tagExpensesMap = useMemo(() => {
     const map: Record<string, number> = {};
     transactions.forEach((tx) => {
@@ -63,7 +65,7 @@ export function TransactionsTagsAnalysis({
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
           <p className="text-[10px] text-slate-500 font-semibold">Otagowane wydatki</p>
-          <p className="text-base font-bold text-slate-900 mt-1">{formatPln(uniqueTaggedExpensesSum)}</p>
+          <p className="text-base font-bold text-slate-900 mt-1">{formatMoney(uniqueTaggedExpensesSum)}</p>
         </div>
         <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
           <p className="text-[10px] text-slate-500 font-semibold">Pokrycie tagami</p>
@@ -104,7 +106,7 @@ export function TransactionsTagsAnalysis({
                     #{tag.name}
                   </span>
                   <span className="text-slate-500 font-medium text-[11px]">
-                    <strong>{formatPln(tag.spent)}</strong> ({pctOfTotal}%)
+                    <strong>{formatMoney(tag.spent)}</strong> ({pctOfTotal}%)
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">

@@ -3,7 +3,7 @@ import { Profile, AppLanguage } from "../types";
 import { getMonthName, cleanPolishChars, expenseCategories } from "../utils";
 import { getLocaleForLanguage } from "../i18n/config";
 
-export function generateReportPdf(profile: Profile, year: number, monthIndex: number, lang?: AppLanguage) {
+export function generateReportPdf(profile: Profile, year: number, monthIndex: number, currency: string = 'PLN', lang?: AppLanguage) {
   const doc = new jsPDF();
   const monthName = getMonthName(monthIndex);
   
@@ -55,14 +55,14 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
   doc.text(cleanPolishChars(`Przychody razem:`), 20, 59);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(19, 117, 102); // Teal
-  doc.text(`${incomeTotal.toFixed(2)} PLN`, 80, 59);
+  doc.text(`${incomeTotal.toFixed(2)} ${currency}`, 80, 59);
   
   doc.setFont("helvetica", "normal");
   doc.setTextColor(80, 80, 80);
   doc.text(cleanPolishChars(`Wydatki razem:`), 20, 65);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(213, 94, 80); // Coral
-  doc.text(`${expenseTotal.toFixed(2)} PLN`, 80, 65);
+  doc.text(`${expenseTotal.toFixed(2)} ${currency}`, 80, 65);
   
   doc.setDrawColor(220, 220, 220);
   doc.line(115, 48, 115, 73); // Vertical divider
@@ -76,7 +76,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
   } else {
     doc.setTextColor(213, 94, 80);
   }
-  doc.text(`${balance.toFixed(2)} PLN`, 122, 66);
+  doc.text(`${balance.toFixed(2)} ${currency}`, 122, 66);
   
   // Section 1: Visual Expense Bar Chart
   doc.setFont("helvetica", "bold");
@@ -109,7 +109,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
     // Amount & Percentage (Right)
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    const textLabel = `${cat.spent.toFixed(2)} PLN (${percentText})`;
+    const textLabel = `${cat.spent.toFixed(2)} ${currency} (${percentText})`;
     doc.text(textLabel, 196 - doc.getTextWidth(textLabel), y);
     
     y += 3;
@@ -166,7 +166,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
     let x = 14;
     doc.setFontSize(8);
     tagsList.forEach(t => {
-      const tagText = `#${t.name} (${t.count}x, ${t.sum.toFixed(0)} PLN)`;
+      const tagText = `#${t.name} (${t.count}x, ${t.sum.toFixed(0)} ${currency})`;
       const cleanText = cleanPolishChars(tagText);
       const textWidth = doc.getTextWidth(cleanText);
       const pillWidth = textWidth + 8;
@@ -255,7 +255,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
     bills.forEach(b => {
       doc.text(cleanPolishChars(b.name), 15, y);
       doc.text(b.dueDate, 80, y);
-      doc.text(`${b.amount.toFixed(2)} PLN`, 130, y);
+      doc.text(`${b.amount.toFixed(2)} ${currency}`, 130, y);
       
       const bStatus = b.status === "Opłacono" ? "Oplacone" : "Do oplacenia";
       if (b.status === "Opłacono") {
@@ -301,8 +301,8 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
       
       doc.setFont("helvetica", "normal");
       doc.text(cleanPolishChars(g.name), 15, y);
-      doc.text(`${g.saved.toFixed(2)} PLN`, 65, y);
-      doc.text(`${g.target.toFixed(2)} PLN`, 105, y);
+      doc.text(`${g.saved.toFixed(2)} ${currency}`, 65, y);
+      doc.text(`${g.target.toFixed(2)} ${currency}`, 105, y);
       
       // Visual Mini Progress Bar
       const barX = 140;

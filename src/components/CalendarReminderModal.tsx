@@ -1,3 +1,5 @@
+import { useI18n } from "../i18n/I18nProvider";
+
 import { getLocalDateIso } from "../utils";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
@@ -24,6 +26,7 @@ export function CalendarReminderModal({
   onConnectCalendar,
   onCalendarAuthInvalid
 }: CalendarReminderModalProps) {
+  const { formatMoney, currencyPreference } = useI18n();
   const { state, canUseAiChat } = useApp();
   
   // Suggested event fields
@@ -72,8 +75,8 @@ export function CalendarReminderModal({
     setSuccessMsg(null);
     try {
       if (!canUseAiChat) {
-        setSummary(`💸 Płatność: ${p.name} (${p.amount} PLN)`);
-        setDescription(`Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${p.name}\nKwota: ${p.amount} PLN\nTermin: ${p.dueDate}\n\n[Wygenerowano z aplikacji Saldo]`);
+        setSummary(`💸 Płatność: ${p.name} (${p.amount} ${currencyPreference})`);
+        setDescription(`Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${p.name}\nKwota: ${p.amount} ${currencyPreference}\nTermin: ${p.dueDate}\n\n[Wygenerowano z aplikacji Saldo]`);
         setEventDate(p.dueDate || getLocalDateIso());
         setEventTime("10:00");
         setIsLoadingSuggestion(false);
@@ -93,8 +96,8 @@ export function CalendarReminderModal({
       console.error(err);
       setErrorMsg(err instanceof Error ? err.message : "Błąd generowania sugestii AI.");
       // Fallback details
-      setSummary(`Przypomnienie: ${p.name} - ${p.amount} PLN`);
-      setDescription(`Ureguluj płatność ${p.name} na kwotę ${p.amount} PLN.`);
+      setSummary(`Przypomnienie: ${p.name} - ${p.amount} ${currencyPreference}`);
+      setDescription(`Ureguluj płatność ${p.name} na kwotę ${p.amount} ${currencyPreference}.`);
       setEventDate(p.dueDate || getLocalDateIso());
       setEventTime("10:00");
     } finally {

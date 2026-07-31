@@ -1,8 +1,9 @@
+import { useI18n } from "../../i18n/I18nProvider";
 import React, { useState } from 'react';
 import { DelayedTooltip } from './DelayedTooltip';
 import { Profile, SettlementEntry } from '../../types';
 import { calculatePartnerSettlement } from '../../services/settlementEngine';
-import { formatPln, formatDate, getLocalDateIso } from '../../utils';
+import { formatDate, getLocalDateIso } from '../../utils';
 import { CheckCircle2, History, Trash2, X, ArrowRightLeft } from 'lucide-react';
 
 interface SettlementWidgetProps {
@@ -12,6 +13,7 @@ interface SettlementWidgetProps {
 }
 
 export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement }: SettlementWidgetProps) {
+  const { formatMoney, currencyPreference } = useI18n();
   if (profile.kind !== 'shared') return null;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,20 +65,20 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   let bgColor = "bg-slate-50 border-slate-200/60";
 
   if (historyNet > 0) {
-    statusText = `${partnerName} jest Ci winien: ${formatPln(historyNet)}`;
+    statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet)}`;
     statusColor = "text-emerald-700";
     bgColor = "bg-emerald-50/70 border-emerald-200/60";
   } else if (historyNet < 0) {
-    statusText = `Jesteś winien ${partnerName}: ${formatPln(Math.abs(historyNet))}`;
+    statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet))}`;
     statusColor = "text-rose-700";
     bgColor = "bg-rose-50/70 border-rose-200/60";
   }
 
   let upcomingText = "";
   if (upcomingNet > 0) {
-    upcomingText = `Dodatkowo z nieopłaconych rachunków: ${partnerName} będzie Ci winien ${formatPln(upcomingNet)}`;
+    upcomingText = `Dodatkowo z nieopłaconych rachunków: ${partnerName} będzie Ci winien ${formatMoney(upcomingNet)}`;
   } else if (upcomingNet < 0) {
-    upcomingText = `Dodatkowo z nieopłaconych rachunków: będziesz winien ${partnerName} ${formatPln(Math.abs(upcomingNet))}`;
+    upcomingText = `Dodatkowo z nieopłaconych rachunków: będziesz winien ${partnerName} ${formatMoney(Math.abs(upcomingNet))}`;
   }
 
   const settlementsList: SettlementEntry[] = profile.settlements || [];
@@ -150,7 +152,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`font-bold ${isPartnerPaid ? 'text-emerald-600' : 'text-blue-600'}`}>
-                      {isPartnerPaid ? `+${formatPln(s.amount)}` : `-${formatPln(Math.abs(s.amount))}`}
+                      {isPartnerPaid ? `+${formatMoney(s.amount)}` : `-${formatMoney(Math.abs(s.amount))}`}
                     </span>
                     {onDeleteSettlement && (
                       <button
@@ -229,7 +231,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Kwota (PLN)
+                  Kwota ({currencyPreference})
                 </label>
                 <input
                   type="number"

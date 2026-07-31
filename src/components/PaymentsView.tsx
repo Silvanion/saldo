@@ -1,6 +1,7 @@
+import { useI18n } from "../i18n/I18nProvider";
 import React, { useState } from "react";
 import { Profile, Payment } from "../types";
-import { formatPln, formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
+import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
 import { Bell, BellOff, BellRing } from "lucide-react";
 
@@ -25,6 +26,7 @@ export function PaymentsView({
   calendarToken,
   onTriggerCalendarAi
 }: PaymentsViewProps) {
+  const { formatMoney } = useI18n();
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
     typeof window !== "undefined" && "Notification" in window ? Notification.permission : "denied"
   );
@@ -149,7 +151,7 @@ export function PaymentsView({
           <div className="text-right mr-2">
             <span className="block text-[10px] uppercase font-semibold text-slate-500">Do opłacenia</span>
             <span className="text-lg font-bold text-[#d55e50]">
-              {unpaidCount} rachunki ({formatPln(totalUnpaidSum)})
+              {unpaidCount} rachunki ({formatMoney(totalUnpaidSum)})
             </span>
           </div>
           <div className="flex gap-2">
@@ -351,7 +353,7 @@ export function PaymentsView({
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <span className="text-sm font-bold text-slate-800">{formatPln(p.amount)}</span>
+                    <span className="text-sm font-bold text-slate-800">{formatMoney(p.amount)}</span>
                     <div className="flex items-center gap-2">
                       {!isPaid && (
                         <button

@@ -329,6 +329,7 @@ export function SettingsView({
   onConnectCalendar,
   unlockedProfileId
 }: SettingsViewProps) {
+  const { language, preference, setPreference, currencyPreference, setCurrencyPreference, t } = useI18n();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
@@ -1034,6 +1035,31 @@ export function SettingsView({
         </div>
       )}
 
+      {/* SECTION: CURRENCY SELECTION */}
+      {(settingsTab === "all" || settingsTab === "appearance") && (
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mt-6" id="settings-currency-card">
+          <h3 className="text-base font-bold text-slate-900 mb-2">{t("settings.currency.title") || "Waluta"}</h3>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" id="currency-selectors-grid">
+            {(["PLN", "EUR", "USD", "GBP"] as const).map(curr => (
+              <button
+                key={curr}
+                onClick={() => setCurrencyPreference(curr)}
+                className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+                  currencyPreference === curr
+                    ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
+                    : "bg-white border-slate-200 hover:border-slate-300"
+                }`}
+              >
+                <div>
+                  <strong className="block text-sm text-slate-900">{curr}</strong>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-ai-provider-card">
@@ -1455,7 +1481,7 @@ export function SettingsView({
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota (PLN)</label>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota ({currencyPreference})</label>
               <input
                 type="number"
                 step="0.01"
@@ -1582,7 +1608,7 @@ export function SettingsView({
                           {r.account}
                         </td>
                         <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} PLN
+                          {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {currencyPreference}
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <button
@@ -1735,7 +1761,7 @@ export function SettingsView({
                   {gdriveFileId && (
                     <div className="mt-2 flex justify-between items-center">
                       <p className="text-[10px] text-slate-500">
-                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString(getLocaleForLanguage(language)) : "Brak danych o ostatniej synchronizacji"}
+                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString(language === "pl" ? "pl-PL" : "en-US") : "Brak danych o ostatniej synchronizacji"}
                       </p>
                       <button
                         onClick={onSyncToDrive}
@@ -1926,7 +1952,7 @@ export function SettingsView({
                 onClick={() => {
                   if (activeProfile) {
                     const now = new Date();
-                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), language);
+                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), currencyPreference, language);
                   }
                 }}
                 className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"

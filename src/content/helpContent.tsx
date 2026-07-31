@@ -120,7 +120,7 @@ export const helpSectionsData: HelpSectionData[] = [
               <div className="absolute top-2 right-2 bg-cyan-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">3</div>
               <div className="text-xs text-slate-400">Stan bezpieczny</div>
               <div className="font-bold text-cyan-300 mt-1 flex items-center gap-1">
-                <ShieldCheck className="w-4 h-4" /> Limit: 2,450 PLN
+                <ShieldCheck className="w-4 h-4" /> Limit: 2,450 (waluta domyślna)
               </div>
             </div>
           </div>
@@ -208,8 +208,8 @@ export const helpSectionsData: HelpSectionData[] = [
               <span className="text-slate-500">Wyryto 12 transakcji</span>
             </div>
             <div className="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-slate-400 border border-slate-800 space-y-1">
-              <div className="text-emerald-400">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 PLN (Zapisano)</div>
-              <div className="text-amber-400">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 PLN (Pominięto — Duplikat)</div>
+              <div className="text-emerald-400">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 {WALUTA} (Zapisano)</div>
+              <div className="text-amber-400">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 {WALUTA} (Pominięto — Duplikat)</div>
               <div className="text-red-400">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
             </div>
           </div>
@@ -261,14 +261,14 @@ export const helpSectionsData: HelpSectionData[] = [
              </div>
              <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
                <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
-               <span className="text-[#137566] font-black text-sm">450,00 PLN</span>
+               <span className="text-[#137566] font-black text-sm">450,00 {WALUTA}</span>
              </div>
           </div>
         </MockScreenShot>
 
         <h4 className="font-bold text-slate-900 mt-6">Cykl życia Płatności:</h4>
         <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-700 font-medium">
-          <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 PLN)</div>
+          <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 {WALUTA})</div>
           <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
           <div className="p-2.5 bg-amber-100 text-amber-900 rounded-xl border border-amber-200 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
           <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
@@ -297,7 +297,7 @@ export const helpSectionsData: HelpSectionData[] = [
                    W normie
                  </span>
               </div>
-              <span className="text-emerald-700">975 z 1500 PLN</span>
+              <span className="text-emerald-700">975 z 1500 {WALUTA}</span>
             </div>
             <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
               <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
@@ -312,7 +312,7 @@ export const helpSectionsData: HelpSectionData[] = [
                    Uwaga
                  </span>
               </div>
-              <span className="text-amber-700">420 z 500 PLN</span>
+              <span className="text-amber-700">420 z 500 {WALUTA}</span>
             </div>
             <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
               <div className="h-full bg-amber-400 rounded-full w-[84%]" />
@@ -327,7 +327,7 @@ export const helpSectionsData: HelpSectionData[] = [
                    Przekroczony
                  </span>
               </div>
-              <span className="text-rose-600 font-bold">575 z 500 PLN</span>
+              <span className="text-rose-600 font-bold">575 z 500 {WALUTA}</span>
             </div>
             <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
               <div className="h-full bg-rose-500 rounded-full w-[100%]" />
@@ -386,7 +386,7 @@ export const helpSectionsData: HelpSectionData[] = [
                </span>
              </div>
              <div className="flex justify-between text-xs text-slate-500 mb-1">
-               <span>Zgromadzono: 2 400 z 8 000 PLN</span>
+               <span>Zgromadzono: 2 400 z 8 000 {WALUTA}</span>
                <span className="font-bold text-blue-600">30%</span>
              </div>
              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
