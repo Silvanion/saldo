@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DelayedTooltip } from './DelayedTooltip';
 import { Profile, SettlementEntry } from '../../types';
 import { calculatePartnerSettlement } from '../../services/settlementEngine';
-import { formatPln, formatDatePl, getLocalDateIso } from '../../utils';
+import { formatPln, formatDate, getLocalDateIso } from '../../utils';
 import { CheckCircle2, History, Trash2, X, ArrowRightLeft } from 'lucide-react';
 
 interface SettlementWidgetProps {
@@ -145,7 +145,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     <span className="font-bold text-slate-800">
                       {isPartnerPaid ? `${partnerName} oddał(a) Tobie` : `Oddałeś(aś) ${partnerName}`}
                     </span>
-                    <span className="text-slate-400 ml-2">{formatDatePl(s.isoDate)}</span>
+                    <span className="text-slate-400 ml-2">{formatDate(s.isoDate)}</span>
                     {s.note && <p className="text-slate-500 text-[11px] mt-0.5">{s.note}</p>}
                   </div>
                   <div className="flex items-center gap-3">

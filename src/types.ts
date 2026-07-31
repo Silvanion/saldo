@@ -135,8 +135,8 @@ export interface AppState {
   transactionRules?: TransactionRule[];
   aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
+  languagePreference?: LanguagePreference;
 }
 
-
-
-
+export type AppLanguage = "pl" | "en";
+export type LanguagePreference = "system" | "pl" | "en";

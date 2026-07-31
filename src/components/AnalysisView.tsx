@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useI18n } from "../i18n/I18nProvider";
 import { Profile } from "../types";
-import { formatPln, getMonthNamePl, expenseCategories, budgetCategories } from "../utils";
+import { formatPln, getMonthName, expenseCategories, budgetCategories } from "../utils";
 import { generateReportPdf } from "../services/pdfGenerator";
 import { Settings2, Check } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
@@ -11,9 +12,10 @@ interface AnalysisViewProps {
 }
 
 export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
+  const { language } = useI18n();
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
-  const monthName = getMonthNamePl(currentMonthIdx);
+  const monthName = getMonthName(currentMonthIdx);
 
   // Filter transactions for this month
   const thisMonthTransactions = useMemo(() => {
@@ -197,7 +199,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </p>
         </div>
         <button
-          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx)}
+          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, language)}
           className="bg-white text-[#137566] font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 transition shadow self-start md:self-auto text-sm"
           id="btn-download-pdf-report"
         >

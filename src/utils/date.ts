@@ -1,3 +1,6 @@
+import { AppLanguage } from "../types";
+import { getLocaleForLanguage } from "../i18n/config";
+
 export function getLocalDateIso(d: Date = new Date()): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -22,21 +25,29 @@ export function addMonthsClamped(dateString: string, monthsToAdd: number): strin
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export function formatDatePl(isoDate: string): string {
+
+export function formatDate(isoDate: string, lang?: AppLanguage): string {
   if (!isoDate) return "";
   try {
     const d = new Date(`${isoDate}T12:00:00`);
-    return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
+    const locale = lang ? getLocaleForLanguage(lang) : 'pl-PL';
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
   } catch {
     return isoDate;
   }
 }
 
+// Kept for backward compatibility if needed, but consider using Date.toLocaleString
 export const monthsPl = [
   "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
   "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
 ];
 
-export function getMonthNamePl(monthIdx: number): string {
+export function getMonthName(monthIdx: number, lang?: AppLanguage): string {
+  if (lang === "en") {
+    const d = new Date(2000, monthIdx, 1);
+    return d.toLocaleDateString("en-US", { month: "long" });
+  }
   return monthsPl[monthIdx] || "";
 }
+

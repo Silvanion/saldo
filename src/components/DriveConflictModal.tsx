@@ -1,3 +1,6 @@
+import { useI18n } from "../i18n/I18nProvider";
+import { getLocaleForLanguage } from "../i18n/config";
+
 import React from "react";
 import { AppState } from "../types";
 import { AlertTriangle, Download, Upload, X } from "lucide-react";
@@ -21,6 +24,7 @@ export function DriveConflictModal({
   lastSyncedAt,
   onResolve
 }: DriveConflictModalProps) {
+  const { language } = useI18n();
   if (!isOpen || !localState || !remoteState) return null;
 
   const countTransactions = (s: AppState) => {
@@ -30,7 +34,7 @@ export function DriveConflictModal({
   const formatDate = (isoStr?: string | null) => {
     if (!isoStr) return "Brak danych";
     try {
-      return new Date(isoStr).toLocaleString("pl-PL", {
+      return new Date(isoStr).toLocaleString(getLocaleForLanguage(language), {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",

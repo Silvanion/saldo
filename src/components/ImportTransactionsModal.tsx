@@ -255,7 +255,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   <Sparkles className="w-4 h-4" /> <strong>Analiza tekstu za pomocą AI</strong>
                 </p>
                 <p className="text-xs text-emerald-700 leading-relaxed">
-                  Skopiuj surowy tekst wyciągu ze strony banku lub maila i wklej go poniżej. Podłączony model AI wyciągnie kwoty, daty oraz przypisze odpowiednie kategorie.
+                  Skopiuj surowy tekst wyciągu ze strony banku lub maila i wklej go poniżej. Model AI wyciągnie kwoty i daty, a szybka automatyzacja przypisze kategorie w tle.
                 </p>
               </div>
               <textarea
@@ -425,7 +425,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               {/* Categorization Rules Notice */}
               {activeProfile?.transactionRules && activeProfile.transactionRules.length > 0 && (
                 <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
-                  ✨ Automatyczna kategoryzacja użyje Twoich <strong>{activeProfile.transactionRules.length} reguł transakcji</strong> z profilu.
+                  ✨ Szybka automatyzacja przypisze kategorie w tle (wykryto <strong>{activeProfile.transactionRules.length} zapisanych reguł</strong>).
                 </p>
               )}
 

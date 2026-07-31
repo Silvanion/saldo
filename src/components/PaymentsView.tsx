@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Profile, Payment } from "../types";
-import { formatPln, formatDatePl, requestNotificationPermission, getLocalDateIso } from "../utils";
+import { formatPln, formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
 import { Bell, BellOff, BellRing } from "lucide-react";
 
@@ -346,7 +346,7 @@ export function PaymentsView({
                           return null;
                         })()}
                       </div>
-                      <p className="text-xs text-slate-500">Termin płatności: {formatDatePl(p.dueDate)}</p>
+                      <p className="text-xs text-slate-500">Termin płatności: {formatDate(p.dueDate)}</p>
                     </div>
                   </div>
                   

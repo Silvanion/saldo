@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Profile, Goal, Investment } from "../types";
-import { formatPln, formatDatePl } from "../utils";
+import { formatPln, formatDate } from "../utils";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -264,7 +264,7 @@ export function GoalsView({
                         <div>
                           <strong className="text-xs text-slate-800 block">{inv.name}</strong>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[10px] text-slate-400">{formatDatePl(inv.isoDate)}</span>
+                            <span className="text-[10px] text-slate-400">{formatDate(inv.isoDate)}</span>
                             {inv.type && (
                               <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium">{inv.type}</span>
                             )}

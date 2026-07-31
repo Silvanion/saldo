@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useI18n } from "../i18n/I18nProvider";
+import { LanguagePreference } from "../types";
 import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount } from "../types";
@@ -210,9 +212,9 @@ export function TransactionRulesManager({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-category-rules-card">
-      <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczna kategoryzacja wydatków</h3>
+      <h3 className="text-base font-bold text-slate-900 mb-2">Automatyzacja kategoryzacji</h3>
       <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-        Zdefiniuj własne słowa kluczowe (np. „orlen”, „biedronka”), aby aplikacja mogła automatycznie przypisywać odpowiednią kategorię do nowych lub importowanych transakcji.
+        Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
       </p>
 
       <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
@@ -245,13 +247,13 @@ export function TransactionRulesManager({
             type="submit"
             className="w-full bg-[#137566] text-white font-bold py-2 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm cursor-pointer"
           >
-            ＋ Dodaj regułę kategoryzacji
+            ＋ Zapisz dopasowanie
           </button>
         </div>
       </form>
 
       {transactionRules.length === 0 ? (
-        <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych reguł. Używane są domyślne reguły automatyczne.</p>
+        <p className="text-xs text-slate-400 italic text-center py-4">Brak zapisanych dopasowań. Zdefiniuj własne słowa kluczowe, by przyspieszyć przypisywanie kategorii.</p>
       ) : (
         <div className="border border-slate-200 rounded-xl overflow-hidden">
           <table className="w-full text-left border-collapse text-xs">
@@ -986,6 +988,52 @@ export function SettingsView({
       </div>
       )}
 
+      {/* SECTION: LANGUAGE SELECTION */}
+      {(settingsTab === "all" || settingsTab === "appearance") && (
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mt-6" id="settings-language-card">
+          <h3 className="text-base font-bold text-slate-900 mb-2">{t("settings.language.title")}</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" id="language-selectors-grid">
+            <button
+              onClick={() => setPreference("system")}
+              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+                preference === "system"
+                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
+                  : "bg-white border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div>
+                <strong className="block text-sm text-slate-900">{t("settings.language.system")}</strong>
+              </div>
+            </button>
+            <button
+              onClick={() => setPreference("pl")}
+              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+                preference === "pl"
+                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
+                  : "bg-white border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div>
+                <strong className="block text-sm text-slate-900">{t("settings.language.pl")}</strong>
+              </div>
+            </button>
+            <button
+              onClick={() => setPreference("en")}
+              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+                preference === "en"
+                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
+                  : "bg-white border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div>
+                <strong className="block text-sm text-slate-900">{t("settings.language.en")}</strong>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-ai-provider-card">
@@ -1687,7 +1735,7 @@ export function SettingsView({
                   {gdriveFileId && (
                     <div className="mt-2 flex justify-between items-center">
                       <p className="text-[10px] text-slate-500">
-                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString("pl-PL") : "Brak danych o ostatniej synchronizacji"}
+                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString(getLocaleForLanguage(language)) : "Brak danych o ostatniej synchronizacji"}
                       </p>
                       <button
                         onClick={onSyncToDrive}
@@ -1878,7 +1926,7 @@ export function SettingsView({
                 onClick={() => {
                   if (activeProfile) {
                     const now = new Date();
-                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth());
+                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), language);
                   }
                 }}
                 className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
-import { formatPln, formatDatePl, getMonthNamePl, iconByCategory, monthsPl, budgetCategories } from "../utils";
+import { formatPln, formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
 import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
@@ -137,7 +137,7 @@ export function DashboardView({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900" id="dash-month-title">
-            {getMonthNamePl(currentMonthIdx)} {currentYear}
+            {getMonthName(currentMonthIdx)} {currentYear}
           </h2>
           <p className="text-sm text-slate-500">Podsumowanie i wskaźniki dla tego miesiąca.</p>
         </div>

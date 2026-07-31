@@ -1,3 +1,6 @@
+import { useI18n } from "../i18n/I18nProvider";
+import { getLocaleForLanguage } from "../i18n/config";
+
 import { useApp } from "./providers/AppContext";
 import React, { useState } from "react";
 import { Profile } from "../types";
@@ -48,11 +51,12 @@ export function AppShell({
     openModal
   } = useApp();
 
+  const { language, t } = useI18n();
   const [showDemoBanner, setShowDemoBanner] = useState(true);
 
   // Format active weekday date for header
   const getTodayFormatted = () => {
-    return new Intl.DateTimeFormat("pl-PL", {
+    return new Intl.DateTimeFormat(getLocaleForLanguage(language), {
       weekday: "long",
       day: "numeric",
       month: "long"
@@ -103,7 +107,7 @@ export function AppShell({
             id="nav-dashboard"
           >
             <LayoutDashboard className="w-4 h-4 shrink-0" />
-            Przegląd
+            {t("nav.dashboard")}
           </button>
 
           <button
@@ -117,7 +121,7 @@ export function AppShell({
             id="nav-transactions"
           >
             <History className="w-4 h-4 shrink-0" />
-            Transakcje
+            {t("nav.transactions")}
           </button>
 
           <button
@@ -132,7 +136,7 @@ export function AppShell({
           >
             <span className="flex items-center gap-3">
               <Clock className="w-4 h-4 shrink-0" />
-              Płatności
+              {t("nav.payments")}
             </span>
             {activeProfile && activeProfile.payments.filter((p) => p.status !== "Opłacono").length > 0 && (
               <span className="bg-rose-100 text-[#d55e50] text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
@@ -152,7 +156,7 @@ export function AppShell({
             id="nav-budget"
           >
             <Wallet className="w-4 h-4 shrink-0" />
-            Budżet
+            {t("nav.budget")}
           </button>
 
           <button
@@ -166,7 +170,7 @@ export function AppShell({
             id="nav-goals"
           >
             <Target className="w-4 h-4 shrink-0" />
-            Cele i oszczędności
+            {t("nav.goals")}
           </button>
 
           <button
@@ -180,7 +184,7 @@ export function AppShell({
             id="nav-analysis"
           >
             <LineChart className="w-4 h-4 shrink-0" />
-            Analizy
+            {t("nav.analysis")}
           </button>
         </nav>
 
@@ -197,7 +201,7 @@ export function AppShell({
             id="nav-help"
           >
             <Info className="w-4 h-4 shrink-0" />
-            Pomoc
+            {t("nav.help")}
           </button>
 
           <button
@@ -211,7 +215,7 @@ export function AppShell({
             id="nav-settings"
           >
             <Settings className="w-4 h-4 shrink-0" />
-            Ustawienia
+            {t("nav.settings")}
           </button>
 
           <button

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { formatPln, formatDatePl, iconByCategory } from "../../utils";
+import { formatPln, formatDate, iconByCategory } from "../../utils";
 import { Transaction } from "../../types";
 
 interface ActivityWidgetProps {
@@ -61,7 +61,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                         </span>
                       )}
                     </p>
-                    <p className="text-[9px] text-slate-400 mt-0.5">{formatDatePl(t.isoDate)}</p>
+                    <p className="text-[9px] text-slate-400 mt-0.5">{formatDate(t.isoDate)}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0 pl-2">

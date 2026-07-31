@@ -219,7 +219,7 @@ export const helpSectionsData: HelpSectionData[] = [
         <ul className="list-disc pl-5 space-y-2 text-xs text-slate-600">
           <li><strong>Ochrona przed podwójnym importem (Deduplikacja):</strong> Gdy importujesz ten sam plik CSV drugi raz, Saldo rozpoznaje istniejące Identyfikatory transakcji i nie dubluje wpisów.</li>
           <li><strong>Sprawdzanie poprawności numerycznej:</strong> Jeśli wyciąg zawiera uszkodzone lub nieczytelne kwoty (np. tekstowe znaki zapytania zamienione na NaN), transakcja zostaje bezpiecznie odrzucona.</li>
-          <li><strong>Autokategoryzacja:</strong> Słowa kluczowe np. "Orlen", "Biedronka", "Uber" automatycznie przydzielają właściwą kategorię budżetową.</li>
+          <li><strong>Szybka automatyzacja:</strong> Zdefiniowane słowa kluczowe (np. "Orlen", "Biedronka") przypiszą transakcje do właściwych kategorii w tle, oszczędzając czas.</li>
         </ul>
       </div>
     )
@@ -343,30 +343,30 @@ export const helpSectionsData: HelpSectionData[] = [
   },
   {
     id: "goals",
-    cat: "Cele i Inwestycje",
-    title: "Cele oszczędnościowe, Poduszka bezpieczeństwa oraz IKE / IKZE",
+    cat: "Kapitał i Rezerwy",
+    title: "Moduł informacyjny: rezerwy i inwestycje długoterminowe",
     icon: <Target className="w-5 h-5" />,
-    badge: "Ochrona Rezerw",
+    badge: "Poza budżetem",
     content: (
       <div className="space-y-4 text-sm text-slate-700">
         <p className="leading-relaxed">
-          Ta sekcja pomaga budować długoterminowy majątek. Dzieli oszczędności na trzy niezależne filary:
+          Osobny moduł informacyjny służący do monitorowania majątku długoterminowego. Zgromadzone tu środki nie powiększają wyniku bieżącego miesiąca ani budżetu operacyjnego. Moduł dzieli odkładany kapitał na trzy filary:
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-            <h5 className="font-bold text-emerald-900 mb-1">1. Cele krótkoterminowe</h5>
-            <p className="text-emerald-800">Wakacje, nowy sprzęt, remont. Zbierasz określoną kwotę do konkretnej daty.</p>
+            <h5 className="font-bold text-emerald-900 mb-1">1. Cele terminowe</h5>
+            <p className="text-emerald-800">Odizolowane pule środków (np. na remont, sprzęt) z konkretną kwotą docelową i horyzontem czasowym.</p>
           </div>
 
           <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl">
-            <h5 className="font-bold text-teal-900 mb-1">2. Poduszka Finansowa</h5>
-            <p className="text-teal-800">Środki na 3–6 miesięcy życia. Pokazywane osobno jako kapitał bezpieczeństwa.</p>
+            <h5 className="font-bold text-teal-900 mb-1">2. Rezerwa Bezpieczeństwa</h5>
+            <p className="text-teal-800">Fundusz na nieprzewidziane zdarzenia. Fundament stabilności chroniony przed bieżącą konsumpcją.</p>
           </div>
 
           <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
-            <h5 className="font-bold text-cyan-900 mb-1">3. IKE / IKZE / Inwestycje</h5>
-            <p className="text-cyan-800">Konta emerytalne, lokaty, akcje, fundusze. Odłączone od codziennego portfela.</p>
+            <h5 className="font-bold text-cyan-900 mb-1">3. Kapitał Inwestycyjny</h5>
+            <p className="text-cyan-800">IKE/IKZE, akcje, fundusze. Środki pracujące długoterminowo, całkowicie odłączone od portfela.</p>
           </div>
         </div>
 
@@ -478,7 +478,7 @@ export const helpSectionsData: HelpSectionData[] = [
         <ul className="list-disc pl-5 space-y-3 text-xs">
           <li>
             <strong>Tryb podstawowy (None) – 100% Darmowy &amp; Domyślny:</strong><br />
-            Pełna funkcjonalność aplikacji bez użycia modeli AI. Wykorzystuje ultra-szybkie algorytmy deterministyczne do parsowania tekstów, autokategoryzacji i importu CSV. Brak połączeń sieciowych.
+            Pełna funkcjonalność aplikacji bez użycia modeli AI. Wykorzystuje ultra-szybkie algorytmy deterministyczne do parsowania tekstów, automatyzacji kategorii i importu CSV. Brak połączeń sieciowych.
           </li>
           <li>
             <strong>Lokalne AI (local / Ollama) – Pełna prywatność Power-Usera:</strong><br />

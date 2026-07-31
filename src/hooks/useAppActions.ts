@@ -309,9 +309,17 @@ export function useAppActions({
     restoreFromDriveManual
   });
 
+  const handleSaveAppLanguagePreference = useCallback(
+    (pref: AppState["languagePreference"]) => {
+      saveState({ ...state, languagePreference: pref });
+    },
+    [state, saveState]
+  );
+
   return {
     ...txActions,
     ...syncActions,
+    handleSaveAppLanguagePreference,
     handleAddGoal,
     handleDeleteGoal,
     handleAddGoalDeposit,

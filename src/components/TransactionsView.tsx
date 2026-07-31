@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction } from "../types";
-import { formatPln, formatDatePl, iconByCategory, getLocalDateIso } from "../utils";
+import { formatPln, formatDate, iconByCategory, getLocalDateIso } from "../utils";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
 
@@ -343,7 +343,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">{formatDatePl(tx.isoDate)}</td>
+                      <td className="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">{formatDate(tx.isoDate)}</td>
                       <td className="py-3 px-2 text-xs text-slate-600">
                         <span className="bg-slate-100 px-2.5 py-1 rounded-full">{tx.category}</span>
                       </td>
@@ -401,7 +401,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                             </span>
                           )}
                         </h4>
-                        <p className="text-[11px] text-slate-400">{formatDatePl(tx.isoDate)}</p>
+                        <p className="text-[11px] text-slate-400">{formatDate(tx.isoDate)}</p>
                       </div>
                     </div>
                     <span className={`text-sm font-black whitespace-nowrap ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
@@ -528,7 +528,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     <span>{transactionToDelete.category}</span>
                   </span>
                   <span className="text-slate-300">•</span>
-                  <span>{formatDatePl(transactionToDelete.isoDate)}</span>
+                  <span>{formatDate(transactionToDelete.isoDate)}</span>
                   <span className="text-slate-300">•</span>
                   <span>{transactionToDelete.account}</span>
                 </div>

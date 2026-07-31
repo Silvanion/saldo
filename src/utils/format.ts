@@ -1,3 +1,6 @@
+import { AppLanguage } from "../types";
+import { getLocaleForLanguage } from "../i18n/config";
+
 export const parseAmount = (val: string): number => {
   if (!val) return 0;
   // strip spaces, currency symbols like PLN, zł, $, €
@@ -19,12 +22,22 @@ export const parseAmount = (val: string): number => {
   return isNaN(num) ? 0 : num;
 };
 
+
+// We still keep the default one for backward compatibility or when language is not available
 export const plnFormatter = new Intl.NumberFormat('pl-PL', {
   style: 'currency',
   currency: 'PLN'
 });
 
-export const formatPln = (val: number): string => plnFormatter.format(val);
+export const formatPln = (val: number, lang?: AppLanguage): string => {
+  if (!lang) return plnFormatter.format(val);
+  
+  const formatter = new Intl.NumberFormat(getLocaleForLanguage(lang), {
+    style: 'currency',
+    currency: 'PLN'
+  });
+  return formatter.format(val);
+};
 
 export function cleanPolishChars(text: string): string {
   const map: Record<string, string> = {

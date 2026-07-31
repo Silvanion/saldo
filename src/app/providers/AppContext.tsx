@@ -8,6 +8,7 @@ import { useProfileSecurity } from "../../hooks/useProfileSecurity";
 import { useAppActions } from "../../hooks/useAppActions";
 import { useModalManager } from "../../hooks/useModalManager";
 import { useTheme } from "../../hooks/useTheme";
+import { I18nProvider } from "../../i18n/I18nProvider";
 
 type AuthData = ReturnType<typeof useAuth>;
 type BudgetData = ReturnType<typeof useBudgetState>;
@@ -141,9 +142,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ...themeData,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      <I18nProvider
+        preference={budgetData.state.languagePreference}
+        setPreference={actionsData.handleSaveAppLanguagePreference}
+      >
+        {children}
+      </I18nProvider>
+    </AppContext.Provider>
+  );
 }
-
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
