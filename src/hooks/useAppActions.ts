@@ -266,6 +266,7 @@ export function useAppActions({
         payments: [],
         goals: [],
         investments: [],
+        currency: state.currencyPreference || "PLN",
         budgets: {
           "Żywność": 0,
           "Dom i rachunki": 0,

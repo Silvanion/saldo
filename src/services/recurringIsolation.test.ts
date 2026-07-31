@@ -13,7 +13,7 @@ describe("Recurring Rules Isolation", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: [
         {
           id: "ruleA",
@@ -37,7 +37,7 @@ describe("Recurring Rules Isolation", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: [
         {
           id: "ruleB",
@@ -123,7 +123,7 @@ describe("Recurring Rules Isolation", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: []
     };
 
@@ -160,7 +160,7 @@ describe("Recurring Rules Isolation", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: [
         {
           id: "rule-C1",
@@ -236,7 +236,7 @@ describe("Recurring Rules Isolation", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const settlement = calculatePartnerSettlement(sharedProfile);

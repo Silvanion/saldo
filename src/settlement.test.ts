@@ -8,7 +8,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
       id: "p1", name: "User1", kind: "personal",
       transactions: [{ id: "tx1", name: "Test", amount: 100, type: "expense", category: "Test", account: "Cash", isoDate: "2026-07-01", splitMode: "equal", paidBy: "me" }],
       payments: [{ id: "pay1", name: "Rachunek", amount: 100, dueDate: "2026-07-15", status: "Do opłacenia", paidBy: "me", splitMode: "equal" }],
-      goals: [], investments: [], budgets: {}
+      goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.net).toBe(0);
@@ -22,7 +22,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
       transactions: [
         { id: "tx1", name: "Kino", amount: 100, type: "expense", category: "Rozrywka", account: "Card", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
       ],
-      payments: [], goals: [], investments: [], budgets: {}
+      payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.historyNet).toBe(50); // Partner owes me 50 from history
@@ -39,7 +39,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
       payments: [
         { id: "pay1", name: "Prąd", amount: 200, dueDate: "2026-07-20", status: "Do opłacenia", paidBy: "partner", splitMode: "equal" }
       ],
-      goals: [], investments: [], budgets: {}
+      goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.historyNet).toBe(0);
@@ -56,7 +56,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
       payments: [
         { id: "pay1", name: "Prąd opłacony", amount: 200, dueDate: "2026-07-20", status: "Opłacono", paidBy: "partner", splitMode: "equal" }
       ],
-      goals: [], investments: [], budgets: {}
+      goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.historyNet).toBe(0);
@@ -71,7 +71,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         { id: "tx1", name: "Zwrot ze sklepu", amount: 200, type: "income", category: "Inne", account: "Card", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" },
         { id: "tx2", name: "Zwrot 2", amount: 100, type: "income", category: "Inne", account: "Card", isoDate: "2026-07-01", paidBy: "partner", splitMode: "equal" }
       ],
-      payments: [], goals: [], investments: [], budgets: {}
+      payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     // tx1: ja dostałem 200 -> jestem winien 100 (historyNet -= 100)
@@ -92,7 +92,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         { id: "pay1", name: "Czynsz", amount: 1000, dueDate: "2026-07-25", status: "Do opłacenia", paidBy: "joint", splitMode: "equal" },
         { id: "pay2", name: "Media", amount: 200, dueDate: "2026-07-25", status: "Do opłacenia", paidBy: "me", splitMode: "none" }
       ],
-      goals: [], investments: [], budgets: {}
+      goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.historyNet).toBe(0);
@@ -113,7 +113,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         { id: "pay2", name: "Rachunek 2", amount: 200, dueDate: "2026-07-20", status: "Do opłacenia", paidBy: "partner", splitMode: "equal" }, // upcomingNet -100
         { id: "pay3", name: "Ignorowany", amount: 500, dueDate: "2026-07-01", status: "Opłacono", paidBy: "me", splitMode: "equal" } // upcomingNet 0
       ],
-      goals: [], investments: [], budgets: {}
+      goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     expect(res.historyNet).toBe(-100); // 100 - 50 - 150 = -100
@@ -130,7 +130,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         transactions: [
           { id: "t1", name: "Zakupy", amount: 200, type: "expense", category: "Zakupy", account: "Karta", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
         ], // historyNet = +100
-        payments: [], goals: [], investments: [], budgets: {},
+        payments: [], goals: [], investments: [], currency: "PLN", budgets: {},
         settlements: [
           { id: "s1", amount: 100, isoDate: "2026-07-02", createdAt: "2026-07-02T10:00:00Z" }
         ]
@@ -150,7 +150,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         transactions: [
           { id: "t1", name: "Kolacja", amount: 300, type: "expense", category: "Jedzenie", account: "Karta", isoDate: "2026-07-01", paidBy: "partner", splitMode: "equal" }
         ], // historyNet = -150
-        payments: [], goals: [], investments: [], budgets: {},
+        payments: [], goals: [], investments: [], currency: "PLN", budgets: {},
         settlements: [
           { id: "s1", amount: -150, isoDate: "2026-07-02", createdAt: "2026-07-02T10:00:00Z" }
         ]
@@ -169,7 +169,7 @@ describe("PROMPT A2 - SETTLEMENT: historyNet vs upcomingNet", () => {
         transactions: [
           { id: "t1", name: "Zakupy", amount: 200, type: "expense", category: "Zakupy", account: "Karta", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
         ], // historyNet = +100
-        payments: [], goals: [], investments: [], budgets: {},
+        payments: [], goals: [], investments: [], currency: "PLN", budgets: {},
         settlements: [
           { id: "s1", amount: 40, isoDate: "2026-07-02", note: "Rata 1", createdAt: "2026-07-02T10:00:00Z" },
           { id: "s2", amount: 30, isoDate: "2026-07-03", note: "Rata 2", createdAt: "2026-07-03T10:00:00Z" }
@@ -191,7 +191,7 @@ describe("R6b - roundCurrency w settlementEngine (precyzja float)", () => {
         { id: "t1", name: "Drobne A", amount: 0.1, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" },
         { id: "t2", name: "Drobne B", amount: 0.2, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
       ],
-      payments: [], goals: [], investments: [], budgets: {}
+      payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     // 0.1/2 + 0.2/2 = 0.05 + 0.1 = 0.15 (bez roundCurrency byłoby 0.15000000000000002)
@@ -205,7 +205,7 @@ describe("R6b - roundCurrency w settlementEngine (precyzja float)", () => {
       transactions: [
         { id: "t1", name: "Duży zakup", amount: 99.99, type: "expense", category: "X", account: "X", isoDate: "2026-07-01", paidBy: "me", splitMode: "equal" }
       ],
-      payments: [], goals: [], investments: [], budgets: {}
+      payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const res = calculatePartnerSettlement(p);
     // 99.99 / 2 = 49.995 -> roundCurrency -> 50

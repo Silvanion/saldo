@@ -26,7 +26,7 @@ describe("useAppActions - handleUpdatePayment", () => {
         ],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }
     ]
   });

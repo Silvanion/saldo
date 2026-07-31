@@ -124,7 +124,8 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
         delete clean.profileId;
         return clean;
       }),
-      settlements: Array.isArray(profileObj.settlements) ? profileObj.settlements : []
+      settlements: Array.isArray(profileObj.settlements) ? profileObj.settlements : [],
+      currency: (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) as import("../types").SupportedCurrency
     };
 
     // Ensure Goals are migrated with optional transfers list

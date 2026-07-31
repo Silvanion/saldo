@@ -86,7 +86,7 @@ describe("KROK 7 — OAuth Token Separation, Drive Errors & Data Protection", ()
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const openProfile: Profile = {
@@ -97,7 +97,7 @@ describe("KROK 7 — OAuth Token Separation, Drive Errors & Data Protection", ()
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const state: AppState = {

@@ -21,7 +21,7 @@ describe("Integracja: precyzja roundCurrency w całym pipeline", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: { "Żywność": 50 }
+      currency: "PLN", budgets: { "Żywność": 50 }
     };
 
     // Helper: checks if a number is already rounded to 2 decimal places

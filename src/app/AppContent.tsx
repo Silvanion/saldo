@@ -11,7 +11,7 @@ import { PWABadge } from "../components/PWABadge";
 
 export function AppContent() {
   const {
-    isDemoMode, setIsDemoMode, disconnectGoogle,
+    state, isDemoMode, setIsDemoMode, disconnectGoogle,
     activeProfile,
     isProfileLocked,
     modalState,
@@ -25,7 +25,7 @@ export function AppContent() {
   // Check and display browser notifications for upcoming payments
   useEffect(() => {
     if (activeProfile?.payments) {
-      checkAndNotifyPayments(activeProfile.payments);
+      checkAndNotifyPayments(activeProfile, state.currencyPreference);
     }
   }, [activeProfile?.payments]);
 

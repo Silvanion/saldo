@@ -26,7 +26,7 @@ describe("PROMPT D2 — PWA Update & PIN Security Recovery Warning", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: { Spożywcze: 1000 }
+      currency: "PLN", budgets: { Spożywcze: 1000 }
     };
 
     const key = await deriveKeyFromPin(samplePin, profile.salt!);

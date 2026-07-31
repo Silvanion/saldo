@@ -51,7 +51,7 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
       payments: [{ id: "pay-secret-1", name: "Kredyt", amount: 2500, dueDate: "2026-05-10", status: "Do opłacenia" }],
       goals: [{ id: "goal-1", name: "Auto", target: 50000, saved: 10000, transfers: [] }],
       investments: [{ id: "inv-1", name: "Akcje", amount: 3000, isoDate: "2026-05-01" }],
-      budgets: { "Zakupy": 1500 }
+      currency: "PLN", budgets: { "Zakupy": 1500 }
     };
 
     const state: AppState = {
@@ -94,7 +94,7 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
         payments: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }],
       activeProfileId: "v1-prof",
       schemaVersion: 1,
@@ -124,7 +124,7 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
 
   it("V1 is NOT removed if V2 write throws an error", () => {
     const v1State = {
-      profiles: [{ id: "v1-p", name: "Profil V1", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "v1-p", name: "Profil V1", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     };
     localStorage.setItem(LOCAL_STORAGE_KEY_V1, JSON.stringify(v1State));
 

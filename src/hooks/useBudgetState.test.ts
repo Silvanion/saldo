@@ -369,13 +369,13 @@ describe("useBudgetState hydration race condition protection", () => {
   it("IDB starszy niż LS/init -> po hydrate stan = init (nowszy), nie IDB", async () => {
     const lsState = validateAndMigrateState({
       updatedAt: "2026-07-23T10:00:00.000Z",
-      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
     localStorage.setItem(LOCAL_STORAGE_KEY_V2, JSON.stringify(lsState));
 
     const idbOldState = validateAndMigrateState({
       updatedAt: "2026-07-23T08:00:00.000Z",
-      profiles: [{ id: "p1", name: "IDB Old Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "IDB Old Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
 
     vi.spyOn(localDb, "loadState").mockResolvedValue(idbOldState);
@@ -397,13 +397,13 @@ describe("useBudgetState hydration race condition protection", () => {
   it("IDB nowszy niż init -> po hydrate stan = IDB", async () => {
     const lsState = validateAndMigrateState({
       updatedAt: "2026-07-23T10:00:00.000Z",
-      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
     localStorage.setItem(LOCAL_STORAGE_KEY_V2, JSON.stringify(lsState));
 
     const idbNewerState = validateAndMigrateState({
       updatedAt: "2026-07-23T12:00:00.000Z",
-      profiles: [{ id: "p1", name: "IDB Newer Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "IDB Newer Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
 
     vi.spyOn(localDb, "loadState").mockResolvedValue(idbNewerState);
@@ -432,7 +432,7 @@ describe("useBudgetState hydration race condition protection", () => {
 
     const lsState = validateAndMigrateState({
       updatedAt: "2026-07-23T08:00:00.000Z",
-      profiles: [{ id: "p1", name: "Initial Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "Initial Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
     localStorage.setItem(LOCAL_STORAGE_KEY_V2, JSON.stringify(lsState));
 
@@ -441,7 +441,7 @@ describe("useBudgetState hydration race condition protection", () => {
     // Perform saveState while loadState is pending
     const savedState = validateAndMigrateState({
       updatedAt: "2026-07-23T11:00:00.000Z",
-      profiles: [{ id: "p1", name: "User Saved Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "User Saved Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
 
     await act(async () => {
@@ -453,7 +453,7 @@ describe("useBudgetState hydration race condition protection", () => {
     // Resolve loadState with an older snapshot
     const oldIdbState = validateAndMigrateState({
       updatedAt: "2026-07-23T09:00:00.000Z",
-      profiles: [{ id: "p1", name: "Old IDB Snapshot", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "Old IDB Snapshot", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
 
     await act(async () => {
@@ -470,14 +470,14 @@ describe("useBudgetState hydration race condition protection", () => {
     const lsState = validateAndMigrateState({
       updatedAt: time,
       lastModifiedBy: "LS Origin",
-      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "LS Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
     localStorage.setItem(LOCAL_STORAGE_KEY_V2, JSON.stringify(lsState));
 
     const idbStateSameTime = validateAndMigrateState({
       updatedAt: time,
       lastModifiedBy: "IDB Origin",
-      profiles: [{ id: "p1", name: "IDB Equal Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "IDB Equal Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     });
 
     vi.spyOn(localDb, "loadState").mockResolvedValue(idbStateSameTime);
@@ -538,7 +538,7 @@ describe("saveState — Firestore size limit handling", () => {
       profiles: [{
         id: "p1", name: "Huge Profile", kind: "personal",
         transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_HARD_LIMIT_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
-        payments: [], goals: [], investments: [], budgets: {}
+        payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
       }]
     };
 
@@ -562,7 +562,7 @@ describe("saveState — Firestore size limit handling", () => {
       profiles: [{
         id: "p1", name: "Warning Profile", kind: "personal",
         transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_WARNING_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
-        payments: [], goals: [], investments: [], budgets: {}
+        payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
       }]
     };
 
@@ -584,7 +584,7 @@ describe("saveState — Firestore size limit handling", () => {
     const hookRef = renderBudgetHookWithUser();
 
     const normalState = {
-      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     };
 
     await act(async () => {
@@ -605,7 +605,7 @@ describe("saveState — Firestore size limit handling", () => {
     const hookRef = renderBudgetHookWithUser();
 
     const normalState = {
-      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
+      profiles: [{ id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
     };
 
     await act(async () => {

@@ -51,7 +51,7 @@ describe("useAppActions - handleDeletePayment", () => {
         ],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }
     ]
   });

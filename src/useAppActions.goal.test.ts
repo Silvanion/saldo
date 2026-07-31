@@ -19,7 +19,7 @@ describe("Goal Deposit/Withdraw (Real Model A Handler)", () => {
       { id: "g1", name: "Wakacje", target: 2000, saved: 500, transfers: [] }
     ],
     investments: [],
-    budgets: {}
+    currency: "PLN", budgets: {}
   };
 
   it("Wpłata +200 zwiększa saved i dopisuje transfer", () => {

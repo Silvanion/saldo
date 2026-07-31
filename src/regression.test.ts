@@ -36,7 +36,7 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
     };
     
     const profileWithoutRules: Profile = {
-      id: "p1", name: "Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {}
+      id: "p1", name: "Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     
     // Symulujemy zachowanie migracji - to teraz dzieje się przy starcie apki
@@ -61,7 +61,7 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
 
   it("5. safe-to-spend / forecast ignorują obce reguły", () => {
     const profile: Profile = {
-      id: "p1", name: "Test", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {}
+      id: "p1", name: "Test", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     const foreignRules: RecurringRule[] = [
       { id: "foreign", name: "Obca", amount: 1000, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-05", isActive: true }
@@ -86,7 +86,7 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
       goals: [
         { id: "g1", name: "Cel", target: 1000, saved: 300, transfers: [] }
       ], 
-      investments: [], budgets: {}
+      investments: [], currency: "PLN", budgets: {}
     };
     
     const safe = calculateSafeToSpend(profile, [], "2026-07-01");

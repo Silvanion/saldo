@@ -12,7 +12,7 @@ describe("estimateProfileSizes", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const largeProfile: Profile = {

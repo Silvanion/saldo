@@ -48,7 +48,7 @@ describe("PROMPT C1 — localDb & IndexedDB storage with migration & fallback", 
         payments: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }],
       activeProfileId: "p1",
       schemaVersion: 1,
@@ -80,7 +80,7 @@ describe("PROMPT C1 — localDb & IndexedDB storage with migration & fallback", 
         payments: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }],
       activeProfileId: "p-v2",
       schemaVersion: 1,
@@ -115,7 +115,7 @@ describe("PROMPT C1 — localDb & IndexedDB storage with migration & fallback", 
         payments: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }],
       activeProfileId: "p-v1"
     };
@@ -132,7 +132,7 @@ describe("PROMPT C1 — localDb & IndexedDB storage with migration & fallback", 
 
   it("5. clearState removes data from IndexedDB and localStorage keys", async () => {
     const state: AppState = {
-      profiles: [{ id: "p1", name: "Do usunięcia", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }],
+      profiles: [{ id: "p1", name: "Do usunięcia", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }],
       activeProfileId: "p1",
       schemaVersion: 1,
       updatedAt: "2026-07-23T12:00:00.000Z",

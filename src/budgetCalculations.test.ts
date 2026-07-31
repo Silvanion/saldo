@@ -14,7 +14,7 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     payments: [],
     goals: [],
     investments: [],
-    budgets: {}
+    currency: "PLN", budgets: {}
   };
 
   it("brak płatności — zwraca pełne saldo minus brak obciążeń", () => {
@@ -185,7 +185,7 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
     payments: [],
     goals: [],
     investments: [],
-    budgets: {}
+    currency: "PLN", budgets: {}
   };
 
   it("tylko przyszły przychód — dodaje przyszły dochód cykliczny", () => {
@@ -287,7 +287,7 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     payments: [],
     goals: [],
     investments: [],
-    budgets: {
+    currency: "PLN", budgets: {
       "Żywność": 1000,
       "Transport": 500,
       "Bez limitu": 0
@@ -404,7 +404,7 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
     payments: [],
     goals: [],
     investments: [],
-    budgets: {
+    currency: "PLN", budgets: {
       "Żywność": 1000
     }
   };
@@ -460,7 +460,7 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: { "Jedzenie": 50 }
+      currency: "PLN", budgets: { "Jedzenie": 50 }
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
     const food = res.find(w => w.category === "Jedzenie");

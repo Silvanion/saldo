@@ -26,7 +26,7 @@ describe("Payment status toggling in useAppActions", () => {
       transactions: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       accounts: [{ id: "a1", name: "Konto Główne", bankName: "Bank", hasCreditLimit: false, creditLimit: 0 }]
     };
 
@@ -99,7 +99,7 @@ describe("Payment status toggling in useAppActions", () => {
       ],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const state: AppState = {
@@ -176,7 +176,7 @@ describe("Payment status toggling in useAppActions", () => {
       ],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const state: AppState = {
@@ -230,7 +230,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       };
 
       const state: AppState = {
@@ -300,7 +300,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       };
 
       const state: AppState = {
@@ -359,7 +359,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       };
 
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
@@ -382,7 +382,7 @@ describe("Payment status toggling in useAppActions", () => {
         transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       };
 
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
@@ -400,7 +400,7 @@ describe("Payment status toggling in useAppActions", () => {
       let currentProfile: Profile = {
         id: "p1", name: "Test", kind: "personal",
         payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
-        transactions: [], goals: [], investments: [], budgets: {}
+        transactions: [], goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
       const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
@@ -414,7 +414,7 @@ describe("Payment status toggling in useAppActions", () => {
         id: "p1", name: "Test", kind: "personal",
         payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
         transactions: [{ id: "tx2", name: "Inne", amount: 100, type: "expense", category: "Inne", account: "Konto", isoDate: "2026-07-20", tags: [] }],
-        goals: [], investments: [], budgets: {}
+        goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
       const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));
@@ -428,7 +428,7 @@ describe("Payment status toggling in useAppActions", () => {
       let currentProfile: Profile = {
         id: "p1", name: "Test", kind: "personal",
         payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
-        transactions: [], goals: [], investments: [], budgets: {}
+        transactions: [], goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
       const { result } = renderHook(() => useAppActions({ state, saveState: async (s) => { currentProfile = s.profiles[0]; }, activeProfile: currentProfile, makeUndoBackup: vi.fn(), unlockProfile: vi.fn(), lockProfile: vi.fn(), setActiveView: vi.fn(), connectGoogle: vi.fn(), disconnectGoogle: vi.fn(), toggleAutoSync: vi.fn(), backupToDriveManual: vi.fn(), restoreFromDriveManual: vi.fn(), setApiError: vi.fn() }));

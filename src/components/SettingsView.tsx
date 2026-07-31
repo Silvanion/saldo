@@ -165,7 +165,7 @@ export function BankAccountsManager({
                   </div>
                   {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
-                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} zł</p>
+                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} {state.currencyPreference || "PLN"}</p>
                   )}
                 </div>
                 <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">

@@ -17,7 +17,7 @@ describe("calculateDashboardMetrics", () => {
       ],
       investments: [],
       goals: [],
-      budgets: { "Żywność": 1000 },
+      currency: "PLN", budgets: { "Żywność": 1000 },
       payments: [],
     };
     
@@ -48,7 +48,7 @@ describe("calculateDashboardMetrics", () => {
       ],
       investments: [],
       goals: [],
-      budgets: {
+      currency: "PLN", budgets: {
         "Rozrywka": 1000, // 10% (safe)
         "Dom": 1000,      // 80% (warning)
         "Samochód": 1000  // 150% (exceeded)

@@ -243,6 +243,7 @@ export function useBudgetState(googleUser: User | null) {
             payments: [],
             goals: [],
             investments: [],
+            currency: "PLN",
             budgets: {}
           };
           const emptyState: AppState = {

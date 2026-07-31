@@ -22,7 +22,7 @@ describe("PROMPT 7 - SHARED: paidBy I PODZIAŁ KOSZTÓW", () => {
   it("Tworzy transakcję ze split w profilu shared", () => {
     const p: Profile = {
       id: "p1", name: "User1", partnerName: "User2", kind: "shared",
-      transactions: [], payments: [], goals: [], investments: [], budgets: {}
+      transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     
     const updated = simulateAddTransaction(p, {
@@ -44,7 +44,7 @@ describe("PROMPT 7 - SHARED: paidBy I PODZIAŁ KOSZTÓW", () => {
     };
     const p: Profile = {
       id: "p1", name: "User1", partnerName: "User2", kind: "shared",
-      transactions: [tx], payments: [], goals: [], investments: [], budgets: {}
+      transactions: [tx], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
     };
     
     // update (symulacja map)

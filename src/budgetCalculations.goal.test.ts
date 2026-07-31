@@ -16,7 +16,7 @@ describe("PROMPT 5 - Jeden spójny model celów i salda (Model A)", () => {
       { id: "g1", name: "Wakacje", target: 2000, saved: 500, transfers: [] }
     ],
     investments: [],
-    budgets: {}
+    currency: "PLN", budgets: {}
   };
 
   it("safe-to-spend = saldo - płatności - recurring - reservedGoals (nie ma double counting)", () => {

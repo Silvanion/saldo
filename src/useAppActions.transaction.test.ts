@@ -29,7 +29,7 @@ describe("useAppActions - handleUpdateTransaction", () => {
         payments: [],
         goals: [],
         investments: [],
-        budgets: {}
+        currency: "PLN", budgets: {}
       }
     ]
   });

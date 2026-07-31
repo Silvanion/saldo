@@ -23,7 +23,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const inputState: AppState = {
@@ -58,7 +58,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [{ id: "p1", name: "Czynsz", amount: 2000, dueDate: "2026-01-10", status: "Do opłacenia" }],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const inputState: AppState = {
@@ -95,7 +95,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
     const encrypted = await encryptProfile(rawProfile, key);
 
@@ -132,7 +132,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {}
+      currency: "PLN", budgets: {}
     };
 
     const inputState: AppState = {
@@ -164,7 +164,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: [{ id: "rr1", name: "Subskrypcja", amount: 29, type: "expense", category: "Rozrywka", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true }],
       settlements: [{ id: "s1", amount: 100, isoDate: "2026-01-02", createdAt: "2026-01-02T10:00:00Z" }],
       accounts: [{ id: "a1", name: "Konto Główne", bankName: "Bank", hasCreditLimit: false, creditLimit: 0 }]
@@ -210,7 +210,7 @@ describe("prepareStateForRemoteSave tests", () => {
       payments: [],
       goals: [],
       investments: [],
-      budgets: {},
+      currency: "PLN", budgets: {},
       recurringRules: [{ id: "rr1", name: "Czynsz", amount: 1500, type: "expense", category: "Dom", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true }]
     };
 

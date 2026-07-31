@@ -20,6 +20,7 @@ export interface Transaction {
   sourcePaymentId?: string;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
+  currency?: SupportedCurrency;
 }
 
 export interface Payment {
@@ -33,6 +34,7 @@ export interface Payment {
   recurringRuleId?: string;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
+  currency?: SupportedCurrency;
 }
 
 export interface Goal {
@@ -68,6 +70,7 @@ export interface RecurringRule {
   isActive: boolean;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
+  currency?: SupportedCurrency;
 }
 
 export interface TransactionRule {
@@ -122,6 +125,7 @@ export interface Profile {
   recurringRules?: RecurringRule[];
   transactionRules?: TransactionRule[];
   settlements?: SettlementEntry[];
+  currency: SupportedCurrency;
 }
 
 export interface AppState {

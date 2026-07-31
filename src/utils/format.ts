@@ -1,4 +1,4 @@
-import { AppLanguage } from "../types";
+import { AppLanguage, SupportedCurrency } from "../types";
 import { getLocaleForLanguage } from "../i18n/config";
 
 export const parseAmount = (val: string): number => {
@@ -36,4 +36,12 @@ export function cleanPolishChars(text: string): string {
 export function roundCurrency(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+export function resolveCurrency(
+  itemCurrency?: SupportedCurrency,
+  profileCurrency?: SupportedCurrency,
+  appCurrency?: SupportedCurrency
+): SupportedCurrency {
+  return itemCurrency ?? profileCurrency ?? appCurrency ?? "PLN";
 }
