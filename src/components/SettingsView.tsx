@@ -117,25 +117,25 @@ export function BankAccountsManager({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mb-8" id="settings-bank-accounts-card">
-      <h3 className="text-base font-bold text-slate-900 mb-2">Konta i salda awaryjne</h3>
+      <h3 className="text-base font-bold text-slate-900 mb-2">Konta operacyjne</h3>
       <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-        Skonfiguruj konta bankowe, z których płacisz lub na które otrzymujesz dochód.
-        Możesz również dodać informację o limicie odnawialnym (nie wlicza się do budżetu).
+        Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
+        Twój <strong>limit awaryjny</strong> traktuj tu wyłącznie jako bufor bezpieczeństwa – nie są to środki wliczone do budżetu i nie należy ich traktować jako "safe-to-spend".
       </p>
       <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa (np. Konto główne)</label>
-          <input required value={accName} onChange={(e) => setAccName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa konta / portfela</label>
+          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa Banku (Opcjonalnie)</label>
-          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. mBank, PKO" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
+          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
         </div>
         <div className="flex items-center pt-5">
           <label className="flex items-center cursor-pointer">
             <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
             <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
-            <span className="ml-2 text-xs font-bold text-slate-600">Limit odnaw.</span>
+            <span className="ml-2 text-xs font-bold text-slate-600">Bufor awaryjny</span>
           </label>
         </div>
         {accHasLimit && (
@@ -152,24 +152,30 @@ export function BankAccountsManager({
       </form>
 
       {accounts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {accounts.map((acc) => (
-            <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
-              <div>
-                <strong className="text-xs text-slate-800">{acc.name}</strong>
-                {acc.bankName && <span className="ml-2 text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
-                {acc.hasCreditLimit && (
-                  <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Limit awaryjny: {acc.creditLimit} zł</p>
-                )}
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {accounts.map((acc, index) => (
+              <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <strong className="text-xs text-slate-800">{acc.name}</strong>
+                    {index === 0 && <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">Domyślne</span>}
+                  </div>
+                  {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
+                  {acc.hasCreditLimit && (
+                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} zł</p>
+                  )}
+                </div>
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
+                  &times;
+                </button>
               </div>
-              <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
-                &times;
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
+          <p className="text-[10px] text-slate-400">💡 Wskazówka: pierwsze konto z listy będzie domyślnie podpowiadane przy wprowadzaniu nowej transakcji.</p>
         </div>
       ) : (
-        <p className="text-xs text-slate-400 italic">Brak skonfigurowanych kont. Tradycyjne wpisywanie nazw pozostanie domyślne.</p>
+        <p className="text-xs text-slate-400 italic">Nie dodałeś jeszcze żadnych kont. Będziesz je wpisywać ręcznie.</p>
       )}
     </div>
   );
