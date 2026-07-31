@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useI18n } from "../i18n/I18nProvider";
-import { LanguagePreference } from "../types";
 import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount } from "../types";
@@ -165,7 +163,7 @@ export function BankAccountsManager({
                   </div>
                   {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
-                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} {state.currencyPreference || "PLN"}</p>
+                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {acc.creditLimit} PLN</p>
                   )}
                 </div>
                 <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
@@ -329,7 +327,6 @@ export function SettingsView({
   onConnectCalendar,
   unlockedProfileId
 }: SettingsViewProps) {
-  const { language, preference, setPreference, currencyPreference, setCurrencyPreference, t } = useI18n();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
@@ -989,64 +986,29 @@ export function SettingsView({
       </div>
       )}
 
-      {/* SECTION: LANGUAGE SELECTION */}
-      {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mt-6" id="settings-language-card">
-          <h3 className="text-base font-bold text-slate-900 mb-2">{t("settings.language.title")}</h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" id="language-selectors-grid">
-            <button
-              onClick={() => setPreference("system")}
-              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-                preference === "system"
-                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                  : "bg-white border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              <div>
-                <strong className="block text-sm text-slate-900">{t("settings.language.system")}</strong>
-              </div>
-            </button>
-            <button
-              onClick={() => setPreference("pl")}
-              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-                preference === "pl"
-                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                  : "bg-white border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              <div>
-                <strong className="block text-sm text-slate-900">{t("settings.language.pl")}</strong>
-              </div>
-            </button>
-            <button
-              onClick={() => setPreference("en")}
-              className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-                preference === "en"
-                  ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                  : "bg-white border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              <div>
-                <strong className="block text-sm text-slate-900">{t("settings.language.en")}</strong>
-              </div>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* SECTION: CURRENCY SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mt-6" id="settings-currency-card">
-          <h3 className="text-base font-bold text-slate-900 mb-2">{t("settings.currency.title") || "Waluta"}</h3>
+          <h3 className="text-base font-bold text-slate-900 mb-2">Waluta</h3>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" id="currency-selectors-grid">
             {(["PLN", "EUR", "USD", "GBP"] as const).map(curr => (
               <button
                 key={curr}
-                onClick={() => setCurrencyPreference(curr)}
+                onClick={() => {
+                  if (activeProfile) {
+                    saveState({
+                      ...state,
+                      profiles: state.profiles.map(p => 
+                        p.id === activeProfile.id 
+                          ? { ...p, currency: curr } 
+                          : p
+                      )
+                    });
+                  }
+                }}
                 className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-                  currencyPreference === curr
+                  (activeProfile?.currency || "PLN") === curr
                     ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
                     : "bg-white border-slate-200 hover:border-slate-300"
                 }`}
@@ -1481,7 +1443,7 @@ export function SettingsView({
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota ({currencyPreference})</label>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota ({activeProfile?.currency || "PLN"})</label>
               <input
                 type="number"
                 step="0.01"
@@ -1608,7 +1570,7 @@ export function SettingsView({
                           {r.account}
                         </td>
                         <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {currencyPreference}
+                          {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {activeProfile?.currency || "PLN"}
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <button
@@ -1761,7 +1723,7 @@ export function SettingsView({
                   {gdriveFileId && (
                     <div className="mt-2 flex justify-between items-center">
                       <p className="text-[10px] text-slate-500">
-                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString(language === "pl" ? "pl-PL" : "en-US") : "Brak danych o ostatniej synchronizacji"}
+                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString("pl-PL") : "Brak danych o ostatniej synchronizacji"}
                       </p>
                       <button
                         onClick={onSyncToDrive}
@@ -1952,7 +1914,7 @@ export function SettingsView({
                 onClick={() => {
                   if (activeProfile) {
                     const now = new Date();
-                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), currencyPreference, language);
+                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN", "pl");
                   }
                 }}
                 className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"

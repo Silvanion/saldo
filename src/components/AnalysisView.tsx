@@ -1,10 +1,10 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useI18n } from "../i18n/I18nProvider";
 import { Profile } from "../types";
 import { getMonthName, expenseCategories, budgetCategories } from "../utils";
 import { generateReportPdf } from "../services/pdfGenerator";
 import { Settings2, Check } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
+import { formatMoney } from "../utils/format";
 
 interface AnalysisViewProps {
   profile: Profile;
@@ -12,8 +12,6 @@ interface AnalysisViewProps {
 }
 
 export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
-  const { formatMoney } = useI18n();
-  const { language, currencyPreference } = useI18n();
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -200,7 +198,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </p>
         </div>
         <button
-          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, currencyPreference, language)}
+          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, (profile.currency || "PLN"), "pl")}
           className="bg-white text-[#137566] font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 transition shadow self-start md:self-auto text-sm"
           id="btn-download-pdf-report"
         >

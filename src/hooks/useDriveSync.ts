@@ -1,4 +1,3 @@
-import { resolveLanguage, getLocaleForLanguage } from "../i18n/config";
 
 import { useState, useEffect, useCallback } from "react";
 import { AppState } from "../types";
@@ -107,7 +106,7 @@ export function useDriveSync({
               setGdriveFileId(file.id);
               localStorage.setItem(DRIVE_FILE_ID_KEY, file.id);
               if (file.modifiedTime) {
-                setGdriveLastSynced(new Date(file.modifiedTime).toLocaleString(getLocaleForLanguage(resolveLanguage(state.languagePreference))));
+                setGdriveLastSynced(new Date(file.modifiedTime).toLocaleString("pl-PL"));
               }
             }
           })
@@ -196,7 +195,7 @@ export function useDriveSync({
 
         const syncIso = stateToBackup.updatedAt || new Date().toISOString();
         localStorage.setItem(LAST_SYNCED_AT_KEY, syncIso);
-        setGdriveLastSynced(new Date().toLocaleString(getLocaleForLanguage(resolveLanguage(state.languagePreference))));
+        setGdriveLastSynced(new Date().toLocaleString("pl-PL"));
       } catch (err: any) {
         if (err instanceof GoogleAuthError || err.message?.includes("SESSION_EXPIRED")) {
           if (onDriveAuthInvalid) onDriveAuthInvalid();
@@ -291,7 +290,7 @@ export function useDriveSync({
           }
           const syncIso = validatedState.updatedAt || new Date().toISOString();
           localStorage.setItem(LAST_SYNCED_AT_KEY, syncIso);
-          setGdriveLastSynced(new Date().toLocaleString(getLocaleForLanguage(resolveLanguage(state.languagePreference))));
+          setGdriveLastSynced(new Date().toLocaleString("pl-PL"));
         } else {
           throw new Error("Pobrany plik ma nieprawidłowy format danych.");
         }

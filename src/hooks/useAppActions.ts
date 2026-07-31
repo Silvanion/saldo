@@ -266,7 +266,7 @@ export function useAppActions({
         payments: [],
         goals: [],
         investments: [],
-        currency: state.currencyPreference || "PLN",
+        currency: "PLN",
         budgets: {
           "Żywność": 0,
           "Dom i rachunki": 0,
@@ -310,25 +310,9 @@ export function useAppActions({
     restoreFromDriveManual
   });
 
-  const handleSaveAppLanguagePreference = useCallback(
-    (pref: AppState["languagePreference"]) => {
-      saveState({ ...state, languagePreference: pref });
-    },
-    [state, saveState]
-  );
-
-  const handleSaveAppCurrencyPreference = useCallback(
-    (pref: AppState["currencyPreference"]) => {
-      saveState({ ...state, currencyPreference: pref });
-    },
-    [state, saveState]
-  );
-
   return {
     ...txActions,
     ...syncActions,
-    handleSaveAppLanguagePreference,
-    handleSaveAppCurrencyPreference,
     handleAddGoal,
     handleDeleteGoal,
     handleAddGoalDeposit,

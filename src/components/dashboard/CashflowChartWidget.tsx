@@ -1,15 +1,14 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import { DelayedTooltip } from "./DelayedTooltip";
 import {} from "../../utils";
 import { DashboardChartPoint } from "../../hooks/useDashboardMetrics";
+import { formatMoney } from "../../utils/format";
 
 interface CashflowChartWidgetProps {
   chartData: DashboardChartPoint[];
 }
 
 export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData }: CashflowChartWidgetProps) {
-  const { formatMoney } = useI18n();
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-chart-box">
       <div className="flex items-center justify-between mb-5">

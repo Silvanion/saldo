@@ -1,6 +1,4 @@
 import { AppLanguage, SupportedCurrency } from "../types";
-import { getLocaleForLanguage } from "../i18n/config";
-
 export const parseAmount = (val: string): number => {
   if (!val) return 0;
   // strip spaces, currency symbols like PLN, zł, $, €
@@ -44,4 +42,12 @@ export function resolveCurrency(
   appCurrency?: SupportedCurrency
 ): SupportedCurrency {
   return itemCurrency ?? profileCurrency ?? appCurrency ?? "PLN";
+}
+
+export function formatMoney(value: number, currency: string = "PLN") {
+  return new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(value);
 }

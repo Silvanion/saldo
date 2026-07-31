@@ -1,4 +1,3 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
@@ -6,6 +5,7 @@ import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } 
 import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
+import { formatMoney } from "../utils/format";
 
 interface Widget {
   id: string;
@@ -43,7 +43,6 @@ export function DashboardView({
   onAddSettlement,
   onDeleteSettlement
 }: DashboardViewProps) {
-  const { formatMoney } = useI18n();
   
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
 

@@ -1,6 +1,4 @@
 import { AppLanguage } from "../types";
-import { getLocaleForLanguage } from "../i18n/config";
-
 export function getLocalDateIso(d: Date = new Date()): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -30,7 +28,7 @@ export function formatDate(isoDate: string, lang?: AppLanguage): string {
   if (!isoDate) return "";
   try {
     const d = new Date(`${isoDate}T12:00:00`);
-    const locale = lang ? getLocaleForLanguage(lang) : 'pl-PL';
+    const locale = lang ? "pl-PL" : 'pl-PL';
     return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
   } catch {
     return isoDate;

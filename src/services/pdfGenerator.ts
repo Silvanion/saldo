@@ -1,8 +1,6 @@
 import { jsPDF } from "jspdf";
 import { Profile, AppLanguage } from "../types";
 import { getMonthName, cleanPolishChars, expenseCategories } from "../utils";
-import { getLocaleForLanguage } from "../i18n/config";
-
 export function generateReportPdf(profile: Profile, year: number, monthIndex: number, currency: string = 'PLN', lang?: AppLanguage) {
   const doc = new jsPDF();
   const monthName = getMonthName(monthIndex);
@@ -208,7 +206,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(cleanPolishChars("Strona 1. Raport Finansowy Saldo."), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString('getLocaleForLanguage(lang)')}`), 145, 285);
+  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
   
   // PAGE 2: BILLS, RECURRING PAYMENTS AND GOALS
   doc.addPage();
@@ -336,7 +334,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(cleanPolishChars("Strona 2. Raport Finansowy Saldo."), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString('getLocaleForLanguage(lang)')}`), 145, 285);
+  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
   
   // PAGE 3: TRANSACTION HISTORY
   doc.addPage();
@@ -381,7 +379,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text(cleanPolishChars(`Strona ${currentPage} o strukturze dynamicznej. Raport Saldo.`), 14, 285);
-        doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString('getLocaleForLanguage(lang)')}`), 145, 285);
+        doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
         
         doc.addPage();
         currentPage += 1;
@@ -445,7 +443,7 @@ export function generateReportPdf(profile: Profile, year: number, monthIndex: nu
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(cleanPolishChars(`Strona ${currentPage} (Koniec raportu). Wygenerowano automatycznie przez aplikacje Saldo.`), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString('getLocaleForLanguage(lang)')}`), 145, 285);
+  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
   
   // Save PDF
   doc.save(`Raport_Saldo_${monthName}_${year}.pdf`);

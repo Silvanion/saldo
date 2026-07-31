@@ -1,10 +1,10 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { useState } from 'react';
 import { DelayedTooltip } from './DelayedTooltip';
 import { Profile, SettlementEntry } from '../../types';
 import { calculatePartnerSettlement } from '../../services/settlementEngine';
 import { formatDate, getLocalDateIso } from '../../utils';
 import { CheckCircle2, History, Trash2, X, ArrowRightLeft } from 'lucide-react';
+import { formatMoney } from "../../utils/format";
 
 interface SettlementWidgetProps {
   profile: Profile;
@@ -13,7 +13,6 @@ interface SettlementWidgetProps {
 }
 
 export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement }: SettlementWidgetProps) {
-  const { formatMoney, currencyPreference } = useI18n();
   if (profile.kind !== 'shared') return null;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -231,7 +230,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Kwota ({currencyPreference})
+                  Kwota ({(profile?.currency || "PLN")})
                 </label>
                 <input
                   type="number"

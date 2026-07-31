@@ -1,9 +1,9 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useState } from "react";
 import { Profile, Payment } from "../types";
 import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
 import { Bell, BellOff, BellRing } from "lucide-react";
+import { formatMoney } from "../utils/format";
 
 interface PaymentsViewProps {
   profile: Profile;
@@ -26,7 +26,6 @@ export function PaymentsView({
   calendarToken,
   onTriggerCalendarAi
 }: PaymentsViewProps) {
-  const { formatMoney } = useI18n();
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
     typeof window !== "undefined" && "Notification" in window ? Notification.permission : "denied"
   );

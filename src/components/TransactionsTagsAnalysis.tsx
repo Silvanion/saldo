@@ -1,7 +1,7 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useMemo } from "react";
 import { Transaction } from "../types";
 import {} from "../utils";
+import { formatMoney } from "../utils/format";
 
 interface TransactionsTagsAnalysisProps {
   transactions: Transaction[];
@@ -14,7 +14,6 @@ export function TransactionsTagsAnalysis({
   selectedTag,
   onSelectTag
 }: TransactionsTagsAnalysisProps) {
-  const { formatMoney } = useI18n();
   const tagExpensesMap = useMemo(() => {
     const map: Record<string, number> = {};
     transactions.forEach((tx) => {

@@ -1,7 +1,7 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import { formatDate, iconByCategory } from "../../utils";
 import { Transaction } from "../../types";
+import { formatMoney } from "../../utils/format";
 
 interface ActivityWidgetProps {
   profileKind?: "personal" | "shared";
@@ -16,7 +16,6 @@ export const ActivityWidget = memo(function ActivityWidget({
   onOpenTxModal,
   profileKind
 }: ActivityWidgetProps) {
-  const { formatMoney } = useI18n();
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-activity-box">
       <div className="flex items-center justify-between mb-5">

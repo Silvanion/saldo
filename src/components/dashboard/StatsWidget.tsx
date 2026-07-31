@@ -1,8 +1,8 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import { DelayedTooltip } from "./DelayedTooltip";
 import {} from "../../utils";
 import { SafeToSpendBreakdown } from "../../services/budgetCalculations";
+import { formatMoney } from "../../utils/format";
 
 interface StatsWidgetProps {
   totalIncome: number;
@@ -25,7 +25,6 @@ export const StatsWidget = memo(function StatsWidget({
   safeBreakdown,
   onChangeView
 }: StatsWidgetProps) {
-  const { formatMoney } = useI18n();
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="widget-content-stats-grid">

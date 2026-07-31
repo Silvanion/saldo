@@ -1,5 +1,5 @@
-import { useI18n } from "../i18n/I18nProvider";
 
+import { formatMoney } from "../utils/format";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useRef } from "react";
@@ -25,7 +25,6 @@ interface ImportTransactionsModalProps {
 }
 
 export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImport }: ImportTransactionsModalProps) {
-  const { formatMoney, currencyPreference } = useI18n();
   const { state, activeProfile } = useApp();
   const isAiAvailable = state.aiMode !== "none";
   const [tab, setTab] = useState<"csv" | "ai">("csv");
@@ -313,6 +312,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 <ShieldCheck className="w-4 h-4 text-[#137566] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-bold text-emerald-900">Bezpieczny lokalny import (UTF-8 / Windows-1250)</p>
+import { formatMoney } from "../utils/format";
                   <p className="text-[11px] text-emerald-700">
                     Oczyszczanie nagłówków z znaku BOM jest automatyczne. Dane są przetwarzane wyłącznie lokalnie w przeglądarce i nie opuszczają Twojego urządzenia.
                   </p>
@@ -510,7 +510,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                         </td>
                         <td className="py-2 px-3 text-slate-500">{tx.account}</td>
                         <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {tx.type === "income" ? "+" : "-"} {tx.amount.toFixed(2)} {currencyPreference}
+                          {tx.type === "income" ? "+" : "-"} {tx.amount.toFixed(2)} {(state?.currencyPreference || "PLN")}
                         </td>
                       </tr>
                     ))}

@@ -139,10 +139,7 @@ export interface AppState {
   transactionRules?: TransactionRule[];
   aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
-  languagePreference?: LanguagePreference;
-  currencyPreference?: SupportedCurrency;
 }
 
 export type AppLanguage = "pl" | "en";
-export type LanguagePreference = "system" | "pl" | "en";
 export type SupportedCurrency = "PLN" | "EUR" | "USD" | "GBP";

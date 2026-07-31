@@ -1,7 +1,7 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import {} from "../../utils";
 import { BudgetWarning } from "../../services/budgetCalculations";
+import { formatMoney } from "../../utils/format";
 
 interface BudgetWarningsWidgetProps {
   totalPlannedBudget: number;
@@ -18,7 +18,6 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
   onChangeView,
   onOpenBudgetModal
 }: BudgetWarningsWidgetProps) {
-  const { formatMoney } = useI18n();
   const globalBudgetRatio = totalPlannedBudget > 0 ? (totalActualSpentInBudget / totalPlannedBudget) * 100 : 0;
   
   return (

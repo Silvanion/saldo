@@ -1,7 +1,7 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useState } from "react";
 import { Profile, Goal, Investment } from "../types";
 import { formatDate } from "../utils";
+import { formatMoney } from "../utils/format";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -18,7 +18,6 @@ export function GoalsView({
   onAddInvestment,
   onDeleteGoal
 }: GoalsViewProps) {
-  const { formatMoney } = useI18n();
   const [invName, setInvName] = useState("");
   const [invAmount, setInvAmount] = useState("");
   const [invType, setInvType] = useState("Poduszka finansowa");

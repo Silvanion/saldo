@@ -1,8 +1,8 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo, useState } from "react";
 import {} from "../../utils";
 import { Payment } from "../../types";
 import { CalendarClock, AlertCircle, Clock, CalendarDays, Calendar, List, PieChart } from "lucide-react";
+import { formatMoney } from "../../utils/format";
 
 interface PaymentsTimelineWidgetProps {
   unpaidPayments: Payment[];
@@ -168,7 +168,6 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   onTogglePaymentStatus,
   onChangeView,
 }: PaymentsTimelineWidgetProps) {
-  const { formatMoney } = useI18n();
   const [viewMode, setViewMode] = useState<"compact" | "monthly">("compact");
   const [range, setRange] = useState<TimelineFilter>("all");
   

@@ -1,10 +1,10 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
+import { formatMoney } from "../utils/format";
 
 interface TransactionsViewProps {
   profile: Profile;
@@ -15,7 +15,6 @@ interface TransactionsViewProps {
 }
 
 export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, onImportTransactions, onBeforeImport }: TransactionsViewProps) {
-  const { formatMoney, currencyPreference } = useI18n();
   const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -236,7 +235,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <div className="hidden sm:block w-px h-6 bg-slate-200"></div>
               
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase font-bold text-slate-500">Kwota ({currencyPreference}):</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500">Kwota ({(profile.currency || "PLN")}):</span>
                 <input
                   type="number"
                   min="0"

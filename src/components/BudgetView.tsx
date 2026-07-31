@@ -1,7 +1,7 @@
-import { useI18n } from "../i18n/I18nProvider";
 import React, { useMemo } from "react";
 import { Profile } from "../types";
 import { iconByCategory, budgetCategories } from "../utils";
+import { formatMoney } from "../utils/format";
 
 interface BudgetViewProps {
   profile: Profile;
@@ -10,7 +10,6 @@ interface BudgetViewProps {
 }
 
 export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetViewProps) {
-  const { formatMoney } = useI18n();
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
 

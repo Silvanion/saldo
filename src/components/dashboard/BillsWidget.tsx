@@ -1,7 +1,7 @@
-import { useI18n } from "../../i18n/I18nProvider";
 import React, { memo } from "react";
 import {} from "../../utils";
 import { Payment } from "../../types";
+import { formatMoney } from "../../utils/format";
 
 interface BillsWidgetProps {
   unpaidPayments: Payment[];
@@ -18,7 +18,6 @@ export const BillsWidget = memo(function BillsWidget({
   onChangeView,
   onOpenPaymentModal
 }: BillsWidgetProps) {
-  const { formatMoney } = useI18n();
   
   const getDueStatus = (dueDateStr: string) => {
     const today = new Date();
