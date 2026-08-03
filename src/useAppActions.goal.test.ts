@@ -12,7 +12,9 @@ describe("Goal Deposit/Withdraw (Real Model A Handler)", () => {
     name: "Model A Profile",
     kind: "personal",
     transactions: [
-      { id: "t1", name: "Wynagrodzenie", amount: 4000, type: "income", category: "Praca", account: "Konto", isoDate: "2026-07-01" }
+      { id: "t1", name: "Wynagrodzenie", amount: 4000, type: "income", category: "Praca", account: "Konto", isoDate: "2026-07-01",
+          currency: "PLN"
+    }
     ],
     payments: [],
     goals: [

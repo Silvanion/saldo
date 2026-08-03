@@ -85,10 +85,12 @@ interface SettingsViewProps {
 
 export function BankAccountsManager({
   accounts,
-  onSaveAccounts
+  onSaveAccounts,
+  currency
 }: {
   accounts: BankAccount[];
   onSaveAccounts: (accounts: BankAccount[]) => void;
+  currency: string;
 }) {
   const [accName, setAccName] = useState("");
   const [accBankName, setAccBankName] = useState("");
@@ -164,7 +166,7 @@ export function BankAccountsManager({
                   </div>
                   {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
-                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit)}</p>
+                    <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
                 <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
@@ -405,7 +407,8 @@ export function SettingsView({
       account: recAccount.trim(),
       frequency: recFrequency,
       nextDueDate: recNextDate,
-      isActive: true
+      isActive: true,
+      currency: activeProfile?.currency || "PLN"
     };
     onSaveRecurringRules([...recurringRules, newRule]);
     setRecName("");
@@ -1415,7 +1418,7 @@ export function SettingsView({
 
       {/* SECTION: BANK ACCOUNTS */}
       {activeProfile && (settingsTab === "all" || settingsTab === "automation") && (
-        <BankAccountsManager accounts={activeProfile.accounts || []} onSaveAccounts={onSaveAccounts} />
+        <BankAccountsManager accounts={activeProfile.accounts || []} onSaveAccounts={onSaveAccounts} currency={activeProfile?.currency || 'PLN'} />
       )}
       {/* SECTION: AUTOMATED CATEGORY RULES */}
       {(settingsTab === "all" || settingsTab === "automation") && (

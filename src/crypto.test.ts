@@ -19,11 +19,12 @@ describe("prepareStateForRemoteSave tests", () => {
       id: "profile-no-pin",
       name: "Profil bez PIN",
       kind: "personal",
-      transactions: [{ id: "tx1", name: "Zakupy", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Jedzenie", account: "Główne" }],
+      currency: "PLN",
+      transactions: [{ id: "tx1", name: "Zakupy", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Jedzenie", account: "Główne", currency: "PLN" }],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {}
+      budgets: {}
     };
 
     const inputState: AppState = {
@@ -52,13 +53,14 @@ describe("prepareStateForRemoteSave tests", () => {
       id: profileId,
       name: "Profil Złoty",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash123",
       salt: "salt123",
-      transactions: [{ id: "tx-secret", name: "Pensja", type: "income", amount: 5000, isoDate: "2026-01-01", category: "Wypłata", account: "Główne" }],
-      payments: [{ id: "p1", name: "Czynsz", amount: 2000, dueDate: "2026-01-10", status: "Do opłacenia" }],
+      transactions: [{ id: "tx-secret", name: "Pensja", type: "income", amount: 5000, isoDate: "2026-01-01", category: "Wypłata", account: "Główne", currency: "PLN" }],
+      payments: [{ id: "p1", name: "Czynsz", amount: 2000, dueDate: "2026-01-10", status: "Do opłacenia", currency: "PLN" }],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {}
+      budgets: {}
     };
 
     const inputState: AppState = {
@@ -89,13 +91,14 @@ describe("prepareStateForRemoteSave tests", () => {
       id: profileId,
       name: "Profil Tajny",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash123",
       salt: "salt123",
-      transactions: [{ id: "tx-secret", name: "Inne", type: "expense", amount: 100, isoDate: "2026-01-01", category: "Inne", account: "Główne" }],
+      transactions: [{ id: "tx-secret", name: "Inne", type: "expense", amount: 100, isoDate: "2026-01-01", category: "Inne", account: "Główne", currency: "PLN" }],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {}
+      budgets: {}
     };
     const encrypted = await encryptProfile(rawProfile, key);
 
@@ -126,13 +129,14 @@ describe("prepareStateForRemoteSave tests", () => {
       id: profileId,
       name: "Zablokowany ale ma plaintext",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash123",
       salt: "salt123",
-      transactions: [{ id: "leak", name: "Tajne", type: "expense", amount: 999, isoDate: "2026-01-01", category: "Tajne", account: "Główne" }],
+      transactions: [{ id: "leak", name: "Tajne", type: "expense", amount: 999, isoDate: "2026-01-01", category: "Tajne", account: "Główne", currency: "PLN" }],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {}
+      budgets: {}
     };
 
     const inputState: AppState = {
@@ -158,14 +162,15 @@ describe("prepareStateForRemoteSave tests", () => {
       id: profileId,
       name: "Pełny Profil",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash999",
       salt: "salt999",
-      transactions: [{ id: "tx1", name: "Zakup", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Inne", account: "Konto" }],
+      transactions: [{ id: "tx1", name: "Zakup", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Inne", account: "Konto", currency: "PLN" }],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {},
-      recurringRules: [{ id: "rr1", name: "Subskrypcja", amount: 29, type: "expense", category: "Rozrywka", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true }],
+      budgets: {},
+      recurringRules: [{ id: "rr1", name: "Subskrypcja", amount: 29, type: "expense", category: "Rozrywka", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true, currency: "PLN" }],
       settlements: [{ id: "s1", amount: 100, isoDate: "2026-01-02", createdAt: "2026-01-02T10:00:00Z" }],
       accounts: [{ id: "a1", name: "Konto Główne", bankName: "Bank", hasCreditLimit: false, creditLimit: 0 }]
     };
@@ -204,14 +209,15 @@ describe("prepareStateForRemoteSave tests", () => {
       id: profileId,
       name: "Profil Zablokowany Reguły",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash888",
       salt: "salt888",
       transactions: [],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: {},
-      recurringRules: [{ id: "rr1", name: "Czynsz", amount: 1500, type: "expense", category: "Dom", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true }]
+      budgets: {},
+      recurringRules: [{ id: "rr1", name: "Czynsz", amount: 1500, type: "expense", category: "Dom", account: "Konto", frequency: "monthly", nextDueDate: "2026-02-01", isActive: true, currency: "PLN" }]
     };
 
     const inputState: AppState = {

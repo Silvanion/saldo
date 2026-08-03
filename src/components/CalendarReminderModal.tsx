@@ -74,8 +74,8 @@ export function CalendarReminderModal({
     setSuccessMsg(null);
     try {
       if (!canUseAiChat) {
-        setSummary(`💸 Płatność: ${p.name} (${p.amount} ${(state?.currencyPreference || "PLN")})`);
-        setDescription(`Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${p.name}\nKwota: ${p.amount} ${(state?.currencyPreference || "PLN")}\nTermin: ${p.dueDate}\n\n[Wygenerowano z aplikacji Saldo]`);
+        setSummary(`💸 Płatność: ${p.name} (${p.amount} ${(p.currency || state?.currencyPreference || "PLN")})`);
+        setDescription(`Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${p.name}\nKwota: ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}\nTermin: ${p.dueDate}\n\n[Wygenerowano z aplikacji Saldo]`);
         setEventDate(p.dueDate || getLocalDateIso());
         setEventTime("10:00");
         setIsLoadingSuggestion(false);
@@ -95,8 +95,8 @@ export function CalendarReminderModal({
       console.error(err);
       setErrorMsg(err instanceof Error ? err.message : "Błąd generowania sugestii AI.");
       // Fallback details
-      setSummary(`Przypomnienie: ${p.name} - ${p.amount} ${(state?.currencyPreference || "PLN")}`);
-      setDescription(`Ureguluj płatność ${p.name} na kwotę ${p.amount} ${(state?.currencyPreference || "PLN")}.`);
+      setSummary(`Przypomnienie: ${p.name} - ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}`);
+      setDescription(`Ureguluj płatność ${p.name} na kwotę ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}.`);
       setEventDate(p.dueDate || getLocalDateIso());
       setEventTime("10:00");
     } finally {

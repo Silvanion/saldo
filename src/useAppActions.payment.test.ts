@@ -20,7 +20,8 @@ describe("Payment status toggling in useAppActions", () => {
           dueDate: "2026-07-20",
           category: "Rachunki",
           paidBy: "me",
-          splitMode: "none"
+          splitMode: "none",
+            currency: "PLN"
         }
       ],
       transactions: [],
@@ -91,11 +92,14 @@ describe("Payment status toggling in useAppActions", () => {
           amount: 150,
           status: "Opłacono",
           dueDate: "2026-07-20",
-          category: "Rachunki"
+          category: "Rachunki",
+            currency: "PLN"
         }
       ],
       transactions: [
-        { id: "tx-old", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20" }
+        { id: "tx-old", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20",
+            currency: "PLN"
+        }
       ],
       goals: [],
       investments: [],
@@ -159,7 +163,8 @@ describe("Payment status toggling in useAppActions", () => {
           amount: 150,
           status: "Do opłacenia",
           dueDate: "2026-07-20",
-          category: "Rachunki"
+          category: "Rachunki",
+            currency: "PLN"
         }
       ],
       transactions: [
@@ -171,7 +176,8 @@ describe("Payment status toggling in useAppActions", () => {
           category: "Rachunki",
           account: "Konto Główne",
           isoDate: "2026-07-20",
-          sourcePaymentId: "pay1"
+          sourcePaymentId: "pay1",
+            currency: "PLN"
         }
       ],
       goals: [],
@@ -268,8 +274,12 @@ describe("Payment status toggling in useAppActions", () => {
       );
 
       const batchToImport = [
-        { id: "tx-csv-1", name: "Zakupy", amount: 100, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20" },
-        { id: "tx-csv-2", name: "Paliwo", amount: 200, type: "expense" as const, category: "Transport", account: "Konto", isoDate: "2026-07-21" }
+        { id: "tx-csv-1", name: "Zakupy", amount: 100, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20",
+            currency: "PLN"
+        },
+        { id: "tx-csv-2", name: "Paliwo", amount: 200, type: "expense" as const, category: "Transport", account: "Konto", isoDate: "2026-07-21",
+            currency: "PLN"
+        }
       ];
 
       // Pierwszy import
@@ -336,8 +346,12 @@ describe("Payment status toggling in useAppActions", () => {
       );
 
       const invalidBatch = [
-        { id: "tx-valid", name: "Kawa", amount: 15, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20" },
-        { id: "tx-nan", name: "Błędna transakcja", amount: NaN, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20" }
+        { id: "tx-valid", name: "Kawa", amount: 15, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20",
+            currency: "PLN"
+        },
+        { id: "tx-nan", name: "Błędna transakcja", amount: NaN, type: "expense" as const, category: "Jedzenie", account: "Konto", isoDate: "2026-07-20",
+            currency: "PLN"
+        }
       ];
 
       act(() => {
@@ -355,8 +369,12 @@ describe("Payment status toggling in useAppActions", () => {
         id: "p1",
         name: "Test",
         kind: "personal",
-        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
-        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN"
+        }],
+        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [],
+            currency: "PLN"
+        }],
         goals: [],
         investments: [],
         currency: "PLN", budgets: {}
@@ -378,8 +396,12 @@ describe("Payment status toggling in useAppActions", () => {
         id: "p1",
         name: "Test",
         kind: "personal",
-        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
-        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [] }],
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN"
+        }],
+        transactions: [{ id: "tx1", name: "Prąd", amount: 150, type: "expense", category: "Rachunki", account: "Konto", isoDate: "2026-07-20", sourcePaymentId: "pay1", tags: [],
+            currency: "PLN"
+        }],
         goals: [],
         investments: [],
         currency: "PLN", budgets: {}
@@ -399,7 +421,9 @@ describe("Payment status toggling in useAppActions", () => {
     it("should delete payment without linked tx normally", () => {
       let currentProfile: Profile = {
         id: "p1", name: "Test", kind: "personal",
-        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN"
+        }],
         transactions: [], goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
@@ -412,8 +436,12 @@ describe("Payment status toggling in useAppActions", () => {
     it("missing linked tx still allows payment delete in payment-and-linked-transaction mode", () => {
       let currentProfile: Profile = {
         id: "p1", name: "Test", kind: "personal",
-        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
-        transactions: [{ id: "tx2", name: "Inne", amount: 100, type: "expense", category: "Inne", account: "Konto", isoDate: "2026-07-20", tags: [] }],
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN"
+        }],
+        transactions: [{ id: "tx2", name: "Inne", amount: 100, type: "expense", category: "Inne", account: "Konto", isoDate: "2026-07-20", tags: [],
+            currency: "PLN"
+        }],
         goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };
@@ -427,7 +455,9 @@ describe("Payment status toggling in useAppActions", () => {
     it("missing payment id results in safe no-op without crash", () => {
       let currentProfile: Profile = {
         id: "p1", name: "Test", kind: "personal",
-        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia" }],
+        payments: [{ id: "pay1", name: "Prąd", amount: 150, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN"
+        }],
         transactions: [], goals: [], investments: [], currency: "PLN", budgets: {}
       };
       const state: AppState = { profiles: [currentProfile], activeProfileId: "p1", schemaVersion: 1, updatedAt: "", lastModifiedBy: "" };

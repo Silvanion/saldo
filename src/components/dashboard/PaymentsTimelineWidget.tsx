@@ -5,6 +5,7 @@ import { CalendarClock, AlertCircle, Clock, CalendarDays, Calendar, List, PieCha
 import { formatMoney } from "../../utils/format";
 
 interface PaymentsTimelineWidgetProps {
+  currency: string;
   unpaidPayments: Payment[];
   onTogglePaymentStatus: (id: string) => void;
   onChangeView: (view: string) => void;
@@ -164,6 +165,7 @@ export function groupPaymentsByTimeline(payments: Payment[]) {
 }
 
 export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
+  currency,
   unpaidPayments,
   onTogglePaymentStatus,
   onChangeView,
@@ -219,7 +221,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
                   <span className="text-[10px] text-slate-500 font-medium">{p.dueDate}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-slate-800">{formatMoney(p.amount)}</span>
+                  <span className="text-sm font-black text-slate-800">{formatMoney(p.amount, currency)}</span>
                   <button
                     onClick={() => onTogglePaymentStatus(p.id)}
                     className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-transparent hover:border-[#137566] hover:bg-[#137566]/10 hover:text-[#137566] transition"
@@ -265,7 +267,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-rose-700">Łączna kwota zaległości:</span>
-              <span className="text-sm font-bold text-rose-900">{formatMoney(overdueSum)}</span>
+              <span className="text-sm font-bold text-rose-900">{formatMoney(overdueSum, currency)}</span>
             </div>
           </div>
         )}
@@ -281,7 +283,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs text-slate-500">Suma kwot:</span>
-            <span className="text-sm font-bold text-slate-700">{formatMoney(sum)}</span>
+            <span className="text-sm font-bold text-slate-700">{formatMoney(sum, currency)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs text-slate-500">Najbliższy termin:</span>
@@ -330,7 +332,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
            <CalendarClock className="w-4 h-4 text-[#137566]" />
            <span className="text-sm font-semibold text-[#137566]">Do zapłaty w tym tygodniu</span>
         </div>
-        <span className="text-sm font-bold text-[#137566]">{formatMoney(dueThisWeekTotal)}</span>
+        <span className="text-sm font-bold text-[#137566]">{formatMoney(dueThisWeekTotal, currency)}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
@@ -352,7 +354,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
                     <span className="text-[10px] font-medium text-slate-500">({activeSummary.count})</span>
                   </div>
                 </div>
-                <span className="text-sm font-bold text-slate-900">{formatMoney(activeSummary.total)}</span>
+                <span className="text-sm font-bold text-slate-900">{formatMoney(activeSummary.total, currency)}</span>
               </div>
               {range === "all" && totalOverdueCountInView > 0 && (
                 <div className="flex items-center gap-1.5 pl-6">

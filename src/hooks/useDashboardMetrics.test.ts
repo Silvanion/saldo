@@ -11,9 +11,15 @@ describe("calculateDashboardMetrics", () => {
       avatar: "",
       accounts: [],
       transactions: [
-        { id: "1", name: "Salary", amount: 5000, type: "income", category: "Wynagrodzenie", account: "A1", isoDate: "2026-07-10" },
-        { id: "2", name: "Groceries", amount: 200, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-07-11" },
-        { id: "3", name: "Old Groceries", amount: 300, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-06-11" }, // outside current month
+        { id: "1", name: "Salary", amount: 5000, type: "income", category: "Wynagrodzenie", account: "A1", isoDate: "2026-07-10",
+            currency: "PLN"
+        },
+        { id: "2", name: "Groceries", amount: 200, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-07-11",
+            currency: "PLN"
+        },
+        { id: "3", name: "Old Groceries", amount: 300, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-06-11",
+            currency: "PLN"
+        }, // outside current month
       ],
       investments: [],
       goals: [],
@@ -42,9 +48,15 @@ describe("calculateDashboardMetrics", () => {
       avatar: "",
       accounts: [],
       transactions: [
-        { id: "1", name: "Safe", amount: 100, type: "expense", category: "Rozrywka", account: "A1", isoDate: "2026-07-10" },
-        { id: "2", name: "Warning", amount: 800, type: "expense", category: "Dom", account: "A1", isoDate: "2026-07-11" },
-        { id: "3", name: "Exceeded", amount: 1500, type: "expense", category: "Samochód", account: "A1", isoDate: "2026-07-12" },
+        { id: "1", name: "Safe", amount: 100, type: "expense", category: "Rozrywka", account: "A1", isoDate: "2026-07-10",
+            currency: "PLN"
+        },
+        { id: "2", name: "Warning", amount: 800, type: "expense", category: "Dom", account: "A1", isoDate: "2026-07-11",
+            currency: "PLN"
+        },
+        { id: "3", name: "Exceeded", amount: 1500, type: "expense", category: "Samochód", account: "A1", isoDate: "2026-07-12",
+            currency: "PLN"
+        },
       ],
       investments: [],
       goals: [],

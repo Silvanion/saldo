@@ -56,7 +56,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plan Kontroli Kosztów</p>
           <h2 className="text-xl font-bold text-slate-900">Budżety miesięczne</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget)}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent)}</strong>.
+            Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget, profile.currency || 'PLN')}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent, profile.currency || 'PLN')}</strong>.
           </p>
         </div>
         <button
@@ -96,9 +96,9 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                   </div>
                   
                   <div className="text-right">
-                    <span className="block text-xs font-bold text-slate-800">{formatMoney(spent)}</span>
+                    <span className="block text-xs font-bold text-slate-800">{formatMoney(spent, profile.currency || 'PLN')}</span>
                     <span className="text-[10px] text-slate-400">
-                      {limit > 0 ? `Limit: ${formatMoney(limit)}` : "brak limitu"}
+                      {limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}
                     </span>
                   </div>
                 </div>
@@ -115,12 +115,12 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
 
                 {isOver && (
                   <p className="text-[11px] text-[#d55e50] font-bold mt-2" id={`alert-budget-over-${category}`}>
-                    Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit)}!
+                    Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit, profile.currency || 'PLN')}!
                   </p>
                 )}
                 {isClose && (
                   <p className="text-[11px] text-amber-600 font-bold mt-2" id={`alert-budget-close-${category}`}>
-                    Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent)}.
+                    Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent, profile.currency || 'PLN')}.
                   </p>
                 )}
               </div>
@@ -135,7 +135,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                     {catTransactions.slice(0, 3).map((t) => (
                       <div key={t.id} className="flex justify-between items-center text-xs">
                         <span className="text-slate-600 truncate max-w-[150px]">{t.name}</span>
-                        <span className="font-bold text-slate-700">{formatMoney(t.amount)}</span>
+                        <span className="font-bold text-slate-700">{formatMoney(t.amount, profile.currency || 'PLN')}</span>
                       </div>
                     ))}
                   </div>

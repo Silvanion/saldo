@@ -23,8 +23,9 @@ describe("useAppActions - handleUpdateTransaction", () => {
             isoDate: "2024-05-15",
             sourcePaymentId: "pay-1",
             isRecurring: true,
-            recurringRuleId: "rule-1"
-          }
+            recurringRuleId: "rule-1",
+              currency: "PLN"
+        }
         ],
         payments: [],
         goals: [],
@@ -62,8 +63,9 @@ describe("useAppActions - handleUpdateTransaction", () => {
       result.current.handleUpdateTransaction("tx-1", {
         name: "Biedronka",
         amount: 150,
-        category: "Zakupy"
-      });
+        category: "Zakupy",
+          currency: "PLN"
+    });
     });
 
     expect(saveState).toHaveBeenCalled();

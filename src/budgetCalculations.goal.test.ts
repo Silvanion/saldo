@@ -8,8 +8,12 @@ describe("PROMPT 5 - Jeden spójny model celów i salda (Model A)", () => {
     name: "Model A Profile",
     kind: "personal",
     transactions: [
-      { id: "t1", name: "Wypłata", amount: 4000, type: "income", category: "Wynagrodzenie", account: "Konto", isoDate: "2026-07-01" },
-      { id: "t2", name: "Czynsz", amount: 1000, type: "expense", category: "Opłaty", account: "Konto", isoDate: "2026-07-02" }
+      { id: "t1", name: "Wypłata", amount: 4000, type: "income", category: "Wynagrodzenie", account: "Konto", isoDate: "2026-07-01",
+          currency: "PLN"
+    },
+      { id: "t2", name: "Czynsz", amount: 1000, type: "expense", category: "Opłaty", account: "Konto", isoDate: "2026-07-02",
+          currency: "PLN"
+    }
     ],
     payments: [],
     goals: [

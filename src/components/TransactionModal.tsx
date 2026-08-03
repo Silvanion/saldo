@@ -36,6 +36,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
   
   const [paidBy, setPaidBy] = useState<"me" | "partner" | "joint">("me");
   const [splitMode, setSplitMode] = useState<"none" | "equal">("equal");
+  const [currency, setCurrency] = useState<import("../types").SupportedCurrency>("PLN");
   
   useEffect(() => {
     if (type === "income") {
@@ -59,8 +60,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         setAccount(initialData.account);
         setDate(initialData.isoDate);
         setTags(initialData.tags || []);
-        if (initialData.paidBy) setPaidBy(initialData.paidBy);
-        if (initialData.splitMode) setSplitMode(initialData.splitMode);
+        if (activeProfile?.kind === "shared" && "paidBy" in initialData) {
+          setPaidBy(initialData.paidBy as "me" | "partner" | "joint" || "me");
+          setSplitMode(initialData.splitMode as "none" | "equal" || "equal");
+        }
+        setCurrency(initialData.currency || activeProfile?.currency || "PLN");
       } else {
         // defaults
         setType("expense");
@@ -71,9 +75,10 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         setTags([]);
         setPaidBy("me");
         setSplitMode("equal");
+        setCurrency(activeProfile?.currency || "PLN");
       }
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, activeProfile]);
 
   useEffect(() => {
     if (isEditing && initialData.category) return; // Do not override if editing
@@ -88,11 +93,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     const numAmt = parseFloat(amount.replace(",", "."));
     if (isNaN(numAmt) || numAmt <= 0 || !name || !date) return null;
     const res = checkDuplicate(
-      { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags },
+      { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags, currency },
       activeProfile?.transactions || []
     );
     return res.isLikelyDuplicate ? res : null;
-  }, [name, amount, type, date, category, activeProfile, isOpen]);
+  }, [name, amount, type, date, category, currency, activeProfile, isOpen]);
 
   if (!isOpen) return null;
 
@@ -129,7 +134,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     const numAmt = parseFloat(amount.replace(",", "."));
     if (isNaN(numAmt) || numAmt <= 0) return;
     setIsSubmitting(true);
-    const payload: any = { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags };
+    const payload: any = { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags, currency };
     if (activeProfile?.kind === "shared") {
       payload.paidBy = paidBy;
       payload.splitMode = splitMode;
@@ -146,6 +151,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     setTagInput("");
     setPaidBy("me");
     setSplitMode("equal");
+    setCurrency(activeProfile?.currency || "PLN");
   };
 
   const categories = type === "income" ? incomeCategories : expenseCategories;
@@ -202,19 +208,34 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             </button>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota (zł)</label>
-            <input
-              required
-              type="number"
-              min="0.01"
-              step="0.01"
-              placeholder="0,00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
-              id="input-tx-amount"
-            />
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota</label>
+              <input
+                required
+                type="number"
+                min="0.01"
+                step="0.01"
+                placeholder="0,00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+                id="input-tx-amount"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Waluta</label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as any)}
+                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
+              >
+                <option value="PLN">PLN</option>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
           </div>
 
           <div>

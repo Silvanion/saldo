@@ -510,7 +510,7 @@ import { formatMoney } from "../utils/format";
                         </td>
                         <td className="py-2 px-3 text-slate-500">{tx.account}</td>
                         <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {tx.type === "income" ? "+" : "-"} {tx.amount.toFixed(2)} {(state?.currencyPreference || "PLN")}
+                          {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || state?.currencyPreference || "PLN")}
                         </td>
                       </tr>
                     ))}

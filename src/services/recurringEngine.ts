@@ -47,7 +47,8 @@ export function applyRecurringRules(
           isRecurring: true,
           recurringRuleId: currentRule.id,
           paidBy: currentRule.paidBy,
-          splitMode: splitMode
+          splitMode: splitMode,
+          currency: currentRule.currency
         };
         generatedTransactions.push(newTx);
       }

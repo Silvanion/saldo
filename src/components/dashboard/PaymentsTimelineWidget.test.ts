@@ -14,12 +14,24 @@ describe('groupPaymentsByTimeline', () => {
 
   it('groups payments correctly including next 30 days and ignores missing dueDate', () => {
     const payments: Payment[] = [
-      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20' }, // overdue (-5 days)
-      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25' }, // today (0 days)
-      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30' }, // next7Days (5 days)
-      { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09' }, // next30Days (15 days)
-      { id: '5', name: 'Później', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-01' }, // later (> 30 days)
-      { id: '6', name: 'Brak daty', amount: 600, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '' }, // ignored
+      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20',
+          currency: "PLN"
+    }, // overdue (-5 days)
+      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25',
+          currency: "PLN"
+    }, // today (0 days)
+      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30',
+          currency: "PLN"
+    }, // next7Days (5 days)
+      { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09',
+          currency: "PLN"
+    }, // next30Days (15 days)
+      { id: '5', name: 'Później', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-01',
+          currency: "PLN"
+    }, // later (> 30 days)
+      { id: '6', name: 'Brak daty', amount: 600, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '',
+          currency: "PLN"
+    }, // ignored
     ];
 
     const result = groupPaymentsByTimeline(payments);
@@ -48,8 +60,12 @@ describe('groupPaymentsByTimeline', () => {
 
   it('sorts payments by dueDate ascending', () => {
     const payments: Payment[] = [
-      { id: '1', name: 'Later 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-05' },
-      { id: '2', name: 'Later 2', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-02' },
+      { id: '1', name: 'Later 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-05',
+          currency: "PLN"
+    },
+      { id: '2', name: 'Later 2', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-02',
+          currency: "PLN"
+    },
     ];
 
     const result = groupPaymentsByTimeline(payments);
@@ -70,12 +86,24 @@ describe('filterPaymentsByRange', () => {
   });
 
   const payments: Payment[] = [
-    { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20' }, // overdue (-5)
-    { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25' }, // today (0)
-    { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30' }, // week (5)
-    { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09' }, // month (15)
-    { id: '5', name: 'Za 40 dni', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-03' }, // > 30 (40)
-    { id: '6', name: 'Brak daty', amount: 600, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '' }, // no date
+    { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20',
+        currency: "PLN"
+    }, // overdue (-5)
+    { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25',
+        currency: "PLN"
+    }, // today (0)
+    { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30',
+        currency: "PLN"
+    }, // week (5)
+    { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09',
+        currency: "PLN"
+    }, // month (15)
+    { id: '5', name: 'Za 40 dni', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-03',
+        currency: "PLN"
+    }, // > 30 (40)
+    { id: '6', name: 'Brak daty', amount: 600, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '',
+        currency: "PLN"
+    }, // no date
   ];
 
   it('all range preserves all payments', () => {
@@ -114,11 +142,21 @@ describe('getActiveSummary', () => {
 
   it('calculates count and total amount correctly from filtered list', () => {
     const payments: Payment[] = [
-      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20' }, // overdue
-      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25' }, // week
-      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30' }, // week
-      { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09' }, // month
-      { id: '5', name: 'Brak daty', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '' }, // no date
+      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20',
+          currency: "PLN"
+    }, // overdue
+      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25',
+          currency: "PLN"
+    }, // week
+      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30',
+          currency: "PLN"
+    }, // week
+      { id: '4', name: 'Za 15 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-09',
+          currency: "PLN"
+    }, // month
+      { id: '5', name: 'Brak daty', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '',
+          currency: "PLN"
+    }, // no date
     ];
     
     // Simulate what the component does: filter then get active summary
@@ -190,12 +228,24 @@ describe('getDueThisWeekTotal', () => {
 
   it('calculates the total amount of payments due within the next 7 days (including today)', () => {
     const payments: Payment[] = [
-      { id: '1', amount: 100, dueDate: '2026-07-20' }, // overdue
-      { id: '2', amount: 200, dueDate: '2026-07-24' }, // overdue
-      { id: '3', amount: 300, dueDate: '2026-07-25' }, // today
-      { id: '4', amount: 400, dueDate: '2026-07-30' }, // 5 days
-      { id: '5', amount: 500, dueDate: '2026-08-05' }, // > 6 days
-      { id: '6', amount: 600, dueDate: '' }, // no date
+      { id: '1', amount: 100, dueDate: '2026-07-20',
+          currency: "PLN"
+    }, // overdue
+      { id: '2', amount: 200, dueDate: '2026-07-24',
+          currency: "PLN"
+    }, // overdue
+      { id: '3', amount: 300, dueDate: '2026-07-25',
+          currency: "PLN"
+    }, // today
+      { id: '4', amount: 400, dueDate: '2026-07-30',
+          currency: "PLN"
+    }, // 5 days
+      { id: '5', amount: 500, dueDate: '2026-08-05',
+          currency: "PLN"
+    }, // > 6 days
+      { id: '6', amount: 600, dueDate: '',
+          currency: "PLN"
+    }, // no date
     ] as Payment[];
 
     // Only '3' and '4' are due this week (>= 0 and <= 6 days).

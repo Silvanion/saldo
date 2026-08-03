@@ -20,7 +20,7 @@ function isRuleLike(val: unknown): val is RawRule {
   );
 }
 
-function normalizeRecurringRule(raw: RawRule): RecurringRule {
+function normalizeRecurringRule(raw: RawRule, defaultCurrency: import("../types").SupportedCurrency): RecurringRule {
   const obj = raw as Record<string, unknown>;
   const freq = String(obj.frequency || "monthly");
   const validFreq: RecurringRule["frequency"] = ["weekly", "biweekly", "monthly", "quarterly", "yearly"].includes(freq)
@@ -47,7 +47,8 @@ function normalizeRecurringRule(raw: RawRule): RecurringRule {
     ...(Array.isArray(obj.tags) ? { tags: obj.tags.map(String) } : {}),
     isActive: typeof obj.isActive === "boolean" ? obj.isActive : true,
     ...(obj.paidBy === "me" || obj.paidBy === "partner" || obj.paidBy === "joint" ? { paidBy: obj.paidBy } : {}),
-    ...(obj.splitMode === "none" || obj.splitMode === "equal" ? { splitMode: obj.splitMode } : {})
+    ...(obj.splitMode === "none" || obj.splitMode === "equal" ? { splitMode: obj.splitMode } : {}),
+    currency: (typeof obj.currency === "string" ? obj.currency : defaultCurrency) as import("../types").SupportedCurrency
   };
 }
 
@@ -113,12 +114,12 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
       salt: profileObj.salt ? String(profileObj.salt) : undefined,
       encryptedPayload: profileObj.encryptedPayload ? String(profileObj.encryptedPayload) : undefined,
       accounts: Array.isArray(profileObj.accounts) ? profileObj.accounts : [],
-      transactions: Array.isArray(profileObj.transactions) ? profileObj.transactions : [],
-      payments: Array.isArray(profileObj.payments) ? profileObj.payments : [],
+      transactions: Array.isArray(profileObj.transactions) ? profileObj.transactions.map((t: any) => ({ ...t, currency: t.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) })) : [],
+      payments: Array.isArray(profileObj.payments) ? profileObj.payments.map((p: any) => ({ ...p, currency: p.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) })) : [],
       goals: Array.isArray(profileObj.goals) ? profileObj.goals : [],
       investments: Array.isArray(profileObj.investments) ? profileObj.investments : [],
       budgets: profileObj.budgets && typeof profileObj.budgets === "object" ? (profileObj.budgets as Record<string, number>) : {},
-      recurringRules: rawRecurring.filter(isRuleLike).map(normalizeRecurringRule),
+      recurringRules: rawRecurring.filter(isRuleLike).map((r) => normalizeRecurringRule(r, (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) as import("../types").SupportedCurrency)),
       transactionRules: rawTx.filter(isRuleLike).map((r) => {
         const clean = normalizeTransactionRule(r);
         delete clean.profileId;
@@ -164,7 +165,7 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
       const targetProfile = findTargetProfile(ruleProfileId, originalActiveProfileId, migrated.profiles);
 
       if (targetProfile) {
-        const cleanRule = normalizeRecurringRule(rawRule);
+        const cleanRule = normalizeRecurringRule(rawRule, targetProfile.currency);
         if (!targetProfile.recurringRules) {
           targetProfile.recurringRules = [];
         }
@@ -173,7 +174,7 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
           targetProfile.recurringRules.push(cleanRule);
         }
       } else {
-        const cleanUnmigrated = normalizeRecurringRule(rawRule);
+        const cleanUnmigrated = normalizeRecurringRule(rawRule, (data.currencyPreference ?? "PLN") as import("../types").SupportedCurrency);
         if (ruleProfileId) {
           (cleanUnmigrated as RecurringRule & { profileId?: string }).profileId = ruleProfileId;
         }

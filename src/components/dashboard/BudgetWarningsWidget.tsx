@@ -4,6 +4,7 @@ import { BudgetWarning } from "../../services/budgetCalculations";
 import { formatMoney } from "../../utils/format";
 
 interface BudgetWarningsWidgetProps {
+  currency: string;
   totalPlannedBudget: number;
   totalActualSpentInBudget: number;
   budgetWarnings: BudgetWarning[];
@@ -12,6 +13,7 @@ interface BudgetWarningsWidgetProps {
 }
 
 export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
+  currency,
   totalPlannedBudget,
   totalActualSpentInBudget,
   budgetWarnings,
@@ -41,7 +43,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
       <div className="mb-4">
         <div className="flex justify-between items-end mb-1">
           <span className="text-xs font-bold text-slate-700">Całkowity budżet</span>
-          <span className="text-xs font-bold text-slate-900">{formatMoney(totalActualSpentInBudget)} <span className="text-slate-400 font-normal">/ {formatMoney(totalPlannedBudget)}</span></span>
+          <span className="text-xs font-bold text-slate-900">{formatMoney(totalActualSpentInBudget, currency)} <span className="text-slate-400 font-normal">/ {formatMoney(totalPlannedBudget, currency)}</span></span>
         </div>
         <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
           <div 
@@ -83,8 +85,8 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium px-0.5">
-                    <span>{formatMoney(w.spent)}</span>
-                    <span>Limit: {formatMoney(w.limit)}</span>
+                    <span>{formatMoney(w.spent, currency)}</span>
+                    <span>Limit: {formatMoney(w.limit, currency)}</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div 

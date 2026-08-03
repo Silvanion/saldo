@@ -44,7 +44,7 @@ export function resolveCurrency(
   return itemCurrency ?? profileCurrency ?? appCurrency ?? "PLN";
 }
 
-export function formatMoney(value: number, currency: string = "PLN") {
+export function formatMoney(value: number, currency: string) {
   return new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: currency,

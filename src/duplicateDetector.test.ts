@@ -11,7 +11,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     },
     {
       id: "t2",
@@ -20,7 +21,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Wpływy",
       account: "Główne",
       type: "income",
-      isoDate: "2026-07-10"
+      isoDate: "2026-07-10",
+        currency: "PLN"
     }
   ];
 
@@ -31,7 +33,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(true);
     expect(res.confidence).toBe("high");
@@ -45,7 +48,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-21"
+      isoDate: "2026-07-21",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(true);
     expect(res.confidence).toBe("high");
@@ -59,7 +63,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-22"
+      isoDate: "2026-07-22",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(false);
   });
@@ -71,7 +76,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Transport",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(false);
   });
@@ -83,7 +89,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(false);
   });
@@ -95,7 +102,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(true);
     expect(res.confidence).toBe("high");
@@ -108,7 +116,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "expense",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(true);
     expect(res.confidence).toBe("medium");
@@ -121,7 +130,8 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
       category: "Żywność",
       account: "Główne",
       type: "income",
-      isoDate: "2026-07-20"
+      isoDate: "2026-07-20",
+        currency: "PLN"
     }, existing);
     expect(res.isLikelyDuplicate).toBe(false);
   });
@@ -129,14 +139,28 @@ describe("KROK 8E - Wykrywanie duplikatów transakcji", () => {
 
   it("import z trzema duplikatami i dwoma poprawnymi wpisami", () => {
     const importData: Omit<Transaction, "id">[] = [
-      { name: "Zakupy Biedronka", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-20" }, // dup
-      { name: "Kino", amount: 40, category: "Rozrywka", account: "Główne", type: "expense", isoDate: "2026-07-21" }, // new
-      { name: "Wynagrodzenie", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10" }, // dup
-      { name: "Biedronka zakupy", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-19" }, // dup (1 dzień)
-      { name: "Restauracja", amount: 120, category: "Jedzenie", account: "Główne", type: "expense", isoDate: "2026-07-20" } // new
+      { name: "Zakupy Biedronka", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-20",
+          currency: "PLN"
+    }, // dup
+      { name: "Kino", amount: 40, category: "Rozrywka", account: "Główne", type: "expense", isoDate: "2026-07-21",
+          currency: "PLN"
+    }, // new
+      { name: "Wynagrodzenie", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10",
+          currency: "PLN"
+    }, // dup
+      { name: "Biedronka zakupy", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-19",
+          currency: "PLN"
+    }, // dup (1 dzień)
+      { name: "Restauracja", amount: 120, category: "Jedzenie", account: "Główne", type: "expense", isoDate: "2026-07-20",
+          currency: "PLN"
+    } // new
     ];
 
-    const results = importData.map(tx => checkDuplicate(tx, [{ id: "t1", name: "Zakupy Biedronka", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-20" }, { id: "t2", name: "Wynagrodzenie", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10" }]));
+    const results = importData.map(tx => checkDuplicate(tx, [{ id: "t1", name: "Zakupy Biedronka", amount: 150.50, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-20",
+        currency: "PLN"
+    }, { id: "t2", name: "Wynagrodzenie", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10",
+        currency: "PLN"
+    }]));
     const duplicates = results.filter(r => r.isLikelyDuplicate);
     const valid = results.filter(r => !r.isLikelyDuplicate);
 

@@ -4,6 +4,7 @@ import { Payment } from "../../types";
 import { formatMoney } from "../../utils/format";
 
 interface BillsWidgetProps {
+  currency: string;
   unpaidPayments: Payment[];
   urgentPaymentsCount: number;
   onTogglePaymentStatus: (id: string) => void;
@@ -12,6 +13,7 @@ interface BillsWidgetProps {
 }
 
 export const BillsWidget = memo(function BillsWidget({
+  currency,
   unpaidPayments,
   urgentPaymentsCount,
   onTogglePaymentStatus,
@@ -120,7 +122,7 @@ export const BillsWidget = memo(function BillsWidget({
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-2">
-                  <p className="text-sm font-black text-slate-800">{formatMoney(p.amount)}</p>
+                  <p className="text-sm font-black text-slate-800">{formatMoney(p.amount, p.currency || currency)}</p>
                 </div>
               </div>
             ))}

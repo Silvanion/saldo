@@ -5,12 +5,13 @@ import { getLocalDateIso } from "../utils";
 import { formatMoney } from "../utils/format";
 
 interface SuggestedPaymentsPanelProps {
+  currency: string;
   payments: Payment[];
   selectedDate: Date;
   onAddPayment: (payment: any) => void;
 }
 
-export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment }: SuggestedPaymentsPanelProps) {
+export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment, currency }: SuggestedPaymentsPanelProps) {
   const currentMonthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
   const currentMonthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
@@ -78,7 +79,7 @@ export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment }:
             <div key={`sugg-${sp.id}`} className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm hover:border-slate-300 transition">
               <h4 className="text-sm font-bold text-slate-800">{sp.name}</h4>
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-slate-500">{formatMoney(sp.amount)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('"pl-PL"', {day:'numeric', month:'short'})}</span></span>
+                <span className="text-xs text-slate-500">{formatMoney(sp.amount, sp.currency || currency)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
                 <button
                   onClick={() => handleAddSuggestedPayment(sp)}
                   className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-1.5 rounded-xl text-xs font-semibold transition"

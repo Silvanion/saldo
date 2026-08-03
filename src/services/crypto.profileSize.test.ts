@@ -8,7 +8,9 @@ describe("estimateProfileSizes", () => {
       id: "p-small",
       name: "Small",
       kind: "personal",
-      transactions: [{ id: "t1", name: "Zakup", amount: 10, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-01" }],
+      transactions: [{ id: "t1", name: "Zakup", amount: 10, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-01",
+          currency: "PLN"
+    }],
       payments: [],
       goals: [],
       investments: [],
@@ -20,10 +22,18 @@ describe("estimateProfileSizes", () => {
       id: "p-large",
       name: "Large",
       transactions: [
-        { id: "t1", name: "Zakup", amount: 10, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-01" },
-        { id: "t2", name: "Zakup 2", amount: 20, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-02" },
-        { id: "t3", name: "Zakup 3", amount: 30, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-03" },
-        { id: "t4", name: "Bardzo długi tekst transakcji aby zwiększyć rozmiar payloadu", amount: 100, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-04" }
+        { id: "t1", name: "Zakup", amount: 10, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-01",
+            currency: "PLN"
+        },
+        { id: "t2", name: "Zakup 2", amount: 20, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-02",
+            currency: "PLN"
+        },
+        { id: "t3", name: "Zakup 3", amount: 30, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-03",
+            currency: "PLN"
+        },
+        { id: "t4", name: "Bardzo długi tekst transakcji aby zwiększyć rozmiar payloadu", amount: 100, type: "expense", category: "Inne", account: "Gotówka", isoDate: "2023-01-04",
+            currency: "PLN"
+        }
       ]
     };
 

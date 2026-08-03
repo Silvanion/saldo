@@ -64,20 +64,20 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   let bgColor = "bg-slate-50 border-slate-200/60";
 
   if (historyNet > 0) {
-    statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet)}`;
+    statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet, profile?.currency || 'PLN')}`;
     statusColor = "text-emerald-700";
     bgColor = "bg-emerald-50/70 border-emerald-200/60";
   } else if (historyNet < 0) {
-    statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet))}`;
+    statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet), profile?.currency || 'PLN')}`;
     statusColor = "text-rose-700";
     bgColor = "bg-rose-50/70 border-rose-200/60";
   }
 
   let upcomingText = "";
   if (upcomingNet > 0) {
-    upcomingText = `Dodatkowo z nieopłaconych rachunków: ${partnerName} będzie Ci winien ${formatMoney(upcomingNet)}`;
+    upcomingText = `Dodatkowo z nieopłaconych rachunków: ${partnerName} będzie Ci winien ${formatMoney(upcomingNet, profile?.currency || 'PLN')}`;
   } else if (upcomingNet < 0) {
-    upcomingText = `Dodatkowo z nieopłaconych rachunków: będziesz winien ${partnerName} ${formatMoney(Math.abs(upcomingNet))}`;
+    upcomingText = `Dodatkowo z nieopłaconych rachunków: będziesz winien ${partnerName} ${formatMoney(Math.abs(upcomingNet), profile?.currency || 'PLN')}`;
   }
 
   const settlementsList: SettlementEntry[] = profile.settlements || [];
@@ -151,7 +151,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`font-bold ${isPartnerPaid ? 'text-emerald-600' : 'text-blue-600'}`}>
-                      {isPartnerPaid ? `+${formatMoney(s.amount)}` : `-${formatMoney(Math.abs(s.amount))}`}
+                      {isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}
                     </span>
                     {onDeleteSettlement && (
                       <button

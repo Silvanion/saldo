@@ -350,7 +350,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       </td>
                       <td className="py-3 px-2 text-xs text-slate-500">{tx.account}</td>
                       <td className={`py-3 px-2 text-sm font-bold text-right whitespace-nowrap ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                        {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount)}
+                        {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                       </td>
                       <td className="py-3 px-2 text-center">
                         <div className="flex items-center justify-center gap-1">
@@ -406,7 +406,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       </div>
                     </div>
                     <span className={`text-sm font-black whitespace-nowrap ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                      {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount)}
+                      {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                     </span>
                   </div>
 
@@ -478,7 +478,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
       </div>
 
       {/* Tags Reporting Panel */}
-      <TransactionsTagsAnalysis
+      <TransactionsTagsAnalysis currency={profile.currency}
         transactions={profile.transactions}
         selectedTag={selectedTag}
         onSelectTag={setSelectedTag}
@@ -520,7 +520,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-bold text-slate-900">{transactionToDelete.name}</span>
                   <span className={`font-bold ${transactionToDelete.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
-                    {transactionToDelete.type === "income" ? "+" : "-"} {formatMoney(transactionToDelete.amount)}
+                    {transactionToDelete.type === "income" ? "+" : "-"} {formatMoney(transactionToDelete.amount, transactionToDelete.currency || profile?.currency || 'PLN')}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">

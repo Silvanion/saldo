@@ -60,8 +60,12 @@ describe("validateAndMigrateState", () => {
         { id: "p2", name: "P2", kind: "personal" }
       ],
       recurringRules: [
-        { id: "r1", name: "Rule 1", amount: 100, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true },
-        { id: "r2", name: "Rule 2", amount: 200, type: "income", category: "Salary", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r1", name: "Rule 1", amount: 100, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        },
+        { id: "r2", name: "Rule 2", amount: 200, type: "income", category: "Salary", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -86,7 +90,9 @@ describe("validateAndMigrateState", () => {
         { id: "p2", name: "P2", kind: "personal" }
       ],
       recurringRules: [
-        { id: "r1", name: "Rule for P2", profileId: "p2", amount: 50, type: "expense", category: "Fun", account: "Card", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r1", name: "Rule for P2", profileId: "p2", amount: 50, type: "expense", category: "Fun", account: "Card", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -111,7 +117,9 @@ describe("validateAndMigrateState", () => {
         { id: "p2", name: "P2", kind: "personal" }
       ],
       recurringRules: [
-        { id: "r1", name: "Missing Profile Rule", profileId: "missing", amount: 50, type: "expense", category: "Fun", account: "Card", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r1", name: "Missing Profile Rule", profileId: "missing", amount: 50, type: "expense", category: "Fun", account: "Card", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -135,7 +143,9 @@ describe("validateAndMigrateState", () => {
         { id: "p2", name: "P2", kind: "personal" }
       ],
       recurringRules: [
-        { id: "r1", name: "Rule for Active Profile", amount: 120, type: "expense", category: "Bills", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r1", name: "Rule for Active Profile", amount: 120, type: "expense", category: "Bills", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -157,7 +167,9 @@ describe("validateAndMigrateState", () => {
         { id: "p1", name: "Only Profile", kind: "personal" }
       ],
       recurringRules: [
-        { id: "r1", name: "Single Profile Rule", amount: 100, type: "expense", category: "General", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r1", name: "Single Profile Rule", amount: 100, type: "expense", category: "General", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -174,11 +186,15 @@ describe("validateAndMigrateState", () => {
     const rawState = {
       activeProfileId: "p1",
       profiles: [
-        { id: "p1", name: "Main", kind: "personal", recurringRules: [{ id: "r1", name: "Existing", amount: 10, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }] }
+        { id: "p1", name: "Main", kind: "personal", recurringRules: [{ id: "r1", name: "Existing", amount: 10, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }] }
       ],
       recurringRules: [
         { id: "r1", name: "Existing" },
-        { id: "r2", name: "New", amount: 20, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "r2", name: "New", amount: 20, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -210,7 +226,9 @@ describe("validateAndMigrateState", () => {
         {},
         { id: "" },
         { id: "   " },
-        { id: "valid-x", name: "Valid Rule", amount: 200, type: "income", category: "Bonus", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true }
+        { id: "valid-x", name: "Valid Rule", amount: 200, type: "income", category: "Bonus", account: "Bank", frequency: "monthly", nextDueDate: "2026-08-01", isActive: true,
+            currency: "PLN"
+        }
       ]
     };
 
@@ -228,8 +246,12 @@ describe("validateAndMigrateState", () => {
       activeProfileId: "p1",
       profiles: [{ id: "p1", name: "P1", kind: "personal" }],
       recurringRules: [
-        { id: "r-no-date", name: "No Date Rule", amount: 100, type: "expense", category: "Food", account: "Cash", frequency: "monthly" },
-        { id: "r-invalid-date", name: "Invalid Date Rule", amount: 50, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "invalid-date" }
+        { id: "r-no-date", name: "No Date Rule", amount: 100, type: "expense", category: "Food", account: "Cash", frequency: "monthly",
+            currency: "PLN"
+        },
+        { id: "r-invalid-date", name: "Invalid Date Rule", amount: 50, type: "expense", category: "Food", account: "Cash", frequency: "monthly", nextDueDate: "invalid-date",
+            currency: "PLN"
+        }
       ]
     };
 
@@ -537,7 +559,9 @@ describe("saveState — Firestore size limit handling", () => {
     const hugeState = {
       profiles: [{
         id: "p1", name: "Huge Profile", kind: "personal",
-        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_HARD_LIMIT_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
+        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_HARD_LIMIT_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01",
+            currency: "PLN"
+        }],
         payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
       }]
     };
@@ -561,7 +585,9 @@ describe("saveState — Firestore size limit handling", () => {
     const warningState = {
       profiles: [{
         id: "p1", name: "Warning Profile", kind: "personal",
-        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_WARNING_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01" }],
+        transactions: [{ id: "t1", name: "x".repeat(cryptoModule.FIRESTORE_DOC_WARNING_BYTES + 100), amount: 10, type: "expense", category: "Test", account: "Test", isoDate: "2026-01-01",
+            currency: "PLN"
+        }],
         payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
       }]
     };

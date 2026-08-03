@@ -118,7 +118,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "success",
           title: "Świetna stopa oszczędności!",
-          desc: `Oszczędzasz obecnie ${savingsRate}% swoich dochodów (${formatMoney(savings)}). To powyżej zalecanego minimum 15%!`
+          desc: `Oszczędzasz obecnie ${savingsRate}% swoich dochodów (${formatMoney(savings, profile.currency || 'PLN')}). To powyżej zalecanego minimum 15%!`
         });
       } else if (savingsRate > 0 && savingsRate < 20) {
         insights.push({
@@ -130,7 +130,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "warning",
           title: "Deficyt budżetowy",
-          desc: `Twoje wydatki w tym miesiącu przewyższyły przychody o ${formatMoney(Math.abs(savings))}. Przejrzyj kategorie Rozrywka i Inne, aby znaleźć oszczędności.`
+          desc: `Twoje wydatki w tym miesiącu przewyższyły przychody o ${formatMoney(Math.abs(savings), profile.currency || 'PLN')}. Przejrzyj kategorie Rozrywka i Inne, aby znaleźć oszczędności.`
         });
       }
     } else {
@@ -147,7 +147,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
       insights.push({
         type: "info",
         title: `Największy wydatek: ${topCategory.name}`,
-        desc: `Kategoria "${topCategory.name}" stanowi ${topCategory.pctOfExpense}% wszystkich Twoich wydatków w tym miesiącu (${formatMoney(topCategory.spent)}).`
+        desc: `Kategoria "${topCategory.name}" stanowi ${topCategory.pctOfExpense}% wszystkich Twoich wydatków w tym miesiącu (${formatMoney(topCategory.spent, profile.currency || 'PLN')}).`
       });
     }
 
@@ -157,7 +157,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         insights.push({
           type: "warning",
           title: "Wzrost wydatków",
-          desc: `Wydałeś w tym miesiącu o ${expenseChange}% więcej niż w zeszłym (${formatMoney(totalExpense)} vs ${formatMoney(lastMonthExpense)}). Zwróć uwagę na rosnące koszty.`
+          desc: `Wydałeś w tym miesiącu o ${expenseChange}% więcej niż w zeszłym (${formatMoney(totalExpense, profile.currency || 'PLN')} vs ${formatMoney(lastMonthExpense, profile.currency || 'PLN')}). Zwróć uwagę na rosnące koszty.`
         });
       } else if (expenseChange < -5) {
         insights.push({
@@ -215,16 +215,16 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Przychody</p>
-                <p className="text-sm font-bold text-emerald-600">{formatMoney(monthlyDigest.totalIncome)}</p>
+                <p className="text-sm font-bold text-emerald-600">{formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Wydatki</p>
-                <p className="text-sm font-bold text-rose-600">{formatMoney(monthlyDigest.totalExpenses)}</p>
+                <p className="text-sm font-bold text-rose-600">{formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
                 <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Bilans</p>
                 <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                  {formatMoney(monthlyDigest.balance)}
+                  {formatMoney(monthlyDigest.balance, profile.currency || 'PLN')}
                 </p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
@@ -350,10 +350,10 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                     </div>
                     <div className="text-right">
                       <strong className={hasLimit && limitPct > 100 ? "text-rose-600" : "text-slate-700"}>
-                        {formatMoney(cat.spent)}
+                        {formatMoney(cat.spent, profile.currency || 'PLN')}
                       </strong>
                       <span className="text-slate-400 ml-1">
-                        {hasLimit ? `z ${formatMoney(cat.limit)}` : `(${cat.pctOfExpense}%)`}
+                        {hasLimit ? `z ${formatMoney(cat.limit, profile.currency || 'PLN')}` : `(${cat.pctOfExpense}%)`}
                       </span>
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                   {savingsRate}%
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Zabezpieczasz <strong>{formatMoney(savings)}</strong> z miesięcznych przychodów rzędu <strong>{formatMoney(totalIncome)}</strong>.
+                  Zabezpieczasz <strong>{formatMoney(savings, profile.currency || 'PLN')}</strong> z miesięcznych przychodów rzędu <strong>{formatMoney(totalIncome, profile.currency || 'PLN')}</strong>.
                 </p>
               </div>
             </div>

@@ -20,7 +20,7 @@ export interface Transaction {
   sourcePaymentId?: string;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
-  currency?: SupportedCurrency;
+  currency: SupportedCurrency;
 }
 
 export interface Payment {
@@ -34,7 +34,7 @@ export interface Payment {
   recurringRuleId?: string;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
-  currency?: SupportedCurrency;
+  currency: SupportedCurrency;
 }
 
 export interface Goal {
@@ -44,6 +44,7 @@ export interface Goal {
   saved: number;
   transfers?: SavingsTransfer[]; // Historia wpłat/wypłat
   targetDate?: string; // Opcjonalna data docelowa
+  currency?: SupportedCurrency;
 }
 
 export interface Investment {
@@ -53,6 +54,7 @@ export interface Investment {
   isoDate: string;
   type?: string;
   notes?: string;
+  currency?: SupportedCurrency;
 }
 
 export interface RecurringRule {
@@ -70,7 +72,7 @@ export interface RecurringRule {
   isActive: boolean;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
-  currency?: SupportedCurrency;
+  currency: SupportedCurrency;
 }
 
 export interface TransactionRule {

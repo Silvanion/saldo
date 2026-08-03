@@ -21,8 +21,9 @@ describe("useAppActions - handleDeletePayment", () => {
             category: "Subskrypcje",
             account: "Konto główne",
             isoDate: "2024-05-15",
-            sourcePaymentId: "pay-1"
-          },
+            sourcePaymentId: "pay-1",
+              currency: "PLN"
+        },
           {
             id: "tx-2",
             name: "Other Tx",
@@ -30,8 +31,9 @@ describe("useAppActions - handleDeletePayment", () => {
             type: "expense",
             category: "Jedzenie",
             account: "Konto główne",
-            isoDate: "2024-05-16"
-          }
+            isoDate: "2024-05-16",
+              currency: "PLN"
+        }
         ],
         payments: [
           {
@@ -39,15 +41,17 @@ describe("useAppActions - handleDeletePayment", () => {
             name: "Netflix",
             amount: 60,
             dueDate: "2024-05-15",
-            status: "Opłacono"
-          },
+            status: "Opłacono",
+              currency: "PLN"
+        },
           {
             id: "pay-2",
             name: "Spotify",
             amount: 20,
             dueDate: "2024-05-20",
-            status: "Do opłacenia"
-          }
+            status: "Do opłacenia",
+              currency: "PLN"
+        }
         ],
         goals: [],
         investments: [],

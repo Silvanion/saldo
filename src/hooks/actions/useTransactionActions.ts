@@ -26,6 +26,7 @@ export function useTransactionActions({
       isoDate: string;
       paidBy?: "me" | "partner" | "joint";
       splitMode?: "none" | "equal";
+      currency?: import("../../types").SupportedCurrency;
     }) => {
       if (!activeProfile) return;
 
@@ -36,7 +37,8 @@ export function useTransactionActions({
         id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         ...data,
         category: categorized.category,
-        categoryIcon: categorized.categoryIcon
+        categoryIcon: categorized.categoryIcon,
+        currency: data.currency || activeProfile.currency || "PLN"
       };
 
       updateActiveProfile((p) => ({ transactions: [newTx, ...p.transactions] }));
@@ -115,7 +117,7 @@ export function useTransactionActions({
 
   // === PAYMENTS ===
   const handleAddPayment = useCallback(
-    (data: { name: string; amount: number; dueDate: string; paidBy?: "me" | "partner" | "joint"; splitMode?: "none" | "equal" }) => {
+    (data: { name: string; amount: number; dueDate: string; paidBy?: "me" | "partner" | "joint"; splitMode?: "none" | "equal"; currency?: import("../../types").SupportedCurrency }) => {
       const newPayment: Payment = {
         id: "pay-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         name: data.name,
@@ -123,7 +125,8 @@ export function useTransactionActions({
         dueDate: data.dueDate,
         status: "Do opłacenia",
         paidBy: data.paidBy,
-        splitMode: data.splitMode
+        splitMode: data.splitMode,
+        currency: data.currency || activeProfile?.currency || "PLN"
       };
       updateActiveProfile((p) => ({ payments: [...p.payments, newPayment] }));
     },
@@ -211,7 +214,8 @@ export function useTransactionActions({
           isoDate: getLocalDateIso(),
           sourcePaymentId: payment.id,
           paidBy: payment.paidBy,
-          splitMode: payment.splitMode
+          splitMode: payment.splitMode,
+          currency: payment.currency
         };
 
         return { 

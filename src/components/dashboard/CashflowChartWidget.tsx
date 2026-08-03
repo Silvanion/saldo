@@ -5,10 +5,11 @@ import { DashboardChartPoint } from "../../hooks/useDashboardMetrics";
 import { formatMoney } from "../../utils/format";
 
 interface CashflowChartWidgetProps {
+  currency: string;
   chartData: DashboardChartPoint[];
 }
 
-export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData }: CashflowChartWidgetProps) {
+export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData, currency }: CashflowChartWidgetProps) {
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full" id="widget-content-chart-box">
       <div className="flex items-center justify-between mb-5">
@@ -34,7 +35,7 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
             <div className="w-full flex items-end justify-center gap-0.5 sm:gap-1 h-full relative">
               <DelayedTooltip
                 className="absolute -top-10 left-1/2 -translate-x-1/2"
-                label={<>{`+${formatMoney(d.income)}`}<br />{`-${formatMoney(d.expense)}`}</>}
+                label={<>{`+${formatMoney(d.income, currency)}`}<br />{`-${formatMoney(d.expense, currency)}`}</>}
                 tooltipClassName="whitespace-nowrap rounded-lg py-1 px-2"
               >
                 <div className="w-full h-full absolute inset-0" />

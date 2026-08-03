@@ -82,7 +82,9 @@ describe("KROK 7 — OAuth Token Separation, Drive Errors & Data Protection", ()
       kind: "personal",
       pinHash: "hash123",
       salt: "salt123",
-      transactions: [{ id: "t1", name: "Tajny Zakup", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Jedzenie", account: "Główne" }],
+      transactions: [{ id: "t1", name: "Tajny Zakup", type: "expense", amount: 50, isoDate: "2026-01-01", category: "Jedzenie", account: "Główne",
+          currency: "PLN"
+    }],
       payments: [],
       goals: [],
       investments: [],
@@ -93,7 +95,9 @@ describe("KROK 7 — OAuth Token Separation, Drive Errors & Data Protection", ()
       id: openProfileId,
       name: "Profil Jawny",
       kind: "shared",
-      transactions: [{ id: "t2", name: "Faktura Jawna", type: "income", amount: 2000, isoDate: "2026-01-02", category: "Usługi", account: "Firmowe" }],
+      transactions: [{ id: "t2", name: "Faktura Jawna", type: "income", amount: 2000, isoDate: "2026-01-02", category: "Usługi", account: "Firmowe",
+          currency: "PLN"
+    }],
       payments: [],
       goals: [],
       investments: [],

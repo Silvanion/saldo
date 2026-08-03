@@ -16,7 +16,9 @@ describe("KROK 8F - Miesięczny przegląd finansowy bez AI", () => {
 
   it("wyłącznie przychody", () => {
     const txs = [
-      { id: "1", name: "Wypłata", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10" } as Transaction
+      { id: "1", name: "Wypłata", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10",
+          currency: "PLN"
+    } as Transaction
     ];
     const res = generateMonthlyDigest(txs, 2026, 6);
     expect(res.totalIncome).toBe(5000);
@@ -29,7 +31,9 @@ describe("KROK 8F - Miesięczny przegląd finansowy bez AI", () => {
 
   it("wyłącznie wydatki", () => {
     const txs = [
-      { id: "1", name: "Zakupy", amount: 1000, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-10" } as Transaction
+      { id: "1", name: "Zakupy", amount: 1000, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-10",
+          currency: "PLN"
+    } as Transaction
     ];
     const res = generateMonthlyDigest(txs, 2026, 6);
     expect(res.totalIncome).toBe(0);
@@ -43,9 +47,15 @@ describe("KROK 8F - Miesięczny przegląd finansowy bez AI", () => {
 
   it("dodatni bilans i polskie formatowanie miesiąca", () => {
     const txs = [
-      { id: "1", name: "Wypłata", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10" } as Transaction,
-      { id: "2", name: "Zakupy", amount: 1000, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-11" } as Transaction,
-      { id: "3", name: "Biedronka", amount: 500, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-06-11" } as Transaction // czerwiec
+      { id: "1", name: "Wypłata", amount: 5000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10",
+          currency: "PLN"
+    } as Transaction,
+      { id: "2", name: "Zakupy", amount: 1000, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-07-11",
+          currency: "PLN"
+    } as Transaction,
+      { id: "3", name: "Biedronka", amount: 500, category: "Żywność", account: "Główne", type: "expense", isoDate: "2026-06-11",
+          currency: "PLN"
+    } as Transaction // czerwiec
     ];
     const res = generateMonthlyDigest(txs, 2026, 6);
     expect(res.totalIncome).toBe(5000);
@@ -59,9 +69,15 @@ describe("KROK 8F - Miesięczny przegląd finansowy bez AI", () => {
 
   it("ujemny bilans i porównanie do poprzedniego miesiąca (mniej)", () => {
     const txs = [
-      { id: "1", name: "Wypłata", amount: 1000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10" } as Transaction,
-      { id: "2", name: "Naprawa auta", amount: 2000, category: "Transport", account: "Główne", type: "expense", isoDate: "2026-07-11" } as Transaction,
-      { id: "3", name: "Wczasy", amount: 5000, category: "Rozrywka", account: "Główne", type: "expense", isoDate: "2026-06-11" } as Transaction // czerwiec
+      { id: "1", name: "Wypłata", amount: 1000, category: "Wpływy", account: "Główne", type: "income", isoDate: "2026-07-10",
+          currency: "PLN"
+    } as Transaction,
+      { id: "2", name: "Naprawa auta", amount: 2000, category: "Transport", account: "Główne", type: "expense", isoDate: "2026-07-11",
+          currency: "PLN"
+    } as Transaction,
+      { id: "3", name: "Wczasy", amount: 5000, category: "Rozrywka", account: "Główne", type: "expense", isoDate: "2026-06-11",
+          currency: "PLN"
+    } as Transaction // czerwiec
     ];
     const res = generateMonthlyDigest(txs, 2026, 6);
     expect(res.balance).toBe(-1000);
@@ -72,7 +88,9 @@ describe("KROK 8F - Miesięczny przegląd finansowy bez AI", () => {
 
   it("przychody równe zero", () => {
     const txs = [
-      { id: "2", name: "Naprawa auta", amount: 2000, category: "Transport", account: "Główne", type: "expense", isoDate: "2026-07-11" } as Transaction
+      { id: "2", name: "Naprawa auta", amount: 2000, category: "Transport", account: "Główne", type: "expense", isoDate: "2026-07-11",
+          currency: "PLN"
+    } as Transaction
     ];
     const res = generateMonthlyDigest(txs, 2026, 6);
     expect(res.savingsRate).toBeNull();

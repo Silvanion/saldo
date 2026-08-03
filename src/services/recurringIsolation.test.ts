@@ -24,7 +24,8 @@ describe("Recurring Rules Isolation", () => {
           account: "Cash",
           frequency: "monthly",
                     nextDueDate: "2023-01-01",
-          isActive: true
+          isActive: true,
+            currency: "PLN"
         }
       ]
     };
@@ -48,7 +49,8 @@ describe("Recurring Rules Isolation", () => {
           account: "Card",
           frequency: "monthly",
                     nextDueDate: "2023-01-01",
-          isActive: true
+          isActive: true,
+            currency: "PLN"
         }
       ]
     };
@@ -77,8 +79,9 @@ describe("Recurring Rules Isolation", () => {
         account: "Test",
         frequency: "weekly",
                 nextDueDate: "2023-01-01",
-        isActive: true
-      }
+        isActive: true,
+          currency: "PLN"
+    }
     ];
 
     // If we evaluate today, it generates for today
@@ -101,8 +104,9 @@ describe("Recurring Rules Isolation", () => {
         account: "Test",
         frequency: "monthly",
                 nextDueDate: "2023-01-01",
-        isActive: true
-      }
+        isActive: true,
+          currency: "PLN"
+    }
     ];
     
     // Pure function check
@@ -138,8 +142,9 @@ describe("Recurring Rules Isolation", () => {
         account: "Bank",
         frequency: "monthly",
         nextDueDate: "2023-01-01",
-        isActive: true
-      }
+        isActive: true,
+          currency: "PLN"
+    }
     ];
 
     // Symulacja czytania reguł w runtime: hook używa wyłącznie activeProfile.recurringRules
@@ -171,7 +176,8 @@ describe("Recurring Rules Isolation", () => {
           account: "Karta",
           frequency: "monthly",
           nextDueDate: "2023-01-01",
-          isActive: true
+          isActive: true,
+            currency: "PLN"
         }
       ]
     };
@@ -197,8 +203,9 @@ describe("Recurring Rules Isolation", () => {
         nextDueDate: "2026-07-01",
         isActive: true,
         paidBy: "me",
-        splitMode: "equal"
-      }
+        splitMode: "equal",
+          currency: "PLN"
+    }
     ];
 
     const result = applyRecurringRules(rules, [], "2026-07-01");
@@ -220,8 +227,9 @@ describe("Recurring Rules Isolation", () => {
         frequency: "monthly",
         nextDueDate: "2026-07-01",
         isActive: true,
-        paidBy: "me" // splitMode defaults to "equal" for expense with paidBy
-      }
+        paidBy: "me", // splitMode defaults to "equal" for expense with paidBy
+          currency: "PLN"
+    }
     ];
 
     const result = applyRecurringRules(rules, [], "2026-07-01");

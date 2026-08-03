@@ -150,7 +150,7 @@ export function PaymentsView({
           <div className="text-right mr-2">
             <span className="block text-[10px] uppercase font-semibold text-slate-500">Do opłacenia</span>
             <span className="text-lg font-bold text-[#d55e50]">
-              {unpaidCount} rachunki ({formatMoney(totalUnpaidSum)})
+              {unpaidCount} rachunki ({formatMoney(totalUnpaidSum, profile?.currency || 'PLN')})
             </span>
           </div>
           <div className="flex gap-2">
@@ -215,8 +215,7 @@ export function PaymentsView({
         )}
       </div>
 
-      <SuggestedPaymentsPanel
-        payments={profile.payments}
+      <SuggestedPaymentsPanel currency={profile.currency} payments={profile.payments}
         selectedDate={selectedDate}
         onAddPayment={onAddPayment}
       />
@@ -352,7 +351,7 @@ export function PaymentsView({
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <span className="text-sm font-bold text-slate-800">{formatMoney(p.amount)}</span>
+                    <span className="text-sm font-bold text-slate-800">{formatMoney(p.amount, p.currency || profile?.currency || 'PLN')}</span>
                     <div className="flex items-center gap-2">
                       {!isPaid && (
                         <button

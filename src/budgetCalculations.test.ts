@@ -8,13 +8,17 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     name: "Test Profile",
     kind: "personal",
     transactions: [
-      { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-07-01" },
-      { id: "t2", name: "Zakupy", amount: 1000, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-07-05" }
+      { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-07-01",
+          currency: "PLN" as const
+    },
+      { id: "t2", name: "Zakupy", amount: 1000, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-07-05",
+          currency: "PLN" as const
+    }
     ],
     payments: [],
     goals: [],
     investments: [],
-    currency: "PLN", budgets: {}
+    currency: "PLN" as const, budgets: {}
   };
 
   it("brak płatności — zwraca pełne saldo minus brak obciążeń", () => {
@@ -32,7 +36,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const profileWithPayment: Profile = {
       ...baseProfile,
       payments: [
-        { id: "pay1", name: "Rachunek za prąd", amount: 300, dueDate: "2026-07-15", status: "Do opłacenia" }
+        { id: "pay1", name: "Rachunek za prąd", amount: 300, dueDate: "2026-07-15", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -45,7 +51,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const profileWithOverduePayment: Profile = {
       ...baseProfile,
       payments: [
-        { id: "pay-overdue", name: "Zaległy telefon", amount: 200, dueDate: "2026-07-10", status: "Do opłacenia" }
+        { id: "pay-overdue", name: "Zaległy telefon", amount: 200, dueDate: "2026-07-10", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -61,7 +69,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const profileWithFuturePayment: Profile = {
       ...baseProfile,
       payments: [
-        { id: "pay1", name: "Czynsz za Sierpień", amount: 1500, dueDate: "2026-08-05", status: "Do opłacenia" }
+        { id: "pay1", name: "Czynsz za Sierpień", amount: 1500, dueDate: "2026-08-05", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -74,7 +84,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const profileWithPaidPayment: Profile = {
       ...baseProfile,
       payments: [
-        { id: "pay1", name: "Rachunek opłacony", amount: 400, dueDate: "2026-07-20", status: "Opłacono" }
+        { id: "pay1", name: "Rachunek opłacony", amount: 400, dueDate: "2026-07-20", status: "Opłacono",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -87,11 +99,17 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const lowBalanceProfile: Profile = {
       ...baseProfile,
       transactions: [
-        { id: "t1", name: "Wpłata", amount: 500, type: "income", category: "Inne", account: "Główne", isoDate: "2026-07-01" },
-        { id: "t2", name: "Duży wydatek", amount: 1000, type: "expense", category: "Inne", account: "Główne", isoDate: "2026-07-02" }
+        { id: "t1", name: "Wpłata", amount: 500, type: "income", category: "Inne", account: "Główne", isoDate: "2026-07-01",
+            currency: "PLN" as const
+        },
+        { id: "t2", name: "Duży wydatek", amount: 1000, type: "expense", category: "Inne", account: "Główne", isoDate: "2026-07-02",
+            currency: "PLN" as const
+        }
       ],
       payments: [
-        { id: "p1", name: "Rata", amount: 300, dueDate: "2026-07-20", status: "Do opłacenia" }
+        { id: "p1", name: "Rata", amount: 300, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -109,7 +127,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
         { id: "g1", name: "Wakacje", target: 5000, saved: 1200 }
       ],
       payments: [
-        { id: "p1", name: "Internet", amount: 100, dueDate: "2026-07-31", status: "Do opłacenia" }
+        { id: "p1", name: "Internet", amount: 100, dueDate: "2026-07-31", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -123,8 +143,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
         account: "Główne",
         frequency: "monthly",
         nextDueDate: "2026-07-28",
-        isActive: true
-      }
+        isActive: true,
+          currency: "PLN" as const
+    }
     ];
 
     // Today is 2026-07-25 (end of month is 2026-07-31).
@@ -146,8 +167,12 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
     const profileWithPolishChars: Profile = {
       ...baseProfile,
       payments: [
-        { id: "p-pl", name: "Opłata za prąd i żarówki w Rzeszowie 💡", amount: 250, dueDate: "2026-07-20", status: "Do opłacenia" },
-        { id: "p-pl2", name: "Czynsz spółdzielczy — Żoliborz", amount: 750, dueDate: "2026-07-22", status: "Do opłacenia" }
+        { id: "p-pl", name: "Opłata za prąd i żarówki w Rzeszowie 💡", amount: 250, dueDate: "2026-07-20", status: "Do opłacenia",
+            currency: "PLN" as const
+        },
+        { id: "p-pl2", name: "Czynsz spółdzielczy — Żoliborz", amount: 750, dueDate: "2026-07-22", status: "Do opłacenia",
+            currency: "PLN" as const
+        }
       ]
     };
 
@@ -161,8 +186,9 @@ describe("KROK 8A — Bezpieczna kwota do wydania", () => {
         account: "Główne",
         frequency: "monthly",
         nextDueDate: "2026-07-29",
-        isActive: true
-      }
+        isActive: true,
+          currency: "PLN" as const
+    }
     ];
 
     const res = calculateSafeToSpend(profileWithPolishChars, rules, "2026-07-15");
@@ -179,18 +205,24 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
     name: "Test Profile",
     kind: "personal",
     transactions: [
-      { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wypłata", account: "Główne", isoDate: "2026-07-01" },
-      { id: "t2", name: "Wydatki", amount: 1000, type: "expense", category: "Życie", account: "Główne", isoDate: "2026-07-05" }
+      { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wypłata", account: "Główne", isoDate: "2026-07-01",
+          currency: "PLN" as const
+    },
+      { id: "t2", name: "Wydatki", amount: 1000, type: "expense", category: "Życie", account: "Główne", isoDate: "2026-07-05",
+          currency: "PLN" as const
+    }
     ],
     payments: [],
     goals: [],
     investments: [],
-    currency: "PLN", budgets: {}
+    currency: "PLN" as const, budgets: {}
   };
 
   it("tylko przyszły przychód — dodaje przyszły dochód cykliczny", () => {
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Premia", amount: 500, type: "income", category: "Praca", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-28", isActive: true }
+      { id: "r1", name: "Premia", amount: 500, type: "income", category: "Praca", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-28", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     // balance: 4000 + 500 = 4500
     const res = calculateEndOfMonthForecast(baseProfile, rules, "2026-07-15");
@@ -203,11 +235,15 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
 
   it("tylko przyszły wydatek — odlicza z salda", () => {
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Subskrypcja", amount: 200, type: "expense", category: "Rozrywka", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "r1", name: "Subskrypcja", amount: 200, type: "expense", category: "Rozrywka", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     const profileWithPayment = {
       ...baseProfile,
-      payments: [{ id: "p1", name: "Rachunek", amount: 300, dueDate: "2026-07-25", status: "Do opłacenia" as const }]
+      payments: [{ id: "p1", name: "Rachunek", amount: 300, dueDate: "2026-07-25", status: "Do opłacenia" as const,
+          currency: "PLN" as const
+    }]
     };
     
     // balance: 4000 - 300 (payment) - 200 (rule) = 3500
@@ -219,8 +255,12 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
 
   it("jednoczesny przychód i wydatek — uwzględnia oba", () => {
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Kieszonkowe", amount: 100, type: "income", category: "Inne", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-25", isActive: true },
-      { id: "r2", name: "Netflix", amount: 50, type: "expense", category: "Rozrywka", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-26", isActive: true }
+      { id: "r1", name: "Kieszonkowe", amount: 100, type: "income", category: "Inne", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-25", isActive: true,
+          currency: "PLN" as const
+    },
+      { id: "r2", name: "Netflix", amount: 50, type: "expense", category: "Rozrywka", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-26", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     // 4000 + 100 - 50 = 4050
     const res = calculateEndOfMonthForecast(baseProfile, rules, "2026-07-15");
@@ -231,7 +271,9 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
 
   it("reguła cykliczna miesięczna - nie liczy wystąpień po końcu miesiąca", () => {
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Abonament", amount: 80, type: "expense", category: "TV", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "r1", name: "Abonament", amount: 80, type: "expense", category: "TV", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     const res = calculateEndOfMonthForecast(baseProfile, rules, "2026-07-15");
     expect(res.futureRecurringExpensesSum).toBe(80); // only July counts
@@ -239,13 +281,17 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
 
   it("brak podwójnego liczenia — ignoruje reguły, które mają już wygenerowaną transakcję/płatność", () => {
     const rules: RecurringRule[] = [
-      { id: "rule-1", name: "Abonament", amount: 80, type: "expense", category: "TV", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "rule-1", name: "Abonament", amount: 80, type: "expense", category: "TV", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     
     // There's a payment with this rule id and date
     const profileWithDups = {
       ...baseProfile,
-      payments: [{ id: "p1", name: "Abonament", amount: 80, dueDate: "2026-07-20", status: "Do opłacenia" as const, recurringRuleId: "rule-1" }]
+      payments: [{ id: "p1", name: "Abonament", amount: 80, dueDate: "2026-07-20", status: "Do opłacenia" as const, recurringRuleId: "rule-1",
+          currency: "PLN" as const
+    }]
     };
 
     const res = calculateEndOfMonthForecast(profileWithDups, rules, "2026-07-15");
@@ -256,7 +302,9 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
 
   it("data na ostatni dzień miesiąca — uwzględnia z dokładnością do dnia", () => {
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Rata", amount: 500, type: "expense", category: "Kredyt", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-31", isActive: true }
+      { id: "r1", name: "Rata", amount: 500, type: "expense", category: "Kredyt", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-31", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     const res = calculateEndOfMonthForecast(baseProfile, rules, "2026-07-15");
     expect(res.futureRecurringExpensesSum).toBe(500); // 31 is included
@@ -266,10 +314,14 @@ describe("KROK 8B — Prognoza salda do końca miesiąca", () => {
   it("prognoza ujemna — poprawnie oznacza zagrożenie debetem", () => {
     const profileLow = {
       ...baseProfile,
-      transactions: [{ id: "t1", name: "Bieda", amount: 500, type: "income" as const, category: "Wypłata", account: "Główne", isoDate: "2026-07-01" }]
+      transactions: [{ id: "t1", name: "Bieda", amount: 500, type: "income" as const, category: "Wypłata", account: "Główne", isoDate: "2026-07-01",
+          currency: "PLN" as const
+    }]
     };
     const rules: RecurringRule[] = [
-      { id: "r1", name: "Rata", amount: 600, type: "expense", category: "Kredyt", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "r1", name: "Rata", amount: 600, type: "expense", category: "Kredyt", account: "Główne", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     const res = calculateEndOfMonthForecast(profileLow, rules, "2026-07-15");
     // 500 - 600 = -100
@@ -287,7 +339,7 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     payments: [],
     goals: [],
     investments: [],
-    currency: "PLN", budgets: {
+    currency: "PLN" as const, budgets: {
       "Żywność": 1000,
       "Transport": 500,
       "Bez limitu": 0
@@ -305,7 +357,9 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-07-05" }
+        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -318,7 +372,9 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 999.9, isoDate: "2026-07-05" }
+        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 999.9, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -330,7 +386,9 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 1000, isoDate: "2026-07-05" }
+        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 1000, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -343,7 +401,9 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 1500, isoDate: "2026-07-05" }
+        { id: "1", name: "t1", type: "expense" as const, category: "Żywność", account: "X", amount: 1500, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -357,8 +417,12 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "t1", type: "expense" as const, category: "Bez limitu", account: "X", amount: 1000, isoDate: "2026-07-05" },
-        { id: "2", name: "t2", type: "expense" as const, category: "Inne", account: "X", amount: 5000, isoDate: "2026-07-05" }
+        { id: "1", name: "t1", type: "expense" as const, category: "Bez limitu", account: "X", amount: 1000, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        },
+        { id: "2", name: "t2", type: "expense" as const, category: "Inne", account: "X", amount: 5000, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -370,8 +434,12 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "Zakupy", type: "expense" as const, category: "Żywność", account: "X", amount: 900, isoDate: "2026-07-05" },
-        { id: "2", name: "Zwrot", type: "expense" as const, category: "Żywność", account: "X", amount: -150, isoDate: "2026-07-10" }
+        { id: "1", name: "Zakupy", type: "expense" as const, category: "Żywność", account: "X", amount: 900, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        },
+        { id: "2", name: "Zwrot", type: "expense" as const, category: "Żywność", account: "X", amount: -150, isoDate: "2026-07-10",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -384,8 +452,12 @@ describe("KROK 8C — Alerty budżetowe (80% i 100%)", () => {
     const profile = {
       ...baseProfile,
       transactions: [
-        { id: "1", name: "Czerwiec", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-06-05" },
-        { id: "2", name: "Lipiec", type: "expense" as const, category: "Żywność", account: "X", amount: 200, isoDate: "2026-07-05" }
+        { id: "1", name: "Czerwiec", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-06-05",
+            currency: "PLN" as const
+        },
+        { id: "2", name: "Lipiec", type: "expense" as const, category: "Żywność", account: "X", amount: 200, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
@@ -404,7 +476,7 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
     payments: [],
     goals: [],
     investments: [],
-    currency: "PLN", budgets: {
+    currency: "PLN" as const, budgets: {
       "Żywność": 1000
     }
   };
@@ -413,7 +485,9 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
     // We simulate the correct usage where only active rules are passed
     // And verify safe-to-spend only considers those.
     const rulesA: RecurringRule[] = [
-      { id: "r-A", name: "Expense A", amount: 200, type: "expense", category: "Test", account: "Cash", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "r-A", name: "Expense A", amount: 200, type: "expense", category: "Test", account: "Cash", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     // In practice, rulesB won't even be passed, but we test the isolation on the profile transactions level as well.
     const res = calculateSafeToSpend(baseProfile, rulesA, "2026-07-15");
@@ -422,7 +496,9 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
 
   it("forecast profilu A ignoruje recurring B", () => {
     const rulesA: RecurringRule[] = [
-      { id: "r-A", name: "Income A", amount: 1000, type: "income", category: "Test", account: "Cash", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true }
+      { id: "r-A", name: "Income A", amount: 1000, type: "income", category: "Test", account: "Cash", frequency: "monthly", nextDueDate: "2026-07-20", isActive: true,
+          currency: "PLN" as const
+    }
     ];
     
     // Test that forecastedBalance only uses rulesA
@@ -436,7 +512,9 @@ describe("PROMPT 4 - Izolacja kalkulacji dla aktywnego profilu", () => {
     const profileA = {
       ...baseProfile,
       transactions: [
-        { id: "t1", name: "A", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-07-05" }
+        { id: "t1", name: "A", type: "expense" as const, category: "Żywność", account: "X", amount: 800, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        }
       ]
     };
     
@@ -454,13 +532,17 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       name: "Test",
       kind: "personal",
       transactions: [
-        { id: "t1", name: "A", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.10, isoDate: "2026-07-05" },
-        { id: "t2", name: "B", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.20, isoDate: "2026-07-06" }
+        { id: "t1", name: "A", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.10, isoDate: "2026-07-05",
+            currency: "PLN" as const
+        },
+        { id: "t2", name: "B", type: "expense" as const, category: "Jedzenie", account: "X", amount: 10.20, isoDate: "2026-07-06",
+            currency: "PLN" as const
+        }
       ],
       payments: [],
       goals: [],
       investments: [],
-      currency: "PLN", budgets: { "Jedzenie": 50 }
+      currency: "PLN" as const, budgets: { "Jedzenie": 50 }
     };
     const res = calculateBudgetWarnings(profile, "2026-07-15");
     const food = res.find(w => w.category === "Jedzenie");

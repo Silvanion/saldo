@@ -197,7 +197,7 @@ export function DashboardView({
 
           if (widget.id === "stats") {
             widgetContent = (
-              <StatsWidget 
+              <StatsWidget currency={profile?.currency || 'PLN'} 
                 totalIncome={metrics.totalIncome}
                 totalExpense={metrics.totalExpense}
                 balance={metrics.balance}
@@ -209,10 +209,10 @@ export function DashboardView({
               />
             );
           } else if (widget.id === "chart") {
-            widgetContent = <CashflowChartWidget chartData={metrics.chartData} />;
+            widgetContent = <CashflowChartWidget currency={profile.currency || 'PLN'} chartData={metrics.chartData} />;
           } else if (widget.id === "bills") {
             widgetContent = (
-              <BillsWidget 
+              <BillsWidget currency={profile.currency || 'PLN'} 
                 unpaidPayments={metrics.unpaidPayments}
                 urgentPaymentsCount={metrics.urgentPaymentsCount}
                 onTogglePaymentStatus={onTogglePaymentStatus}
@@ -222,7 +222,7 @@ export function DashboardView({
             );
           } else if (widget.id === "timeline") {
             widgetContent = (
-              <PaymentsTimelineWidget
+              <PaymentsTimelineWidget currency={profile.currency || 'PLN'}
                 unpaidPayments={metrics.unpaidPayments}
                 onTogglePaymentStatus={onTogglePaymentStatus}
                 onChangeView={onChangeView}
@@ -230,7 +230,7 @@ export function DashboardView({
             );
           } else if (widget.id === "budget") {
             widgetContent = (
-              <BudgetWarningsWidget 
+              <BudgetWarningsWidget currency={profile.currency || 'PLN'} 
                 totalPlannedBudget={metrics.totalPlannedBudget}
                 totalActualSpentInBudget={metrics.totalActualSpentInBudget}
                 budgetWarnings={metrics.budgetWarnings}
@@ -240,7 +240,7 @@ export function DashboardView({
             );
           } else if (widget.id === "activity") {
             widgetContent = (
-              <ActivityWidget 
+              <ActivityWidget currency={profile.currency} 
                 profileKind={profile.kind}
                 recentTransactions={metrics.recentTransactions}
                 onChangeView={onChangeView}

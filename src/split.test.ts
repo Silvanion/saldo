@@ -12,8 +12,9 @@ function simulateAddTransaction(profile: Profile, data: Partial<Transaction>): P
     type: data.type || "expense",
     isoDate: data.isoDate || "2026-07-23",
     paidBy: data.paidBy,
-    splitMode: data.splitMode
-  } as Transaction;
+    splitMode: data.splitMode,
+      currency: "PLN"
+} as Transaction;
 
   return { ...profile, transactions: [...profile.transactions, newTx] };
 }
@@ -40,7 +41,8 @@ describe("PROMPT 7 - SHARED: paidBy I PODZIAŁ KOSZTÓW", () => {
   it("Aktualizacja transakcji ze split - zachowuje pola", () => {
     const tx: Transaction = {
       id: "tx-1", name: "Zakupy", amount: 100, type: "expense", category: "Inne", account: "Konto", isoDate: "2026-07-23",
-      paidBy: "partner", splitMode: "none"
+      paidBy: "partner", splitMode: "none",
+        currency: "PLN"
     };
     const p: Profile = {
       id: "p1", name: "User1", partnerName: "User2", kind: "shared",

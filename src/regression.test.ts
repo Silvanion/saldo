@@ -8,7 +8,7 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
   
   it("1. recurring reguła profilu A nie generuje tx w B", () => {
     const rulesA: RecurringRule[] = [
-      { id: "rA", name: "Rule A", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true }
+      { id: "rA", name: "Rule A", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true, currency: "PLN" as const }
     ];
     // Evaluate for Profile B (which has no rules)
     const resultB = applyRecurringRules([], [], "2026-07-10");
@@ -18,7 +18,7 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
 
   it("2. przełączenie A→B nie mutuje nextDueDate reguł A przez logikę B", () => {
     const rulesA: RecurringRule[] = [
-      { id: "rA", name: "Rule A", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true }
+      { id: "rA", name: "Rule A", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true, currency: "PLN" as const }
     ];
     // Logika profilu B używa swoich reguł
     const rulesB: RecurringRule[] = [];
@@ -31,12 +31,12 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
   it("3. migracja starych recurring jest idempotentna (symulacja stanu)", () => {
     const state = {
       recurringRules: [
-        { id: "global-1", name: "Old Global Rule", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true }
+        { id: "global-1", name: "Old Global Rule", amount: 100, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-01", isActive: true, currency: "PLN" as const }
       ]
     };
     
     const profileWithoutRules: Profile = {
-      id: "p1", name: "Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
+      id: "p1", name: "Profile", kind: "personal", currency: "PLN", transactions: [], payments: [], goals: [], investments: [], budgets: {}
     };
     
     // Symulujemy zachowanie migracji - to teraz dzieje się przy starcie apki
@@ -61,10 +61,10 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
 
   it("5. safe-to-spend / forecast ignorują obce reguły", () => {
     const profile: Profile = {
-      id: "p1", name: "Test", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {}
+      id: "p1", name: "Test", kind: "personal", currency: "PLN", transactions: [], payments: [], goals: [], investments: [], budgets: {}
     };
     const foreignRules: RecurringRule[] = [
-      { id: "foreign", name: "Obca", amount: 1000, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-05", isActive: true }
+      { id: "foreign", name: "Obca", amount: 1000, type: "expense" as const, category: "Test", account: "Cash", frequency: "monthly" as const, nextDueDate: "2026-07-05", isActive: true, currency: "PLN" as const }
     ];
     
     const activeRules: RecurringRule[] = [];
@@ -78,15 +78,15 @@ describe("PROMPT 6 - Testy regresji profili i kalkulacji", () => {
 
   it("6. cele nie są liczone podwójnie wg wybranego modelu z Promptu 5", () => {
     const profile: Profile = {
-      id: "p1", name: "Test", kind: "personal", 
+      id: "p1", name: "Test", kind: "personal", currency: "PLN", 
       transactions: [
-        { id: "t1", name: "Wypłata", amount: 2000, type: "income" as const, category: "Wynagrodzenie", account: "Konto", isoDate: "2026-07-01" }
+        { id: "t1", name: "Wypłata", amount: 2000, type: "income" as const, category: "Wynagrodzenie", account: "Konto", isoDate: "2026-07-01", currency: "PLN" as const }
       ], 
       payments: [], 
       goals: [
         { id: "g1", name: "Cel", target: 1000, saved: 300, transfers: [] }
       ], 
-      investments: [], currency: "PLN", budgets: {}
+      investments: [], budgets: {}
     };
     
     const safe = calculateSafeToSpend(profile, [], "2026-07-01");

@@ -21,8 +21,9 @@ describe("useAppActions - handleUpdatePayment", () => {
             dueDate: "2024-05-15",
             status: "Do opłacenia",
             isRecurring: true,
-            recurringRuleId: "rule-1"
-          }
+            recurringRuleId: "rule-1",
+              currency: "PLN"
+        }
         ],
         goals: [],
         investments: [],

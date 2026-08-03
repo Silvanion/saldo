@@ -195,6 +195,7 @@ export interface ProcessCsvParams {
   defaultAccount?: string;
   typeStrategy?: "auto" | "expense" | "income";
   rules?: TransactionRule[];
+  currency?: import("../types").SupportedCurrency;
 }
 
 export interface ProcessCsvResult {
@@ -322,7 +323,9 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       isoDate: isoDateStr,
       category,
       categoryIcon,
-      account: defaultAcc
+      account: defaultAcc,
+      tags: [],
+      currency: params.currency || "PLN"
     });
   }
 

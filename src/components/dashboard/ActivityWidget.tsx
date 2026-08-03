@@ -4,6 +4,7 @@ import { Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
 
 interface ActivityWidgetProps {
+  currency: string;
   profileKind?: "personal" | "shared";
   recentTransactions: Transaction[];
   onChangeView: (view: string) => void;
@@ -11,6 +12,7 @@ interface ActivityWidgetProps {
 }
 
 export const ActivityWidget = memo(function ActivityWidget({
+  currency,
   recentTransactions,
   onChangeView,
   onOpenTxModal,
@@ -67,7 +69,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                 </div>
                 <div className="text-right shrink-0 pl-2">
                   <p className={`text-xs font-black ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'income' ? '+' : '-'}{formatMoney(t.amount)}
+                    {t.type === 'income' ? '+' : '-'}{formatMoney(t.amount, t.currency || currency)}
                   </p>
                 </div>
               </div>

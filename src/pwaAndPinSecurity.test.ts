@@ -22,7 +22,9 @@ describe("PROMPT D2 — PWA Update & PIN Security Recovery Warning", () => {
       kind: "personal",
       salt: "test-salt-12345678",
       pinHash: "hash-123",
-      transactions: [{ id: "tx1", name: "Zakupy", amount: 100, type: "expense", category: "Spożywcze", isoDate: "2026-07-23", account: "Konto" }],
+      transactions: [{ id: "tx1", name: "Zakupy", amount: 100, type: "expense", category: "Spożywcze", isoDate: "2026-07-23", account: "Konto",
+          currency: "PLN"
+    }],
       payments: [],
       goals: [],
       investments: [],

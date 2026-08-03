@@ -14,9 +14,15 @@ describe("Integracja: precyzja roundCurrency w całym pipeline", () => {
       partnerName: "Partner",
       kind: "shared",
       transactions: [
-        { id: "t1", name: "Z1", amount: 10.10, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me" },
-        { id: "t2", name: "Z2", amount: 20.20, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me" },
-        { id: "t3", name: "Z3", amount: 5.05, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me" }
+        { id: "t1", name: "Z1", amount: 10.10, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me",
+            currency: "PLN"
+        },
+        { id: "t2", name: "Z2", amount: 20.20, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me",
+            currency: "PLN"
+        },
+        { id: "t3", name: "Z3", amount: 5.05, type: "expense", category: "Żywność", account: "X", isoDate: today, splitMode: "equal", paidBy: "me",
+            currency: "PLN"
+        }
       ],
       payments: [],
       goals: [],

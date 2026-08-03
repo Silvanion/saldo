@@ -45,13 +45,14 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
       id: profileId,
       name: "Profil Osobisty z PIN",
       kind: "personal",
+      currency: "PLN",
       pinHash: "hash999",
       salt: "salt999",
-      transactions: [{ id: "tx-secret-1", name: "Tajny wydatek", type: "expense", amount: 1200, isoDate: "2026-05-01", category: "Zakupy", account: "Główne" }],
-      payments: [{ id: "pay-secret-1", name: "Kredyt", amount: 2500, dueDate: "2026-05-10", status: "Do opłacenia" }],
+      transactions: [{ id: "tx-secret-1", name: "Tajny wydatek", type: "expense", amount: 1200, isoDate: "2026-05-01", category: "Zakupy", account: "Główne", currency: "PLN" }],
+      payments: [{ id: "pay-secret-1", name: "Kredyt", amount: 2500, dueDate: "2026-05-10", status: "Do opłacenia", currency: "PLN" }],
       goals: [{ id: "goal-1", name: "Auto", target: 50000, saved: 10000, transfers: [] }],
       investments: [{ id: "inv-1", name: "Akcje", amount: 3000, isoDate: "2026-05-01" }],
-      currency: "PLN", budgets: { "Zakupy": 1500 }
+      budgets: { "Zakupy": 1500 }
     };
 
     const state: AppState = {
@@ -90,11 +91,12 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
         id: "v1-prof",
         name: "Stary profil V1",
         kind: "personal",
-        transactions: [{ id: "tx-v1", name: "Kawa", type: "expense", amount: 15, isoDate: "2026-01-01", category: "Jedzenie", account: "Gotówka" }],
+        currency: "PLN",
+        transactions: [{ id: "tx-v1", name: "Kawa", type: "expense", amount: 15, isoDate: "2026-01-01", category: "Jedzenie", account: "Gotówka", currency: "PLN" }],
         payments: [],
         goals: [],
         investments: [],
-        currency: "PLN", budgets: {}
+        budgets: {}
       }],
       activeProfileId: "v1-prof",
       schemaVersion: 1,
@@ -124,7 +126,7 @@ describe("KROK 5 — Safe local cache & PIN profile protection", () => {
 
   it("V1 is NOT removed if V2 write throws an error", () => {
     const v1State = {
-      profiles: [{ id: "v1-p", name: "Profil V1", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
+      profiles: [{ id: "v1-p", name: "Profil V1", kind: "personal", transactions: [], payments: [], goals: [], investments: [], budgets: {} }]
     };
     localStorage.setItem(LOCAL_STORAGE_KEY_V1, JSON.stringify(v1State));
 
