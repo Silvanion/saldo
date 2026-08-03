@@ -61,7 +61,7 @@ export function AppShell({
   };
 
   return (
-    <div className="flex h-screen bg-[#f6f8f7] overflow-hidden font-sans" id="app-root-shell">
+    <div className="flex h-screen bg-slate-900 overflow-hidden font-sans" id="app-root-shell">
       {/* Mobile Drawer Backdrop */}
       {isMobileMenuOpen && (
         <div
@@ -72,21 +72,21 @@ export function AppShell({
 
       {/* SIDEBAR CONTAINER */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white border-r border-slate-200 p-6 transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-slate-900/95 backdrop-blur-2xl border-r border-slate-800/50 p-6 transition-transform lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         id="sidebar-panel"
       >
         {/* Brand */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2 text-2xl font-black text-slate-900 tracking-tight">
-            <span className="flex items-center justify-center bg-[#137566] text-white rounded-xl w-8 h-8 shadow-sm">
+          <div className="flex items-center gap-2 text-2xl font-black text-white tracking-tight">
+            <span className="flex items-center justify-center bg-emerald-500/20 text-emerald-400 rounded-xl w-8 h-8 shadow-sm border border-emerald-500/30">
               <Wallet className="w-5 h-5" />
             </span>
             <span>saldo</span>
           </div>
-          <button className="lg:hidden p-1 rounded-xl hover:bg-slate-100" onClick={() => setIsMobileMenuOpen(false)}>
-            <X className="w-5 h-5 text-slate-500" />
+          <button className="lg:hidden p-1 rounded-xl hover:bg-slate-700" onClick={() => setIsMobileMenuOpen(false)}>
+            <X className="w-5 h-5 text-slate-400" />
           </button>
         </div>
 
@@ -99,7 +99,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "dashboard" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "dashboard" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-dashboard"
           >
@@ -113,7 +113,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "transactions" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "transactions" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-transactions"
           >
@@ -127,7 +127,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "payments" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "payments" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-payments"
           >
@@ -148,7 +148,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "budget" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "budget" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-budget"
           >
@@ -162,7 +162,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "goals" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "goals" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-goals"
           >
@@ -176,7 +176,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "analysis" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "analysis" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-analysis"
           >
@@ -186,14 +186,14 @@ export function AppShell({
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-slate-150 pt-4 mt-auto">
+        <div className="border-t border-slate-700/50 pt-4 mt-auto">
           <button
             onClick={() => {
               setActiveView("help");
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "help" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "help" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-help"
           >
@@ -207,7 +207,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
-              activeView === "settings" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              activeView === "settings" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-settings"
           >
@@ -220,23 +220,23 @@ export function AppShell({
               openModal("changelog");
               setIsMobileMenuOpen(false);
             }}
-            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100 transition group"
+            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-slate-800/30 border border-slate-700/50 rounded-xl hover:bg-slate-700 transition group"
           >
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <span className="w-6 h-6 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
-              <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900">Co nowego?</span>
+              <span className="text-xs font-bold text-slate-200 group-hover:text-white">Co nowego?</span>
             </div>
           </button>
 
           {activeProfile && (
-            <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-150 rounded-2xl">
-              <span className="w-8 h-8 rounded-full bg-slate-200 text-slate-900 text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
+            <div className="flex items-center gap-3 px-3 py-2 bg-slate-800/30 border border-slate-700/50 rounded-2xl">
+              <span className="w-8 h-8 rounded-full bg-slate-200 text-white text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
               <div className="min-w-0 text-left">
-                <p className="text-xs font-black text-slate-800 truncate" id="profile-tag-name">{activeProfile.name}</p>
+                <p className="text-xs font-black text-slate-100 truncate" id="profile-tag-name">{activeProfile.name}</p>
                 <span className="text-[10px] text-slate-400 block truncate">
                   {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
                 </span>
@@ -250,7 +250,7 @@ export function AppShell({
       <main className="flex-1 flex flex-col h-full overflow-hidden" id="main-viewport-panel">
         {/* Demo Mode Top Banner */}
         {isDemoMode && showDemoBanner && (
-          <div className="bg-slate-100 text-slate-800 border-b border-slate-200 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
+          <div className="bg-slate-100 text-slate-100 border-b border-slate-200 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 shrink-0" />
               <div className="text-xs">
@@ -266,7 +266,7 @@ export function AppShell({
               </button>
               <button
                 onClick={() => setShowDemoBanner(false)}
-                className="p-1 text-slate-500 hover:bg-slate-200 rounded-md transition"
+                className="p-1 text-slate-400 hover:bg-slate-200 rounded-md transition"
                 title="Ukryj"
               >
                 <X className="w-4 h-4" />
@@ -276,18 +276,18 @@ export function AppShell({
         )}
 
         {/* TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-white border-b border-slate-200 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
+        <header className="flex items-center justify-between bg-slate-900/50 backdrop-blur-md border-b border-slate-800/50 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-xl border border-slate-200 hover:bg-slate-100 lg:hidden"
+              className="p-1 rounded-xl border border-slate-200 hover:bg-slate-700 lg:hidden"
               id="btn-open-mobile-menu"
             >
-              <Menu className="w-5 h-5 text-slate-900" />
+              <Menu className="w-5 h-5 text-white" />
             </button>
             <div>
               <p className="text-[10px] font-bold text-[#849590] tracking-widest uppercase">{getTodayFormatted()}</p>
-              <h1 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
                 {activeView === "dashboard" && (new Date().getHours() >= 5 && new Date().getHours() < 18 ? "Dzień dobry" : "Dobry wieczór")}
                 {activeView === "transactions" && "Księga Transakcji"}
                 {activeView === "payments" && "Zaplanowane Opłaty"}
@@ -302,17 +302,17 @@ export function AppShell({
 
           <div className="flex items-center gap-2">
             {!isOnline ? (
-              <div className="hidden sm:flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full font-bold border border-amber-100">
+              <div className="hidden sm:flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full font-bold border border-amber-500/30">
                 <WifiOff className="w-3.5 h-3.5" />
                 <span>Tryb offline</span>
               </div>
             ) : isSyncing ? (
-              <div className="hidden sm:flex items-center gap-1 text-[11px] text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full font-bold border border-blue-100">
+              <div className="hidden sm:flex items-center gap-1 text-[11px] text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full font-bold border border-blue-500/30">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 <span>Synchronizacja...</span>
               </div>
             ) : isDemoMode ? (
-              <div className="hidden sm:flex items-center gap-1 text-[11px] text-purple-700 bg-purple-50 px-3 py-1.5 rounded-full font-bold border border-purple-100">
+              <div className="hidden sm:flex items-center gap-1 text-[11px] text-purple-700 bg-purple-50 px-3 py-1.5 rounded-full font-bold border border-purple-500/30">
                 <Database className="w-3.5 h-3.5" />
                 <span>Tryb demonstracyjny</span>
               </div>
@@ -338,8 +338,8 @@ export function AppShell({
         <div
           className={`text-[11px] md:text-xs px-6 py-2 border-b flex flex-wrap items-center justify-between gap-3 transition-all duration-300 shrink-0 ${
             isOnline
-              ? "bg-emerald-50/50 border-emerald-100 text-emerald-950 dark:bg-emerald-950/20 dark:border-emerald-900/40 dark:text-emerald-100"
-              : "bg-amber-50/90 border-amber-200 text-amber-950 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-100"
+              ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-100"
+              : "bg-amber-950/30 border-amber-900/40 text-amber-100"
           }`}
           id="offline-worker-status-banner"
         >
@@ -352,21 +352,21 @@ export function AppShell({
               )}
               <span>{isOnline ? "System Online" : "System Offline"}</span>
             </span>
-            <span className="text-slate-300 dark:text-slate-700">|</span>
-            <span className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400">
+            <span className="text-slate-300 dark:text-slate-200">|</span>
+            <span className="flex items-center gap-1 text-[11px] text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span className="hidden xs:inline">Bezpieczeństwo:</span>
               <span className="font-medium">Ochrona aktywna</span>
             </span>
-            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
-              <Database className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+            <span className="text-slate-300 dark:text-slate-200 hidden sm:inline">|</span>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400">
+              <Database className="w-3.5 h-3.5 text-slate-400" />
               <span>Autozapis</span>
             </span>
           </div>
           <button
             onClick={() => toggleSecurityInfo(true)}
-            className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 hover:underline font-bold cursor-pointer"
+            className="flex items-center gap-1 text-[11px] text-slate-400 hover:underline font-bold cursor-pointer"
             id="btn-security-details"
           >
             <Info className="w-3.5 h-3.5" />
@@ -375,7 +375,7 @@ export function AppShell({
         </div>
 
         {apiError && (
-          <div className="bg-rose-50 border-b border-rose-200 px-6 py-3 flex items-center justify-between text-rose-800 text-xs animate-fade-in shrink-0" id="api-error-banner">
+          <div className="bg-rose-950/30 border-b border-rose-900/50 px-6 py-3 flex items-center justify-between text-rose-200 text-xs animate-fade-in shrink-0" id="api-error-banner">
             <div className="flex items-center gap-2">
               <span className="text-sm">⚠️</span>
               <span className="font-bold">{apiError}</span>
