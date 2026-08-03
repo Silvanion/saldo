@@ -51,17 +51,17 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
   return (
     <div className="space-y-6" id="budget-view-container">
       {/* Overview header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/40 backdrop-blur-xl p-5 rounded-2xl border border-slate-700/50 shadow-lg">
         <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plan Kontroli Kosztów</p>
-          <h2 className="text-xl font-bold text-slate-900">Budżety miesięczne</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Plan Kontroli Kosztów</p>
+          <h2 className="text-xl font-bold text-white">Budżety miesięczne</h2>
+          <p className="text-xs text-slate-400 mt-1">
             Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget, profile.currency || 'PLN')}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent, profile.currency || 'PLN')}</strong>.
           </p>
         </div>
         <button
           onClick={onOpenBudgetModal}
-          className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-sm whitespace-nowrap self-start sm:self-auto"
+          className="bg-emerald-500/20 text-emerald-300 font-bold py-2 px-5 rounded-xl hover:bg-emerald-500/30 border border-emerald-500/30 transition shadow-lg text-sm whitespace-nowrap self-start sm:self-auto backdrop-blur-sm"
           id="btn-edit-budget-limits"
         >
           Modyfikuj limity
@@ -82,51 +82,51 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           const catTransactions = thisMonthExpenses.filter((t) => t.category === category);
 
           return (
-            <div key={category} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow transition flex flex-col justify-between space-y-4">
+            <div key={category} className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-2xl border border-slate-700/50 shadow-lg hover:shadow-xl hover:bg-slate-800/60 transition flex flex-col justify-between space-y-4">
               <div>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 text-xl flex items-center justify-center">
+                    <span className="w-9 h-9 rounded-xl bg-slate-700/30 border border-slate-600/50 text-xl flex items-center justify-center">
                       {iconByCategory[category] || "📂"}
                     </span>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">{category}</h4>
-                      <p className="text-[10px] text-slate-400">Wykorzystano {percent}% limitu</p>
+                      <h4 className="text-sm font-bold text-white">{category}</h4>
+                      <p className="text-[10px] text-slate-500">Wykorzystano {percent}% limitu</p>
                     </div>
                   </div>
                   
                   <div className="text-right">
-                    <span className="block text-xs font-bold text-slate-800">{formatMoney(spent, profile.currency || 'PLN')}</span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="block text-xs font-bold text-slate-200">{formatMoney(spent, profile.currency || 'PLN')}</span>
+                    <span className="text-[10px] text-slate-500">
                       {limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}
                     </span>
                   </div>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="w-full bg-slate-700/50 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     style={{ width: `${limit > 0 ? percent : 0}%` }}
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isOver ? "bg-[#d55e50]" : isClose ? "bg-amber-500" : "bg-[#137566]"
+                      isOver ? "bg-rose-500" : isClose ? "bg-amber-500" : "bg-teal-500"
                     }`}
                   ></div>
                 </div>
 
                 {isOver && (
-                  <p className="text-[11px] text-[#d55e50] font-bold mt-2" id={`alert-budget-over-${category}`}>
+                  <p className="text-[11px] text-rose-400 font-bold mt-2" id={`alert-budget-over-${category}`}>
                     Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit, profile.currency || 'PLN')}!
                   </p>
                 )}
                 {isClose && (
-                  <p className="text-[11px] text-amber-600 font-bold mt-2" id={`alert-budget-close-${category}`}>
+                  <p className="text-[11px] text-amber-400 font-bold mt-2" id={`alert-budget-close-${category}`}>
                     Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent, profile.currency || 'PLN')}.
                   </p>
                 )}
               </div>
 
               {/* Small list of category transactions */}
-              <div className="border-t border-slate-50 pt-3">
+              <div className="border-t border-slate-700/50 pt-3">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">Ostatnie wydatki w tej kategorii</p>
                 {catTransactions.length === 0 ? (
                   <p className="text-[11px] text-slate-400 italic">Brak wydatków w tym miesiącu.</p>
@@ -134,8 +134,8 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                   <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
                     {catTransactions.slice(0, 3).map((t) => (
                       <div key={t.id} className="flex justify-between items-center text-xs">
-                        <span className="text-slate-600 truncate max-w-[150px]">{t.name}</span>
-                        <span className="font-bold text-slate-700">{formatMoney(t.amount, profile.currency || 'PLN')}</span>
+                        <span className="text-slate-300 truncate max-w-[150px]">{t.name}</span>
+                        <span className="font-bold text-slate-200">{formatMoney(t.amount, profile.currency || 'PLN')}</span>
                       </div>
                     ))}
                   </div>
