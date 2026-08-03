@@ -99,7 +99,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "dashboard" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "dashboard" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-dashboard"
           >
@@ -113,7 +113,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "transactions" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "transactions" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-transactions"
           >
@@ -127,7 +127,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "payments" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "payments" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-payments"
           >
@@ -148,7 +148,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "budget" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "budget" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-budget"
           >
@@ -162,7 +162,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "goals" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "goals" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-goals"
           >
@@ -176,7 +176,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "analysis" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "analysis" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-analysis"
           >
@@ -193,7 +193,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "help" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "help" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-help"
           >
@@ -207,7 +207,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
-              activeView === "settings" ? "bg-slate-100 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "settings" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
             }`}
             id="nav-settings"
           >
@@ -250,7 +250,7 @@ export function AppShell({
       <main className="flex-1 flex flex-col h-full overflow-hidden" id="main-viewport-panel">
         {/* Demo Mode Top Banner */}
         {isDemoMode && showDemoBanner && (
-          <div className="bg-slate-100 text-slate-100 border-b border-slate-200 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
+          <div className="bg-slate-800/50 text-slate-200 border-b border-slate-700/50 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 shrink-0" />
               <div className="text-xs">
@@ -280,7 +280,7 @@ export function AppShell({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-xl border border-slate-200 hover:bg-slate-700 lg:hidden"
+              className="p-1 rounded-xl border border-slate-700/50 hover:bg-slate-700 lg:hidden"
               id="btn-open-mobile-menu"
             >
               <Menu className="w-5 h-5 text-white" />

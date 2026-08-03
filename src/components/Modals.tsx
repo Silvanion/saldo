@@ -57,30 +57,30 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Oszczędności</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Nowy cel oszczędnościowy</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Nowy cel oszczędnościowy</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Nazwa celu (np. Wakacje)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Nazwa celu (np. Wakacje)</label>
             <input
               required
               maxLength={120}
               placeholder="np. Poduszka finansowa, Remont, Nowy laptop"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota docelowa (zł)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Kwota docelowa (zł)</label>
             <input
               required
               type="number"
@@ -88,7 +88,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. 15000"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-target"
             />
           </div>
@@ -150,17 +150,17 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-deposit-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Transfer Celu</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Transfer: {goalName}</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Transfer: {goalName}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota (wpłata lub wypłata)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Kwota (wpłata lub wypłata)</label>
             <input
               required
               type="number"
@@ -168,7 +168,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
               placeholder="np. 100 (wpłata) lub -50 (wypłata)"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-deposit-amount"
             />
           </div>
@@ -244,19 +244,19 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-budget-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Limity Miesięczne</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Ustaw limity wydatków</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Ustaw limity wydatków</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
             {budgetCategories.map((category) => (
               <div key={category}>
-                <label className="block text-xs font-semibold text-slate-900 mb-1">{category} (zł)</label>
+                <label className="block text-xs font-semibold text-white mb-1">{category} (zł)</label>
                 <input
                   type="number"
                   min="0"
@@ -264,7 +264,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
                   placeholder="Brak limitu"
                   value={budgets[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+                  className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
                   id={`input-budget-${category}`}
                 />
               </div>
@@ -330,13 +330,13 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 cursor-pointer" id="close-pin-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Ochrona profilu</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-3">Ustaw kod PIN</h2>
+        <h2 className="text-2xl font-bold text-white mb-3">Ustaw kod PIN</h2>
 
         {/* Warning Copy Box */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-xs text-amber-900 space-y-2">
@@ -369,7 +369,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Kod PIN (4-8 cyfr)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Kod PIN (4-8 cyfr)</label>
             <input
               required
               type="password"
@@ -378,17 +378,17 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
               placeholder="np. 1234"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-3 text-center text-xl tracking-widest outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-3 text-center text-xl tracking-widest outline-none focus:border-emerald-500/50"
               id="input-pin-code"
             />
           </div>
 
-          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-slate-50/80 cursor-pointer text-xs text-slate-700 font-medium">
+          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-700/50 bg-slate-800/40 cursor-pointer text-xs text-slate-200 font-medium">
             <input
               type="checkbox"
               checked={hasAcceptedWarning}
               onChange={(e) => setHasAcceptedWarning(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
+              className="mt-0.5 w-4 h-4 rounded text-white focus:ring-emerald-500/50"
               id="checkbox-pin-recovery-warning"
             />
             <span>Rozumiem, że utrata PIN = utrata danych profilu</span>
@@ -449,16 +449,16 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
+        className={`w-full max-w-sm rounded-3xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-8 shadow-2xl ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
       >
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-900">
+          <div className="w-16 h-16 bg-slate-800/60 rounded-full flex items-center justify-center text-white">
             <Lock className="w-8 h-8" />
           </div>
         </div>
         
         <p className="text-[10px] font-bold uppercase tracking-wider text-center text-[#849590]">Zabezpieczony Profil</p>
-        <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">Podaj PIN</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">Podaj PIN</h2>
         <p className="text-sm text-slate-500 text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -472,7 +472,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
               autoFocus
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-100 focus:border-slate-400 text-slate-800'}`}
+              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-700/50 focus:border-emerald-500/50 text-slate-100'}`}
               id="input-unlock-pin"
             />
           </div>
@@ -495,7 +495,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             <button
               type="button"
               onClick={onSelectOtherProfile}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition"
+              className="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 hover:text-slate-100 transition"
               id="btn-unlock-other"
             >
               Wróć do wyboru profili

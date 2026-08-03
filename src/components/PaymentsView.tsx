@@ -356,7 +356,7 @@ export function PaymentsView({
                       {!isPaid && (
                         <button
                           onClick={() => onTriggerCalendarAi(p)}
-                          className="bg-slate-50 hover:bg-slate-700/50 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-slate-700/50"
+                          className="bg-slate-800/50 hover:bg-slate-700/50 text-slate-200 font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-slate-700/50"
                           title="Dodaj przypomnienie do Kalendarza Google (AI)"
                           id={`btn-calendar-ai-${p.id}`}
                         >

@@ -147,17 +147,17 @@ export function DashboardView({
           <p className="text-sm text-slate-400">Podsumowanie i wskaźniki dla tego miesiąca.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-sm overflow-hidden flex-1 sm:flex-none">
+          <div className="flex items-center bg-slate-800/40 backdrop-blur-md rounded-xl border border-slate-700/50 shadow-sm overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="px-4 py-2 hover:bg-white/10 transition text-slate-300 hover:text-white font-bold border-r border-white/10"
+              className="px-4 py-2 hover:bg-slate-700/40 transition text-slate-300 hover:text-white font-bold border-r border-slate-700/50"
               id="dash-prev-month"
             >
               ← Poprzedni
             </button>
             <button
               onClick={onNextMonth}
-              className="px-4 py-2 hover:bg-white/10 transition text-slate-300 hover:text-white font-bold"
+              className="px-4 py-2 hover:bg-slate-700/40 transition text-slate-300 hover:text-white font-bold"
               id="dash-next-month"
             >
               Następny →
@@ -165,7 +165,7 @@ export function DashboardView({
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-sm text-slate-400 hover:text-white hover:bg-white/10 transition group"
+            className="p-2.5 bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-sm text-slate-400 hover:text-white hover:bg-slate-700/40 transition group"
             title="Dostosuj ekran"
           >
             <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
@@ -269,7 +269,7 @@ export function DashboardView({
               style={{ minHeight: isEditMode ? '100px' : 'auto' }}
             >
               {isEditMode && (
-                <div className="absolute inset-0 bg-white/5 rounded-2xl border-2 border-white/20 z-20 pointer-events-none group-hover:border-white/40 transition flex items-start justify-between p-2">
+                <div className="absolute inset-0 bg-slate-800/40 rounded-2xl border-2 border-white/20 z-20 pointer-events-none group-hover:border-white/40 transition flex items-start justify-between p-2">
                   <div className="bg-slate-800/90 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-slate-700 flex items-center gap-1.5 text-slate-200 pointer-events-auto">
                     <GripVertical className="w-4 h-4" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">{widget.name.split(' ')[0]}</span>

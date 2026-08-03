@@ -178,7 +178,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={onDemoClick}
             disabled={loading}
-            className="w-full bg-slate-100 text-slate-200 py-3.5 rounded-xl font-bold hover:bg-slate-700 transition"
+            className="w-full bg-slate-800/80 border border-slate-700/50 text-slate-200 py-3.5 rounded-xl font-bold hover:bg-slate-700 transition"
           >
             Używaj offline (bez rejestracji)
           </button>

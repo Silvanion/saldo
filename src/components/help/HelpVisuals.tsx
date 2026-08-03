@@ -16,7 +16,7 @@ export function StepHighlight({ step, label, description }: StepHighlightProps) 
         {step}
       </div>
       <div>
-        <h5 className="font-bold text-slate-800 text-sm">{label}</h5>
+        <h5 className="font-bold text-slate-100 text-sm">{label}</h5>
         <p className="text-sm text-slate-300 mt-0.5 leading-relaxed">{description}</p>
       </div>
     </div>

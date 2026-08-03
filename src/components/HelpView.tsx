@@ -39,7 +39,7 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-800 text-base sm:text-lg">{title}</span>
+              <span className="font-bold text-slate-100 text-base sm:text-lg">{title}</span>
               {badge && (
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-[#137566] px-2 py-0.5 rounded-full">
                   {badge}
@@ -121,7 +121,7 @@ export function HelpView() {
               {card.icon}
             </div>
             <div>
-              <h4 className="font-bold text-slate-800 text-sm">{card.title}</h4>
+              <h4 className="font-bold text-slate-100 text-sm">{card.title}</h4>
               <p className="text-xs text-slate-300 mt-1">{card.description}</p>
             </div>
           </div>
