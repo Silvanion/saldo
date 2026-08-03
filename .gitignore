@@ -9,3 +9,7 @@ coverage/
 firebase-applet-config.json
 *.patch
 patch_*.cjs
+
+.agents/
+.vite-cache/
+design-system/
