@@ -45,7 +45,16 @@ export function resolveCurrency(
 }
 
 export function formatMoney(value: number, currency: string) {
-  return new Intl.NumberFormat("pl-PL", {
+  // Map currency to appropriate locale for formatting (thousands separator, decimal point)
+  const localeMap: Record<string, string> = {
+    "PLN": "pl-PL",
+    "EUR": "de-DE", // Europe-style formatting
+    "USD": "en-US",
+    "GBP": "en-GB"
+  };
+  const locale = localeMap[currency] || "pl-PL";
+
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency,
     minimumFractionDigits: 2,

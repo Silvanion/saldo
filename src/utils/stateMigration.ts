@@ -138,9 +138,24 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
         target: Number(goalObj.target || 0),
         saved: Number(goalObj.saved || 0),
         transfers: Array.isArray(goalObj.transfers) ? goalObj.transfers : [],
-        ...(goalObj.targetDate ? { targetDate: String(goalObj.targetDate) } : {})
+        ...(goalObj.targetDate ? { targetDate: String(goalObj.targetDate) } : {}),
+        currency: (goalObj.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN"))) as import("../types").SupportedCurrency
       };
     });
+
+    profile.investments = profile.investments.map((i: unknown) => {
+      const invObj = (i && typeof i === "object" ? i : {}) as Record<string, unknown>;
+      return {
+        id: String(invObj.id || ""),
+        name: String(invObj.name || "Inwestycja"),
+        amount: Number(invObj.amount || 0),
+        isoDate: String(invObj.isoDate || getLocalDateIso()),
+        ...(invObj.type ? { type: String(invObj.type) } : {}),
+        ...(invObj.notes ? { notes: String(invObj.notes) } : {}),
+        currency: (invObj.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN"))) as import("../types").SupportedCurrency
+      };
+    });
+
     return profile;
   });
 
