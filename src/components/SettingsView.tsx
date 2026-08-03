@@ -119,36 +119,36 @@ export function BankAccountsManager({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mb-8" id="settings-bank-accounts-card">
-      <h3 className="text-base font-bold text-slate-900 mb-2">Konta operacyjne</h3>
-      <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+    <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6 mb-8" id="settings-bank-accounts-card">
+      <h3 className="text-base font-bold text-slate-100 mb-2">Konta operacyjne</h3>
+      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
         Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
         Twój <strong>limit awaryjny</strong> traktuj tu wyłącznie jako bufor bezpieczeństwa – nie są to środki wliczone do budżetu i nie należy ich traktować jako "safe-to-spend".
       </p>
-      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50">
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa konta / portfela</label>
-          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nazwa konta / portfela</label>
+          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full text-xs rounded-xl border border-slate-700/50 p-2 outline-none focus:border-emerald-500/50" />
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
-          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
+          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full text-xs rounded-xl border border-slate-700/50 p-2 outline-none focus:border-emerald-500/50" />
         </div>
         <div className="flex items-center pt-5">
           <label className="flex items-center cursor-pointer">
             <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
-            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
-            <span className="ml-2 text-xs font-bold text-slate-600">Bufor awaryjny</span>
+            <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-800/40 after:border-slate-600 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
+            <span className="ml-2 text-xs font-bold text-slate-400">Bufor awaryjny</span>
           </label>
         </div>
         {accHasLimit && (
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota limitu</label>
-            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full text-xs rounded-xl border border-slate-200 p-2 outline-none focus:border-[#137566]" />
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kwota limitu</label>
+            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full text-xs rounded-xl border border-slate-700/50 p-2 outline-none focus:border-emerald-500/50" />
           </div>
         )}
         <div className="flex items-end lg:col-span-1">
-          <button type="submit" className="w-full bg-white border border-slate-200 text-[#137566] font-bold py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition text-xs shadow-sm cursor-pointer">
+          <button type="submit" className="w-full bg-slate-800/40 border border-slate-700/50 text-emerald-400 font-bold py-2 rounded-xl hover:bg-emerald-500/10 hover:border-emerald-500/30 transition text-xs shadow-sm cursor-pointer">
             + Dodaj konto
           </button>
         </div>
@@ -158,18 +158,18 @@ export function BankAccountsManager({
         <div className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {accounts.map((acc, index) => (
-              <div key={acc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition">
+              <div key={acc.id} className="flex items-center justify-between p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl hover:shadow-sm transition">
                 <div>
                   <div className="flex items-center gap-2">
-                    <strong className="text-xs text-slate-800">{acc.name}</strong>
-                    {index === 0 && <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">Domyślne</span>}
+                    <strong className="text-xs text-slate-200">{acc.name}</strong>
+                    {index === 0 && <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700/50">Domyślne</span>}
                   </div>
-                  {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
+                  {acc.bankName && <span className="mt-1 inline-block text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
                     <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer">
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-slate-400 hover:text-rose-400 transition p-1 cursor-pointer">
                   &times;
                 </button>
               </div>
@@ -212,29 +212,29 @@ export function TransactionRulesManager({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-category-rules-card">
-      <h3 className="text-base font-bold text-slate-900 mb-2">Automatyzacja kategoryzacji</h3>
-      <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+    <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-category-rules-card">
+      <h3 className="text-base font-bold text-slate-100 mb-2">Automatyzacja kategoryzacji</h3>
+      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
         Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
       </p>
 
-      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50">
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Słowo kluczowe (Fraza)</label>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Słowo kluczowe (Fraza)</label>
           <input
             type="text"
             value={rulePattern}
             onChange={(e) => setRulePattern(e.target.value)}
             placeholder="np. biedronka, netflix, orlen"
-            className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+            className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
           />
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Przypisz do kategorii</label>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Przypisz do kategorii</label>
           <select
             value={ruleCategory}
             onChange={(e) => setRuleCategory(e.target.value)}
-            className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+            className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
           >
             {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
               <option key={cat} value={cat}>
@@ -246,7 +246,7 @@ export function TransactionRulesManager({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-[#137566] text-white font-bold py-2 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm cursor-pointer"
+            className="w-full bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm cursor-pointer"
           >
             ＋ Zapisz dopasowanie
           </button>
@@ -256,21 +256,21 @@ export function TransactionRulesManager({
       {transactionRules.length === 0 ? (
         <p className="text-xs text-slate-400 italic text-center py-4">Brak zapisanych dopasowań. Zdefiniuj własne słowa kluczowe, by przyspieszyć przypisywanie kategorii.</p>
       ) : (
-        <div className="border border-slate-200 rounded-xl overflow-hidden">
+        <div className="border border-slate-700/50 rounded-xl overflow-hidden">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
+              <tr className="bg-slate-900/50 border-b border-slate-700/50 text-slate-400 font-bold">
                 <th className="py-2 px-3">Słowo kluczowe</th>
                 <th className="py-2 px-3">Kategoria docelowa</th>
                 <th className="py-2 px-3 text-right">Akcja</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-slate-100 bg-slate-800/40">
               {transactionRules.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50/50 transition">
-                  <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{r.pattern}</td>
+                <tr key={r.id} className="hover:bg-slate-900/50/50 transition">
+                  <td className="py-2.5 px-3 font-mono font-bold text-slate-100">{r.pattern}</td>
                   <td className="py-2.5 px-3">
-                    <span className="inline-flex items-center gap-1 bg-[#e7f3f0] text-[#137566] px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/100/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
                       <span>{r.categoryIcon || "✨"}</span>
                       {r.category}
                     </span>
@@ -494,77 +494,84 @@ export function SettingsView({
   const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
 
   return (
-    <div className="space-y-6 max-w-5xl xl:max-w-6xl mx-auto pb-16" id="settings-view-container">
-      {/* CATEGORY SUB-NAVIGATION BAR */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-3 mb-6">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            onClick={() => setSettingsTab("all")}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              settingsTab === "all"
-                ? "bg-[#137566] text-white shadow-sm"
-                : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-            }`}
-          >
-            <Settings2 className="w-4 h-4" /> Wszystkie sekcje
-          </button>
-          <button
-            onClick={() => setSettingsTab("profiles")}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              settingsTab === "profiles"
-                ? "bg-[#137566] text-white shadow-sm"
-                : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-            }`}
-          >
-            <Users className="w-4 h-4" /> Profile i PIN ({profiles.length})
-          </button>
-          <button
-            onClick={() => setSettingsTab("appearance")}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              settingsTab === "appearance"
-                ? "bg-[#137566] text-white shadow-sm"
-                : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-            }`}
-          >
-            <Palette className="w-4 h-4" /> Motyw i AI
-          </button>
-          <button
-            onClick={() => setSettingsTab("backup")}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              settingsTab === "backup"
-                ? "bg-[#137566] text-white shadow-sm"
-                : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-            }`}
-          >
-            <Cloud className="w-4 h-4" /> Chmura i Kopie
-          </button>
-          <button
-            onClick={() => setSettingsTab("automation")}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              settingsTab === "automation"
-                ? "bg-[#137566] text-white shadow-sm"
-                : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-            }`}
-          >
-            <Cpu className="w-4 h-4" /> Reguły i Konta
-          </button>
+    <div className="w-full max-w-7xl mx-auto pb-16" id="settings-view-container">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        
+        {/* SIDEBAR NAVIGATION */}
+        <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-2">
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-3">
+            <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none">
+              <button
+                onClick={() => setSettingsTab("all")}
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                  settingsTab === "all"
+                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    : "bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 lg:border-none border border-slate-700/50"
+                }`}
+              >
+                <Settings2 className="w-4 h-4 shrink-0" /> <span className="truncate">Wszystkie sekcje</span>
+              </button>
+              <button
+                onClick={() => setSettingsTab("profiles")}
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                  settingsTab === "profiles"
+                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    : "bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 lg:border-none border border-slate-700/50"
+                }`}
+              >
+                <Users className="w-4 h-4 shrink-0" /> <span className="truncate">Profile i PIN ({profiles.length})</span>
+              </button>
+              <button
+                onClick={() => setSettingsTab("appearance")}
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                  settingsTab === "appearance"
+                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    : "bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 lg:border-none border border-slate-700/50"
+                }`}
+              >
+                <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Motyw i AI</span>
+              </button>
+              <button
+                onClick={() => setSettingsTab("backup")}
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                  settingsTab === "backup"
+                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    : "bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 lg:border-none border border-slate-700/50"
+                }`}
+              >
+                <Cloud className="w-4 h-4 shrink-0" /> <span className="truncate">Chmura i Kopie</span>
+              </button>
+              <button
+                onClick={() => setSettingsTab("automation")}
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                  settingsTab === "automation"
+                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    : "bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 lg:border-none border border-slate-700/50"
+                }`}
+              >
+                <Cpu className="w-4 h-4 shrink-0" /> <span className="truncate">Reguły i Konta</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* MAIN CONTENT AREA */}
+        <div className="flex-1 min-w-0 space-y-6 w-full">
 
       {/* SECTION 1: PROFILES */}
       {(settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-profiles-card">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-profiles-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-700/30">
             <div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#137566]" />
-                <h3 className="text-base font-bold text-slate-900">Zarządzanie profilami budżetu</h3>
+                <Users className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-slate-100">Zarządzanie profilami budżetu</h3>
               </div>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Każdy profil posiada niezależne transakcje, limity, salda bankowe oraz cele oszczędnościowe.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-[#137566] border border-emerald-100 shrink-0 self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0 self-start sm:self-auto">
               {profiles.length} {profiles.length === 1 ? "profil" : profiles.length < 5 ? "profile" : "profili"}
             </span>
           </div>
@@ -577,38 +584,38 @@ export function SettingsView({
               
               if (isEditing && editProfileData) {
                 return (
-                  <div key={p.id} className="col-span-1 sm:col-span-2 bg-white rounded-2xl border border-[#137566] p-5 shadow-md ring-2 ring-[#137566]/20">
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                  <div key={p.id} className="col-span-1 sm:col-span-2 bg-slate-800/40 rounded-2xl border border-emerald-500/50 p-5 shadow-md ring-2 ring-emerald-500/20">
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-700/30">
                       <div className="flex items-center gap-2">
-                        <Edit2 className="w-4 h-4 text-[#137566]" />
-                        <h4 className="text-sm font-extrabold text-slate-900">Edycja profilu: {p.name}</h4>
+                        <Edit2 className="w-4 h-4 text-emerald-400" />
+                        <h4 className="text-sm font-extrabold text-slate-100">Edycja profilu: {p.name}</h4>
                       </div>
-                      <button onClick={cancelEditingProfile} className="text-slate-400 hover:text-slate-600 p-1 text-lg leading-none">&times;</button>
+                      <button onClick={cancelEditingProfile} className="text-slate-400 hover:text-slate-400 p-1 text-lg leading-none">&times;</button>
                     </div>
                     <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold text-slate-900 mb-1">Nazwa profilu</label>
+                          <label className="block text-xs font-bold text-slate-100 mb-1">Nazwa profilu</label>
                           <input
                             type="text"
                             value={editProfileData.name}
                             onChange={(e) => setEditProfileData(prev => prev ? { ...prev, name: e.target.value } : null)}
-                            className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                            className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-slate-900 mb-1">Ikona profilu</label>
-                          <details className="group border border-slate-200 rounded-xl relative">
-                            <summary className="p-2.5 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
+                          <label className="block text-xs font-bold text-slate-100 mb-1">Ikona profilu</label>
+                          <details className="group border border-slate-700/50 rounded-xl relative">
+                            <summary className="p-2.5 text-xs font-bold text-slate-300 cursor-pointer bg-slate-900/50 hover:bg-slate-800 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-700/50">
                               <div className="flex items-center gap-3">
                                 <span className="text-xl leading-none">{editProfileData.avatar}</span>
                                 <span>Zmień ikonę</span>
                               </div>
                               <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
                             </summary>
-                            <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-xl">
+                            <div className="p-3 border-t border-slate-700/50 bg-slate-800/40 absolute w-full z-10 shadow-lg rounded-b-xl">
                               <div className="grid grid-cols-6 gap-2">
                                 {["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"].map(emoji => (
                                   <button
@@ -620,7 +627,7 @@ export function SettingsView({
                                         document.activeElement.blur();
                                       }
                                     }}
-                                    className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-50 border-[#137566] shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
+                                    className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-slate-900/50 border-slate-700/30 hover:bg-slate-800 grayscale hover:grayscale-0'}`}
                                   >
                                     {emoji}
                                   </button>
@@ -632,11 +639,11 @@ export function SettingsView({
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-900 mb-1">Rodzaj profilu</label>
+                        <label className="block text-xs font-bold text-slate-100 mb-1">Rodzaj profilu</label>
                         <select
                           value={editProfileData.kind}
                           onChange={(e) => setEditProfileData(prev => prev ? { ...prev, kind: e.target.value as "personal" | "shared" } : null)}
-                          className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                          className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
                         >
                           <option value="personal">👤 Osobisty (budżet prywatny)</option>
                           <option value="shared">👪 Wspólny (budżet domowy / z partnerem)</option>
@@ -645,12 +652,12 @@ export function SettingsView({
 
                       {editProfileData.kind === "shared" && (
                         <div>
-                          <label className="block text-xs font-bold text-slate-900 mb-1">Imię partnera/współdzielącego</label>
+                          <label className="block text-xs font-bold text-slate-100 mb-1">Imię partnera/współdzielącego</label>
                           <input
                             type="text"
                             value={editProfileData.partnerName}
                             onChange={(e) => setEditProfileData(prev => prev ? { ...prev, partnerName: e.target.value } : null)}
-                            className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                            className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
                             placeholder="np. Anna"
                             required
                             pattern=".*\S+.*"
@@ -659,18 +666,18 @@ export function SettingsView({
                         </div>
                       )}
                       
-                      <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                      <div className="flex justify-end gap-2 pt-2 border-t border-slate-700/30">
                         <button
                           type="button"
                           onClick={cancelEditingProfile}
-                          className="bg-white border border-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-slate-50 transition cursor-pointer"
+                          className="bg-slate-800/40 border border-slate-700/50 text-slate-400 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-slate-900/50 transition cursor-pointer"
                         >
                           Anuluj
                         </button>
                         <button
                           type="submit"
                           disabled={editProfileData.name === p.name && editProfileData.kind === p.kind && editProfileData.partnerName === (p.partnerName || "") && editProfileData.avatar === (p.avatar || "👤")}
-                          className="bg-[#137566] text-white font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Zapisz zmiany
                         </button>
@@ -684,31 +691,31 @@ export function SettingsView({
                 return (
                   <div
                     key={p.id}
-                    className="col-span-1 sm:col-span-2 bg-gradient-to-br from-[#f0f9f6] via-white to-[#e6f4f0] dark:from-[#137566]/15 dark:via-slate-900 dark:to-[#137566]/10 border-2 border-[#137566] dark:border-[#137566]/40 rounded-2xl p-5 shadow-md ring-1 ring-[#137566]/20 dark:ring-[#137566]/10 relative overflow-hidden flex flex-col justify-between gap-4"
+                    className="col-span-1 sm:col-span-2 bg-gradient-to-br from-emerald-500/10 via-slate-800 to-emerald-500/5    border-2 border-emerald-500/50  rounded-2xl p-5 shadow-md ring-1 ring-emerald-500/20  relative overflow-hidden flex flex-col justify-between gap-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-[#137566]/20 dark:border-[#137566]/30 shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-800/40  border border-emerald-500/20  shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
                           {p.avatar || "👤"}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-base font-extrabold text-slate-900 truncate">{p.name}</strong>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#137566] text-white shadow-xs">
+                            <strong className="text-base font-extrabold text-slate-100 truncate">{p.name}</strong>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 shadow-xs">
                               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
                               AKTYWNY
                             </span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-white/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-2.5 py-0.5 rounded-md">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 bg-slate-800/80  border border-slate-700/50  px-2.5 py-0.5 rounded-md">
                               {isShared ? `👪 Wspólny (z ${p.partnerName})` : "👤 Osobisty"}
                             </span>
                             {p.pinHash ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-                                <Lock className="w-3 h-3 text-amber-600" /> Kod PIN
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                                <Lock className="w-3 h-3 text-amber-400" /> Kod PIN
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-900/50 border border-slate-700/50 px-2 py-0.5 rounded-md">
                                 Bez PINu
                               </span>
                             )}
@@ -716,24 +723,24 @@ export function SettingsView({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0 bg-white/80 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-xs">
+                      <div className="flex items-center gap-1 shrink-0 bg-slate-800/80  p-1 rounded-xl border border-slate-700/50  shadow-xs">
                         <button
                           onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                          className="p-2 text-slate-600 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
                           title="Edytuj profil"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={onOpenPinModal}
-                          className="p-2 text-slate-600 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
                           title="Zarządzaj kodem PIN"
                         >
                           <KeyRound className="w-4 h-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition cursor-pointer"
                           title="Usuń profil"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -741,13 +748,13 @@ export function SettingsView({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-3 border-t border-[#137566]/15 dark:border-[#137566]/30 text-[#137566] font-bold">
+                    <div className="flex items-center justify-between text-xs pt-3 border-t border-emerald-500/50/15  text-emerald-400 font-bold">
                       <span className="flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4 text-[#137566]" /> Aktualnie pracujesz na tym profilu
+                        <CheckCircle className="w-4 h-4 text-emerald-400" /> Aktualnie pracujesz na tym profilu
                       </span>
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[11px] hover:underline flex items-center gap-1 text-[#137566] font-bold cursor-pointer"
+                        className="text-[11px] hover:underline flex items-center gap-1 text-emerald-400 font-bold cursor-pointer"
                       >
                         {p.pinHash ? "Zmień PIN" : "Ustaw PIN"} <ArrowRight className="w-3 h-3" />
                       </button>
@@ -759,21 +766,21 @@ export function SettingsView({
               return (
                 <div
                   key={p.id}
-                  className="bg-white border border-slate-200/90 hover:border-[#137566]/40 hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
+                  className="bg-slate-800/40 border border-slate-700/50/90 hover:border-emerald-500/30 hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                      <div className="w-11 h-11 rounded-xl bg-slate-900/50 border border-slate-700/50 flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                         {p.avatar || "👤"}
                       </div>
                       <div className="min-w-0">
-                        <strong className="block text-sm font-bold text-slate-900 truncate">{p.name}</strong>
+                        <strong className="block text-sm font-bold text-slate-100 truncate">{p.name}</strong>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
                             {isShared ? `Wspólny (${p.partnerName})` : "Osobisty"}
                           </span>
                           {p.pinHash && (
-                            <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
                               <Lock className="w-3 h-3" /> PIN
                             </span>
                           )}
@@ -784,14 +791,14 @@ export function SettingsView({
                     <div className="flex items-center gap-0.5 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                        className="p-1.5 text-slate-400 hover:text-[#137566] hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
                         title="Edytuj profil"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition cursor-pointer"
                         title="Usuń profil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -801,7 +808,7 @@ export function SettingsView({
 
                   <button
                     onClick={() => onSelectProfile(p.id)}
-                    className="w-full py-2 px-3 bg-[#137566]/10 hover:bg-[#137566] text-[#137566] hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1"
+                    className="w-full py-2 px-3 bg-emerald-500/100/10 hover:bg-[#137566] text-emerald-400 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1"
                     id={`btn-select-profile-${p.id}`}
                   >
                     <span>Otwórz ten profil</span>
@@ -814,9 +821,9 @@ export function SettingsView({
             <button
               onClick={onOpenProfileModal}
               id="btn-add-profile-settings"
-              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#137566] hover:bg-[#f0f9f6] text-[#137566] font-bold text-xs transition-all cursor-pointer group shadow-xs"
+              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-slate-700/50 hover:border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-400 font-bold text-xs transition-all cursor-pointer group shadow-xs"
             >
-              <div className="p-2 bg-emerald-100 text-[#137566] rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl group-hover:scale-110 transition-transform">
                 <Plus className="w-4 h-4" />
               </div>
               <span> Utwórz nowy profil budżetu</span>
@@ -827,36 +834,36 @@ export function SettingsView({
 
       {/* SECTION: ACTIVE PROFILE SETTINGS */}
       {activeProfile && editProfileData && (settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-active-profile-card">
-          <h3 className="text-base font-bold text-slate-900 mb-2">Ustawienia aktywnego profilu</h3>
-          <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-active-profile-card">
+          <h3 className="text-base font-bold text-slate-100 mb-2">Ustawienia aktywnego profilu</h3>
+          <p className="text-xs text-slate-400 mb-5 leading-relaxed">
             Dostosuj nazwę, ikonę oraz rodzaj dla aktualnie wybranego profilu: <strong>{activeProfile.name}</strong>.
           </p>
 
           <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">Nazwa profilu</label>
+                <label className="block text-xs font-bold text-slate-100 mb-1">Nazwa profilu</label>
                 <input
                   type="text"
                   value={editProfileData.name}
                   onChange={(e) => setEditProfileData(prev => prev ? { ...prev, name: e.target.value } : null)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                  className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">Ikona profilu</label>
-                <details className="group border border-slate-200 rounded-xl relative">
-                  <summary className="p-2.5 text-xs font-bold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
+                <label className="block text-xs font-bold text-slate-100 mb-1">Ikona profilu</label>
+                <details className="group border border-slate-700/50 rounded-xl relative">
+                  <summary className="p-2.5 text-xs font-bold text-slate-300 cursor-pointer bg-slate-900/50 hover:bg-slate-800 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-700/50">
                     <div className="flex items-center gap-3">
                       <span className="text-xl leading-none">{editProfileData.avatar}</span>
                       <span>Wybierz ikonę</span>
                     </div>
                     <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
                   </summary>
-                  <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-lg">
+                  <div className="p-3 border-t border-slate-700/50 bg-slate-800/40 absolute w-full z-10 shadow-lg rounded-b-lg">
                     <div className="grid grid-cols-6 gap-2">
                       {["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"].map(emoji => (
                         <button
@@ -869,7 +876,7 @@ export function SettingsView({
                               document.activeElement.blur();
                             }
                           }}
-                          className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-50 border-[#137566] shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
+                          className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-slate-900/50 border-slate-700/30 hover:bg-slate-800 grayscale hover:grayscale-0'}`}
                         >
                           {emoji}
                         </button>
@@ -881,11 +888,11 @@ export function SettingsView({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-900 mb-1">Rodzaj profilu</label>
+              <label className="block text-xs font-bold text-slate-100 mb-1">Rodzaj profilu</label>
               <select
                 value={editProfileData.kind}
                 onChange={(e) => setEditProfileData(prev => prev ? { ...prev, kind: e.target.value as "personal" | "shared" } : null)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
               >
                 <option value="personal">👤 Osobisty</option>
                 <option value="shared">👪 Wspólny (wymaga podania imienia partnera)</option>
@@ -894,12 +901,12 @@ export function SettingsView({
 
             {editProfileData.kind === "shared" && (
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">Imię partnera/współdzielącego</label>
+                <label className="block text-xs font-bold text-slate-100 mb-1">Imię partnera/współdzielącego</label>
                 <input
                   type="text"
                   value={editProfileData.partnerName}
                   onChange={(e) => setEditProfileData(prev => prev ? { ...prev, partnerName: e.target.value } : null)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-slate-50 focus:bg-white focus:border-[#137566] text-sm font-medium"
+                  className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-900/50 focus:bg-slate-800/40 focus:border-emerald-500/50 text-sm font-medium"
                   placeholder="np. Anna"
                   required
                   pattern=".*\S+.*"
@@ -912,7 +919,7 @@ export function SettingsView({
               <button
                 type="submit"
                 disabled={editProfileData.name === activeProfile.name && editProfileData.kind === activeProfile.kind && editProfileData.partnerName === (activeProfile.partnerName || "") && editProfileData.avatar === (activeProfile.avatar || "👤")}
-                className="bg-[#137566] text-white font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Zapisz zmiany profilu
               </button>
@@ -923,9 +930,9 @@ export function SettingsView({
 
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-theme-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Motyw i wygląd aplikacji</h3>
-        <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-theme-card">
+        <h3 className="text-base font-bold text-slate-100 mb-2">Motyw i wygląd aplikacji</h3>
+        <p className="text-xs text-slate-400 mb-5 leading-relaxed">
           Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji. Wybierz jasny motyw dla pełnej czytelności w dzień, ciemny dla ochrony oczu w nocy, lub pozwól systemowi na automatyczną zmianę.
         </p>
 
@@ -935,16 +942,16 @@ export function SettingsView({
             onClick={() => onThemeChange("light")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "light"
-                ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-slate-300"
+                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
             }`}
             id="btn-set-theme-light"
           >
-            <div className={`p-2 rounded-xl ${theme === "light" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${theme === "light" ? "bg-slate-800/40 text-emerald-400" : "bg-slate-800 text-slate-400"}`}>
               <Sun className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-900">Jasny motyw</strong>
+              <strong className="block text-sm text-slate-100">Jasny motyw</strong>
               <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Klasyczny i przejrzysty</span>
             </div>
           </button>
@@ -954,16 +961,16 @@ export function SettingsView({
             onClick={() => onThemeChange("dark")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "dark"
-                ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-slate-300"
+                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
             }`}
             id="btn-set-theme-dark"
           >
-            <div className={`p-2 rounded-xl ${theme === "dark" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${theme === "dark" ? "bg-slate-800/40 text-emerald-400" : "bg-slate-800 text-slate-400"}`}>
               <Moon className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-900">Ciemny motyw</strong>
+              <strong className="block text-sm text-slate-100">Ciemny motyw</strong>
               <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Komfortowy dla wzroku</span>
             </div>
           </button>
@@ -973,16 +980,16 @@ export function SettingsView({
             onClick={() => onThemeChange("auto")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "auto"
-                ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-slate-300"
+                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
             }`}
             id="btn-set-theme-auto"
           >
-            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-slate-800/40 text-emerald-400" : "bg-slate-800 text-slate-400"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-900">Automatyczny</strong>
+              <strong className="block text-sm text-slate-100">Automatyczny</strong>
               <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Zależny od pory dnia</span>
             </div>
           </button>
@@ -992,8 +999,8 @@ export function SettingsView({
 
       {/* SECTION: CURRENCY SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 mt-6" id="settings-currency-card">
-          <h3 className="text-base font-bold text-slate-900 mb-2">Waluta</h3>
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6 mt-6" id="settings-currency-card">
+          <h3 className="text-base font-bold text-slate-100 mb-2">Waluta</h3>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" id="currency-selectors-grid">
             {(["PLN", "EUR", "USD", "GBP"] as const).map(curr => (
@@ -1013,12 +1020,12 @@ export function SettingsView({
                 }}
                 className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
                   (activeProfile?.currency || "PLN") === curr
-                    ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                    : "bg-white border-slate-200 hover:border-slate-300"
+                    ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                    : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
                 }`}
               >
                 <div>
-                  <strong className="block text-sm text-slate-900">{curr}</strong>
+                  <strong className="block text-sm text-slate-100">{curr}</strong>
                 </div>
               </button>
             ))}
@@ -1028,9 +1035,9 @@ export function SettingsView({
 
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-ai-provider-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Konfiguracja silnika AI</h3>
-        <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-ai-provider-card">
+        <h3 className="text-base font-bold text-slate-100 mb-2">Konfiguracja silnika AI</h3>
+        <p className="text-xs text-slate-400 mb-5 leading-relaxed">
           Wybierz dostawcę inteligencji dla kategoryzacji transakcji, analizy wyciągów oraz asystenta finansowego. Możesz wyłączyć AI, użyć lokalnego modelu (Ollama) lub bezpiecznej chmury.
         </p>
 
@@ -1041,16 +1048,16 @@ export function SettingsView({
             onClick={() => saveState({ ...state, aiMode: "none" })}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               (state.aiMode || "none") === "none"
-                ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-slate-300"
+                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
             }`}
             id="btn-set-ai-mode-none"
           >
-            <div className={`p-2 rounded-xl ${(state.aiMode || "none") === "none" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${(state.aiMode || "none") === "none" ? "bg-slate-800/40 text-emerald-400" : "bg-slate-800 text-slate-400"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-900">Brak AI</strong>
+              <strong className="block text-sm text-slate-100">Brak AI</strong>
               <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Standardowe reguły</span>
             </div>
           </button>
@@ -1061,16 +1068,16 @@ export function SettingsView({
             onClick={() => saveState({ ...state, aiMode: "local", localAiEndpoint: state.localAiEndpoint || "http://localhost:11434/api/generate" })}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               state.aiMode === "local"
-                ? "bg-[#e7f3f0] border-[#137566] ring-1 ring-[#137566]"
-                : "bg-white border-slate-200 hover:border-slate-300"
+                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
             }`}
             id="btn-set-ai-mode-local"
           >
-            <div className={`p-2 rounded-xl ${state.aiMode === "local" ? "bg-white text-[#137566]" : "bg-slate-100 text-slate-500"}`}>
+            <div className={`p-2 rounded-xl ${state.aiMode === "local" ? "bg-slate-800/40 text-emerald-400" : "bg-slate-800 text-slate-400"}`}>
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-900">Lokalne AI</strong>
+              <strong className="block text-sm text-slate-100">Lokalne AI</strong>
               <span className="text-[10px] text-slate-400 mt-0.5 block font-medium">Ollama / Serwer lokalny</span>
             </div>
           </button>
@@ -1079,14 +1086,14 @@ export function SettingsView({
           <button
             type="button"
             disabled={true}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-not-allowed opacity-60 bg-slate-50 border-slate-200`}
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-not-allowed opacity-60 bg-slate-900/50 border-slate-700/50`}
             id="btn-set-ai-mode-cloud"
           >
-            <div className={`p-2 rounded-xl bg-slate-100 text-slate-500`}>
+            <div className={`p-2 rounded-xl bg-slate-800 text-slate-400`}>
               <Cloud className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-slate-500 line-through">Chmura AI (Gemini)</strong>
+              <strong className="block text-sm text-slate-400 line-through">Chmura AI (Gemini)</strong>
               <span className="text-[10px] text-[#d55e50] font-bold mt-1 block uppercase tracking-wider bg-red-100 px-2 py-0.5 rounded-full inline-block">Dostępne w przyszłości</span>
             </div>
           </button>
@@ -1094,13 +1101,13 @@ export function SettingsView({
 
         {/* Local AI Endpoint Configuration when Local mode selected */}
         {state.aiMode === "local" && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3 animate-fade-in">
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-3 animate-fade-in">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-900">Lokalny punkt końcowy (Endpoint):</label>
+              <label className="text-xs font-bold text-slate-100">Lokalny punkt końcowy (Endpoint):</label>
               <button
                 type="button"
                 onClick={() => saveState({ ...state, localAiEndpoint: "http://localhost:11434/api/generate" })}
-                className="text-[10px] font-extrabold text-[#137566] hover:underline cursor-pointer"
+                className="text-[10px] font-extrabold text-emerald-400 hover:underline cursor-pointer"
               >
                 Przywróć domyślny Ollama (11434)
               </button>
@@ -1111,7 +1118,7 @@ export function SettingsView({
                 value={state.localAiEndpoint || "http://localhost:11434/api/generate"}
                 onChange={(e) => saveState({ ...state, localAiEndpoint: e.target.value })}
                 placeholder="http://localhost:11434/api/generate"
-                className="flex-1 bg-white border border-emerald-300 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:border-[#137566]"
+                className="flex-1 bg-slate-800/40 border border-emerald-500/40 rounded-xl p-2.5 text-xs text-slate-200 outline-none focus:border-emerald-500/50"
                 id="input-local-ai-endpoint"
               />
               <button
@@ -1134,34 +1141,34 @@ export function SettingsView({
                     alert("Błąd sieciowy: Nie udało się połączyć z backendem.");
                   }
                 }}
-                className="px-3 py-2 bg-[#137566] hover:bg-[#0f5d51] text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
+                className="px-3 py-2 bg-[#137566] hover:bg-emerald-500/30 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
                 id="btn-test-local-ai"
               >
                 Testuj połączenie
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 leading-relaxed">
-              Ze względów bezpieczeństwa zezwalane są wyłącznie połączenia z adresem lokalnym (np. <code className="bg-white/80 px-1 py-0.5 rounded border text-[#137566]">http://localhost:11434/api/generate</code> lub <code className="bg-white/80 px-1 py-0.5 rounded border text-[#137566]">127.0.0.1</code>).
+            <p className="text-[10px] text-slate-400 leading-relaxed">
+              Ze względów bezpieczeństwa zezwalane są wyłącznie połączenia z adresem lokalnym (np. <code className="bg-slate-800/80 px-1 py-0.5 rounded border text-emerald-400">http://localhost:11434/api/generate</code> lub <code className="bg-slate-800/80 px-1 py-0.5 rounded border text-emerald-400">127.0.0.1</code>).
             </p>
             
-            <details className="group border border-emerald-200 rounded-xl bg-white overflow-hidden">
-              <summary className="p-3 text-xs font-bold text-slate-900 cursor-pointer hover:bg-emerald-50 flex justify-between items-center list-none select-none">
+            <details className="group border border-emerald-500/30 rounded-xl bg-slate-800/40 overflow-hidden">
+              <summary className="p-3 text-xs font-bold text-slate-100 cursor-pointer hover:bg-emerald-500/10 flex justify-between items-center list-none select-none">
                 Jak uruchomić lokalne AI na swoim komputerze?
                 <span className="group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <div className="p-4 border-t border-emerald-100 text-xs text-slate-600 space-y-4">
-                <p>Aby korzystać z modelu bezpłatnie i z zachowaniem pełnej prywatności (dane nie opuszczają Twojego komputera), zainstaluj silnik <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-[#137566] underline font-medium">Ollama</a>.</p>
+              <div className="p-4 border-t border-emerald-500/20 text-xs text-slate-400 space-y-4">
+                <p>Aby korzystać z modelu bezpłatnie i z zachowaniem pełnej prywatności (dane nie opuszczają Twojego komputera), zainstaluj silnik <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-medium">Ollama</a>.</p>
                 
                 <div className="space-y-2">
-                  <h4 className="font-bold text-slate-800 text-[13px] flex items-center gap-1.5">🍎 macOS</h4>
+                  <h4 className="font-bold text-slate-200 text-[13px] flex items-center gap-1.5">🍎 macOS</h4>
                   <ol className="list-decimal pl-5 space-y-1">
                     <li>Pobierz instalator dla macOS ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ollama.com</a>.</li>
-                    <li>Po instalacji otwórz <strong>Terminal</strong> i uruchom model (np. llama3): <br/><code className="bg-slate-100 border px-1.5 py-0.5 rounded inline-block mt-1">ollama run llama3</code></li>
+                    <li>Po instalacji otwórz <strong>Terminal</strong> i uruchom model (np. llama3): <br/><code className="bg-slate-800 border px-1.5 py-0.5 rounded inline-block mt-1">ollama run llama3</code></li>
                   </ol>
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="font-bold text-slate-800 text-[13px] flex items-center gap-1.5">🪟 Windows</h4>
+                  <h4 className="font-bold text-slate-200 text-[13px] flex items-center gap-1.5">🪟 Windows</h4>
                   <ol className="list-decimal pl-5 space-y-1">
                     <li>Pobierz instalator Windows ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ollama.com</a>.</li>
                     <li>Aby aplikacja Saldo mogła połączyć się z modelem, musisz zezwolić na reguły <strong>CORS</strong>. W tym celu otwórz <strong>Wiersz polecenia (cmd)</strong> lub PowerShell i wpisz poniższe komendy jedna po drugiej:</li>
@@ -1181,15 +1188,15 @@ export function SettingsView({
 
       {/* SECTION 2: PIN SECURITY */}
       {activeProfile && (settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-pin-card">
-          <h3 className="text-base font-bold text-slate-900 mb-2">Zabezpieczenie aktywnego profilu</h3>
-          <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-pin-card">
+          <h3 className="text-base font-bold text-slate-100 mb-2">Zabezpieczenie aktywnego profilu</h3>
+          <p className="text-xs text-slate-400 mb-4 leading-relaxed">
             Dodaj kod PIN, aby zabezpieczyć swoje poufne transakcje i informacje budżetowe przed nieautoryzowanym wglądem innych użytkowników na tym urządzeniu.
           </p>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50">
             <div>
-              <span className="text-xs font-bold text-slate-700 block">
+              <span className="text-xs font-bold text-slate-300 block">
                 {activeProfile.pinHash ? "🛡️ Twój profil jest obecnie chroniony kodem PIN" : "🔓 Profil nie posiada zabezpieczenia PIN"}
               </span>
               <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1198,7 +1205,7 @@ export function SettingsView({
             </div>
             <button
               onClick={onOpenPinModal}
-              className="bg-[#137566] text-white font-bold py-2 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm shrink-0 cursor-pointer"
+              className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm shrink-0 cursor-pointer"
               id="btn-set-profile-pin"
             >
               {activeProfile.pinHash ? "Zmień kod PIN" : "Ustaw kod PIN"}
@@ -1209,30 +1216,30 @@ export function SettingsView({
 
       {/* SECTION 3: GOOGLE DRIVE CLOUD INTEGRATION */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-google-drive-card">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-google-drive-card">
         <div className="flex items-center gap-2 mb-2">
-          <Cloud className="w-5 h-5 text-[#137566]" />
-          <h3 className="text-base font-bold text-slate-900">Kopia zapasowa w chmurze (Dysk Google)</h3>
+          <Cloud className="w-5 h-5 text-emerald-400" />
+          <h3 className="text-base font-bold text-slate-100">Kopia zapasowa w chmurze (Dysk Google)</h3>
         </div>
-        <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-          Podłącz swój osobisty Dysk Google, aby bezpiecznie archiwizować plik bazy danych budżetu (<code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">saldo_budget.json</code>). Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
+        <p className="text-xs text-slate-400 mb-5 leading-relaxed">
+          Podłącz swój osobisty Dysk Google, aby bezpiecznie archiwizować plik bazy danych budżetu (<code className="bg-slate-800 px-1 py-0.5 rounded font-mono text-[11px]">saldo_budget.json</code>). Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
         </p>
 
         {googleError && (
-          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs space-y-2" id="gdrive-auth-error-notice">
+          <div className="mb-5 p-4 bg-rose-500/10 border border-rose-200 rounded-xl text-rose-800 text-xs space-y-2" id="gdrive-auth-error-notice">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
               <div className="font-bold text-rose-900">Błąd połączenia z kontem Google</div>
             </div>
             {googleError === "auth/popup-closed-by-user" ? (
-              <div className="leading-relaxed text-slate-600 pl-6 space-y-2">
+              <div className="leading-relaxed text-slate-400 pl-6 space-y-2">
                 <p>
                   <strong>Okno logowania zostało zamknięte</strong> przed ukończeniem autoryzacji.
                 </p>
                 <p>
                   Jeśli korzystasz z aplikacji wewnątrz ramki podglądu (iframe) w AI Studio, przeglądarka mogła automatycznie zablokować wyskakujące okienko (pop-up) lub zablokować dostęp do plików cookies firm trzecich.
                 </p>
-                <p className="font-bold text-[#137566]">
+                <p className="font-bold text-emerald-400">
                   💡 Aby rozwiązać ten problem:
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
@@ -1241,19 +1248,19 @@ export function SettingsView({
                 </ul>
               </div>
             ) : (
-              <div className="leading-relaxed text-slate-600 pl-6 space-y-2">
+              <div className="leading-relaxed text-slate-400 pl-6 space-y-2">
                 <p>
                   Szczegóły błędu: <code className="bg-rose-100/50 px-1 py-0.5 rounded font-mono text-[11px]">{googleError}</code>.
                 </p>
                 {googleError?.includes('unauthorized-domain') || googleError?.includes('nie jest autoryzowana') ? (
-                  <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 mt-2">
+                  <div className="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 mt-2">
                     <p className="font-bold text-amber-900 mb-1">⚠️ Wymagana konfiguracja w Firebase</p>
                     <p className="text-amber-800 text-xs">
                       Aktualna domena nie jest dodana do autoryzowanych domen w Twoim projekcie Firebase.
                       Aby to naprawić:
                     </p>
                     <ol className="list-decimal pl-5 mt-1 space-y-1 text-amber-800 text-xs font-medium">
-                      <li>Wejdź na stronę <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-amber-600">console.firebase.google.com</a></li>
+                      <li>Wejdź na stronę <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-amber-400">console.firebase.google.com</a></li>
                       <li>Wybierz swój projekt</li>
                       <li>Przejdź do <strong>Authentication</strong> &gt; <strong>Settings</strong> (Ustawienia) &gt; <strong>Authorized domains</strong> (Autoryzowane domeny)</li>
                       <li>Dodaj domenę: <code className="bg-amber-100 px-1 rounded select-all">{window.location.hostname}</code></li>
@@ -1268,14 +1275,14 @@ export function SettingsView({
         )}
 
         {!googleUser ? (
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center space-y-4">
-            <p className="text-xs text-slate-600 max-w-md mx-auto">
+          <div className="bg-slate-900/50 border border-slate-700/50 rounded-2xl p-6 text-center space-y-4">
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
               Aplikacja Saldo nie posiada centralnej bazy danych do przechowywania Twoich finansów. Podłączenie Dysku Google utworzy bezpieczny plik, z którego możesz korzystać na każdym urządzeniu.
             </p>
             <button
               onClick={onConnectGoogle}
               disabled={isGoogleLoading}
-              className="inline-flex items-center gap-2 bg-[#137566] text-white font-bold py-3 px-6 rounded-xl text-xs hover:bg-[#0f5d51] transition disabled:opacity-50 cursor-pointer shadow-md"
+              className="inline-flex items-center gap-2 bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-3 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition disabled:opacity-50 cursor-pointer shadow-md"
               id="btn-google-drive-connect"
             >
               {isGoogleLoading ? (
@@ -1287,20 +1294,20 @@ export function SettingsView({
               )}
               <span>Połącz z kontem Google Drive</span>
             </button>
-            <details className="group mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden text-left max-w-md mx-auto">
-              <summary className="p-3 text-[11px] font-bold text-slate-700 cursor-pointer hover:bg-slate-50 flex justify-between items-center list-none select-none">
-                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-slate-500" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
+            <details className="group mt-4 border border-slate-700/50 rounded-xl bg-slate-800/40 overflow-hidden text-left max-w-md mx-auto">
+              <summary className="p-3 text-[11px] font-bold text-slate-300 cursor-pointer hover:bg-slate-900/50 flex justify-between items-center list-none select-none">
+                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-slate-400" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
                 <span className="group-open:rotate-180 transition-transform text-slate-400">▼</span>
               </summary>
-              <div className="p-4 border-t border-slate-100 text-[11px] text-slate-600 space-y-3 leading-relaxed">
+              <div className="p-4 border-t border-slate-700/30 text-[11px] text-slate-400 space-y-3 leading-relaxed">
                 <p>
-                  Aplikacja Saldo działa w modelu <strong className="text-slate-800">Local-First</strong> (dane są na Twoim urządzeniu). 
+                  Aplikacja Saldo działa w modelu <strong className="text-slate-200">Local-First</strong> (dane są na Twoim urządzeniu). 
                   Aby zapewnić Ci kopię zapasową oraz możliwość synchronizacji między urządzeniami (np. telefonem a komputerem), 
                   oferujemy zapis do prywatnego, ukrytego pliku na Twoim koncie Google Drive.
                 </p>
-                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
                   <span className="font-bold text-emerald-800 block mb-1">Pełna prywatność:</span>
-                  Aplikacja prosi wyłącznie o dostęp typu <code className="bg-white px-1 py-0.5 rounded border text-[#137566] text-[10px]">drive.file</code>. 
+                  Aplikacja prosi wyłącznie o dostęp typu <code className="bg-slate-800/40 px-1 py-0.5 rounded border text-emerald-400 text-[10px]">drive.file</code>. 
                   Oznacza to, że ma dostęp <strong>tylko i wyłącznie</strong> do plików, które sama utworzyła. Nie mamy dostępu do Twoich prywatnych zdjęć ani dokumentów!
                 </div>
               </div>
@@ -1308,31 +1315,31 @@ export function SettingsView({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-emerald-500/10/50 border border-emerald-500/20 rounded-xl gap-4">
               <div className="flex items-center gap-3">
                 {googleUser.photoURL ? (
                   <img
                     src={googleUser.photoURL}
                     referrerPolicy="no-referrer"
                     alt={googleUser.displayName || "Google User"}
-                    className="w-10 h-10 rounded-full border border-emerald-200"
+                    className="w-10 h-10 rounded-full border border-emerald-500/30"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-800 flex items-center justify-center font-bold text-sm">
                     {getInitials(googleUser.displayName || googleUser.email || "G")}
                   </div>
                 )}
                 <div>
-                  <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-100 flex items-center gap-1.5">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                     Zalogowano jako: {googleUser.displayName || "Użytkownik Google"}
                   </span>
-                  <p className="text-[10px] text-slate-500 font-medium">{googleUser.email}</p>
+                  <p className="text-[10px] text-slate-400 font-medium">{googleUser.email}</p>
                 </div>
               </div>
               <button
                 onClick={onDisconnectGoogle}
-                className="text-[11px] font-bold text-slate-500 hover:text-rose-600 transition flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-slate-400 hover:text-rose-400 transition flex items-center gap-1 cursor-pointer"
                 id="btn-google-drive-disconnect"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -1341,15 +1348,15 @@ export function SettingsView({
             </div>
 
             {/* Backups Action Stats */}
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-700/50 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Nazwa pliku na dysku</span>
-                <span className="text-xs font-bold text-slate-900 font-mono block mt-0.5">saldo_budget.json</span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Nazwa pliku na dysku</span>
+                <span className="text-xs font-bold text-slate-100 font-mono block mt-0.5">saldo_budget.json</span>
                 <span className="text-[10px] text-slate-400 block mt-1">Status: {gdriveFileId ? "🟢 Plik istnieje" : "⚪ Plik zostanie utworzony przy pierwszym zapisie"}</span>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Ostatni zapis w chmurze</span>
-                <span className="text-xs font-bold text-slate-900 block mt-0.5">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Ostatni zapis w chmurze</span>
+                <span className="text-xs font-bold text-slate-100 block mt-0.5">
                   {gdriveLastSynced || "Brak wykonanego zapisu"}
                 </span>
                 <span className="text-[10px] text-slate-400 block mt-1">Dostępny do wczytania</span>
@@ -1361,7 +1368,7 @@ export function SettingsView({
               <button
                 onClick={onSyncToDrive}
                 disabled={isDriveActionLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-[#137566] text-white font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-[#0f5d51] transition disabled:opacity-50 cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition disabled:opacity-50 cursor-pointer shadow-sm"
                 id="btn-google-drive-upload"
               >
                 {isDriveActionLoading ? (
@@ -1374,7 +1381,7 @@ export function SettingsView({
               <button
                 onClick={onLoadFromDrive}
                 disabled={isDriveActionLoading || !gdriveFileId}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition disabled:opacity-40 disabled:hover:border-slate-700/50 disabled:hover:text-slate-300 py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
                 id="btn-google-drive-download"
               >
                 {isDriveActionLoading ? (
@@ -1387,10 +1394,10 @@ export function SettingsView({
             </div>
 
             {/* AutoSync Switch toggle */}
-            <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-200 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-slate-900/50/50 border border-slate-700/50 rounded-xl">
               <div className="pr-4">
-                <strong className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-[#137566] animate-pulse" />
+                <strong className="text-xs font-bold text-slate-100 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                   Automatyczny zapis (Auto-Sync)
                 </strong>
                 <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
@@ -1404,7 +1411,7 @@ export function SettingsView({
                   onChange={(e) => onToggleDriveAutoSync(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
+                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-800/40 after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
               </label>
             </div>
             <p className="text-[10px] text-slate-400 italic text-center">
@@ -1427,42 +1434,42 @@ export function SettingsView({
 
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
       {(settingsTab === "all" || settingsTab === "automation") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-recurring-rules-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Automatyczne transakcje cykliczne</h3>
-        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-recurring-rules-card">
+        <h3 className="text-base font-bold text-slate-100 mb-2">Automatyczne transakcje cykliczne</h3>
+        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
           Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
         </p>
 
-        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 mb-5">
-          <strong className="block text-xs font-bold text-slate-700">Utwórz nową transakcję cykliczną</strong>
+        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 space-y-3 mb-5">
+          <strong className="block text-xs font-bold text-slate-300">Utwórz nową transakcję cykliczną</strong>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nazwa transakcji</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nazwa transakcji</label>
               <input
                 type="text"
                 value={recName}
                 onChange={(e) => setRecName(e.target.value)}
                 placeholder="np. Abonament Netflix, Pensja"
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kwota ({activeProfile?.currency || "PLN"})</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kwota ({activeProfile?.currency || "PLN"})</label>
               <input
                 type="number"
                 step="0.01"
                 value={recAmount}
                 onChange={(e) => setRecAmount(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="np. 43.99"
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Typ</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Typ</label>
               <select
                 value={recType}
                 onChange={(e) => setRecType(e.target.value as "expense" | "income")}
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               >
                 <option value="expense">Wydatek (Koszt)</option>
                 <option value="income">Przychód (Wpływ)</option>
@@ -1472,11 +1479,11 @@ export function SettingsView({
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kategoria</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kategoria</label>
               <select
                 value={recCategory}
                 onChange={(e) => setRecCategory(e.target.value)}
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               >
                 {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
                   <option key={cat} value={cat}>
@@ -1486,21 +1493,21 @@ export function SettingsView({
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Konto / Portfel</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Konto / Portfel</label>
               <input
                 type="text"
                 value={recAccount}
                 onChange={(e) => setRecAccount(e.target.value)}
                 placeholder="np. Konto główne"
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Częstotliwość</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Częstotliwość</label>
               <select
                 value={recFrequency}
                 onChange={(e) => setRecFrequency(e.target.value as any)}
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               >
                 <option value="weekly">Co tydzień</option>
                 <option value="biweekly">Co dwa tygodnie</option>
@@ -1510,12 +1517,12 @@ export function SettingsView({
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pierwszy termin płatności</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pierwszy termin płatności</label>
               <input
                 type="date"
                 value={recNextDate}
                 onChange={(e) => setRecNextDate(e.target.value)}
-                className="w-full text-xs rounded-xl border border-slate-200 p-2 bg-white outline-none focus:border-[#137566]"
+                className="w-full text-xs rounded-xl border border-slate-700/50 p-2 bg-slate-800/40 outline-none focus:border-emerald-500/50"
               />
             </div>
           </div>
@@ -1523,7 +1530,7 @@ export function SettingsView({
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="bg-[#137566] text-white font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-[#0f5d51] transition shadow-sm cursor-pointer"
+              className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm cursor-pointer"
             >
               ＋ Dodaj harmonogram płatności
             </button>
@@ -1533,11 +1540,11 @@ export function SettingsView({
         {recurringRules.length === 0 ? (
           <p className="text-xs text-slate-400 italic text-center py-4">Brak zdefiniowanych transakcji cyklicznych.</p>
         ) : (
-          <div className="border border-slate-200 rounded-xl overflow-hidden">
+          <div className="border border-slate-700/50 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs min-w-[600px]">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
+                  <tr className="bg-slate-900/50 border-b border-slate-700/50 text-slate-400 font-bold">
                     <th className="py-2 px-3">Nazwa / Kategoria</th>
                     <th className="py-2 px-3">Częstotliwość</th>
                     <th className="py-2 px-3">Najbliższy termin</th>
@@ -1547,7 +1554,7 @@ export function SettingsView({
                     <th className="py-2 px-3 text-right">Akcja</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-slate-100 bg-slate-800/40">
                   {recurringRules.map((r) => {
                     const freqLabels = {
                       weekly: "Co tydzień",
@@ -1557,23 +1564,23 @@ export function SettingsView({
                       yearly: "Co rok"
                     };
                     return (
-                      <tr key={r.id} className={`hover:bg-slate-50/50 transition ${!r.isActive ? "opacity-60" : ""}`}>
+                      <tr key={r.id} className={`hover:bg-slate-900/50/50 transition ${!r.isActive ? "opacity-60" : ""}`}>
                         <td className="py-2.5 px-3">
-                          <strong className="block text-slate-800">{r.name}</strong>
+                          <strong className="block text-slate-200">{r.name}</strong>
                           <span className="text-[10px] text-slate-400 font-medium">
                             {r.categoryIcon} {r.category}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 font-bold text-slate-600">
+                        <td className="py-2.5 px-3 font-bold text-slate-400">
                           {freqLabels[r.frequency] || r.frequency}
                         </td>
-                        <td className="py-2.5 px-3 text-slate-500 font-mono">
+                        <td className="py-2.5 px-3 text-slate-400 font-mono">
                           {r.nextDueDate}
                         </td>
-                        <td className="py-2.5 px-3 text-slate-500">
+                        <td className="py-2.5 px-3 text-slate-400">
                           {r.account}
                         </td>
-                        <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
+                        <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-400"}`}>
                           {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {activeProfile?.currency || "PLN"}
                         </td>
                         <td className="py-2.5 px-3 text-center">
@@ -1582,8 +1589,8 @@ export function SettingsView({
                             onClick={() => handleToggleRecurringRule(r.id)}
                             className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold cursor-pointer border ${
                               r.isActive
-                                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                : "bg-slate-100 border-slate-200 text-slate-400"
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700"
+                                : "bg-slate-800 border-slate-700/50 text-slate-400"
                             }`}
                           >
                             {r.isActive ? "Aktywny" : "Wstrzymany"}
@@ -1611,42 +1618,42 @@ export function SettingsView({
 
       {/* SECTION 4: SYNC & SECURITY */}
       {(settingsTab === "all" || settingsTab === "automation" || settingsTab === "backup") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-sync-security-card">
-        <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-[#137566]" />
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-sync-security-card">
+        <h3 className="text-base font-bold text-slate-100 mb-4 flex items-center gap-2">
+          <Shield className="w-5 h-5 text-emerald-400" />
           Synchronizacja i bezpieczeństwo
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Account & Firestore */}
           <div className="space-y-4">
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
               <div className="flex items-start gap-3">
-                <Cloud className="w-5 h-5 text-slate-500 shrink-0" />
+                <Cloud className="w-5 h-5 text-slate-400 shrink-0" />
                 <div className="w-full">
-                  <h4 className="text-sm font-bold text-slate-800">Konto chmurowe</h4>
+                  <h4 className="text-sm font-bold text-slate-200">Konto chmurowe</h4>
                   {googleUser ? (
                     <div className="mt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
                         <CheckCircle className="w-3 h-3" /> Zalogowano
                       </span>
-                      <p className="text-[11px] text-slate-500 mt-1 truncate">{googleUser.email}</p>
+                      <p className="text-[11px] text-slate-400 mt-1 truncate">{googleUser.email}</p>
                     </div>
                   ) : (
                     <div className="mt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-300">
                         Tryb lokalny
                       </span>
                     </div>
                   )}
                   
-                  <div className="mt-3 pt-3 border-t border-slate-200">
+                  <div className="mt-3 pt-3 border-t border-slate-700/50">
                     <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Baza danych (Firestore)</h5>
                     {isFirebaseConfigured ? (
                       googleUser ? (
                         <span className="text-[11px] font-medium text-emerald-600">Aktywna (Synchronizacja w czasie rzeczywistym)</span>
                       ) : (
-                        <span className="text-[11px] font-medium text-amber-600">Gotowa (Wymaga logowania)</span>
+                        <span className="text-[11px] font-medium text-amber-400">Gotowa (Wymaga logowania)</span>
                       )
                     ) : (
                       <span className="text-[11px] font-medium text-slate-400">Brak konfiguracji</span>
@@ -1657,16 +1664,16 @@ export function SettingsView({
             </div>
 
             {/* AI State */}
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
               <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-slate-500 shrink-0" />
+                <Sparkles className="w-5 h-5 text-slate-400 shrink-0" />
                 <div className="w-full">
-                  <h4 className="text-sm font-bold text-slate-800 flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-slate-200 flex justify-between items-center">
                     Asystent AI
                     {state.aiMode === "cloud" && (
                       <button
                         onClick={() => saveState({ ...state, aiMode: "none" })}
-                        className="text-[10px] font-bold text-rose-600 hover:underline"
+                        className="text-[10px] font-bold text-rose-400 hover:underline"
                       >
                         Wyłącz w chmurze
                       </button>
@@ -1674,19 +1681,19 @@ export function SettingsView({
                   </h4>
                   <div className="mt-1">
                     {state.aiMode === "cloud" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
                         AI w chmurze
                       </span>
                     ) : state.aiMode === "local" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
                         AI Lokalne
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">
                         Brak AI
                       </span>
                     )}
-                    <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+                    <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">
                       {state.aiMode === "cloud" ? "Zależnie od funkcji, wybrane anonimowe dane mogą być wysyłane do API LLM w celu analizy." : "Żadne dane nie opuszczają tego urządzenia dla celów sztucznej inteligencji."}
                     </p>
                   </div>
@@ -1697,18 +1704,18 @@ export function SettingsView({
 
           {/* Integrations & Security */}
           <div className="space-y-4">
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
               <div className="flex items-start gap-3">
                 <Database className="w-5 h-5 text-blue-500 shrink-0" />
                 <div className="w-full">
-                  <h4 className="text-sm font-bold text-slate-800">Google Drive</h4>
+                  <h4 className="text-sm font-bold text-slate-200">Google Drive</h4>
                   <div className="mt-1 flex items-center justify-between">
                     {gdriveFileId ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">
                         Niepołączony
                       </span>
                     )}
@@ -1717,7 +1724,7 @@ export function SettingsView({
                       <button
                         onClick={onConnectGoogle}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-[#137566] hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline disabled:opacity-50"
                       >
                         Połącz Dysk Google
                       </button>
@@ -1726,13 +1733,13 @@ export function SettingsView({
                   
                   {gdriveFileId && (
                     <div className="mt-2 flex justify-between items-center">
-                      <p className="text-[10px] text-slate-500">
+                      <p className="text-[10px] text-slate-400">
                         Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString("pl-PL") : "Brak danych o ostatniej synchronizacji"}
                       </p>
                       <button
                         onClick={onSyncToDrive}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-[#137566] hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline disabled:opacity-50"
                       >
                         Wykonaj kopię teraz
                       </button>
@@ -1742,18 +1749,18 @@ export function SettingsView({
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
               <div className="flex items-start gap-3">
                 <Calendar className="w-5 h-5 text-purple-500 shrink-0" />
                 <div className="w-full">
-                  <h4 className="text-sm font-bold text-slate-800">Google Calendar</h4>
+                  <h4 className="text-sm font-bold text-slate-200">Google Calendar</h4>
                   <div className="mt-1 flex items-center justify-between">
                     {calendarToken ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">
                         Niepołączony
                       </span>
                     )}
@@ -1761,7 +1768,7 @@ export function SettingsView({
                     {!calendarToken && onConnectCalendar && (
                       <button
                         onClick={onConnectCalendar}
-                        className="text-[10px] font-bold text-[#137566] hover:underline"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline"
                       >
                         Połącz Kalendarz Google
                       </button>
@@ -1771,19 +1778,19 @@ export function SettingsView({
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
               <div className="flex items-start gap-3">
                 <Lock className="w-5 h-5 text-amber-500 shrink-0" />
                 <div className="w-full">
-                  <h4 className="text-sm font-bold text-slate-800">Zabezpieczenie profilu (PIN)</h4>
+                  <h4 className="text-sm font-bold text-slate-200">Zabezpieczenie profilu (PIN)</h4>
                   <div className="mt-1 flex justify-between items-center">
                     {activeProfile?.pinHash ? (
                       <>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
                           Aktywne
                         </span>
                         {unlockedProfileId !== activeProfile.id ? (
-                          <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
                             <Lock className="w-3 h-3" /> Zablokowany
                           </span>
                         ) : (
@@ -1793,7 +1800,7 @@ export function SettingsView({
                         )}
                       </>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">
                         Nieaktywne
                       </span>
                     )}
@@ -1801,7 +1808,7 @@ export function SettingsView({
                     {activeProfile?.pinHash && unlockedProfileId !== activeProfile.id && (
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[10px] font-bold text-[#137566] hover:underline"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline"
                       >
                         Odblokuj profil
                       </button>
@@ -1817,9 +1824,9 @@ export function SettingsView({
 
       {/* SECTION 5: LOCAL FILES & RESET */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6" id="settings-local-tools-card">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Lokalna kopia zapasowa i reset</h3>
-        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+        <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6" id="settings-local-tools-card">
+        <h3 className="text-base font-bold text-slate-100 mb-2">Lokalna kopia zapasowa i reset</h3>
+        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
           Zarządzaj lokalnymi kopiami zapasowymi. Możesz zapisać plik JSON z całą bazą danych na dysku komputera/telefonu lub wczytać go bezpośrednio do pamięci urządzenia.
         </p>
 
@@ -1832,8 +1839,8 @@ export function SettingsView({
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 ${
               dragActive
-                ? "border-[#137566] bg-[#e7f3f0]"
-                : "border-slate-200 hover:border-slate-300 bg-slate-50"
+                ? "border-emerald-500/50 bg-emerald-500/100/10"
+                : "border-slate-700/50 hover:border-slate-600 bg-slate-900/50"
             }`}
             onClick={() => document.getElementById("local-backup-file-input")?.click()}
           >
@@ -1845,38 +1852,38 @@ export function SettingsView({
               onChange={handleFileChange}
             />
             <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <span className="text-xs font-black text-slate-900 block">Wczytaj kopię z pliku JSON</span>
+            <span className="text-xs font-black text-slate-100 block">Wczytaj kopię z pliku JSON</span>
             <p className="text-[10px] text-slate-400 mt-1">
               Przeciągnij i upuść plik kopii zapasowej tutaj lub kliknij aby wyszukać na urządzeniu
             </p>
           </div>
         ) : (
           /* File Preview Card before actual restoration - VERY PREMIUM! */
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4 space-y-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 mb-4 space-y-3">
             <div className="flex items-start gap-2.5">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <strong className="text-xs font-black text-amber-800">Podgląd wczytywanego pliku</strong>
-                <p className="text-[10px] text-amber-600 mt-0.5">
+                <p className="text-[10px] text-amber-400 mt-0.5">
                   Wczytanie tych danych zastąpi wszystkie obecne profile i ich transakcje. Sprawdź zawartość pliku przed zatwierdzeniem:
                 </p>
               </div>
             </div>
 
-            <div className="bg-white/80 border border-amber-100 rounded-xl p-3 space-y-1.5">
-              <div className="flex justify-between text-[11px] text-slate-500">
+            <div className="bg-slate-800/80 border border-amber-100 rounded-xl p-3 space-y-1.5">
+              <div className="flex justify-between text-[11px] text-slate-400">
                 <span>Liczba profili w kopii:</span>
-                <strong className="text-slate-700">{filePreview.profiles?.length || 0}</strong>
+                <strong className="text-slate-300">{filePreview.profiles?.length || 0}</strong>
               </div>
-              <div className="flex justify-between text-[11px] text-slate-500">
+              <div className="flex justify-between text-[11px] text-slate-400">
                 <span>Dostępne profile:</span>
-                <strong className="text-[#137566] truncate max-w-[180px]">
+                <strong className="text-emerald-400 truncate max-w-[180px]">
                   {filePreview.profiles?.map((p) => p.name).join(", ") || "Brak"}
                 </strong>
               </div>
-              <div className="flex justify-between text-[11px] text-slate-500">
+              <div className="flex justify-between text-[11px] text-slate-400">
                 <span>Łączna liczba wpisów transakcji:</span>
-                <strong className="text-slate-700">
+                <strong className="text-slate-300">
                   {filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0}
                 </strong>
               </div>
@@ -1891,7 +1898,7 @@ export function SettingsView({
               </button>
               <button
                 onClick={() => setFilePreview(null)}
-                className="px-4 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl text-xs font-bold transition cursor-pointer"
+                className="px-4 bg-slate-800/40 border border-slate-700/50 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-bold transition cursor-pointer"
               >
                 Anuluj
               </button>
@@ -1900,8 +1907,8 @@ export function SettingsView({
         )}
 
         <div className="space-y-4">
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <h4 className="text-sm font-bold text-slate-800 mb-3">Eksport danych aktywnego profilu</h4>
+          <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4">
+            <h4 className="text-sm font-bold text-slate-200 mb-3">Eksport danych aktywnego profilu</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={() => {
@@ -1910,7 +1917,7 @@ export function SettingsView({
                     downloadFile(csv, `saldo-${activeProfile.name}-transakcje.csv`, "text/csv;charset=utf-8;");
                   }
                 }}
-                className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 📊 Pobierz CSV
               </button>
@@ -1921,15 +1928,15 @@ export function SettingsView({
                     generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN");
                   }
                 }}
-                className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 📄 Pobierz raport PDF
               </button>
             </div>
           </div>
           
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <h4 className="text-sm font-bold text-slate-800 mb-3">Kopia zapasowa systemu</h4>
+          <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4">
+            <h4 className="text-sm font-bold text-slate-200 mb-3">Kopia zapasowa systemu</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={async () => {
@@ -1937,7 +1944,7 @@ export function SettingsView({
                   const json = JSON.stringify(safeState, null, 2);
                   downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
                 }}
-                className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 🔒 Eksport zaszyfrowanej kopii
               </button>
@@ -1952,7 +1959,7 @@ export function SettingsView({
                     downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
                   }
                 }}
-                className="bg-white border border-slate-200 text-slate-700 hover:border-[#137566] hover:text-[#137566] transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 🔓 Eksport czytelnych danych
               </button>
@@ -1961,7 +1968,7 @@ export function SettingsView({
 
           <button
             onClick={onResetData}
-            className="w-full bg-rose-50 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
+            className="w-full bg-rose-500/10 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
             id="btn-reset-db-data"
           >
             ⚠️ Przywróć stan początkowy (Usuń wszystko)
@@ -1969,22 +1976,24 @@ export function SettingsView({
         </div>
       </div>
       )}
+        </div>
+      </div>
 
       {profileToDelete && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-slate-800/40 rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-700/30 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Usuwanie profilu</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-xl font-bold text-slate-100 mb-2">Usuwanie profilu</h3>
+            <p className="text-sm text-slate-400 mb-6">
               Czy na pewno chcesz usunąć ten profil? <strong>Wszystkie transakcje, cele i płatności zostaną bezpowrotnie usunięte.</strong>
               Ta operacja jest nieodwracalna.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setProfileToDelete(null)}
-                className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl transition"
+                className="flex-1 bg-slate-900/50 hover:bg-slate-800 text-slate-300 font-bold py-3 rounded-xl transition"
               >
                 Anuluj
               </button>
