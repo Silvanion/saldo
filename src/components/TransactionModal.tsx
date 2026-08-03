@@ -176,20 +176,20 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-tx-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-300" id="close-tx-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Nowy Wpis</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Dodaj transakcję</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Dodaj transakcję</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex rounded-xl bg-slate-100 p-1">
+          <div className="flex rounded-xl bg-slate-700/50 p-1">
             <button
               type="button"
               className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
-                type === "expense" ? "bg-white text-[#d55e50] shadow" : "text-slate-500 hover:text-slate-800"
+                type === "expense" ? "bg-slate-900/95 backdrop-blur-2xl text-[#d55e50] shadow" : "text-slate-400 hover:text-slate-100"
               }`}
               onClick={() => setType("expense")}
               id="btn-type-expense"
@@ -199,7 +199,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             <button
               type="button"
               className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
-                type === "income" ? "bg-white text-slate-900 shadow" : "text-slate-500 hover:text-slate-800"
+                type === "income" ? "bg-slate-900/95 backdrop-blur-2xl text-white shadow" : "text-slate-400 hover:text-slate-100"
               }`}
               onClick={() => setType("income")}
               id="btn-type-income"
@@ -210,7 +210,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-slate-900 mb-1">Kwota</label>
+              <label className="block text-xs font-semibold text-white mb-1">Kwota</label>
               <input
                 required
                 type="number"
@@ -219,16 +219,16 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 placeholder="0,00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
                 id="input-tx-amount"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-900 mb-1">Waluta</label>
+              <label className="block text-xs font-semibold text-white mb-1">Waluta</label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value as any)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-800/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
               >
                 <option value="PLN">PLN</option>
                 <option value="EUR">EUR</option>
@@ -239,25 +239,25 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Opis transakcji</label>
+            <label className="block text-xs font-semibold text-white mb-1">Opis transakcji</label>
             <input
               required
               maxLength={120}
               placeholder="np. Zakupy Biedronka"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-tx-name"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-900 mb-1">Kategoria</label>
+              <label className="block text-xs font-semibold text-white mb-1">Kategoria</label>
               <select
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-800/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
                 id="select-tx-category"
               >
                 {categories.map((cat) => (
@@ -268,12 +268,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-900 mb-1">Konto / Portfel</label>
+              <label className="block text-xs font-semibold text-white mb-1">Konto / Portfel</label>
 
               <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-800/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
                 id="select-tx-account"
               >
                 {(activeProfile?.accounts && activeProfile.accounts.length > 0) ? (
@@ -293,9 +293,9 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Ikona kategorii</label>
-            <div className="flex items-center gap-3 p-2.5 border border-slate-200 rounded-xl">
-              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-900 rounded-xl border border-slate-200 font-bold shrink-0">
+            <label className="block text-xs font-semibold text-white mb-1">Ikona kategorii</label>
+            <div className="flex items-center gap-3 p-2.5 border border-slate-700/50 rounded-xl">
+              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-700/50 text-white rounded-xl border border-slate-700/50 font-bold shrink-0">
                 {categoryIcon}
               </span>
               <div className="flex-1 overflow-x-auto whitespace-nowrap py-1 flex gap-1.5 max-w-[310px] scrollbar-thin">
@@ -304,8 +304,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     key={ico}
                     type="button"
                     onClick={() => setCategoryIcon(ico)}
-                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition shrink-0 ${
-                      categoryIcon === ico ? "bg-slate-100 border-2 border-slate-900" : "border border-transparent"
+                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-700/50 transition shrink-0 ${
+                      categoryIcon === ico ? "bg-slate-700/50 border-2 border-slate-900" : "border border-transparent"
                     }`}
                   >
                     {ico}
@@ -316,20 +316,20 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Data</label>
+            <label className="block text-xs font-semibold text-white mb-1">Data</label>
             <input
               required
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-tx-date"
             />
           </div>
 
           {/* Tagowanie wydatków */}
-          <div className="border-t border-slate-100 pt-3">
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Tagi (opcjonalnie)</label>
+          <div className="border-t border-slate-700/50 pt-3">
+            <label className="block text-xs font-semibold text-white mb-1">Tagi (opcjonalnie)</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -337,7 +337,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
-                className="flex-1 rounded-xl border border-slate-200 p-2 text-xs outline-none focus:border-slate-400"
+                className="flex-1 rounded-xl border border-slate-700/50 p-2 text-xs outline-none focus:border-emerald-500/50"
                 id="input-tx-tag"
               />
               <button
@@ -348,7 +348,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     setTagInput("");
                   }
                 }}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+                className="rounded-xl bg-slate-700/50 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-200 transition"
                 id="btn-tx-add-tag"
               >
                 Dodaj
@@ -361,13 +361,13 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200/60"
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-700/50 px-2.5 py-0.5 text-xs font-semibold text-slate-200 border border-slate-700/50/60"
                   >
                     #{t}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-[10px] text-slate-400 hover:text-slate-600 font-semibold"
+                      className="text-[10px] text-slate-400 hover:text-slate-300 font-semibold"
                     >
                       &times;
                     </button>
@@ -389,8 +389,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       onClick={() => isSelected ? handleRemoveTag(sug) : handleAddTag(sug)}
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
                         isSelected
-                          ? "bg-white text-[#137566] border-[#137566]/30 shadow-sm"
-                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                          ? "bg-slate-900/95 backdrop-blur-2xl text-[#137566] border-[#137566]/30 shadow-sm"
+                          : "bg-slate-800/60 text-slate-300 border-slate-700/50 hover:bg-slate-700/50"
                       }`}
                     >
                       +{sug}
@@ -402,7 +402,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           {activeProfile?.kind === "shared" && (
-            <div className="border-t border-slate-100 pt-3">
+            <div className="border-t border-slate-700/50 pt-3">
               {!activeProfile.partnerName ? (
                 <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
@@ -410,11 +410,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
+                      className="w-full rounded-xl border border-slate-700/50 p-2 text-sm outline-none focus:border-emerald-500/50 bg-slate-900/95 backdrop-blur-2xl"
                       id="select-transaction-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -423,11 +423,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Dzielimy 50/50?</label>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Dzielimy 50/50?</label>
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-slate-200 p-2 text-sm outline-none focus:border-slate-400 bg-white"
+                      className="w-full rounded-xl border border-slate-700/50 p-2 text-sm outline-none focus:border-emerald-500/50 bg-slate-900/95 backdrop-blur-2xl"
                       id="select-transaction-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -453,7 +453,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             <button
               type="button"
               onClick={() => onClose()}
-              className="w-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
+              className="w-full bg-slate-700/50 text-slate-200 hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
             >
               Anuluj
             </button>

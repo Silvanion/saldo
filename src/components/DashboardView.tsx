@@ -388,7 +388,7 @@ export function DashboardView({
                       >
                         <motion.div
                           layout
-                          className="bg-white w-5 h-5 rounded-full shadow-md"
+                          className="bg-slate-200 w-5 h-5 rounded-full shadow-md"
                         />
                       </button>
                     </div>

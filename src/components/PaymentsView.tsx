@@ -229,25 +229,25 @@ export function PaymentsView({
               <button
                 onClick={() => setTimeFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "all" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                 }`}
               >Wszystkie</button>
               <button
                 onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "today" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "today" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                 }`}
               >Dzisiaj/Zaległe</button>
               <button
                 onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "week" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "week" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                 }`}
               >Ten tydzień</button>
               <button
                 onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "month" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "month" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                 }`}
               >Ten miesiąc</button>
             </div>
@@ -256,7 +256,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("all")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "all" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                   }`}
                 >
                   Wszystkie role
@@ -264,7 +264,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("me")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "me" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "me" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                   }`}
                 >
                   Ja
@@ -272,7 +272,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("partner")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "partner" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "partner" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                   }`}
                 >
                   Partner
@@ -280,7 +280,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("joint")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "joint" ? "bg-white text-slate-100 shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "joint" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
                   }`}
                 >Wspólne</button>
               </div>

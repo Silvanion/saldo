@@ -98,13 +98,13 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative flex flex-col w-full max-w-lg h-[80vh] max-h-[800px] rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="relative flex flex-col w-full max-w-lg h-[80vh] max-h-[800px] rounded-2xl bg-slate-900/95 backdrop-blur-2xl shadow-2xl overflow-hidden"
       >
         
         {/* Header */}
         <div className="flex items-center justify-between bg-gradient-to-r from-[#137566] to-[#1a9c88] px-5 py-4 text-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
+            <div className="bg-slate-900/95 backdrop-blur-2xl p-2 rounded-full backdrop-blur-sm">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -112,13 +112,13 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
               <p className="text-xs text-emerald-100 opacity-90">Twój wirtualny asystent budżetowy</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition text-white">
+          <button onClick={onClose} className="p-2 hover:bg-slate-900/95 backdrop-blur-2xl rounded-full transition text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-800/60">
           {(state.aiMode || "none") === "none" && (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-2 mb-2">
               <p className="font-bold">Tryb "Brak AI" jest obecnie aktywny</p>
@@ -136,7 +136,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
                 <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
                   msg.sender === "user" 
                     ? "bg-[#153a35] text-white rounded-tr-sm" 
-                    : "bg-white text-slate-800 border border-slate-150 rounded-tl-sm"
+                    : "bg-slate-900/95 backdrop-blur-2xl text-slate-100 border border-slate-700/50 rounded-tl-sm"
                 }`}>
                   {msg.text}
                 </div>
@@ -149,9 +149,9 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
                 <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#137566] flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="px-5 py-4 rounded-2xl bg-white border border-slate-150 rounded-tl-sm flex items-center gap-2 shadow-sm">
+                <div className="px-5 py-4 rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 rounded-tl-sm flex items-center gap-2 shadow-sm">
                   <Loader2 className="w-4 h-4 animate-spin text-[#137566]" />
-                  <span className="text-xs text-slate-500 font-medium">Asystent pisze...</span>
+                  <span className="text-xs text-slate-400 font-medium">Asystent pisze...</span>
                 </div>
               </div>
             </div>
@@ -160,14 +160,14 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSend} className="p-4 bg-white border-t border-slate-150 shrink-0">
+        <form onSubmit={handleSend} className="p-4 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-700/50 shrink-0">
           <div className="relative flex items-center">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Zapytaj o swój budżet, inwestycje..."
-              className="w-full pl-4 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition text-sm"
+              className="w-full pl-4 pr-12 py-3.5 bg-slate-800/60 border border-slate-700/50 rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition text-sm"
               disabled={isLoading}
             />
             <button

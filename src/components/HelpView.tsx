@@ -28,10 +28,10 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-slate-200/80 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm hover:shadow-md transition-all">
+    <div className="border border-slate-700/50 rounded-2xl overflow-hidden mb-4 bg-slate-800/40 backdrop-blur-xl shadow-sm hover:shadow-md transition-all">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-50/80 dark:hover:bg-white/5 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-700/30 dark:hover:bg-slate-800/40 backdrop-blur-xl/5 transition-colors"
       >
         <div className="flex items-center gap-3.5">
           <div className="p-2.5 bg-indigo-50 text-[#137566] rounded-xl shadow-xs shrink-0">
@@ -46,15 +46,15 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
                 </span>
               )}
             </div>
-            <span className="text-xs text-slate-500 font-medium">{category}</span>
+            <span className="text-xs text-slate-400 font-medium">{category}</span>
           </div>
         </div>
-        <div className="text-slate-500 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+        <div className="text-slate-400 p-1 rounded-xl hover:bg-slate-700/50 dark:hover:bg-slate-800/40 backdrop-blur-xl/10 transition-colors">
           {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
       {isOpen && (
-        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-slate-50/50">
+        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-slate-800/60/50">
           {children}
         </div>
       )}
@@ -82,7 +82,7 @@ export function HelpView() {
       {/* Header Banner */}
       <div className="bg-gradient-to-br from-[#137566] via-[#0f5c50] to-[#0a4239] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-200 border border-white/10">
+          <div className="inline-flex items-center gap-2 bg-slate-800/40 backdrop-blur-xl/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-200 border border-white/10">
             <Sparkles className="w-3.5 h-3.5" /> Complete User Guide & Knowledge Base
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight flex items-center gap-3">
@@ -102,7 +102,7 @@ export function HelpView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe to spend', 'IKE', 'PIN')..."
-                className="w-full pl-11 pr-4 py-3 bg-white text-slate-900 placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 backdrop-blur-xl text-white placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
           </div>
@@ -122,7 +122,7 @@ export function HelpView() {
             </div>
             <div>
               <h4 className="font-bold text-slate-800 text-sm">{card.title}</h4>
-              <p className="text-xs text-slate-600 mt-1">{card.description}</p>
+              <p className="text-xs text-slate-300 mt-1">{card.description}</p>
             </div>
           </div>
         ))}
@@ -137,7 +137,7 @@ export function HelpView() {
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               selectedCategory === cat
                 ? "bg-[#137566] text-white shadow-sm scale-105"
-                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                : "bg-slate-800/40 backdrop-blur-xl text-slate-300 border border-slate-700/50 hover:bg-slate-800/60"
             }`}
           >
             {cat}
@@ -163,17 +163,17 @@ export function HelpView() {
       </div>
 
       {/* Interactive FAQ Box */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+      <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+        <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
           <HelpCircle className="w-6 h-6 text-[#137566]" />
           Najczęściej zadawane pytania (FAQ)
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           {faqData.map((faq, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
-              <h5 className="font-bold text-slate-900 text-sm">{faq.question}</h5>
-              <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+            <div key={idx} className="p-4 bg-slate-800/60 rounded-2xl border border-slate-100 space-y-1.5">
+              <h5 className="font-bold text-white text-sm">{faq.question}</h5>
+              <p className="text-slate-300 leading-relaxed">{faq.answer}</p>
             </div>
           ))}
         </div>

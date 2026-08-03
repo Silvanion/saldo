@@ -11,13 +11,13 @@ export interface StepHighlightProps {
 
 export function StepHighlight({ step, label, description }: StepHighlightProps) {
   return (
-    <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-emerald-100 shadow-sm">
+    <div className="flex items-start gap-3 bg-slate-800/40 backdrop-blur-xl p-3 rounded-xl border border-emerald-500/20 shadow-sm">
       <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#137566] text-white font-bold text-xs shrink-0 shadow-sm">
         {step}
       </div>
       <div>
         <h5 className="font-bold text-slate-800 text-sm">{label}</h5>
-        <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{description}</p>
+        <p className="text-sm text-slate-300 mt-0.5 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -32,7 +32,7 @@ export interface MockScreenShotProps {
 
 export function MockScreenShot({ title, badge, children, steps }: MockScreenShotProps) {
   return (
-    <div className="my-5 border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-lg text-white">
+    <div className="my-5 border border-slate-700/50 rounded-2xl overflow-hidden bg-slate-900 shadow-lg text-white">
       {/* Mock Window Header */}
       <div className="bg-slate-800/90 px-4 py-2.5 border-b border-slate-700/80 flex items-center justify-between">
         <div className="flex items-center gap-2">

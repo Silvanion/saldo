@@ -56,39 +56,39 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl p-6 shadow-2xl"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-profile-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-300" id="close-profile-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Zarządzanie profilami</p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Utwórz profil</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Utwórz profil</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Nazwa profilu (np. Moje Finanse)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Nazwa profilu (np. Moje Finanse)</label>
             <input
               required
               maxLength={80}
               placeholder="np. Budżet Seweryna, Domowy"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-profile-name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Ikona profilu</label>
-            <details className="group border border-slate-200 rounded-xl relative">
-              <summary className="p-2.5 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-200">
+            <label className="block text-xs font-semibold text-white mb-1">Ikona profilu</label>
+            <details className="group border border-slate-700/50 rounded-xl relative">
+              <summary className="p-2.5 text-xs font-semibold text-slate-200 cursor-pointer bg-slate-800/60 hover:bg-slate-700/50 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-slate-700/50">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{avatar}</span>
                   <span>Wybierz ikonę profilu</span>
                 </div>
                 <span className="group-open:rotate-180 transition-transform mr-2 text-slate-400">▼</span>
               </summary>
-              <div className="p-3 border-t border-slate-200 bg-white absolute w-full z-10 shadow-lg rounded-b-lg">
+              <div className="p-3 border-t border-slate-700/50 bg-slate-900/95 backdrop-blur-2xl absolute w-full z-10 shadow-lg rounded-b-lg">
                 <div className="grid grid-cols-6 gap-2">
                   {AVATAR_OPTIONS.map(emoji => (
                     <button
@@ -100,7 +100,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-slate-50 border-slate-100 hover:bg-slate-100 grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-slate-800/60 border-slate-700/50 hover:bg-slate-700/50 grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -111,11 +111,11 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Rodzaj profilu</label>
+            <label className="block text-xs font-semibold text-white mb-1">Rodzaj profilu</label>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none bg-white focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none bg-slate-800/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
               id="select-profile-kind"
             >
               <option value="personal">Tylko dla mnie (osobisty)</option>
@@ -125,7 +125,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
 
           {kind === "shared" && (
             <div>
-              <label className="block text-xs font-semibold text-slate-900 mb-1">Imię partnera / członka rodziny</label>
+              <label className="block text-xs font-semibold text-white mb-1">Imię partnera / członka rodziny</label>
               <input
                 required
                 pattern=".*\S+.*"
@@ -134,14 +134,14 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                 placeholder="np. Ania, Marta, Piotr"
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
                 id="input-profile-partner"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-900 mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
+            <label className="block text-xs font-semibold text-white mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
             <input
               type="password"
               inputMode="numeric"
@@ -151,14 +151,14 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="Wpisz 4 do 8 cyfr"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 p-2.5 outline-none focus:border-slate-400"
+              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
               id="input-profile-pin"
             />
-            <p className="text-[11px] text-slate-500 mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
+            <p className="text-[11px] text-slate-400 mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
-          <div className="rounded-xl bg-slate-100 p-4">
-            <p className="text-[12px] text-slate-900 leading-relaxed">
+          <div className="rounded-xl bg-slate-700/50 p-4">
+            <p className="text-[12px] text-white leading-relaxed">
               <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
             </p>
           </div>
@@ -166,7 +166,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-900/95 backdrop-blur-2xl transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-profile-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz profil"}
