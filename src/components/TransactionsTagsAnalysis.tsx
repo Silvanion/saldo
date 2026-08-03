@@ -56,21 +56,22 @@ export function TransactionsTagsAnalysis({
   }, [tagSummaries]);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col" id="tags-analysis-card">
-      <div className="mb-4">
+    <div className="bg-slate-800/40 rounded-2xl border border-slate-700/50 shadow-2xl backdrop-blur-xl p-6 flex flex-col relative overflow-hidden" id="tags-analysis-card">
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
+      <div className="mb-4 relative z-10">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Raportowanie i Analiza</p>
-        <h3 className="text-lg font-bold text-slate-900">Wydatki według tagów</h3>
+        <h3 className="text-lg font-bold text-slate-100">Wydatki według tagów</h3>
       </div>
 
       {/* Mini dashboard stats cards */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-          <p className="text-[10px] text-slate-500 font-semibold">Otagowane wydatki</p>
-          <p className="text-base font-bold text-slate-900 mt-1">{formatMoney(uniqueTaggedExpensesSum, currency)}</p>
+      <div className="grid grid-cols-2 gap-3 mb-5 relative z-10">
+        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+          <p className="text-[10px] text-slate-400 font-semibold">Otagowane wydatki</p>
+          <p className="text-base font-bold text-slate-200 mt-1">{formatMoney(uniqueTaggedExpensesSum, currency)}</p>
         </div>
-        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-          <p className="text-[10px] text-slate-500 font-semibold">Pokrycie tagami</p>
-          <p className="text-base font-bold text-slate-900 mt-1">
+        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+          <p className="text-[10px] text-slate-400 font-semibold">Pokrycie tagami</p>
+          <p className="text-base font-bold text-slate-200 mt-1">
             {totalOverallExpenses > 0
               ? `${Math.round((uniqueTaggedExpensesSum / totalOverallExpenses) * 100)}%`
               : "0%"}
@@ -79,10 +80,10 @@ export function TransactionsTagsAnalysis({
       </div>
 
       {/* Tag distribution bar chart */}
-      <div className="flex-1 overflow-y-auto space-y-4 max-h-[350px] pr-1">
+      <div className="flex-1 overflow-y-auto space-y-3 max-h-[350px] pr-1 relative z-10 custom-scrollbar">
         {tagSummaries.length === 0 ? (
           <div className="text-center py-12 text-sm text-slate-400">
-            <span className="text-2xl block mb-2">🏷️</span>
+            <span className="text-2xl block mb-2 opacity-50">🏷️</span>
             Brak otagowanych wydatków. Dodaj tagi do transakcji, aby wygenerować raport.
           </div>
         ) : (
@@ -95,25 +96,25 @@ export function TransactionsTagsAnalysis({
               <div
                 key={tag.name}
                 onClick={() => onSelectTag(isSelected ? null : tag.name)}
-                className={`group p-2.5 rounded-xl border transition cursor-pointer ${
+                className={`group p-3 rounded-xl border transition cursor-pointer ${
                   isSelected
-                    ? "bg-slate-100 border-slate-200"
-                    : "bg-white border-transparent hover:bg-slate-50"
+                    ? "bg-slate-700/60 border-slate-500 shadow-sm"
+                    : "bg-slate-800/40 border-slate-700/50 hover:bg-slate-700/40"
                 }`}
               >
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                <div className="flex justify-between items-center text-xs mb-2">
+                  <span className="font-bold text-slate-200 flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-violet-400" : "bg-slate-500"}`}></span>
                     #{tag.name}
                   </span>
-                  <span className="text-slate-500 font-medium text-[11px]">
-                    <strong>{formatMoney(tag.spent, currency)}</strong> ({pctOfTotal}%)
+                  <span className="text-slate-400 font-medium text-[11px]">
+                    <strong className="text-slate-300">{formatMoney(tag.spent, currency)}</strong> ({pctOfTotal}%)
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-900/60 h-1.5 rounded-full overflow-hidden">
                   <div
                     style={{ width: `${pctOfMax}%` }}
-                    className="bg-slate-400 h-full rounded-full transition-all duration-500 group-hover:bg-slate-500"
+                    className={`h-full rounded-full transition-all duration-500 ${isSelected ? "bg-violet-500" : "bg-slate-500 group-hover:bg-slate-400"}`}
                   ></div>
                 </div>
               </div>
@@ -123,8 +124,8 @@ export function TransactionsTagsAnalysis({
       </div>
 
       {/* Informational advice footer */}
-      <div className="mt-6 border-t border-slate-100 pt-4 text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
-        <span className="font-bold text-slate-700 block mb-1">💡 Wskazówka:</span>
+      <div className="mt-6 border-t border-slate-700/50 pt-4 text-[11px] text-slate-400 leading-relaxed bg-slate-900/40 p-3 rounded-xl border border-slate-800 relative z-10">
+        <span className="font-bold text-slate-300 block mb-1">💡 Wskazówka:</span>
         Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim wydatki i precyzyjnie przeanalizować ich udział.
       </div>
     </div>
