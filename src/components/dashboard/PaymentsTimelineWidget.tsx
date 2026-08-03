@@ -201,30 +201,30 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     return (
       <div className="mb-4 relative">
         <div className="flex items-center gap-2 mb-2">
-          <div className={`p-1.5 rounded-lg ${bgClass} ${colorClass}`}>
+          <div className={`p-1.5 rounded-lg ${bgClass} ${colorClass} border border-white/5 shadow-inner`}>
             {icon}
           </div>
-          <h4 className={`text-xs font-bold uppercase tracking-wider ${colorClass}`}>{title}</h4>
+          <h4 className={`text-xs font-bold uppercase tracking-wider ${colorClass} drop-shadow-sm`}>{title}</h4>
         </div>
-        <div className="space-y-2 border-l-2 border-gray-100 ml-3.5 pl-4 relative">
+        <div className="space-y-2 border-l-2 border-slate-700/50 ml-3.5 pl-4 relative">
           {items.map(p => {
             const isHighlighted = highlightedIds.has(p.id);
             return (
-              <div key={p.id} className={`bg-white border ${isHighlighted ? "border-slate-300 shadow-sm ring-1 ring-slate-100" : "border-slate-200/60 shadow-sm"} rounded-xl p-3 hover:border-[#137566]/30 transition group flex items-center justify-between`}>
+              <div key={p.id} className={`bg-slate-900/50 border ${isHighlighted ? "border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.1)] ring-1 ring-emerald-500/20" : "border-slate-700/50 shadow-sm"} rounded-xl p-3 hover:border-emerald-500/30 hover:bg-slate-800/50 transition group flex items-center justify-between backdrop-blur-md`}>
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-800">{p.name}</span>
+                    <span className="text-sm font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">{p.name}</span>
                     {isHighlighted && (
-                      <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Najbliższe</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">Najbliższe</span>
                     )}
                   </div>
                   <span className="text-[10px] text-slate-500 font-medium">{p.dueDate}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-slate-800">{formatMoney(p.amount, currency)}</span>
+                  <span className={`text-sm font-black ${isHighlighted ? "text-emerald-400" : "text-slate-300"}`}>{formatMoney(p.amount, currency)}</span>
                   <button
                     onClick={() => onTogglePaymentStatus(p.id)}
-                    className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-transparent hover:border-[#137566] hover:bg-[#137566]/10 hover:text-[#137566] transition"
+                    className="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-transparent hover:border-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-400 hover:shadow-[0_0_8px_rgba(52,211,153,0.4)] transition"
                     title="Oznacz jako opłacone"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -245,9 +245,9 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     
     if (upcoming.length === 0 && overdue.length === 0) {
       return (
-        <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
-          <div className="text-2xl mb-1 opacity-50">🏖️</div>
-          <p className="text-xs text-slate-500 font-medium">Brak zobowiązań na najbliższe 30 dni.</p>
+        <div className="text-center py-6 bg-slate-900/30 rounded-xl border border-dashed border-slate-700 h-full flex flex-col justify-center">
+          <div className="text-2xl mb-1 opacity-50 drop-shadow-md">🏖️</div>
+          <p className="text-xs text-slate-400 font-medium">Brak zobowiązań na najbliższe 30 dni.</p>
         </div>
       );
     }
@@ -260,34 +260,34 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     return (
       <div className="flex flex-col gap-4 pt-2">
         {overdue.length > 0 && (
-          <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4 flex flex-col gap-3">
+          <div className="bg-rose-900/20 border border-rose-500/30 rounded-xl p-4 flex flex-col gap-3 shadow-[0_0_15px_rgba(244,63,94,0.05)] backdrop-blur-md">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-700" />
-              <h4 className="text-sm font-bold text-rose-900">Zaległe płatności ({overdue.length})</h4>
+              <AlertCircle className="w-4 h-4 text-rose-400 drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]" />
+              <h4 className="text-sm font-bold text-rose-300">Zaległe płatności ({overdue.length})</h4>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-rose-700">Łączna kwota zaległości:</span>
-              <span className="text-sm font-bold text-rose-900">{formatMoney(overdueSum, currency)}</span>
+              <span className="text-xs text-rose-400/80">Łączna kwota zaległości:</span>
+              <span className="text-sm font-bold text-rose-400 drop-shadow-[0_0_5px_rgba(244,63,94,0.3)]">{formatMoney(overdueSum, currency)}</span>
             </div>
           </div>
         )}
 
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col gap-3">
+        <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 flex flex-col gap-3 shadow-inner backdrop-blur-md">
           <div className="flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-slate-500" />
-            <h4 className="text-sm font-bold text-slate-700">{texts.overviewTitle}</h4>
+            <PieChart className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-sm font-bold text-slate-200">{texts.overviewTitle}</h4>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-500">Liczba pozycji:</span>
-            <span className="text-sm font-bold text-slate-700">{count}</span>
+            <span className="text-xs text-slate-400">Liczba pozycji:</span>
+            <span className="text-sm font-bold text-slate-200">{count}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-500">Suma kwot:</span>
-            <span className="text-sm font-bold text-slate-700">{formatMoney(sum, currency)}</span>
+            <span className="text-xs text-slate-400">Suma kwot:</span>
+            <span className="text-sm font-bold text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]">{formatMoney(sum, currency)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-500">Najbliższy termin:</span>
-            <span className="text-sm font-bold text-slate-700">{nearest}</span>
+            <span className="text-xs text-slate-400">Najbliższy termin:</span>
+            <span className="text-sm font-bold text-slate-200">{nearest}</span>
           </div>
         </div>
       </div>
@@ -295,15 +295,16 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between h-full max-h-[420px]">
-      <div className="flex items-center justify-between mb-5">
+    <div className="bg-slate-800/40 backdrop-blur-xl p-5 rounded-2xl border border-slate-700/50 shadow-2xl flex flex-col justify-between h-full max-h-[420px] relative overflow-hidden group/timeline">
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent pointer-events-none opacity-50 group-hover/timeline:opacity-100 transition-opacity duration-500" />
+      <div className="flex items-center justify-between mb-5 relative z-10">
         <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Oś Czasu</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Oś Czasu</p>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900">Timeline Płatności</h3>
+            <h3 className="text-base font-bold text-slate-100 drop-shadow-sm">Timeline Płatności</h3>
             {globalOverdueCount > 0 && (
-              <span className="text-[10px] text-rose-600 font-medium flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100/50">
-                <AlertCircle className="w-3 h-3" />
+              <span className="text-[10px] text-rose-300 font-medium flex items-center gap-1 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.1)]">
+                <AlertCircle className="w-3 h-3 text-rose-400" />
                 Zaległe: {globalOverdueCount}
               </span>
             )}
@@ -312,62 +313,62 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode(viewMode === "compact" ? "monthly" : "compact")}
-            className="text-[10px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1"
+            className="text-[10px] font-bold text-slate-400 bg-slate-900/50 border border-slate-700/50 px-2.5 py-1.5 rounded-lg hover:bg-slate-700 hover:text-slate-200 transition flex items-center gap-1 shadow-inner backdrop-blur-md"
           >
             {viewMode === "compact" ? <PieChart className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
             {viewMode === "compact" ? "Monthly" : "Compact"}
           </button>
           <button
             onClick={() => onChangeView("payments")}
-            className="text-[10px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition flex items-center gap-1"
+            className="text-[10px] font-bold text-slate-400 bg-slate-900/50 border border-slate-700/50 px-2.5 py-1.5 rounded-lg hover:bg-slate-700 hover:text-slate-200 transition flex items-center gap-1 shadow-inner backdrop-blur-md"
           >
-            <CalendarClock className="w-3.5 h-3.5" />
+            <CalendarClock className="w-3.5 h-3.5 text-emerald-400" />
             Zarządzaj
           </button>
         </div>
       </div>
 
-      <div className="mb-4 bg-[#137566]/5 border border-[#137566]/20 rounded-xl p-3 flex justify-between items-center shadow-sm">
+      <div className="mb-4 bg-emerald-900/20 border border-emerald-500/30 rounded-xl p-3 flex justify-between items-center shadow-[0_0_15px_rgba(52,211,153,0.05)] backdrop-blur-md relative z-10">
         <div className="flex items-center gap-2">
-           <CalendarClock className="w-4 h-4 text-[#137566]" />
-           <span className="text-sm font-semibold text-[#137566]">Do zapłaty w tym tygodniu</span>
+           <CalendarClock className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]" />
+           <span className="text-sm font-semibold text-emerald-300">Do zapłaty w tym tygodniu</span>
         </div>
-        <span className="text-sm font-bold text-[#137566]">{formatMoney(dueThisWeekTotal, currency)}</span>
+        <span className="text-sm font-bold text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]">{formatMoney(dueThisWeekTotal, currency)}</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
-        <div className="flex gap-1 mb-4 bg-slate-100/50 p-1 rounded-xl w-fit">
-          <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Wszystkie</button>
-          <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "overdue" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Zaległe</button>
-          <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "week" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>Ten tydzień</button>
-          <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "month" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>30 dni</button>
+      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0 relative z-10">
+        <div className="flex gap-1 mb-4 bg-slate-900/50 p-1 rounded-xl w-fit border border-slate-700/50 shadow-inner">
+          <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-slate-700 text-slate-100 shadow-sm border border-slate-600" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800"}`}>Wszystkie</button>
+          <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "overdue" ? "bg-rose-900/50 text-rose-300 shadow-sm border border-rose-500/30" : "text-slate-400 hover:text-rose-300 hover:bg-rose-900/20"}`}>Zaległe</button>
+          <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "week" ? "bg-emerald-900/50 text-emerald-300 shadow-sm border border-emerald-500/30" : "text-slate-400 hover:text-emerald-300 hover:bg-emerald-900/20"}`}>Ten tydzień</button>
+          <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "month" ? "bg-slate-700 text-slate-100 shadow-sm border border-slate-600" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800"}`}>30 dni</button>
         </div>
 
-        <div className="mb-5 bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
+        <div className="mb-5 bg-slate-900/40 rounded-xl p-3 border border-slate-700/50 shadow-inner flex items-center justify-between">
           {activeSummary.count > 0 ? (
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-slate-400" />
+                  <CalendarDays className="w-4 h-4 text-emerald-400" />
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-xs font-semibold text-slate-700">{texts.label}</span>
+                    <span className="text-xs font-semibold text-slate-200">{texts.label}</span>
                     <span className="text-[10px] font-medium text-slate-500">({activeSummary.count})</span>
                   </div>
                 </div>
-                <span className="text-sm font-bold text-slate-900">{formatMoney(activeSummary.total, currency)}</span>
+                <span className="text-sm font-bold text-slate-200">{formatMoney(activeSummary.total, currency)}</span>
               </div>
               {range === "all" && totalOverdueCountInView > 0 && (
                 <div className="flex items-center gap-1.5 pl-6">
-                  <div className="w-1 h-1 rounded-full bg-rose-400"></div>
-                  <span className="text-[10px] text-slate-500 font-medium">
-                    W tym zaległe: <span className="text-rose-600 font-semibold">{totalOverdueCountInView}</span>
+                  <div className="w-1 h-1 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.8)]"></div>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    W tym zaległe: <span className="text-rose-400 font-semibold">{totalOverdueCountInView}</span>
                   </span>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex items-center gap-2 text-slate-500">
-              <span className="text-lg">🏖️</span>
+              <span className="text-lg opacity-80 drop-shadow-sm">🏖️</span>
               <span className="text-xs font-medium">
                 {texts.emptySummary}
               </span>
@@ -376,22 +377,22 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         </div>
 
         {activeSummary.count === 0 ? (
-          <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
-            <div className="text-2xl mb-1 opacity-50">🏖️</div>
-            <p className="text-xs text-slate-500 font-medium">{texts.emptyTitle}</p>
-            <p className="text-[10px] text-slate-400">{texts.emptyDesc}</p>
+          <div className="text-center py-6 bg-slate-900/30 rounded-xl border border-dashed border-slate-700 h-full flex flex-col justify-center">
+            <div className="text-2xl mb-1 opacity-50 drop-shadow-md">🏖️</div>
+            <p className="text-xs text-slate-400 font-medium">{texts.emptyTitle}</p>
+            <p className="text-[10px] text-slate-500">{texts.emptyDesc}</p>
           </div>
         ) : (
           viewMode === "compact" ? (
             <div className="pt-2 pb-2">
-              {renderSection("Zaległe", overdue, <AlertCircle className="w-4 h-4" />, "text-rose-700", "bg-rose-100")}
-              {renderSection("Dzisiaj", today, <Clock className="w-4 h-4" />, "text-amber-700", "bg-amber-100")}
-              {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-slate-700", "bg-slate-100")}
-              {renderSection("Następne 30 dni", next30Days, <Calendar className="w-4 h-4" />, "text-slate-600", "bg-slate-100/50")}
-              {renderSection("Później", later, <Calendar className="w-4 h-4" />, "text-slate-400", "bg-slate-50")}
+              {renderSection("Zaległe", overdue, <AlertCircle className="w-4 h-4" />, "text-rose-400", "bg-rose-500/20")}
+              {renderSection("Dzisiaj", today, <Clock className="w-4 h-4" />, "text-amber-400", "bg-amber-500/20")}
+              {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-emerald-400", "bg-emerald-500/20")}
+              {renderSection("Następne 30 dni", next30Days, <Calendar className="w-4 h-4" />, "text-slate-300", "bg-slate-700/50")}
+              {renderSection("Później", later, <Calendar className="w-4 h-4" />, "text-slate-500", "bg-slate-800/50")}
               
               {remainingCount > 0 && (
-                <p className="text-center text-[10px] text-slate-400 font-semibold pt-2 pb-1">
+                <p className="text-center text-[10px] text-slate-500 font-semibold pt-2 pb-1">
                   + {remainingCount} innych wpisów (zobacz w zakładce Zarządzaj)
                 </p>
               )}

@@ -60,17 +60,20 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   };
 
   let statusText = "Wszystko rozliczone z historii";
-  let statusColor = "text-slate-600";
-  let bgColor = "bg-slate-50 border-slate-200/60";
+  let statusColor = "text-slate-400";
+  let bgColor = "bg-slate-800/40 border-slate-700/50 backdrop-blur-xl shadow-2xl relative overflow-hidden";
+  let dropShadowClass = "drop-shadow-[0_0_5px_rgba(148,163,184,0.3)]";
 
   if (historyNet > 0) {
     statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet, profile?.currency || 'PLN')}`;
-    statusColor = "text-emerald-700";
-    bgColor = "bg-emerald-50/70 border-emerald-200/60";
+    statusColor = "text-emerald-400";
+    bgColor = "bg-emerald-900/20 border-emerald-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden";
+    dropShadowClass = "drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]";
   } else if (historyNet < 0) {
     statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet), profile?.currency || 'PLN')}`;
-    statusColor = "text-rose-700";
-    bgColor = "bg-rose-50/70 border-rose-200/60";
+    statusColor = "text-rose-400";
+    bgColor = "bg-rose-900/20 border-rose-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden";
+    dropShadowClass = "drop-shadow-[0_0_5px_rgba(244,63,94,0.3)]";
   }
 
   let upcomingText = "";
@@ -83,21 +86,22 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
   const settlementsList: SettlementEntry[] = profile.settlements || [];
 
   return (
-    <div className={`p-5 rounded-2xl border ${bgColor} shadow-sm mb-6`} id="settlement-widget">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className={`p-5 rounded-2xl border ${bgColor} mb-6`} id="settlement-widget">
+      <div className={`absolute inset-0 bg-gradient-to-br ${historyNet > 0 ? "from-emerald-500/5" : historyNet < 0 ? "from-rose-500/5" : "from-slate-500/5"} to-transparent pointer-events-none`} />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div>
           <DelayedTooltip
             className="mb-1"
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
-            tooltipClassName="w-48"
+            tooltipClassName="w-48 bg-slate-800 border-slate-700 text-slate-200"
           >
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-help border-b border-dashed border-slate-400">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider cursor-help border-b border-dashed border-slate-600 drop-shadow-sm pb-0.5">
               Do rozliczenia (Historia)
             </p>
           </DelayedTooltip>
-          <h3 className={`text-sm sm:text-base font-bold ${statusColor}`}>{statusText}</h3>
+          <h3 className={`text-sm sm:text-base font-bold ${statusColor} ${dropShadowClass}`}>{statusText}</h3>
           {upcomingText && (
-            <p className="text-xs text-slate-500 mt-1 font-medium" id="settlement-upcoming-info">
+            <p className="text-xs text-slate-400 mt-1 font-medium" id="settlement-upcoming-info">
               {upcomingText}
             </p>
           )}
@@ -108,7 +112,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={handleOpenModal}
               id="open-settlement-modal-btn"
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
+              className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl transition shadow-[0_0_10px_rgba(52,211,153,0.1)] backdrop-blur-md"
             >
               Rozlicz
             </button>
@@ -118,9 +122,9 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={() => setShowHistory(!showHistory)}
               id="settlement-history-toggle-btn"
-              className="px-4 py-2 bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-inner backdrop-blur-md"
             >
-              <History className="w-4 h-4 text-slate-500" />
+              <History className="w-4 h-4 text-slate-400" />
               Historia ({settlementsList.length})
             </button>
           )}
@@ -129,35 +133,35 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
       {/* History List */}
       {showHistory && settlementsList.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-slate-200/60" id="settlement-history-section">
-          <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <div className="mt-4 pt-4 border-t border-slate-700/50 relative z-10" id="settlement-history-section">
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 drop-shadow-sm">
             <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500" />
             Historia rozliczeń ręcznych
           </h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
             {settlementsList.map((s) => {
               const isPartnerPaid = s.amount > 0;
               return (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between p-2.5 bg-white/80 border border-slate-200 rounded-lg text-xs"
+                  className="flex items-center justify-between p-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-xs shadow-inner"
                 >
                   <div>
-                    <span className="font-bold text-slate-800">
+                    <span className="font-bold text-slate-200">
                       {isPartnerPaid ? `${partnerName} oddał(a) Tobie` : `Oddałeś(aś) ${partnerName}`}
                     </span>
-                    <span className="text-slate-400 ml-2">{formatDate(s.isoDate)}</span>
-                    {s.note && <p className="text-slate-500 text-[11px] mt-0.5">{s.note}</p>}
+                    <span className="text-slate-500 ml-2">{formatDate(s.isoDate)}</span>
+                    {s.note && <p className="text-slate-400 text-[11px] mt-0.5">{s.note}</p>}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-bold ${isPartnerPaid ? 'text-emerald-600' : 'text-blue-600'}`}>
+                    <span className={`font-bold ${isPartnerPaid ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]' : 'text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.3)]'}`}>
                       {isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}
                     </span>
                     {onDeleteSettlement && (
                       <button
                         onClick={() => onDeleteSettlement(s.id)}
                         id={`delete-settlement-${s.id}`}
-                        className="p-1 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                        className="p-1 text-slate-500 hover:text-rose-400 hover:drop-shadow-[0_0_5px_rgba(244,63,94,0.3)] transition cursor-pointer"
                         title="Usuń wpis rozliczenia"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -173,25 +177,25 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
       {/* Settlement Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
           <div
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 relative"
+            className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative"
             id="settlement-modal"
           >
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 rounded-lg transition"
+              className="absolute top-4 right-4 p-1 text-slate-500 hover:text-slate-300 rounded-lg transition"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+              <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Rozlicz saldo z partnerem</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-base font-bold text-slate-100">Rozlicz saldo z partnerem</h3>
+                <p className="text-xs text-slate-400">
                   Zarejestruj płatność wyrównującą bez dodawania transakcji wydatku.
                 </p>
               </div>
@@ -199,7 +203,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                   Kierunek płatności
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -208,8 +212,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     onClick={() => setDirection('partner_paid_me')}
                     className={`py-2 px-3 text-xs font-bold rounded-xl border transition ${
                       direction === 'partner_paid_me'
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-800 shadow-sm'
-                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                        ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.1)]'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
                     }`}
                   >
                     {partnerName} oddał(a) mi
@@ -219,8 +223,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     onClick={() => setDirection('i_paid_partner')}
                     className={`py-2 px-3 text-xs font-bold rounded-xl border transition ${
                       direction === 'i_paid_partner'
-                        ? 'bg-blue-50 border-blue-500 text-blue-800 shadow-sm'
-                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                        ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.1)]'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
                     }`}
                   >
                     Ja oddałem(am) {partnerName}
@@ -229,7 +233,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Kwota ({(profile?.currency || "PLN")})
                 </label>
                 <input
@@ -240,13 +244,13 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                   value={amountStr}
                   onChange={(e) => setAmountStr(e.target.value)}
                   placeholder="0.00"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-bold text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow"
                   id="settlement-amount-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Data rozliczenia
                 </label>
                 <input
@@ -254,13 +258,13 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                   required
                   value={isoDate}
                   onChange={(e) => setIsoDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow [color-scheme:dark]"
                   id="settlement-date-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Notatka (opcjonalnie)
                 </label>
                 <input
@@ -268,7 +272,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="np. Przelew BLIK, wyrównanie za wakacje"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow"
                   id="settlement-note-input"
                 />
               </div>
@@ -277,14 +281,14 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-xl transition"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   id="settlement-submit-btn"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
+                  className="px-5 py-2 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl transition shadow-[0_0_10px_rgba(52,211,153,0.1)]"
                 >
                   Zapisz rozliczenie
                 </button>
