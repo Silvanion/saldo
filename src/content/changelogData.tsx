@@ -121,7 +121,7 @@ export const changelogData: ChangelogEntry[] = [
     version: "v0.8.0",
     date: "Kwiecień 2026",
     title: "Pierwsze Wydanie",
-    icon: <CheckCircle2 className="w-5 h-5 text-slate-500" />,
+    icon: <CheckCircle2 className="w-5 h-5 text-text-faint" />,
     features: [
       "Uruchomienie podstawowego silnika zarządzania transakcjami.",
       "Logowanie kontem Google.",

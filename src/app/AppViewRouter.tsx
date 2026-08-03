@@ -107,9 +107,9 @@ export function AppViewRouter({
 
   if (!activeProfile && activeView !== "settings") {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[60vh] bg-slate-800/30 rounded-2xl m-4 border border-dashed border-slate-700">
+      <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[60vh] bg-surface/30 rounded-2xl m-4 border border-dashed border-border">
         <h2 className="text-2xl font-bold text-white mb-3">Rozpocznij z Saldo</h2>
-        <p className="text-slate-400 max-w-md mx-auto mb-8 text-sm">
+        <p className="text-text-muted max-w-md mx-auto mb-8 text-sm">
           Nie masz jeszcze żadnego aktywnego profilu. Utwórz profil osobisty do własnych wydatków, lub profil wspólny, aby na bieżąco rozliczać się z partnerem.
         </p>
         <button 

@@ -61,7 +61,7 @@ export function AppShell({
   };
 
   return (
-    <div className="flex h-screen bg-slate-900 overflow-hidden font-sans" id="app-root-shell">
+    <div className="flex h-screen bg-bg-base overflow-hidden font-sans" id="app-root-shell">
       {/* Mobile Drawer Backdrop */}
       {isMobileMenuOpen && (
         <div
@@ -72,7 +72,7 @@ export function AppShell({
 
       {/* SIDEBAR CONTAINER */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-slate-900/95 backdrop-blur-2xl border-r border-slate-800/50 p-6 transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-bg-base/95 backdrop-blur-2xl border-r border-border/50 p-6 transition-transform lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         id="sidebar-panel"
@@ -86,7 +86,7 @@ export function AppShell({
             <span>saldo</span>
           </div>
           <button className="lg:hidden p-1 rounded-xl hover:bg-slate-700" onClick={() => setIsMobileMenuOpen(false)}>
-            <X className="w-5 h-5 text-slate-400" />
+            <X className="w-5 h-5 text-text-muted" />
           </button>
         </div>
 
@@ -99,7 +99,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "dashboard" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "dashboard" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-dashboard"
           >
@@ -113,7 +113,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "transactions" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "transactions" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-transactions"
           >
@@ -127,7 +127,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "payments" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "payments" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-payments"
           >
@@ -148,7 +148,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "budget" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "budget" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-budget"
           >
@@ -162,7 +162,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "goals" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "goals" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-goals"
           >
@@ -176,7 +176,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "analysis" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "analysis" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-analysis"
           >
@@ -186,14 +186,14 @@ export function AppShell({
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-slate-700/50 pt-4 mt-auto">
+        <div className="border-t border-border pt-4 mt-auto">
           <button
             onClick={() => {
               setActiveView("help");
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
-              activeView === "help" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "help" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-help"
           >
@@ -207,7 +207,7 @@ export function AppShell({
               setIsMobileMenuOpen(false);
             }}
             className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
-              activeView === "settings" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+              activeView === "settings" ? "bg-surface text-white" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-settings"
           >
@@ -220,24 +220,24 @@ export function AppShell({
               openModal("changelog");
               setIsMobileMenuOpen(false);
             }}
-            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-slate-800/30 border border-slate-700/50 rounded-xl hover:bg-slate-700 transition group"
+            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-surface/30 border border-border rounded-xl hover:bg-slate-700 transition group"
           >
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
-              <span className="text-xs font-bold text-slate-200 group-hover:text-white">Co nowego?</span>
+              <span className="text-xs font-bold text-text-main group-hover:text-white">Co nowego?</span>
             </div>
           </button>
 
           {activeProfile && (
-            <div className="flex items-center gap-3 px-3 py-2 bg-slate-800/30 border border-slate-700/50 rounded-2xl">
+            <div className="flex items-center gap-3 px-3 py-2 bg-surface/30 border border-border rounded-2xl">
               <span className="w-8 h-8 rounded-full bg-slate-200 text-white text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
               <div className="min-w-0 text-left">
-                <p className="text-xs font-black text-slate-100 truncate" id="profile-tag-name">{activeProfile.name}</p>
-                <span className="text-[10px] text-slate-400 block truncate">
+                <p className="text-xs font-black text-text-main truncate" id="profile-tag-name">{activeProfile.name}</p>
+                <span className="text-[10px] text-text-muted block truncate">
                   {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
                 </span>
               </div>
@@ -250,7 +250,7 @@ export function AppShell({
       <main className="flex-1 flex flex-col h-full overflow-hidden" id="main-viewport-panel">
         {/* Demo Mode Top Banner */}
         {isDemoMode && showDemoBanner && (
-          <div className="bg-slate-800/50 text-slate-200 border-b border-slate-700/50 px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
+          <div className="bg-surface/50 text-text-main border-b border-border px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 shrink-0" />
               <div className="text-xs">
@@ -260,13 +260,13 @@ export function AppShell({
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setIsDemoMode(false)}
-                className="flex-1 sm:flex-none bg-slate-900 text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-slate-800 transition shadow-sm whitespace-nowrap"
+                className="flex-1 sm:flex-none bg-bg-base text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-surface-2 transition shadow-sm whitespace-nowrap"
               >
                 Zaloguj się z Google
               </button>
               <button
                 onClick={() => setShowDemoBanner(false)}
-                className="p-1 text-slate-400 hover:bg-slate-200 rounded-md transition"
+                className="p-1 text-text-muted hover:bg-slate-200 rounded-md transition"
                 title="Ukryj"
               >
                 <X className="w-4 h-4" />
@@ -276,11 +276,11 @@ export function AppShell({
         )}
 
         {/* TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-slate-900/50 backdrop-blur-md border-b border-slate-800/50 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
+        <header className="flex items-center justify-between bg-surface backdrop-blur-md border-b border-border/50 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-xl border border-slate-700/50 hover:bg-slate-700 lg:hidden"
+              className="p-1 rounded-xl border border-border hover:bg-slate-700 lg:hidden"
               id="btn-open-mobile-menu"
             >
               <Menu className="w-5 h-5 text-white" />
@@ -325,7 +325,7 @@ export function AppShell({
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
-                className="bg-slate-900 text-white font-bold py-2 px-4 rounded-xl hover:bg-slate-800 transition shadow-md text-xs"
+                className="bg-bg-base text-white font-bold py-2 px-4 rounded-xl hover:bg-surface-2 transition shadow-md text-xs"
                 id="btn-quick-add-tx"
               >
                 ＋ Dodaj wpis
@@ -352,21 +352,21 @@ export function AppShell({
               )}
               <span>{isOnline ? "System Online" : "System Offline"}</span>
             </span>
-            <span className="text-slate-300 dark:text-slate-200">|</span>
-            <span className="flex items-center gap-1 text-[11px] text-slate-400">
+            <span className="text-text-muted dark:text-text-main">|</span>
+            <span className="flex items-center gap-1 text-[11px] text-text-muted">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span className="hidden xs:inline">Bezpieczeństwo:</span>
               <span className="font-medium">Ochrona aktywna</span>
             </span>
-            <span className="text-slate-300 dark:text-slate-200 hidden sm:inline">|</span>
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400">
-              <Database className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-text-muted dark:text-text-main hidden sm:inline">|</span>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-text-muted">
+              <Database className="w-3.5 h-3.5 text-text-muted" />
               <span>Autozapis</span>
             </span>
           </div>
           <button
             onClick={() => toggleSecurityInfo(true)}
-            className="flex items-center gap-1 text-[11px] text-slate-400 hover:underline font-bold cursor-pointer"
+            className="flex items-center gap-1 text-[11px] text-text-muted hover:underline font-bold cursor-pointer"
             id="btn-security-details"
           >
             <Info className="w-3.5 h-3.5" />
@@ -396,11 +396,11 @@ export function AppShell({
       {onOpenAiChatModal && canUseAiChat && activeProfile && !isProfileLocked && (
         <button
           onClick={onOpenAiChatModal}
-          className="fixed bottom-6 right-6 z-40 bg-slate-900 text-white p-4 rounded-full shadow-lg hover:bg-slate-800 hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-slate-200 group cursor-pointer"
+          className="fixed bottom-6 right-6 z-40 bg-bg-base text-white p-4 rounded-full shadow-lg hover:bg-surface-2 hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-slate-200 group cursor-pointer"
           title="Porozmawiaj z Asystentem AI"
         >
           <Sparkles className="w-6 h-6 animate-pulse" />
-          <span className="absolute -top-10 right-0 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
+          <span className="absolute -top-10 right-0 bg-surface text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
         </button>
       )}
 

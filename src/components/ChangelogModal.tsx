@@ -11,23 +11,23 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-slate-900/95 backdrop-blur-2xl rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-base/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-2xl shadow-sm flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#137566]/10 flex items-center justify-center">
               <History className="w-5 h-5 text-[#137566]" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">Historia Zmian</h2>
-              <p className="text-sm text-slate-400">Co nowego w Saldo?</p>
+              <p className="text-sm text-text-muted">Co nowego w Saldo?</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 text-slate-400 hover:bg-slate-700/50 rounded-xl transition"
+            className="p-2 text-text-muted hover:bg-slate-700/50 rounded-xl transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -43,11 +43,11 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
               )}
               
               {/* Timeline Dot/Icon */}
-              <div className="absolute left-0 sm:left-3 top-1 w-6 h-6 rounded-full bg-slate-900/95 backdrop-blur-2xl border-[3px] border-slate-700/50 flex items-center justify-center z-10 shadow-sm">
+              <div className="absolute left-0 sm:left-3 top-1 w-6 h-6 rounded-full bg-bg-base/95 backdrop-blur-2xl border-[3px] border-border flex items-center justify-center z-10 shadow-sm">
                 <div className="w-2 h-2 rounded-full bg-[#137566]" />
               </div>
 
-              <div className="bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
+              <div className="bg-bg-base/95 backdrop-blur-2xl border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <span className="px-2.5 py-0.5 rounded-xl bg-[#137566]/10 text-[#137566] text-xs font-bold font-mono">
@@ -58,14 +58,14 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
                       {release.title}
                     </div>
                   </div>
-                  <span className="self-start sm:self-auto px-2.5 py-0.5 rounded-full bg-slate-700/50 text-xs font-bold text-slate-300">
+                  <span className="self-start sm:self-auto px-2.5 py-0.5 rounded-full bg-slate-700/50 text-xs font-bold text-text-muted">
                     {release.date}
                   </span>
                 </div>
 
                 <ul className="space-y-2.5">
                   {release.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300">
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-text-muted">
                       <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
                       <span className="leading-relaxed">{feature}</span>
                     </li>

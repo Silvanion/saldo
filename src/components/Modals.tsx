@@ -57,9 +57,9 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border p-6 shadow-sm"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-faint" id="close-goal-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Oszczędności</p>
@@ -74,7 +74,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. Poduszka finansowa, Remont, Nowy laptop"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-name"
             />
           </div>
@@ -88,7 +88,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
               placeholder="np. 15000"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-target"
             />
           </div>
@@ -96,7 +96,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-surface-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz cel"}
@@ -150,9 +150,9 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border p-6 shadow-sm"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-goal-deposit-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-faint" id="close-goal-deposit-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Transfer Celu</p>
@@ -168,7 +168,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
               placeholder="np. 100 (wpłata) lub -50 (wypłata)"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
               id="input-goal-deposit-amount"
             />
           </div>
@@ -176,7 +176,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-surface-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-goal-deposit-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz wpłatę"}
@@ -244,9 +244,9 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border p-6 shadow-sm"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600" id="close-budget-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-faint" id="close-budget-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Limity Miesięczne</p>
@@ -264,7 +264,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
                   placeholder="Brak limitu"
                   value={budgets[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className="w-full rounded-xl border border-slate-700/50 p-2.5 outline-none focus:border-emerald-500/50"
+                  className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
                   id={`input-budget-${category}`}
                 />
               </div>
@@ -274,7 +274,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-surface-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-budget-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz limity"}
@@ -330,9 +330,9 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border p-6 shadow-sm"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 cursor-pointer" id="close-pin-modal">
+        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-faint cursor-pointer" id="close-pin-modal">
           &times;
         </button>
         <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Ochrona profilu</p>
@@ -378,12 +378,12 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
               placeholder="np. 1234"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-slate-700/50 p-3 text-center text-xl tracking-widest outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-3 text-center text-xl tracking-widest outline-none focus:border-emerald-500/50"
               id="input-pin-code"
             />
           </div>
 
-          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-700/50 bg-slate-800/40 cursor-pointer text-xs text-slate-200 font-medium">
+          <label className="flex items-start gap-2.5 p-2.5 rounded-lg border border-border bg-surface cursor-pointer text-xs text-text-main font-medium">
             <input
               type="checkbox"
               checked={hasAcceptedWarning}
@@ -397,7 +397,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           <button
             type="submit"
             disabled={!hasAcceptedWarning || !/^\d{4,8}$/.test(pin)}
-            className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-surface-2 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             id="btn-pin-submit"
           >
             Zapisz PIN
@@ -441,7 +441,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/95 p-4 backdrop-blur-xs"
       id="unlock-modal"
     >
       <motion.div
@@ -449,17 +449,17 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full max-w-sm rounded-3xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 p-8 shadow-2xl ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
+        className={`w-full max-w-sm rounded-3xl bg-bg-base/95 backdrop-blur-2xl border border-border p-8 shadow-sm ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
       >
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-slate-800/60 rounded-full flex items-center justify-center text-white">
+          <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center text-white">
             <Lock className="w-8 h-8" />
           </div>
         </div>
         
         <p className="text-[10px] font-bold uppercase tracking-wider text-center text-[#849590]">Zabezpieczony Profil</p>
         <h2 className="text-2xl font-bold text-white text-center mb-2">Podaj PIN</h2>
-        <p className="text-sm text-slate-500 text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
+        <p className="text-sm text-text-faint text-center mb-8">Profil <strong>{profileName}</strong> wymaga autoryzacji.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -472,7 +472,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
               autoFocus
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-slate-700/50 focus:border-emerald-500/50 text-slate-100'}`}
+              className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] outline-none transition ${errorMsg ? 'border-red-300 focus:border-red-500 text-red-600 bg-red-50' : 'border-border focus:border-emerald-500/50 text-text-main'}`}
               id="input-unlock-pin"
             />
           </div>
@@ -486,7 +486,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
           <div className="pt-4 space-y-3">
             <button
               type="submit"
-              className="w-full rounded-xl bg-slate-900 py-4 text-sm font-bold text-white shadow-lg hover:bg-slate-800 hover:scale-[1.02] transition-all"
+              className="w-full rounded-xl bg-bg-base py-4 text-sm font-bold text-white shadow-lg hover:bg-surface-2 hover:scale-[1.02] transition-all"
               id="btn-unlock-submit"
             >
               Odblokuj profil
@@ -495,7 +495,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             <button
               type="button"
               onClick={onSelectOtherProfile}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 hover:text-slate-100 transition"
+              className="w-full rounded-xl py-3 text-sm font-semibold text-text-faint hover:text-text-main transition"
               id="btn-unlock-other"
             >
               Wróć do wyboru profili

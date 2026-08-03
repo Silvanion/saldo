@@ -43,10 +43,10 @@ export function PWABadge() {
       )}
       
       {needRefresh && (
-        <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center justify-between gap-4 animate-in slide-in-from-bottom-2" id="pwa-update-prompt">
+        <div className="bg-bg-base text-white px-4 py-3 rounded-2xl shadow-xl border border-border flex items-center justify-between gap-4 animate-in slide-in-from-bottom-2" id="pwa-update-prompt">
           <div className="text-xs">
             <p className="font-bold text-emerald-400">Dostępna nowa wersja — Odśwież</p>
-            <p className="text-slate-300 mt-0.5">Zaktualizuj aplikację, aby załadować nową wersję.</p>
+            <p className="text-text-muted mt-0.5">Zaktualizuj aplikację, aby załadować nową wersję.</p>
           </div>
           <button
             onClick={() => updateServiceWorker(true)}

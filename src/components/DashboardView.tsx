@@ -133,7 +133,7 @@ export function DashboardView({
   const currentMonthIdx = selectedDate.getMonth();
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-900 text-slate-50 p-4 sm:p-6 lg:p-8 custom-scrollbar relative" id="dashboard-scroll-area">
+    <div className="flex-1 overflow-y-auto bg-bg-base text-text-inverse p-4 sm:p-6 lg:p-8 custom-scrollbar relative" id="dashboard-scroll-area">
       {/* Background Glowing Orbs for Glassmorphism */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -141,23 +141,23 @@ export function DashboardView({
       {/* Month Navigation */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 relative z-10">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-50" id="dash-month-title">
+          <h2 className="text-xl sm:text-2xl font-bold text-text-inverse" id="dash-month-title">
             {getMonthName(currentMonthIdx)} {currentYear}
           </h2>
-          <p className="text-sm text-slate-400">Podsumowanie i wskaźniki dla tego miesiąca.</p>
+          <p className="text-sm text-text-muted">Podsumowanie i wskaźniki dla tego miesiąca.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center bg-slate-800/40 backdrop-blur-md rounded-xl border border-slate-700/50 shadow-sm overflow-hidden flex-1 sm:flex-none">
+          <div className="flex items-center bg-surface rounded-xl border border-border shadow-sm overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="px-4 py-2 hover:bg-slate-700/40 transition text-slate-300 hover:text-white font-bold border-r border-slate-700/50"
+              className="px-4 py-2 hover:bg-slate-700/40 transition text-text-muted hover:text-white font-bold border-r border-border"
               id="dash-prev-month"
             >
               ← Poprzedni
             </button>
             <button
               onClick={onNextMonth}
-              className="px-4 py-2 hover:bg-slate-700/40 transition text-slate-300 hover:text-white font-bold"
+              className="px-4 py-2 hover:bg-slate-700/40 transition text-text-muted hover:text-white font-bold"
               id="dash-next-month"
             >
               Następny →
@@ -165,7 +165,7 @@ export function DashboardView({
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2.5 bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-sm text-slate-400 hover:text-white hover:bg-slate-700/40 transition group"
+            className="p-2.5 bg-surface border border-border rounded-xl shadow-sm text-text-muted hover:text-white hover:bg-slate-700/40 transition group"
             title="Dostosuj ekran"
           >
             <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
@@ -180,7 +180,7 @@ export function DashboardView({
       />
 
       {isEditMode && (
-        <div className="bg-amber-500/10 border border-amber-500/20 text-amber-100 px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 backdrop-blur-md">
+        <div className="bg-amber-500/10 border border-amber-500/20 text-amber-100 px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 ">
           <div className="flex items-center gap-3">
             <Move className="w-5 h-5 text-amber-400" />
             <span className="text-sm font-bold">Tryb edycji włączony. Możesz przeciągać kafelki, aby zmienić ich kolejność.</span>
@@ -269,17 +269,17 @@ export function DashboardView({
               style={{ minHeight: isEditMode ? '100px' : 'auto' }}
             >
               {isEditMode && (
-                <div className="absolute inset-0 bg-slate-800/40 rounded-2xl border-2 border-white/20 z-20 pointer-events-none group-hover:border-white/40 transition flex items-start justify-between p-2">
-                  <div className="bg-slate-800/90 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-slate-700 flex items-center gap-1.5 text-slate-200 pointer-events-auto">
+                <div className="absolute inset-0 bg-surface rounded-2xl border-2 border-white/20 z-20 pointer-events-none group-hover:border-white/40 transition flex items-start justify-between p-2">
+                  <div className="bg-surface/90  p-1.5 rounded-lg shadow-sm border border-border flex items-center gap-1.5 text-text-main pointer-events-auto">
                     <GripVertical className="w-4 h-4" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">{widget.name.split(' ')[0]}</span>
                   </div>
                   
-                  <div className="flex items-center gap-1 bg-slate-800/90 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-slate-700 pointer-events-auto">
+                  <div className="flex items-center gap-1 bg-surface/90  p-1 rounded-lg shadow-sm border border-border pointer-events-auto">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveUp(index); }}
                       disabled={index === 0}
-                      className="p-1 rounded hover:bg-slate-700 disabled:opacity-30 text-slate-300 transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-700 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative"
                       title="Przesuń wyżej"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -287,7 +287,7 @@ export function DashboardView({
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveDown(index); }}
                       disabled={index === widgets.length - 1}
-                      className="p-1 rounded hover:bg-slate-700 disabled:opacity-30 text-slate-300 transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-700 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative"
                       title="Przesuń niżej"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
@@ -320,29 +320,29 @@ export function DashboardView({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCustomizerOpen(false)}
-              className="absolute inset-0 bg-black/55 backdrop-blur-xs"
+              className="absolute inset-0 bg-black/55 "
             />
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
               transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-              className="bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative z-10 border border-slate-800 text-slate-100"
+              className="bg-bg-base rounded-2xl max-w-lg w-full p-6 shadow-sm relative z-10 border border-border text-text-main"
             >
               <button
                 onClick={() => setIsCustomizerOpen(false)}
-                className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-800 rounded-lg transition"
+                className="absolute top-4 right-4 p-1.5 text-text-faint hover:text-text-muted hover:bg-surface-2 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 shrink-0 text-xl">
+                <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center border border-border shrink-0 text-xl">
                   ⚙️
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-50">Dostosuj Ekran Główny</h3>
-                  <p className="text-xs text-slate-400">Zarządzaj widocznością kafelków i ich kolejnością.</p>
+                  <h3 className="text-base font-bold text-text-inverse">Dostosuj Ekran Główny</h3>
+                  <p className="text-xs text-text-muted">Zarządzaj widocznością kafelków i ich kolejnością.</p>
                 </div>
               </div>
 
@@ -350,13 +350,13 @@ export function DashboardView({
                 {widgets.map((w, index) => (
                   <div
                     key={w.id}
-                    className="flex items-center justify-between p-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-sm"
+                    className="flex items-center justify-between p-3.5 bg-surface/50 border border-border rounded-xl text-sm"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="text-lg bg-slate-700 w-8 h-8 rounded-lg shadow-xs flex items-center justify-center shrink-0">
                         {w.icon}
                       </span>
-                      <span className="font-bold text-slate-200 text-xs sm:text-sm truncate">
+                      <span className="font-bold text-text-main text-xs sm:text-sm truncate">
                         {w.name}
                       </span>
                     </div>
@@ -366,7 +366,7 @@ export function DashboardView({
                         <button
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-slate-300 transition cursor-pointer"
+                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
@@ -374,7 +374,7 @@ export function DashboardView({
                         <button
                           onClick={() => handleMoveDown(index)}
                           disabled={index === widgets.length - 1}
-                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-slate-300 transition cursor-pointer"
+                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
@@ -396,12 +396,12 @@ export function DashboardView({
                 ))}
               </div>
 
-              <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between gap-4 mb-6">
+              <div className="bg-surface/50 border border-border p-4 rounded-xl flex items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <Move className="w-5 h-5 text-slate-400 shrink-0" />
+                  <Move className="w-5 h-5 text-text-muted shrink-0" />
                   <div>
-                    <h4 className="text-xs font-bold text-slate-200">Tryb edycji na żywo</h4>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">Pozwala układać elementy bezpośrednio na pulpicie za pomocą Drag & Drop.</p>
+                    <h4 className="text-xs font-bold text-text-main">Tryb edycji na żywo</h4>
+                    <p className="text-[11px] text-text-muted leading-relaxed">Pozwala układać elementy bezpośrednio na pulpicie za pomocą Drag & Drop.</p>
                   </div>
                 </div>
                 <button
@@ -419,10 +419,10 @@ export function DashboardView({
                 </button>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-between pt-4 border-t border-border">
                 <button
                   onClick={handleResetWidgets}
-                  className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                  className="flex items-center gap-1 text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Domyślny układ</span>

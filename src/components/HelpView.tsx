@@ -28,10 +28,10 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-slate-700/50 rounded-2xl overflow-hidden mb-4 bg-slate-800/40 backdrop-blur-xl shadow-sm hover:shadow-md transition-all">
+    <div className="border border-border rounded-2xl overflow-hidden mb-4 bg-surface shadow-sm hover:shadow-md transition-all">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-700/30 dark:hover:bg-slate-800/40 backdrop-blur-xl/5 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-700/30 dark:hover:bg-surface/5 transition-colors"
       >
         <div className="flex items-center gap-3.5">
           <div className="p-2.5 bg-indigo-50 text-[#137566] rounded-xl shadow-xs shrink-0">
@@ -39,22 +39,22 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-100 text-base sm:text-lg">{title}</span>
+              <span className="font-bold text-text-main text-base sm:text-lg">{title}</span>
               {badge && (
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-[#137566] px-2 py-0.5 rounded-full">
                   {badge}
                 </span>
               )}
             </div>
-            <span className="text-xs text-slate-400 font-medium">{category}</span>
+            <span className="text-xs text-text-muted font-medium">{category}</span>
           </div>
         </div>
-        <div className="text-slate-400 p-1 rounded-xl hover:bg-slate-700/50 dark:hover:bg-slate-800/40 backdrop-blur-xl/10 transition-colors">
+        <div className="text-text-muted p-1 rounded-xl hover:bg-slate-700/50 dark:hover:bg-surface/10 transition-colors">
           {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
       {isOpen && (
-        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-slate-800/60/50">
+        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-surface/50">
           {children}
         </div>
       )}
@@ -82,7 +82,7 @@ export function HelpView() {
       {/* Header Banner */}
       <div className="bg-gradient-to-br from-[#137566] via-[#0f5c50] to-[#0a4239] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-slate-800/40 backdrop-blur-xl/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-200 border border-white/10">
+          <div className="inline-flex items-center gap-2 bg-surface/10  px-3 py-1 rounded-full text-xs font-bold text-emerald-200 border border-white/10">
             <Sparkles className="w-3.5 h-3.5" /> Complete User Guide & Knowledge Base
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight flex items-center gap-3">
@@ -96,13 +96,13 @@ export function HelpView() {
           {/* Interactive Search Bar */}
           <div className="pt-2 max-w-xl">
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe to spend', 'IKE', 'PIN')..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 backdrop-blur-xl text-white placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full pl-11 pr-4 py-3 bg-surface text-white placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
           </div>
@@ -121,8 +121,8 @@ export function HelpView() {
               {card.icon}
             </div>
             <div>
-              <h4 className="font-bold text-slate-100 text-sm">{card.title}</h4>
-              <p className="text-xs text-slate-300 mt-1">{card.description}</p>
+              <h4 className="font-bold text-text-main text-sm">{card.title}</h4>
+              <p className="text-xs text-text-muted mt-1">{card.description}</p>
             </div>
           </div>
         ))}
@@ -137,7 +137,7 @@ export function HelpView() {
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               selectedCategory === cat
                 ? "bg-[#137566] text-white shadow-sm scale-105"
-                : "bg-slate-800/40 backdrop-blur-xl text-slate-300 border border-slate-700/50 hover:bg-slate-800/60"
+                : "bg-surface text-text-muted border border-border hover:bg-surface"
             }`}
           >
             {cat}
@@ -163,7 +163,7 @@ export function HelpView() {
       </div>
 
       {/* Interactive FAQ Box */}
-      <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
           <HelpCircle className="w-6 h-6 text-[#137566]" />
           Najczęściej zadawane pytania (FAQ)
@@ -171,9 +171,9 @@ export function HelpView() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           {faqData.map((faq, idx) => (
-            <div key={idx} className="p-4 bg-slate-800/60 rounded-2xl border border-slate-100 space-y-1.5">
+            <div key={idx} className="p-4 bg-surface rounded-2xl border border-slate-100 space-y-1.5">
               <h5 className="font-bold text-white text-sm">{faq.question}</h5>
-              <p className="text-slate-300 leading-relaxed">{faq.answer}</p>
+              <p className="text-text-muted leading-relaxed">{faq.answer}</p>
             </div>
           ))}
         </div>

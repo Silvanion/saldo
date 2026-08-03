@@ -32,7 +32,7 @@ export function AppContent() {
   // Main Authentication Gate
   if (isGoogleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-bg-base">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#137566]"></div>
       </div>
     );
@@ -62,7 +62,7 @@ export function AppContent() {
           />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-sm font-bold text-slate-400">Profil jest zablokowany kodem PIN...</p>
+            <p className="text-sm font-bold text-text-muted">Profil jest zablokowany kodem PIN...</p>
           </div>
         )}
 

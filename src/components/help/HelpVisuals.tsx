@@ -11,13 +11,13 @@ export interface StepHighlightProps {
 
 export function StepHighlight({ step, label, description }: StepHighlightProps) {
   return (
-    <div className="flex items-start gap-3 bg-slate-800/40 backdrop-blur-xl p-3 rounded-xl border border-emerald-500/20 shadow-sm">
+    <div className="flex items-start gap-3 bg-surface p-3 rounded-xl border border-emerald-500/20 shadow-sm">
       <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#137566] text-white font-bold text-xs shrink-0 shadow-sm">
         {step}
       </div>
       <div>
-        <h5 className="font-bold text-slate-100 text-sm">{label}</h5>
-        <p className="text-sm text-slate-300 mt-0.5 leading-relaxed">{description}</p>
+        <h5 className="font-bold text-text-main text-sm">{label}</h5>
+        <p className="text-sm text-text-muted mt-0.5 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -32,14 +32,14 @@ export interface MockScreenShotProps {
 
 export function MockScreenShot({ title, badge, children, steps }: MockScreenShotProps) {
   return (
-    <div className="my-5 border border-slate-700/50 rounded-2xl overflow-hidden bg-slate-900 shadow-lg text-white">
+    <div className="my-5 border border-border rounded-2xl overflow-hidden bg-bg-base shadow-lg text-white">
       {/* Mock Window Header */}
-      <div className="bg-slate-800/90 px-4 py-2.5 border-b border-slate-700/80 flex items-center justify-between">
+      <div className="bg-surface/90 px-4 py-2.5 border-b border-border/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500/80" />
           <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
           <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-          <span className="text-xs font-mono text-slate-400 ml-2">{title}</span>
+          <span className="text-xs font-mono text-text-muted ml-2">{title}</span>
         </div>
         <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#137566]/30 text-emerald-300 border border-emerald-500/30 rounded-full">
           {badge}
@@ -53,7 +53,7 @@ export function MockScreenShot({ title, badge, children, steps }: MockScreenShot
 
       {/* Step by Step Action Markers */}
       {steps.length > 0 && (
-        <div className="bg-slate-800/50 p-4 border-t border-slate-700/60 grid gap-2 sm:grid-cols-2">
+        <div className="bg-surface/50 p-4 border-t border-border/60 grid gap-2 sm:grid-cols-2">
           {steps.map((s) => (
             <StepHighlight key={s.step} step={s.step} label={s.label} description={s.description} />
           ))}

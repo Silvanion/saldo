@@ -46,21 +46,21 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     title: "Prywatność i Szyfrowanie",
     description: "Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z kodem PIN.",
     icon: <ShieldCheck className="w-5 h-5" />,
-    wrapperClass: "bg-slate-800/40 border border-slate-700/50 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-emerald-600 text-white rounded-xl shrink-0"
   },
   {
     title: "Wskaźnik Bezpieczeństwa",
     description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.",
     icon: <Zap className="w-5 h-5" />,
-    wrapperClass: "bg-slate-800/40 border border-slate-700/50 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-teal-600 text-white rounded-xl shrink-0"
   },
   {
     title: "Bezpieczny Import CSV",
     description: "Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).",
     icon: <FileSpreadsheet className="w-5 h-5" />,
-    wrapperClass: "bg-slate-800/40 border border-slate-700/50 dark:bg-slate-900/40 dark:border-slate-800/50 p-4 rounded-2xl flex items-start gap-3",
+    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-cyan-600 text-white rounded-xl shrink-0"
   }
 ];
@@ -100,25 +100,25 @@ export const helpSectionsData: HelpSectionData[] = [
           ]}
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-slate-900 border border-emerald-500/30 p-3 rounded-xl relative overflow-hidden">
+            <div className="bg-bg-base border border-emerald-500/30 p-3 rounded-xl relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">1</div>
-              <div className="text-xs text-slate-400">Nawigacja głównego menu</div>
+              <div className="text-xs text-text-muted">Nawigacja głównego menu</div>
               <div className="font-bold text-emerald-400 mt-1 flex items-center gap-1">
                 <LayoutDashboard className="w-4 h-4" /> Pulpit & Transakcje
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-amber-500/30 p-3 rounded-xl relative overflow-hidden">
+            <div className="bg-bg-base border border-amber-500/30 p-3 rounded-xl relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">2</div>
-              <div className="text-xs text-slate-400">Szybkie wprowadzanie</div>
+              <div className="text-xs text-text-muted">Szybkie wprowadzanie</div>
               <div className="font-bold text-amber-300 mt-1 flex items-center gap-1">
                 <History className="w-4 h-4" /> + Dodaj transakcję
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-cyan-500/30 p-3 rounded-xl relative overflow-hidden">
+            <div className="bg-bg-base border border-cyan-500/30 p-3 rounded-xl relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-cyan-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">3</div>
-              <div className="text-xs text-slate-400">Stan bezpieczny</div>
+              <div className="text-xs text-text-muted">Stan bezpieczny</div>
               <div className="font-bold text-cyan-300 mt-1 flex items-center gap-1">
                 <ShieldCheck className="w-4 h-4" /> Limit: 2,450 (waluta domyślna)
               </div>
@@ -151,28 +151,28 @@ export const helpSectionsData: HelpSectionData[] = [
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
-          <div className="p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl shadow-2xs">
+          <div className="p-4 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
             <h4 className="font-bold text-[#137566] flex items-center gap-2 mb-1">
               <ShieldCheck className="w-4 h-4" /> Safe-to-Spend (Bezpieczny limit)
             </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Formuła: <code className="bg-slate-800/60 px-1 py-0.5 rounded text-slate-100">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
+            <p className="text-xs text-text-faint leading-relaxed">
+              Formuła: <code className="bg-surface px-1 py-0.5 rounded text-text-main">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
               Chroni Cię przed wydaniem pieniędzy, które za kilka dni będą potrzebne na opłacenie raty kredytu lub rachunku za prąd.
             </p>
           </div>
 
-          <div className="p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl shadow-2xs">
+          <div className="p-4 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
             <h4 className="font-bold text-teal-700 flex items-center gap-2 mb-1">
               <LineChart className="w-4 h-4" /> Prognoza na koniec miesiąca
             </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-text-faint leading-relaxed">
               Analizuje średnie dzienne tempo wydatków w bieżącym miesiącu i prognozuje szacunkowe saldo na 30/31 dzień. Ostrzega, gdy przy obecnym tempie grozi Ci deficyt.
             </p>
           </div>
         </div>
 
         <h4 className="font-bold text-white mt-4">Zależności z innymi modułami:</h4>
-        <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
+        <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-faint">
           <li>Dodanie nowej płatności w zakładce <strong>Płatności</strong> natychmiast pomniejsza <em>Safe-to-Spend</em>.</li>
           <li>Oznaczenie płatności jako "Opłacono" zamienia ją w transakcję i aktualizuje bilans przychodów/wydatków.</li>
           <li>Wpłata na <strong>Cel oszczędnościowy</strong> blokuje środki i wyklucza je z bieżącego portfela.</li>
@@ -202,12 +202,12 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 4, label: "Sanity Check (NaN)", description: "Niepoprawne kwoty numeryczne są automatycznie odrzucane." }
           ]}
         >
-          <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-3">
-            <div className="flex items-center justify-between text-xs text-slate-300">
+          <div className="bg-bg-base p-4 rounded-xl border border-border space-y-3">
+            <div className="flex items-center justify-between text-xs text-text-muted">
               <span className="font-bold text-emerald-400">Wyciąg_Bankowy_2026.csv</span>
-              <span className="text-slate-400">Wyryto 12 transakcji</span>
+              <span className="text-text-muted">Wyryto 12 transakcji</span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-slate-400 border border-slate-800 space-y-1">
+            <div className="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-text-muted border border-border space-y-1">
               <div className="text-emerald-400">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Zapisano)</div>
               <div className="text-amber-400">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Pominięto — Duplikat)</div>
               <div className="text-red-400">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
@@ -216,7 +216,7 @@ export const helpSectionsData: HelpSectionData[] = [
         </MockScreenShot>
 
         <h4 className="font-bold text-white">Mechanizm ochrony danych w imporcie CSV:</h4>
-        <ul className="list-disc pl-5 space-y-2 text-xs text-slate-600">
+        <ul className="list-disc pl-5 space-y-2 text-xs text-text-faint">
           <li><strong>Ochrona przed podwójnym importem (Deduplikacja):</strong> Gdy importujesz ten sam plik CSV drugi raz, Saldo rozpoznaje istniejące Identyfikatory transakcji i nie dubluje wpisów.</li>
           <li><strong>Sprawdzanie poprawności numerycznej:</strong> Jeśli wyciąg zawiera uszkodzone lub nieczytelne kwoty (np. tekstowe znaki zapytania zamienione na NaN), transakcja zostaje bezpiecznie odrzucona.</li>
           <li><strong>Szybka automatyzacja:</strong> Zdefiniowane słowa kluczowe (np. "Orlen", "Biedronka") przypiszą transakcje do właściwych kategorii w tle, oszczędzając czas.</li>
@@ -252,12 +252,12 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 2, label: "Podsumowanie 'Do zapłaty w tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
           ]}
         >
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 space-y-4">
+          <div className="bg-surface border border-border rounded-xl p-4 space-y-4">
              <div className="flex gap-2 flex-wrap">
-                <span className="bg-slate-900/60 text-slate-100 border border-slate-700/50 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Wszystkie</span>
-                <span className="bg-slate-800/60 text-slate-400 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj/Zaległe</span>
-                <span className="bg-slate-800/60 text-slate-400 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten tydzień</span>
-                <span className="bg-slate-800/60 text-slate-400 border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten miesiąc</span>
+                <span className="bg-bg-base/60 text-text-main border border-border px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Wszystkie</span>
+                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj/Zaległe</span>
+                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten tydzień</span>
+                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten miesiąc</span>
              </div>
              <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
                <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
@@ -268,10 +268,10 @@ export const helpSectionsData: HelpSectionData[] = [
 
         <h4 className="font-bold text-white mt-6">Cykl życia Płatności:</h4>
         <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-700 font-medium">
-          <div className="p-2.5 bg-slate-800/60 rounded-xl border border-slate-700/50 text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 [waluta])</div>
-          <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
+          <div className="p-2.5 bg-surface rounded-xl border border-border text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 [waluta])</div>
+          <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
           <div className="p-2.5 bg-amber-100 text-amber-900 rounded-xl border border-amber-200 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
-          <ArrowRight className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
+          <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
           <div className="p-2.5 bg-emerald-100 text-emerald-900 rounded-xl border border-emerald-200 text-center w-full">3. Przycisk "Opłacono" ➔ Wydatek zrobiony</div>
         </div>
       </div>
@@ -288,7 +288,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Budżety pozwalają nałożyć miesięczny limit na poszczególne kategorie wydatków (np. 1500 zł na Jedzenie, 500 zł na Rozrywkę).
         </p>
 
-        <div className="space-y-2 my-2 bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl">
+        <div className="space-y-2 my-2 bg-surface border border-border p-4 rounded-xl">
           <div className="space-y-2">
             <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
               <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export const helpSectionsData: HelpSectionData[] = [
           </div>
         </div>
 
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-text-faint">
           Gdy wydatek w danej kategorii przekroczy 80% lub 100% ustalonego limitu, na Pulpicie pojawia się specjalny widget <strong>Ostrzeżenia Budżetowe</strong> z propozycją korekty.
         </p>
       </div>
@@ -378,14 +378,14 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 2, label: "Wizualizacja paska", description: "Pasek postępu wypełnia się kolorem, a obok wyświetla się procent realizacji." }
           ]}
         >
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 space-y-3">
+          <div className="bg-surface border border-border rounded-xl p-4 space-y-3">
              <div className="flex justify-between items-center">
-               <span className="font-bold text-slate-100">Nowy Mac</span>
+               <span className="font-bold text-text-main">Nowy Mac</span>
                <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-blue-50 text-blue-700 border-blue-200">
                  W trakcie
                </span>
              </div>
-             <div className="flex justify-between text-xs text-slate-400 mb-1">
+             <div className="flex justify-between text-xs text-text-muted mb-1">
                <span>Zgromadzono: 2 400 z 8 000 [waluta]</span>
                <span className="font-bold text-blue-600">30%</span>
              </div>
@@ -417,16 +417,16 @@ export const helpSectionsData: HelpSectionData[] = [
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-slate-900/60 border border-slate-700/50 rounded-xl shadow-2xs">
+          <div className="p-3.5 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
             <h5 className="font-bold text-white mb-1">Profil Wspólny i Podział Wydatków</h5>
-            <p className="text-slate-600">
+            <p className="text-text-faint">
               W profilu typu Shared każda transakcja ma oznaczenie kto płacił (Ja / Partner) oraz tryb podziału (Równo 50/50 lub Tylko ja). Widget Rozliczeń automatycznie podlicza balans kto komu ile jest winien!
             </p>
           </div>
 
-          <div className="p-3.5 bg-slate-900/60 border border-slate-700/50 rounded-xl shadow-2xs">
+          <div className="p-3.5 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
             <h5 className="font-bold text-white mb-1">Blokada PIN dla prywatności</h5>
-            <p className="text-slate-600">
+            <p className="text-text-faint">
               W Ustawieniach możesz włączyć 4-cyfrowy kod PIN dla dowolnego profilu. Po zablokowaniu, przełączenie na ten profil wymaga wpisania kodu.
             </p>
           </div>
@@ -445,20 +445,20 @@ export const helpSectionsData: HelpSectionData[] = [
           Twoje dane finansowe należą wyłącznie do Ciebie. Saldo nie korzysta z własnych serwerów bazy danych — zamiast tego zapisuje stan w przeglądarce (IndexedDB) oraz na Twoim prywatnym koncie Google Drive.
         </p>
 
-        <div className="space-y-2 text-xs text-slate-600">
-          <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+        <div className="space-y-2 text-xs text-text-faint">
+          <div className="p-3 bg-surface border border-border rounded-xl">
             <strong className="text-white block mb-1 font-bold">1. Synchronizacja z Google Drive:</strong>
             W Ustawieniach połącz się ze swoim kontem Google. Aplikacja utworzy ukryty plik kopii zapasowej w dedykowanym folderze aplikacji na Twoim własnym Dysku.
           </div>
 
-          <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+          <div className="p-3 bg-surface border border-border rounded-xl">
             <strong className="text-white block mb-1 font-bold">2. Rozwiązywanie Konfliktów Synchronizacji:</strong>
             Jeśli edytujesz dane na dwóch urządzeniach (np. na telefonie i komputerze), system wykryje różnicę wersji i wyświetli interaktywne okno <strong>Konflikt kopii zapasowej</strong>, pozwalając Ci wybrać najnowszą wersję.
           </div>
 
-          <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+          <div className="p-3 bg-surface border border-border rounded-xl">
             <strong className="text-white block mb-1 font-bold">3. Eksport/Import pliku JSON (Offline):</strong>
-            Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-slate-700/60 px-1 py-0.5 rounded text-slate-100">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.
+            Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-slate-700/60 px-1 py-0.5 rounded text-text-main">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.
           </div>
         </div>
       </div>
@@ -482,38 +482,38 @@ export const helpSectionsData: HelpSectionData[] = [
           </li>
           <li>
             <strong>Lokalne AI (local / Ollama) – Pełna prywatność Power-Usera:</strong><br />
-            Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-slate-800/60 px-1 py-0.5 rounded">http://localhost:11434</code>).
+            Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-surface px-1 py-0.5 rounded">http://localhost:11434</code>).
           </li>
         </ul>
 
         {/* Step-by-step setup guide for Ollama */}
-        <div className="bg-slate-900 text-slate-100 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 text-xs font-sans">
+        <div className="bg-bg-base text-text-main p-4 sm:p-5 rounded-2xl border border-border space-y-4 text-xs font-sans">
           <h4 className="font-bold text-emerald-400 text-sm flex items-center gap-2">
             <Terminal className="w-4 h-4" /> Instrukcja konfiguracji Lokalnego AI (Ollama) krok po kroku
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-border space-y-2">
               <span className="font-bold text-white block text-xs">🍎 macOS (Apple Silicon & Intel)</span>
-              <ol className="list-decimal pl-4 space-y-1.5 text-slate-300">
+              <ol className="list-decimal pl-4 space-y-1.5 text-text-muted">
                 <li>Pobierz Ollama z <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-emerald-400 underline">ollama.com</a>.</li>
                 <li>Otwórz Terminal (<code className="text-emerald-300">Cmd + Spacja</code> ➔ Terminal).</li>
                 <li>Uruchom z obsługą CORS:<br />
-                  <code className="bg-slate-800 text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">OLLAMA_ORIGINS="*" ollama serve</code>
+                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">OLLAMA_ORIGINS="*" ollama serve</code>
                 </li>
-                <li>W nowym oknie wpisz: <code className="bg-slate-800 text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px]">ollama run llama3</code>.</li>
+                <li>W nowym oknie wpisz: <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px]">ollama run llama3</code>.</li>
               </ol>
             </div>
 
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+            <div className="bg-slate-950 p-3.5 rounded-xl border border-border space-y-2">
               <span className="font-bold text-white block text-xs">🪟 Windows (PowerShell / CMD)</span>
-              <ol className="list-decimal pl-4 space-y-1.5 text-slate-300">
+              <ol className="list-decimal pl-4 space-y-1.5 text-text-muted">
                 <li>Zainstaluj Ollama dla Windows.</li>
                 <li>Otwórz PowerShell i ustaw zmienną CORS:<br />
-                  <code className="bg-slate-800 text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">$env:OLLAMA_ORIGINS="*"</code>
+                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">$env:OLLAMA_ORIGINS="*"</code>
                 </li>
                 <li>Uruchom model:<br />
-                  <code className="bg-slate-800 text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">ollama run llama3</code>
+                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">ollama run llama3</code>
                 </li>
               </ol>
             </div>

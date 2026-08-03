@@ -139,16 +139,16 @@ export function PaymentsView({
   return (
     <div className="space-y-6" id="payments-view-container">
       {/* Overview ribbon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gradient-to-br from-emerald-900/40 to-slate-900/80 p-5 rounded-2xl border border-emerald-500/30 backdrop-blur-xl shadow-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gradient-to-br from-emerald-900/40 to-slate-900/80 p-5 rounded-2xl border border-emerald-500/30  shadow-lg">
         <div>
-          <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
-          <p className="text-xs text-slate-400">
+          <h3 className="text-sm font-bold text-text-main uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
+          <p className="text-xs text-text-muted">
             Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.
           </p>
         </div>
         <div className="flex justify-between sm:justify-end items-center gap-4 flex-wrap">
           <div className="text-right mr-2">
-            <span className="block text-[10px] uppercase font-semibold text-slate-400">Do opłacenia</span>
+            <span className="block text-[10px] uppercase font-semibold text-text-muted">Do opłacenia</span>
             <span className="text-lg font-bold text-rose-400">
               {unpaidCount} rachunki ({formatMoney(totalUnpaidSum, profile?.currency || 'PLN')})
             </span>
@@ -166,7 +166,7 @@ export function PaymentsView({
       </div>
 
       {/* Browser Notifications Setup Card */}
-      <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface rounded-2xl border border-border shadow-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-3.5">
           <div className={`p-2.5 rounded-xl ${
             notificationPermission === "granted" 
@@ -184,8 +184,8 @@ export function PaymentsView({
             )}
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-100">Powiadomienia o płatnościach</h4>
-            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+            <h4 className="text-sm font-bold text-text-main">Powiadomienia o płatnościach</h4>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
               {notificationPermission === "granted"
                 ? "Włączone! Otrzymasz natychmiastowe powiadomienie na pulpicie, gdy zbliży się termin płatności rachunku (do 3 dni wstecz)."
                 : notificationPermission === "denied"
@@ -205,7 +205,7 @@ export function PaymentsView({
             onClick={handleEnableNotifications}
             className={`font-bold py-2.5 px-4 rounded-lg text-xs transition cursor-pointer shrink-0 ${
               notificationPermission === "denied"
-                ? "bg-slate-700/50 text-slate-400 hover:bg-slate-200 border border-slate-700/50"
+                ? "bg-slate-700/50 text-text-muted hover:bg-slate-200 border border-border"
                 : "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 shadow-sm border border-emerald-500/30"
             }`}
             id="btn-enable-desktop-notifications"
@@ -220,43 +220,43 @@ export function PaymentsView({
         onAddPayment={onAddPayment}
       />
 
-      <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-lg p-6">
+      <div className="bg-surface rounded-2xl border border-border shadow-lg p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
-          <h3 className="text-base font-bold text-slate-100">Lista Twoich opłat</h3>
+          <h3 className="text-base font-bold text-text-main">Lista Twoich opłat</h3>
           
           <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-            <div className="flex bg-slate-900/50 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-slate-700/50">
+            <div className="flex bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-border">
               <button
                 onClick={() => setTimeFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                 }`}
               >Wszystkie</button>
               <button
                 onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "today" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "today" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                 }`}
               >Dzisiaj/Zaległe</button>
               <button
                 onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "week" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "week" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                 }`}
               >Ten tydzień</button>
               <button
                 onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "month" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                  timeFilter === "month" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                 }`}
               >Ten miesiąc</button>
             </div>
             {profile.kind === "shared" && (
-              <div className="flex bg-slate-900/50 p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-slate-700/50">
+              <div className="flex bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full overflow-x-auto whitespace-nowrap hide-scrollbar border border-border">
                 <button
                   onClick={() => setPaidByFilter("all")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Wszystkie role
@@ -264,7 +264,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("me")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "me" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "me" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Ja
@@ -272,7 +272,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("partner")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "partner" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "partner" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Partner
@@ -280,7 +280,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("joint")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "joint" ? "bg-slate-700/80 text-white shadow-sm" : "text-slate-400 hover:text-slate-100"
+                    paidByFilter === "joint" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
                   }`}
                 >Wspólne</button>
               </div>
@@ -292,10 +292,10 @@ export function PaymentsView({
           {sortedPayments.length === 0 ? (
             <div className="text-center py-10">
               {profile.payments.length > 0 ? (
-                <p className="text-sm text-slate-400">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
+                <p className="text-sm text-text-muted">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
               ) : (
                 <>
-                  <p className="text-sm text-slate-400">Brak zdefiniowanych płatności.</p>
+                  <p className="text-sm text-text-muted">Brak zdefiniowanych płatności.</p>
                   <button
                     onClick={() => onOpenPaymentModal()}
                     className="text-emerald-400 text-xs font-semibold hover:underline mt-1"
@@ -312,7 +312,7 @@ export function PaymentsView({
                 <div
                   key={p.id}
                   className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition ${
-                    isPaid ? "bg-slate-800/20 border-slate-700/30 opacity-75" : "bg-slate-800/60 border-slate-700/50 shadow-sm hover:border-emerald-500/50"
+                    isPaid ? "bg-surface/20 border-border/30 opacity-75" : "bg-surface border-border shadow-sm hover:border-emerald-500/50"
                   }`}
                 >
                   <div className="flex items-center gap-4 mb-3 sm:mb-0">
@@ -325,10 +325,10 @@ export function PaymentsView({
                     </span>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                        <h4 className="text-sm font-bold text-text-main flex items-center gap-1.5">
                           {p.name}
                           {profile.kind === "shared" && p.paidBy && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-700/50 text-slate-700 border border-slate-700/50">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-700/50 text-slate-700 border border-border">
                               {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {p.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -346,17 +346,17 @@ export function PaymentsView({
                           return null;
                         })()}
                       </div>
-                      <p className="text-xs text-slate-400">Termin płatności: {formatDate(p.dueDate)}</p>
+                      <p className="text-xs text-text-muted">Termin płatności: {formatDate(p.dueDate)}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <span className="text-sm font-bold text-slate-100">{formatMoney(p.amount, p.currency || profile?.currency || 'PLN')}</span>
+                    <span className="text-sm font-bold text-text-main">{formatMoney(p.amount, p.currency || profile?.currency || 'PLN')}</span>
                     <div className="flex items-center gap-2">
                       {!isPaid && (
                         <button
                           onClick={() => onTriggerCalendarAi(p)}
-                          className="bg-slate-800/50 hover:bg-slate-700/50 text-slate-200 font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-slate-700/50"
+                          className="bg-surface/50 hover:bg-slate-700/50 text-text-main font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-border"
                           title="Dodaj przypomnienie do Kalendarza Google (AI)"
                           id={`btn-calendar-ai-${p.id}`}
                         >
@@ -376,7 +376,7 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => onOpenPaymentModal(p)}
-                        className="p-1.5 text-slate-400 hover:text-slate-100 rounded transition"
+                        className="p-1.5 text-text-muted hover:text-text-main rounded transition"
                         title="Edytuj rachunek"
                         id={`btn-edit-payment-${p.id}`}
                       >
@@ -384,7 +384,7 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => setPaymentToDelete(p)}
-                        className="p-1.5 text-slate-400 hover:text-red-500 rounded transition"
+                        className="p-1.5 text-text-muted hover:text-red-500 rounded transition"
                         title="Usuń rachunek"
                         id={`btn-delete-payment-${p.id}`}
                       >
@@ -400,13 +400,13 @@ export function PaymentsView({
       </div>
 
       {paymentToDelete && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700/50 rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-slate-100 mb-2">Usunąć płatność?</h3>
+        <div className="fixed inset-0 bg-black/80  z-50 flex items-center justify-center p-4">
+          <div className="bg-surface border border-border rounded-2xl max-w-sm w-full p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-text-main mb-2">Usunąć płatność?</h3>
             
             {profile.transactions.some(tx => tx.sourcePaymentId === paymentToDelete.id) ? (
               <>
-                <p className="text-sm text-slate-400 mb-6">
+                <p className="text-sm text-text-muted mb-6">
                   Ta płatność ma powiązaną transakcję w historii wydatków. Możesz usunąć tylko płatność albo płatność razem z transakcją.
                 </p>
                 <div className="flex flex-col gap-3">
@@ -430,7 +430,7 @@ export function PaymentsView({
                   </button>
                   <button
                     onClick={() => setPaymentToDelete(null)}
-                    className="w-full text-slate-400 font-bold py-2 hover:text-slate-700 transition text-sm"
+                    className="w-full text-text-muted font-bold py-2 hover:text-slate-700 transition text-sm"
                   >
                     Anuluj
                   </button>
@@ -438,7 +438,7 @@ export function PaymentsView({
               </>
             ) : (
               <>
-                <p className="text-sm text-slate-400 mb-6">
+                <p className="text-sm text-text-muted mb-6">
                   Tej operacji nie da się łatwo cofnąć.
                 </p>
                 <div className="flex gap-3">

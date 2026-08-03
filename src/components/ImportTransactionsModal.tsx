@@ -203,25 +203,25 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-bg-base/40 backdrop-blur-xs"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl shadow-sm w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* HEADER */}
-        <div className="px-6 py-4 border-b border-slate-700/50 flex items-center justify-between shrink-0 bg-slate-900/95 backdrop-blur-2xl sticky top-0 z-20">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div>
-            <h2 className="text-lg font-black text-slate-100 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg font-black text-text-main tracking-tight flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-[#137566]" />
               Import historii transakcji bankowych
             </h2>
-            <p className="text-xs text-slate-400 font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
+            <p className="text-xs text-text-muted font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-300 transition p-2 bg-slate-800/60 hover:bg-slate-700/50 rounded-full">
+          <button onClick={onClose} className="text-text-muted hover:text-text-muted transition p-2 bg-surface hover:bg-slate-700/50 rounded-full">
             <span className="sr-only">Zamknij</span>
             &times;
           </button>
@@ -229,11 +229,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
         {/* TABS */}
         {step === 1 && isAiAvailable && (
-          <div className="flex border-b border-slate-700/50">
+          <div className="flex border-b border-border">
             <button
               onClick={() => setTab("csv")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "csv" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-slate-400 hover:bg-slate-800/60"
+                tab === "csv" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-text-muted hover:bg-surface"
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
@@ -241,7 +241,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             <button
               onClick={() => setTab("ai")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "ai" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-slate-400 hover:bg-slate-800/60"
+                tab === "ai" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-text-muted hover:bg-surface"
               }`}
             >
               <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
@@ -264,7 +264,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
                 placeholder="Wklej historię transakcji z banku tutaj..."
-                className="w-full h-48 p-4 border border-slate-700/50 rounded-xl text-sm outline-none focus:border-[#137566] resize-none"
+                className="w-full h-48 p-4 border border-border rounded-xl text-sm outline-none focus:border-[#137566] resize-none"
               ></textarea>
               {aiError && <p className="text-rose-500 text-xs font-semibold">{aiError}</p>}
               <button
@@ -281,8 +281,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           {step === 1 && tab === "csv" && (
             <div className="space-y-5">
               {/* Presets Selection Bar (Task D1 #1) */}
-              <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4 space-y-2">
-                <label className="text-xs font-semibold text-slate-200 block">
+              <div className="bg-surface border border-border rounded-xl p-4 space-y-2">
+                <label className="text-xs font-semibold text-text-main block">
                   1. Wybierz preset bankowy
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -294,14 +294,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                         selectedPresetId === preset.id
                           ? "border-[#137566] bg-emerald-50/50 ring-1 ring-[#137566]"
-                          : "border-slate-700/50 bg-slate-900/95 backdrop-blur-2xl hover:border-slate-300"
+                          : "border-border bg-bg-base/95 backdrop-blur-2xl hover:border-slate-300"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-slate-100">{preset.name}</span>
+                        <span className="font-bold text-xs text-text-main">{preset.name}</span>
                         {selectedPresetId === preset.id && <CheckCircle2 className="w-4 h-4 text-[#137566]" />}
                       </div>
-                      <span className="text-[10px] text-slate-400 mt-1">{preset.description}</span>
+                      <span className="text-[10px] text-text-muted mt-1">{preset.description}</span>
                     </button>
                   ))}
                 </div>
@@ -322,16 +322,16 @@ import { formatMoney } from "../utils/format";
               {/* Drag & Drop File */}
               <div
                 className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                  dragActive ? "border-[#137566] bg-emerald-50/50" : "border-slate-700/50 bg-slate-800/60"
+                  dragActive ? "border-[#137566] bg-emerald-50/50" : "border-border bg-surface"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-[#137566]" : "text-slate-400"}`} />
-                <p className="text-xs font-semibold text-slate-200 mb-0.5">2. Przeciągnij i upuść plik CSV z banku</p>
-                <p className="text-[11px] text-slate-400 mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
+                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-[#137566]" : "text-text-muted"}`} />
+                <p className="text-xs font-semibold text-text-main mb-0.5">2. Przeciągnij i upuść plik CSV z banku</p>
+                <p className="text-[11px] text-text-muted mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -341,16 +341,16 @@ import { formatMoney } from "../utils/format";
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 text-slate-200 font-bold py-2 px-5 rounded-xl hover:bg-slate-800/60 transition text-xs shadow-xs"
+                  className="bg-bg-base/95 backdrop-blur-2xl border border-border text-text-main font-bold py-2 px-5 rounded-xl hover:bg-surface transition text-xs shadow-xs"
                 >
                   Wybierz plik .csv
                 </button>
               </div>
 
               <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-slate-700/50"></div>
-                <span className="flex-shrink mx-4 text-slate-400 text-[11px] font-semibold uppercase tracking-wider">albo wklej zawartość pliku CSV</span>
-                <div className="flex-grow border-t border-slate-700/50"></div>
+                <div className="flex-grow border-t border-border"></div>
+                <span className="flex-shrink mx-4 text-text-muted text-[11px] font-semibold uppercase tracking-wider">albo wklej zawartość pliku CSV</span>
+                <div className="flex-grow border-t border-border"></div>
               </div>
 
               <div className="space-y-2">
@@ -358,7 +358,7 @@ import { formatMoney } from "../utils/format";
                   value={csvText}
                   onChange={(e) => setCsvText(e.target.value)}
                   placeholder="Tutaj możesz wkleić skopiowane wiersze z pliku CSV (np. z nagłówkiem: Data;Kwota;Tytuł)..."
-                  className="w-full h-28 p-3 border border-slate-700/50 rounded-xl text-xs font-mono outline-none focus:border-[#137566] resize-none"
+                  className="w-full h-28 p-3 border border-border rounded-xl text-xs font-mono outline-none focus:border-[#137566] resize-none"
                 ></textarea>
                 <button
                   onClick={() => processRawCsvString(csvText, "Wklejony tekst CSV")}
@@ -373,16 +373,16 @@ import { formatMoney } from "../utils/format";
 
           {step === 2 && tab === "csv" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-700/50 pb-3">
-                <h3 className="text-sm font-bold text-slate-100">Mapowanie kolumn z {fileName}</h3>
-                <span className="text-[11px] font-mono bg-slate-700/50 text-slate-300 px-2.5 py-1 rounded-md">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h3 className="text-sm font-bold text-text-main">Mapowanie kolumn z {fileName}</h3>
+                <span className="text-[11px] font-mono bg-slate-700/50 text-text-muted px-2.5 py-1 rounded-md">
                   Wykryty separator: <strong className="text-white">&quot;{detectedDelimiter}&quot;</strong>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-300">Kolumna tytułu/nazwy</label>
-                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-slate-700/50 p-2">
+                  <label className="text-[11px] font-semibold text-text-muted">Kolumna tytułu/nazwy</label>
+                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -392,8 +392,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-300">Kolumna kwoty</label>
-                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-slate-700/50 p-2">
+                  <label className="text-[11px] font-semibold text-text-muted">Kolumna kwoty</label>
+                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -403,8 +403,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-300">Kolumna daty</label>
-                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-slate-700/50 p-2">
+                  <label className="text-[11px] font-semibold text-text-muted">Kolumna daty</label>
+                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -414,8 +414,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-300">Kategoria domyślna</label>
-                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-slate-700/50 p-2">
+                  <label className="text-[11px] font-semibold text-text-muted">Kategoria domyślna</label>
+                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
                     {expenseCategories.concat(incomeCategories).map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -432,8 +432,8 @@ import { formatMoney } from "../utils/format";
                 </p>
               )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
-                <button onClick={() => setStep(1)} className="px-4 py-2 text-xs font-semibold text-slate-400">
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <button onClick={() => setStep(1)} className="px-4 py-2 text-xs font-semibold text-text-muted">
                   Wstecz
                 </button>
                 <button onClick={handleGenerateCsvPreview} className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl text-xs">
@@ -481,10 +481,10 @@ import { formatMoney } from "../utils/format";
                 </div>
               )}
 
-              <div className="overflow-y-auto border border-slate-700/50 rounded-xl flex-1 max-h-[350px]">
+              <div className="overflow-y-auto border border-border rounded-xl flex-1 max-h-[350px]">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-slate-800/60 border-b border-slate-700/50 font-bold text-slate-300 sticky top-0 z-10">
+                    <tr className="bg-surface border-b border-border font-bold text-text-muted sticky top-0 z-10">
                       <th className="py-2.5 px-3">Opis</th>
                       <th className="py-2.5 px-3">Data</th>
                       <th className="py-2.5 px-3">Kategoria</th>
@@ -492,23 +492,23 @@ import { formatMoney } from "../utils/format";
                       <th className="py-2.5 px-3 text-right">Kwota</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-slate-900/95 backdrop-blur-2xl">
+                  <tbody className="divide-y divide-slate-100 bg-bg-base/95 backdrop-blur-2xl">
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => (
-                      <tr key={idx} className={`transition ${warning ? "bg-amber-50/50" : "hover:bg-slate-800/60"}`}>
+                      <tr key={idx} className={`transition ${warning ? "bg-amber-50/50" : "hover:bg-surface"}`}>
                         <td className="py-2 px-3">
-                          <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                          <div className="font-bold text-text-main flex items-center gap-1.5">
                             {warning && <AlertTriangle className="w-3 h-3 text-amber-500" title={warning.reason} />}
                             {tx.name}
                           </div>
                         </td>
-                        <td className="py-2 px-3 text-slate-400 whitespace-nowrap">{tx.isoDate}</td>
+                        <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
                         <td className="py-2 px-3">
                           <span className="inline-flex items-center gap-1 bg-slate-700/50 px-2 py-0.5 rounded-full text-[10px]">
                             <span>{tx.categoryIcon}</span>
                             {tx.category}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-slate-400">{tx.account}</td>
+                        <td className="py-2 px-3 text-text-muted">{tx.account}</td>
                         <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                           {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || state?.currencyPreference || "PLN")}
                         </td>
@@ -517,7 +517,7 @@ import { formatMoney } from "../utils/format";
                   </tbody>
                 </table>
               </div>
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 {duplicateAnalysis.duplicateCount > 0 && (
                   <button
                     onClick={() => handleConfirmImport(true)}

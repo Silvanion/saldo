@@ -9,7 +9,7 @@ export interface SecurityFeature {
 
 export const securityFeatures: SecurityFeature[] = [
   {
-    icon: <Lock className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />,
+    icon: <Lock className="w-5 h-5 text-text-faint shrink-0 mt-0.5" />,
     title: "Szyfrowanie End-to-End",
     description: (
       <>

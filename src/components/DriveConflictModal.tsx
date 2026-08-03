@@ -50,7 +50,7 @@ export function DriveConflictModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-900/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-slate-700/50 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+      <div className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-border flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -59,78 +59,78 @@ export function DriveConflictModal({
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">Wykryto konflikt wersji (Dysk Google)</h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-text-muted">
                 Lokalna baza i plik w chmurze różnią się od ostatniej synchronizacji ({formatDate(lastSyncedAt)}).
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-xl text-slate-400 hover:text-slate-300 hover:bg-slate-700/50 transition"
+            className="p-1 rounded-xl text-text-muted hover:text-text-muted hover:bg-slate-700/50 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Informational warning text */}
-        <p className="text-sm text-slate-300">
+        <p className="text-sm text-text-muted">
           Wykryto nowsze modyfikacje po obu stronach. Aby uniknąć utraty danych, wybierz, którą wersję chcesz zachować:
         </p>
 
         {/* Comparison Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Local State Card */}
-          <div className="border border-slate-700/50 rounded-xl p-4 bg-slate-800/60 flex flex-col gap-2">
-            <div className="flex items-center justify-between border-b border-slate-700/50 pb-2">
-              <span className="font-bold text-sm text-slate-100">Wersja lokalna</span>
+          <div className="border border-border rounded-xl p-4 bg-surface flex flex-col gap-2">
+            <div className="flex items-center justify-between border-b border-border pb-2">
+              <span className="font-bold text-sm text-text-main">Wersja lokalna</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                 To urządzenie
               </span>
             </div>
-            <div className="text-xs text-slate-300 space-y-1 mt-1">
+            <div className="text-xs text-text-muted space-y-1 mt-1">
               <p>
-                <span className="text-slate-400">Ostatnia zmiana:</span>{" "}
-                <strong className="text-slate-100">{formatDate(localState.updatedAt)}</strong>
+                <span className="text-text-muted">Ostatnia zmiana:</span>{" "}
+                <strong className="text-text-main">{formatDate(localState.updatedAt)}</strong>
               </p>
               <p>
-                <span className="text-slate-400">Przez:</span>{" "}
-                <span className="text-slate-200">{localState.lastModifiedBy || "użytkownik lokalny"}</span>
+                <span className="text-text-muted">Przez:</span>{" "}
+                <span className="text-text-main">{localState.lastModifiedBy || "użytkownik lokalny"}</span>
               </p>
               <p>
-                <span className="text-slate-400">Liczba profili:</span>{" "}
-                <strong className="text-slate-100">{localState.profiles?.length || 0}</strong>
+                <span className="text-text-muted">Liczba profili:</span>{" "}
+                <strong className="text-text-main">{localState.profiles?.length || 0}</strong>
               </p>
               <p>
-                <span className="text-slate-400">Łączna liczba transakcji:</span>{" "}
-                <strong className="text-slate-100">{countTransactions(localState)}</strong>
+                <span className="text-text-muted">Łączna liczba transakcji:</span>{" "}
+                <strong className="text-text-main">{countTransactions(localState)}</strong>
               </p>
             </div>
           </div>
 
           {/* Remote State Card */}
-          <div className="border border-slate-700/50 rounded-xl p-4 bg-slate-800/60 flex flex-col gap-2">
-            <div className="flex items-center justify-between border-b border-slate-700/50 pb-2">
-              <span className="font-bold text-sm text-slate-100">Wersja w chmurze</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-200">
+          <div className="border border-border rounded-xl p-4 bg-surface flex flex-col gap-2">
+            <div className="flex items-center justify-between border-b border-border pb-2">
+              <span className="font-bold text-sm text-text-main">Wersja w chmurze</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-text-main">
                 Dysk Google
               </span>
             </div>
-            <div className="text-xs text-slate-300 space-y-1 mt-1">
+            <div className="text-xs text-text-muted space-y-1 mt-1">
               <p>
-                <span className="text-slate-400">Ostatnia zmiana:</span>{" "}
-                <strong className="text-slate-100">{formatDate(remoteState.updatedAt)}</strong>
+                <span className="text-text-muted">Ostatnia zmiana:</span>{" "}
+                <strong className="text-text-main">{formatDate(remoteState.updatedAt)}</strong>
               </p>
               <p>
-                <span className="text-slate-400">Przez:</span>{" "}
-                <span className="text-slate-200">{remoteState.lastModifiedBy || "Dysk Google"}</span>
+                <span className="text-text-muted">Przez:</span>{" "}
+                <span className="text-text-main">{remoteState.lastModifiedBy || "Dysk Google"}</span>
               </p>
               <p>
-                <span className="text-slate-400">Liczba profili:</span>{" "}
-                <strong className="text-slate-100">{remoteState.profiles?.length || 0}</strong>
+                <span className="text-text-muted">Liczba profili:</span>{" "}
+                <strong className="text-text-main">{remoteState.profiles?.length || 0}</strong>
               </p>
               <p>
-                <span className="text-slate-400">Łączna liczba transakcji:</span>{" "}
-                <strong className="text-slate-100">{countTransactions(remoteState)}</strong>
+                <span className="text-text-muted">Łączna liczba transakcji:</span>{" "}
+                <strong className="text-text-main">{countTransactions(remoteState)}</strong>
               </p>
             </div>
           </div>
@@ -152,17 +152,17 @@ export function DriveConflictModal({
         </div>
 
         {/* Actions (3 Polish buttons) */}
-        <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t border-slate-700/50 justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t border-border justify-end">
           <button
             onClick={() => onResolve("cancel")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 text-slate-200 font-bold text-xs hover:bg-slate-700/50 transition flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 text-text-main font-bold text-xs hover:bg-slate-700/50 transition flex items-center justify-center gap-1.5"
           >
             <X className="w-3.5 h-3.5" />
             Anuluj
           </button>
           <button
             onClick={() => onResolve("download_remote")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900/95 backdrop-blur-2xl text-white font-bold text-xs hover:bg-slate-900 transition flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-bg-base/95 backdrop-blur-2xl text-white font-bold text-xs hover:bg-bg-base transition flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             Pobierz i nadpisz lokalne

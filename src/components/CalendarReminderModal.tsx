@@ -217,31 +217,31 @@ export function CalendarReminderModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-bg-base/60 backdrop-blur-xs transition-opacity"
     >
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-slate-900/95 backdrop-blur-2xl rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-lg shadow-sm overflow-hidden flex flex-col max-h-[90vh]"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/95 backdrop-blur-2xl relative z-10">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-700/50 text-slate-300 flex items-center justify-center shadow-sm border border-slate-700/50">
+            <div className="w-10 h-10 rounded-2xl bg-slate-700/50 text-text-muted flex items-center justify-center shadow-sm border border-border">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-100 leading-tight">Przypomnienie w Kalendarzu</h2>
-              <p className="text-xs text-slate-400 font-medium">Zarządzaj terminami łatwo</p>
+              <h2 className="text-lg font-bold text-text-main leading-tight">Przypomnienie w Kalendarzu</h2>
+              <p className="text-xs text-text-muted font-medium">Zarządzaj terminami łatwo</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 p-2 rounded-xl transition cursor-pointer"
+            className="text-text-muted hover:text-text-main hover:bg-slate-700/50 p-2 rounded-xl transition cursor-pointer"
             id="btn-close-calendar-modal"
           >
             ✕
@@ -249,7 +249,7 @@ export function CalendarReminderModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-800/60/50 space-y-6">
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-surface/50 space-y-6">
           {!calendarToken || calendarScopeMissing ? (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
               <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-1">
@@ -280,14 +280,14 @@ export function CalendarReminderModal({
             <div className="space-y-6">
               
               {isLoadingSuggestion && (
-                <div className="flex flex-col items-center justify-center p-8 space-y-3 bg-slate-900/95 backdrop-blur-2xl rounded-2xl border border-slate-700/50/60 shadow-sm">
-                  <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
-                  <p className="text-sm font-medium text-slate-300">Przygotowuję szczegóły z AI...</p>
+                <div className="flex flex-col items-center justify-center p-8 space-y-3 bg-bg-base/95 backdrop-blur-2xl rounded-2xl border border-border/60 shadow-sm">
+                  <Loader2 className="w-6 h-6 text-text-muted animate-spin" />
+                  <p className="text-sm font-medium text-text-muted">Przygotowuję szczegóły z AI...</p>
                 </div>
               )}
 
               {!isLoadingSuggestion && (
-                <div className="space-y-4 p-5 bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 rounded-2xl shadow-sm animate-fade-in relative overflow-hidden">
+                <div className="space-y-4 p-5 bg-bg-base/95 backdrop-blur-2xl border border-border rounded-2xl shadow-sm animate-fade-in relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-[#137566]"></div>
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="w-4 h-4 text-[#137566]" />
@@ -296,26 +296,26 @@ export function CalendarReminderModal({
                   
                   {/* Event Summary */}
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Tytuł wydarzenia</label>
+                    <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Tytuł wydarzenia</label>
                     <input
                       required
                       type="text"
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
-                      className="w-full rounded-xl border border-slate-700/50 p-2.5 text-sm font-bold text-slate-100 outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                      className="w-full rounded-xl border border-border p-2.5 text-sm font-bold text-text-main outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
                       id="input-event-summary"
                     />
                   </div>
 
                   {/* Event Description */}
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Opis {canUseAiChat ? "(Wygenerowany przez AI)" : ""}</label>
+                    <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Opis {canUseAiChat ? "(Wygenerowany przez AI)" : ""}</label>
                     <textarea
                       required
                       rows={4}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full rounded-xl border border-slate-700/50 p-2.5 text-xs text-slate-200 outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition leading-relaxed"
+                      className="w-full rounded-xl border border-border p-2.5 text-xs text-text-main outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition leading-relaxed"
                       id="input-event-description"
                     />
                   </div>
@@ -323,7 +323,7 @@ export function CalendarReminderModal({
                   {/* Date & Time */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Data</label>
+                      <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Data</label>
                       <div className="relative">
                         <Calendar className="w-4 h-4 text-[#137566] absolute left-3 top-2.5" />
                         <input
@@ -331,13 +331,13 @@ export function CalendarReminderModal({
                           type="date"
                           value={eventDate}
                           onChange={(e) => setEventDate(e.target.value)}
-                          className="w-full rounded-xl border border-slate-700/50 py-2.5 pl-9 pr-3 text-sm font-bold text-slate-100 outline-none focus:border-[#137566] transition cursor-pointer"
+                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus:border-[#137566] transition cursor-pointer"
                           id="input-event-date"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Godzina</label>
+                      <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Godzina</label>
                       <div className="relative">
                         <Clock className="w-4 h-4 text-[#137566] absolute left-3 top-2.5" />
                         <input
@@ -345,7 +345,7 @@ export function CalendarReminderModal({
                           type="time"
                           value={eventTime}
                           onChange={(e) => setEventTime(e.target.value)}
-                          className="w-full rounded-xl border border-slate-700/50 py-2.5 pl-9 pr-3 text-sm font-bold text-slate-100 outline-none focus:border-[#137566] transition cursor-pointer"
+                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus:border-[#137566] transition cursor-pointer"
                           id="input-event-time"
                         />
                       </div>
@@ -353,8 +353,8 @@ export function CalendarReminderModal({
                   </div>
 
                   {/* Reminders Toggles */}
-                  <div className="pt-2 border-t border-slate-700/50">
-                    <label className="block text-[11px] font-bold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+                  <div className="pt-2 border-t border-border">
+                    <label className="block text-[11px] font-bold text-text-muted mb-2 flex items-center gap-1.5 uppercase tracking-wide">
                       <Bell className="w-3.5 h-3.5" />
                       Powiadomienia w Kalendarzu
                     </label>
@@ -369,7 +369,7 @@ export function CalendarReminderModal({
                             className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                               isSelected
                                 ? "bg-[#137566] text-white border-[#137566] shadow-sm scale-105"
-                                : "bg-slate-800/60 text-slate-300 border-slate-700/50 hover:bg-slate-700/50 hover:border-slate-300"
+                                : "bg-surface text-text-muted border-border hover:bg-slate-700/50 hover:border-slate-300"
                             }`}
                           >
                             {rem.label} {isSelected && "✓"}
@@ -400,11 +400,11 @@ export function CalendarReminderModal({
 
               {/* Bottom Actions */}
               {!isLoadingSuggestion && (
-                <div className="flex items-center gap-3 pt-3 border-t border-slate-700/50">
+                <div className="flex items-center gap-3 pt-3 border-t border-border">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 rounded-xl border border-slate-700/50 py-3 text-xs font-bold text-slate-300 hover:bg-slate-800/60 transition cursor-pointer"
+                    className="flex-1 rounded-xl border border-border py-3 text-xs font-bold text-text-muted hover:bg-surface transition cursor-pointer"
                     id="btn-cancel-calendar"
                   >
                     Anuluj

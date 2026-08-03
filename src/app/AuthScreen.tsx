@@ -55,8 +55,8 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-slate-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-800 p-8 sm:p-10 space-y-8">
+    <div className="min-h-screen bg-bg-base flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <div className="bg-[#137566] text-white p-3.5 rounded-2xl shadow-lg">
@@ -64,7 +64,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             </div>
           </div>
           <h1 className="text-[34px] font-black text-white tracking-tight">saldo</h1>
-          <p className="text-slate-400">Twój osobisty asystent finansowy</p>
+          <p className="text-text-muted">Twój osobisty asystent finansowy</p>
         </div>
 
         {error && !isDomainError && (
@@ -103,31 +103,31 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+            <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Email</label>
             <div className="relative">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-900 border border-slate-800 rounded-xl outline-none focus:bg-slate-800/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3.5 bg-bg-base border border-border rounded-xl outline-none focus:bg-surface/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
                 placeholder="twoj@email.com"
               />
-              <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+              <Mail className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hasło</label>
+            <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Hasło</label>
             <div className="relative">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-900 border border-slate-800 rounded-xl outline-none focus:bg-slate-800/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3.5 bg-bg-base border border-border rounded-xl outline-none focus:bg-surface/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
                 placeholder="••••••••"
               />
-              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
             </div>
           </div>
           <button
@@ -143,7 +143,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-slate-300 font-bold hover:text-white hover:underline"
+            className="text-text-muted font-bold hover:text-white hover:underline"
           >
             {isLogin ? "Nie masz konta? Zarejestruj się" : "Masz już konto? Zaloguj się"}
           </button>
@@ -151,10 +151,10 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-800"></div>
+            <div className="w-full border-t border-border"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-slate-800/50 text-slate-400">lub</span>
+            <span className="px-2 bg-surface/50 text-text-muted">lub</span>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-slate-800/50 border border-slate-800 text-slate-200 py-3.5 rounded-xl font-bold hover:bg-slate-900 hover:border-slate-300 transition flex items-center justify-center gap-2 shadow-sm"
+            className="w-full bg-surface/50 border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-bg-base hover:border-slate-300 transition flex items-center justify-center gap-2 shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -178,7 +178,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={onDemoClick}
             disabled={loading}
-            className="w-full bg-slate-800/80 border border-slate-700/50 text-slate-200 py-3.5 rounded-xl font-bold hover:bg-slate-700 transition"
+            className="w-full bg-surface-2 border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-slate-700 transition"
           >
             Używaj offline (bez rejestracji)
           </button>
