@@ -18,15 +18,14 @@ vi.mock('../../hooks/useAuth', () => ({
   })
 }));
 
+import * as localDb from './services/localDb';
+
 vi.mock('./services/localDb', async (importOriginal) => {
   const actual: any = await importOriginal();
   return {
     ...actual,
-    localDb: {
-      ...actual.localDb,
-      loadState: vi.fn().mockResolvedValue(null),
-      saveState: vi.fn().mockResolvedValue(undefined),
-    }
+    loadState: vi.fn().mockResolvedValue(null),
+    saveState: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -60,7 +59,19 @@ describe('Full App Diagnostic Loop - Forms', () => {
       },
       writable: true
     });
-    vi.spyOn(console, 'error');
+    vi.clearAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Mock localDb.loadState to return a default profile so settings forms render
+    vi.mocked(localDb.loadState).mockResolvedValue({
+      profiles: [{ id: 'p1', name: 'Test Profile', kind: 'personal', avatar: '👤', accounts: [] }],
+      activeProfileId: 'p1',
+      recurringRules: [],
+      transactionRules: [],
+      schemaVersion: 2,
+      updatedAt: '2026-08-04T10:00:00.000Z',
+      lastModifiedBy: 'test'
+    });
   });
 
   it('should test all forms', async () => {
@@ -76,25 +87,25 @@ describe('Full App Diagnostic Loop - Forms', () => {
     await screen.findByText('Wszystkie sekcje');
 
     // 1. Dodaj konto
-    const addAccountBtn = screen.getByText('+ Dodaj konto');
-    const accNameInput = screen.getByPlaceholderText('np. Konto firmowe');
+    const addAccountBtn = screen.getByRole('button', { name: /\+\s*Dodaj konto/i });
+    const accNameInput = screen.getByPlaceholderText('np. Konto bieżące, Gotówka');
     await act(async () => {
       fireEvent.change(accNameInput, { target: { value: 'Nowe Konto' } });
       fireEvent.click(addAccountBtn);
     });
 
     // 2. Dodaj regułę transakcji
-    const addTxRuleBtn = screen.getByText('+ Dodaj regułę');
-    const txRuleInput = screen.getByPlaceholderText('Wpisz słowo kluczowe...');
+    const addTxRuleBtn = screen.getByRole('button', { name: /Zapisz dopasowanie/i });
+    const txRuleInput = screen.getByPlaceholderText('np. biedronka, netflix, orlen');
     await act(async () => {
       fireEvent.change(txRuleInput, { target: { value: 'Biedronka' } });
       fireEvent.click(addTxRuleBtn);
     });
 
     // 3. Dodaj regułę płatności cyklicznej
-    const addRecRuleBtn = screen.getByText('＋ Dodaj harmonogram płatności');
-    const recRuleName = screen.getByPlaceholderText('np. Czynsz za mieszkanie');
-    const recRuleAmount = screen.getByPlaceholderText('0.00');
+    const addRecRuleBtn = screen.getByRole('button', { name: /Dodaj harmonogram płatności/i });
+    const recRuleName = screen.getByPlaceholderText('np. Abonament Netflix, Pensja');
+    const recRuleAmount = screen.getByPlaceholderText('np. 43.99');
     // For date we need querySelector
     const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
     
