@@ -33,7 +33,7 @@ export function SecurityInfoModal() {
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-slate-700/50 text-text-muted rounded-xl">
+          <div className="p-3 bg-slate-100 text-text-muted rounded-xl">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -63,7 +63,7 @@ export function SecurityInfoModal() {
           </span>
           <button
             onClick={() => toggleSecurityInfo(false)}
-            className="px-5 py-2.5 rounded-xl bg-slate-700/50 hover:bg-slate-200 text-text-main font-bold text-xs transition"
+            className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-text-main font-bold text-xs transition"
           >
             Zamknij
           </button>

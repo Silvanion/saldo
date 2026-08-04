@@ -38,14 +38,14 @@ export function GoalsView({
         <div className="flex items-center justify-between gap-4 mb-4">
           <div>
             <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Planowanie Przyszłości</p>
-            <h2 className="text-xl font-bold text-white">Cele oszczędnościowe</h2>
+            <h2 className="text-xl font-bold text-text-main">Cele oszczędnościowe</h2>
             <p className="text-[11px] text-text-muted mt-1 max-w-sm leading-relaxed">
               <strong>Zarezerwowane na cele:</strong> wpłaty nie tworzą wydatków. Środki odłożone na cele są po prostu odejmowane od salda "Do wydania" jako rezerwa.
             </p>
           </div>
           <button
             onClick={onOpenGoalModal}
-            className="bg-emerald-500/20 text-emerald-300 font-bold py-2 px-5 rounded-xl hover:bg-emerald-500/30 border border-emerald-500/30 transition shadow-lg text-sm "
+            className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-50 border border-emerald-200 transition shadow-lg text-sm "
             id="btn-add-goal"
           >
             ＋ Nowy cel
@@ -58,7 +58,7 @@ export function GoalsView({
             <p className="text-sm font-bold text-text-muted mt-2">Nie zdefiniowałeś jeszcze celów oszczędnościowych.</p>
             <button
               onClick={onOpenGoalModal}
-              className="text-emerald-400 text-xs font-bold hover:text-emerald-300 mt-1 transition-colors"
+              className="text-emerald-700 text-xs font-bold hover:text-emerald-700 mt-1 transition-colors"
             >
               Stwórz swój pierwszy cel &rarr;
             </button>
@@ -74,9 +74,9 @@ export function GoalsView({
               let badgeInfo = null;
 
               if (isCompleted) {
-                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-emerald-50 text-emerald-700 border-emerald-500/20" };
               } else if (percent >= 90) {
-                badgeInfo = { text: "Prawie u celu!", colorClass: "bg-amber-500/10 text-amber-400 border-amber-500/20" };
+                badgeInfo = { text: "Prawie u celu!", colorClass: "bg-amber-50 text-amber-700 border-amber-200" };
               } else if (percent > 0) {
                 badgeInfo = { text: "W trakcie", colorClass: "bg-blue-500/10 text-blue-400 border-blue-500/20" };
               } else {
@@ -105,7 +105,7 @@ export function GoalsView({
                 <div key={g.id} className="bg-surface border border-border rounded-2xl p-5 shadow-lg hover:shadow-xl hover:bg-surface transition flex flex-col justify-between h-[13rem] relative">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border ${isCompleted ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-teal-500/10 text-teal-400 border-teal-500/20"}`}>
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border ${isCompleted ? "bg-emerald-50 text-emerald-700 border-emerald-500/20" : "bg-teal-500/10 text-teal-400 border-teal-500/20"}`}>
                         {isCompleted ? "🏆" : "🎯"}
                       </span>
                       <div className="flex items-center gap-2">
@@ -124,19 +124,19 @@ export function GoalsView({
                         </button>
                       </div>
                     </div>
-                    <h3 className="text-sm font-bold text-white line-clamp-1">{g.name}</h3>
+                    <h3 className="text-sm font-bold text-text-main line-clamp-1">{g.name}</h3>
                     <p className="text-xs text-text-muted mt-0.5">
                       {formatMoney(g.saved, g.currency || profile?.currency || 'PLN')} z {formatMoney(g.target, g.currency || profile?.currency || 'PLN')}
                     </p>
                     {paceText && (
-                      <p className="text-[10px] text-amber-400 mt-1.5 font-semibold bg-amber-500/10 inline-block px-2 py-1 rounded-md border border-amber-500/20">
+                      <p className="text-[10px] text-amber-700 mt-1.5 font-semibold bg-amber-50 inline-block px-2 py-1 rounded-md border border-amber-200">
                         {paceText}
                       </p>
                     )}
                   </div>
                   <div>
                     {/* Progress */}
-                    <div className="w-full bg-slate-700/50 h-2 rounded-full overflow-hidden mt-3 mb-1">
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-3 mb-1">
                       <div
                         style={{ width: `${percent}%` }}
                         className={`${isCompleted ? "bg-emerald-500" : "bg-teal-500"} h-full rounded-full transition-all duration-500`}
@@ -163,8 +163,8 @@ export function GoalsView({
       {/* SECTION 2: LONG-TERM INVESTMENTS */}
       <div className="border-t border-border pt-6 mt-8 p-6 bg-surface/20 rounded-3xl border-dashed">
         <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-xl font-bold text-white">Inwestycje długoterminowe</h2>
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-700/50 text-text-muted px-2 py-0.5 rounded-md border border-slate-600/50">Moduł informacyjny</span>
+          <h2 className="text-xl font-bold text-text-main">Inwestycje długoterminowe</h2>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-text-muted px-2 py-0.5 rounded-md border border-slate-200">Moduł informacyjny</span>
         </div>
         <p className="text-[11px] text-text-muted max-w-3xl leading-relaxed mb-6">
           Ta sekcja służy wyłącznie do ewidencji wpłat kapitałowych. Wpisy <strong>nie są</strong> traktowane jako zysk, <strong>nie są</strong> oszczędnościami bieżącymi i <strong>nie wpływają</strong> na wynik budżetu ani <em>Safe-to-spend</em>.
@@ -173,7 +173,7 @@ export function GoalsView({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick contribute form */}
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
-            <h3 className="text-sm font-bold text-white mb-3">Rejestruj wpłatę kapitałową</h3>
+            <h3 className="text-sm font-bold text-text-main mb-3">Rejestruj wpłatę kapitałową</h3>
             <p className="text-xs text-text-muted leading-relaxed mb-4">
               Zapisz kwoty odkładane na IKE, IKZE, fundusze inwestycyjne, akcje lub obligacje skarbowe.
             </p>
@@ -183,7 +183,7 @@ export function GoalsView({
                 <select
                   value={invType}
                   onChange={(e) => setInvType(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-white placeholder-slate-500"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-text-main placeholder-slate-500"
                 >
                   <option value="Poduszka finansowa">Poduszka finansowa</option>
                   <option value="IKE / IKZE (Emerytura)">IKE / IKZE (Emerytura)</option>
@@ -200,7 +200,7 @@ export function GoalsView({
                   placeholder="np. Obligacje Skarbowe, IKE mBank"
                   value={invName}
                   onChange={(e) => setInvName(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-white placeholder-slate-500"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-text-main placeholder-slate-500"
                   id="input-inv-name"
                 />
               </div>
@@ -213,13 +213,13 @@ export function GoalsView({
                   placeholder="0,00"
                   value={invAmount}
                   onChange={(e) => setInvAmount(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-white placeholder-slate-500"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus:border-emerald-500/50 text-text-main placeholder-slate-500"
                   id="input-inv-amount"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-500/20 text-emerald-300 font-bold py-2 rounded-xl hover:bg-emerald-500/30 border border-emerald-500/30 transition text-xs shadow-lg "
+                className="w-full bg-emerald-50 text-emerald-700 font-bold py-2 rounded-xl hover:bg-emerald-50 border border-emerald-200 transition text-xs shadow-lg "
                 id="btn-inv-submit"
               >
                 Dodaj wpłatę
@@ -230,7 +230,7 @@ export function GoalsView({
           {/* Investment log book */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
-              <h3 className="text-sm font-bold text-white mb-3">Wniesiony kapitał (podsumowanie)</h3>
+              <h3 className="text-sm font-bold text-text-main mb-3">Wniesiony kapitał (podsumowanie)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(
                   profile.investments.reduce((acc, inv) => {
@@ -251,7 +251,7 @@ export function GoalsView({
             </div>
 
             <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
-              <h3 className="text-sm font-bold text-white mb-3">Historia wpłat kapitałowych</h3>
+              <h3 className="text-sm font-bold text-text-main mb-3">Historia wpłat kapitałowych</h3>
               <div className="divide-y divide-slate-700/50 overflow-y-auto max-h-[14rem] pr-1">
                 {profile.investments.length === 0 ? (
                   <p className="text-xs text-text-faint py-10 text-center italic">
@@ -263,15 +263,15 @@ export function GoalsView({
                     .map((inv) => (
                       <div key={inv.id} className="flex justify-between items-center py-3">
                         <div>
-                          <strong className="text-xs text-white block">{inv.name}</strong>
+                          <strong className="text-xs text-text-main block">{inv.name}</strong>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] text-text-muted">{formatDate(inv.isoDate)}</span>
                             {inv.type && (
-                              <span className="text-[9px] bg-slate-700/50 text-text-muted px-1.5 py-0.5 rounded font-medium">{inv.type}</span>
+                              <span className="text-[9px] bg-slate-100 text-text-muted px-1.5 py-0.5 rounded font-medium">{inv.type}</span>
                             )}
                           </div>
                         </div>
-                        <strong className="text-sm text-emerald-400">{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
+                        <strong className="text-sm text-emerald-700">{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
                       </div>
                     ))
                 )}

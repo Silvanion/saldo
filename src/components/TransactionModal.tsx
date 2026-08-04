@@ -185,7 +185,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         <h2 className="text-2xl font-bold text-white mb-4">Dodaj transakcję</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex rounded-xl bg-slate-700/50 p-1">
+          <div className="flex rounded-xl bg-slate-100 p-1">
             <button
               type="button"
               className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
@@ -295,7 +295,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           <div>
             <label className="block text-xs font-semibold text-white mb-1">Ikona kategorii</label>
             <div className="flex items-center gap-3 p-2.5 border border-border rounded-xl">
-              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-700/50 text-white rounded-xl border border-border font-bold shrink-0">
+              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-100 text-white rounded-xl border border-border font-bold shrink-0">
                 {categoryIcon}
               </span>
               <div className="flex-1 overflow-x-auto whitespace-nowrap py-1 flex gap-1.5 max-w-[310px] scrollbar-thin">
@@ -304,8 +304,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     key={ico}
                     type="button"
                     onClick={() => setCategoryIcon(ico)}
-                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-700/50 transition shrink-0 ${
-                      categoryIcon === ico ? "bg-slate-700/50 border-2 border-slate-900" : "border border-transparent"
+                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition shrink-0 ${
+                      categoryIcon === ico ? "bg-slate-100 border-2 border-slate-900" : "border border-transparent"
                     }`}
                   >
                     {ico}
@@ -348,7 +348,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     setTagInput("");
                   }
                 }}
-                className="rounded-xl bg-slate-700/50 px-3 py-2 text-xs font-semibold text-text-main hover:bg-slate-200 transition"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-text-main hover:bg-slate-200 transition"
                 id="btn-tx-add-tag"
               >
                 Dodaj
@@ -361,7 +361,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 rounded-full bg-slate-700/50 px-2.5 py-0.5 text-xs font-semibold text-text-main border border-border/60"
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-text-main border border-border/60"
                   >
                     #{t}
                     <button
@@ -390,7 +390,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
                         isSelected
                           ? "bg-bg-base/95 backdrop-blur-2xl text-[#137566] border-[#137566]/30 shadow-sm"
-                          : "bg-surface text-text-muted border-border hover:bg-slate-700/50"
+                          : "bg-surface text-text-muted border-border hover:bg-slate-100"
                       }`}
                     >
                       +{sug}
@@ -453,7 +453,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             <button
               type="button"
               onClick={() => onClose()}
-              className="w-full bg-slate-700/50 text-text-main hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
+              className="w-full bg-slate-100 text-text-main hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
             >
               Anuluj
             </button>

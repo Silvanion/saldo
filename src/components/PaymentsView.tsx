@@ -66,22 +66,22 @@ export function PaymentsView({
     if (diffDays < 0) {
       return {
         label: "Przeterminowane!",
-        badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/30 text-[10px] font-bold shadow-sm"
+        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-bold shadow-sm"
       };
     } else if (diffDays === 0) {
       return {
         label: "Dzisiaj!",
-        badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/30 animate-pulse text-[10px] font-bold"
+        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 animate-pulse text-[10px] font-bold"
       };
     } else if (diffDays === 1) {
       return {
         label: "Jutro",
-        badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/30 text-[10px] font-bold"
+        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-bold"
       };
     } else if (diffDays <= 3) {
       return {
         label: `Za ${diffDays} dni`,
-        badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px] font-bold"
+        badgeClass: "bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-bold"
       };
     }
     return {
@@ -139,7 +139,7 @@ export function PaymentsView({
   return (
     <div className="space-y-6" id="payments-view-container">
       {/* Overview ribbon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gradient-to-br from-emerald-900/40 to-slate-900/80 p-5 rounded-2xl border border-emerald-500/30  shadow-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50 p-5 rounded-2xl border border-emerald-200  shadow-lg">
         <div>
           <h3 className="text-sm font-bold text-text-main uppercase tracking-wider mb-1">Rachunki i Subskrypcje</h3>
           <p className="text-xs text-text-muted">
@@ -149,14 +149,14 @@ export function PaymentsView({
         <div className="flex justify-between sm:justify-end items-center gap-4 flex-wrap">
           <div className="text-right mr-2">
             <span className="block text-[10px] uppercase font-semibold text-text-muted">Do opłacenia</span>
-            <span className="text-lg font-bold text-rose-400">
+            <span className="text-lg font-bold text-rose-700">
               {unpaidCount} rachunki ({formatMoney(totalUnpaidSum, profile?.currency || 'PLN')})
             </span>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => onOpenPaymentModal()}
-              className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold py-2 px-4 rounded-xl hover:bg-emerald-500/30 transition shadow-sm text-xs flex items-center gap-1 cursor-pointer"
+              className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold py-2 px-4 rounded-xl hover:bg-emerald-50 transition shadow-sm text-xs flex items-center gap-1 cursor-pointer"
               id="btn-add-payment"
             >
               <span>＋ Dodaj opłatę</span>
@@ -170,13 +170,13 @@ export function PaymentsView({
         <div className="flex items-start gap-3.5">
           <div className={`p-2.5 rounded-xl ${
             notificationPermission === "granted" 
-              ? "bg-emerald-500/20 text-emerald-400" 
+              ? "bg-emerald-50 text-emerald-700" 
               : notificationPermission === "denied"
-                ? "bg-rose-500/20 text-rose-400"
-                : "bg-amber-500/20 text-amber-400"
+                ? "bg-rose-50 text-rose-700"
+                : "bg-amber-50 text-amber-700"
           }`}>
             {notificationPermission === "granted" ? (
-              <Bell className="w-5 h-5 text-emerald-400" />
+              <Bell className="w-5 h-5 text-emerald-700" />
             ) : notificationPermission === "denied" ? (
               <BellOff className="w-5 h-5" />
             ) : (
@@ -193,7 +193,7 @@ export function PaymentsView({
                   : "Chcesz dostawać powiadomienia na pulpicie o zbliżających się rachunkach? Włącz powiadomienia jednym kliknięciem."}
             </p>
             {notificationStatusMsg && (
-              <p className={`text-xs font-semibold mt-2 ${notificationPermission === "granted" ? "text-emerald-400" : "text-rose-400"}`}>
+              <p className={`text-xs font-semibold mt-2 ${notificationPermission === "granted" ? "text-emerald-700" : "text-rose-700"}`}>
                 {notificationStatusMsg}
               </p>
             )}
@@ -205,8 +205,8 @@ export function PaymentsView({
             onClick={handleEnableNotifications}
             className={`font-bold py-2.5 px-4 rounded-lg text-xs transition cursor-pointer shrink-0 ${
               notificationPermission === "denied"
-                ? "bg-slate-700/50 text-text-muted hover:bg-slate-200 border border-border"
-                : "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 shadow-sm border border-emerald-500/30"
+                ? "bg-slate-100 text-text-muted hover:bg-slate-200 border border-border"
+                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-50 shadow-sm border border-emerald-200"
             }`}
             id="btn-enable-desktop-notifications"
           >
@@ -229,25 +229,25 @@ export function PaymentsView({
               <button
                 onClick={() => setTimeFilter("all")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                  timeFilter === "all" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                 }`}
               >Wszystkie</button>
               <button
                 onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "today" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                  timeFilter === "today" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                 }`}
               >Dzisiaj/Zaległe</button>
               <button
                 onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "week" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                  timeFilter === "week" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                 }`}
               >Ten tydzień</button>
               <button
                 onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                  timeFilter === "month" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                  timeFilter === "month" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                 }`}
               >Ten miesiąc</button>
             </div>
@@ -256,7 +256,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("all")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "all" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                    paidByFilter === "all" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Wszystkie role
@@ -264,7 +264,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("me")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "me" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                    paidByFilter === "me" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Ja
@@ -272,7 +272,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("partner")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "partner" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                    paidByFilter === "partner" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                   }`}
                 >
                   Partner
@@ -280,7 +280,7 @@ export function PaymentsView({
                 <button
                   onClick={() => setPaidByFilter("joint")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                    paidByFilter === "joint" ? "bg-slate-700/80 text-white shadow-sm" : "text-text-muted hover:text-text-main"
+                    paidByFilter === "joint" ? "bg-emerald-50 text-emerald-700 dark:bg-slate-700 dark:text-white shadow-sm border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main"
                   }`}
                 >Wspólne</button>
               </div>
@@ -298,7 +298,7 @@ export function PaymentsView({
                   <p className="text-sm text-text-muted">Brak zdefiniowanych płatności.</p>
                   <button
                     onClick={() => onOpenPaymentModal()}
-                    className="text-emerald-400 text-xs font-semibold hover:underline mt-1"
+                    className="text-emerald-700 text-xs font-semibold hover:underline mt-1"
                   >
                     Dodaj swój pierwszy rachunek już teraz &rarr;
                   </button>
@@ -318,7 +318,7 @@ export function PaymentsView({
                   <div className="flex items-center gap-4 mb-3 sm:mb-0">
                     <span
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                        isPaid ? "bg-teal-50 text-emerald-400" : "bg-rose-50 text-rose-400"
+                        isPaid ? "bg-teal-50 text-emerald-700" : "bg-rose-50 text-rose-700"
                       }`}
                     >
                       {isPaid ? "✓" : "◷"}
@@ -328,7 +328,7 @@ export function PaymentsView({
                         <h4 className="text-sm font-bold text-text-main flex items-center gap-1.5">
                           {p.name}
                           {profile.kind === "shared" && p.paidBy && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-700/50 text-slate-700 border border-border">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-slate-100 text-slate-700 border border-border">
                               {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {p.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -356,7 +356,7 @@ export function PaymentsView({
                       {!isPaid && (
                         <button
                           onClick={() => onTriggerCalendarAi(p)}
-                          className="bg-surface/50 hover:bg-slate-700/50 text-text-main font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-border"
+                          className="bg-surface/50 hover:bg-slate-100 text-text-main font-bold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer border border-border"
                           title="Dodaj przypomnienie do Kalendarza Google (AI)"
                           id={`btn-calendar-ai-${p.id}`}
                         >
@@ -367,8 +367,8 @@ export function PaymentsView({
                         onClick={() => onTogglePaymentStatus(p.id)}
                         className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           isPaid
-                            ? "bg-emerald-500/20 text-emerald-400 hover:bg-[#d1e8e2]"
-                            : "bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30"
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-[#d1e8e2]"
+                            : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
                         }`}
                         id={`btn-toggle-payment-${p.id}`}
                       >
@@ -415,7 +415,7 @@ export function PaymentsView({
                       onDeletePayment(paymentToDelete.id, "payment-and-linked-transaction");
                       setPaymentToDelete(null);
                     }}
-                    className="w-full bg-rose-500/20 text-rose-400 font-bold py-2.5 rounded-xl border border-rose-500/30 hover:bg-rose-500/30 transition text-sm"
+                    className="w-full bg-rose-50 text-rose-700 font-bold py-2.5 rounded-xl border border-rose-200 hover:bg-rose-50 transition text-sm"
                   >
                     Usuń płatność i transakcję
                   </button>
@@ -424,7 +424,7 @@ export function PaymentsView({
                       onDeletePayment(paymentToDelete.id, "payment-only");
                       setPaymentToDelete(null);
                     }}
-                    className="w-full bg-slate-700/50 text-slate-700 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition text-sm"
+                    className="w-full bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition text-sm"
                   >
                     Usuń tylko płatność
                   </button>
@@ -444,7 +444,7 @@ export function PaymentsView({
                 <div className="flex gap-3">
                   <button
                     onClick={() => setPaymentToDelete(null)}
-                    className="flex-1 bg-slate-700/50 text-slate-700 font-bold py-2 rounded-xl hover:bg-slate-200 transition text-sm"
+                    className="flex-1 bg-slate-100 text-slate-700 font-bold py-2 rounded-xl hover:bg-slate-200 transition text-sm"
                   >
                     Anuluj
                   </button>
@@ -453,7 +453,7 @@ export function PaymentsView({
                       onDeletePayment(paymentToDelete.id, "payment-only");
                       setPaymentToDelete(null);
                     }}
-                    className="flex-1 bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold py-2 rounded-xl hover:bg-rose-500/30 transition text-sm shadow-md"
+                    className="flex-1 bg-rose-50 text-rose-700 border border-rose-200 font-bold py-2 rounded-xl hover:bg-rose-50 transition text-sm shadow-md"
                   >
                     Usuń
                   </button>

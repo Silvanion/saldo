@@ -38,10 +38,10 @@ export function MockScreenShot({ title, badge, children, steps }: MockScreenShot
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500/80" />
           <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-          <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+          <div className="w-3 h-3 rounded-full bg-emerald-50" />
           <span className="text-xs font-mono text-text-muted ml-2">{title}</span>
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#137566]/30 text-emerald-300 border border-emerald-500/30 rounded-full">
+        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#137566]/30 text-emerald-700 border border-emerald-200 rounded-full">
           {badge}
         </span>
       </div>

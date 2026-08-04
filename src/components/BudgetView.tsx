@@ -61,7 +61,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
         </div>
         <button
           onClick={onOpenBudgetModal}
-          className="bg-emerald-500/20 text-emerald-300 font-bold py-2 px-5 rounded-xl hover:bg-emerald-500/30 border border-emerald-500/30 transition shadow-lg text-sm whitespace-nowrap self-start sm:self-auto "
+          className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-50 border border-emerald-200 transition shadow-lg text-sm whitespace-nowrap self-start sm:self-auto "
           id="btn-edit-budget-limits"
         >
           Modyfikuj limity
@@ -86,7 +86,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               <div>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-xl bg-slate-700/30 border border-slate-600/50 text-xl flex items-center justify-center">
+                    <span className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-xl flex items-center justify-center">
                       {iconByCategory[category] || "📂"}
                     </span>
                     <div>
@@ -104,7 +104,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-700/50 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     style={{ width: `${limit > 0 ? percent : 0}%` }}
                     className={`h-full rounded-full transition-all duration-500 ${
@@ -114,12 +114,12 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                 </div>
 
                 {isOver && (
-                  <p className="text-[11px] text-rose-400 font-bold mt-2" id={`alert-budget-over-${category}`}>
+                  <p className="text-[11px] text-rose-700 font-bold mt-2" id={`alert-budget-over-${category}`}>
                     Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit, profile.currency || 'PLN')}!
                   </p>
                 )}
                 {isClose && (
-                  <p className="text-[11px] text-amber-400 font-bold mt-2" id={`alert-budget-close-${category}`}>
+                  <p className="text-[11px] text-amber-700 font-bold mt-2" id={`alert-budget-close-${category}`}>
                     Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent, profile.currency || 'PLN')}.
                   </p>
                 )}

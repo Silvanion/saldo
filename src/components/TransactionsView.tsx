@@ -120,16 +120,16 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
                     });
                   }}
-                  className="text-text-muted font-semibold py-1.5 px-3 rounded-lg hover:bg-slate-700/60 hover:text-text-main transition text-xs flex items-center gap-1.5"
+                  className="text-text-muted font-semibold py-1.5 px-3 rounded-lg hover:bg-slate-100 hover:text-text-main transition text-xs flex items-center gap-1.5"
                   title="Eksportuj odfiltrowane dane"
                   id="btn-export-csv"
                 >
                   📤 Eksportuj
                 </button>
-                <div className="w-px bg-slate-700/50 mx-1 my-1"></div>
+                <div className="w-px bg-slate-100 mx-1 my-1"></div>
                 <button
                   onClick={() => setIsCSVModalOpen(true)}
-                  className="text-text-muted font-semibold py-1.5 px-3 rounded-lg hover:bg-slate-700/60 hover:text-text-main transition text-xs flex items-center gap-1.5"
+                  className="text-text-muted font-semibold py-1.5 px-3 rounded-lg hover:bg-slate-100 hover:text-text-main transition text-xs flex items-center gap-1.5"
                   id="btn-import-csv"
                 >
                   📥 Importuj CSV
@@ -137,7 +137,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               </div>
               <button
                 onClick={() => onOpenTxModal()}
-                className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold py-2.5 px-5 rounded-xl hover:bg-emerald-500/30 transition shadow-md text-sm flex items-center gap-1.5"
+                className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold py-2.5 px-5 rounded-xl hover:bg-emerald-50 transition shadow-md text-sm flex items-center gap-1.5"
                 id="btn-add-tx-view"
               >
                 <span>＋</span> Nowa transakcja
@@ -166,19 +166,19 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   <button
                     onClick={() => setFilterType("all")}
                     className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                      filterType === "all" ? "bg-slate-700 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
+                      filterType === "all" ? "bg-slate-100 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
                     }`}
                   >Wszystkie</button>
                   <button
                     onClick={() => setFilterType("expense")}
                     className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                      filterType === "expense" ? "bg-rose-500/20 text-rose-300 shadow-sm" : "text-text-muted hover:text-text-main"
+                      filterType === "expense" ? "bg-rose-50 text-rose-700 shadow-sm" : "text-text-muted hover:text-text-main"
                     }`}
                   >Wydatki</button>
                   <button
                     onClick={() => setFilterType("income")}
                     className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                      filterType === "income" ? "bg-emerald-500/20 text-emerald-300 shadow-sm" : "text-text-muted hover:text-text-main"
+                      filterType === "income" ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-text-muted hover:text-text-main"
                     }`}
                   >Przychody</button>
                 </div>
@@ -188,25 +188,25 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     <button
                       onClick={() => setPaidByFilter("all")}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                        paidByFilter === "all" ? "bg-slate-700 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
+                        paidByFilter === "all" ? "bg-slate-100 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
                       }`}
                     >Wszystkie</button>
                     <button
                       onClick={() => setPaidByFilter("me")}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                        paidByFilter === "me" ? "bg-slate-700 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
+                        paidByFilter === "me" ? "bg-slate-100 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
                       }`}
                     >Ja</button>
                     <button
                       onClick={() => setPaidByFilter("partner")}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                        paidByFilter === "partner" ? "bg-slate-700 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
+                        paidByFilter === "partner" ? "bg-slate-100 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
                       }`}
                     >Partner</button>
                     <button
                       onClick={() => setPaidByFilter("joint")}
                       className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition ${
-                        paidByFilter === "joint" ? "bg-slate-700 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
+                        paidByFilter === "joint" ? "bg-slate-100 text-text-main shadow-sm" : "text-text-muted hover:text-text-main"
                       }`}
                     >Wspólne</button>
                   </div>
@@ -233,7 +233,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 />
               </div>
               
-              <div className="hidden sm:block w-px h-6 bg-slate-700/50"></div>
+              <div className="hidden sm:block w-px h-6 bg-slate-100"></div>
               
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase font-bold text-text-muted">Kwota ({(profile.currency || "PLN")}):</span>
@@ -267,8 +267,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                       onClick={() => setSelectedTag(isSelected ? null : tag)}
                       className={`text-xs px-2.5 py-1 rounded-full font-bold border transition ${
                         isSelected
-                          ? "bg-slate-700 text-text-main border-slate-500 shadow-sm"
-                          : "bg-surface text-text-muted border-border hover:bg-slate-700/40"
+                          ? "bg-slate-100 text-text-main border-slate-300 shadow-sm"
+                          : "bg-surface text-text-muted border-border hover:bg-slate-100"
                       }`}
                     >
                       #{tag}
@@ -278,7 +278,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 {selectedTag && (
                   <button
                     onClick={() => setSelectedTag(null)}
-                    className="text-xs text-rose-400 font-bold hover:underline ml-2"
+                    className="text-xs text-rose-700 font-bold hover:underline ml-2"
                   >
                     Wyczyść filtr tagu &times;
                   </button>
@@ -309,7 +309,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                   </tr>
                 ) : (
                   visibleTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-700/30 transition border-border/30">
+                    <tr key={tx.id} className="hover:bg-slate-100 transition border-border/30">
                       <td className="py-3 px-2 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-base shrink-0" title={tx.category}>
@@ -335,8 +335,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                                 }}
                                 className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                                   selectedTag === tag
-                                    ? "bg-slate-700 text-text-main border-slate-500 shadow-sm"
-                                    : "bg-surface text-text-muted border-border hover:bg-slate-700/40"
+                                    ? "bg-slate-100 text-text-main border-slate-300 shadow-sm"
+                                    : "bg-surface text-text-muted border-border hover:bg-slate-100"
                                 }`}
                               >
                                 #{tag}
@@ -350,7 +350,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                         <span className="bg-bg-base/60 border border-border px-2.5 py-1 rounded-full">{tx.category}</span>
                       </td>
                       <td className="py-3 px-2 text-xs text-text-muted">{tx.account}</td>
-                      <td className={`py-3 px-2 text-sm font-bold text-right whitespace-nowrap ${tx.type === "income" ? "text-emerald-400" : "text-rose-400"}`}>
+                      <td className={`py-3 px-2 text-sm font-bold text-right whitespace-nowrap ${tx.type === "income" ? "text-emerald-700" : "text-rose-700"}`}>
                         {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                       </td>
                       <td className="py-3 px-2 text-center">
@@ -364,7 +364,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           </button>
                           <button
                             onClick={() => setTransactionToDelete(tx)}
-                            className="text-text-faint hover:text-rose-400 text-xs font-semibold px-2 py-1 rounded transition"
+                            className="text-text-faint hover:text-rose-700 text-xs font-semibold px-2 py-1 rounded transition"
                             title="Usuń transakcję"
                             id={`btn-delete-tx-${tx.id}`}
                           >
@@ -406,7 +406,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                         <p className="text-[11px] text-text-muted">{formatDate(tx.isoDate)}</p>
                       </div>
                     </div>
-                    <span className={`text-sm font-black whitespace-nowrap ${tx.type === "income" ? "text-emerald-400" : "text-rose-400"}`}>
+                    <span className={`text-sm font-black whitespace-nowrap ${tx.type === "income" ? "text-emerald-700" : "text-rose-700"}`}>
                       {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                     </span>
                   </div>
@@ -424,13 +424,13 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onOpenTxModal(tx)}
-                        className="text-text-muted hover:text-text-main text-[11px] font-semibold px-2.5 py-1 bg-surface rounded-lg hover:bg-slate-700/60 transition"
+                        className="text-text-muted hover:text-text-main text-[11px] font-semibold px-2.5 py-1 bg-surface rounded-lg hover:bg-slate-100 transition"
                       >
                         Edytuj
                       </button>
                       <button
                         onClick={() => setTransactionToDelete(tx)}
-                        className="text-rose-300 hover:text-rose-100 text-[11px] font-semibold px-2.5 py-1 bg-rose-500/20 rounded-lg hover:bg-rose-500/30 transition"
+                        className="text-rose-700 hover:text-rose-800 text-[11px] font-semibold px-2.5 py-1 bg-rose-50 rounded-lg hover:bg-rose-50 transition"
                         id={`btn-delete-tx-mob-${tx.id}`}
                       >
                         Usuń
@@ -449,8 +449,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                           }}
                           className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded font-medium border transition ${
                             selectedTag === tag
-                              ? "bg-slate-700 text-text-main border-slate-500 shadow-sm"
-                              : "bg-surface text-text-muted border-border hover:bg-slate-700/40"
+                              ? "bg-slate-100 text-text-main border-slate-300 shadow-sm"
+                              : "bg-surface text-text-muted border-border hover:bg-slate-100"
                           }`}
                         >
                           #{tag}
@@ -468,7 +468,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
             <div className="flex justify-center mt-4 border-t border-border pt-4" id="pagination-panel">
               <button
                 onClick={() => setItemsToShow((prev) => prev + 25)}
-                className="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm"
+                className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm"
                 id="btn-load-more"
               >
                 Pokaż więcej ({filteredTransactions.length - itemsToShow} pozostało)
@@ -494,7 +494,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setTransactionToDelete(null)}
-              className="absolute inset-0 bg-black/55 "
+              className="absolute inset-0 bg-black/40 "
             />
 
             {/* Dialog Modal Box */}
@@ -506,8 +506,8 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               className="bg-bg-base/90 rounded-2xl max-w-md w-full p-6 shadow-sm relative z-10 border border-border "
             >
               {/* Warning Header */}
-              <div className="flex items-center gap-3.5 mb-4 text-rose-400">
-                <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center shrink-0 border border-rose-500/30">
+              <div className="flex items-center gap-3.5 mb-4 text-rose-700">
+                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center shrink-0 border border-rose-200">
                   <span className="text-xl font-bold">⚠️</span>
                 </div>
                 <div>
@@ -520,7 +520,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <div className="bg-surface rounded-xl p-4 border border-border text-sm mb-5">
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-bold text-text-main">{transactionToDelete.name}</span>
-                  <span className={`font-bold ${transactionToDelete.type === "income" ? "text-emerald-400" : "text-rose-400"}`}>
+                  <span className={`font-bold ${transactionToDelete.type === "income" ? "text-emerald-700" : "text-rose-700"}`}>
                     {transactionToDelete.type === "income" ? "+" : "-"} {formatMoney(transactionToDelete.amount, transactionToDelete.currency || profile?.currency || 'PLN')}
                   </span>
                 </div>
@@ -536,7 +536,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
                 </div>
               </div>
 
-              <p className="text-xs text-rose-300 font-medium mb-5 bg-rose-500/10 px-3 py-2 rounded-lg border border-rose-500/20 flex items-center gap-2">
+              <p className="text-xs text-rose-700 font-medium mb-5 bg-rose-50 px-3 py-2 rounded-lg border border-rose-200 flex items-center gap-2">
                 <span>ℹ️</span> Tej operacji nie można cofnąć. Transakcja zostanie trwale skasowana z budżetu.
               </p>
 
@@ -544,7 +544,7 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setTransactionToDelete(null)}
-                  className="px-4 py-2.5 text-text-muted bg-surface hover:bg-slate-700 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer border border-border"
+                  className="px-4 py-2.5 text-text-muted bg-surface hover:bg-slate-100 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer border border-border"
                 >
                   Anuluj
                 </button>

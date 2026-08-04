@@ -57,7 +57,7 @@ export function TransactionsTagsAnalysis({
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-sm  p-6 flex flex-col relative overflow-hidden" id="tags-analysis-card">
-      <div className="absolute inset-0  pointer-events-none" />
+      {/* Background decorations removed */}
       <div className="mb-4 relative z-10">
         <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Raportowanie i Analiza</p>
         <h3 className="text-lg font-bold text-text-main">Wydatki według tagów</h3>
@@ -98,8 +98,8 @@ export function TransactionsTagsAnalysis({
                 onClick={() => onSelectTag(isSelected ? null : tag.name)}
                 className={`group p-3 rounded-xl border transition cursor-pointer ${
                   isSelected
-                    ? "bg-slate-700/60 border-slate-500 shadow-sm"
-                    : "bg-surface border-border hover:bg-slate-700/40"
+                    ? "bg-slate-100 border-slate-300 shadow-sm"
+                    : "bg-surface border-border hover:bg-slate-100"
                 }`}
               >
                 <div className="flex justify-between items-center text-xs mb-2">

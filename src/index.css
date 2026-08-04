@@ -56,11 +56,11 @@
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7); /* Bardziej solidna, przejrzysta tafla */
-  backdrop-filter: blur(12px); /* Mniej chaosu, ostry efekt */
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(17, 24, 39, 0.08); /* Crisp edge */
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04); /* Subtelny cień zamiast glow */
+  background: rgba(255, 255, 255, 0.90); /* Mniej mleczna, solidniejsza biel */
+  backdrop-filter: blur(8px); /* Znacznie mniejszy blur (było 12-20px) */
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(17, 24, 39, 0.08); /* Delikatna, chłodna krawędź */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* Czysty, minimalny cień zamiast kolorowego glow */
 }
 
 .dark .glass-panel {

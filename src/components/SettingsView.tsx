@@ -137,7 +137,7 @@ export function BankAccountsManager({
         <div className="flex items-center pt-5">
           <label className="flex items-center cursor-pointer">
             <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
-            <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-600 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
+            <div className="w-9 h-5 bg-slate-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#137566]"></div>
             <span className="ml-2 text-xs font-bold text-text-muted">Bufor awaryjny</span>
           </label>
         </div>
@@ -148,7 +148,7 @@ export function BankAccountsManager({
           </div>
         )}
         <div className="flex items-end lg:col-span-1">
-          <button type="submit" className="w-full bg-surface border border-border text-emerald-400 font-bold py-2 rounded-xl hover:bg-emerald-500/10 hover:border-emerald-500/30 transition text-xs shadow-sm cursor-pointer">
+          <button type="submit" className="w-full bg-surface border border-border text-emerald-700 font-bold py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition text-xs shadow-sm cursor-pointer">
             + Dodaj konto
           </button>
         </div>
@@ -169,7 +169,7 @@ export function BankAccountsManager({
                     <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-text-muted hover:text-rose-400 transition p-1 cursor-pointer">
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-text-muted hover:text-rose-700 transition p-1 cursor-pointer">
                   &times;
                 </button>
               </div>
@@ -246,7 +246,7 @@ export function TransactionRulesManager({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm cursor-pointer"
+            className="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm cursor-pointer"
           >
             ＋ Zapisz dopasowanie
           </button>
@@ -270,7 +270,7 @@ export function TransactionRulesManager({
                 <tr key={r.id} className="hover:bg-surface/50 transition">
                   <td className="py-2.5 px-3 font-mono font-bold text-text-main">{r.pattern}</td>
                   <td className="py-2.5 px-3">
-                    <span className="inline-flex items-center gap-1 bg-emerald-500/100/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
+                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-50">
                       <span>{r.categoryIcon || "✨"}</span>
                       {r.category}
                     </span>
@@ -505,7 +505,7 @@ export function SettingsView({
                 onClick={() => setSettingsTab("all")}
                 className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
                   settingsTab === "all"
-                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
                 }`}
               >
@@ -515,7 +515,7 @@ export function SettingsView({
                 onClick={() => setSettingsTab("profiles")}
                 className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
                   settingsTab === "profiles"
-                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
                 }`}
               >
@@ -525,7 +525,7 @@ export function SettingsView({
                 onClick={() => setSettingsTab("appearance")}
                 className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
                   settingsTab === "appearance"
-                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
                 }`}
               >
@@ -535,7 +535,7 @@ export function SettingsView({
                 onClick={() => setSettingsTab("backup")}
                 className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
                   settingsTab === "backup"
-                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
                 }`}
               >
@@ -545,7 +545,7 @@ export function SettingsView({
                 onClick={() => setSettingsTab("automation")}
                 className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
                   settingsTab === "automation"
-                    ? "bg-slate-700/50 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
                 }`}
               >
@@ -564,14 +564,14 @@ export function SettingsView({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/30">
             <div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-400" />
+                <Users className="w-5 h-5 text-emerald-700" />
                 <h3 className="text-base font-bold text-text-main">Zarządzanie profilami budżetu</h3>
               </div>
               <p className="text-xs text-text-muted mt-1 leading-relaxed">
                 Każdy profil posiada niezależne transakcje, limity, salda bankowe oraz cele oszczędnościowe.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0 self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-500/20 shrink-0 self-start sm:self-auto">
               {profiles.length} {profiles.length === 1 ? "profil" : profiles.length < 5 ? "profile" : "profili"}
             </span>
           </div>
@@ -587,7 +587,7 @@ export function SettingsView({
                   <div key={p.id} className="col-span-1 sm:col-span-2 bg-surface rounded-2xl border border-emerald-500/50 p-5 shadow-md ring-2 ring-emerald-500/20">
                     <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/30">
                       <div className="flex items-center gap-2">
-                        <Edit2 className="w-4 h-4 text-emerald-400" />
+                        <Edit2 className="w-4 h-4 text-emerald-700" />
                         <h4 className="text-sm font-extrabold text-text-main">Edycja profilu: {p.name}</h4>
                       </div>
                       <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-muted p-1 text-lg leading-none">&times;</button>
@@ -627,7 +627,7 @@ export function SettingsView({
                                         document.activeElement.blur();
                                       }
                                     }}
-                                    className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
+                                    className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-50 border-emerald-500/50 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
                                   >
                                     {emoji}
                                   </button>
@@ -677,7 +677,7 @@ export function SettingsView({
                         <button
                           type="submit"
                           disabled={editProfileData.name === p.name && editProfileData.kind === p.kind && editProfileData.partnerName === (p.partnerName || "") && editProfileData.avatar === (p.avatar || "👤")}
-                          className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Zapisz zmiany
                         </button>
@@ -691,7 +691,7 @@ export function SettingsView({
                 return (
                   <div
                     key={p.id}
-                    className="col-span-1 sm:col-span-2 bg-gradient-to-br from-emerald-500/10 via-slate-800 to-emerald-500/5    border-2 border-emerald-500/50  rounded-2xl p-5 shadow-md ring-1 ring-emerald-500/20  relative overflow-hidden flex flex-col justify-between gap-4"
+                    className="col-span-1 sm:col-span-2 bg-emerald-50 border-emerald-200  rounded-2xl p-5 shadow-md   relative overflow-hidden flex flex-col justify-between gap-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0">
@@ -701,9 +701,9 @@ export function SettingsView({
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <strong className="text-base font-extrabold text-text-main truncate">{p.name}</strong>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 shadow-xs">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 shadow-xs">
                               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-                              AKTYWNY
+                              Aktywny
                             </span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -711,8 +711,8 @@ export function SettingsView({
                               {isShared ? `👪 Wspólny (z ${p.partnerName})` : "👤 Osobisty"}
                             </span>
                             {p.pinHash ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
-                                <Lock className="w-3 h-3 text-amber-400" /> Kod PIN
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                                <Lock className="w-3 h-3 text-amber-700" /> Kod PIN
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-[10px] font-medium text-text-muted bg-surface border border-border px-2 py-0.5 rounded-md">
@@ -726,21 +726,21 @@ export function SettingsView({
                       <div className="flex items-center gap-1 shrink-0 bg-surface-2  p-1 rounded-xl border border-border  shadow-xs">
                         <button
                           onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                          className="p-2 text-text-muted hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
                           title="Edytuj profil"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={onOpenPinModal}
-                          className="p-2 text-text-muted hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
                           title="Zarządzaj kodem PIN"
                         >
                           <KeyRound className="w-4 h-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                          className="p-2 text-text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl transition cursor-pointer"
                           title="Usuń profil"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -748,13 +748,13 @@ export function SettingsView({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-3 border-t border-emerald-500/50/15  text-emerald-400 font-bold">
+                    <div className="flex items-center justify-between text-xs pt-3 border-t border-emerald-500/50/15  text-emerald-700 font-bold">
                       <span className="flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4 text-emerald-400" /> Aktualnie pracujesz na tym profilu
+                        <CheckCircle className="w-4 h-4 text-emerald-700" /> Aktualnie pracujesz na tym profilu
                       </span>
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[11px] hover:underline flex items-center gap-1 text-emerald-400 font-bold cursor-pointer"
+                        className="text-[11px] hover:underline flex items-center gap-1 text-emerald-700 font-bold cursor-pointer"
                       >
                         {p.pinHash ? "Zmień PIN" : "Ustaw PIN"} <ArrowRight className="w-3 h-3" />
                       </button>
@@ -766,7 +766,7 @@ export function SettingsView({
               return (
                 <div
                   key={p.id}
-                  className="bg-surface border border-border/90 hover:border-emerald-500/30 hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
+                  className="bg-surface border border-border/90 hover:border-emerald-200 hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
@@ -780,7 +780,7 @@ export function SettingsView({
                             {isShared ? `Wspólny (${p.partnerName})` : "Osobisty"}
                           </span>
                           {p.pinHash && (
-                            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
                               <Lock className="w-3 h-3" /> PIN
                             </span>
                           )}
@@ -791,14 +791,14 @@ export function SettingsView({
                     <div className="flex items-center gap-0.5 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                        className="p-1.5 text-text-muted hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
                         title="Edytuj profil"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                        className="p-1.5 text-text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl transition cursor-pointer"
                         title="Usuń profil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -808,7 +808,7 @@ export function SettingsView({
 
                   <button
                     onClick={() => onSelectProfile(p.id)}
-                    className="w-full py-2 px-3 bg-emerald-500/100/10 hover:bg-[#137566] text-emerald-400 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1"
+                    className="w-full py-2 px-3 bg-emerald-50 hover:bg-[#137566] text-emerald-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1"
                     id={`btn-select-profile-${p.id}`}
                   >
                     <span>Otwórz ten profil</span>
@@ -821,9 +821,9 @@ export function SettingsView({
             <button
               onClick={onOpenProfileModal}
               id="btn-add-profile-settings"
-              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-border hover:border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-400 font-bold text-xs transition-all cursor-pointer group shadow-xs"
+              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-border hover:border-emerald-500/50 hover:bg-emerald-50 text-emerald-700 font-bold text-xs transition-all cursor-pointer group shadow-xs"
             >
-              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-110 transition-transform">
                 <Plus className="w-4 h-4" />
               </div>
               <span> Utwórz nowy profil budżetu</span>
@@ -832,101 +832,6 @@ export function SettingsView({
         </div>
       )}
 
-      {/* SECTION: ACTIVE PROFILE SETTINGS */}
-      {activeProfile && editProfileData && (settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-active-profile-card">
-          <h3 className="text-base font-bold text-text-main mb-2">Ustawienia aktywnego profilu</h3>
-          <p className="text-xs text-text-muted mb-5 leading-relaxed">
-            Dostosuj nazwę, ikonę oraz rodzaj dla aktualnie wybranego profilu: <strong>{activeProfile.name}</strong>.
-          </p>
-
-          <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-text-main mb-1">Nazwa profilu</label>
-                <input
-                  type="text"
-                  value={editProfileData.name}
-                  onChange={(e) => setEditProfileData(prev => prev ? { ...prev, name: e.target.value } : null)}
-                  className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface focus:bg-surface focus:border-emerald-500/50 text-sm font-medium"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-text-main mb-1">Ikona profilu</label>
-                <details className="group border border-border rounded-xl relative">
-                  <summary className="p-2.5 text-xs font-bold text-text-muted cursor-pointer bg-surface hover:bg-surface-2 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl leading-none">{editProfileData.avatar}</span>
-                      <span>Wybierz ikonę</span>
-                    </div>
-                    <span className="group-open:rotate-180 transition-transform mr-2 text-text-muted">▼</span>
-                  </summary>
-                  <div className="p-3 border-t border-border bg-surface absolute w-full z-10 shadow-lg rounded-b-lg">
-                    <div className="grid grid-cols-6 gap-2">
-                      {["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"].map(emoji => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => {
-                            setEditProfileData(prev => prev ? { ...prev, avatar: emoji } : null);
-                            // Close details manually by blurring the active element (hacky but works for details without explicit state)
-                            if (document.activeElement instanceof HTMLElement) {
-                              document.activeElement.blur();
-                            }
-                          }}
-                          className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </details>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-text-main mb-1">Rodzaj profilu</label>
-              <select
-                value={editProfileData.kind}
-                onChange={(e) => setEditProfileData(prev => prev ? { ...prev, kind: e.target.value as "personal" | "shared" } : null)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface focus:bg-surface focus:border-emerald-500/50 text-sm font-medium"
-              >
-                <option value="personal">👤 Osobisty</option>
-                <option value="shared">👪 Wspólny (wymaga podania imienia partnera)</option>
-              </select>
-            </div>
-
-            {editProfileData.kind === "shared" && (
-              <div>
-                <label className="block text-xs font-bold text-text-main mb-1">Imię partnera/współdzielącego</label>
-                <input
-                  type="text"
-                  value={editProfileData.partnerName}
-                  onChange={(e) => setEditProfileData(prev => prev ? { ...prev, partnerName: e.target.value } : null)}
-                  className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface focus:bg-surface focus:border-emerald-500/50 text-sm font-medium"
-                  placeholder="np. Anna"
-                  required
-                  pattern=".*\S+.*"
-                  title="Imię partnera nie może składać się z samych spacji"
-                />
-              </div>
-            )}
-            
-            <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={editProfileData.name === activeProfile.name && editProfileData.kind === activeProfile.kind && editProfileData.partnerName === (activeProfile.partnerName || "") && editProfileData.avatar === (activeProfile.avatar || "👤")}
-                className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Zapisz zmiany profilu
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
@@ -942,12 +847,12 @@ export function SettingsView({
             onClick={() => onThemeChange("light")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "light"
-                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : "bg-surface border-border hover:border-slate-600"
+                ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-surface border-border hover:border-slate-200"
             }`}
             id="btn-set-theme-light"
           >
-            <div className={`p-2 rounded-xl ${theme === "light" ? "bg-surface text-emerald-400" : "bg-surface text-text-muted"}`}>
+            <div className={`p-2 rounded-xl ${theme === "light" ? "bg-surface text-emerald-700" : "bg-surface text-text-muted"}`}>
               <Sun className="w-5 h-5" />
             </div>
             <div>
@@ -961,12 +866,12 @@ export function SettingsView({
             onClick={() => onThemeChange("dark")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "dark"
-                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : "bg-surface border-border hover:border-slate-600"
+                ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-surface border-border hover:border-slate-200"
             }`}
             id="btn-set-theme-dark"
           >
-            <div className={`p-2 rounded-xl ${theme === "dark" ? "bg-surface text-emerald-400" : "bg-surface text-text-muted"}`}>
+            <div className={`p-2 rounded-xl ${theme === "dark" ? "bg-surface text-emerald-700" : "bg-surface text-text-muted"}`}>
               <Moon className="w-5 h-5" />
             </div>
             <div>
@@ -980,12 +885,12 @@ export function SettingsView({
             onClick={() => onThemeChange("auto")}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               theme === "auto"
-                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : "bg-surface border-border hover:border-slate-600"
+                ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-surface border-border hover:border-slate-200"
             }`}
             id="btn-set-theme-auto"
           >
-            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-surface text-emerald-400" : "bg-surface text-text-muted"}`}>
+            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-surface text-emerald-700" : "bg-surface text-text-muted"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
@@ -1020,8 +925,8 @@ export function SettingsView({
                 }}
                 className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
                   (activeProfile?.currency || "PLN") === curr
-                    ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                    : "bg-surface border-border hover:border-slate-600"
+                    ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                    : "bg-surface border-border hover:border-slate-200"
                 }`}
               >
                 <div>
@@ -1048,12 +953,12 @@ export function SettingsView({
             onClick={() => saveState({ ...state, aiMode: "none" })}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               (state.aiMode || "none") === "none"
-                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : "bg-surface border-border hover:border-slate-600"
+                ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-surface border-border hover:border-slate-200"
             }`}
             id="btn-set-ai-mode-none"
           >
-            <div className={`p-2 rounded-xl ${(state.aiMode || "none") === "none" ? "bg-surface text-emerald-400" : "bg-surface text-text-muted"}`}>
+            <div className={`p-2 rounded-xl ${(state.aiMode || "none") === "none" ? "bg-surface text-emerald-700" : "bg-surface text-text-muted"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
@@ -1068,12 +973,12 @@ export function SettingsView({
             onClick={() => saveState({ ...state, aiMode: "local", localAiEndpoint: state.localAiEndpoint || "http://localhost:11434/api/generate" })}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
               state.aiMode === "local"
-                ? "bg-emerald-500/100/10 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : "bg-surface border-border hover:border-slate-600"
+                ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
+                : "bg-surface border-border hover:border-slate-200"
             }`}
             id="btn-set-ai-mode-local"
           >
-            <div className={`p-2 rounded-xl ${state.aiMode === "local" ? "bg-surface text-emerald-400" : "bg-surface text-text-muted"}`}>
+            <div className={`p-2 rounded-xl ${state.aiMode === "local" ? "bg-surface text-emerald-700" : "bg-surface text-text-muted"}`}>
               <Cpu className="w-5 h-5" />
             </div>
             <div>
@@ -1101,13 +1006,13 @@ export function SettingsView({
 
         {/* Local AI Endpoint Configuration when Local mode selected */}
         {state.aiMode === "local" && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-3 animate-fade-in">
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3 animate-fade-in">
             <div className="flex justify-between items-center">
               <label className="text-xs font-bold text-text-main">Lokalny punkt końcowy (Endpoint):</label>
               <button
                 type="button"
                 onClick={() => saveState({ ...state, localAiEndpoint: "http://localhost:11434/api/generate" })}
-                className="text-[10px] font-extrabold text-emerald-400 hover:underline cursor-pointer"
+                className="text-[10px] font-extrabold text-emerald-700 hover:underline cursor-pointer"
               >
                 Przywróć domyślny Ollama (11434)
               </button>
@@ -1141,23 +1046,23 @@ export function SettingsView({
                     alert("Błąd sieciowy: Nie udało się połączyć z backendem.");
                   }
                 }}
-                className="px-3 py-2 bg-[#137566] hover:bg-emerald-500/30 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
+                className="px-3 py-2 bg-[#137566] hover:bg-emerald-50 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
                 id="btn-test-local-ai"
               >
                 Testuj połączenie
               </button>
             </div>
             <p className="text-[10px] text-text-muted leading-relaxed">
-              Ze względów bezpieczeństwa zezwalane są wyłącznie połączenia z adresem lokalnym (np. <code className="bg-surface-2 px-1 py-0.5 rounded border text-emerald-400">http://localhost:11434/api/generate</code> lub <code className="bg-surface-2 px-1 py-0.5 rounded border text-emerald-400">127.0.0.1</code>).
+              Ze względów bezpieczeństwa zezwalane są wyłącznie połączenia z adresem lokalnym (np. <code className="bg-surface-2 px-1 py-0.5 rounded border text-emerald-700">http://localhost:11434/api/generate</code> lub <code className="bg-surface-2 px-1 py-0.5 rounded border text-emerald-700">127.0.0.1</code>).
             </p>
             
-            <details className="group border border-emerald-500/30 rounded-xl bg-surface overflow-hidden">
-              <summary className="p-3 text-xs font-bold text-text-main cursor-pointer hover:bg-emerald-500/10 flex justify-between items-center list-none select-none">
+            <details className="group border border-emerald-200 rounded-xl bg-surface overflow-hidden">
+              <summary className="p-3 text-xs font-bold text-text-main cursor-pointer hover:bg-emerald-50 flex justify-between items-center list-none select-none">
                 Jak uruchomić lokalne AI na swoim komputerze?
                 <span className="group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <div className="p-4 border-t border-emerald-500/20 text-xs text-text-muted space-y-4">
-                <p>Aby korzystać z modelu bezpłatnie i z zachowaniem pełnej prywatności (dane nie opuszczają Twojego komputera), zainstaluj silnik <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-medium">Ollama</a>.</p>
+                <p>Aby korzystać z modelu bezpłatnie i z zachowaniem pełnej prywatności (dane nie opuszczają Twojego komputera), zainstaluj silnik <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-700 underline font-medium">Ollama</a>.</p>
                 
                 <div className="space-y-2">
                   <h4 className="font-bold text-text-main text-[13px] flex items-center gap-1.5">🍎 macOS</h4>
@@ -1205,7 +1110,7 @@ export function SettingsView({
             </div>
             <button
               onClick={onOpenPinModal}
-              className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm shrink-0 cursor-pointer"
+              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm shrink-0 cursor-pointer"
               id="btn-set-profile-pin"
             >
               {activeProfile.pinHash ? "Zmień kod PIN" : "Ustaw kod PIN"}
@@ -1218,7 +1123,7 @@ export function SettingsView({
       {(settingsTab === "all" || settingsTab === "backup") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-google-drive-card">
         <div className="flex items-center gap-2 mb-2">
-          <Cloud className="w-5 h-5 text-emerald-400" />
+          <Cloud className="w-5 h-5 text-emerald-700" />
           <h3 className="text-base font-bold text-text-main">Kopia zapasowa w chmurze (Dysk Google)</h3>
         </div>
         <p className="text-xs text-text-muted mb-5 leading-relaxed">
@@ -1226,9 +1131,9 @@ export function SettingsView({
         </p>
 
         {googleError && (
-          <div className="mb-5 p-4 bg-rose-500/10 border border-rose-200 rounded-xl text-rose-800 text-xs space-y-2" id="gdrive-auth-error-notice">
+          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs space-y-2" id="gdrive-auth-error-notice">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-rose-700 shrink-0 mt-0.5" />
               <div className="font-bold text-rose-900">Błąd połączenia z kontem Google</div>
             </div>
             {googleError === "auth/popup-closed-by-user" ? (
@@ -1239,7 +1144,7 @@ export function SettingsView({
                 <p>
                   Jeśli korzystasz z aplikacji wewnątrz ramki podglądu (iframe) w AI Studio, przeglądarka mogła automatycznie zablokować wyskakujące okienko (pop-up) lub zablokować dostęp do plików cookies firm trzecich.
                 </p>
-                <p className="font-bold text-emerald-400">
+                <p className="font-bold text-emerald-700">
                   💡 Aby rozwiązać ten problem:
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
@@ -1253,14 +1158,14 @@ export function SettingsView({
                   Szczegóły błędu: <code className="bg-rose-100/50 px-1 py-0.5 rounded font-mono text-[11px]">{googleError}</code>.
                 </p>
                 {googleError?.includes('unauthorized-domain') || googleError?.includes('nie jest autoryzowana') ? (
-                  <div className="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 mt-2">
+                  <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 mt-2">
                     <p className="font-bold text-amber-900 mb-1">⚠️ Wymagana konfiguracja w Firebase</p>
                     <p className="text-amber-800 text-xs">
                       Aktualna domena nie jest dodana do autoryzowanych domen w Twoim projekcie Firebase.
                       Aby to naprawić:
                     </p>
                     <ol className="list-decimal pl-5 mt-1 space-y-1 text-amber-800 text-xs font-medium">
-                      <li>Wejdź na stronę <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-amber-400">console.firebase.google.com</a></li>
+                      <li>Wejdź na stronę <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-amber-700">console.firebase.google.com</a></li>
                       <li>Wybierz swój projekt</li>
                       <li>Przejdź do <strong>Authentication</strong> &gt; <strong>Settings</strong> (Ustawienia) &gt; <strong>Authorized domains</strong> (Autoryzowane domeny)</li>
                       <li>Dodaj domenę: <code className="bg-amber-100 px-1 rounded select-all">{window.location.hostname}</code></li>
@@ -1282,7 +1187,7 @@ export function SettingsView({
             <button
               onClick={onConnectGoogle}
               disabled={isGoogleLoading}
-              className="inline-flex items-center gap-2 bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-3 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition disabled:opacity-50 cursor-pointer shadow-md"
+              className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-3 px-6 rounded-xl text-xs hover:bg-emerald-50 transition disabled:opacity-50 cursor-pointer shadow-md"
               id="btn-google-drive-connect"
             >
               {isGoogleLoading ? (
@@ -1305,9 +1210,9 @@ export function SettingsView({
                   Aby zapewnić Ci kopię zapasową oraz możliwość synchronizacji między urządzeniami (np. telefonem a komputerem), 
                   oferujemy zapis do prywatnego, ukrytego pliku na Twoim koncie Google Drive.
                 </p>
-                <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
+                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-500/20">
                   <span className="font-bold text-emerald-800 block mb-1">Pełna prywatność:</span>
-                  Aplikacja prosi wyłącznie o dostęp typu <code className="bg-surface px-1 py-0.5 rounded border text-emerald-400 text-[10px]">drive.file</code>. 
+                  Aplikacja prosi wyłącznie o dostęp typu <code className="bg-surface px-1 py-0.5 rounded border text-emerald-700 text-[10px]">drive.file</code>. 
                   Oznacza to, że ma dostęp <strong>tylko i wyłącznie</strong> do plików, które sama utworzyła. Nie mamy dostępu do Twoich prywatnych zdjęć ani dokumentów!
                 </div>
               </div>
@@ -1315,17 +1220,17 @@ export function SettingsView({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-emerald-500/10/50 border border-emerald-500/20 rounded-xl gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-emerald-50 border border-emerald-500/20 rounded-xl gap-4">
               <div className="flex items-center gap-3">
                 {googleUser.photoURL ? (
                   <img
                     src={googleUser.photoURL}
                     referrerPolicy="no-referrer"
                     alt={googleUser.displayName || "Google User"}
-                    className="w-10 h-10 rounded-full border border-emerald-500/30"
+                    className="w-10 h-10 rounded-full border border-emerald-200"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-sm">
                     {getInitials(googleUser.displayName || googleUser.email || "G")}
                   </div>
                 )}
@@ -1339,7 +1244,7 @@ export function SettingsView({
               </div>
               <button
                 onClick={onDisconnectGoogle}
-                className="text-[11px] font-bold text-text-muted hover:text-rose-400 transition flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-text-muted hover:text-rose-700 transition flex items-center gap-1 cursor-pointer"
                 id="btn-google-drive-disconnect"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -1368,7 +1273,7 @@ export function SettingsView({
               <button
                 onClick={onSyncToDrive}
                 disabled={isDriveActionLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-emerald-500/30 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-emerald-50 transition disabled:opacity-50 cursor-pointer shadow-sm"
                 id="btn-google-drive-upload"
               >
                 {isDriveActionLoading ? (
@@ -1381,7 +1286,7 @@ export function SettingsView({
               <button
                 onClick={onLoadFromDrive}
                 disabled={isDriveActionLoading || !gdriveFileId}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-400 transition disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-muted py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-muted py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
                 id="btn-google-drive-download"
               >
                 {isDriveActionLoading ? (
@@ -1397,7 +1302,7 @@ export function SettingsView({
             <div className="flex items-center justify-between p-4 bg-surface/50 border border-border rounded-xl">
               <div className="pr-4">
                 <strong className="text-xs font-bold text-text-main flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-700 animate-pulse" />
                   Automatyczny zapis (Auto-Sync)
                 </strong>
                 <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
@@ -1411,7 +1316,7 @@ export function SettingsView({
                   onChange={(e) => onToggleDriveAutoSync(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
+                <div className="w-11 h-6 bg-slate-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#137566]"></div>
               </label>
             </div>
             <p className="text-[10px] text-text-muted italic text-center">
@@ -1530,7 +1435,7 @@ export function SettingsView({
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="bg-emerald-500/100/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/100/30 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-500/30 transition shadow-sm cursor-pointer"
+              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm cursor-pointer"
             >
               ＋ Dodaj harmonogram płatności
             </button>
@@ -1580,7 +1485,7 @@ export function SettingsView({
                         <td className="py-2.5 px-3 text-text-muted">
                           {r.account}
                         </td>
-                        <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-400"}`}>
+                        <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-emerald-600" : "text-rose-700"}`}>
                           {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {activeProfile?.currency || "PLN"}
                         </td>
                         <td className="py-2.5 px-3 text-center">
@@ -1589,7 +1494,7 @@ export function SettingsView({
                             onClick={() => handleToggleRecurringRule(r.id)}
                             className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold cursor-pointer border ${
                               r.isActive
-                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700"
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                 : "bg-surface border-border text-text-muted"
                             }`}
                           >
@@ -1620,7 +1525,7 @@ export function SettingsView({
       {(settingsTab === "all" || settingsTab === "automation" || settingsTab === "backup") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-sync-security-card">
         <h3 className="text-base font-bold text-text-main mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-emerald-400" />
+          <Shield className="w-5 h-5 text-emerald-700" />
           Synchronizacja i bezpieczeństwo
         </h3>
         
@@ -1634,14 +1539,14 @@ export function SettingsView({
                   <h4 className="text-sm font-bold text-text-main">Konto chmurowe</h4>
                   {googleUser ? (
                     <div className="mt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800">
                         <CheckCircle className="w-3 h-3" /> Zalogowano
                       </span>
                       <p className="text-[11px] text-text-muted mt-1 truncate">{googleUser.email}</p>
                     </div>
                   ) : (
                     <div className="mt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-text-muted">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-text-muted">
                         Tryb lokalny
                       </span>
                     </div>
@@ -1653,7 +1558,7 @@ export function SettingsView({
                       googleUser ? (
                         <span className="text-[11px] font-medium text-emerald-600">Aktywna (Synchronizacja w czasie rzeczywistym)</span>
                       ) : (
-                        <span className="text-[11px] font-medium text-amber-400">Gotowa (Wymaga logowania)</span>
+                        <span className="text-[11px] font-medium text-amber-700">Gotowa (Wymaga logowania)</span>
                       )
                     ) : (
                       <span className="text-[11px] font-medium text-text-muted">Brak konfiguracji</span>
@@ -1673,7 +1578,7 @@ export function SettingsView({
                     {state.aiMode === "cloud" && (
                       <button
                         onClick={() => saveState({ ...state, aiMode: "none" })}
-                        className="text-[10px] font-bold text-rose-400 hover:underline"
+                        className="text-[10px] font-bold text-rose-700 hover:underline"
                       >
                         Wyłącz w chmurze
                       </button>
@@ -1685,11 +1590,11 @@ export function SettingsView({
                         AI w chmurze
                       </span>
                     ) : state.aiMode === "local" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800">
                         AI Lokalne
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-text-muted">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-text-muted">
                         Brak AI
                       </span>
                     )}
@@ -1715,7 +1620,7 @@ export function SettingsView({
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-text-muted">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-text-muted">
                         Niepołączony
                       </span>
                     )}
@@ -1724,7 +1629,7 @@ export function SettingsView({
                       <button
                         onClick={onConnectGoogle}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-emerald-400 hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50"
                       >
                         Połącz Dysk Google
                       </button>
@@ -1739,7 +1644,7 @@ export function SettingsView({
                       <button
                         onClick={onSyncToDrive}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-emerald-400 hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50"
                       >
                         Wykonaj kopię teraz
                       </button>
@@ -1760,7 +1665,7 @@ export function SettingsView({
                         <CheckCircle className="w-3 h-3" /> Połączony
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-text-muted">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-text-muted">
                         Niepołączony
                       </span>
                     )}
@@ -1768,7 +1673,7 @@ export function SettingsView({
                     {!calendarToken && onConnectCalendar && (
                       <button
                         onClick={onConnectCalendar}
-                        className="text-[10px] font-bold text-emerald-400 hover:underline"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline"
                       >
                         Połącz Kalendarz Google
                       </button>
@@ -1786,11 +1691,11 @@ export function SettingsView({
                   <div className="mt-1 flex justify-between items-center">
                     {activeProfile?.pinHash ? (
                       <>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-800">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800">
                           Aktywne
                         </span>
                         {unlockedProfileId !== activeProfile.id ? (
-                          <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
                             <Lock className="w-3 h-3" /> Zablokowany
                           </span>
                         ) : (
@@ -1800,7 +1705,7 @@ export function SettingsView({
                         )}
                       </>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-text-muted">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-text-muted">
                         Nieaktywne
                       </span>
                     )}
@@ -1808,7 +1713,7 @@ export function SettingsView({
                     {activeProfile?.pinHash && unlockedProfileId !== activeProfile.id && (
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[10px] font-bold text-emerald-400 hover:underline"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline"
                       >
                         Odblokuj profil
                       </button>
@@ -1839,8 +1744,8 @@ export function SettingsView({
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 ${
               dragActive
-                ? "border-emerald-500/50 bg-emerald-500/100/10"
-                : "border-border hover:border-slate-600 bg-surface"
+                ? "border-emerald-500/50 bg-emerald-50"
+                : "border-border hover:border-slate-200 bg-surface"
             }`}
             onClick={() => document.getElementById("local-backup-file-input")?.click()}
           >
@@ -1859,12 +1764,12 @@ export function SettingsView({
           </div>
         ) : (
           /* File Preview Card before actual restoration - VERY PREMIUM! */
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 mb-4 space-y-3">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4 space-y-3">
             <div className="flex items-start gap-2.5">
-              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="text-xs font-black text-amber-800">Podgląd wczytywanego pliku</strong>
-                <p className="text-[10px] text-amber-400 mt-0.5">
+                <p className="text-[10px] text-amber-700 mt-0.5">
                   Wczytanie tych danych zastąpi wszystkie obecne profile i ich transakcje. Sprawdź zawartość pliku przed zatwierdzeniem:
                 </p>
               </div>
@@ -1877,7 +1782,7 @@ export function SettingsView({
               </div>
               <div className="flex justify-between text-[11px] text-text-muted">
                 <span>Dostępne profile:</span>
-                <strong className="text-emerald-400 truncate max-w-[180px]">
+                <strong className="text-emerald-700 truncate max-w-[180px]">
                   {filePreview.profiles?.map((p) => p.name).join(", ") || "Brak"}
                 </strong>
               </div>
@@ -1917,7 +1822,7 @@ export function SettingsView({
                     downloadFile(csv, `saldo-${activeProfile.name}-transakcje.csv`, "text/csv;charset=utf-8;");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 📊 Pobierz CSV
               </button>
@@ -1928,7 +1833,7 @@ export function SettingsView({
                     generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 📄 Pobierz raport PDF
               </button>
@@ -1944,7 +1849,7 @@ export function SettingsView({
                   const json = JSON.stringify(safeState, null, 2);
                   downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 🔒 Eksport zaszyfrowanej kopii
               </button>
@@ -1959,7 +1864,7 @@ export function SettingsView({
                     downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-400 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
               >
                 🔓 Eksport czytelnych danych
               </button>
@@ -1968,7 +1873,7 @@ export function SettingsView({
 
           <button
             onClick={onResetData}
-            className="w-full bg-rose-500/10 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
+            className="w-full bg-rose-50 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
             id="btn-reset-db-data"
           >
             ⚠️ Przywróć stan początkowy (Usuń wszystko)

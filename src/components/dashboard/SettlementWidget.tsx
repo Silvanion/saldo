@@ -66,13 +66,13 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
   if (historyNet > 0) {
     statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet, profile?.currency || 'PLN')}`;
-    statusColor = "text-emerald-400";
-    bgColor = "bg-emerald-900/20 border-emerald-500/30  shadow-sm relative overflow-hidden";
+    statusColor = "text-emerald-700";
+    bgColor = "bg-emerald-900/20 border-emerald-200  shadow-sm relative overflow-hidden";
     dropShadowClass = "drop-";
   } else if (historyNet < 0) {
     statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet), profile?.currency || 'PLN')}`;
-    statusColor = "text-rose-400";
-    bgColor = "bg-rose-900/20 border-rose-500/30  shadow-sm relative overflow-hidden";
+    statusColor = "text-rose-700";
+    bgColor = "bg-rose-900/20 border-rose-200  shadow-sm relative overflow-hidden";
     dropShadowClass = "drop-";
   }
 
@@ -95,7 +95,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-slate-600  pb-0.5">
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-slate-200  pb-0.5">
               Do rozliczenia (Historia)
             </p>
           </DelayedTooltip>
@@ -112,7 +112,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={handleOpenModal}
               id="open-settlement-modal-btn"
-              className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl transition  "
+              className="px-4 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl transition  "
             >
               Rozlicz
             </button>
@@ -122,7 +122,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={() => setShowHistory(!showHistory)}
               id="settlement-history-toggle-btn"
-              className="px-4 py-2 bg-surface/50 border border-border hover:bg-slate-700 text-text-muted text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-inner "
+              className="px-4 py-2 bg-surface/50 border border-border hover:bg-slate-100 text-text-muted text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-inner "
             >
               <History className="w-4 h-4 text-text-muted" />
               Historia ({settlementsList.length})
@@ -154,14 +154,14 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     {s.note && <p className="text-text-muted text-[11px] mt-0.5">{s.note}</p>}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-bold ${isPartnerPaid ? 'text-emerald-400 drop-' : 'text-blue-400 drop-'}`}>
+                    <span className={`font-bold ${isPartnerPaid ? 'text-emerald-700 drop-' : 'text-blue-400 drop-'}`}>
                       {isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}
                     </span>
                     {onDeleteSettlement && (
                       <button
                         onClick={() => onDeleteSettlement(s.id)}
                         id={`delete-settlement-${s.id}`}
-                        className="p-1 text-text-faint hover:text-rose-400 hover:drop- transition cursor-pointer"
+                        className="p-1 text-text-faint hover:text-rose-700 hover:drop- transition cursor-pointer"
                         title="Usuń wpis rozliczenia"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+              <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
@@ -212,8 +212,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     onClick={() => setDirection('partner_paid_me')}
                     className={`py-2 px-3 text-xs font-bold rounded-xl border transition ${
                       direction === 'partner_paid_me'
-                        ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 '
-                        : 'bg-surface border-border text-text-muted hover:bg-slate-700'
+                        ? 'bg-emerald-50 border-emerald-500/50 text-emerald-700 '
+                        : 'bg-surface border-border text-text-muted hover:bg-slate-100'
                     }`}
                   >
                     {partnerName} oddał(a) mi
@@ -224,7 +224,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     className={`py-2 px-3 text-xs font-bold rounded-xl border transition ${
                       direction === 'i_paid_partner'
                         ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 '
-                        : 'bg-surface border-border text-text-muted hover:bg-slate-700'
+                        : 'bg-surface border-border text-text-muted hover:bg-slate-100'
                     }`}
                   >
                     Ja oddałem(am) {partnerName}
@@ -288,7 +288,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                 <button
                   type="submit"
                   id="settlement-submit-btn"
-                  className="px-5 py-2 bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl transition "
+                  className="px-5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl transition "
                 >
                   Zapisz rozliczenie
                 </button>

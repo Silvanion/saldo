@@ -66,7 +66,7 @@ export function DriveConflictModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-xl text-text-muted hover:text-text-muted hover:bg-slate-700/50 transition"
+            className="p-1 rounded-xl text-text-muted hover:text-text-muted hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,7 +155,7 @@ export function DriveConflictModal({
         <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t border-border justify-end">
           <button
             onClick={() => onResolve("cancel")}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 text-text-main font-bold text-xs hover:bg-slate-700/50 transition flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 text-text-main font-bold text-xs hover:bg-slate-100 transition flex items-center justify-center gap-1.5"
           >
             <X className="w-3.5 h-3.5" />
             Anuluj

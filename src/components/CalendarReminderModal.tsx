@@ -231,7 +231,7 @@ export function CalendarReminderModal({
         {/* Header */}
         <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-700/50 text-text-muted flex items-center justify-center shadow-sm border border-border">
+            <div className="w-10 h-10 rounded-2xl bg-slate-100 text-text-muted flex items-center justify-center shadow-sm border border-border">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -241,7 +241,7 @@ export function CalendarReminderModal({
           </div>
           <button 
             onClick={onClose}
-            className="text-text-muted hover:text-text-main hover:bg-slate-700/50 p-2 rounded-xl transition cursor-pointer"
+            className="text-text-muted hover:text-text-main hover:bg-slate-100 p-2 rounded-xl transition cursor-pointer"
             id="btn-close-calendar-modal"
           >
             ✕
@@ -369,7 +369,7 @@ export function CalendarReminderModal({
                             className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                               isSelected
                                 ? "bg-[#137566] text-white border-[#137566] shadow-sm scale-105"
-                                : "bg-surface text-text-muted border-border hover:bg-slate-700/50 hover:border-slate-300"
+                                : "bg-surface text-text-muted border-border hover:bg-slate-100 hover:border-slate-300"
                             }`}
                           >
                             {rem.label} {isSelected && "✓"}

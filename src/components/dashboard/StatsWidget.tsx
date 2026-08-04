@@ -33,11 +33,11 @@ export const StatsWidget = memo(function StatsWidget({
         {/* Income Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group">
           <div className="absolute inset-0  rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-emerald-500/20 text-emerald-400 p-2 rounded-xl text-xl font-bold ">
+          <span className="absolute top-4 right-4 bg-emerald-50 text-emerald-700 p-2 rounded-xl text-xl font-bold ">
             ↗
           </span>
           <p className="text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10">Przychody</p>
-          <h2 className="text-2xl font-bold text-emerald-400 mb-1 relative z-10 " id="dash-income-total">
+          <h2 className="text-2xl font-bold text-emerald-700 mb-1 relative z-10 " id="dash-income-total">
             {formatMoney(totalIncome, currency)}
           </h2>
           <small className="text-[11px] text-text-faint font-medium relative z-10">W tym okresie rozliczeniowym</small>
@@ -46,11 +46,11 @@ export const StatsWidget = memo(function StatsWidget({
         {/* Expense Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group">
           <div className="absolute inset-0  rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-rose-500/20 text-rose-400 p-2 rounded-xl text-xl font-bold ">
+          <span className="absolute top-4 right-4 bg-rose-50 text-rose-700 p-2 rounded-xl text-xl font-bold ">
             ↙
           </span>
           <p className="text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10">Wydatki</p>
-          <h2 className="text-2xl font-bold text-rose-400 mb-1 relative z-10 " id="dash-expense-total">
+          <h2 className="text-2xl font-bold text-rose-700 mb-1 relative z-10 " id="dash-expense-total">
             {formatMoney(totalExpense, currency)}
           </h2>
           <small className="text-[11px] text-text-faint font-medium relative z-10">
@@ -61,30 +61,30 @@ export const StatsWidget = memo(function StatsWidget({
         {/* Balance Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group">
           <div className="absolute inset-0  rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-amber-500/20 text-amber-400 p-2 rounded-xl text-xl font-bold ">
+          <span className="absolute top-4 right-4 bg-amber-50 text-amber-700 p-2 rounded-xl text-xl font-bold ">
             ◎
           </span>
           <p className="text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10">Pozostaje (Bilans)</p>
 
-          <h2 className={`text-2xl font-bold mb-1 relative z-10  ${balance >= 0 ? "text-amber-400" : "text-rose-400"}`} id="dash-balance-total">
+          <h2 className={`text-2xl font-bold mb-1 relative z-10  ${balance >= 0 ? "text-amber-700" : "text-rose-700"}`} id="dash-balance-total">
             {formatMoney(balance, currency)}
           </h2>
           <DelayedTooltip
             label="Aktualna nadwyżka finansowa (suma przychodów minus suma wydatków w wybranym miesiącu)."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <small className="text-[11px] text-text-muted font-medium cursor-help border-b border-dashed border-slate-600 relative z-10 pb-0.5">
+            <small className="text-[11px] text-text-muted font-medium cursor-help border-b border-dashed border-slate-200 relative z-10 pb-0.5">
               Co to znaczy?
             </small>
           </DelayedTooltip>
           <div className="flex flex-col gap-1 mt-2 relative z-10">
             {emergencyLimit > 0 && (
-              <div className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold w-fit tracking-wide shadow-sm">
+              <div className="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold w-fit tracking-wide shadow-sm">
                 Limit awaryjny: {formatMoney(emergencyLimit, currency)}
               </div>
             )}
             {investmentCushion > 0 && (
-              <div className="text-[10px] bg-slate-700/50 text-text-muted px-2.5 py-1 rounded-md border border-slate-600/50 font-bold w-fit tracking-wide shadow-sm">
+              <div className="text-[10px] bg-slate-100 text-text-muted px-2.5 py-1 rounded-md border border-slate-200 font-bold w-fit tracking-wide shadow-sm">
                 Poduszka fin.: {formatMoney(investmentCushion, currency)}
               </div>
             )}
@@ -113,24 +113,24 @@ export const StatsWidget = memo(function StatsWidget({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-border relative z-10">
             <div className="bg-surface p-3.5 rounded-xl border border-border shadow-inner">
               <span className="text-[10px] uppercase font-semibold text-text-muted block mb-1">Planowane Wydatki</span>
-              <span className="text-lg font-bold text-rose-400">{formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}</span>
+              <span className="text-lg font-bold text-rose-700">{formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}</span>
             </div>
 
             <div className="bg-surface p-3.5 rounded-xl border border-border shadow-inner">
               <span className="text-[10px] uppercase font-semibold text-text-muted block mb-1">Plan. Przychody</span>
-              <span className="text-lg font-bold text-emerald-400">{formatMoney(endOfMonthForecast.futureRecurringIncomesSum, currency)}</span>
+              <span className="text-lg font-bold text-emerald-700">{formatMoney(endOfMonthForecast.futureRecurringIncomesSum, currency)}</span>
             </div>
 
             <div className="bg-surface-2 p-3.5 rounded-xl border border-violet-500/30 ">
               <span className="text-[10px] uppercase font-semibold text-violet-300 block mb-1">Prognozowane Saldo</span>
-              <span className={`text-lg font-black  ${endOfMonthForecast.forecastedBalance >= 0 ? "text-amber-400" : "text-rose-400"}`}>
+              <span className={`text-lg font-black  ${endOfMonthForecast.forecastedBalance >= 0 ? "text-amber-700" : "text-rose-700"}`}>
                 {formatMoney(endOfMonthForecast.forecastedBalance, currency)}
               </span>
             </div>
           </div>
 
           {endOfMonthForecast.isNegative && (
-            <div className="mt-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-xs text-rose-300 flex items-center gap-2 animate-pulse  relative z-10">
+            <div className="mt-3.5 bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-700 flex items-center gap-2 animate-pulse  relative z-10">
               <span>⚠️</span>
               <span><strong>Uwaga:</strong> Zbliżasz się do debetu! Prognozowane wydatki w tym miesiącu przekroczą dostępne środki.</span>
             </div>
@@ -142,19 +142,19 @@ export const StatsWidget = memo(function StatsWidget({
           id="safe-amount-to-spend-card"
           className={`border rounded-2xl p-5 shadow-sm transition-all relative overflow-hidden  ${
             safeBreakdown.isNegative
-              ? "bg-rose-900/20 border-rose-500/30"
+              ? "bg-rose-900/20 border-rose-200"
               : "bg-surface border-border hover:bg-surface"
           }`}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${safeBreakdown.isNegative ? "from-rose-500/5" : "from-amber-500/5"} to-transparent`} />
+          {/* Glow/Gradient removed for clean solid look */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
             <div className="flex items-center gap-3">
               <span className="text-2xl ">🛡️</span>
               <div>
-                <h3 className={`text-sm font-bold ${safeBreakdown.isNegative ? "text-rose-400" : "text-amber-400"} `}>
+                <h3 className={`text-sm font-bold ${safeBreakdown.isNegative ? "text-rose-700" : "text-amber-700"} `}>
                   Bezpieczna Kwota do Wydania
                 </h3>
-                <p className={`text-[11px] font-medium mt-0.5 ${safeBreakdown.isNegative ? "text-rose-300/70" : "text-text-muted"}`}>
+                <p className={`text-[11px] font-medium mt-0.5 ${safeBreakdown.isNegative ? "text-rose-700/70" : "text-text-muted"}`}>
                   Po odliczeniu nadchodzących opłat i celów
                 </p>
               </div>
@@ -163,8 +163,8 @@ export const StatsWidget = memo(function StatsWidget({
               onClick={() => onChangeView("analysis")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap shadow-sm border  ${
                 safeBreakdown.isNegative 
-                ? "bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border-rose-500/30" 
-                : "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border-amber-500/30"
+                ? "bg-rose-50 text-rose-700 hover:bg-rose-50 border-rose-200" 
+                : "bg-amber-50 text-amber-700 hover:bg-amber-50 border-amber-200"
               }`}
             >
               Zobacz Analizę →
@@ -174,7 +174,7 @@ export const StatsWidget = memo(function StatsWidget({
           <div className="mt-5 pt-4 border-t border-border flex items-center justify-between relative z-10">
             <div className="flex-1">
               <span className="text-[10px] uppercase tracking-wider font-bold text-text-muted block mb-0.5">Dostępne dzisiaj</span>
-              <span className={`text-2xl sm:text-3xl font-black  ${safeBreakdown.isNegative ? "text-rose-400" : "text-amber-400"}`}>
+              <span className={`text-2xl sm:text-3xl font-black  ${safeBreakdown.isNegative ? "text-rose-700" : "text-amber-700"}`}>
                 {formatMoney(safeBreakdown.safeToSpend, currency)}
               </span>
             </div>
@@ -186,7 +186,7 @@ export const StatsWidget = memo(function StatsWidget({
                     label="Środki przypisane do Twoich celów oszczędnościowych. Nie są uwzględniane w bezpiecznej kwocie do wydania."
                     tooltipClassName="w-48 bg-surface border-border text-text-main"
                   >
-                    <span className="text-[11px] font-medium text-text-muted cursor-help border-b border-dashed border-slate-600 pb-0.5">
+                    <span className="text-[11px] font-medium text-text-muted cursor-help border-b border-dashed border-slate-200 pb-0.5">
                       Zarezerwowane
                     </span>
                   </DelayedTooltip>

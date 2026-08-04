@@ -221,7 +221,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             </h2>
             <p className="text-xs text-text-muted font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
           </div>
-          <button onClick={onClose} className="text-text-muted hover:text-text-muted transition p-2 bg-surface hover:bg-slate-700/50 rounded-full">
+          <button onClick={onClose} className="text-text-muted hover:text-text-muted transition p-2 bg-surface hover:bg-slate-100 rounded-full">
             <span className="sr-only">Zamknij</span>
             &times;
           </button>
@@ -375,7 +375,7 @@ import { formatMoney } from "../utils/format";
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <h3 className="text-sm font-bold text-text-main">Mapowanie kolumn z {fileName}</h3>
-                <span className="text-[11px] font-mono bg-slate-700/50 text-text-muted px-2.5 py-1 rounded-md">
+                <span className="text-[11px] font-mono bg-slate-100 text-text-muted px-2.5 py-1 rounded-md">
                   Wykryty separator: <strong className="text-white">&quot;{detectedDelimiter}&quot;</strong>
                 </span>
               </div>
@@ -503,7 +503,7 @@ import { formatMoney } from "../utils/format";
                         </td>
                         <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
                         <td className="py-2 px-3">
-                          <span className="inline-flex items-center gap-1 bg-slate-700/50 px-2 py-0.5 rounded-full text-[10px]">
+                          <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
                             <span>{tx.categoryIcon}</span>
                             {tx.category}
                           </span>

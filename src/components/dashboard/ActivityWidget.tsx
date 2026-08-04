@@ -36,7 +36,7 @@ export const ActivityWidget = memo(function ActivityWidget({
 
       <div className="flex-1 flex flex-col justify-center relative z-10">
         {recentTransactions.length === 0 ? (
-          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-slate-600/50 h-full flex flex-col justify-center">
+          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center">
             <div className="text-2xl mb-1 opacity-50 ">🧾</div>
             <p className="text-xs text-text-muted font-medium">
               {profileKind === "shared" ? "Dodaj pierwszy wspólny wydatek" : "Brak niedawnych transakcji."}
@@ -48,7 +48,7 @@ export const ActivityWidget = memo(function ActivityWidget({
               <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-surface hover:bg-surface-2 transition shadow-inner group">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
-                    t.type === 'income' ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-surface border-slate-600 text-text-muted'
+                    t.type === 'income' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-surface border-slate-200 text-text-muted'
                   } group-hover: transition-shadow`}>
                     <span className="text-sm ">
                       {iconByCategory[t.category] || "📄"}
@@ -58,7 +58,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                     <p className="text-xs font-bold text-text-main truncate flex items-center gap-1.5 group-hover:text-purple-300 transition-colors">
                       {t.name || t.category}
                       {t.paidBy && (
-                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-surface text-text-muted border border-slate-600/60 whitespace-nowrap">
+                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-surface text-text-muted border border-slate-200 whitespace-nowrap">
                           {t.paidBy === 'me' ? 'Ja' : t.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                           {t.splitMode === 'equal' ? ' (50-50)' : ''}
                         </span>
@@ -68,7 +68,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                   </div>
                 </div>
                 <div className="text-right shrink-0 pl-2">
-                  <p className={`text-xs font-black ${t.type === 'income' ? 'text-emerald-400 drop-' : 'text-text-main'}`}>
+                  <p className={`text-xs font-black ${t.type === 'income' ? 'text-emerald-700 drop-' : 'text-text-main'}`}>
                     {t.type === 'income' ? '+' : '-'}{formatMoney(t.amount, t.currency || currency)}
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export const ActivityWidget = memo(function ActivityWidget({
       <div className="pt-4 mt-4 border-t border-border relative z-10">
         <button
           onClick={() => onOpenTxModal()}
-          className="w-full py-2.5 bg-surface hover:bg-surface-2 text-text-muted text-xs font-bold rounded-xl transition-colors border border-slate-600/50 shadow-inner flex items-center justify-center hover: hover:border-slate-500/50"
+          className="w-full py-2.5 bg-surface hover:bg-surface-2 text-text-muted text-xs font-bold rounded-xl transition-colors border border-slate-200 shadow-inner flex items-center justify-center hover: hover:border-slate-300/50"
         >
           + Szybki zapis
         </button>

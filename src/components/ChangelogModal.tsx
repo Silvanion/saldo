@@ -27,7 +27,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           </div>
           <button 
             onClick={onClose}
-            className="p-2 text-text-muted hover:bg-slate-700/50 rounded-xl transition"
+            className="p-2 text-text-muted hover:bg-slate-100 rounded-xl transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -39,7 +39,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
             <div key={release.version} className="relative pl-6 sm:pl-8">
               {/* Timeline Line */}
               {index !== changelogData.length - 1 && (
-                <div className="absolute left-2.5 sm:left-[21px] top-8 bottom-[-32px] w-0.5 bg-slate-700/50" />
+                <div className="absolute left-2.5 sm:left-[21px] top-8 bottom-[-32px] w-0.5 bg-slate-100" />
               )}
               
               {/* Timeline Dot/Icon */}
@@ -58,7 +58,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
                       {release.title}
                     </div>
                   </div>
-                  <span className="self-start sm:self-auto px-2.5 py-0.5 rounded-full bg-slate-700/50 text-xs font-bold text-text-muted">
+                  <span className="self-start sm:self-auto px-2.5 py-0.5 rounded-full bg-slate-100 text-xs font-bold text-text-muted">
                     {release.date}
                   </span>
                 </div>

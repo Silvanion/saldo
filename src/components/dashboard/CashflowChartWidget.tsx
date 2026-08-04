@@ -50,7 +50,7 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
                 style={{ height: `${d.expenseHeight}%` }}
               ></div>
             </div>
-            <span className={`text-[9px] mt-2 uppercase tracking-widest ${d.isCurrent ? 'font-black text-amber-400 drop-' : 'font-medium text-text-faint group-hover/bar:text-text-muted'}`}>
+            <span className={`text-[9px] mt-2 uppercase tracking-widest ${d.isCurrent ? 'font-black text-amber-700 drop-' : 'font-medium text-text-faint group-hover/bar:text-text-muted'}`}>
               {d.label}
             </span>
           </div>

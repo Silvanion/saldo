@@ -81,7 +81,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           <div>
             <label className="block text-xs font-semibold text-white mb-1">Ikona profilu</label>
             <details className="group border border-border rounded-xl relative">
-              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-slate-700/50 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border">
+              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{avatar}</span>
                   <span>Wybierz ikonę profilu</span>
@@ -100,7 +100,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-surface border-border hover:bg-slate-700/50 grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-surface border-border hover:bg-slate-100 grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -157,7 +157,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
             <p className="text-[11px] text-text-muted mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
-          <div className="rounded-xl bg-slate-700/50 p-4">
+          <div className="rounded-xl bg-slate-100 p-4">
             <p className="text-[12px] text-white leading-relaxed">
               <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
             </p>

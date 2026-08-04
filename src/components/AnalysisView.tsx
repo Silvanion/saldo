@@ -190,16 +190,16 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   return (
     <div className="space-y-6 pb-12" id="analysis-view-container">
       {/* Report download header */}
-      <div className="bg-gradient-to-br from-emerald-900/40 to-slate-900/80 border border-emerald-500/30 p-6 rounded-2xl text-white shadow-lg  flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold">Miesięczny Raport PDF</h2>
-          <p className="text-xs text-emerald-100 mt-1 max-w-xl">
+          <h2 className="text-xl font-bold text-emerald-950 dark:text-emerald-100">Miesięczny Raport PDF</h2>
+          <p className="text-xs text-emerald-800 dark:text-emerald-200/80 mt-1 max-w-xl">
             Pobierz oficjalny, zoptymalizowany i przejrzyście sformatowany dokument PDF zawierający pełną strukturę Twoich wydatków, stan opłat i oszczędności w wybranym miesiącu. Idealny do wydruku lub archiwizacji.
           </p>
         </div>
         <button
           onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN")}
-          className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-500/30 transition shadow-sm self-start md:self-auto text-sm"
+          className="bg-white dark:bg-emerald-900 text-emerald-700 dark:text-emerald-100 border border-emerald-200 dark:border-emerald-800 font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-800 transition shadow-sm self-start md:self-auto text-sm"
           id="btn-download-pdf-report"
         >
           📥 Pobierz raport (PDF)
@@ -215,15 +215,15 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 bg-surface rounded-xl">
                 <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Przychody</p>
-                <p className="text-sm font-bold text-emerald-400">{formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}</p>
+                <p className="text-sm font-bold text-emerald-700">{formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}</p>
               </div>
               <div className="p-3 bg-surface rounded-xl">
                 <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Wydatki</p>
-                <p className="text-sm font-bold text-rose-400">{formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}</p>
+                <p className="text-sm font-bold text-rose-700">{formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}</p>
               </div>
               <div className="p-3 bg-surface rounded-xl">
                 <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Bilans</p>
-                <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
                   {formatMoney(monthlyDigest.balance, profile.currency || 'PLN')}
                 </p>
               </div>
@@ -247,9 +247,9 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 key={idx}
                 className={`p-4 rounded-xl border flex items-start gap-3.5 transition ${
                   ins.type === "success"
-                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                     : ins.type === "warning"
-                    ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                    ? "bg-rose-50 border-rose-200 text-rose-700"
                     : "bg-blue-500/10 border-blue-500/30 text-blue-400"
                 }`}
               >
@@ -297,7 +297,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                             checked={isVisible}
                             onChange={(e) => setUserToggles(prev => ({ ...prev, [cat]: e.target.checked }))}
                           />
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-emerald-500/80 border-[#137566] text-white' : 'border-slate-600'}`}>
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-emerald-50 border-[#137566] text-white' : 'border-slate-200'}`}>
                             {isVisible && <Check className="w-3 h-3" />}
                           </div>
                           <span className="text-xs text-text-muted">{cat}</span>
@@ -317,22 +317,22 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 const hasLimit = cat.limit > 0;
                 const limitPct = hasLimit ? (cat.spent / cat.limit) * 100 : 0;
                 
-                let barColor = "bg-emerald-500/80";
+                let barColor = "bg-emerald-50";
                 let badgeClass = "";
                 let badgeText = "";
                 
                 if (hasLimit) {
                   if (limitPct > 100) {
                     barColor = "bg-rose-500";
-                    badgeClass = "bg-rose-500/10 text-rose-400 border-rose-500/30";
+                    badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
                     badgeText = "Przekroczony";
                   } else if (limitPct >= 80) {
                     barColor = "bg-amber-400";
-                    badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/30";
+                    badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
                     badgeText = "Uwaga";
                   } else {
                     barColor = "bg-emerald-500";
-                    badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                    badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
                     badgeText = "W normie";
                   }
                 }
@@ -349,7 +349,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                       )}
                     </div>
                     <div className="text-right">
-                      <strong className={hasLimit && limitPct > 100 ? "text-rose-400" : "text-text-muted"}>
+                      <strong className={hasLimit && limitPct > 100 ? "text-rose-700" : "text-text-muted"}>
                         {formatMoney(cat.spent, profile.currency || 'PLN')}
                       </strong>
                       <span className="text-text-muted ml-1">
@@ -357,7 +357,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="w-full bg-slate-700/50 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${cat.pctOfExpense}%` }}
                       className={`${barColor} h-full rounded-full transition-all duration-300`}
@@ -372,7 +372,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             <div className="border-t border-border mt-5 pt-4">
               <h4 className="text-xs font-bold text-text-main mb-2">Stopa oszczędności</h4>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 flex items-center justify-center font-bold text-emerald-400 text-sm flex-shrink-0">
+                <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 flex items-center justify-center font-bold text-emerald-700 text-sm flex-shrink-0">
                   {savingsRate}%
                 </div>
                 <p className="text-[11px] text-text-muted leading-relaxed">
