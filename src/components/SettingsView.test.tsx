@@ -63,7 +63,7 @@ describe('SettingsView Diagnostic Loop', () => {
     const editBtns = screen.getAllByTitle('Edytuj profil');
     if (editBtns.length > 0) {
       fireEvent.click(editBtns[0]);
-      const saveProfileBtn = screen.getByText('Zapisz zmiany profilu', { exact: false });
+      const saveProfileBtn = screen.getByText('Zapisz zmiany', { selector: 'button' });
       const nameInput = screen.getAllByDisplayValue('Test Profile')[0];
       fireEvent.change(nameInput, { target: { value: 'Test Profile changed' } });
       fireEvent.click(saveProfileBtn);

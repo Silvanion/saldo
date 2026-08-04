@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
-import { Profile, RecurringRule, TransactionRule, AppState, BankAccount } from "../types";
+import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
 import { isFirebaseConfigured } from "../firebase";
 import {
@@ -45,7 +45,7 @@ interface SettingsViewProps {
   profiles: Profile[];
   activeProfileId: string | null;
   onSelectProfile: (profileId: string) => void;
-  onUpdateProfile: (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string }) => void;
+  onUpdateProfile: (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string; currency: SupportedCurrency }) => void;
   onDeleteProfile: (profileId: string) => void;
   onOpenProfileModal: () => void;
   onOpenPinModal: () => void;
@@ -342,6 +342,7 @@ export function SettingsView({
     kind: "personal" | "shared";
     partnerName: string;
     avatar: string;
+    currency: SupportedCurrency;
   } | null>(null);
 
   const startEditingProfile = (profile: Profile) => {
@@ -351,6 +352,7 @@ export function SettingsView({
       kind: profile.kind,
       partnerName: profile.partnerName || "",
       avatar: profile.avatar || "👤",
+      currency: profile.currency || "PLN",
     });
   };
 
@@ -359,7 +361,7 @@ export function SettingsView({
     setEditProfileData(null);
   };
 
-  const handleUpdateActiveProfile = (e: React.FormEvent) => {
+  const handleSaveEditedProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProfileId || !editProfileData) return;
     if (!editProfileData.name.trim()) return;
@@ -373,6 +375,7 @@ export function SettingsView({
       kind: editProfileData.kind,
       partnerName: editProfileData.kind === "shared" ? editProfileData.partnerName.trim() : "",
       avatar: editProfileData.avatar,
+      currency: editProfileData.currency,
     });
     setEditingProfileId(null);
     setEditProfileData(null);
@@ -592,7 +595,7 @@ export function SettingsView({
                       </div>
                       <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-muted p-1 text-lg leading-none">&times;</button>
                     </div>
-                    <form onSubmit={handleUpdateActiveProfile} className="space-y-4">
+                    <form onSubmit={handleSaveEditedProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-bold text-text-main mb-1">Nazwa profilu</label>
@@ -650,6 +653,20 @@ export function SettingsView({
                         </select>
                       </div>
 
+                      <div>
+                        <label className="block text-xs font-bold text-text-main mb-1">Waluta bazowa</label>
+                        <select
+                          value={editProfileData.currency}
+                          onChange={(e) => setEditProfileData(prev => prev ? { ...prev, currency: e.target.value as SupportedCurrency } : null)}
+                          className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface focus:bg-surface focus:border-emerald-500/50 text-sm font-medium"
+                        >
+                          <option value="PLN">PLN (Polski Złoty)</option>
+                          <option value="EUR">EUR (Euro)</option>
+                          <option value="USD">USD (Dolar amerykański)</option>
+                          <option value="GBP">GBP (Funt brytyjski)</option>
+                        </select>
+                      </div>
+
                       {editProfileData.kind === "shared" && (
                         <div>
                           <label className="block text-xs font-bold text-text-main mb-1">Imię partnera/współdzielącego</label>
@@ -676,7 +693,7 @@ export function SettingsView({
                         </button>
                         <button
                           type="submit"
-                          disabled={editProfileData.name === p.name && editProfileData.kind === p.kind && editProfileData.partnerName === (p.partnerName || "") && editProfileData.avatar === (p.avatar || "👤")}
+                          disabled={editProfileData.name === p.name && editProfileData.kind === p.kind && editProfileData.partnerName === (p.partnerName || "") && editProfileData.avatar === (p.avatar || "👤") && editProfileData.currency === (p.currency || "PLN")}
                           className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Zapisz zmiany
@@ -902,41 +919,7 @@ export function SettingsView({
       </div>
       )}
 
-      {/* SECTION: CURRENCY SELECTION */}
-      {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6 mt-6" id="settings-currency-card">
-          <h3 className="text-base font-bold text-text-main mb-2">Waluta</h3>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" id="currency-selectors-grid">
-            {(["PLN", "EUR", "USD", "GBP"] as const).map(curr => (
-              <button
-                key={curr}
-                onClick={() => {
-                  if (activeProfile) {
-                    saveState({
-                      ...state,
-                      profiles: state.profiles.map(p => 
-                        p.id === activeProfile.id 
-                          ? { ...p, currency: curr } 
-                          : p
-                      )
-                    });
-                  }
-                }}
-                className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
-                  (activeProfile?.currency || "PLN") === curr
-                    ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                    : "bg-surface border-border hover:border-slate-200"
-                }`}
-              >
-                <div>
-                  <strong className="block text-sm text-text-main">{curr}</strong>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (

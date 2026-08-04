@@ -64,7 +64,7 @@ describe('Full App Diagnostic Loop - Forms', () => {
     
     // Mock localDb.loadState to return a default profile so settings forms render
     vi.mocked(localDb.loadState).mockResolvedValue({
-      profiles: [{ id: 'p1', name: 'Test Profile', kind: 'personal', avatar: '👤', accounts: [] }],
+      profiles: [{ id: 'p1', name: 'Test Profile', kind: 'personal', avatar: '👤', accounts: [], currency: 'PLN' } as unknown as any],
       activeProfileId: 'p1',
       recurringRules: [],
       transactionRules: [],

@@ -1,6 +1,6 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
-import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, BankAccount, SettlementEntry } from "../types";
+import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, BankAccount, SettlementEntry, SupportedCurrency } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { useTransactionActions } from "./actions/useTransactionActions";
@@ -231,7 +231,7 @@ export function useAppActions({
   );
 
   const handleUpdateProfile = useCallback(
-    async (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string }) => {
+    async (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string; currency: SupportedCurrency }) => {
       const profileIndex = state.profiles.findIndex((p) => p.id === profileId);
       if (profileIndex === -1) return;
 
@@ -240,6 +240,7 @@ export function useAppActions({
       updatedProfile.kind = data.kind;
       updatedProfile.partnerName = data.partnerName;
       updatedProfile.avatar = data.avatar;
+      updatedProfile.currency = data.currency;
 
       const updatedProfiles = [...state.profiles];
       updatedProfiles[profileIndex] = updatedProfile;
