@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { X, History } from "lucide-react";
 import { changelogData } from "../content/changelogData";
 
@@ -8,6 +10,9 @@ interface ChangelogModalProps {
 }
 
 export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   if (!isOpen) return null;
 
   return (
@@ -17,6 +22,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
         aria-modal="true"
         aria-labelledby="changelog-modal-title"
         className="relative bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-2xl border border-border shadow-sm flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        ref={modalRef}
       >
         
         {/* Header */}

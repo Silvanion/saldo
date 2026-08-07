@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 
@@ -11,6 +13,9 @@ export interface ProfileModalProps {
 const AVATAR_OPTIONS = ["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"];
 
 export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [name, setName] = useState("");
   const [kind, setKind] = useState<"personal" | "shared">("personal");
   const [partnerName, setPartnerName] = useState("");
@@ -61,7 +66,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-profile-modal">
             &times;

@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useApp } from "../app/providers/AppContext";
 import { securityFeatures } from "../content/securityContent";
 
 export function SecurityInfoModal() {
+  const modalRef = useRef<HTMLDivElement>(null);
   const { isSecurityInfoOpen, toggleSecurityInfo } = useApp();
+  
+  useScrollLock(isSecurityInfoOpen);
+  useFocusTrap(modalRef, isSecurityInfoOpen, toggleSecurityInfo);
 
   if (!isSecurityInfoOpen) return null;
 
@@ -26,7 +32,7 @@ export function SecurityInfoModal() {
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-lg rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 md:p-8 pb-4 border-b border-border relative">
           <button
             onClick={() => toggleSecurityInfo(false)}

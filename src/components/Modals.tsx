@@ -1,8 +1,10 @@
 import { auth } from "../firebase";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { Camera, Loader2, Lock, AlertTriangle, Download } from "lucide-react";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Profile } from "../types";
 import { expenseCategories, incomeCategories, budgetCategories, iconByCategory, getLocalDateIso } from "../utils";
@@ -20,6 +22,9 @@ interface GoalModalProps {
 }
 
 export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [name, setName] = useState("");
   const [target, setTarget] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +66,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
             <p className="text-xs font-medium text-text-muted truncate" title="Oszczędności">Oszczędności</p>
@@ -127,6 +132,9 @@ interface GoalDepositModalProps {
 }
 
 export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepositModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -166,7 +174,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
             <p className="text-xs font-medium text-text-muted truncate" title="Transfer Celu">Transfer Celu</p>
@@ -219,6 +227,9 @@ interface BudgetModalProps {
 }
 
 export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [budgets, setBudgets] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -272,7 +283,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
             <p className="text-xs font-medium text-text-muted truncate" title="Limity Miesięczne">Limity Miesięczne</p>
@@ -329,6 +340,9 @@ interface PinModalProps {
 }
 
 export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [pin, setPin] = useState("");
   const [hasAcceptedWarning, setHasAcceptedWarning] = useState(false);
 
@@ -368,7 +382,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
             <p className="text-xs font-medium text-text-muted truncate" title="Ochrona profilu">Ochrona profilu</p>
@@ -462,6 +476,9 @@ interface UnlockModalProps {
 }
 
 export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfile }: UnlockModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen);
   const [pin, setPin] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isShaking, setIsShaking] = useState(false);
@@ -499,7 +516,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className={`w-full max-w-sm rounded-3xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
-      >
+       ref={modalRef}>
         <div className="flex-1 overflow-y-auto min-w-0 p-8 custom-scrollbar flex flex-col">
           <div className="flex justify-center mb-6 shrink-0">
             <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center text-text-main">

@@ -1,8 +1,10 @@
 
 import { getLocalDateIso } from "../utils";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
 import { Calendar, Clock, Bell, AlertCircle, Check, Loader2 } from "lucide-react";
@@ -26,6 +28,10 @@ export function CalendarReminderModal({
   onConnectCalendar,
   onCalendarAuthInvalid
 }: CalendarReminderModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
+
   const { state, canUseAiChat } = useApp();
   
   // Suggested event fields
@@ -228,7 +234,7 @@ export function CalendarReminderModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="calendar-modal-title"
-      >
+       ref={modalRef}>
         {/* Header */}
         <div className="shrink-0 px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
           <div className="flex items-center gap-3 min-w-0">

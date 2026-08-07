@@ -1,4 +1,6 @@
 import { callAiApi, getAiConfig } from "../services/aiClient";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
@@ -18,6 +20,9 @@ interface ChatMessage {
 }
 
 export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [messages, setMessages] = useState<ChatMessage[]>([{
     id: "initial",
     sender: "ai",
@@ -102,7 +107,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative flex flex-col w-full max-w-lg h-[80vh] max-h-[800px] rounded-2xl bg-bg-base/95 backdrop-blur-2xl shadow-sm overflow-hidden"
-      >
+       ref={modalRef}>
         
         {/* Header */}
         <div className="flex items-center justify-between bg-gradient-to-r from-brand to-brand-hover px-5 py-4 text-white shrink-0">

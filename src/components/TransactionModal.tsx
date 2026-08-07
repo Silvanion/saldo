@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
 import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
@@ -22,6 +24,9 @@ export interface TransactionModalProps {
 }
 
 export function TransactionModal({ isOpen, onClose, activeProfile, initialData, onSave }: TransactionModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const { state } = useApp();
@@ -180,7 +185,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
-      >
+       ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-tx-modal">
             &times;
@@ -471,7 +476,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             <button
               type="submit"
               disabled={!amount || !name || isSubmitting || !!duplicateWarning}
-              className="w-full bg-brand text-white hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="w-full bg-brand text-white hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <span className="truncate" title={isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}>
                 {isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}

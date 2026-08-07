@@ -1,5 +1,7 @@
 
 import { formatMoney } from "../utils/format";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useRef } from "react";
@@ -26,6 +28,9 @@ interface ImportTransactionsModalProps {
 }
 
 export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImport }: ImportTransactionsModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const { state, activeProfile } = useApp();
   const isAiAvailable = state.aiMode !== "none";
   const [tab, setTab] = useState<"csv" | "ai">("csv");
@@ -215,7 +220,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl shadow-sm w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]"
-      >
+       ref={modalRef}>
         {/* HEADER */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div>

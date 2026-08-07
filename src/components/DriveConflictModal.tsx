@@ -1,5 +1,7 @@
 
-import React from "react";
+import React, { useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { AppState } from "../types";
 import { AlertTriangle, Download, Upload, X } from "lucide-react";
 
@@ -22,6 +24,10 @@ export function DriveConflictModal({
   lastSyncedAt,
   onResolve
 }: DriveConflictModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
+
   if (!isOpen || !localState || !remoteState) return null;
 
   const countTransactions = (s: AppState) => {
@@ -55,6 +61,7 @@ export function DriveConflictModal({
         aria-modal="true"
         aria-labelledby="drive-conflict-title"
         className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full shadow-xl border border-border flex flex-col max-h-[90vh] overflow-hidden"
+        ref={modalRef}
       >
         {/* Header */}
         <div className="flex items-start justify-between shrink-0 p-6 pb-4 border-b border-border sticky top-0 z-20 bg-bg-base/95 backdrop-blur-2xl">
