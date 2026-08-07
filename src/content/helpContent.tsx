@@ -46,22 +46,22 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     title: "Prywatność i Szyfrowanie",
     description: "Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z kodem PIN.",
     icon: <ShieldCheck className="w-5 h-5" />,
-    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
-    iconClass: "p-2 bg-emerald-600 text-white rounded-xl shrink-0"
+    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
+    iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   },
   {
     title: "Wskaźnik Bezpieczeństwa",
     description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.",
     icon: <Zap className="w-5 h-5" />,
-    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
-    iconClass: "p-2 bg-teal-600 text-white rounded-xl shrink-0"
+    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
+    iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   },
   {
     title: "Bezpieczny Import CSV",
     description: "Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).",
     icon: <FileSpreadsheet className="w-5 h-5" />,
-    wrapperClass: "bg-surface border border-border dark:bg-bg-base/40 dark:border-border/50 p-4 rounded-2xl flex items-start gap-3",
-    iconClass: "p-2 bg-cyan-600 text-white rounded-xl shrink-0"
+    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
+    iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   }
 ];
 
@@ -85,7 +85,7 @@ export const helpSectionsData: HelpSectionData[] = [
     defaultOpen: true,
     content: (
       <>
-        <p className="mb-4 text-sm text-slate-700 leading-relaxed">
+        <p className="mb-4 text-sm text-text-muted leading-relaxed">
           Witamy w Saldo! Aplikacja została zaprojektowana z myślą o maksymalnej przejrzystości i ochronie Twoich środków. Poniżej znajduje się wizualna instrukcja wykonania najważniejszych pierwszych kroków.
         </p>
 
@@ -100,34 +100,34 @@ export const helpSectionsData: HelpSectionData[] = [
           ]}
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-bg-base border border-emerald-500/30 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">1</div>
-              <div className="text-xs text-text-muted">Nawigacja głównego menu</div>
-              <div className="font-bold text-emerald-400 mt-1 flex items-center gap-1">
-                <LayoutDashboard className="w-4 h-4" /> Pulpit & Transakcje
+            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">1</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Nawigacja</div>
+              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
+                <LayoutDashboard className="w-4 h-4 text-text-muted" /> Pulpit & Transakcje
               </div>
             </div>
 
-            <div className="bg-bg-base border border-amber-500/30 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">2</div>
-              <div className="text-xs text-text-muted">Szybkie wprowadzanie</div>
-              <div className="font-bold text-amber-300 mt-1 flex items-center gap-1">
-                <History className="w-4 h-4" /> + Dodaj transakcję
+            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">2</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Wprowadzanie</div>
+              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
+                <History className="w-4 h-4 text-text-muted" /> + Nowa transakcja
               </div>
             </div>
 
-            <div className="bg-bg-base border border-cyan-500/30 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-cyan-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center">3</div>
-              <div className="text-xs text-text-muted">Stan bezpieczny</div>
-              <div className="font-bold text-cyan-300 mt-1 flex items-center gap-1">
-                <ShieldCheck className="w-4 h-4" /> Limit: 2,450 (waluta domyślna)
+            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">3</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Stan bezpieczny</div>
+              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
+                <ShieldCheck className="w-4 h-4 text-text-muted" /> Limit: 2,450
               </div>
             </div>
           </div>
         </MockScreenShot>
 
-        <div className="space-y-3 text-sm text-slate-700">
-          <h4 className="font-bold text-white text-base flex items-center gap-2">
+        <div className="space-y-3 text-sm text-text-muted">
+          <h4 className="font-bold text-text-main text-base flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
           </h4>
           <ol className="list-decimal pl-5 space-y-2">
@@ -145,33 +145,33 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Pulpit główny i wskaźniki finansowe (Safe-to-Spend, Prognoza)",
     icon: <LayoutDashboard className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Pulpit główny (Dashboard) to Twój kokpit finansowy. Łączy w sobie wszystkie dane z całego profilu i w czasie rzeczywistym przelicza kluczowe wskaźniki matematyczne.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
-          <div className="p-4 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
-            <h4 className="font-bold text-[#137566] flex items-center gap-2 mb-1">
-              <ShieldCheck className="w-4 h-4" /> Safe-to-Spend (Bezpieczny limit)
+          <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
+            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" /> Safe-to-Spend (Bezpieczny limit)
             </h4>
-            <p className="text-xs text-text-faint leading-relaxed">
-              Formuła: <code className="bg-surface px-1 py-0.5 rounded text-text-main">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
+              Formuła: <code className="bg-surface-2 border border-border/50 px-1.5 py-0.5 rounded text-text-main">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
               Chroni Cię przed wydaniem pieniędzy, które za kilka dni będą potrzebne na opłacenie raty kredytu lub rachunku za prąd.
             </p>
           </div>
 
-          <div className="p-4 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
-            <h4 className="font-bold text-teal-700 flex items-center gap-2 mb-1">
-              <LineChart className="w-4 h-4" /> Prognoza na koniec miesiąca
+          <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
+            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
+              <LineChart className="w-4 h-4 text-blue-500" /> Prognoza na koniec miesiąca
             </h4>
-            <p className="text-xs text-text-faint leading-relaxed">
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
               Analizuje średnie dzienne tempo wydatków w bieżącym miesiącu i prognozuje szacunkowe saldo na 30/31 dzień. Ostrzega, gdy przy obecnym tempie grozi Ci deficyt.
             </p>
           </div>
         </div>
 
-        <h4 className="font-bold text-white mt-4">Zależności z innymi modułami:</h4>
+        <h4 className="font-bold text-text-main mt-4">Zależności z innymi modułami:</h4>
         <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-faint">
           <li>Dodanie nowej płatności w zakładce <strong>Płatności</strong> natychmiast pomniejsza <em>Safe-to-Spend</em>.</li>
           <li>Oznaczenie płatności jako "Opłacono" zamienia ją w transakcję i aktualizuje bilans przychodów/wydatków.</li>
@@ -187,7 +187,7 @@ export const helpSectionsData: HelpSectionData[] = [
     icon: <History className="w-5 h-5" />,
     badge: "Deduplikacja & NaN protection",
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Moduł Transakcji odpowiada za śledzenie każdego przepływu pieniężnego. Oferuje inteligentne dopasowywanie kategorii, obsługę tagów oraz wbudowany bezpłatny importer wyciągów z banku.
         </p>
@@ -202,20 +202,20 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 4, label: "Sanity Check (NaN)", description: "Niepoprawne kwoty numeryczne są automatycznie odrzucane." }
           ]}
         >
-          <div className="bg-bg-base p-4 rounded-xl border border-border space-y-3">
-            <div className="flex items-center justify-between text-xs text-text-muted">
-              <span className="font-bold text-emerald-400">Wyciąg_Bankowy_2026.csv</span>
-              <span className="text-text-muted">Wyryto 12 transakcji</span>
+          <div className="bg-surface p-4 rounded-xl border border-border/50 space-y-3">
+            <div className="flex items-center justify-between text-xs font-medium text-text-muted">
+              <span className="text-text-main">Wyciąg_Bankowy_2026.csv</span>
+              <span>Wykryto 12 transakcji</span>
             </div>
-            <div className="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-text-muted border border-border space-y-1">
-              <div className="text-emerald-400">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Zapisano)</div>
-              <div className="text-amber-400">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Pominięto — Duplikat)</div>
-              <div className="text-red-400">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
+            <div className="bg-bg-base p-3 rounded-lg font-mono text-[11px] text-text-muted border border-border/30 space-y-1.5">
+              <div className="text-text-main">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Zapisano)</div>
+              <div className="text-text-muted">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Pominięto — Duplikat)</div>
+              <div className="text-text-muted">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
             </div>
           </div>
         </MockScreenShot>
 
-        <h4 className="font-bold text-white">Mechanizm ochrony danych w imporcie CSV:</h4>
+        <h4 className="font-bold text-text-main">Mechanizm ochrony danych w imporcie CSV:</h4>
         <ul className="list-disc pl-5 space-y-2 text-xs text-text-faint">
           <li><strong>Ochrona przed podwójnym importem (Deduplikacja):</strong> Gdy importujesz ten sam plik CSV drugi raz, Saldo rozpoznaje istniejące Identyfikatory transakcji i nie dubluje wpisów.</li>
           <li><strong>Sprawdzanie poprawności numerycznej:</strong> Jeśli wyciąg zawiera uszkodzone lub nieczytelne kwoty (np. tekstowe znaki zapytania zamienione na NaN), transakcja zostaje bezpiecznie odrzucona.</li>
@@ -230,14 +230,14 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Płatności, Subskrypcje i integracja z Kalendarzem Google",
     icon: <Clock className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane na osi czasu z wyraźnym oznaczeniem dni pozostałych do terminu wymagalności.
         </p>
 
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2">
-          <div className="font-bold flex items-center gap-1.5 text-sm text-amber-900">
-            <Calendar className="w-4 h-4 text-amber-700" /> Integracja z Kalendarzem Google
+        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-xs sm:text-sm text-amber-700 dark:text-amber-400 space-y-2">
+          <div className="font-bold flex items-center gap-1.5 text-sm">
+            <Calendar className="w-4 h-4" /> Integracja z Kalendarzem Google
           </div>
           <p>
             Przy każdej płatności znajduje się przycisk <strong>Dodaj do Kalendarza</strong>. Kliknięcie otwiera formularz dodawania wydarzenia w Google Calendar z przygotowanym tytułem, kwotą i przypomnieniem w dniu płatności!
@@ -252,27 +252,27 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 2, label: "Podsumowanie 'Do zapłaty w tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
           ]}
         >
-          <div className="bg-surface border border-border rounded-xl p-4 space-y-4">
+          <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
              <div className="flex gap-2 flex-wrap">
-                <span className="bg-bg-base/60 text-text-main border border-border px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">Wszystkie</span>
-                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Dzisiaj/Zaległe</span>
-                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten tydzień</span>
-                <span className="bg-surface text-text-muted border border-transparent px-3 py-1 rounded-full text-[10px] font-bold">Ten miesiąc</span>
+                <span className="bg-text-main text-surface border border-border px-3 py-1 rounded-full text-[10px] font-semibold">Wszystkie</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Dzisiaj/Zaległe</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Ten tydzień</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Ten miesiąc</span>
              </div>
-             <div className="bg-[#137566]/5 border border-[#137566]/20 p-3 rounded-xl flex justify-between items-center shadow-sm">
-               <span className="text-[#137566] font-bold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#137566]" /> Do zapłaty w tym tygodniu</span>
-               <span className="text-[#137566] font-black text-sm">450,00 [waluta]</span>
+             <div className="bg-surface-2 border border-border/50 p-3.5 rounded-xl flex justify-between items-center">
+               <span className="text-text-main font-semibold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-text-muted" /> Do zapłaty w tym tygodniu</span>
+               <span className="text-text-main font-bold text-sm">450,00 [waluta]</span>
              </div>
           </div>
         </MockScreenShot>
 
-        <h4 className="font-bold text-white mt-6">Cykl życia Płatności:</h4>
-        <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-slate-700 font-medium">
-          <div className="p-2.5 bg-surface rounded-xl border border-border text-center w-full">1. Utworzenie Rachunku (np. Czynsz 2000 [waluta])</div>
+        <h4 className="font-bold text-text-main mt-6">Cykl życia Płatności:</h4>
+        <div className="flex flex-col sm:flex-row items-center gap-2 text-xs font-medium">
+          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">1. Utworzenie Rachunku</div>
           <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
-          <div className="p-2.5 bg-amber-100 text-amber-900 rounded-xl border border-amber-200 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
+          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
           <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
-          <div className="p-2.5 bg-emerald-100 text-emerald-900 rounded-xl border border-emerald-200 text-center w-full">3. Przycisk "Opłacono" ➔ Wydatek zrobiony</div>
+          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">3. Przycisk "Opłacono"</div>
         </div>
       </div>
     )
@@ -283,53 +283,53 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Budżety kategorii, paski postępu i alerty ostrzegawcze",
     icon: <Wallet className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Budżety pozwalają nałożyć miesięczny limit na poszczególne kategorie wydatków (np. 1500 zł na Jedzenie, 500 zł na Rozrywkę).
         </p>
 
-        <div className="space-y-2 my-2 bg-surface border border-border p-4 rounded-xl">
+        <div className="space-y-4 my-2 bg-surface border border-border/50 p-4 sm:p-5 rounded-2xl">
           <div className="space-y-2">
-            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
-                 <span>Jedzenie i Spożywcze</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border-emerald-200">
+                 <span className="text-text-main">Jedzenie i Spożywcze</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400">
                    W normie
                  </span>
               </div>
-              <span className="text-emerald-700">975 z 1500 [waluta]</span>
+              <span className="text-text-main">975 / 1500</span>
             </div>
-            <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
               <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
             </div>
           </div>
 
-          <div className="space-y-2 pt-4 border-t border-slate-100">
-            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+          <div className="space-y-2 pt-4 border-t border-border/50">
+            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
-                 <span>Transport i Paliwo</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-amber-100 text-amber-700 border-amber-200">
+                 <span className="text-text-main">Transport i Paliwo</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400">
                    Uwaga
                  </span>
               </div>
-              <span className="text-amber-700">420 z 500 [waluta]</span>
+              <span className="text-text-main">420 / 500</span>
             </div>
-            <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
               <div className="h-full bg-amber-400 rounded-full w-[84%]" />
             </div>
           </div>
 
-          <div className="space-y-2 pt-4 border-t border-slate-100">
-            <div className="flex justify-between items-end text-xs font-bold text-slate-700 mb-1">
+          <div className="space-y-2 pt-4 border-t border-border/50">
+            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
-                 <span>Rozrywka i Wyjścia</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border-rose-200">
+                 <span className="text-text-main">Rozrywka i Wyjścia</span>
+                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400">
                    Przekroczony
                  </span>
               </div>
-              <span className="text-rose-600 font-bold">575 z 500 [waluta]</span>
+              <span className="text-text-main">575 / 500</span>
             </div>
-            <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
               <div className="h-full bg-rose-500 rounded-full w-[100%]" />
             </div>
           </div>
@@ -348,25 +348,25 @@ export const helpSectionsData: HelpSectionData[] = [
     icon: <Target className="w-5 h-5" />,
     badge: "Poza budżetem",
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Osobny moduł informacyjny służący do monitorowania majątku długoterminowego. Zgromadzone tu środki nie powiększają wyniku bieżącego miesiąca ani budżetu operacyjnego. Moduł dzieli odkładany kapitał na trzy filary:
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-            <h5 className="font-bold text-emerald-900 mb-1">1. Cele terminowe</h5>
-            <p className="text-emerald-800">Odizolowane pule środków (np. na remont, sprzęt) z konkretną kwotą docelową i horyzontem czasowym.</p>
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main">1. Cele terminowe</h5>
+            <p className="text-text-muted">Odizolowane pule środków z konkretną kwotą docelową i horyzontem czasowym.</p>
           </div>
 
-          <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl">
-            <h5 className="font-bold text-teal-900 mb-1">2. Rezerwa Bezpieczeństwa</h5>
-            <p className="text-teal-800">Fundusz na nieprzewidziane zdarzenia. Fundament stabilności chroniony przed bieżącą konsumpcją.</p>
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main">2. Rezerwa Bezpieczeństwa</h5>
+            <p className="text-text-muted">Fundusz na nieprzewidziane zdarzenia. Fundament stabilności chroniony przed konsumpcją.</p>
           </div>
 
-          <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
-            <h5 className="font-bold text-cyan-900 mb-1">3. Kapitał Inwestycyjny</h5>
-            <p className="text-cyan-800">IKE/IKZE, akcje, fundusze. Środki pracujące długoterminowo, całkowicie odłączone od portfela.</p>
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main">3. Kapitał Inwestycyjny</h5>
+            <p className="text-text-muted">Środki pracujące długoterminowo, całkowicie odłączone od operacyjnego portfela.</p>
           </div>
         </div>
 
@@ -378,27 +378,29 @@ export const helpSectionsData: HelpSectionData[] = [
             { step: 2, label: "Wizualizacja paska", description: "Pasek postępu wypełnia się kolorem, a obok wyświetla się procent realizacji." }
           ]}
         >
-          <div className="bg-surface border border-border rounded-xl p-4 space-y-3">
+          <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
              <div className="flex justify-between items-center">
-               <span className="font-bold text-text-main">Nowy Mac</span>
-               <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-blue-50 text-blue-700 border-blue-200">
+               <span className="font-semibold text-text-main text-sm">Nowy Mac</span>
+               <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400">
                  W trakcie
                </span>
              </div>
-             <div className="flex justify-between text-xs text-text-muted mb-1">
-               <span>Zgromadzono: 2 400 z 8 000 [waluta]</span>
-               <span className="font-bold text-blue-600">30%</span>
-             </div>
-             <div className="w-full bg-slate-700/60 h-2 rounded-full overflow-hidden">
-               <div className="bg-blue-500 h-full rounded-full w-[30%]" />
+             <div className="space-y-2">
+               <div className="flex justify-between text-xs text-text-muted font-medium">
+                 <span>Zgromadzono: 2 400 z 8 000 [waluta]</span>
+                 <span className="font-semibold text-text-main">30%</span>
+               </div>
+               <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
+                 <div className="bg-blue-500 h-full rounded-full w-[30%]" />
+               </div>
              </div>
           </div>
         </MockScreenShot>
 
-        <div className="bg-red-50 border border-red-200 p-3.5 rounded-xl text-xs text-red-900 flex items-start gap-2.5">
-          <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-xs sm:text-sm text-red-700 dark:text-red-400 flex items-start gap-3">
+          <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
-            <strong className="block text-sm text-red-950 font-bold mb-0.5">Zasada ochrony zgromadzonych rezerw (saved &gt; 0)</strong>
+            <strong className="block text-sm font-bold mb-1">Zasada ochrony zgromadzonych rezerw</strong>
             Aplikacja posiada blokadę chroniącą przed przypadkowym usunięciem celu, na który wpłacono już realne pieniądze. Aby usunąć taki cel, należy najpierw wycofać środki (zmniejszyć zgromadzoną kwotę do 0).
           </div>
         </div>
@@ -411,22 +413,22 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Profile (Osobisty / Wspólny), Szyfrowanie i blokada PIN",
     icon: <Lock className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Saldo umożliwia posiadanie wielu odizolowanych profili finansowych w ramach jednej aplikacji (np. "Mój budżet prywatny" oraz "Wspólny budżet z partnerem").
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
-            <h5 className="font-bold text-white mb-1">Profil Wspólny i Podział Wydatków</h5>
-            <p className="text-text-faint">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <h5 className="font-semibold text-text-main mb-1.5">Profil Wspólny i Podział Wydatków</h5>
+            <p className="text-text-muted text-xs sm:text-sm leading-relaxed">
               W profilu typu Shared każda transakcja ma oznaczenie kto płacił (Ja / Partner) oraz tryb podziału (Równo 50/50 lub Tylko ja). Widget Rozliczeń automatycznie podlicza balans kto komu ile jest winien!
             </p>
           </div>
 
-          <div className="p-3.5 bg-bg-base/60 border border-border rounded-xl shadow-2xs">
-            <h5 className="font-bold text-white mb-1">Blokada PIN dla prywatności</h5>
-            <p className="text-text-faint">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <h5 className="font-semibold text-text-main mb-1.5">Blokada PIN dla prywatności</h5>
+            <p className="text-text-muted text-xs sm:text-sm leading-relaxed">
               W Ustawieniach możesz włączyć 4-cyfrowy kod PIN dla dowolnego profilu. Po zablokowaniu, przełączenie na ten profil wymaga wpisania kodu.
             </p>
           </div>
@@ -440,25 +442,25 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Kopie zapasowe na Google Drive, eksport JSON i obsługa konfliktów",
     icon: <Database className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Twoje dane finansowe należą wyłącznie do Ciebie. Saldo nie korzysta z własnych serwerów bazy danych — zamiast tego zapisuje stan w przeglądarce (IndexedDB) oraz na Twoim prywatnym koncie Google Drive.
         </p>
 
-        <div className="space-y-2 text-xs text-text-faint">
-          <div className="p-3 bg-surface border border-border rounded-xl">
-            <strong className="text-white block mb-1 font-bold">1. Synchronizacja z Google Drive:</strong>
-            W Ustawieniach połącz się ze swoim kontem Google. Aplikacja utworzy ukryty plik kopii zapasowej w dedykowanym folderze aplikacji na Twoim własnym Dysku.
+        <div className="space-y-3 text-xs sm:text-sm text-text-muted">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <strong className="text-text-main block mb-1.5 font-semibold">1. Synchronizacja z Google Drive:</strong>
+            <p className="leading-relaxed">W Ustawieniach połącz się ze swoim kontem Google. Aplikacja utworzy ukryty plik kopii zapasowej w dedykowanym folderze aplikacji na Twoim własnym Dysku.</p>
           </div>
 
-          <div className="p-3 bg-surface border border-border rounded-xl">
-            <strong className="text-white block mb-1 font-bold">2. Rozwiązywanie Konfliktów Synchronizacji:</strong>
-            Jeśli edytujesz dane na dwóch urządzeniach (np. na telefonie i komputerze), system wykryje różnicę wersji i wyświetli interaktywne okno <strong>Konflikt kopii zapasowej</strong>, pozwalając Ci wybrać najnowszą wersję.
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <strong className="text-text-main block mb-1.5 font-semibold">2. Rozwiązywanie Konfliktów Synchronizacji:</strong>
+            <p className="leading-relaxed">Jeśli edytujesz dane na dwóch urządzeniach (np. na telefonie i komputerze), system wykryje różnicę wersji i wyświetli interaktywne okno <strong>Konflikt kopii zapasowej</strong>, pozwalając Ci wybrać najnowszą wersję.</p>
           </div>
 
-          <div className="p-3 bg-surface border border-border rounded-xl">
-            <strong className="text-white block mb-1 font-bold">3. Eksport/Import pliku JSON (Offline):</strong>
-            Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-slate-700/60 px-1 py-0.5 rounded text-text-main">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <strong className="text-text-main block mb-1.5 font-semibold">3. Eksport/Import pliku JSON (Offline):</strong>
+            <p className="leading-relaxed">Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-surface-2 border border-border/50 px-1.5 py-0.5 rounded text-text-main">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.</p>
           </div>
         </div>
       </div>
@@ -470,7 +472,7 @@ export const helpSectionsData: HelpSectionData[] = [
     title: "Tryby pracy AI (None, Lokalne Ollama, Gemini) oraz Przyszłość",
     icon: <Sparkles className="w-5 h-5" />,
     content: (
-      <div className="space-y-4 text-sm text-slate-700">
+      <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
           Saldo wspiera 3 elastyczne tryby sztucznej inteligencji dopasowane do Twoich wymagań odnośnie prywatności:
         </p>
@@ -487,42 +489,42 @@ export const helpSectionsData: HelpSectionData[] = [
         </ul>
 
         {/* Step-by-step setup guide for Ollama */}
-        <div className="bg-bg-base text-text-main p-4 sm:p-5 rounded-2xl border border-border space-y-4 text-xs font-sans">
-          <h4 className="font-bold text-emerald-400 text-sm flex items-center gap-2">
-            <Terminal className="w-4 h-4" /> Instrukcja konfiguracji Lokalnego AI (Ollama) krok po kroku
+        <div className="bg-surface text-text-main p-4 sm:p-5 rounded-2xl border border-border/50 space-y-5 font-sans">
+          <h4 className="font-semibold text-text-main text-sm sm:text-base flex items-center gap-2">
+            <Terminal className="w-4 h-4 text-text-muted" /> Instrukcja konfiguracji Lokalnego AI (Ollama)
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-border space-y-2">
-              <span className="font-bold text-white block text-xs">🍎 macOS (Apple Silicon & Intel)</span>
-              <ol className="list-decimal pl-4 space-y-1.5 text-text-muted">
-                <li>Pobierz Ollama z <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-emerald-400 underline">ollama.com</a>.</li>
-                <li>Otwórz Terminal (<code className="text-emerald-300">Cmd + Spacja</code> ➔ Terminal).</li>
+            <div className="bg-bg-base p-4 rounded-xl border border-border/50 space-y-3">
+              <span className="font-semibold text-text-main block text-sm">🍎 macOS (Apple Silicon & Intel)</span>
+              <ol className="list-decimal pl-4 space-y-2 text-text-muted text-xs sm:text-sm">
+                <li>Pobierz Ollama z <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-text-main hover:underline transition-all">ollama.com</a>.</li>
+                <li>Otwórz Terminal (<code className="text-text-main">Cmd + Spacja</code> ➔ Terminal).</li>
                 <li>Uruchom z obsługą CORS:<br />
-                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">OLLAMA_ORIGINS="*" ollama serve</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">OLLAMA_ORIGINS="*" ollama serve</code>
                 </li>
-                <li>W nowym oknie wpisz: <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px]">ollama run llama3</code>.</li>
+                <li>W nowym oknie wpisz: <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px]">ollama run llama3</code>.</li>
               </ol>
             </div>
 
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-border space-y-2">
-              <span className="font-bold text-white block text-xs">🪟 Windows (PowerShell / CMD)</span>
-              <ol className="list-decimal pl-4 space-y-1.5 text-text-muted">
+            <div className="bg-bg-base p-4 rounded-xl border border-border/50 space-y-3">
+              <span className="font-semibold text-text-main block text-sm">🪟 Windows (PowerShell / CMD)</span>
+              <ol className="list-decimal pl-4 space-y-2 text-text-muted text-xs sm:text-sm">
                 <li>Zainstaluj Ollama dla Windows.</li>
                 <li>Otwórz PowerShell i ustaw zmienną CORS:<br />
-                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">$env:OLLAMA_ORIGINS="*"</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">$env:OLLAMA_ORIGINS="*"</code>
                 </li>
                 <li>Uruchom model:<br />
-                  <code className="bg-surface text-emerald-300 px-2 py-0.5 rounded font-mono text-[11px] inline-block mt-1">ollama run llama3</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">ollama run llama3</code>
                 </li>
               </ol>
             </div>
           </div>
         </div>
 
-        <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-xs text-slate-700">
-          <strong className="text-[#137566] block font-bold mb-1">Planowane funkcje w przyszłych wersjach:</strong>
-          Chmurowe AI (Gemini OCR dla skanowania paragonów), automatyczna synchronizacja z bankami przez bezpieczny Open Banking (PSD2), obsługa wielu walut z przeliczaniem kursów NBP w czasie rzeczywistym oraz wieloosobowe budżetowanie live!
+        <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl text-xs sm:text-sm text-text-muted">
+          <strong className="text-text-main block font-semibold mb-1.5">Planowane funkcje w przyszłych wersjach:</strong>
+          <p className="leading-relaxed">Chmurowe AI (Gemini OCR dla skanowania paragonów), automatyczna synchronizacja z bankami przez bezpieczny Open Banking (PSD2), obsługa wielu walut z przeliczaniem kursów NBP w czasie rzeczywistym oraz wieloosobowe budżetowanie live!</p>
         </div>
       </div>
     )
@@ -535,6 +537,10 @@ export interface FaqEntry {
 }
 
 export const faqData: FaqEntry[] = [
+  {
+    question: "Jak sprawdzić szczegóły na telefonie (tooltipy)?",
+    answer: "Przytrzymaj dłużej palec na wybranej ikonie akcji. Aplikacja pokaże dymek (tooltip) z opisem bez uruchamiania samego przycisku."
+  },
   {
     question: "Czy moje dane trafiają na Wasze serwery?",
     answer: "Nie. Saldo działa w architekturze Local-First. Twoje finanse są zapisywane wyłącznie na Twoim urządzeniu w bezpiecznej pamięci przeglądarki lub na Twoim osobistym koncie Google Drive."
