@@ -168,28 +168,34 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="tx-modal"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tx-modal-title"
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl p-6 shadow-sm overflow-y-auto max-h-[90vh]"
+        className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-muted" id="close-tx-modal">
-          &times;
-        </button>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Nowy Wpis</p>
-        <h2 className="text-2xl font-bold text-white mb-4">Dodaj transakcję</h2>
+        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-tx-modal">
+            &times;
+          </button>
+          <p className="text-xs font-medium text-text-muted truncate" title="Nowy Wpis">Nowy Wpis</p>
+          <h2 id="tx-modal-title" className="text-2xl font-bold text-text-main min-w-0 truncate" title="Dodaj transakcję">Dodaj transakcję</h2>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 min-w-0">
+          <div className="flex-1 overflow-y-auto min-w-0 p-6 space-y-4 custom-scrollbar">
           <div className="flex rounded-xl bg-slate-100 p-1">
             <button
               type="button"
-              className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
-                type === "expense" ? "bg-bg-base/95 backdrop-blur-2xl text-[#d55e50] shadow" : "text-text-muted hover:text-text-main"
+              className={`w-1/2 rounded-md py-2 text-sm font-bold transition-all active:scale-[0.98] ${
+                type === "expense" ? "bg-surface text-rose-600 border border-border shadow-sm" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
               }`}
               onClick={() => setType("expense")}
               id="btn-type-expense"
@@ -198,8 +204,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
             </button>
             <button
               type="button"
-              className={`w-1/2 rounded-md py-2 text-sm font-bold transition ${
-                type === "income" ? "bg-bg-base/95 backdrop-blur-2xl text-white shadow" : "text-text-muted hover:text-text-main"
+              className={`w-1/2 rounded-md py-2 text-sm font-bold transition-all active:scale-[0.98] ${
+                type === "income" ? "bg-brand text-white shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
               }`}
               onClick={() => setType("income")}
               id="btn-type-income"
@@ -210,7 +216,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-white mb-1">Kwota</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">Kwota</label>
               <input
                 required
                 type="number"
@@ -219,16 +225,16 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 placeholder="0,00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+                className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface text-text-main placeholder:text-text-faint transition-colors"
                 id="input-tx-amount"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-white mb-1">Waluta</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">Waluta</label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value as any)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
+                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface text-text-main placeholder:text-text-faint focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
               >
                 <option value="PLN">PLN</option>
                 <option value="EUR">EUR</option>
@@ -239,25 +245,25 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Opis transakcji</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Opis transakcji</label>
             <input
               required
               maxLength={120}
               placeholder="np. Zakupy Biedronka"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand/50 bg-surface text-text-main placeholder:text-text-faint"
               id="input-tx-name"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-white mb-1">Kategoria</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">Kategoria</label>
               <select
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
+                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface text-text-main placeholder:text-text-faint focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
                 id="select-tx-category"
               >
                 {categories.map((cat) => (
@@ -268,12 +274,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-white mb-1">Konto / Portfel</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">Konto / Portfel</label>
 
               <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
+                className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface text-text-main placeholder:text-text-faint focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
                 id="select-tx-account"
               >
                 {(activeProfile?.accounts && activeProfile.accounts.length > 0) ? (
@@ -293,12 +299,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Ikona kategorii</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Ikona kategorii</label>
             <div className="flex items-center gap-3 p-2.5 border border-border rounded-xl">
-              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-slate-100 text-white rounded-xl border border-border font-bold shrink-0">
+              <span className="text-2xl w-10 h-10 flex items-center justify-center bg-surface text-text-main rounded-xl border border-border font-bold shrink-0">
                 {categoryIcon}
               </span>
-              <div className="flex-1 overflow-x-auto whitespace-nowrap py-1 flex gap-1.5 max-w-[310px] scrollbar-thin">
+              <div className="flex-1 flex flex-wrap gap-1.5 py-1 min-w-0 max-h-32 overflow-y-auto custom-scrollbar">
                 {availableIcons.map((ico) => (
                   <button
                     key={ico}
@@ -316,20 +322,20 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Data</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Data</label>
             <input
               required
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand/50 bg-surface text-text-main placeholder:text-text-faint"
               id="input-tx-date"
             />
           </div>
 
           {/* Tagowanie wydatków */}
           <div className="border-t border-border pt-3">
-            <label className="block text-xs font-semibold text-white mb-1">Tagi (opcjonalnie)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Tagi (opcjonalnie)</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -337,7 +343,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
-                className="flex-1 rounded-xl border border-border p-2 text-xs outline-none focus:border-emerald-500/50"
+                className="flex-1 rounded-xl border border-border p-2 text-xs outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface text-text-main placeholder:text-text-faint transition-colors"
                 id="input-tx-tag"
               />
               <button
@@ -348,7 +354,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     setTagInput("");
                   }
                 }}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-text-main hover:bg-slate-200 transition"
+                className="rounded-xl bg-surface-offset px-3 py-2 text-xs font-semibold text-text-main hover:bg-border active:scale-[0.98] transition-all"
                 id="btn-tx-add-tag"
               >
                 Dodaj
@@ -367,7 +373,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-[10px] text-text-muted hover:text-text-muted font-semibold"
+                      className="text-xs font-medium text-text-muted hover:text-text-muted"
                     >
                       &times;
                     </button>
@@ -378,7 +384,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
             {/* Sugerowane tagi */}
             <div className="mt-2.5">
-              <p className="text-[10px] text-text-muted font-medium mb-1">Szybkie sugestie:</p>
+              <p className="text-xs font-medium text-text-muted mb-1">Szybkie sugestie:</p>
               <div className="flex flex-wrap gap-1">
                 {suggestions.map((sug) => {
                   const isSelected = tags.includes(sug);
@@ -387,10 +393,10 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                       key={sug}
                       type="button"
                       onClick={() => isSelected ? handleRemoveTag(sug) : handleAddTag(sug)}
-                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full border transition ${
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-all active:scale-[0.98] ${
                         isSelected
-                          ? "bg-bg-base/95 backdrop-blur-2xl text-[#137566] border-[#137566]/30 shadow-sm"
-                          : "bg-surface text-text-muted border-border hover:bg-slate-100"
+                          ? "bg-surface text-brand border-brand/30 shadow-sm"
+                          : "bg-surface text-text-muted border-border hover:bg-surface-offset hover:text-text-main"
                       }`}
                     >
                       +{sug}
@@ -410,11 +416,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-text-muted mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
+                    <label className="block text-xs font-medium text-text-muted mb-1">Kto {type === 'expense' ? 'zapłacił' : 'otrzymał'}?</label>
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus:border-emerald-500/50 bg-bg-base/95 backdrop-blur-2xl"
+                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface transition-colors"
                       id="select-transaction-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -423,11 +429,11 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-text-muted mb-1">Dzielimy 50/50?</label>
+                    <label className="block text-xs font-medium text-text-muted mb-1">Dzielimy 50/50?</label>
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus:border-emerald-500/50 bg-bg-base/95 backdrop-blur-2xl"
+                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface transition-colors"
                       id="select-transaction-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -444,28 +450,34 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               <span className="text-xl mt-0.5">⚠️</span>
               <div>
                 <p className="text-xs font-semibold text-amber-900">Prawdopodobny duplikat</p>
-                <p className="text-[11px] text-amber-700">{duplicateWarning.reason}</p>
+                <p className="text-xs text-amber-700">{duplicateWarning.reason}</p>
               </div>
             </div>
           )}
 
-          {isEditing ? (
-            <button
-              type="button"
-              onClick={() => onClose()}
-              className="w-full bg-slate-100 text-text-main hover:bg-slate-200 transition font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2"
-            >
-              Anuluj
-            </button>
-          ) : null}
+          </div>
 
-          <button
-            type="submit"
-            disabled={!amount || !name || isSubmitting || !!duplicateWarning}
-            className="w-full bg-[#137566] text-white hover:bg-[#0f5d51] transition font-bold py-3.5 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#137566]/20 flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}
-          </button>
+          <div className="shrink-0 p-6 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl">
+            {isEditing ? (
+              <button
+                type="button"
+                onClick={() => onClose()}
+                className="w-full bg-surface-offset text-text-main hover:bg-border active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl mb-3 flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                Anuluj
+              </button>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={!amount || !name || isSubmitting || !!duplicateWarning}
+              className="w-full bg-brand text-white hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            >
+              <span className="truncate" title={isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}>
+                {isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}
+              </span>
+            </button>
+          </div>
         </form>
       </motion.div>
     </motion.div>

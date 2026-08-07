@@ -77,10 +77,10 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <div className="bg-amber-950/30 border border-amber-900/50 text-amber-200 p-4 rounded-xl text-sm">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="font-bold mb-1">Brak autoryzacji domeny</p>
-                <p className="mb-2">
-                  Domena <strong>{window.location.hostname}</strong> nie jest dopisana do listy autoryzowanych domen w Firebase.
+                <p className="mb-2 break-words">
+                  Domena <strong className="break-all">{window.location.hostname}</strong> nie jest dopisana do listy autoryzowanych domen w Firebase.
                 </p>
                 <ol className="list-decimal pl-4 space-y-1 mb-2 text-amber-100 opacity-90">
                   <li>Otwórz Firebase Console</li>

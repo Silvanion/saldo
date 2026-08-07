@@ -28,20 +28,20 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-border rounded-2xl overflow-hidden mb-4 bg-surface shadow-sm hover:shadow-md transition-all">
+    <div className="border border-border rounded-2xl overflow-hidden mb-4 bg-surface shadow-xs hover:border-border/80 transition-colors">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-slate-100 dark:hover:bg-surface/5 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-surface-2 active:scale-[0.99] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative z-10"
       >
         <div className="flex items-center gap-3.5">
-          <div className="p-2.5 bg-indigo-50 text-[#137566] rounded-xl shadow-xs shrink-0">
+          <div className="p-2.5 bg-brand-surface text-brand rounded-xl shadow-xs shrink-0">
             {icon}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-text-main text-base sm:text-lg">{title}</span>
+              <span className="font-semibold text-text-main text-base sm:text-lg">{title}</span>
               {badge && (
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-[#137566] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-md border border-border/50">
                   {badge}
                 </span>
               )}
@@ -49,12 +49,12 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
             <span className="text-xs text-text-muted font-medium">{category}</span>
           </div>
         </div>
-        <div className="text-text-muted p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-surface/10 transition-colors">
+        <div className="text-text-muted p-1 rounded-xl hover:bg-surface-2 transition-colors shrink-0 ml-3">
           {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
       {isOpen && (
-        <div className="p-5 pt-4 text-slate-700 border-t border-slate-100 leading-relaxed bg-surface/50">
+        <div className="p-5 pt-4 text-text-muted border-t border-border/50 leading-relaxed text-sm">
           {children}
         </div>
       )}
@@ -80,16 +80,16 @@ export function HelpView() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Header Banner */}
-      <div className="bg-surface border border-border dark:bg-gradient-to-br dark:from-[#137566] dark:via-[#0f5c50] dark:to-[#0a4239] dark:border-none rounded-3xl p-6 sm:p-8 text-text-main dark:text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-surface/10 px-3 py-1 rounded-full text-xs font-bold text-emerald-700 dark:text-emerald-200 border border-emerald-200 dark:border-white/10">
+      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 text-text-main relative overflow-hidden">
+        <div className="relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-2 bg-brand-surface px-3 py-1 rounded-full text-xs font-semibold text-brand">
             <Sparkles className="w-3.5 h-3.5" /> Complete User Guide & Knowledge Base
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight flex items-center gap-3">
-            <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-700" />
-            Centrum Pomocy i Przewodnik Po Saldo
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight flex items-center gap-3">
+            <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-brand" />
+            Centrum Pomocy
           </h2>
-          <p className="text-text-muted dark:text-[#c3ebe2] text-sm sm:text-base max-w-3xl leading-relaxed">
+          <p className="text-text-muted text-sm sm:text-base max-w-3xl leading-relaxed">
             Kompleksowy poradnik opisujący działanie każdej funkcji, zależności finansowe, ochronę kapitału oraz instrukcje krok po kroku ze wskaźnikami kliknięć.
           </p>
 
@@ -102,7 +102,7 @@ export function HelpView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe to spend', 'IKE', 'PIN')..."
-                className="w-full pl-11 pr-4 py-3 bg-bg-base dark:bg-surface text-text-main dark:text-white placeholder-slate-400 rounded-xl shadow-inner text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full pl-11 pr-4 py-3 bg-surface-2 text-text-main placeholder-text-muted/60 rounded-xl text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-shadow"
               />
             </div>
           </div>
@@ -119,8 +119,8 @@ export function HelpView() {
               {card.icon}
             </div>
             <div>
-              <h4 className="font-bold text-text-main text-sm">{card.title}</h4>
-              <p className="text-xs text-text-muted mt-1">{card.description}</p>
+              <h4 className="font-semibold text-text-main text-sm mb-0.5">{card.title}</h4>
+              <p className="text-xs text-text-muted leading-relaxed">{card.description}</p>
             </div>
           </div>
         ))}
@@ -132,10 +132,10 @@ export function HelpView() {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               selectedCategory === cat
-                ? "bg-emerald-600 dark:bg-[#137566] text-white shadow-sm scale-105"
-                : "bg-surface text-text-muted border border-border hover:bg-surface-2"
+                ? "bg-text-main text-surface shadow-sm"
+                : "bg-surface text-text-muted border border-border hover:bg-surface-2 hover:text-text-main active:scale-95 cursor-pointer"
             }`}
           >
             {cat}
@@ -161,17 +161,17 @@ export function HelpView() {
       </div>
 
       {/* Interactive FAQ Box */}
-      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-xl font-bold text-text-main flex items-center gap-2.5">
-          <HelpCircle className="w-6 h-6 text-[#137566]" />
+      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 space-y-6">
+        <h3 className="text-lg font-bold text-text-main flex items-center gap-2.5">
+          <HelpCircle className="w-5 h-5 text-text-muted" />
           Najczęściej zadawane pytania (FAQ)
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {faqData.map((faq, idx) => (
-            <div key={idx} className="p-4 bg-surface rounded-2xl border border-slate-100 space-y-1.5">
-              <h5 className="font-bold text-text-main text-sm">{faq.question}</h5>
-              <p className="text-text-muted leading-relaxed">{faq.answer}</p>
+            <div key={idx} className="p-4 sm:p-5 bg-bg-base/50 rounded-2xl border border-border/50 space-y-2">
+              <h5 className="font-semibold text-text-main text-sm">{faq.question}</h5>
+              <p className="text-text-muted text-xs sm:text-sm leading-relaxed">{faq.answer}</p>
             </div>
           ))}
         </div>

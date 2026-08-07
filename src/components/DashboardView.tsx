@@ -148,14 +148,14 @@ export function DashboardView({
           <div className="flex items-center bg-surface rounded-xl border border-border shadow-sm overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-text-muted hover:text-text-main font-bold border-r border-border"
+              className="px-4 py-2 hover:bg-slate-100 active:bg-slate-200 dark:hover:bg-slate-700 dark:active:bg-slate-600 transition-colors text-text-muted hover:text-text-main font-bold border-r border-border cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               id="dash-prev-month"
             >
               ← Poprzedni
             </button>
             <button
               onClick={onNextMonth}
-              className="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-text-muted hover:text-text-main font-bold"
+              className="px-4 py-2 hover:bg-slate-100 active:bg-slate-200 dark:hover:bg-slate-700 dark:active:bg-slate-600 transition-colors text-text-muted hover:text-text-main font-bold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               id="dash-next-month"
             >
               Następny →
@@ -163,8 +163,9 @@ export function DashboardView({
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2.5 bg-surface border border-border rounded-xl shadow-sm text-text-muted hover:text-text-main hover:bg-slate-100 dark:hover:bg-slate-700 transition group"
+            className="p-2.5 bg-surface border border-border rounded-xl shadow-sm text-text-muted hover:text-text-main hover:bg-slate-100 active:scale-[0.98] dark:hover:bg-slate-700 transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
             title="Dostosuj ekran"
+            aria-label="Dostosuj układ ekranu głównego"
           >
             <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
           </button>
@@ -179,13 +180,13 @@ export function DashboardView({
 
       {isEditMode && (
         <div className="bg-amber-50 border border-amber-200 text-amber-100 px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 ">
-          <div className="flex items-center gap-3">
-            <Move className="w-5 h-5 text-amber-700" />
-            <span className="text-sm font-bold">Tryb edycji włączony. Możesz przeciągać kafelki, aby zmienić ich kolejność.</span>
+          <div className="flex items-center gap-3 min-w-0">
+            <Move className="w-5 h-5 text-amber-700 shrink-0" />
+            <span className="text-sm font-bold truncate" title="Tryb edycji włączony. Możesz przeciągać kafelki, aby zmienić ich kolejność.">Tryb edycji włączony. Możesz przeciągać kafelki, aby zmienić ich kolejność.</span>
           </div>
           <button
             onClick={() => setIsEditMode(false)}
-            className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition shadow-sm"
+            className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 active:scale-[0.98] transition-all cursor-pointer shadow-sm shrink-0 ml-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
           >
             Zakończ
           </button>
@@ -268,32 +269,35 @@ export function DashboardView({
             >
               {isEditMode && (
                 <div className="absolute inset-0 bg-surface rounded-2xl border-2 border-white/20 z-20 pointer-events-none group-hover:border-white/40 transition flex items-start justify-between p-2">
-                  <div className="bg-surface/90  p-1.5 rounded-lg shadow-sm border border-border flex items-center gap-1.5 text-text-main pointer-events-auto">
-                    <GripVertical className="w-4 h-4" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{widget.name.split(' ')[0]}</span>
+                  <div className="bg-surface/90  p-1.5 rounded-lg shadow-sm border border-border flex items-center gap-1.5 text-text-main pointer-events-auto min-w-0">
+                    <GripVertical className="w-4 h-4 shrink-0" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider truncate" title={widget.name.split(' ')[0]}>{widget.name.split(' ')[0]}</span>
                   </div>
                   
-                  <div className="flex items-center gap-1 bg-surface/90  p-1 rounded-lg shadow-sm border border-border pointer-events-auto">
+                  <div className="flex items-center gap-1 bg-surface/90  p-1 rounded-lg shadow-sm border border-border pointer-events-auto shrink-0 ml-2">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveUp(index); }}
                       disabled={index === 0}
-                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       title="Przesuń wyżej"
+                      aria-label="Przesuń wyżej"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleMoveDown(index); }}
                       disabled={index === widgets.length - 1}
-                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 text-text-muted transition cursor-pointer z-30 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       title="Przesuń niżej"
+                      aria-label="Przesuń niżej"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleToggleVisibility(widget.id); }}
-                      className="p-1 rounded hover:bg-rose-50 text-rose-600 transition ml-1.5 cursor-pointer z-30 relative"
+                      className="p-1 rounded hover:bg-rose-50 text-rose-600 transition ml-1.5 cursor-pointer z-30 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                       title={widget.visible ? "Ukryj" : "Pokaż"}
+                      aria-label={widget.visible ? "Ukryj widget" : "Pokaż widget"}
                     >
                       {widget.visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -329,7 +333,8 @@ export function DashboardView({
             >
               <button
                 onClick={() => setIsCustomizerOpen(false)}
-                className="absolute top-4 right-4 p-1.5 text-text-faint hover:text-text-muted hover:bg-surface-2 rounded-lg transition"
+                className="absolute top-4 right-4 p-1.5 text-text-faint hover:text-text-muted hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                aria-label="Zamknij ustawienia ekranu"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -354,7 +359,7 @@ export function DashboardView({
                       <span className="text-lg bg-slate-100 w-8 h-8 rounded-lg shadow-xs flex items-center justify-center shrink-0">
                         {w.icon}
                       </span>
-                      <span className="font-bold text-text-main text-xs sm:text-sm truncate">
+                      <span className="font-bold text-text-main text-xs sm:text-sm truncate" title={w.name}>
                         {w.name}
                       </span>
                     </div>
@@ -364,7 +369,8 @@ export function DashboardView({
                         <button
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer"
+                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                          aria-label="Przesuń wyżej"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
@@ -372,7 +378,8 @@ export function DashboardView({
                         <button
                           onClick={() => handleMoveDown(index)}
                           disabled={index === widgets.length - 1}
-                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer"
+                          className="p-1.5 hover:bg-slate-600 disabled:opacity-30 text-text-muted transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                          aria-label="Przesuń niżej"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
@@ -380,9 +387,10 @@ export function DashboardView({
 
                       <button
                         onClick={() => handleToggleVisibility(w.id)}
-                        className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none cursor-pointer flex items-center ${
+                        className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer flex items-center ${
                           w.visible ? "bg-emerald-600 justify-end" : "bg-slate-300 justify-start"
                         }`}
+                        aria-label={w.visible ? "Ukryj widget" : "Pokaż widget"}
                       >
                         <motion.div
                           layout
@@ -407,7 +415,7 @@ export function DashboardView({
                     setIsEditMode(!isEditMode);
                     setIsCustomizerOpen(false);
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all shadow-xs cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                     isEditMode
                       ? "bg-rose-500 hover:bg-rose-600 text-white"
                       : "bg-amber-500 hover:bg-amber-600 text-white"
@@ -420,14 +428,14 @@ export function DashboardView({
               <div className="flex items-center justify-between pt-4 border-t border-border">
                 <button
                   onClick={handleResetWidgets}
-                  className="flex items-center gap-1 text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+                  className="flex items-center gap-1 text-xs font-bold text-text-muted hover:text-text-main active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Domyślny układ</span>
                 </button>
                 <button
                   onClick={() => setIsCustomizerOpen(false)}
-                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer"
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
                 >
                   Gotowe
                 </button>

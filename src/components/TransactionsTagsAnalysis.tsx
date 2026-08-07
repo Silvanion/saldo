@@ -59,18 +59,18 @@ export function TransactionsTagsAnalysis({
     <div className="bg-surface rounded-2xl border border-border shadow-sm  p-6 flex flex-col relative overflow-hidden" id="tags-analysis-card">
       {/* Background decorations removed */}
       <div className="mb-4 relative z-10">
-        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Raportowanie i Analiza</p>
+        <p className="text-xs font-medium text-text-muted">Raportowanie i Analiza</p>
         <h3 className="text-lg font-bold text-text-main">Wydatki według tagów</h3>
       </div>
 
       {/* Mini dashboard stats cards */}
       <div className="grid grid-cols-2 gap-3 mb-5 relative z-10">
         <div className="bg-surface p-3 rounded-xl border border-border">
-          <p className="text-[10px] text-text-muted font-semibold">Otagowane wydatki</p>
+          <p className="text-xs text-text-muted font-medium">Otagowane wydatki</p>
           <p className="text-base font-bold text-text-main mt-1">{formatMoney(uniqueTaggedExpensesSum, currency)}</p>
         </div>
         <div className="bg-surface p-3 rounded-xl border border-border">
-          <p className="text-[10px] text-text-muted font-semibold">Pokrycie tagami</p>
+          <p className="text-xs text-text-muted font-medium">Pokrycie tagami</p>
           <p className="text-base font-bold text-text-main mt-1">
             {totalOverallExpenses > 0
               ? `${Math.round((uniqueTaggedExpensesSum / totalOverallExpenses) * 100)}%`
@@ -107,7 +107,7 @@ export function TransactionsTagsAnalysis({
                     <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-violet-400" : "bg-slate-500"}`}></span>
                     #{tag.name}
                   </span>
-                  <span className="text-text-muted font-medium text-[11px]">
+                  <span className="text-text-muted font-medium text-xs">
                     <strong className="text-text-muted">{formatMoney(tag.spent, currency)}</strong> ({pctOfTotal}%)
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export function TransactionsTagsAnalysis({
       </div>
 
       {/* Informational advice footer */}
-      <div className="mt-6 border-t border-border pt-4 text-[11px] text-text-muted leading-relaxed bg-bg-base/40 p-3 rounded-xl border border-border relative z-10">
+      <div className="mt-6 border-t border-border pt-4 text-xs text-text-muted leading-relaxed bg-bg-base/40 p-3 rounded-xl border border-border relative z-10">
         <span className="font-bold text-text-muted block mb-1">💡 Wskazówka:</span>
         Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim wydatki i precyzyjnie przeanalizować ich udział.
       </div>

@@ -11,13 +11,13 @@ export interface StepHighlightProps {
 
 export function StepHighlight({ step, label, description }: StepHighlightProps) {
   return (
-    <div className="flex items-start gap-3 bg-surface p-3 rounded-xl border border-emerald-500/20 shadow-sm">
-      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#137566] text-white font-bold text-xs shrink-0 shadow-sm">
+    <div className="flex items-start gap-3 bg-surface p-3 sm:p-4 rounded-xl border border-border/50">
+      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-2 text-text-main font-bold text-xs shrink-0 border border-border">
         {step}
       </div>
       <div>
-        <h5 className="font-bold text-text-main text-sm">{label}</h5>
-        <p className="text-sm text-text-muted mt-0.5 leading-relaxed">{description}</p>
+        <h5 className="font-semibold text-text-main text-sm">{label}</h5>
+        <p className="text-xs sm:text-sm text-text-muted mt-0.5 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -32,28 +32,28 @@ export interface MockScreenShotProps {
 
 export function MockScreenShot({ title, badge, children, steps }: MockScreenShotProps) {
   return (
-    <div className="my-5 border border-border rounded-2xl overflow-hidden bg-bg-base shadow-lg text-white">
+    <div className="my-6 border border-border rounded-2xl overflow-hidden bg-bg-base shadow-sm text-text-main">
       {/* Mock Window Header */}
-      <div className="bg-surface/90 px-4 py-2.5 border-b border-border/80 flex items-center justify-between">
+      <div className="bg-surface px-4 py-3 border-b border-border/50 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500/80" />
-          <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-          <div className="w-3 h-3 rounded-full bg-emerald-50" />
-          <span className="text-xs font-mono text-text-muted ml-2">{title}</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <span className="text-[11px] font-medium text-text-muted ml-2">{title}</span>
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#137566]/30 text-emerald-700 border border-emerald-200 rounded-full">
+        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-surface-2 text-text-muted border border-border/50 rounded-md">
           {badge}
         </span>
       </div>
 
       {/* Mock Visual Interface Body */}
-      <div className="p-4 sm:p-5 bg-slate-950/60 font-sans">
+      <div className="p-4 sm:p-5 bg-bg-base font-sans">
         {children}
       </div>
 
       {/* Step by Step Action Markers */}
       {steps.length > 0 && (
-        <div className="bg-surface/50 p-4 border-t border-border/60 grid gap-2 sm:grid-cols-2">
+        <div className="bg-surface p-4 sm:p-5 border-t border-border grid gap-2 sm:grid-cols-2">
           {steps.map((s) => (
             <StepHighlight key={s.step} step={s.step} label={s.label} description={s.description} />
           ))}

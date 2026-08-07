@@ -119,16 +119,16 @@ export function BankAccountsManager({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-lg p-6 mb-8" id="settings-bank-accounts-card">
-      <h3 className="text-base font-bold text-text-main mb-2">Konta operacyjne</h3>
-      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+    <div className="mb-10 pb-10 border-b border-border/30 last:border-b-0 last:pb-0 min-w-0" id="settings-bank-accounts-card">
+      <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konta operacyjne</h3>
+      <p className="text-sm text-text-muted mb-4 leading-relaxed">
         Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
         Twój <strong>limit awaryjny</strong> traktuj tu wyłącznie jako bufor bezpieczeństwa – nie są to środki wliczone do budżetu i nie należy ich traktować jako "safe-to-spend".
       </p>
-      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-surface border border-border">
+      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-surface border border-border min-w-0">
         <div>
-          <label className="block text-[10px] font-bold text-text-muted uppercase mb-1">Nazwa konta / portfela</label>
-          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full text-xs rounded-xl border border-border p-2 outline-none focus:border-emerald-500/50" />
+          <label className="block text-sm font-medium text-text-main mb-1 truncate" title="Nazwa konta / portfela">Nazwa konta / portfela</label>
+          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full text-sm rounded-xl border border-border p-2 outline-none focus:border-brand/50 min-w-0" />
         </div>
         <div>
           <label className="block text-[10px] font-bold text-text-muted uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
@@ -148,7 +148,7 @@ export function BankAccountsManager({
           </div>
         )}
         <div className="flex items-end lg:col-span-1">
-          <button type="submit" className="w-full bg-surface border border-border text-emerald-700 font-bold py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition text-xs shadow-sm cursor-pointer">
+          <button type="submit" className="w-full bg-surface border border-border text-emerald-700 font-bold py-2 rounded-xl hover:bg-surface-offset hover:border-emerald-200 active:scale-[0.98] transition-all text-xs shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50">
             + Dodaj konto
           </button>
         </div>
@@ -169,7 +169,7 @@ export function BankAccountsManager({
                     <p className="text-[10px] text-emerald-600 font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-text-muted hover:text-rose-700 transition p-1 cursor-pointer">
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-text-muted hover:text-rose-700 active:scale-95 transition-colors p-1 cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50">
                   &times;
                 </button>
               </div>
@@ -213,8 +213,8 @@ export function TransactionRulesManager({
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-category-rules-card">
-      <h3 className="text-base font-bold text-text-main mb-2">Automatyzacja kategoryzacji</h3>
-      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+      <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyzacja kategoryzacji</h3>
+      <p className="text-sm text-text-muted mb-4 leading-relaxed">
         Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
       </p>
 
@@ -246,7 +246,7 @@ export function TransactionRulesManager({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm cursor-pointer"
+            className="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-2 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
           >
             ＋ Zapisz dopasowanie
           </button>
@@ -279,7 +279,7 @@ export function TransactionRulesManager({
                     <button
                       type="button"
                       onClick={() => handleDeleteTransactionRule(r.id)}
-                      className="text-[10px] font-bold text-[#d55e50] hover:underline"
+                      className="text-[10px] font-bold text-[#d55e50] hover:underline active:scale-95 transition-all inline-block rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                     >
                       Usuń
                     </button>
@@ -503,10 +503,10 @@ export function SettingsView({
         {/* SIDEBAR NAVIGATION */}
         <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-2">
           <div className="bg-surface rounded-2xl border border-border shadow-lg p-3">
-            <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none">
+            <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none min-w-0">
               <button
                 onClick={() => setSettingsTab("all")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                   settingsTab === "all"
                     ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
@@ -516,7 +516,7 @@ export function SettingsView({
               </button>
               <button
                 onClick={() => setSettingsTab("profiles")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                   settingsTab === "profiles"
                     ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
@@ -526,7 +526,7 @@ export function SettingsView({
               </button>
               <button
                 onClick={() => setSettingsTab("appearance")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                   settingsTab === "appearance"
                     ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
@@ -536,7 +536,7 @@ export function SettingsView({
               </button>
               <button
                 onClick={() => setSettingsTab("backup")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                   settingsTab === "backup"
                     ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
@@ -546,7 +546,7 @@ export function SettingsView({
               </button>
               <button
                 onClick={() => setSettingsTab("automation")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left ${
+                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                   settingsTab === "automation"
                     ? "bg-slate-100 text-emerald-700 border border-emerald-200 shadow-sm"
                     : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
@@ -593,7 +593,7 @@ export function SettingsView({
                         <Edit2 className="w-4 h-4 text-emerald-700" />
                         <h4 className="text-sm font-extrabold text-text-main">Edycja profilu: {p.name}</h4>
                       </div>
-                      <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-muted p-1 text-lg leading-none">&times;</button>
+                      <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-main p-1 text-lg leading-none active:scale-95 transition-colors">&times;</button>
                     </div>
                     <form onSubmit={handleSaveEditedProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -612,7 +612,7 @@ export function SettingsView({
                           <label className="block text-xs font-bold text-text-main mb-1">Ikona profilu</label>
                           <details className="group border border-border rounded-xl relative">
                             <summary className="p-2.5 text-xs font-bold text-text-muted cursor-pointer bg-surface hover:bg-surface-2 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
                                 <span className="text-xl leading-none">{editProfileData.avatar}</span>
                                 <span>Zmień ikonę</span>
                               </div>
@@ -630,7 +630,7 @@ export function SettingsView({
                                         document.activeElement.blur();
                                       }
                                     }}
-                                    className={`text-xl p-1.5 rounded-xl border transition-all ${editProfileData.avatar === emoji ? 'bg-emerald-50 border-emerald-500/50 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
+                                    className={`text-xl p-1.5 rounded-xl border transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${editProfileData.avatar === emoji ? 'bg-emerald-50 border-emerald-500/50 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
                                   >
                                     {emoji}
                                   </button>
@@ -687,14 +687,14 @@ export function SettingsView({
                         <button
                           type="button"
                           onClick={cancelEditingProfile}
-                          className="bg-surface border border-border text-text-muted font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-surface transition cursor-pointer"
+                          className="bg-surface border border-border text-text-muted font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-surface-offset active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                         >
                           Anuluj
                         </button>
                         <button
                           type="submit"
                           disabled={editProfileData.name === p.name && editProfileData.kind === p.kind && editProfileData.partnerName === (p.partnerName || "") && editProfileData.avatar === (p.avatar || "👤") && editProfileData.currency === (p.currency || "PLN")}
-                          className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-2.5 px-6 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                         >
                           Zapisz zmiany
                         </button>
@@ -710,12 +710,12 @@ export function SettingsView({
                     key={p.id}
                     className="col-span-1 sm:col-span-2 bg-emerald-50 border-emerald-200  rounded-2xl p-5 shadow-md   relative overflow-hidden flex flex-col justify-between gap-4"
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-3 min-w-0">
                       <div className="flex items-center gap-3.5 min-w-0">
                         <div className="w-12 h-12 rounded-2xl bg-surface  border border-emerald-500/20  shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
                           {p.avatar || "👤"}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <strong className="text-base font-extrabold text-text-main truncate">{p.name}</strong>
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 shadow-xs">
@@ -724,7 +724,7 @@ export function SettingsView({
                             </span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-text-muted bg-surface-2  border border-border  px-2.5 py-0.5 rounded-md">
+                            <span className="text-xs font-medium text-text-muted truncate max-w-full">
                               {isShared ? `👪 Wspólny (z ${p.partnerName})` : "👤 Osobisty"}
                             </span>
                             {p.pinHash ? (
@@ -743,21 +743,21 @@ export function SettingsView({
                       <div className="flex items-center gap-1 shrink-0 bg-surface-2  p-1 rounded-xl border border-border  shadow-xs">
                         <button
                           onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                           title="Edytuj profil"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={onOpenPinModal}
-                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                           title="Zarządzaj kodem PIN"
                         >
                           <KeyRound className="w-4 h-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                          className="p-2 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                          className="p-2 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                           title="Usuń profil"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -771,7 +771,7 @@ export function SettingsView({
                       </span>
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[11px] hover:underline flex items-center gap-1 text-emerald-700 font-bold cursor-pointer"
+                        className="text-[11px] hover:underline flex items-center gap-1 text-emerald-700 font-bold cursor-pointer active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       >
                         {p.pinHash ? "Zmień PIN" : "Ustaw PIN"} <ArrowRight className="w-3 h-3" />
                       </button>
@@ -785,12 +785,12 @@ export function SettingsView({
                   key={p.id}
                   className="bg-surface border border-border/90 hover:border-emerald-200 hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3 min-w-0">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-11 h-11 rounded-xl bg-surface border border-border flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                         {p.avatar || "👤"}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <strong className="block text-sm font-bold text-text-main truncate">{p.name}</strong>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           <span className="text-[10px] font-bold text-text-muted bg-surface px-2 py-0.5 rounded-md">
@@ -808,14 +808,14 @@ export function SettingsView({
                     <div className="flex items-center gap-0.5 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                        className="p-1.5 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-emerald-700 hover:bg-emerald-50 rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                         title="Edytuj profil"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                        className="p-1.5 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-rose-700 hover:bg-rose-50 rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                         title="Usuń profil"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -825,7 +825,7 @@ export function SettingsView({
 
                   <button
                     onClick={() => onSelectProfile(p.id)}
-                    className="w-full py-2 px-3 bg-emerald-50 hover:bg-[#137566] text-emerald-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1"
+                    className="w-full py-2 px-3 bg-emerald-50 hover:bg-[#137566] text-emerald-700 hover:text-white font-bold text-xs rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                     id={`btn-select-profile-${p.id}`}
                   >
                     <span>Otwórz ten profil</span>
@@ -838,7 +838,7 @@ export function SettingsView({
             <button
               onClick={onOpenProfileModal}
               id="btn-add-profile-settings"
-              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-border hover:border-emerald-500/50 hover:bg-emerald-50 text-emerald-700 font-bold text-xs transition-all cursor-pointer group shadow-xs"
+              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-border hover:border-emerald-500/50 hover:bg-emerald-50 text-emerald-700 font-bold text-xs active:scale-[0.98] transition-all cursor-pointer group shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
             >
               <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-110 transition-transform">
                 <Plus className="w-4 h-4" />
@@ -853,7 +853,7 @@ export function SettingsView({
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-theme-card">
-        <h3 className="text-base font-bold text-text-main mb-2">Motyw i wygląd aplikacji</h3>
+        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Motyw i wygląd aplikacji</h3>
         <p className="text-xs text-text-muted mb-5 leading-relaxed">
           Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji. Wybierz jasny motyw dla pełnej czytelności w dzień, ciemny dla ochrony oczu w nocy, lub pozwól systemowi na automatyczną zmianę.
         </p>
@@ -862,7 +862,7 @@ export function SettingsView({
           {/* Light Theme Option */}
           <button
             onClick={() => onThemeChange("light")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               theme === "light"
                 ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
                 : "bg-surface border-border hover:border-slate-200"
@@ -881,7 +881,7 @@ export function SettingsView({
           {/* Dark Theme Option */}
           <button
             onClick={() => onThemeChange("dark")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               theme === "dark"
                 ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
                 : "bg-surface border-border hover:border-slate-200"
@@ -900,7 +900,7 @@ export function SettingsView({
           {/* Auto Theme Option */}
           <button
             onClick={() => onThemeChange("auto")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               theme === "auto"
                 ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
                 : "bg-surface border-border hover:border-slate-200"
@@ -924,7 +924,7 @@ export function SettingsView({
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-ai-provider-card">
-        <h3 className="text-base font-bold text-text-main mb-2">Konfiguracja silnika AI</h3>
+        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konfiguracja silnika AI</h3>
         <p className="text-xs text-text-muted mb-5 leading-relaxed">
           Wybierz dostawcę inteligencji dla kategoryzacji transakcji, analizy wyciągów oraz asystenta finansowego. Możesz wyłączyć AI, użyć lokalnego modelu (Ollama) lub bezpiecznej chmury.
         </p>
@@ -934,7 +934,7 @@ export function SettingsView({
           <button
             type="button"
             onClick={() => saveState({ ...state, aiMode: "none" })}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               (state.aiMode || "none") === "none"
                 ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
                 : "bg-surface border-border hover:border-slate-200"
@@ -954,7 +954,7 @@ export function SettingsView({
           <button
             type="button"
             onClick={() => saveState({ ...state, aiMode: "local", localAiEndpoint: state.localAiEndpoint || "http://localhost:11434/api/generate" })}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-pointer ${
+            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               state.aiMode === "local"
                 ? "bg-emerald-50 border-emerald-500/50 ring-1 ring-emerald-500/30"
                 : "bg-surface border-border hover:border-slate-200"
@@ -995,7 +995,7 @@ export function SettingsView({
               <button
                 type="button"
                 onClick={() => saveState({ ...state, localAiEndpoint: "http://localhost:11434/api/generate" })}
-                className="text-[10px] font-extrabold text-emerald-700 hover:underline cursor-pointer"
+                className="text-[10px] font-extrabold text-emerald-700 hover:underline cursor-pointer active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 Przywróć domyślny Ollama (11434)
               </button>
@@ -1029,7 +1029,7 @@ export function SettingsView({
                     alert("Błąd sieciowy: Nie udało się połączyć z backendem.");
                   }
                 }}
-                className="px-3 py-2 bg-[#137566] hover:bg-emerald-50 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
+                className="px-3 py-2 bg-[#137566] hover:bg-emerald-800 text-white text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 id="btn-test-local-ai"
               >
                 Testuj połączenie
@@ -1077,8 +1077,8 @@ export function SettingsView({
       {/* SECTION 2: PIN SECURITY */}
       {activeProfile && (settingsTab === "all" || settingsTab === "profiles") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-pin-card">
-          <h3 className="text-base font-bold text-text-main mb-2">Zabezpieczenie aktywnego profilu</h3>
-          <p className="text-xs text-text-muted mb-4 leading-relaxed">
+          <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Zabezpieczenie aktywnego profilu</h3>
+          <p className="text-sm text-text-muted mb-4 leading-relaxed">
             Dodaj kod PIN, aby zabezpieczyć swoje poufne transakcje i informacje budżetowe przed nieautoryzowanym wglądem innych użytkowników na tym urządzeniu.
           </p>
 
@@ -1093,7 +1093,7 @@ export function SettingsView({
             </div>
             <button
               onClick={onOpenPinModal}
-              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2 px-4 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm shrink-0 cursor-pointer"
+              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-2 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               id="btn-set-profile-pin"
             >
               {activeProfile.pinHash ? "Zmień kod PIN" : "Ustaw kod PIN"}
@@ -1170,7 +1170,7 @@ export function SettingsView({
             <button
               onClick={onConnectGoogle}
               disabled={isGoogleLoading}
-              className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-3 px-6 rounded-xl text-xs hover:bg-emerald-50 transition disabled:opacity-50 cursor-pointer shadow-md"
+              className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-3 px-6 rounded-xl text-xs active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               id="btn-google-drive-connect"
             >
               {isGoogleLoading ? (
@@ -1204,7 +1204,7 @@ export function SettingsView({
         ) : (
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-emerald-50 border border-emerald-500/20 rounded-xl gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 {googleUser.photoURL ? (
                   <img
                     src={googleUser.photoURL}
@@ -1227,7 +1227,7 @@ export function SettingsView({
               </div>
               <button
                 onClick={onDisconnectGoogle}
-                className="text-[11px] font-bold text-text-muted hover:text-rose-700 transition flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-text-muted hover:text-rose-700 active:scale-95 transition-colors flex items-center gap-1 cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                 id="btn-google-drive-disconnect"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -1256,7 +1256,7 @@ export function SettingsView({
               <button
                 onClick={onSyncToDrive}
                 disabled={isDriveActionLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-4 rounded-xl text-xs hover:bg-emerald-50 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-2.5 px-4 rounded-xl text-xs active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 id="btn-google-drive-upload"
               >
                 {isDriveActionLoading ? (
@@ -1269,7 +1269,7 @@ export function SettingsView({
               <button
                 onClick={onLoadFromDrive}
                 disabled={isDriveActionLoading || !gdriveFileId}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-muted py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:active:scale-100 disabled:hover:border-border disabled:hover:text-text-muted py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 id="btn-google-drive-download"
               >
                 {isDriveActionLoading ? (
@@ -1292,7 +1292,7 @@ export function SettingsView({
                   Każda zmiana w transakcjach lub celach będzie automatycznie zapisywana na Twoim Dysku Google.
                 </p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer select-none">
+              <label className="relative inline-flex items-center cursor-pointer select-none focus-within:ring-2 focus-within:ring-emerald-500/50 rounded-full">
                 <input
                   type="checkbox"
                   checked={isDriveAutoSyncEnabled}
@@ -1323,8 +1323,8 @@ export function SettingsView({
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
       {(settingsTab === "all" || settingsTab === "automation") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-recurring-rules-card">
-        <h3 className="text-base font-bold text-text-main mb-2">Automatyczne transakcje cykliczne</h3>
-        <p className="text-xs text-text-muted mb-4 leading-relaxed">
+        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyczne transakcje cykliczne</h3>
+        <p className="text-sm text-text-muted mb-4 leading-relaxed">
           Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
         </p>
 
@@ -1418,7 +1418,7 @@ export function SettingsView({
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-emerald-50 transition shadow-sm cursor-pointer"
+              className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-2.5 px-6 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
             >
               ＋ Dodaj harmonogram płatności
             </button>
@@ -1429,7 +1429,7 @@ export function SettingsView({
           <p className="text-xs text-text-muted italic text-center py-4">Brak zdefiniowanych transakcji cyklicznych.</p>
         ) : (
           <div className="border border-border rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-w-0">
               <table className="w-full text-left border-collapse text-xs min-w-[600px]">
                 <thead>
                   <tr className="bg-surface border-b border-border text-text-muted font-bold">
@@ -1475,7 +1475,7 @@ export function SettingsView({
                           <button
                             type="button"
                             onClick={() => handleToggleRecurringRule(r.id)}
-                            className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold cursor-pointer border ${
+                            className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold cursor-pointer border active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                               r.isActive
                                 ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                 : "bg-surface border-border text-text-muted"
@@ -1488,7 +1488,7 @@ export function SettingsView({
                           <button
                             type="button"
                             onClick={() => handleDeleteRecurringRule(r.id)}
-                            className="text-[10px] font-bold text-[#d55e50] hover:underline"
+                            className="text-[10px] font-bold text-[#d55e50] hover:underline active:scale-95 transition-all rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
                           >
                             Usuń
                           </button>
@@ -1561,7 +1561,7 @@ export function SettingsView({
                     {state.aiMode === "cloud" && (
                       <button
                         onClick={() => saveState({ ...state, aiMode: "none" })}
-                        className="text-[10px] font-bold text-rose-700 hover:underline"
+                        className="text-[10px] font-bold text-rose-700 hover:underline active:scale-95 transition-transform"
                       >
                         Wyłącz w chmurze
                       </button>
@@ -1612,7 +1612,7 @@ export function SettingsView({
                       <button
                         onClick={onConnectGoogle}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50 active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       >
                         Połącz Dysk Google
                       </button>
@@ -1627,7 +1627,7 @@ export function SettingsView({
                       <button
                         onClick={onSyncToDrive}
                         disabled={isDriveActionLoading}
-                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline disabled:opacity-50 active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       >
                         Wykonaj kopię teraz
                       </button>
@@ -1656,7 +1656,7 @@ export function SettingsView({
                     {!calendarToken && onConnectCalendar && (
                       <button
                         onClick={onConnectCalendar}
-                        className="text-[10px] font-bold text-emerald-700 hover:underline"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       >
                         Połącz Kalendarz Google
                       </button>
@@ -1696,7 +1696,7 @@ export function SettingsView({
                     {activeProfile?.pinHash && unlockedProfileId !== activeProfile.id && (
                       <button
                         onClick={onOpenPinModal}
-                        className="text-[10px] font-bold text-emerald-700 hover:underline"
+                        className="text-[10px] font-bold text-emerald-700 hover:underline active:scale-95 transition-transform rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                       >
                         Odblokuj profil
                       </button>
@@ -1713,8 +1713,8 @@ export function SettingsView({
       {/* SECTION 5: LOCAL FILES & RESET */}
       {(settingsTab === "all" || settingsTab === "backup") && (
         <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-local-tools-card">
-        <h3 className="text-base font-bold text-text-main mb-2">Lokalna kopia zapasowa i reset</h3>
-        <p className="text-xs text-text-muted mb-4 leading-relaxed">
+        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Lokalna kopia zapasowa i reset</h3>
+        <p className="text-sm text-text-muted mb-4 leading-relaxed">
           Zarządzaj lokalnymi kopiami zapasowymi. Możesz zapisać plik JSON z całą bazą danych na dysku komputera/telefonu lub wczytać go bezpośrednio do pamięci urządzenia.
         </p>
 
@@ -1725,7 +1725,13 @@ export function SettingsView({
             onDragOver={handleDrag}
             onDragLeave={handleDrag}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 ${
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                document.getElementById("local-backup-file-input")?.click();
+              }
+            }}
+            className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               dragActive
                 ? "border-emerald-500/50 bg-emerald-50"
                 : "border-border hover:border-slate-200 bg-surface"
@@ -1758,7 +1764,7 @@ export function SettingsView({
               </div>
             </div>
 
-            <div className="bg-surface-2 border border-amber-100 rounded-xl p-3 space-y-1.5">
+            <div className="bg-surface-2 border border-amber-100 rounded-xl p-3 space-y-1.5 min-w-0">
               <div className="flex justify-between text-[11px] text-text-muted">
                 <span>Liczba profili w kopii:</span>
                 <strong className="text-text-muted">{filePreview.profiles?.length || 0}</strong>
@@ -1780,13 +1786,13 @@ export function SettingsView({
             <div className="flex gap-2">
               <button
                 onClick={confirmLocalImport}
-                className="flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-amber-700 transition cursor-pointer shadow-sm"
+                className="flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-amber-700 active:scale-[0.98] transition-all cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
               >
                 ✓ Nadpisz dane i przywróć
               </button>
               <button
                 onClick={() => setFilePreview(null)}
-                className="px-4 bg-surface border border-border text-text-muted hover:text-text-main rounded-xl text-xs font-bold transition cursor-pointer"
+                className="px-4 bg-surface border border-border text-text-muted hover:text-text-main rounded-xl text-sm font-medium active:scale-[0.98] transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 Anuluj
               </button>
@@ -1805,7 +1811,7 @@ export function SettingsView({
                     downloadFile(csv, `saldo-${activeProfile.name}-transakcje.csv`, "text/csv;charset=utf-8;");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 📊 Pobierz CSV
               </button>
@@ -1816,7 +1822,7 @@ export function SettingsView({
                     generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 📄 Pobierz raport PDF
               </button>
@@ -1832,7 +1838,7 @@ export function SettingsView({
                   const json = JSON.stringify(safeState, null, 2);
                   downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 🔒 Eksport zaszyfrowanej kopii
               </button>
@@ -1847,7 +1853,7 @@ export function SettingsView({
                     downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 transition py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center"
+                className="bg-surface border border-border text-text-muted hover:border-emerald-500/50 hover:text-emerald-700 active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 🔓 Eksport czytelnych danych
               </button>
@@ -1856,7 +1862,7 @@ export function SettingsView({
 
           <button
             onClick={onResetData}
-            className="w-full bg-rose-50 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
+            className="w-full bg-rose-50 text-[#d55e50] border border-rose-100 hover:bg-rose-100 hover:border-rose-200 active:scale-[0.98] transition-all py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
             id="btn-reset-db-data"
           >
             ⚠️ Przywróć stan początkowy (Usuń wszystko)
@@ -1881,7 +1887,7 @@ export function SettingsView({
             <div className="flex gap-3">
               <button
                 onClick={() => setProfileToDelete(null)}
-                className="flex-1 bg-surface hover:bg-surface-2 text-text-muted font-bold py-3 rounded-xl transition"
+                className="flex-1 bg-surface hover:bg-surface-2 text-text-muted font-bold py-3 rounded-xl active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 Anuluj
               </button>
@@ -1890,7 +1896,7 @@ export function SettingsView({
                   onDeleteProfile(profileToDelete);
                   setProfileToDelete(null);
                 }}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-sm transition"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-sm active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50"
               >
                 Usuń profil
               </button>

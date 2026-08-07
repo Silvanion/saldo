@@ -85,7 +85,11 @@ export function AppShell({
             </span>
             <span>saldo</span>
           </div>
-          <button className="lg:hidden p-1 rounded-xl hover:bg-slate-700" onClick={() => setIsMobileMenuOpen(false)}>
+          <button
+            className="lg:hidden p-1 rounded-xl hover:bg-slate-700 active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Zamknij menu"
+          >
             <X className="w-5 h-5 text-text-muted" />
           </button>
         </div>
@@ -98,7 +102,7 @@ export function AppShell({
               setActiveView("dashboard");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "dashboard" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-dashboard"
@@ -112,7 +116,7 @@ export function AppShell({
               setActiveView("transactions");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "transactions" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-transactions"
@@ -126,7 +130,7 @@ export function AppShell({
               setActiveView("payments");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "payments" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-payments"
@@ -147,7 +151,7 @@ export function AppShell({
               setActiveView("budget");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "budget" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-budget"
@@ -161,7 +165,7 @@ export function AppShell({
               setActiveView("goals");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "goals" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-goals"
@@ -175,7 +179,7 @@ export function AppShell({
               setActiveView("analysis");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "analysis" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-analysis"
@@ -192,7 +196,7 @@ export function AppShell({
               setActiveView("help");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold transition ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "help" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-help"
@@ -206,7 +210,7 @@ export function AppShell({
               setActiveView("settings");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 transition ${
+            className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
               activeView === "settings" ? "bg-emerald-50 dark:bg-surface text-emerald-700 dark:text-white border border-emerald-200 dark:border-transparent" : "text-text-muted hover:text-text-main hover:bg-surface-2/50"
             }`}
             id="nav-settings"
@@ -220,7 +224,7 @@ export function AppShell({
               openModal("changelog");
               setIsMobileMenuOpen(false);
             }}
-            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-surface-2/50 dark:bg-surface/30 border border-border rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition group"
+            className="flex items-center justify-between w-full px-4 py-2 mb-3 bg-surface-2/50 dark:bg-surface/30 border border-border rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-[0.98] transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
           >
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -235,9 +239,9 @@ export function AppShell({
               <span className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-text-muted dark:text-white text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
-              <div className="min-w-0 text-left">
-                <p className="text-xs font-black text-text-main truncate" id="profile-tag-name">{activeProfile.name}</p>
-                <span className="text-[10px] text-text-muted block truncate">
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-xs font-black text-text-main truncate" id="profile-tag-name" title={activeProfile.name}>{activeProfile.name}</p>
+                <span className="text-[10px] text-text-muted block truncate" title={activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}>
                   {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
                 </span>
               </div>
@@ -247,11 +251,11 @@ export function AppShell({
       </aside>
 
       {/* MAIN VIEWPORT PANEL */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden" id="main-viewport-panel">
+      <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0" id="main-viewport-panel">
         {/* Demo Mode Top Banner */}
         {isDemoMode && showDemoBanner && (
           <div className="bg-surface/50 text-text-main border-b border-border px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 z-20">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <Database className="w-4 h-4 shrink-0" />
               <div className="text-xs">
                 <span className="font-bold">Tryb Lokalne Saldo</span> – dane są zapisywane prywatnie w pamięci urządzenia.
@@ -260,14 +264,15 @@ export function AppShell({
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setIsDemoMode(false)}
-                className="flex-1 sm:flex-none bg-bg-base text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-surface-2 transition shadow-sm whitespace-nowrap"
+                className="flex-1 sm:flex-none bg-bg-base text-white font-bold py-1.5 px-4 rounded-xl text-xs hover:bg-surface-2 active:scale-[0.98] transition-all shadow-sm whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
               >
                 Zaloguj się z Google
               </button>
               <button
                 onClick={() => setShowDemoBanner(false)}
-                className="p-1 text-text-muted hover:bg-slate-200 rounded-md transition"
+                className="p-1 text-text-muted hover:bg-slate-200 active:scale-[0.98] transition-all rounded-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
                 title="Ukryj"
+                aria-label="Ukryj demonstracyjne powiadomienie"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -276,18 +281,19 @@ export function AppShell({
         )}
 
         {/* TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-surface backdrop-blur-md border-b border-border/50 px-6 py-4 shrink-0 shadow-sm z-10" id="top-bar-header">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between bg-surface backdrop-blur-md border-b border-border/50 px-6 py-4 shrink-0 shadow-sm z-10 gap-4" id="top-bar-header">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-xl border border-border hover:bg-slate-700 lg:hidden"
+              className="p-1 rounded-xl border border-border hover:bg-slate-700 active:scale-[0.98] transition-all lg:hidden shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               id="btn-open-mobile-menu"
+              aria-label="Otwórz menu"
             >
               <Menu className="w-5 h-5 text-white" />
             </button>
-            <div>
-              <p className="text-[10px] font-bold text-[#849590] tracking-widest uppercase">{getTodayFormatted()}</p>
-              <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-[#849590] tracking-widest uppercase truncate" title={getTodayFormatted()}>{getTodayFormatted()}</p>
+              <h1 className="text-lg md:text-xl font-bold text-white tracking-tight truncate">
                 {activeView === "dashboard" && (new Date().getHours() >= 5 && new Date().getHours() < 18 ? "Dzień dobry" : "Dobry wieczór")}
                 {activeView === "transactions" && "Księga Transakcji"}
                 {activeView === "payments" && "Zaplanowane Opłaty"}
@@ -300,7 +306,7 @@ export function AppShell({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {!isOnline ? (
               <div className="hidden sm:flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full font-bold border border-amber-500/30">
                 <WifiOff className="w-3.5 h-3.5" />
@@ -325,7 +331,7 @@ export function AppShell({
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
-                className="bg-bg-base text-white font-bold py-2 px-4 rounded-xl hover:bg-surface-2 transition shadow-md text-xs"
+                className="bg-bg-base text-white font-bold py-2 px-4 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all shadow-md text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                 id="btn-quick-add-tx"
               >
                 ＋ Dodaj wpis
@@ -343,8 +349,8 @@ export function AppShell({
           }`}
           id="offline-worker-status-banner"
         >
-          <div className="flex items-center gap-2 md:gap-4 flex-wrap">
-            <span className="flex items-center gap-1.5 font-bold">
+          <div className="flex items-center gap-2 md:gap-4 flex-wrap min-w-0">
+            <span className="flex items-center gap-1.5 font-bold shrink-0 whitespace-nowrap">
               {isOnline ? (
                 <Wifi className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               ) : (
@@ -352,21 +358,21 @@ export function AppShell({
               )}
               <span>{isOnline ? "System Online" : "System Offline"}</span>
             </span>
-            <span className="text-text-muted dark:text-text-main">|</span>
-            <span className="flex items-center gap-1 text-[11px] text-text-muted">
+            <span className="text-text-muted dark:text-text-main shrink-0">|</span>
+            <span className="flex items-center gap-1 text-[11px] text-text-muted shrink-0 whitespace-nowrap">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span className="hidden xs:inline">Bezpieczeństwo:</span>
               <span className="font-medium">Ochrona aktywna</span>
             </span>
-            <span className="text-text-muted dark:text-text-main hidden sm:inline">|</span>
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-text-muted">
+            <span className="text-text-muted dark:text-text-main hidden sm:inline shrink-0">|</span>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-text-muted shrink-0 whitespace-nowrap">
               <Database className="w-3.5 h-3.5 text-text-muted" />
               <span>Autozapis</span>
             </span>
           </div>
           <button
             onClick={() => toggleSecurityInfo(true)}
-            className="flex items-center gap-1 text-[11px] text-text-muted hover:underline font-bold cursor-pointer"
+            className="flex items-center gap-1 text-[11px] text-text-muted hover:underline active:scale-[0.98] transition-all font-bold cursor-pointer shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
             id="btn-security-details"
           >
             <Info className="w-3.5 h-3.5" />
@@ -380,7 +386,7 @@ export function AppShell({
               <span className="text-sm">⚠️</span>
               <span className="font-bold">{apiError}</span>
             </div>
-            <button onClick={() => setApiError(null)} className="text-rose-500 hover:text-rose-700 font-bold text-sm shrink-0 leading-none">
+            <button onClick={() => setApiError(null)} className="text-rose-500 hover:text-rose-700 active:scale-[0.98] transition-all font-bold text-sm shrink-0 leading-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50" aria-label="Zamknij błąd">
               &times;
             </button>
           </div>
@@ -396,8 +402,9 @@ export function AppShell({
       {onOpenAiChatModal && canUseAiChat && activeProfile && !isProfileLocked && (
         <button
           onClick={onOpenAiChatModal}
-          className="fixed bottom-6 right-6 z-40 bg-bg-base text-white p-4 rounded-full shadow-lg hover:bg-surface-2 hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-slate-200 group cursor-pointer"
+          className="fixed bottom-6 right-6 z-40 bg-bg-base text-white p-4 rounded-full shadow-lg hover:bg-surface-2 active:scale-[0.98] hover:scale-105 transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 group cursor-pointer"
           title="Porozmawiaj z Asystentem AI"
+          aria-label="Porozmawiaj z Asystentem AI"
         >
           <Sparkles className="w-6 h-6 animate-pulse" />
           <span className="absolute -top-10 right-0 bg-surface text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>

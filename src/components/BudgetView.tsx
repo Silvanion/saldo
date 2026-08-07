@@ -51,17 +51,17 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
   return (
     <div className="space-y-6" id="budget-view-container">
       {/* Overview header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 rounded-2xl border border-border shadow-lg">
-        <div>
-          <p className="text-[10px] font-bold text-text-faint uppercase tracking-wider">Plan Kontroli Kosztów</p>
-          <h2 className="text-xl font-bold text-white">Budżety miesięczne</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 rounded-2xl border border-border shadow-lg min-w-0">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold text-text-faint uppercase tracking-wider truncate" title="Plan Kontroli Kosztów">Plan Kontroli Kosztów</p>
+          <h2 className="text-xl font-bold text-white truncate" title="Budżety miesięczne">Budżety miesięczne</h2>
           <p className="text-xs text-text-muted mt-1">
             Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget, profile.currency || 'PLN')}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent, profile.currency || 'PLN')}</strong>.
           </p>
         </div>
         <button
           onClick={onOpenBudgetModal}
-          className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-50 border border-emerald-200 transition shadow-lg text-sm whitespace-nowrap self-start sm:self-auto "
+          className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-100 border border-emerald-200 active:scale-[0.98] transition-all shadow-lg text-sm whitespace-nowrap self-start sm:self-auto shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
           id="btn-edit-budget-limits"
         >
           Modyfikuj limity
@@ -82,22 +82,22 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           const catTransactions = thisMonthExpenses.filter((t) => t.category === category);
 
           return (
-            <div key={category} className="bg-surface p-5 rounded-2xl border border-border shadow-lg hover:shadow-xl hover:bg-surface transition flex flex-col justify-between space-y-4">
-              <div>
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-xl flex items-center justify-center">
+            <div key={category} className="bg-surface p-5 rounded-2xl border border-border shadow-lg hover:shadow-xl hover:bg-surface transition flex flex-col justify-between space-y-4 min-w-0">
+              <div className="min-w-0">
+                <div className="flex justify-between items-start min-w-0 gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-xl flex items-center justify-center shrink-0">
                       {iconByCategory[category] || "📂"}
                     </span>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">{category}</h4>
-                      <p className="text-[10px] text-text-faint">Wykorzystano {percent}% limitu</p>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold text-white truncate" title={category}>{category}</h4>
+                      <p className="text-[10px] text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>Wykorzystano {percent}% limitu</p>
                     </div>
                   </div>
                   
-                  <div className="text-right">
-                    <span className="block text-xs font-bold text-text-main">{formatMoney(spent, profile.currency || 'PLN')}</span>
-                    <span className="text-[10px] text-text-faint">
+                  <div className="text-right shrink-0 min-w-0">
+                    <span className="block text-xs font-bold text-text-main truncate max-w-[120px]" title={formatMoney(spent, profile.currency || 'PLN')}>{formatMoney(spent, profile.currency || 'PLN')}</span>
+                    <span className="text-[10px] text-text-faint truncate block max-w-[120px]" title={limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}>
                       {limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}
                     </span>
                   </div>
@@ -126,16 +126,16 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               </div>
 
               {/* Small list of category transactions */}
-              <div className="border-t border-border pt-3">
-                <p className="text-[10px] uppercase font-bold text-text-muted tracking-wider mb-2">Ostatnie wydatki w tej kategorii</p>
+              <div className="border-t border-border pt-3 min-w-0">
+                <p className="text-[10px] uppercase font-bold text-text-muted tracking-wider mb-2 truncate" title="Ostatnie wydatki w tej kategorii">Ostatnie wydatki w tej kategorii</p>
                 {catTransactions.length === 0 ? (
-                  <p className="text-[11px] text-text-muted italic">Brak wydatków w tym miesiącu.</p>
+                  <p className="text-[11px] text-text-muted italic truncate" title="Brak wydatków w tym miesiącu.">Brak wydatków w tym miesiącu.</p>
                 ) : (
-                  <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
+                  <div className="space-y-1.5 pr-1">
                     {catTransactions.slice(0, 3).map((t) => (
-                      <div key={t.id} className="flex justify-between items-center text-xs">
-                        <span className="text-text-muted truncate max-w-[150px]">{t.name}</span>
-                        <span className="font-bold text-text-main">{formatMoney(t.amount, profile.currency || 'PLN')}</span>
+                      <div key={t.id} className="flex justify-between items-center text-xs min-w-0 gap-2">
+                        <span className="text-text-muted flex-1 min-w-0 truncate" title={t.name}>{t.name}</span>
+                        <span className="font-bold text-text-main shrink-0 whitespace-nowrap" title={formatMoney(t.amount, profile.currency || 'PLN')}>{formatMoney(t.amount, profile.currency || 'PLN')}</span>
                       </div>
                     ))}
                   </div>

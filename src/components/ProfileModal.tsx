@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 
 export interface ProfileModalProps {
   isOpen: boolean;
@@ -48,40 +49,46 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="profile-modal"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-modal-title"
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl p-6 shadow-sm"
+        className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-muted" id="close-profile-modal">
-          &times;
-        </button>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">Zarządzanie profilami</p>
-        <h2 className="text-2xl font-bold text-white mb-4">Utwórz profil</h2>
+        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-profile-modal">
+            &times;
+          </button>
+          <p className="text-xs font-medium text-text-muted truncate" title="Zarządzanie profilami">Zarządzanie profilami</p>
+          <h2 id="profile-modal-title" className="text-2xl font-bold text-text-main min-w-0 truncate" title="Utwórz profil">Utwórz profil</h2>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 min-w-0">
+          <div className="flex-1 overflow-y-auto min-w-0 p-6 space-y-4 custom-scrollbar">
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Nazwa profilu (np. Moje Finanse)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Nazwa profilu (np. Moje Finanse)</label>
             <input
               required
               maxLength={80}
               placeholder="np. Budżet Seweryna, Domowy"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
               id="input-profile-name"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Ikona profilu</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Ikona profilu</label>
             <details className="group border border-border rounded-xl relative">
-              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-slate-100 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border">
+              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-surface-offset transition-colors flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{avatar}</span>
                   <span>Wybierz ikonę profilu</span>
@@ -100,7 +107,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all ${avatar === emoji ? 'bg-emerald-50 border-slate-900 shadow-sm' : 'bg-surface border-border hover:bg-slate-100 grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${avatar === emoji ? 'bg-brand-surface border-brand shadow-sm' : 'bg-surface border-border hover:bg-surface-offset grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -111,11 +118,11 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Rodzaj profilu</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Rodzaj profilu</label>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
-              className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-white placeholder-slate-400 focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-text-main placeholder-slate-400 focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
               id="select-profile-kind"
             >
               <option value="personal">Tylko dla mnie (osobisty)</option>
@@ -125,23 +132,24 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
 
           {kind === "shared" && (
             <div>
-              <label className="block text-xs font-semibold text-white mb-1">Imię partnera / członka rodziny</label>
-              <input
-                required
-                pattern=".*\S+.*"
-                title="Imię partnera nie może składać się z samych spacji"
-                maxLength={80}
-                placeholder="np. Ania, Marta, Piotr"
-                value={partnerName}
-                onChange={(e) => setPartnerName(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
-                id="input-profile-partner"
-              />
+              <label className="block text-xs font-medium text-text-muted mb-1">Imię partnera / członka rodziny</label>
+              <DelayedTooltip label="Imię partnera nie może składać się z samych spacji">
+                <input
+                  required
+                  pattern=".*\S+.*"
+                  maxLength={80}
+                  placeholder="np. Ania, Marta, Piotr"
+                  value={partnerName}
+                  onChange={(e) => setPartnerName(e.target.value)}
+                  className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
+                  id="input-profile-partner"
+                />
+              </DelayedTooltip>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
             <input
               type="password"
               inputMode="numeric"
@@ -151,26 +159,32 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="Wpisz 4 do 8 cyfr"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
               id="input-profile-pin"
             />
-            <p className="text-[11px] text-text-muted mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
+            <p className="text-xs font-medium text-text-muted mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
           <div className="rounded-xl bg-slate-100 p-4">
-            <p className="text-[12px] text-white leading-relaxed">
+            <p className="text-xs text-text-main leading-relaxed">
               <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
             </p>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-bg-base/95 backdrop-blur-2xl transition disabled:opacity-50 disabled:cursor-not-allowed"
-            id="btn-profile-submit"
-          >
-            {isSubmitting ? "Tworzenie..." : "Utwórz profil"}
-          </button>
+          </div>
+
+          <div className="shrink-0 p-6 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              id="btn-profile-submit"
+            >
+              <span className="truncate" title={isSubmitting ? "Tworzenie..." : "Utwórz profil"}>
+                {isSubmitting ? "Tworzenie..." : "Utwórz profil"}
+              </span>
+            </button>
+          </div>
         </form>
       </motion.div>
     </motion.div>

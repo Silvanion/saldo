@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import { Transaction } from "../types";
 import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
 import { UploadCloud, FileText, Sparkles, Loader2, FileSpreadsheet, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import { checkDuplicate } from "../services/duplicateDetector";
 import {
   BANK_PRESETS,
@@ -206,6 +207,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-bg-base/40 backdrop-blur-xs"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="import-modal-title"
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -215,14 +219,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         {/* HEADER */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div>
-            <h2 className="text-lg font-black text-text-main tracking-tight flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-[#137566]" />
+            <h2 id="import-modal-title" className="text-lg font-black text-text-main tracking-tight flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-brand" />
               Import historii transakcji bankowych
             </h2>
             <p className="text-xs text-text-muted font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
           </div>
-          <button onClick={onClose} className="text-text-muted hover:text-text-muted transition p-2 bg-surface hover:bg-slate-100 rounded-full">
-            <span className="sr-only">Zamknij</span>
+          <button onClick={onClose} aria-label="Zamknij" className="text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
             &times;
           </button>
         </div>
@@ -232,16 +235,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           <div className="flex border-b border-border">
             <button
               onClick={() => setTab("csv")}
-              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "csv" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-text-muted hover:bg-surface"
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset ${
+                tab === "csv" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
             </button>
             <button
               onClick={() => setTab("ai")}
-              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition ${
-                tab === "ai" ? "text-[#137566] border-b-2 border-[#137566] bg-emerald-50/30" : "text-text-muted hover:bg-surface"
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset ${
+                tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
               }`}
             >
               <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
@@ -249,7 +252,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           </div>
         )}
 
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar min-w-0">
           {step === 1 && tab === "ai" && isAiAvailable && (
             <div className="space-y-4">
               <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
@@ -264,13 +267,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
                 placeholder="Wklej historię transakcji z banku tutaj..."
-                className="w-full h-48 p-4 border border-border rounded-xl text-sm outline-none focus:border-[#137566] resize-none"
+                className="w-full h-48 p-4 border border-border rounded-xl text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand resize-none transition-colors"
               ></textarea>
               {aiError && <p className="text-rose-500 text-xs font-semibold">{aiError}</p>}
               <button
                 onClick={handleAiProcess}
                 disabled={isAiProcessing || !aiText.trim()}
-                className="w-full bg-[#137566] text-white font-bold py-3 px-6 rounded-xl hover:bg-[#0f5d51] transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                className="w-full bg-brand text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               >
                 {isAiProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 {isAiProcessing ? "Analizowanie..." : "Analizuj transakcje AI"}
@@ -291,17 +294,17 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       key={preset.id}
                       type="button"
                       onClick={() => setSelectedPresetId(preset.id)}
-                      className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      className={`p-3 rounded-xl border transition-all active:scale-[0.98] flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
                         selectedPresetId === preset.id
-                          ? "border-[#137566] bg-emerald-50/50 ring-1 ring-[#137566]"
-                          : "border-border bg-bg-base/95 backdrop-blur-2xl hover:border-slate-300"
+                          ? "border-brand bg-brand-surface ring-1 ring-brand"
+                          : "border-border bg-bg-base/95 backdrop-blur-2xl hover:border-slate-300 hover:bg-surface-2"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-text-main">{preset.name}</span>
-                        {selectedPresetId === preset.id && <CheckCircle2 className="w-4 h-4 text-[#137566]" />}
+                        {selectedPresetId === preset.id && <CheckCircle2 className="w-4 h-4 text-brand" />}
                       </div>
-                      <span className="text-[10px] text-text-muted mt-1">{preset.description}</span>
+                      <span className="text-xs text-text-muted mt-1">{preset.description}</span>
                     </button>
                   ))}
                 </div>
@@ -309,11 +312,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
               {/* Encoding & Security note (Task D1 #2 & #7) */}
               <div className="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 flex items-start gap-2.5 text-xs text-emerald-800">
-                <ShieldCheck className="w-4 h-4 text-[#137566] shrink-0 mt-0.5" />
+                <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-bold text-emerald-900">Bezpieczny lokalny import (UTF-8 / Windows-1250)</p>
 import { formatMoney } from "../utils/format";
-                  <p className="text-[11px] text-emerald-700">
+                  <p className="text-xs text-emerald-700">
                     Oczyszczanie nagłówków z znaku BOM jest automatyczne. Dane są przetwarzane wyłącznie lokalnie w przeglądarce i nie opuszczają Twojego urządzenia.
                   </p>
                 </div>
@@ -322,16 +325,16 @@ import { formatMoney } from "../utils/format";
               {/* Drag & Drop File */}
               <div
                 className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                  dragActive ? "border-[#137566] bg-emerald-50/50" : "border-border bg-surface"
+                  dragActive ? "border-brand bg-brand-surface" : "border-border bg-surface"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-[#137566]" : "text-text-muted"}`} />
+                <FileText className={`w-8 h-8 mx-auto mb-2 ${dragActive ? "text-brand" : "text-text-muted"}`} />
                 <p className="text-xs font-semibold text-text-main mb-0.5">2. Przeciągnij i upuść plik CSV z banku</p>
-                <p className="text-[11px] text-text-muted mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
+                <p className="text-xs text-text-muted mb-3">lub kliknij przycisk, aby wybrać plik .csv z komputera</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -341,7 +344,7 @@ import { formatMoney } from "../utils/format";
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-bg-base/95 backdrop-blur-2xl border border-border text-text-main font-bold py-2 px-5 rounded-xl hover:bg-surface transition text-xs shadow-xs"
+                  className="bg-surface-offset text-text-main hover:bg-border active:scale-[0.98] transition-all font-bold py-2 px-5 rounded-xl text-xs shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   Wybierz plik .csv
                 </button>
@@ -349,7 +352,7 @@ import { formatMoney } from "../utils/format";
 
               <div className="relative flex py-1 items-center">
                 <div className="flex-grow border-t border-border"></div>
-                <span className="flex-shrink mx-4 text-text-muted text-[11px] font-semibold uppercase tracking-wider">albo wklej zawartość pliku CSV</span>
+                <span className="flex-shrink mx-4 text-xs font-medium text-text-muted">albo wklej zawartość pliku CSV</span>
                 <div className="flex-grow border-t border-border"></div>
               </div>
 
@@ -358,12 +361,12 @@ import { formatMoney } from "../utils/format";
                   value={csvText}
                   onChange={(e) => setCsvText(e.target.value)}
                   placeholder="Tutaj możesz wkleić skopiowane wiersze z pliku CSV (np. z nagłówkiem: Data;Kwota;Tytuł)..."
-                  className="w-full h-28 p-3 border border-border rounded-xl text-xs font-mono outline-none focus:border-[#137566] resize-none"
+                  className="w-full h-28 p-3 border border-border rounded-xl text-xs font-mono outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand resize-none transition-colors"
                 ></textarea>
                 <button
                   onClick={() => processRawCsvString(csvText, "Wklejony tekst CSV")}
                   disabled={!csvText.trim()}
-                  className="w-full bg-[#137566] text-white font-bold py-2.5 px-4 rounded-xl hover:bg-[#0f5d51] transition shadow-xs text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-brand text-white font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   Przetwórz wklejony tekst CSV &rarr;
                 </button>
@@ -375,14 +378,14 @@ import { formatMoney } from "../utils/format";
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <h3 className="text-sm font-bold text-text-main">Mapowanie kolumn z {fileName}</h3>
-                <span className="text-[11px] font-mono bg-slate-100 text-text-muted px-2.5 py-1 rounded-md">
+                <span className="text-xs font-mono bg-slate-100 text-text-muted px-2.5 py-1 rounded-md">
                   Wykryty separator: <strong className="text-white">&quot;{detectedDelimiter}&quot;</strong>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-text-muted">Kolumna tytułu/nazwy</label>
-                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna tytułu/nazwy</label>
+                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -392,8 +395,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-text-muted">Kolumna kwoty</label>
-                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna kwoty</label>
+                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -403,8 +406,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-text-muted">Kolumna daty</label>
-                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna daty</label>
+                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -414,8 +417,8 @@ import { formatMoney } from "../utils/format";
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-text-muted">Kategoria domyślna</label>
-                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2">
+                  <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
+                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
                     {expenseCategories.concat(incomeCategories).map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -427,16 +430,16 @@ import { formatMoney } from "../utils/format";
 
               {/* Categorization Rules Notice */}
               {activeProfile?.transactionRules && activeProfile.transactionRules.length > 0 && (
-                <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
+                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
                   ✨ Szybka automatyzacja przypisze kategorie w tle (wykryto <strong>{activeProfile.transactionRules.length} zapisanych reguł</strong>).
                 </p>
               )}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                <button onClick={() => setStep(1)} className="px-4 py-2 text-xs font-semibold text-text-muted">
+                <button onClick={() => setStep(1)} className="bg-transparent text-text-muted hover:text-text-main hover:bg-surface-offset active:scale-[0.98] transition-colors rounded-xl px-4 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
                   Wstecz
                 </button>
-                <button onClick={handleGenerateCsvPreview} className="bg-[#137566] text-white font-bold py-2 px-5 rounded-xl text-xs">
+                <button onClick={handleGenerateCsvPreview} className="bg-brand text-white font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
                   Generuj podgląd &rarr;
                 </button>
               </div>
@@ -450,7 +453,7 @@ import { formatMoney } from "../utils/format";
                   <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-semibold text-rose-900">Podsumowanie problemów z parsowaniem pliku:</h4>
-                    <ul className="list-disc list-inside text-[11px] text-rose-700 mt-1 space-y-0.5">
+                    <ul className="list-disc list-inside text-xs text-rose-700 mt-1 space-y-0.5">
                       {importStats.tooMany && <li>Osiągnięto limit 2000 transakcji. Pozostałe zostały zignorowane.</li>}
                       {importStats.invalidAmount > 0 && <li>Odrzucono {importStats.invalidAmount} wierszy ze względu na nieprawidłową kwotę (NaN lub 0).</li>}
                       {importStats.invalidDate > 0 && <li>Odrzucono {importStats.invalidDate} wierszy ze względu na nieprawidłowy/pusty format daty.</li>}
@@ -464,7 +467,7 @@ import { formatMoney } from "../utils/format";
                 <span className="text-xs font-semibold text-emerald-800">
                   Nowe transakcje gotowe do zaimportowania: <strong className="text-xl font-extrabold">{mappedTransactions.length}</strong>
                 </span>
-                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-[#137566] hover:underline font-bold">
+                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-brand hover:text-brand-hover hover:underline font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
                   Wróć i popraw
                 </button>
               </div>
@@ -476,7 +479,7 @@ import { formatMoney } from "../utils/format";
                     <h4 className="text-xs font-semibold text-amber-900">
                       Wykryto potencjalne duplikaty: {duplicateAnalysis.duplicateCount}
                     </h4>
-                    <p className="text-[11px] text-amber-700 mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
+                    <p className="text-xs text-amber-700 mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
                   </div>
                 </div>
               )}
@@ -494,16 +497,20 @@ import { formatMoney } from "../utils/format";
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-bg-base/95 backdrop-blur-2xl">
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => (
-                      <tr key={idx} className={`transition ${warning ? "bg-amber-50/50" : "hover:bg-surface"}`}>
+                      <tr key={idx} className={`transition-colors ${warning ? "bg-amber-50/50 hover:bg-amber-100/50" : "hover:bg-surface"}`}>
                         <td className="py-2 px-3">
-                          <div className="font-bold text-text-main flex items-center gap-1.5">
-                            {warning && <AlertTriangle className="w-3 h-3 text-amber-500" title={warning.reason} />}
-                            {tx.name}
+                          <div className="font-bold text-text-main flex items-center gap-1.5 min-w-0">
+                            {warning && (
+                              <DelayedTooltip label={warning.reason}>
+                                <AlertTriangle className="w-3 h-3 text-amber-500 outline-none shrink-0" />
+                              </DelayedTooltip>
+                            )}
+                            <span className="truncate block max-w-[150px] sm:max-w-xs" title={tx.name}>{tx.name}</span>
                           </div>
                         </td>
                         <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
                         <td className="py-2 px-3">
-                          <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
+                          <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-xs">
                             <span>{tx.categoryIcon}</span>
                             {tx.category}
                           </span>
@@ -521,14 +528,14 @@ import { formatMoney } from "../utils/format";
                 {duplicateAnalysis.duplicateCount > 0 && (
                   <button
                     onClick={() => handleConfirmImport(true)}
-                    className="bg-amber-100 text-amber-800 font-bold py-3 px-5 rounded-xl hover:bg-amber-200 transition text-xs"
+                    className="bg-amber-100 text-amber-800 font-bold py-3 px-5 rounded-xl hover:bg-amber-200 active:scale-[0.98] transition-all text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                   >
                     Pomiń duplikaty ({mappedTransactions.length - duplicateAnalysis.duplicateCount}) i importuj
                   </button>
                 )}
                 <button
                   onClick={() => handleConfirmImport(false)}
-                  className="bg-[#137566] text-white font-bold py-3 px-8 rounded-xl hover:bg-[#0f5d51] transition shadow-md text-xs"
+                  className="bg-brand text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   ✓ Zaimportuj wszystko ({mappedTransactions.length})
                 </button>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { WifiOff, RefreshCw } from 'lucide-react';
+import { DelayedTooltip } from './dashboard/DelayedTooltip';
 
 export function PWABadge() {
   const {
@@ -48,20 +49,21 @@ export function PWABadge() {
             <p className="font-bold text-emerald-700">Dostępna nowa wersja — Odśwież</p>
             <p className="text-text-muted mt-0.5">Zaktualizuj aplikację, aby załadować nową wersję.</p>
           </div>
-          <button
-            onClick={() => updateServiceWorker(true)}
-            className="bg-[#137566] hover:bg-[#0f5d51] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
-            title="Odśwież aplikację"
-            id="btn-pwa-reload"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Odśwież
-          </button>
+          <DelayedTooltip label="Odśwież aplikację">
+            <button
+              onClick={() => updateServiceWorker(true)}
+              className="bg-brand hover:opacity-90 text-white px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
+              id="btn-pwa-reload"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Odśwież
+            </button>
+          </DelayedTooltip>
         </div>
       )}
       
       {offlineReady && !needRefresh && !isOffline && (
-        <div className="bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-xl shadow-lg border border-emerald-100 flex items-center justify-between gap-2 animate-in slide-in-from-bottom-2 duration-300">
+        <div className="bg-brand-surface text-brand px-4 py-2.5 rounded-xl shadow-lg border border-emerald-100 flex items-center justify-between gap-2 animate-in slide-in-from-bottom-2 duration-300">
           <span className="text-xs font-bold">Aplikacja gotowa do pracy offline</span>
           <button onClick={() => setOfflineReady(false)} className="text-emerald-600 hover:text-emerald-800 font-bold text-xs p-1">✕</button>
         </div>

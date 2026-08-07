@@ -3,6 +3,7 @@ import React from "react";
 import { Payment } from "../types";
 import { getLocalDateIso } from "../utils";
 import { formatMoney } from "../utils/format";
+import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 
 interface SuggestedPaymentsPanelProps {
   currency: string;
@@ -79,14 +80,15 @@ export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment, c
             <div key={`sugg-${sp.id}`} className="bg-surface rounded-xl border border-border p-3 shadow-sm hover:border-slate-300 transition">
               <h4 className="text-sm font-bold text-text-main">{sp.name}</h4>
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-text-muted">{formatMoney(sp.amount, sp.currency || currency)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
-                <button
-                  onClick={() => handleAddSuggestedPayment(sp)}
-                  className="bg-slate-100 hover:bg-slate-100 text-text-muted border border-slate-200 p-1.5 rounded-xl text-xs font-semibold transition"
-                  title="Skopiuj do tego miesiąca"
-                >
-                  + Dodaj
-                </button>
+                <span className="text-xs text-text-muted">{formatMoney(sp.amount, sp.currency || currency)} <br/><span className="text-xs">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
+                <DelayedTooltip label="Skopiuj do tego miesiąca">
+                  <button
+                    onClick={() => handleAddSuggestedPayment(sp)}
+                    className="bg-slate-100 hover:bg-slate-200 text-text-muted border border-slate-200 px-2 py-1.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50 cursor-pointer"
+                  >
+                    + Dodaj
+                  </button>
+                </DelayedTooltip>
               </div>
             </div>
           );

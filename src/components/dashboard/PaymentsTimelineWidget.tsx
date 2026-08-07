@@ -200,32 +200,33 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     if (items.length === 0) return null;
     return (
       <div className="mb-4 relative">
-        <div className="flex items-center gap-2 mb-2">
-          <div className={`p-1.5 rounded-lg ${bgClass} ${colorClass} border border-white/5 shadow-inner`}>
+        <div className="flex items-center gap-2 mb-2 min-w-0">
+          <div className={`p-1.5 rounded-lg ${bgClass} ${colorClass} border border-white/5 shadow-inner shrink-0`}>
             {icon}
           </div>
-          <h4 className={`text-xs font-bold uppercase tracking-wider ${colorClass} `}>{title}</h4>
+          <h4 className={`text-xs font-bold uppercase tracking-wider ${colorClass} truncate`} title={title}>{title}</h4>
         </div>
         <div className="space-y-2 border-l-2 border-border ml-3.5 pl-4 relative">
           {items.map(p => {
             const isHighlighted = highlightedIds.has(p.id);
             return (
-              <div key={p.id} className={`bg-surface border ${isHighlighted ? "border-emerald-200  " : "border-border shadow-sm"} rounded-xl p-3 hover:border-emerald-200 hover:bg-surface-2/50 transition group flex items-center justify-between `}>
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-text-main group-hover:text-emerald-700 transition-colors">{p.name}</span>
+              <div key={p.id} className={`bg-surface border ${isHighlighted ? "border-emerald-200  " : "border-border shadow-sm"} rounded-xl p-3 hover:border-emerald-200 hover:bg-surface-offset transition-colors group flex items-center justify-between gap-3`}>
+                <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-bold text-text-main group-hover:text-emerald-700 transition-colors truncate" title={p.name}>{p.name}</span>
                     {isHighlighted && (
-                      <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">Najbliższe</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Najbliższe</span>
                     )}
                   </div>
-                  <span className="text-[10px] text-text-faint font-medium">{p.dueDate}</span>
+                  <span className="text-[10px] text-text-faint font-medium truncate" title={p.dueDate}>{p.dueDate}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-black ${isHighlighted ? "text-emerald-700" : "text-text-muted"}`}>{formatMoney(p.amount, currency)}</span>
+                <div className="flex items-center gap-3 shrink-0 ml-2 max-w-[40%]">
+                  <span className={`text-sm font-black truncate ${isHighlighted ? "text-emerald-700" : "text-text-muted"}`} title={formatMoney(p.amount, currency)}>{formatMoney(p.amount, currency)}</span>
                   <button
                     onClick={() => onTogglePaymentStatus(p.id)}
-                    className="w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-transparent hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 hover: transition"
+                    className="w-6 h-6 shrink-0 rounded-full border border-slate-200 flex items-center justify-center text-transparent hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer"
                     title="Oznacz jako opłacone"
+                    aria-label="Oznacz jako opłacone"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -245,9 +246,9 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     
     if (upcoming.length === 0 && overdue.length === 0) {
       return (
-        <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center">
-          <div className="text-2xl mb-1 opacity-50 ">🏖️</div>
-          <p className="text-xs text-text-muted font-medium">Brak zobowiązań na najbliższe 30 dni.</p>
+        <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
+          <div className="text-2xl mb-1 opacity-50 shrink-0">🏖️</div>
+          <p className="text-xs text-text-muted font-medium truncate" title="Brak zobowiązań na najbliższe 30 dni.">Brak zobowiązań na najbliższe 30 dni.</p>
         </div>
       );
     }
@@ -260,34 +261,34 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
     return (
       <div className="flex flex-col gap-4 pt-2">
         {overdue.length > 0 && (
-          <div className="bg-rose-900/20 border border-rose-200 rounded-xl p-4 flex flex-col gap-3  ">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-700 drop-" />
-              <h4 className="text-sm font-bold text-rose-700">Zaległe płatności ({overdue.length})</h4>
+          <div className="bg-rose-900/20 border border-rose-200 rounded-xl p-4 flex flex-col gap-3 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <AlertCircle className="w-4 h-4 text-rose-700 drop- shrink-0" />
+              <h4 className="text-sm font-bold text-rose-700 truncate" title={`Zaległe płatności (${overdue.length})`}>Zaległe płatności ({overdue.length})</h4>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-rose-700/80">Łączna kwota zaległości:</span>
-              <span className="text-sm font-bold text-rose-700 drop-">{formatMoney(overdueSum, currency)}</span>
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-xs text-rose-700/80 truncate" title="Łączna kwota zaległości:">Łączna kwota zaległości:</span>
+              <span className="text-sm font-bold text-rose-700 drop- shrink-0 truncate" title={formatMoney(overdueSum, currency)}>{formatMoney(overdueSum, currency)}</span>
             </div>
           </div>
         )}
 
-        <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 shadow-inner ">
-          <div className="flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-emerald-700" />
-            <h4 className="text-sm font-bold text-text-main">{texts.overviewTitle}</h4>
+        <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 shadow-inner min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <PieChart className="w-4 h-4 text-emerald-700 shrink-0" />
+            <h4 className="text-sm font-bold text-text-main truncate" title={texts.overviewTitle}>{texts.overviewTitle}</h4>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-text-muted">Liczba pozycji:</span>
-            <span className="text-sm font-bold text-text-main">{count}</span>
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-xs text-text-muted truncate" title="Liczba pozycji:">Liczba pozycji:</span>
+            <span className="text-sm font-bold text-text-main shrink-0 truncate" title={count.toString()}>{count}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-text-muted">Suma kwot:</span>
-            <span className="text-sm font-bold text-emerald-700 drop-">{formatMoney(sum, currency)}</span>
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-xs text-text-muted truncate" title="Suma kwot:">Suma kwot:</span>
+            <span className="text-sm font-bold text-emerald-700 drop- shrink-0 truncate" title={formatMoney(sum, currency)}>{formatMoney(sum, currency)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-text-muted">Najbliższy termin:</span>
-            <span className="text-sm font-bold text-text-main">{nearest}</span>
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-xs text-text-muted truncate" title="Najbliższy termin:">Najbliższy termin:</span>
+            <span className="text-sm font-bold text-text-main shrink-0 truncate" title={nearest}>{nearest}</span>
           </div>
         </div>
       </div>
@@ -297,79 +298,79 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   return (
     <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[420px] relative overflow-hidden group/timeline">
       <div className="absolute inset-0  pointer-events-none opacity-50 group-hover/timeline:opacity-100 transition-opacity duration-500" />
-      <div className="flex items-center justify-between mb-5 relative z-10">
-        <div>
-          <p className="text-[10px] font-bold text-text-faint uppercase tracking-wider mb-0.5">Oś Czasu</p>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-text-main ">Timeline Płatności</h3>
+      <div className="flex items-center justify-between mb-5 relative z-10 gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Oś Czasu">Oś Czasu</p>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="text-base font-bold text-text-main truncate" title="Timeline Płatności">Timeline Płatności</h3>
             {globalOverdueCount > 0 && (
-              <span className="text-[10px] text-rose-700 font-medium flex items-center gap-1 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-200 ">
-                <AlertCircle className="w-3 h-3 text-rose-700" />
+              <span className="text-[10px] text-rose-700 font-medium flex items-center gap-1 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-200 shrink-0">
+                <AlertCircle className="w-3 h-3 text-rose-700 shrink-0" />
                 Zaległe: {globalOverdueCount}
               </span>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setViewMode(viewMode === "compact" ? "monthly" : "compact")}
-            className="text-[10px] font-bold text-text-muted bg-surface border border-border px-2.5 py-1.5 rounded-lg hover:bg-slate-100 hover:text-text-main transition flex items-center gap-1 shadow-inner "
+            className="text-[10px] font-bold text-text-muted bg-surface border border-border px-2.5 py-1.5 rounded-lg hover:bg-surface-offset hover:text-text-main active:scale-[0.98] transition-all flex items-center gap-1 shadow-inner shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer"
           >
-            {viewMode === "compact" ? <PieChart className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
+            {viewMode === "compact" ? <PieChart className="w-3.5 h-3.5 shrink-0" /> : <List className="w-3.5 h-3.5 shrink-0" />}
             {viewMode === "compact" ? "Monthly" : "Compact"}
           </button>
           <button
             onClick={() => onChangeView("payments")}
-            className="text-[10px] font-bold text-text-muted bg-surface border border-border px-2.5 py-1.5 rounded-lg hover:bg-slate-100 hover:text-text-main transition flex items-center gap-1 shadow-inner "
+            className="text-[10px] font-bold text-text-muted bg-surface border border-border px-2.5 py-1.5 rounded-lg hover:bg-surface-offset hover:text-text-main active:scale-[0.98] transition-all flex items-center gap-1 shadow-inner shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer"
           >
-            <CalendarClock className="w-3.5 h-3.5 text-emerald-700" />
+            <CalendarClock className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
             Zarządzaj
           </button>
         </div>
       </div>
 
-      <div className="mb-4 bg-emerald-900/20 border border-emerald-200 rounded-xl p-3 flex justify-between items-center   relative z-10">
-        <div className="flex items-center gap-2">
-           <CalendarClock className="w-4 h-4 text-emerald-700 drop-" />
-           <span className="text-sm font-semibold text-emerald-700">Do zapłaty w tym tygodniu</span>
+      <div className="mb-4 bg-emerald-900/20 border border-emerald-200 rounded-xl p-3 flex justify-between items-center gap-2 relative z-10 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+           <CalendarClock className="w-4 h-4 text-emerald-700 drop- shrink-0" />
+           <span className="text-sm font-semibold text-emerald-700 truncate" title="Do zapłaty w tym tygodniu">Do zapłaty w tym tygodniu</span>
         </div>
-        <span className="text-sm font-bold text-emerald-700 drop-">{formatMoney(dueThisWeekTotal, currency)}</span>
+        <span className="text-sm font-bold text-emerald-700 drop- shrink-0 truncate" title={formatMoney(dueThisWeekTotal, currency)}>{formatMoney(dueThisWeekTotal, currency)}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0 relative z-10">
-        <div className="flex gap-1 mb-4 bg-surface p-1 rounded-xl w-fit border border-border shadow-inner">
-          <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "all" ? "bg-slate-100 text-text-main shadow-sm border border-slate-200" : "text-text-muted hover:text-text-muted hover:bg-surface-2"}`}>Wszystkie</button>
-          <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "overdue" ? "bg-rose-900/50 text-rose-700 shadow-sm border border-rose-200" : "text-text-muted hover:text-rose-700 hover:bg-rose-900/20"}`}>Zaległe</button>
-          <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "week" ? "bg-emerald-900/50 text-emerald-700 shadow-sm border border-emerald-200" : "text-text-muted hover:text-emerald-700 hover:bg-emerald-900/20"}`}>Ten tydzień</button>
-          <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${range === "month" ? "bg-slate-100 text-text-main shadow-sm border border-slate-200" : "text-text-muted hover:text-text-muted hover:bg-surface-2"}`}>30 dni</button>
+        <div className="flex flex-wrap gap-1 mb-4 bg-surface p-1 rounded-xl w-fit max-w-full border border-border shadow-inner min-w-0">
+          <button onClick={() => setRange("all")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer ${range === "all" ? "bg-slate-100 text-text-main shadow-sm border border-slate-200" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
+          <button onClick={() => setRange("overdue")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50 cursor-pointer ${range === "overdue" ? "bg-rose-900/50 text-rose-700 shadow-sm border border-rose-200" : "text-text-muted hover:text-rose-700 hover:bg-rose-900/20"}`}>Zaległe</button>
+          <button onClick={() => setRange("week")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer ${range === "week" ? "bg-emerald-900/50 text-emerald-700 shadow-sm border border-emerald-200" : "text-text-muted hover:text-emerald-700 hover:bg-emerald-900/20"}`}>Ten tydzień</button>
+          <button onClick={() => setRange("month")} className={`text-[11px] font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer ${range === "month" ? "bg-slate-100 text-text-main shadow-sm border border-slate-200" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
         </div>
 
-        <div className="mb-5 bg-bg-base/40 rounded-xl p-3 border border-border shadow-inner flex items-center justify-between">
+        <div className="mb-5 bg-bg-base/40 rounded-xl p-3 border border-border shadow-inner flex items-center justify-between min-w-0">
           {activeSummary.count > 0 ? (
-            <div className="flex flex-col w-full gap-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-emerald-700" />
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xs font-semibold text-text-main">{texts.label}</span>
-                    <span className="text-[10px] font-medium text-text-faint">({activeSummary.count})</span>
+            <div className="flex flex-col w-full gap-1.5 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarDays className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <div className="flex items-baseline gap-1.5 min-w-0">
+                    <span className="text-xs font-semibold text-text-main truncate" title={texts.label}>{texts.label}</span>
+                    <span className="text-[10px] font-medium text-text-faint shrink-0">({activeSummary.count})</span>
                   </div>
                 </div>
-                <span className="text-sm font-bold text-text-main">{formatMoney(activeSummary.total, currency)}</span>
+                <span className="text-sm font-bold text-text-main shrink-0 truncate" title={formatMoney(activeSummary.total, currency)}>{formatMoney(activeSummary.total, currency)}</span>
               </div>
               {range === "all" && totalOverdueCountInView > 0 && (
-                <div className="flex items-center gap-1.5 pl-6">
-                  <div className="w-1 h-1 rounded-full bg-rose-500 "></div>
-                  <span className="text-[10px] text-text-muted font-medium">
+                <div className="flex items-center gap-1.5 pl-6 min-w-0">
+                  <div className="w-1 h-1 rounded-full bg-rose-500 shrink-0"></div>
+                  <span className="text-[10px] text-text-muted font-medium truncate" title={`W tym zaległe: ${totalOverdueCountInView}`}>
                     W tym zaległe: <span className="text-rose-700 font-semibold">{totalOverdueCountInView}</span>
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-text-faint">
-              <span className="text-lg opacity-80 ">🏖️</span>
-              <span className="text-xs font-medium">
+            <div className="flex items-center gap-2 text-text-faint min-w-0">
+              <span className="text-lg opacity-80 shrink-0">🏖️</span>
+              <span className="text-xs font-medium truncate" title={texts.emptySummary}>
                 {texts.emptySummary}
               </span>
             </div>
@@ -377,10 +378,10 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         </div>
 
         {activeSummary.count === 0 ? (
-          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center">
-            <div className="text-2xl mb-1 opacity-50 ">🏖️</div>
-            <p className="text-xs text-text-muted font-medium">{texts.emptyTitle}</p>
-            <p className="text-[10px] text-text-faint">{texts.emptyDesc}</p>
+          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
+            <div className="text-2xl mb-1 opacity-50 shrink-0">🏖️</div>
+            <p className="text-xs text-text-muted font-medium truncate" title={texts.emptyTitle}>{texts.emptyTitle}</p>
+            <p className="text-[10px] text-text-faint truncate" title={texts.emptyDesc}>{texts.emptyDesc}</p>
           </div>
         ) : (
           viewMode === "compact" ? (
