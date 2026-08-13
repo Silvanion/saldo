@@ -57,6 +57,7 @@ async function startServer() {
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],
       }
     } : false,
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     crossOriginEmbedderPolicy: false
   }));
 
