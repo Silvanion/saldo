@@ -54,7 +54,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="goal-modal"
     >
       <motion.div
@@ -162,7 +162,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="goal-deposit-modal"
     >
       <motion.div
@@ -271,7 +271,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="budget-modal"
     >
       <motion.div
@@ -370,7 +370,7 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="pin-modal"
     >
       <motion.div
@@ -504,7 +504,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/95 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="unlock-modal"
     >
       <motion.div

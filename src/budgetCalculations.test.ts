@@ -580,11 +580,11 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
 
     it("calculateEmergencyLimit i calculateInvestmentCushion — poprawnie zliczają limity i poduszki", () => {
       const accounts = [
-        { id: "a1", name: "Karta", type: "credit" as const, balance: 0, hasCreditLimit: true, creditLimit: 2000, currency: "PLN" as const }
+        { id: "a1", name: "Karta", bankName: "Bank", type: "credit" as const, balance: 0, hasCreditLimit: true, creditLimit: 2000, currency: "PLN" as const }
       ];
       const investments = [
-        { id: "i1", name: "Fundusz", amount: 15000, type: "Poduszka finansowa" as const, currency: "PLN" as const },
-        { id: "i2", name: "Akcje", amount: 5000, type: "Akcje" as const, currency: "PLN" as const }
+        { id: "i1", name: "Fundusz", amount: 15000, type: "Poduszka finansowa" as const, currency: "PLN" as const, isoDate: "2026-01-01" },
+        { id: "i2", name: "Akcje", amount: 5000, type: "Akcje" as const, currency: "PLN" as const, isoDate: "2026-01-01" }
       ];
 
       expect(calculateEmergencyLimit(accounts)).toBe(2000);

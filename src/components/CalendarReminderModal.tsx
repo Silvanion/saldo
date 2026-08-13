@@ -223,7 +223,7 @@ export function CalendarReminderModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-bg-base/60 backdrop-blur-xs transition-opacity"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
     >
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 12 }}

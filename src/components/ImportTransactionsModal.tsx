@@ -209,7 +209,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-bg-base/40 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
     >
       <motion.div
         role="dialog"

@@ -487,22 +487,23 @@ export function TransactionsView({ profile, onOpenTxModal, onDeleteTransaction, 
 
       <AnimatePresence>
         {transactionToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setTransactionToDelete(null)}
-              className="absolute inset-0 bg-black/40 "
+              className="absolute inset-0 bg-black/60 backdrop-blur-xs"
             />
 
             {/* Dialog Modal Box */}
             <motion.div
-              initial={{ scale: 0.95, y: 15, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 15, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.3, bounce: 0.15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="bg-bg-base/90 rounded-2xl max-w-md w-full p-6 shadow-sm relative z-10 border border-border "
             >
               {/* Warning Header */}

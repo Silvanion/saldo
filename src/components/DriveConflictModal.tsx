@@ -55,12 +55,12 @@ export function DriveConflictModal({
     remoteState.profiles?.some((p) => p.kind === "shared");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
         role="dialog"
         aria-modal="true"
         aria-labelledby="drive-conflict-title"
-        className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full shadow-xl border border-border flex flex-col max-h-[90vh] overflow-hidden"
+        className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full shadow-xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
         ref={modalRef}
       >
         {/* Header */}

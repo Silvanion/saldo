@@ -409,8 +409,8 @@ export function PaymentsView({
       </div>
 
       {paymentToDelete && (
-        <div className="fixed inset-0 bg-black/80  z-50 flex items-center justify-center p-4">
-          <div className="bg-surface border border-border rounded-2xl max-w-sm w-full p-6 shadow-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-6 shadow-xl border border-border/30 animate-in fade-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-text-main mb-2">Usunąć płatność?</h3>
             
             {profile.transactions.some(tx => tx.sourcePaymentId === paymentToDelete.id) ? (
