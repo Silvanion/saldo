@@ -15,17 +15,17 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
       <div className="absolute inset-0  pointer-events-none" />
       <div className="flex items-center justify-between gap-4 mb-5 relative z-10">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5 truncate" title="Przepływy">Przepływy</p>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-0.5 truncate" title="Przepływy">Przepływy</p>
           <h3 className="text-base font-bold text-text-main truncate" title="Ostatnie 6 miesięcy">Ostatnie 6 miesięcy</h3>
         </div>
         <div className="flex gap-3 shrink-0">
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></div>
-            <span className="text-[10px] text-text-muted font-medium truncate" title="Przychody">Przych.</span>
+            <div className="w-2 h-2 rounded-full bg-brand shrink-0"></div>
+            <span className="text-xs text-text-muted font-medium truncate" title="Przychody">Przych.</span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className="w-2 h-2 rounded-full bg-rose-400 shrink-0"></div>
-            <span className="text-[10px] text-text-muted font-medium truncate" title="Wydatki">Wyd.</span>
+            <div className="w-2 h-2 rounded-full bg-danger shrink-0"></div>
+            <span className="text-xs text-text-muted font-medium truncate" title="Wydatki">Wyd.</span>
           </div>
         </div>
       </div>
@@ -42,15 +42,15 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
                 <div className="w-full h-full absolute inset-0" />
               </DelayedTooltip>
               <div 
-                className="w-1/2 max-w-[12px] bg-gradient-to-t from-emerald-600/80 to-emerald-400 rounded-t-sm transition-all duration-500  group-hover/bar:brightness-110"
+                className="w-1/2 max-w-[12px] bg-gradient-to-t from-brand-hover to-brand rounded-t-sm transition-all duration-500  group-hover/bar:brightness-110"
                 style={{ height: `${d.incomeHeight}%` }}
               ></div>
               <div 
-                className="w-1/2 max-w-[12px] bg-gradient-to-t from-rose-600/80 to-rose-400 rounded-t-sm transition-all duration-500  group-hover/bar:brightness-110"
+                className="w-1/2 max-w-[12px] bg-gradient-to-t from-danger-hover to-danger rounded-t-sm transition-all duration-500  group-hover/bar:brightness-110"
                 style={{ height: `${d.expenseHeight}%` }}
               ></div>
             </div>
-            <span className={`text-[9px] mt-2 uppercase tracking-widest truncate w-full text-center ${d.isCurrent ? 'font-black text-amber-700 drop-' : 'font-medium text-text-faint group-hover/bar:text-text-muted'}`} title={d.label}>
+            <span className={`text-xs mt-2 uppercase tracking-widest truncate w-full text-center ${d.isCurrent ? 'font-black text-warning drop-' : 'font-medium text-text-faint group-hover/bar:text-text-muted'}`} title={d.label}>
               {d.label}
             </span>
           </div>

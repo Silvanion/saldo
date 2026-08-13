@@ -53,15 +53,15 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
       {/* Overview header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 rounded-2xl border border-border shadow-lg min-w-0">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold text-text-faint uppercase tracking-wider truncate" title="Plan Kontroli Kosztów">Plan Kontroli Kosztów</p>
-          <h2 className="text-xl font-bold text-white truncate" title="Budżety miesięczne">Budżety miesięczne</h2>
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider truncate" title="Plan Kontroli Kosztów">Plan Kontroli Kosztów</p>
+          <h2 className="text-xl font-bold text-text-main truncate" title="Budżety miesięczne">Budżety miesięczne</h2>
           <p className="text-xs text-text-muted mt-1">
             Przeznaczono łącznie <strong>{formatMoney(totalPlannedBudget, profile.currency || 'PLN')}</strong> na ten miesiąc. Wydano dotychczas <strong>{formatMoney(totalActualSpent, profile.currency || 'PLN')}</strong>.
           </p>
         </div>
         <button
           onClick={onOpenBudgetModal}
-          className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-100 border border-emerald-200 active:scale-[0.98] transition-all shadow-lg text-sm whitespace-nowrap self-start sm:self-auto shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+          className="bg-brand text-text-inverse font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-lg text-sm whitespace-nowrap self-start sm:self-auto shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           id="btn-edit-budget-limits"
         >
           Modyfikuj limity
@@ -86,40 +86,40 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               <div className="min-w-0">
                 <div className="flex justify-between items-start min-w-0 gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-xl flex items-center justify-center shrink-0">
+                    <span className="w-9 h-9 rounded-xl bg-surface-2 border border-border text-xl flex items-center justify-center shrink-0">
                       {iconByCategory[category] || "📂"}
                     </span>
                     <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-white truncate" title={category}>{category}</h4>
-                      <p className="text-[10px] text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>Wykorzystano {percent}% limitu</p>
+                      <h4 className="text-sm font-bold text-text-main truncate" title={category}>{category}</h4>
+                      <p className="text-xs text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>Wykorzystano {percent}% limitu</p>
                     </div>
                   </div>
                   
                   <div className="text-right shrink-0 min-w-0">
                     <span className="block text-xs font-bold text-text-main truncate max-w-[120px]" title={formatMoney(spent, profile.currency || 'PLN')}>{formatMoney(spent, profile.currency || 'PLN')}</span>
-                    <span className="text-[10px] text-text-faint truncate block max-w-[120px]" title={limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}>
+                    <span className="text-xs text-text-faint truncate block max-w-[120px]" title={limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}>
                       {limit > 0 ? `Limit: ${formatMoney(limit, profile.currency || 'PLN')}` : "brak limitu"}
                     </span>
                   </div>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="w-full bg-surface-2 h-3 rounded-full overflow-hidden mt-4" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     style={{ width: `${limit > 0 ? percent : 0}%` }}
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isOver ? "bg-rose-500" : isClose ? "bg-amber-500" : "bg-teal-500"
+                      isOver ? "bg-danger" : isClose ? "bg-warning" : "bg-brand"
                     }`}
                   ></div>
                 </div>
 
                 {isOver && (
-                  <p className="text-[11px] text-rose-700 font-bold mt-2" id={`alert-budget-over-${category}`}>
+                  <p className="text-xs text-danger font-bold mt-2" id={`alert-budget-over-${category}`}>
                     Stan: Przekroczony. Przekroczyłeś zaplanowany budżet o {formatMoney(spent - limit, profile.currency || 'PLN')}!
                   </p>
                 )}
                 {isClose && (
-                  <p className="text-[11px] text-amber-700 font-bold mt-2" id={`alert-budget-close-${category}`}>
+                  <p className="text-xs text-warning font-bold mt-2" id={`alert-budget-close-${category}`}>
                     Stan: Ostrzeżenie. Jesteś blisko wyczerpania limitu. Pozostało {formatMoney(limit - spent, profile.currency || 'PLN')}.
                   </p>
                 )}
@@ -127,9 +127,9 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
 
               {/* Small list of category transactions */}
               <div className="border-t border-border pt-3 min-w-0">
-                <p className="text-[10px] uppercase font-bold text-text-muted tracking-wider mb-2 truncate" title="Ostatnie wydatki w tej kategorii">Ostatnie wydatki w tej kategorii</p>
+                <p className="text-xs uppercase font-bold text-text-muted tracking-wider mb-2 truncate" title="Ostatnie wydatki w tej kategorii">Ostatnie wydatki w tej kategorii</p>
                 {catTransactions.length === 0 ? (
-                  <p className="text-[11px] text-text-muted italic truncate" title="Brak wydatków w tym miesiącu.">Brak wydatków w tym miesiącu.</p>
+                  <p className="text-xs text-text-muted italic truncate" title="Brak wydatków w tym miesiącu.">Brak wydatków w tym miesiącu.</p>
                 ) : (
                   <div className="space-y-1.5 pr-1">
                     {catTransactions.slice(0, 3).map((t) => (

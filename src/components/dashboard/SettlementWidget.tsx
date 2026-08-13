@@ -66,13 +66,13 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
   if (historyNet > 0) {
     statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet, profile?.currency || 'PLN')}`;
-    statusColor = "text-emerald-700";
-    bgColor = "bg-emerald-900/20 border-emerald-200  shadow-sm relative overflow-hidden";
+    statusColor = "text-brand";
+    bgColor = "bg-brand-subtle border-brand/20  shadow-sm relative overflow-hidden";
     dropShadowClass = "drop-";
   } else if (historyNet < 0) {
     statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet), profile?.currency || 'PLN')}`;
-    statusColor = "text-rose-700";
-    bgColor = "bg-rose-900/20 border-rose-200  shadow-sm relative overflow-hidden";
+    statusColor = "text-danger";
+    bgColor = "bg-danger-subtle border-danger/20  shadow-sm relative overflow-hidden";
     dropShadowClass = "drop-";
   }
 
@@ -87,7 +87,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
 
   return (
     <div className={`p-5 rounded-2xl border ${bgColor} mb-6`} id="settlement-widget">
-      <div className={`absolute inset-0 bg-gradient-to-br ${historyNet > 0 ? "from-emerald-500/5" : historyNet < 0 ? "from-rose-500/5" : "from-slate-500/5"} to-transparent pointer-events-none`} />
+      <div className={`absolute inset-0 bg-gradient-to-br ${historyNet > 0 ? "from-brand/10" : historyNet < 0 ? "from-danger/10" : "from-surface-3/10"} to-transparent pointer-events-none`} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div className="min-w-0 flex-1">
           <DelayedTooltip
@@ -95,7 +95,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-slate-200 pb-0.5 truncate" title="Do rozliczenia (Historia)">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-border pb-0.5 truncate" title="Do rozliczenia (Historia)">
               Do rozliczenia (Historia)
             </p>
           </DelayedTooltip>
@@ -112,7 +112,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
             <button
               onClick={handleOpenModal}
               id="open-settlement-modal-btn"
-              className="px-4 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 active:scale-[0.98] transition-all text-xs font-bold rounded-xl"
+              className="px-4 py-2 bg-brand-subtle border border-brand/20 hover:bg-brand-subtle text-brand active:scale-[0.98] transition-all text-xs font-bold rounded-xl"
             >
               Rozlicz
             </button>
@@ -153,17 +153,17 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                       </span>
                       <span className="text-text-faint shrink-0">{formatDate(s.isoDate)}</span>
                     </div>
-                    {s.note && <p className="text-text-muted text-[11px] mt-0.5 truncate" title={s.note}>{s.note}</p>}
+                    {s.note && <p className="text-text-muted text-xs mt-0.5 truncate" title={s.note}>{s.note}</p>}
                   </div>
                   <div className="flex items-center gap-3 shrink-0 ml-2 max-w-[40%]">
-                    <span className={`font-bold truncate ${isPartnerPaid ? 'text-emerald-700 drop-' : 'text-blue-400 drop-'}`} title={isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}>
+                    <span className={`font-bold truncate ${isPartnerPaid ? 'text-brand drop-' : 'text-danger drop-'}`} title={isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}>
                       {isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}
                     </span>
                     {onDeleteSettlement && (
                       <button
                         onClick={() => onDeleteSettlement(s.id)}
                         id={`delete-settlement-${s.id}`}
-                        className="p-1 text-text-faint hover:text-rose-700 active:scale-95 transition-all cursor-pointer shrink-0"
+                        className="p-1 text-text-faint hover:text-danger active:scale-95 transition-all cursor-pointer shrink-0"
                         title="Usuń wpis rozliczenia"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -193,7 +193,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
               </button>
 
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200 shrink-0">
+                <div className="p-3 bg-brand-subtle text-brand rounded-xl border border-brand/20 shrink-0">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -217,8 +217,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                       onClick={() => setDirection('partner_paid_me')}
                       className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate ${
                         direction === 'partner_paid_me'
-                          ? 'bg-emerald-50 border-emerald-500/50 text-emerald-700 '
-                          : 'bg-surface border-border text-text-muted hover:bg-slate-100'
+                          ? 'bg-brand-subtle border-brand/50 text-brand '
+                          : 'bg-surface border-border text-text-muted hover:bg-surface-2'
                       }`}
                       title={`${partnerName} oddał(a) mi`}
                     >
@@ -229,8 +229,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                       onClick={() => setDirection('i_paid_partner')}
                       className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate ${
                         direction === 'i_paid_partner'
-                          ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 '
-                          : 'bg-surface border-border text-text-muted hover:bg-slate-100'
+                          ? 'bg-danger-subtle border-danger/50 text-danger '
+                          : 'bg-surface border-border text-text-muted hover:bg-surface-2'
                       }`}
                       title={`Ja oddałem(am) ${partnerName}`}
                     >
@@ -251,7 +251,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     value={amountStr}
                     onChange={(e) => setAmountStr(e.target.value)}
                     placeholder="0.00"
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-border rounded-xl text-sm font-bold text-text-main focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow"
+                    className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow"
                     id="settlement-amount-input"
                   />
                 </div>
@@ -265,7 +265,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     required
                     value={isoDate}
                     onChange={(e) => setIsoDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-border rounded-xl text-sm font-medium text-text-main focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow [color-scheme:dark]"
+                    className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-sm font-medium text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow [color-scheme:dark]"
                     id="settlement-date-input"
                   />
                 </div>
@@ -279,7 +279,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="np. Przelew BLIK, wyrównanie za wakacje"
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-border rounded-xl text-sm font-medium text-text-main focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-shadow"
+                    className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-sm font-medium text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow"
                     id="settlement-note-input"
                   />
                 </div>
@@ -298,7 +298,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
                 type="submit"
                 form="settlement-form"
                 id="settlement-submit-btn"
-                className="px-5 py-2 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-xl active:scale-[0.98] transition-all shrink-0 shadow-lg"
+                className="px-5 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-all shrink-0 shadow-lg"
               >
                 Zapisz rozliczenie
               </button>

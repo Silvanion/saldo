@@ -96,25 +96,25 @@ export function TransactionsTagsAnalysis({
               <div
                 key={tag.name}
                 onClick={() => onSelectTag(isSelected ? null : tag.name)}
-                className={`group p-3 rounded-xl border transition cursor-pointer ${
+                className={`group p-3 rounded-xl border transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   isSelected
-                    ? "bg-slate-100 border-slate-300 shadow-sm"
-                    : "bg-surface border-border hover:bg-slate-100"
+                    ? "bg-brand-subtle border-brand/20 shadow-sm"
+                    : "bg-surface border-border hover:bg-surface-2"
                 }`}
               >
                 <div className="flex justify-between items-center text-xs mb-2">
                   <span className="font-bold text-text-main flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-violet-400" : "bg-slate-500"}`}></span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-brand" : "bg-text-faint"}`}></span>
                     #{tag.name}
                   </span>
                   <span className="text-text-muted font-medium text-xs">
                     <strong className="text-text-muted">{formatMoney(tag.spent, currency)}</strong> ({pctOfTotal}%)
                   </span>
                 </div>
-                <div className="w-full bg-bg-base/60 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
                   <div
                     style={{ width: `${pctOfMax}%` }}
-                    className={`h-full rounded-full transition-all duration-500 ${isSelected ? "bg-violet-500" : "bg-slate-500 group-hover:bg-slate-400"}`}
+                    className={`h-full rounded-full transition-all duration-500 ${isSelected ? "bg-brand" : "bg-text-faint group-hover:bg-text-muted"}`}
                   ></div>
                 </div>
               </div>
@@ -124,7 +124,7 @@ export function TransactionsTagsAnalysis({
       </div>
 
       {/* Informational advice footer */}
-      <div className="mt-6 border-t border-border pt-4 text-xs text-text-muted leading-relaxed bg-bg-base/40 p-3 rounded-xl border border-border relative z-10">
+      <div className="mt-6 border-t border-border pt-4 text-xs text-text-muted leading-relaxed bg-surface p-3 rounded-xl border border-border relative z-10">
         <span className="font-bold text-text-muted block mb-1">💡 Wskazówka:</span>
         Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim wydatki i precyzyjnie przeanalizować ich udział.
       </div>

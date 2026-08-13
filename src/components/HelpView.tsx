@@ -28,10 +28,12 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-border rounded-2xl overflow-hidden mb-4 bg-surface shadow-xs hover:border-border/80 transition-colors">
+    <div className={`border rounded-2xl overflow-hidden mb-4 shadow-xs transition-colors ${
+      isOpen ? "bg-brand-subtle border-brand/20" : "bg-surface border-border hover:bg-surface-2"
+    }`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none hover:bg-surface-2 active:scale-[0.99] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative z-10"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left active:scale-[0.99] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring relative z-10"
       >
         <div className="flex items-center gap-3.5">
           <div className="p-2.5 bg-brand-surface text-brand rounded-xl shadow-xs shrink-0">
@@ -39,9 +41,9 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-text-main text-base sm:text-lg">{title}</span>
+              <span className={`font-semibold text-base sm:text-lg ${isOpen ? "text-brand" : "text-text-main"}`}>{title}</span>
               {badge && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-md border border-border/50">
+                <span className="text-xs font-semibold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-md border border-border/50">
                   {badge}
                 </span>
               )}
@@ -102,7 +104,7 @@ export function HelpView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe to spend', 'IKE', 'PIN')..."
-                className="w-full pl-11 pr-4 py-3 bg-surface-2 text-text-main placeholder-text-muted/60 rounded-xl text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-shadow"
+                className="w-full pl-11 pr-4 py-3 bg-surface border border-border text-text-main placeholder:text-text-muted rounded-xl text-sm font-medium focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow"
               />
             </div>
           </div>
@@ -132,7 +134,7 @@ export function HelpView() {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
+            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-focus-ring ${
               selectedCategory === cat
                 ? "bg-text-main text-surface shadow-sm"
                 : "bg-surface text-text-muted border border-border hover:bg-surface-2 hover:text-text-main active:scale-95 cursor-pointer"

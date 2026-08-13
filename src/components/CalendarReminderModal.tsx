@@ -238,7 +238,7 @@ export function CalendarReminderModal({
         {/* Header */}
         <div className="shrink-0 px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-slate-100 text-text-muted flex items-center justify-center shadow-sm border border-border shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-surface-2 text-text-muted flex items-center justify-center shadow-sm border border-border shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -249,7 +249,7 @@ export function CalendarReminderModal({
           <button 
             onClick={onClose}
             aria-label="Zamknij"
-            className="text-text-muted hover:text-text-main hover:bg-slate-100 p-2 rounded-xl transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="text-text-muted hover:text-text-main hover:bg-surface-2 p-2 rounded-xl transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-close-calendar-modal"
           >
             ✕
@@ -259,26 +259,26 @@ export function CalendarReminderModal({
         {/* Content */}
         <div className="flex-1 min-w-0 p-6 overflow-y-auto custom-scrollbar bg-surface/50 space-y-6">
           {!calendarToken || calendarScopeMissing ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-1">
+            <div className="bg-warning-subtle border border-warning/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-surface text-warning flex items-center justify-center mb-1 border border-border">
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-amber-900 mb-1">Połącz kalendarz</h3>
-                <p className="text-xs text-amber-700 max-w-xs leading-relaxed">
+                <h3 className="text-sm font-bold text-warning mb-1">Połącz kalendarz</h3>
+                <p className="text-xs text-warning max-w-xs leading-relaxed">
                   Aby zaplanować wydarzenie, połącz swoje konto Google i zezwól na dostęp do kalendarza.
                 </p>
               </div>
               {errorMsg && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex gap-2 text-left">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="p-3 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs flex gap-2 text-left">
+                  <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
               <button
                 type="button"
                 onClick={onConnectCalendar}
-                className="bg-amber-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-amber-700 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
+                className="bg-brand border border-brand text-text-inverse px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-brand-hover transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                 id="btn-connect-calendar"
               >
                 Połącz kalendarz
@@ -310,7 +310,7 @@ export function CalendarReminderModal({
                       type="text"
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
-                      className="w-full rounded-xl border border-border p-2.5 text-sm font-bold text-text-main outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition"
+                      className="w-full rounded-xl border border-border bg-surface p-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition"
                       id="input-event-summary"
                     />
                   </div>
@@ -323,7 +323,7 @@ export function CalendarReminderModal({
                       rows={4}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full rounded-xl border border-border p-2.5 text-xs text-text-main outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition leading-relaxed"
+                      className="w-full rounded-xl border border-border bg-surface p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition leading-relaxed"
                       id="input-event-description"
                     />
                   </div>
@@ -339,7 +339,7 @@ export function CalendarReminderModal({
                           type="date"
                           value={eventDate}
                           onChange={(e) => setEventDate(e.target.value)}
-                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition cursor-pointer"
+                          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
                           id="input-event-date"
                         />
                       </div>
@@ -353,7 +353,7 @@ export function CalendarReminderModal({
                           type="time"
                           value={eventTime}
                           onChange={(e) => setEventTime(e.target.value)}
-                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition cursor-pointer"
+                          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
                           id="input-event-time"
                         />
                       </div>
@@ -374,10 +374,10 @@ export function CalendarReminderModal({
                             key={rem.value}
                             type="button"
                             onClick={() => toggleReminder(rem.value)}
-                            className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
+                            className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all focus-visible:ring-2 focus-visible:ring-focus-ring ${
                               isSelected
-                                ? "bg-brand text-white border-brand shadow-sm scale-105"
-                                : "bg-surface text-text-muted border-border hover:bg-slate-100 hover:border-slate-300"
+                                ? "bg-brand text-text-inverse border-brand shadow-sm scale-105"
+                                : "bg-surface text-text-muted border-border hover:bg-surface-2"
                             }`}
                           >
                             {rem.label} {isSelected && "✓"}
@@ -391,15 +391,15 @@ export function CalendarReminderModal({
 
               {/* Error / Success feedback inside modal */}
               {errorMsg && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="p-3.5 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs flex gap-2">
+                  <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
               
               {successMsg && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center font-bold shrink-0">
+                <div className="p-4 bg-brand-subtle border border-brand/20 rounded-xl text-brand text-xs flex gap-3">
+                  <div className="w-5 h-5 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>{successMsg}</span>
@@ -415,7 +415,7 @@ export function CalendarReminderModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-border py-3 text-xs font-bold text-text-muted hover:bg-surface transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              className="flex-1 rounded-xl bg-surface border border-border py-3 text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-cancel-calendar"
             >
               Anuluj
@@ -424,7 +424,7 @@ export function CalendarReminderModal({
               type="button"
               disabled={isSubmitting || !calendarToken}
               onClick={handleSubmitToCalendar}
-              className="flex-2 rounded-xl bg-brand hover:bg-brand-hover py-3 text-xs font-bold text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex-2 rounded-xl bg-brand border border-brand hover:bg-brand-hover py-3 text-xs font-bold text-text-inverse shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-confirm-calendar"
             >
               {isSubmitting ? (

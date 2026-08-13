@@ -39,9 +39,9 @@ export function MockScreenShot({ title, badge, children, steps }: MockScreenShot
           <div className="w-2.5 h-2.5 rounded-full bg-border" />
           <div className="w-2.5 h-2.5 rounded-full bg-border" />
           <div className="w-2.5 h-2.5 rounded-full bg-border" />
-          <span className="text-[11px] font-medium text-text-muted ml-2">{title}</span>
+          <span className="text-xs font-medium text-text-muted ml-2">{title}</span>
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-surface-2 text-text-muted border border-border/50 rounded-md">
+        <span className="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 bg-surface-2 text-text-muted border border-border/50 rounded-md">
           {badge}
         </span>
       </div>

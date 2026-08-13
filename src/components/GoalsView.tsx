@@ -37,15 +37,15 @@ export function GoalsView({
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 min-w-0">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider truncate" title="Planowanie Przyszłości">Planowanie Przyszłości</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider truncate" title="Planowanie Przyszłości">Planowanie Przyszłości</p>
             <h2 className="text-xl font-bold text-text-main truncate" title="Cele oszczędnościowe">Cele oszczędnościowe</h2>
-            <p className="text-[11px] text-text-muted mt-1 max-w-sm leading-relaxed">
+            <p className="text-xs text-text-muted mt-1 max-w-sm leading-relaxed">
               <strong>Zarezerwowane na cele:</strong> wpłaty nie tworzą wydatków. Środki odłożone na cele są po prostu odejmowane od salda "Do wydania" jako rezerwa.
             </p>
           </div>
           <button
             onClick={onOpenGoalModal}
-            className="bg-emerald-50 text-emerald-700 font-bold py-2 px-5 rounded-xl hover:bg-emerald-100 border border-emerald-200 active:scale-[0.98] transition-all shadow-lg text-sm shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+            className="bg-brand text-text-inverse font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-lg text-sm shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-goal"
           >
             ＋ Nowy cel
@@ -58,7 +58,7 @@ export function GoalsView({
             <p className="text-sm font-bold text-text-muted mt-2">Nie zdefiniowałeś jeszcze celów oszczędnościowych.</p>
             <button
               onClick={onOpenGoalModal}
-              className="text-emerald-700 text-xs font-bold hover:text-emerald-800 active:scale-[0.98] transition-all mt-1 inline-block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 rounded"
+              className="text-brand text-xs font-bold hover:text-brand-hover active:scale-[0.98] transition-all mt-1 inline-block cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
             >
               Stwórz swój pierwszy cel &rarr;
             </button>
@@ -74,11 +74,11 @@ export function GoalsView({
               let badgeInfo = null;
 
               if (isCompleted) {
-                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-emerald-50 text-emerald-700 border-emerald-500/20" };
+                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-brand-subtle text-brand border-brand/20" };
               } else if (percent >= 90) {
-                badgeInfo = { text: "Prawie u celu!", colorClass: "bg-amber-50 text-amber-700 border-amber-200" };
+                badgeInfo = { text: "Prawie u celu!", colorClass: "bg-warning-subtle text-warning border-warning/20" };
               } else if (percent > 0) {
-                badgeInfo = { text: "W trakcie", colorClass: "bg-blue-500/10 text-blue-400 border-blue-500/20" };
+                badgeInfo = { text: "W trakcie", colorClass: "bg-brand-subtle text-brand border-brand/20" };
               } else {
                 badgeInfo = { text: "Do startu", colorClass: "bg-surface text-text-muted border-border" };
               }
@@ -105,18 +105,18 @@ export function GoalsView({
                 <div key={g.id} className="bg-surface border border-border rounded-2xl p-5 shadow-lg hover:shadow-xl hover:bg-surface transition flex flex-col justify-between h-[13rem] relative min-w-0">
                   <div className="min-w-0">
                     <div className="flex justify-between items-start mb-2 min-w-0 gap-2">
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 ${isCompleted ? "bg-emerald-50 text-emerald-700 border-emerald-500/20" : "bg-teal-500/10 text-teal-400 border-teal-500/20"}`}>
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 ${isCompleted ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-main border-border"}`}>
                         {isCompleted ? "🏆" : "🎯"}
                       </span>
                       <div className="flex items-center gap-2 shrink-0 min-w-0">
                         {badgeInfo && (
-                          <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[80px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
+                          <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[80px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
                             {badgeInfo.text}
                           </span>
                         )}
                         <button
                           onClick={() => onDeleteGoal(g.id)}
-                          className="text-text-muted hover:text-red-500 text-xs active:scale-[0.98] transition-all px-1 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50 rounded"
+                          className="text-text-muted hover:text-danger text-xs active:scale-[0.98] transition-all px-1 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                           title="Usuń cel"
                           aria-label="Usuń cel"
                           id={`btn-delete-goal-${g.id}`}
@@ -130,24 +130,24 @@ export function GoalsView({
                       {formatMoney(g.saved, g.currency || profile?.currency || 'PLN')} z {formatMoney(g.target, g.currency || profile?.currency || 'PLN')}
                     </p>
                     {paceText && (
-                      <p className="text-[10px] text-amber-700 mt-1.5 font-semibold bg-amber-50 inline-block px-2 py-1 rounded-md border border-amber-200 truncate max-w-full" title={paceText}>
+                      <p className="text-xs text-text-muted mt-1.5 font-semibold bg-surface-2 inline-block px-2 py-1 rounded-md border border-border truncate max-w-full" title={paceText}>
                         {paceText}
                       </p>
                     )}
                   </div>
                   <div className="min-w-0">
                     {/* Progress */}
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-3 mb-1">
+                    <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mt-3 mb-1">
                       <div
                         style={{ width: `${percent}%` }}
-                        className={`${isCompleted ? "bg-emerald-500" : "bg-teal-500"} h-full rounded-full transition-all duration-500`}
+                        className={`${isCompleted ? "bg-brand" : "bg-brand"} h-full rounded-full transition-all duration-500`}
                       ></div>
                     </div>
                     <div className="flex justify-between items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-bold text-text-muted shrink-0 truncate" title={`${percent}% celu`}>{percent}% celu</span>
+                      <span className="text-xs font-bold text-text-muted shrink-0 truncate" title={`${percent}% celu`}>{percent}% celu</span>
                       <button
                         onClick={() => onOpenGoalDepositModal(g)}
-                        className="text-xs font-bold text-teal-400 hover:text-teal-300 active:scale-[0.98] transition-all shrink-0 truncate max-w-[100px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/50 rounded px-1"
+                        className="text-xs font-bold text-brand hover:text-brand-hover active:scale-[0.98] transition-all shrink-0 truncate max-w-[100px] cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded px-1"
                         id={`btn-deposit-goal-${g.id}`}
                       >
                         ⇄ Transfer
@@ -165,9 +165,9 @@ export function GoalsView({
       <div className="border-t border-border pt-6 mt-8 p-6 bg-surface/20 rounded-3xl border-dashed min-w-0">
         <div className="flex items-center gap-3 mb-2 min-w-0">
           <h2 className="text-xl font-bold text-text-main truncate" title="Inwestycje długoterminowe">Inwestycje długoterminowe</h2>
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-text-muted px-2 py-0.5 rounded-md border border-slate-200 shrink-0 truncate max-w-[120px]" title="Moduł informacyjny">Moduł informacyjny</span>
+          <span className="text-xs font-bold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-md border border-border shrink-0 truncate max-w-[120px]" title="Moduł informacyjny">Moduł informacyjny</span>
         </div>
-        <p className="text-[11px] text-text-muted max-w-3xl leading-relaxed mb-6">
+        <p className="text-xs text-text-muted max-w-3xl leading-relaxed mb-6">
           Ta sekcja służy wyłącznie do ewidencji wpłat kapitałowych. Wpisy <strong>nie są</strong> traktowane jako zysk, <strong>nie są</strong> oszczędnościami bieżącymi i <strong>nie wpływają</strong> na wynik budżetu ani <em>Safe-to-spend</em>.
         </p>
         
@@ -180,11 +180,11 @@ export function GoalsView({
             </p>
             <form onSubmit={handleInvSubmit} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-bold text-text-muted mb-1">Kategoria</label>
+                <label className="block text-xs font-bold text-text-muted mb-1">Kategoria</label>
                 <select
                   value={invType}
                   onChange={(e) => setInvType(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 text-text-main placeholder-slate-500 transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
                 >
                   <option value="Poduszka finansowa">Poduszka finansowa</option>
                   <option value="IKE / IKZE (Emerytura)">IKE / IKZE (Emerytura)</option>
@@ -195,18 +195,18 @@ export function GoalsView({
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-text-muted mb-1">Nazwa aktywa / konta</label>
+                <label className="block text-xs font-bold text-text-muted mb-1">Nazwa aktywa / konta</label>
                 <input
                   required
                   placeholder="np. Obligacje Skarbowe, IKE mBank"
                   value={invName}
                   onChange={(e) => setInvName(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 text-text-main placeholder-slate-500 transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-name"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-text-muted mb-1">Wpłacona kwota (zł)</label>
+                <label className="block text-xs font-bold text-text-muted mb-1">Wpłacona kwota (zł)</label>
                 <input
                   required
                   type="number"
@@ -214,13 +214,13 @@ export function GoalsView({
                   placeholder="0,00"
                   value={invAmount}
                   onChange={(e) => setInvAmount(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 text-text-main placeholder-slate-500 transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-amount"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-50 text-emerald-700 font-bold py-2 rounded-xl hover:bg-emerald-100 border border-emerald-200 active:scale-[0.98] transition-all text-xs shadow-lg cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                className="w-full bg-brand text-text-inverse font-bold py-2 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs shadow-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                 id="btn-inv-submit"
               >
                 Dodaj wpłatę
@@ -241,7 +241,7 @@ export function GoalsView({
                   }, {} as Record<string, number>)
                 ).map(([type, total]) => (
                   <div key={type} className="p-3 bg-surface border border-border rounded-xl min-w-0">
-                    <span className="block text-[10px] text-text-muted uppercase tracking-wide truncate" title={type}>{type}</span>
+                    <span className="block text-xs text-text-muted uppercase tracking-wide truncate" title={type}>{type}</span>
                     <strong className="text-sm text-text-main block truncate max-w-full" title={formatMoney(total, profile?.currency || 'PLN')}>{formatMoney(total, profile?.currency || 'PLN')}</strong>
                   </div>
                 ))}
@@ -253,7 +253,7 @@ export function GoalsView({
 
             <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
               <h3 className="text-sm font-bold text-text-main mb-3">Historia wpłat kapitałowych</h3>
-              <div className="divide-y divide-slate-700/50 overflow-y-auto max-h-[14rem] pr-1">
+              <div className="divide-y divide-border overflow-y-auto max-h-[14rem] pr-1">
                 {profile.investments.length === 0 ? (
                   <p className="text-xs text-text-faint py-10 text-center italic">
                     Nie wprowadzono jeszcze żadnych wpłat inwestycyjnych.
@@ -266,13 +266,13 @@ export function GoalsView({
                         <div className="min-w-0 flex-1">
                           <strong className="text-xs text-text-main block truncate" title={inv.name}>{inv.name}</strong>
                           <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                            <span className="text-[10px] text-text-muted shrink-0 truncate">{formatDate(inv.isoDate)}</span>
+                            <span className="text-xs text-text-muted shrink-0 truncate">{formatDate(inv.isoDate)}</span>
                             {inv.type && (
-                              <span className="text-[9px] bg-slate-100 text-text-muted px-1.5 py-0.5 rounded font-medium max-w-[100px] truncate block shrink-0" title={inv.type}>{inv.type}</span>
+                              <span className="text-xs bg-surface-2 text-text-muted px-1.5 py-0.5 rounded font-medium max-w-[100px] truncate block shrink-0" title={inv.type}>{inv.type}</span>
                             )}
                           </div>
                         </div>
-                        <strong className="text-sm text-emerald-700 shrink-0 whitespace-nowrap" title={formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}>{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
+                        <strong className="text-sm text-text-main shrink-0 whitespace-nowrap" title={formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}>{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
                       </div>
                     ))
                 )}

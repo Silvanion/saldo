@@ -20,33 +20,33 @@ export const BillsWidget = memo(function BillsWidget({
   onChangeView,
   onOpenPaymentModal
 }: BillsWidgetProps) {
-  
+
   const getDueStatus = (dueDateStr: string) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const pDate = new Date(`${dueDateStr}T00:00:00`);
     const diffTime = pDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) {
       return {
         label: "Przeterminowane!",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 text-[9px] font-bold",
+        badgeClass: "bg-danger-subtle text-danger border-danger/20 text-xs font-bold",
       };
     } else if (diffDays === 0) {
       return {
         label: "Dzisiaj!",
-        badgeClass: "bg-rose-100 text-rose-800 border-rose-200 animate-pulse text-[9px] font-bold",
+        badgeClass: "bg-danger-subtle text-danger border-danger/40 animate-pulse text-xs font-bold",
       };
     } else if (diffDays === 1) {
       return {
         label: "Jutro",
-        badgeClass: "bg-rose-100 text-rose-800 border-rose-200 text-[9px] font-bold",
+        badgeClass: "bg-danger-subtle text-danger border-danger/40 text-xs font-bold",
       };
     } else if (diffDays <= 3) {
       return {
         label: `Za ${diffDays} dni`,
-        badgeClass: "bg-amber-100 text-amber-800 border-amber-200 text-[9px] font-bold",
+        badgeClass: "bg-warning-subtle text-warning border-warning/20 text-xs font-bold",
       };
     }
     return {
@@ -62,15 +62,15 @@ export const BillsWidget = memo(function BillsWidget({
       <div className="absolute inset-0  pointer-events-none" />
       <div className="flex items-center justify-between mb-5 relative z-10 gap-4 min-w-0">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5 truncate" title="Rachunki i opłaty">Rachunki i opłaty</p>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-0.5 truncate" title="Rachunki i opłaty">Rachunki i opłaty</p>
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="text-base font-bold text-text-main truncate" title="Nadchodzące">Nadchodzące</h3>
-            <span className="text-[9px] uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded font-bold shrink-0">Priorytet</span>
+            <span className="text-xs uppercase tracking-wider bg-danger-subtle text-danger border border-danger/20 px-1.5 py-0.5 rounded font-bold shrink-0">Priorytet</span>
           </div>
         </div>
         <button
           onClick={() => onChangeView("payments")}
-          className="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-lg hover:bg-cyan-500/20 active:scale-[0.98] transition-all shrink-0 truncate max-w-[100px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 cursor-pointer"
+          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 truncate max-w-[100px] focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           title="Zarządzaj"
         >
           Zarządzaj
@@ -79,10 +79,10 @@ export const BillsWidget = memo(function BillsWidget({
 
       <div className="flex-1 flex flex-col min-h-0 relative z-10">
         {unpaidPayments.length === 0 ? (
-          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-slate-200 h-full flex flex-col justify-center min-w-0">
+          <div className="text-center py-6 bg-surface-2 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
             <div className="text-2xl mb-1 opacity-50 shrink-0">🍵</div>
             <p className="text-xs text-text-muted font-medium truncate" title="Brak rachunków do opłacenia.">Brak rachunków do opłacenia.</p>
-            <p className="text-[10px] text-text-faint truncate" title="Możesz spać spokojnie.">Możesz spać spokojnie.</p>
+            <p className="text-xs text-text-faint truncate" title="Możesz spać spokojnie.">Możesz spać spokojnie.</p>
           </div>
         ) : (
           <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
@@ -91,7 +91,7 @@ export const BillsWidget = memo(function BillsWidget({
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <button
                     onClick={() => onTogglePaymentStatus(p.id)}
-                    className="w-5 h-5 rounded border border-slate-200 flex items-center justify-center text-transparent hover:border-emerald-400 hover:text-emerald-700 active:scale-[0.98] transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer"
+                    className="w-5 h-5 rounded border border-border flex items-center justify-center text-transparent hover:border-brand/40 hover:text-brand active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                     title="Oznacz jako opłacone"
                     aria-label="Oznacz jako opłacone"
                   >
@@ -101,10 +101,10 @@ export const BillsWidget = memo(function BillsWidget({
                   </button>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm font-bold text-text-main leading-tight group-hover:text-emerald-700 transition-colors truncate" title={p.name}>{p.name}</span>
+                      <span className="text-sm font-bold text-text-main leading-tight group-hover:text-brand transition-colors truncate" title={p.name}>{p.name}</span>
                       {p.paidBy && (
-                        <span 
-                          className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-surface text-text-muted border border-slate-200 whitespace-nowrap shrink-0 truncate max-w-[80px]" 
+                        <span
+                          className="text-xs font-bold uppercase tracking-wider px-1 py-0.5 rounded-sm bg-surface text-text-muted border border-border whitespace-nowrap shrink-0 truncate max-w-[80px]"
                           title={`${p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}${p.splitMode === 'equal' ? ' (50-50)' : ''}`}
                         >
                           {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
@@ -113,17 +113,14 @@ export const BillsWidget = memo(function BillsWidget({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                      <p className="text-[10px] text-text-muted font-medium whitespace-nowrap shrink-0 truncate max-w-[80px]" title={p.dueDate}>{p.dueDate}</p>
+                      <p className="text-xs text-text-muted font-medium whitespace-nowrap shrink-0 truncate max-w-[80px]" title={p.dueDate}>{p.dueDate}</p>
                       {(() => {
                         const status = getDueStatus(p.dueDate);
                         if (status.label) {
-                          const badgeDarkClass = status.badgeClass
-                            .replace('bg-rose-50 text-rose-700 border-rose-200', 'bg-rose-50 text-rose-700 border-rose-200')
-                            .replace('bg-rose-100 text-rose-800 border-rose-200', 'bg-rose-50 text-rose-700 border-rose-500/40')
-                            .replace('bg-amber-100 text-amber-800 border-amber-200', 'bg-amber-50 text-amber-700 border-amber-200');
-                          
+                          const badgeDarkClass = status.badgeClass;
+
                           return (
-                            <span className={`px-1.5 py-0.5 rounded-md border text-[9px] font-bold uppercase tracking-wider shrink-0 truncate max-w-[100px] ${badgeDarkClass}`} id={`due-badge-${p.id}`} title={status.label}>
+                            <span className={`px-1.5 py-0.5 rounded-md border text-xs font-bold uppercase tracking-wider shrink-0 truncate max-w-[100px] ${badgeDarkClass}`} id={`due-badge-${p.id}`} title={status.label}>
                               {status.label}
                             </span>
                           );
@@ -134,13 +131,13 @@ export const BillsWidget = memo(function BillsWidget({
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-2 min-w-0">
-                  <p className="text-sm font-black text-text-main group-hover:text-emerald-700 transition-colors truncate max-w-[100px]" title={formatMoney(p.amount, p.currency || currency)}>{formatMoney(p.amount, p.currency || currency)}</p>
+                  <p className="text-sm font-black text-text-main group-hover:text-brand transition-colors truncate max-w-[100px]" title={formatMoney(p.amount, p.currency || currency)}>{formatMoney(p.amount, p.currency || currency)}</p>
                 </div>
               </div>
             ))}
             {unpaidPayments.length > 5 && (
-              <p className="text-center text-[10px] text-text-faint font-semibold pt-2 pb-1">
-                + {unpaidPayments.length - 5} innych opłat
+              <p className="text-center text-xs text-text-faint font-semibold pt-2 pb-1">
+                + {unpaidPayments.length - 5} innych opła
               </p>
             )}
           </div>
@@ -150,7 +147,7 @@ export const BillsWidget = memo(function BillsWidget({
       <div className="pt-4 mt-4 border-t border-border relative z-10">
         <button
           onClick={() => onOpenPaymentModal()}
-          className="w-full py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border shadow-inner flex items-center justify-center gap-1.5 min-w-0 shrink-0 truncate px-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+          className="w-full py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border shadow-inner flex items-center justify-center gap-1.5 min-w-0 shrink-0 truncate px-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           title="Dodaj płatność"
         >
           <span className="truncate">+ Dodaj płatność</span>

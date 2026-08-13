@@ -39,7 +39,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           <button 
             onClick={onClose}
             aria-label="Zamknij"
-            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-colors active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <X className="w-5 h-5" />
           </button>

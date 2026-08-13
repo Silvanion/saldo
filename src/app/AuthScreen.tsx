@@ -59,22 +59,22 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
       <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="bg-[#137566] text-white p-3.5 rounded-2xl shadow-lg">
+            <div className="bg-brand text-text-inverse p-3.5 rounded-2xl shadow-lg">
               <Wallet className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-[34px] font-black text-white tracking-tight">saldo</h1>
+          <h1 className="text-[34px] font-black text-text-main tracking-tight">saldo</h1>
           <p className="text-text-muted">Twój osobisty asystent finansowy</p>
         </div>
 
         {error && !isDomainError && (
-          <div className="bg-red-950/30 text-red-200 border border-red-900/50 p-3 rounded-xl text-sm text-center">
+          <div className="bg-danger-subtle text-danger border border-danger/20 p-3 rounded-xl text-sm text-center">
             {error}
           </div>
         )}
 
         {error && isDomainError && (
-          <div className="bg-amber-950/30 border border-amber-900/50 text-amber-200 p-4 rounded-xl text-sm">
+          <div className="bg-warning-subtle border border-warning/20 text-warning p-4 rounded-xl text-sm">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
@@ -82,7 +82,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
                 <p className="mb-2 break-words">
                   Domena <strong className="break-all">{window.location.hostname}</strong> nie jest dopisana do listy autoryzowanych domen w Firebase.
                 </p>
-                <ol className="list-decimal pl-4 space-y-1 mb-2 text-amber-100 opacity-90">
+                <ol className="list-decimal pl-4 space-y-1 mb-2 text-warning opacity-90">
                   <li>Otwórz Firebase Console</li>
                   <li>Wybierz Authentication &gt; Settings &gt; Authorized domains</li>
                   <li>Dodaj tę domenę</li>
@@ -91,7 +91,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
                   <button 
                     type="button" 
                     onClick={() => window.open(window.location.href, "_blank")} 
-                    className="mt-2 text-white hover:underline font-bold"
+                    className="mt-2 text-text-main hover:text-brand hover:underline font-bold"
                   >
                     Otwórz aplikację w nowej karcie
                   </button>
@@ -110,7 +110,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-bg-base border border-border rounded-xl outline-none focus:bg-surface/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3.5 bg-surface border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium"
                 placeholder="twoj@email.com"
               />
               <Mail className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
@@ -124,7 +124,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-bg-base border border-border rounded-xl outline-none focus:bg-surface/50 focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3.5 bg-surface border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium"
                 placeholder="••••••••"
               />
               <Lock className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
@@ -133,7 +133,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#137566] text-white py-3.5 rounded-xl font-bold hover:bg-[#0f5c50] transition flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(19,117,102,0.25)] hover:shadow-[0_6px_16px_rgba(19,117,102,0.4)] mt-2"
+            className="w-full bg-brand text-text-inverse py-3.5 rounded-xl font-bold hover:bg-brand-hover transition flex items-center justify-center gap-2 shadow-sm mt-2"
           >
             {loading ? "Przetwarzanie..." : isLogin ? <><LogIn className="w-5 h-5" /> Zaloguj się</> : <><UserPlus className="w-5 h-5" /> Zarejestruj się</>}
           </button>
@@ -143,7 +143,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-text-muted font-bold hover:text-white hover:underline"
+            className="text-text-muted font-bold hover:text-text-main hover:underline"
           >
             {isLogin ? "Nie masz konta? Zarejestruj się" : "Masz już konto? Zaloguj się"}
           </button>
@@ -163,7 +163,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-surface/50 border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-bg-base hover:border-slate-300 transition flex items-center justify-center gap-2 shadow-sm"
+            className="w-full bg-surface border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-surface-2 transition flex items-center justify-center gap-2 shadow-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -178,7 +178,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             type="button"
             onClick={onDemoClick}
             disabled={loading}
-            className="w-full bg-surface-2 border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-slate-700 transition"
+            className="w-full bg-surface border border-border text-text-main py-3.5 rounded-xl font-bold hover:bg-surface-2 transition"
           >
             Używaj offline (bez rejestracji)
           </button>

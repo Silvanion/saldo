@@ -230,7 +230,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             </h2>
             <p className="text-xs text-text-muted font-medium">Szybki import historii z wyciągów bankowych (.csv) z podglądem i detekcją duplikatów.</p>
           </div>
-          <button onClick={onClose} aria-label="Zamknij" className="text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <button onClick={onClose} aria-label="Zamknij" className="text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring">
             &times;
           </button>
         </div>
@@ -240,7 +240,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           <div className="flex border-b border-border">
             <button
               onClick={() => setTab("csv")}
-              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset ${
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
                 tab === "csv" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
               }`}
             >
@@ -248,7 +248,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             </button>
             <button
               onClick={() => setTab("ai")}
-              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset ${
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
                 tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
               }`}
             >
@@ -260,11 +260,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar min-w-0">
           {step === 1 && tab === "ai" && isAiAvailable && (
             <div className="space-y-4">
-              <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
-                <p className="text-sm text-emerald-800 font-medium mb-1 flex items-center gap-2">
+              <div className="bg-brand-subtle p-4 rounded-xl border border-brand/20">
+                <p className="text-sm text-brand font-medium mb-1 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" /> <strong>Analiza tekstu za pomocą AI</strong>
                 </p>
-                <p className="text-xs text-emerald-700 leading-relaxed">
+                <p className="text-xs text-text-muted leading-relaxed">
                   Skopiuj surowy tekst wyciągu ze strony banku lub maila i wklej go poniżej. Model AI wyciągnie kwoty i daty, a szybka automatyzacja przypisze kategorie w tle.
                 </p>
               </div>
@@ -272,13 +272,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
                 placeholder="Wklej historię transakcji z banku tutaj..."
-                className="w-full h-48 p-4 border border-border rounded-xl text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand resize-none transition-colors"
+                className="w-full h-48 p-4 border border-border rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-focus-ring resize-none transition-colors"
               ></textarea>
-              {aiError && <p className="text-rose-500 text-xs font-semibold">{aiError}</p>}
+              {aiError && <p className="text-danger text-xs font-semibold">{aiError}</p>}
               <button
                 onClick={handleAiProcess}
                 disabled={isAiProcessing || !aiText.trim()}
-                className="w-full bg-brand text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {isAiProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 {isAiProcessing ? "Analizowanie..." : "Analizuj transakcje AI"}
@@ -299,10 +299,10 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       key={preset.id}
                       type="button"
                       onClick={() => setSelectedPresetId(preset.id)}
-                      className={`p-3 rounded-xl border transition-all active:scale-[0.98] flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
+                      className={`p-3 rounded-xl border transition-all active:scale-[0.98] flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring ${
                         selectedPresetId === preset.id
-                          ? "border-brand bg-brand-surface ring-1 ring-brand"
-                          : "border-border bg-bg-base/95 backdrop-blur-2xl hover:border-slate-300 hover:bg-surface-2"
+                          ? "border-brand bg-brand-subtle shadow-sm ring-1 ring-brand"
+                          : "border-border bg-bg-base/95 backdrop-blur-2xl hover:border-border hover:bg-surface-2"
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -316,12 +316,12 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               </div>
 
               {/* Encoding & Security note (Task D1 #2 & #7) */}
-              <div className="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 flex items-start gap-2.5 text-xs text-emerald-800">
+              <div className="bg-brand-subtle p-3.5 rounded-xl border border-brand/20 flex items-start gap-2.5 text-xs text-text-main">
                 <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <p className="font-bold text-emerald-900">Bezpieczny lokalny import (UTF-8 / Windows-1250)</p>
+                  <p className="font-bold text-text-main">Bezpieczny lokalny import (UTF-8 / Windows-1250)</p>
 import { formatMoney } from "../utils/format";
-                  <p className="text-xs text-emerald-700">
+                  <p className="text-xs text-text-muted">
                     Oczyszczanie nagłówków z znaku BOM jest automatyczne. Dane są przetwarzane wyłącznie lokalnie w przeglądarce i nie opuszczają Twojego urządzenia.
                   </p>
                 </div>
@@ -349,7 +349,7 @@ import { formatMoney } from "../utils/format";
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-surface-offset text-text-main hover:bg-border active:scale-[0.98] transition-all font-bold py-2 px-5 rounded-xl text-xs shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="bg-surface border border-border text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all font-bold py-2 px-5 rounded-xl text-xs shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Wybierz plik .csv
                 </button>
@@ -366,12 +366,12 @@ import { formatMoney } from "../utils/format";
                   value={csvText}
                   onChange={(e) => setCsvText(e.target.value)}
                   placeholder="Tutaj możesz wkleić skopiowane wiersze z pliku CSV (np. z nagłówkiem: Data;Kwota;Tytuł)..."
-                  className="w-full h-28 p-3 border border-border rounded-xl text-xs font-mono outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand resize-none transition-colors"
+                  className="w-full h-28 p-3 border border-border rounded-xl text-xs font-mono focus-visible:ring-2 focus-visible:ring-focus-ring resize-none transition-colors"
                 ></textarea>
                 <button
                   onClick={() => processRawCsvString(csvText, "Wklejony tekst CSV")}
                   disabled={!csvText.trim()}
-                  className="w-full bg-brand text-white font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="w-full bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Przetwórz wklejony tekst CSV &rarr;
                 </button>
@@ -383,14 +383,14 @@ import { formatMoney } from "../utils/format";
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <h3 className="text-sm font-bold text-text-main">Mapowanie kolumn z {fileName}</h3>
-                <span className="text-xs font-mono bg-slate-100 text-text-muted px-2.5 py-1 rounded-md">
-                  Wykryty separator: <strong className="text-white">&quot;{detectedDelimiter}&quot;</strong>
+                <span className="text-xs font-mono bg-surface-2 text-text-muted px-2.5 py-1 rounded-md">
+                  Wykryty separator: <strong className="text-text-main">&quot;{detectedDelimiter}&quot;</strong>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-text-muted">Kolumna tytułu/nazwy</label>
-                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
+                  <select value={mapName} onChange={(e) => setMapName(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -401,7 +401,7 @@ import { formatMoney } from "../utils/format";
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-text-muted">Kolumna kwoty</label>
-                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
+                  <select value={mapAmount} onChange={(e) => setMapAmount(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -412,7 +412,7 @@ import { formatMoney } from "../utils/format";
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-text-muted">Kolumna daty</label>
-                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
+                  <select value={mapDate} onChange={(e) => setMapDate(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
                     <option value="">-- Wybierz --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
@@ -423,7 +423,7 @@ import { formatMoney } from "../utils/format";
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
-                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors">
+                  <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
                     {expenseCategories.concat(incomeCategories).map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -435,16 +435,16 @@ import { formatMoney } from "../utils/format";
 
               {/* Categorization Rules Notice */}
               {activeProfile?.transactionRules && activeProfile.transactionRules.length > 0 && (
-                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
+                <p className="text-xs text-text-main bg-surface-2 border border-border p-2.5 rounded-xl">
                   ✨ Szybka automatyzacja przypisze kategorie w tle (wykryto <strong>{activeProfile.transactionRules.length} zapisanych reguł</strong>).
                 </p>
               )}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                <button onClick={() => setStep(1)} className="bg-transparent text-text-muted hover:text-text-main hover:bg-surface-offset active:scale-[0.98] transition-colors rounded-xl px-4 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+                <button onClick={() => setStep(1)} className="bg-transparent text-text-muted hover:text-text-main hover:bg-surface-offset active:scale-[0.98] transition-colors rounded-xl px-4 py-2 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-focus-ring">
                   Wstecz
                 </button>
-                <button onClick={handleGenerateCsvPreview} className="bg-brand text-white font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
+                <button onClick={handleGenerateCsvPreview} className="bg-brand text-text-inverse font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs focus-visible:ring-2 focus-visible:ring-focus-ring">
                   Generuj podgląd &rarr;
                 </button>
               </div>
@@ -454,11 +454,11 @@ import { formatMoney } from "../utils/format";
           {step === 3 && (
             <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
               {(importStats.invalidAmount > 0 || importStats.invalidDate > 0 || importStats.skippedEmpty > 0 || importStats.tooMany) && (
-                <div className="bg-rose-50 px-4 py-3 rounded-xl border border-rose-200 flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div className="bg-danger-subtle px-4 py-3 rounded-xl border border-danger/20 flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-semibold text-rose-900">Podsumowanie problemów z parsowaniem pliku:</h4>
-                    <ul className="list-disc list-inside text-xs text-rose-700 mt-1 space-y-0.5">
+                    <h4 className="text-xs font-semibold text-danger">Podsumowanie problemów z parsowaniem pliku:</h4>
+                    <ul className="list-disc list-inside text-xs text-text-muted mt-1 space-y-0.5">
                       {importStats.tooMany && <li>Osiągnięto limit 2000 transakcji. Pozostałe zostały zignorowane.</li>}
                       {importStats.invalidAmount > 0 && <li>Odrzucono {importStats.invalidAmount} wierszy ze względu na nieprawidłową kwotę (NaN lub 0).</li>}
                       {importStats.invalidDate > 0 && <li>Odrzucono {importStats.invalidDate} wierszy ze względu na nieprawidłowy/pusty format daty.</li>}
@@ -468,23 +468,23 @@ import { formatMoney } from "../utils/format";
                 </div>
               )}
 
-              <div className="bg-emerald-50/50 px-4 py-3 rounded-xl border border-emerald-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-emerald-800">
+              <div className="bg-brand-subtle px-4 py-3 rounded-xl border border-brand/20 flex items-center justify-between">
+                <span className="text-xs font-semibold text-brand">
                   Nowe transakcje gotowe do zaimportowania: <strong className="text-xl font-extrabold">{mappedTransactions.length}</strong>
                 </span>
-                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-brand hover:text-brand-hover hover:underline font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
+                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-brand hover:text-brand-hover hover:underline font-bold transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring">
                   Wróć i popraw
                 </button>
               </div>
 
               {duplicateAnalysis.duplicateCount > 0 && (
-                <div className="bg-amber-50 px-4 py-3 rounded-xl border border-amber-200 flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="bg-warning-subtle px-4 py-3 rounded-xl border border-warning/20 flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-semibold text-amber-900">
+                    <h4 className="text-xs font-semibold text-warning">
                       Wykryto potencjalne duplikaty: {duplicateAnalysis.duplicateCount}
                     </h4>
-                    <p className="text-xs text-amber-700 mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
+                    <p className="text-xs text-text-muted mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
                   </div>
                 </div>
               )}
@@ -500,14 +500,14 @@ import { formatMoney } from "../utils/format";
                       <th className="py-2.5 px-3 text-right">Kwota</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-bg-base/95 backdrop-blur-2xl">
+                  <tbody className="divide-y divide-border bg-bg-base/95 backdrop-blur-2xl">
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => (
-                      <tr key={idx} className={`transition-colors ${warning ? "bg-amber-50/50 hover:bg-amber-100/50" : "hover:bg-surface"}`}>
+                      <tr key={idx} className={`transition-colors ${warning ? "bg-warning-subtle hover:bg-warning-subtle/80" : "hover:bg-surface"}`}>
                         <td className="py-2 px-3">
                           <div className="font-bold text-text-main flex items-center gap-1.5 min-w-0">
                             {warning && (
                               <DelayedTooltip label={warning.reason}>
-                                <AlertTriangle className="w-3 h-3 text-amber-500 outline-none shrink-0" />
+                                <AlertTriangle className="w-3 h-3 text-warning shrink-0" />
                               </DelayedTooltip>
                             )}
                             <span className="truncate block max-w-[150px] sm:max-w-xs" title={tx.name}>{tx.name}</span>
@@ -515,13 +515,13 @@ import { formatMoney } from "../utils/format";
                         </td>
                         <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
                         <td className="py-2 px-3">
-                          <span className="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-xs">
+                          <span className="inline-flex items-center gap-1 bg-surface-2 border border-border px-2 py-0.5 rounded-full text-xs">
                             <span>{tx.categoryIcon}</span>
                             {tx.category}
                           </span>
                         </td>
                         <td className="py-2 px-3 text-text-muted">{tx.account}</td>
-                        <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
+                        <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
                           {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || state?.currencyPreference || "PLN")}
                         </td>
                       </tr>
@@ -533,14 +533,14 @@ import { formatMoney } from "../utils/format";
                 {duplicateAnalysis.duplicateCount > 0 && (
                   <button
                     onClick={() => handleConfirmImport(true)}
-                    className="bg-amber-100 text-amber-800 font-bold py-3 px-5 rounded-xl hover:bg-amber-200 active:scale-[0.98] transition-all text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                    className="bg-surface border border-border text-text-main font-bold py-3 px-5 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all text-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
                   >
                     Pomiń duplikaty ({mappedTransactions.length - duplicateAnalysis.duplicateCount}) i importuj
                   </button>
                 )}
                 <button
                   onClick={() => handleConfirmImport(false)}
-                  className="bg-brand text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="bg-brand text-text-inverse font-bold py-3 px-8 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   ✓ Zaimportuj wszystko ({mappedTransactions.length})
                 </button>

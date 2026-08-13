@@ -80,10 +80,10 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-md rounded-3xl bg-surface border border-border shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
        ref={modalRef}>
-        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
-          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-payment-modal">
+        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-surface sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-2 p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-payment-modal">
             &times;
           </button>
           <p className="text-xs font-medium text-text-muted truncate" title={initialData ? "Edycja Płatności" : "Nowa Płatność"}>{initialData ? "Edycja Płatności" : "Nowa Płatność"}</p>
@@ -100,7 +100,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="np. Prąd Enea, Netflix, Internet"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface text-text-main placeholder:text-text-faint transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-name"
             />
           </div>
@@ -114,7 +114,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface text-text-main placeholder:text-text-faint transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-amount"
             />
           </div>
@@ -125,7 +125,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface text-text-main placeholder:text-text-faint transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-date"
             />
           </div>
@@ -133,7 +133,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           {activeProfile?.kind === "shared" && (
             <div className="border-t border-border pt-3">
               {!activeProfile.partnerName ? (
-                <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 text-center font-medium">
+                <div className="text-xs bg-warning-subtle border border-warning/20 text-warning rounded p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
                 </div>
               ) : (
@@ -143,7 +143,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface transition-colors"
+                      className="w-full rounded-xl border border-border p-2 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface transition-colors"
                       id="select-payment-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -156,7 +156,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand bg-surface transition-colors"
+                      className="w-full rounded-xl border border-border p-2 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface transition-colors"
                       id="select-payment-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -170,11 +170,11 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
 
           </div>
           
-          <div className="shrink-0 p-6 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl">
+          <div className="shrink-0 p-6 pt-4 border-t border-border bg-surface rounded-b-3xl">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-brand text-white hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="w-full bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-payment-submit"
             >
               <span className="truncate" title={isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}>

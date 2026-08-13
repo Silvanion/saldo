@@ -68,7 +68,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
         className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
        ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
-          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand" id="close-profile-modal">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-profile-modal">
             &times;
           </button>
           <p className="text-xs font-medium text-text-muted truncate" title="Zarządzanie profilami">Zarządzanie profilami</p>
@@ -85,7 +85,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="np. Budżet Seweryna, Domowy"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 bg-surface text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
               id="input-profile-name"
             />
           </div>
@@ -93,7 +93,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">Ikona profilu</label>
             <details className="group border border-border rounded-xl relative">
-              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-surface-offset transition-colors flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset">
+              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-surface-offset transition-colors flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{avatar}</span>
                   <span>Wybierz ikonę profilu</span>
@@ -112,7 +112,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`text-2xl p-2 rounded-xl border transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${avatar === emoji ? 'bg-brand-surface border-brand shadow-sm' : 'bg-surface border-border hover:bg-surface-offset grayscale hover:grayscale-0'}`}
+                      className={`text-2xl p-2 rounded-xl border transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-focus-ring ${avatar === emoji ? 'bg-brand-surface border-brand shadow-sm' : 'bg-surface border-border hover:bg-surface-offset grayscale hover:grayscale-0'}`}
                     >
                       {emoji}
                     </button>
@@ -127,7 +127,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
-              className="w-full rounded-xl border border-border p-2.5 outline-none bg-surface/50 text-text-main placeholder-slate-400 focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 bg-surface text-text-main placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
               id="select-profile-kind"
             >
               <option value="personal">Tylko dla mnie (osobisty)</option>
@@ -146,7 +146,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
                   placeholder="np. Ania, Marta, Piotr"
                   value={partnerName}
                   onChange={(e) => setPartnerName(e.target.value)}
-                  className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
+                  className="w-full rounded-xl border border-border p-2.5 bg-surface text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
                   id="input-profile-partner"
                 />
               </DelayedTooltip>
@@ -164,13 +164,13 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
               placeholder="Wpisz 4 do 8 cyfr"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus-visible:border-brand focus-visible:ring-1 focus-visible:ring-brand transition-colors"
+              className="w-full rounded-xl border border-border p-2.5 bg-surface text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
               id="input-profile-pin"
             />
             <p className="text-xs font-medium text-text-muted mt-1">Pozostaw puste, aby nie nakładać blokady.</p>
           </div>
 
-          <div className="rounded-xl bg-slate-100 p-4">
+          <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-xs text-text-main leading-relaxed">
               <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
             </p>
@@ -182,7 +182,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
               id="btn-profile-submit"
             >
               <span className="truncate" title={isSubmitting ? "Tworzenie..." : "Utwórz profil"}>
