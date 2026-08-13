@@ -4,6 +4,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
+import { createPortal } from "react-dom";
 import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
 import { Transaction } from "../types";
@@ -203,7 +204,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     onClose();
   };
 
-  return (
+  const modalContent = (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -549,4 +550,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       </motion.div>
     </motion.div>
   );
+
+  if (typeof document !== "undefined") {
+    return createPortal(modalContent, document.body);
+  }
+  return modalContent;
 }
