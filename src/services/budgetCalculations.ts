@@ -1,4 +1,4 @@
-import { Profile, RecurringRule } from "../types";
+import { Profile, RecurringRule, Transaction, Payment } from "../types";
 import { getLocalDateIso, addMonthsClamped, roundCurrency } from "../utils";
 
 export interface SafeToSpendBreakdown {
@@ -313,4 +313,93 @@ export function calculateSafeToSpend(
     safeToSpend: roundCurrency(safeToSpend),
     isNegative: safeToSpend < 0
   };
+}
+
+export interface MonthlyTotals {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  categorySpentMap: Record<string, number>;
+}
+
+export function calculateMonthlyTotals(transactions: Transaction[] = [], selectedDate: Date): MonthlyTotals {
+  const currentYear = selectedDate.getFullYear();
+  const currentMonthIdx = selectedDate.getMonth();
+
+  let totalIncome = 0;
+  let totalExpense = 0;
+  const categorySpentMap: Record<string, number> = {};
+
+  (transactions || []).forEach((t) => {
+    if (!t.isoDate) return;
+    const d = new Date(`${t.isoDate}T12:00:00`);
+    if (d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx) {
+      if (t.type === "income") {
+        totalIncome += Number(t.amount) || 0;
+      } else if (t.type === "expense") {
+        const amt = Number(t.amount) || 0;
+        totalExpense += amt;
+        categorySpentMap[t.category] = (categorySpentMap[t.category] || 0) + amt;
+      }
+    }
+  });
+
+  return {
+    totalIncome,
+    totalExpense,
+    balance: totalIncome - totalExpense,
+    categorySpentMap
+  };
+}
+
+export function calculateEmergencyLimit(accounts: Profile["accounts"] = []): number {
+  let emergencyLimit = 0;
+  (accounts || []).forEach((a) => {
+    if (a.hasCreditLimit && a.creditLimit) {
+      emergencyLimit += Number(a.creditLimit) || 0;
+    }
+  });
+  return emergencyLimit;
+}
+
+export function calculateInvestmentCushion(investments: Profile["investments"] = []): number {
+  let investmentCushion = 0;
+  (investments || []).forEach((inv) => {
+    if (inv.type === "Poduszka finansowa") {
+      investmentCushion += Number(inv.amount) || 0;
+    }
+  });
+  return investmentCushion;
+}
+
+export function getUnpaidAndUrgentPayments(payments: Payment[] = []): { unpaidPayments: Payment[]; urgentPaymentsCount: number } {
+  const unpaidPayments = (payments || [])
+    .filter((p) => p.status !== "Opłacono")
+    .sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
+
+  const urgentPaymentsCount = unpaidPayments.filter((p) => {
+    if (!p.dueDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    const diffTime = pDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 3;
+  }).length;
+
+  return { unpaidPayments, urgentPaymentsCount };
+}
+
+export function calculateBudgetSummary(
+  budgets: Record<string, number> = {},
+  categorySpentMap: Record<string, number> = {},
+  categories: readonly string[]
+): { totalPlannedBudget: number; totalActualSpentInBudget: number } {
+  let totalPlannedBudget = 0;
+  let totalActualSpentInBudget = 0;
+  categories.forEach((cat) => {
+    totalPlannedBudget += Number(budgets[cat]) || 0;
+    totalActualSpentInBudget += Number(categorySpentMap[cat]) || 0;
+  });
+  return { totalPlannedBudget, totalActualSpentInBudget };
 }

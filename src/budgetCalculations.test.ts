@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { calculateSafeToSpend, calculateEndOfMonthForecast, calculateBudgetWarnings } from "./services/budgetCalculations";
+import {
+  calculateSafeToSpend,
+  calculateEndOfMonthForecast,
+  calculateBudgetWarnings,
+  calculateMonthlyTotals,
+  calculateEmergencyLimit,
+  calculateInvestmentCushion,
+  getUnpaidAndUrgentPayments,
+  calculateBudgetSummary
+} from "./services/budgetCalculations";
 import { Profile, RecurringRule } from "./types";
 
 describe("KROK 8A — Bezpieczna kwota do wydania", () => {
@@ -551,5 +560,58 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
     // Z roundCurrency: 20.3
     expect(food!.spent).toBe(20.3);
     expect(food!.status).toBe("normal");
+  });
+
+  describe("Narzędzia pomocnicze dashboardu (Krok 2 refaktoring)", () => {
+    it("calculateMonthlyTotals — poprawnie grupuje przychody, wydatki i kategorie w danym miesiącu", () => {
+      const txs = [
+        { id: "1", name: "Pensja", amount: 5000, type: "income" as const, category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-01", currency: "PLN" as const },
+        { id: "2", name: "Obiad", amount: 50, type: "expense" as const, category: "Jedzenie", account: "Główne", isoDate: "2026-08-05", currency: "PLN" as const },
+        { id: "3", name: "Kino", amount: 30, type: "expense" as const, category: "Rozrywka", account: "Główne", isoDate: "2026-08-10", currency: "PLN" as const },
+        { id: "4", name: "Stary wydatek", amount: 100, type: "expense" as const, category: "Jedzenie", account: "Główne", isoDate: "2026-07-20", currency: "PLN" as const }
+      ];
+      const res = calculateMonthlyTotals(txs, new Date("2026-08-15"));
+      expect(res.totalIncome).toBe(5000);
+      expect(res.totalExpense).toBe(80);
+      expect(res.balance).toBe(4920);
+      expect(res.categorySpentMap["Jedzenie"]).toBe(50);
+      expect(res.categorySpentMap["Rozrywka"]).toBe(30);
+    });
+
+    it("calculateEmergencyLimit i calculateInvestmentCushion — poprawnie zliczają limity i poduszki", () => {
+      const accounts = [
+        { id: "a1", name: "Karta", type: "credit" as const, balance: 0, hasCreditLimit: true, creditLimit: 2000, currency: "PLN" as const }
+      ];
+      const investments = [
+        { id: "i1", name: "Fundusz", amount: 15000, type: "Poduszka finansowa" as const, currency: "PLN" as const },
+        { id: "i2", name: "Akcje", amount: 5000, type: "Akcje" as const, currency: "PLN" as const }
+      ];
+
+      expect(calculateEmergencyLimit(accounts)).toBe(2000);
+      expect(calculateInvestmentCushion(investments)).toBe(15000);
+    });
+
+    it("getUnpaidAndUrgentPayments — sortuje nieopłacone i liczy pilne płatności", () => {
+      const today = new Date();
+      const dueDateUrgent = today.toISOString().split("T")[0];
+      const payments = [
+        { id: "p1", name: "Prąd", amount: 200, dueDate: dueDateUrgent, status: "Do opłacenia" as const, currency: "PLN" as const },
+        { id: "p2", name: "Gaz", amount: 100, dueDate: "2099-01-01", status: "Opłacono" as const, currency: "PLN" as const }
+      ];
+
+      const res = getUnpaidAndUrgentPayments(payments);
+      expect(res.unpaidPayments.length).toBe(1);
+      expect(res.urgentPaymentsCount).toBe(1);
+    });
+
+    it("calculateBudgetSummary — wylicza planowany i rzeczywisty budżet dla podanych kategorii", () => {
+      const budgets = { "Jedzenie": 500, "Transport": 200 };
+      const categorySpentMap = { "Jedzenie": 300, "Inne": 50 };
+      const categories = ["Jedzenie", "Transport"];
+
+      const res = calculateBudgetSummary(budgets, categorySpentMap, categories);
+      expect(res.totalPlannedBudget).toBe(700);
+      expect(res.totalActualSpentInBudget).toBe(300);
+    });
   });
 });

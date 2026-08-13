@@ -1,6 +1,17 @@
 import { useMemo } from 'react';
-import { Profile, RecurringRule, Payment, Transaction } from '../types';
-import { calculateEndOfMonthForecast, calculateBudgetWarnings, calculateSafeToSpend, SafeToSpendBreakdown, BudgetWarning } from '../services/budgetCalculations';
+import { Profile, RecurringRule, Payment } from '../types';
+import {
+  calculateEndOfMonthForecast,
+  calculateBudgetWarnings,
+  calculateSafeToSpend,
+  calculateMonthlyTotals,
+  calculateEmergencyLimit,
+  calculateInvestmentCushion,
+  getUnpaidAndUrgentPayments,
+  calculateBudgetSummary,
+  SafeToSpendBreakdown,
+  BudgetWarning
+} from '../services/budgetCalculations';
 import { budgetCategories, monthsPl } from '../utils';
 
 export interface DashboardChartPoint {
@@ -48,64 +59,15 @@ export interface DashboardMetrics {
 }
 
 export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, recurringRules: RecurringRule[]): DashboardMetrics {
-  const currentYear = selectedDate.getFullYear();
-  const currentMonthIdx = selectedDate.getMonth();
-
-  let totalIncome = 0;
-  let totalExpense = 0;
-  const categorySpentMap: Record<string, number> = {};
-
   const transactions = profile.transactions || [];
   const payments = profile.payments || [];
   const budgets = profile.budgets || {};
 
-  transactions.forEach((t) => {
-    const d = new Date(`${t.isoDate}T12:00:00`);
-    if (d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx) {
-      if (t.type === "income") {
-        totalIncome += t.amount;
-      } else if (t.type === "expense") {
-        totalExpense += t.amount;
-        categorySpentMap[t.category] = (categorySpentMap[t.category] || 0) + t.amount;
-      }
-    }
-  });
-
-  const balance = totalIncome - totalExpense;
-
-  let emergencyLimit = 0;
-  (profile.accounts || []).forEach(a => {
-    if (a.hasCreditLimit && a.creditLimit) {
-      emergencyLimit += a.creditLimit;
-    }
-  });
-
-  let investmentCushion = 0;
-  (profile.investments || []).forEach(inv => {
-    if (inv.type === "Poduszka finansowa") {
-      investmentCushion += inv.amount;
-    }
-  });
-
-  const unpaidPayments = payments
-    .filter((p) => p.status !== "Opłacono")
-    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-
-  const urgentPaymentsCount = unpaidPayments.filter((p) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const pDate = new Date(`${p.dueDate}T00:00:00`);
-    const diffTime = pDate.getTime() - today.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 3;
-  }).length;
-
-  let totalPlannedBudget = 0;
-  let totalActualSpentInBudget = 0;
-  budgetCategories.forEach(cat => {
-    totalPlannedBudget += (budgets[cat] || 0);
-    totalActualSpentInBudget += (categorySpentMap[cat] || 0);
-  });
+  const { totalIncome, totalExpense, balance, categorySpentMap } = calculateMonthlyTotals(transactions, selectedDate);
+  const emergencyLimit = calculateEmergencyLimit(profile.accounts);
+  const investmentCushion = calculateInvestmentCushion(profile.investments);
+  const { unpaidPayments, urgentPaymentsCount } = getUnpaidAndUrgentPayments(payments);
+  const { totalPlannedBudget, totalActualSpentInBudget } = calculateBudgetSummary(budgets, categorySpentMap, budgetCategories);
 
   const endOfMonthForecast = calculateEndOfMonthForecast(profile, recurringRules);
   const selectedDateIso = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-15`;
