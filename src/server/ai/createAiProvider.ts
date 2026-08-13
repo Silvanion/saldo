@@ -8,7 +8,7 @@ export function createAiProvider(config: AiConfig): AiProvider {
     case "none":
       return new NoAiProvider();
     case "local":
-      return new LocalProvider(config.localEndpoint);
+      return new LocalProvider(config.localEndpoint, config.localAiModel);
     case "cloud":
       return new CloudProvider();
     default:

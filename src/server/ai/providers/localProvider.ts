@@ -3,10 +3,12 @@ import { AiProvider } from "../types";
 
 export class LocalProvider implements AiProvider {
   private endpoint: string;
+  private modelName: string;
 
-  constructor(endpoint?: string) {
+  constructor(endpoint?: string, modelName?: string) {
     // Default Ollama endpoint assumption if none provided
     this.endpoint = endpoint || "http://localhost:11434/api/generate";
+    this.modelName = modelName || "llama3";
   }
 
   /**
@@ -67,12 +69,12 @@ export class LocalProvider implements AiProvider {
    */
   private async callLocalApi(prompt: string, expectJson: boolean = true): Promise<any> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 30s timeout
 
     try {
       // Default Ollama payload structure
       const payload: Record<string, any> = {
-        model: "llama3", // Default model assumption for Ollama instances
+        model: this.modelName,
         prompt: prompt,
         stream: false,
       };

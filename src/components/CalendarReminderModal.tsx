@@ -1,8 +1,10 @@
 
 import { getLocalDateIso } from "../utils";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
 import { Calendar, Clock, Bell, AlertCircle, Check, Loader2 } from "lucide-react";
@@ -26,6 +28,10 @@ export function CalendarReminderModal({
   onConnectCalendar,
   onCalendarAuthInvalid
 }: CalendarReminderModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
+
   const { state, canUseAiChat } = useApp();
   
   // Suggested event fields
@@ -227,21 +233,23 @@ export function CalendarReminderModal({
         className="bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-lg shadow-sm overflow-hidden flex flex-col max-h-[90vh]"
         role="dialog"
         aria-modal="true"
-      >
+        aria-labelledby="calendar-modal-title"
+       ref={modalRef}>
         {/* Header */}
-        <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-100 text-text-muted flex items-center justify-center shadow-sm border border-border">
+        <div className="shrink-0 px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-surface-2 text-text-muted flex items-center justify-center shadow-sm border border-border shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-text-main leading-tight">Przypomnienie w Kalendarzu</h2>
-              <p className="text-xs text-text-muted font-medium">Zarządzaj terminami łatwo</p>
+            <div className="min-w-0">
+              <h2 id="calendar-modal-title" className="text-lg font-bold text-text-main leading-tight truncate" title="Przypomnienie w Kalendarzu">Przypomnienie w Kalendarzu</h2>
+              <p className="text-xs text-text-muted font-medium truncate" title="Zarządzaj terminami łatwo">Zarządzaj terminami łatwo</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-text-muted hover:text-text-main hover:bg-slate-100 p-2 rounded-xl transition cursor-pointer"
+            aria-label="Zamknij"
+            className="text-text-muted hover:text-text-main hover:bg-surface-2 p-2 rounded-xl transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-close-calendar-modal"
           >
             ✕
@@ -249,28 +257,28 @@ export function CalendarReminderModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-surface/50 space-y-6">
+        <div className="flex-1 min-w-0 p-6 overflow-y-auto custom-scrollbar bg-surface/50 space-y-6">
           {!calendarToken || calendarScopeMissing ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-1">
+            <div className="bg-warning-subtle border border-warning/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-surface text-warning flex items-center justify-center mb-1 border border-border">
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-amber-900 mb-1">Połącz kalendarz</h3>
-                <p className="text-xs text-amber-700 max-w-xs leading-relaxed">
+                <h3 className="text-sm font-bold text-warning mb-1">Połącz kalendarz</h3>
+                <p className="text-xs text-warning max-w-xs leading-relaxed">
                   Aby zaplanować wydarzenie, połącz swoje konto Google i zezwól na dostęp do kalendarza.
                 </p>
               </div>
               {errorMsg && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex gap-2 text-left">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="p-3 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs flex gap-2 text-left">
+                  <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
               <button
                 type="button"
                 onClick={onConnectCalendar}
-                className="bg-amber-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-amber-700 transition cursor-pointer"
+                className="bg-brand border border-brand text-text-inverse px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-brand-hover transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                 id="btn-connect-calendar"
               >
                 Połącz kalendarz
@@ -288,34 +296,34 @@ export function CalendarReminderModal({
 
               {!isLoadingSuggestion && (
                 <div className="space-y-4 p-5 bg-bg-base/95 backdrop-blur-2xl border border-border rounded-2xl shadow-sm animate-fade-in relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-[#137566]"></div>
+                  <div className="absolute top-0 left-0 w-1 h-full bg-brand"></div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-[#137566]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#153a35]">Szczegóły przypomnienia w Kalendarzu</span>
+                    <Calendar className="w-4 h-4 text-brand" />
+                    <span className="text-xs font-medium text-text-muted">Szczegóły przypomnienia w Kalendarzu</span>
                   </div>
                   
                   {/* Event Summary */}
                   <div>
-                    <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Tytuł wydarzenia</label>
+                    <label className="block text-xs font-medium text-text-muted mb-1.5">Tytuł wydarzenia</label>
                     <input
                       required
                       type="text"
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
-                      className="w-full rounded-xl border border-border p-2.5 text-sm font-bold text-text-main outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition"
+                      className="w-full rounded-xl border border-border bg-surface p-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition"
                       id="input-event-summary"
                     />
                   </div>
 
                   {/* Event Description */}
                   <div>
-                    <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Opis {canUseAiChat ? "(Wygenerowany przez AI)" : ""}</label>
+                    <label className="block text-xs font-medium text-text-muted mb-1.5">Opis {canUseAiChat ? "(Wygenerowany przez AI)" : ""}</label>
                     <textarea
                       required
                       rows={4}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full rounded-xl border border-border p-2.5 text-xs text-text-main outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition leading-relaxed"
+                      className="w-full rounded-xl border border-border bg-surface p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition leading-relaxed"
                       id="input-event-description"
                     />
                   </div>
@@ -323,29 +331,29 @@ export function CalendarReminderModal({
                   {/* Date & Time */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Data</label>
+                      <label className="block text-xs font-medium text-text-muted mb-1.5">Data</label>
                       <div className="relative">
-                        <Calendar className="w-4 h-4 text-[#137566] absolute left-3 top-2.5" />
+                        <Calendar className="w-4 h-4 text-brand absolute left-3 top-2.5" />
                         <input
                           required
                           type="date"
                           value={eventDate}
                           onChange={(e) => setEventDate(e.target.value)}
-                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus:border-[#137566] transition cursor-pointer"
+                          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
                           id="input-event-date"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">Godzina</label>
+                      <label className="block text-xs font-medium text-text-muted mb-1.5">Godzina</label>
                       <div className="relative">
-                        <Clock className="w-4 h-4 text-[#137566] absolute left-3 top-2.5" />
+                        <Clock className="w-4 h-4 text-brand absolute left-3 top-2.5" />
                         <input
                           required
                           type="time"
                           value={eventTime}
                           onChange={(e) => setEventTime(e.target.value)}
-                          className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm font-bold text-text-main outline-none focus:border-[#137566] transition cursor-pointer"
+                          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
                           id="input-event-time"
                         />
                       </div>
@@ -354,7 +362,7 @@ export function CalendarReminderModal({
 
                   {/* Reminders Toggles */}
                   <div className="pt-2 border-t border-border">
-                    <label className="block text-[11px] font-bold text-text-muted mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+                    <label className="block text-xs font-medium text-text-muted mb-2 flex items-center gap-1.5">
                       <Bell className="w-3.5 h-3.5" />
                       Powiadomienia w Kalendarzu
                     </label>
@@ -366,10 +374,10 @@ export function CalendarReminderModal({
                             key={rem.value}
                             type="button"
                             onClick={() => toggleReminder(rem.value)}
-                            className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
+                            className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all focus-visible:ring-2 focus-visible:ring-focus-ring ${
                               isSelected
-                                ? "bg-[#137566] text-white border-[#137566] shadow-sm scale-105"
-                                : "bg-surface text-text-muted border-border hover:bg-slate-100 hover:border-slate-300"
+                                ? "bg-brand text-text-inverse border-brand shadow-sm scale-105"
+                                : "bg-surface text-text-muted border-border hover:bg-surface-2"
                             }`}
                           >
                             {rem.label} {isSelected && "✓"}
@@ -383,56 +391,56 @@ export function CalendarReminderModal({
 
               {/* Error / Success feedback inside modal */}
               {errorMsg && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="p-3.5 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs flex gap-2">
+                  <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
               
               {successMsg && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center font-bold shrink-0">
+                <div className="p-4 bg-brand-subtle border border-brand/20 rounded-xl text-brand text-xs flex gap-3">
+                  <div className="w-5 h-5 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>{successMsg}</span>
                 </div>
               )}
-
-              {/* Bottom Actions */}
-              {!isLoadingSuggestion && (
-                <div className="flex items-center gap-3 pt-3 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 rounded-xl border border-border py-3 text-xs font-bold text-text-muted hover:bg-surface transition cursor-pointer"
-                    id="btn-cancel-calendar"
-                  >
-                    Anuluj
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isSubmitting || !calendarToken}
-                    onClick={handleSubmitToCalendar}
-                    className="flex-2 rounded-xl bg-[#137566] hover:bg-[#0f5d51] py-3 text-xs font-bold text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer"
-                    id="btn-confirm-calendar"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Zapisywanie...
-                      </>
-                    ) : (
-                      <>
-                        <Calendar className="w-4 h-4" />
-                        Zapisz w Kalendarzu Google
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>
+
+        {/* Bottom Actions - extracted to footer */}
+        {(calendarToken && !calendarScopeMissing && !isLoadingSuggestion) && (
+          <div className="shrink-0 flex items-center gap-3 p-6 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl bg-surface border border-border py-3 text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-cancel-calendar"
+            >
+              Anuluj
+            </button>
+            <button
+              type="button"
+              disabled={isSubmitting || !calendarToken}
+              onClick={handleSubmitToCalendar}
+              className="flex-2 rounded-xl bg-brand border border-brand hover:bg-brand-hover py-3 text-xs font-bold text-text-inverse shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-confirm-calendar"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                  <span className="truncate">Zapisywanie...</span>
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Zapisz w Kalendarzu Google</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );

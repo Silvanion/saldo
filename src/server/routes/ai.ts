@@ -20,6 +20,7 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
   }
 
   let localEndpoint = (req.headers["x-ai-local-endpoint"] || "").toString().trim();
+  let localAiModel = (req.headers["x-ai-local-model"] || "").toString().trim();
   
   if (process.env.NODE_ENV === "production" && mode === "local") {
     return res.status(403).json({ 
@@ -52,7 +53,7 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
     }
   }
 
-  req.aiConfig = { mode, localEndpoint };
+  req.aiConfig = { mode, localEndpoint, localAiModel };
   next();
 };
 

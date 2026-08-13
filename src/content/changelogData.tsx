@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v0.9.0",
+    date: "Sierpień 2026",
+    title: "Globalny Polish UX/UI i Nowe Tooltipy",
+    icon: <Sparkles className="w-5 h-5 text-emerald-500" />,
+    features: [
+      "[UI Polish] Ujednolicone tła (surfaces), zaokrąglenia i kontrasty w jasnym i ciemnym motywie dla lepszej czytelności.",
+      "[Nawigacja] Interaktywne tooltipy (podpowiedzi) na urządzeniach mobilnych — przytrzymaj ikonę palcem, by poznać jej funkcję.",
+      "[Entry Experience] Odświeżony widok logowania, powitania zależne od pory dnia oraz wsparcie dla auto-theme.",
+      "[Centrum Pomocy] Zaktualizowana sekcja pomocy z lepszymi kontrastami i użyciem ustandaryzowanych kolorów aplikacji."
+    ]
+  },
+  {
     version: "v0.8.9",
     date: "Sierpień 2026",
     title: "Priorytety, Statusy i Przejrzystość",

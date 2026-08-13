@@ -3,12 +3,13 @@ import { auth } from "../firebase";
 export interface AiConfig {
   aiMode: "none" | "local" | "cloud";
   localAiEndpoint?: string;
+  localAiModel?: string;
 }
 
 /**
  * Helper to construct a validated AiConfig from AppState or component state.
  */
-export function getAiConfig(state?: { aiMode?: string; localAiEndpoint?: string }): AiConfig {
+export function getAiConfig(state?: { aiMode?: string; localAiEndpoint?: string; localAiModel?: string }): AiConfig {
   const rawMode = state?.aiMode?.toLowerCase();
   const validMode = (rawMode === "cloud" || rawMode === "local" || rawMode === "none")
     ? (rawMode as "none" | "local" | "cloud")
@@ -17,6 +18,7 @@ export function getAiConfig(state?: { aiMode?: string; localAiEndpoint?: string 
   return {
     aiMode: validMode,
     localAiEndpoint: state?.localAiEndpoint || "http://localhost:11434/api/generate",
+    localAiModel: state?.localAiModel,
   };
 }
 
@@ -32,6 +34,9 @@ export async function callAiApi(endpoint: string, payload: any, config: AiConfig
 
   if (config.aiMode === "local" && config.localAiEndpoint) {
     headers["x-ai-local-endpoint"] = config.localAiEndpoint;
+    if (config.localAiModel) {
+      headers["x-ai-local-model"] = config.localAiModel;
+    }
   }
 
   // Attach auth token when available (required for 'cloud' mode, optional for local/none)

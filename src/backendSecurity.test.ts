@@ -100,7 +100,7 @@ describe("KROK 6 — Backend security and rules tests", () => {
   it("Firestore write z niedozwolonym kluczem => deny", () => {
     const allowedKeys = [
       "profiles", "schemaVersion", "updatedAt", "activeProfileId", "driveFileId",
-      "recurringRules", "transactionRules", "aiMode", "localAiEndpoint",
+      "recurringRules", "transactionRules", "aiMode", "localAiEndpoint", "localAiModel",
       "lastModifiedBy"
     ];
 

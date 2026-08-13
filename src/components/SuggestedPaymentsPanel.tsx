@@ -3,6 +3,7 @@ import React from "react";
 import { Payment } from "../types";
 import { getLocalDateIso } from "../utils";
 import { formatMoney } from "../utils/format";
+import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 
 interface SuggestedPaymentsPanelProps {
   currency: string;
@@ -58,7 +59,7 @@ export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment, c
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-lg p-6 mb-6">
       <div className="flex items-center gap-2 mb-4">
-        <span className="bg-slate-100 text-text-muted p-1.5 rounded-xl">
+        <span className="bg-surface-2 text-text-muted p-1.5 rounded-xl">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -76,17 +77,18 @@ export function SuggestedPaymentsPanel({ payments, selectedDate, onAddPayment, c
             newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
           }
           return (
-            <div key={`sugg-${sp.id}`} className="bg-surface rounded-xl border border-border p-3 shadow-sm hover:border-slate-300 transition">
+            <div key={`sugg-${sp.id}`} className="bg-surface rounded-xl border border-border p-3 shadow-sm hover:bg-surface-2 transition">
               <h4 className="text-sm font-bold text-text-main">{sp.name}</h4>
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-text-muted">{formatMoney(sp.amount, sp.currency || currency)} <br/><span className="text-[10px]">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
-                <button
-                  onClick={() => handleAddSuggestedPayment(sp)}
-                  className="bg-slate-100 hover:bg-slate-100 text-text-muted border border-slate-200 p-1.5 rounded-xl text-xs font-semibold transition"
-                  title="Skopiuj do tego miesiąca"
-                >
-                  + Dodaj
-                </button>
+                <span className="text-xs text-text-muted">{formatMoney(sp.amount, sp.currency || currency)} <br/><span className="text-xs">do {newDate.toLocaleDateString('pl-PL', {day:'numeric', month:'short'})}</span></span>
+                <DelayedTooltip label="Skopiuj do tego miesiąca">
+                  <button
+                    onClick={() => handleAddSuggestedPayment(sp)}
+                    className="bg-surface-2 hover:bg-surface-offset text-text-main border border-border px-2 py-1.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  >
+                    + Dodaj
+                  </button>
+                </DelayedTooltip>
               </div>
             </div>
           );

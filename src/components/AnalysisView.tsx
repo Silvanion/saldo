@@ -190,17 +190,18 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   return (
     <div className="space-y-6 pb-12" id="analysis-view-container">
       {/* Report download header */}
-      <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-emerald-950 dark:text-emerald-100">Miesięczny Raport PDF</h2>
-          <p className="text-xs text-emerald-800 dark:text-emerald-200/80 mt-1 max-w-xl">
+      <div className="bg-brand-subtle border border-brand/20 p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 min-w-0">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold text-brand truncate" title="Miesięczny Raport PDF">Miesięczny Raport PDF</h2>
+          <p className="text-xs text-text-main mt-1 max-w-xl">
             Pobierz oficjalny, zoptymalizowany i przejrzyście sformatowany dokument PDF zawierający pełną strukturę Twoich wydatków, stan opłat i oszczędności w wybranym miesiącu. Idealny do wydruku lub archiwizacji.
           </p>
         </div>
         <button
           onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN")}
-          className="bg-white dark:bg-emerald-900 text-emerald-700 dark:text-emerald-100 border border-emerald-200 dark:border-emerald-800 font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-800 transition shadow-sm self-start md:self-auto text-sm"
+          className="bg-surface text-brand border border-border font-bold py-2.5 px-6 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all shadow-sm self-start md:self-auto text-sm shrink-0 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           id="btn-download-pdf-report"
+          title="Pobierz raport (PDF)"
         >
           📥 Pobierz raport (PDF)
         </button>
@@ -212,24 +213,24 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg space-y-4">
             <h3 className="text-base font-bold text-text-main">Miesięczny przegląd (bez AI)</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-surface rounded-xl">
-                <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Przychody</p>
-                <p className="text-sm font-bold text-emerald-700">{formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 min-w-0">
+              <div className="p-3 bg-surface rounded-xl min-w-0">
+                <p className="text-xs uppercase text-text-muted font-bold mb-1 truncate" title="Przychody">Przychody</p>
+                <p className="text-sm font-bold text-brand truncate" title={formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}>{formatMoney(monthlyDigest.totalIncome, profile.currency || 'PLN')}</p>
               </div>
-              <div className="p-3 bg-surface rounded-xl">
-                <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Wydatki</p>
-                <p className="text-sm font-bold text-rose-700">{formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}</p>
+              <div className="p-3 bg-surface rounded-xl min-w-0">
+                <p className="text-xs uppercase text-text-muted font-bold mb-1 truncate" title="Wydatki">Wydatki</p>
+                <p className="text-sm font-bold text-danger truncate" title={formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}>{formatMoney(monthlyDigest.totalExpenses, profile.currency || 'PLN')}</p>
               </div>
-              <div className="p-3 bg-surface rounded-xl">
-                <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Bilans</p>
-                <p className={`text-sm font-bold ${monthlyDigest.balance >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+              <div className="p-3 bg-surface rounded-xl min-w-0">
+                <p className="text-xs uppercase text-text-muted font-bold mb-1 truncate" title="Bilans">Bilans</p>
+                <p className={`text-sm font-bold truncate ${monthlyDigest.balance >= 0 ? "text-brand" : "text-danger"}`} title={formatMoney(monthlyDigest.balance, profile.currency || 'PLN')}>
                   {formatMoney(monthlyDigest.balance, profile.currency || 'PLN')}
                 </p>
               </div>
-              <div className="p-3 bg-surface rounded-xl">
-                <p className="text-[10px] uppercase text-text-muted font-bold mb-1">Oszczędności</p>
-                <p className="text-sm font-bold text-text-muted">
+              <div className="p-3 bg-surface rounded-xl min-w-0">
+                <p className="text-xs uppercase text-text-muted font-bold mb-1 truncate" title="Oszczędności">Oszczędności</p>
+                <p className="text-sm font-bold text-text-muted truncate" title={monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}>
                   {monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}
                 </p>
               </div>
@@ -245,19 +246,19 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             {insightsList.map((ins, idx) => (
               <div
                 key={idx}
-                className={`p-4 rounded-xl border flex items-start gap-3.5 transition ${
+                className={`p-4 rounded-xl border flex items-start gap-3.5 transition min-w-0 ${
                   ins.type === "success"
-                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    ? "bg-brand-subtle border-brand/20 text-brand"
                     : ins.type === "warning"
-                    ? "bg-rose-50 border-rose-200 text-rose-700"
-                    : "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                    ? "bg-danger-subtle border-danger/20 text-danger"
+                    : "bg-surface-2 border-border text-text-muted"
                 }`}
               >
-                <span className="text-lg">
+                <span className="text-lg shrink-0">
                   {ins.type === "success" ? "✓" : ins.type === "warning" ? "⚠️" : "💡"}
                 </span>
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wide mb-1">{ins.title}</h4>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold uppercase tracking-wide mb-1 truncate" title={ins.title}>{ins.title}</h4>
                   <p className="text-xs leading-relaxed">{ins.desc}</p>
                 </div>
               </div>
@@ -268,14 +269,15 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
 
         {/* Breakdown box */}
         <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-text-main">Struktura wydatków</h3>
-            <div className="relative">
+          <div className="flex justify-between items-center mb-4 gap-4 min-w-0">
+            <h3 className="text-sm font-bold text-text-main truncate" title="Struktura wydatków">Struktura wydatków</h3>
+            <div className="relative shrink-0">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-1.5 text-[11px] font-bold text-text-muted hover:text-text-main transition bg-surface px-2.5 py-1.5 rounded-xl border border-border"
+                className="flex items-center gap-1.5 text-xs font-bold text-text-muted hover:text-text-main active:scale-[0.98] transition-all bg-surface px-2.5 py-1.5 rounded-xl border border-border shrink-0 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                title="Dostosuj"
               >
-                <Settings2 className="w-3.5 h-3.5" />
+                <Settings2 className="w-3.5 h-3.5 shrink-0" />
                 Dostosuj
               </button>
               {isFilterOpen && (
@@ -283,24 +285,24 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                   <div className="p-3 bg-surface border-b border-border text-xs font-bold text-text-muted">
                     Widoczne kategorie
                   </div>
-                  <div className="max-h-60 overflow-y-auto p-2 space-y-1">
+                  <div className="p-2 space-y-1">
                     {expenseCategories.map(cat => {
                       const isVisible = userToggles[cat] !== undefined 
                         ? userToggles[cat] 
                         : expenseTxs.some(t => t.category === cat && t.amount > 0);
                       
                       return (
-                        <label key={cat} className="flex items-center gap-2.5 p-2 hover:bg-surface rounded-xl cursor-pointer">
+                        <label key={cat} className="flex items-center gap-2.5 p-2 hover:bg-surface rounded-xl cursor-pointer min-w-0 focus-within:ring-2 focus-within:ring-focus-ring">
                           <input 
                             type="checkbox" 
-                            className="hidden"
+                            className="sr-only"
                             checked={isVisible}
                             onChange={(e) => setUserToggles(prev => ({ ...prev, [cat]: e.target.checked }))}
                           />
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-emerald-50 border-[#137566] text-white' : 'border-slate-200'}`}>
+                          <div className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-brand border-brand text-text-inverse' : 'border-border'}`}>
                             {isVisible && <Check className="w-3 h-3" />}
                           </div>
-                          <span className="text-xs text-text-muted">{cat}</span>
+                          <span className="text-xs text-text-muted truncate block" title={cat}>{cat}</span>
                         </label>
                       );
                     })}
@@ -317,47 +319,50 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 const hasLimit = cat.limit > 0;
                 const limitPct = hasLimit ? (cat.spent / cat.limit) * 100 : 0;
                 
-                let barColor = "bg-emerald-50";
+                let barColor = "bg-surface-2";
                 let badgeClass = "";
                 let badgeText = "";
                 
                 if (hasLimit) {
                   if (limitPct > 100) {
-                    barColor = "bg-rose-500";
-                    badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
+                    barColor = "bg-danger";
+                    badgeClass = "bg-danger-subtle text-danger border-danger/20";
                     badgeText = "Przekroczony";
                   } else if (limitPct >= 80) {
-                    barColor = "bg-amber-400";
-                    badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                    barColor = "bg-warning";
+                    badgeClass = "bg-warning-subtle text-warning border-warning/20";
                     badgeText = "Uwaga";
                   } else {
-                    barColor = "bg-emerald-500";
-                    badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                    barColor = "bg-brand";
+                    badgeClass = "bg-brand-subtle text-brand border-brand/20";
                     badgeText = "W normie";
                   }
                 }
 
                 return (
                 <div key={cat.name} className="space-y-2">
-                  <div className="flex justify-between items-end text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-text-muted font-bold">{cat.name}</span>
+                  <div className="flex justify-between items-end text-xs gap-3 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <span className="text-text-muted font-bold truncate block" title={cat.name}>{cat.name}</span>
                       {hasLimit && (
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${badgeClass}`}>
+                        <span 
+                          className={`text-xs px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider shrink-0 truncate max-w-[80px] ${badgeClass}`}
+                          title={badgeText}
+                        >
                           {badgeText}
                         </span>
                       )}
                     </div>
-                    <div className="text-right">
-                      <strong className={hasLimit && limitPct > 100 ? "text-rose-700" : "text-text-muted"}>
+                    <div className="text-right shrink-0 whitespace-nowrap">
+                      <strong className={`whitespace-nowrap ${hasLimit && limitPct > 100 ? "text-danger" : "text-text-muted"}`} title={formatMoney(cat.spent, profile.currency || 'PLN')}>
                         {formatMoney(cat.spent, profile.currency || 'PLN')}
                       </strong>
-                      <span className="text-text-muted ml-1">
+                      <span className="text-text-muted ml-1" title={hasLimit ? `z ${formatMoney(cat.limit, profile.currency || 'PLN')}` : `(${cat.pctOfExpense}%)`}>
                         {hasLimit ? `z ${formatMoney(cat.limit, profile.currency || 'PLN')}` : `(${cat.pctOfExpense}%)`}
                       </span>
                     </div>
                   </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${cat.pctOfExpense}%` }}
                       className={`${barColor} h-full rounded-full transition-all duration-300`}
@@ -369,13 +374,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </div>
 
           {totalIncome > 0 && (
-            <div className="border-t border-border mt-5 pt-4">
-              <h4 className="text-xs font-bold text-text-main mb-2">Stopa oszczędności</h4>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 flex items-center justify-center font-bold text-emerald-700 text-sm flex-shrink-0">
+            <div className="border-t border-border mt-5 pt-4 min-w-0">
+              <h4 className="text-xs font-bold text-text-main mb-2 truncate" title="Stopa oszczędności">Stopa oszczędności</h4>
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-16 h-16 rounded-full border-4 border-brand/20 flex items-center justify-center font-bold text-brand text-sm flex-shrink-0">
                   {savingsRate}%
                 </div>
-                <p className="text-[11px] text-text-muted leading-relaxed">
+                <p className="text-xs text-text-muted leading-relaxed min-w-0">
                   Zabezpieczasz <strong>{formatMoney(savings, profile.currency || 'PLN')}</strong> z miesięcznych przychodów rzędu <strong>{formatMoney(totalIncome, profile.currency || 'PLN')}</strong>.
                 </p>
               </div>

@@ -1,4 +1,6 @@
 import { callAiApi, getAiConfig } from "../services/aiClient";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
@@ -18,6 +20,9 @@ interface ChatMessage {
 }
 
 export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const [messages, setMessages] = useState<ChatMessage[]>([{
     id: "initial",
     sender: "ai",
@@ -36,7 +41,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
           return [...prev, {
             id: "local-ai-info",
             sender: "ai",
-            text: "Wskazówka: Używasz lokalnego trybu AI (Ollama).\n\nJeśli czat nie odpowiada lub zgłasza błąd połączenia, upewnij się, że:\n1. Masz zainstalowaną i uruchomioną aplikację Ollama (ollama.com).\n2. Pobrałeś model wpisując w terminalu np. `ollama run llama3`.\n3. Twój serwer Ollama akceptuje żądania z tej przeglądarki (ustaw zmienną środowiskową OLLAMA_ORIGINS=\"*\").\n\nJeśli wolisz, możesz zawsze wrócić do trybu Chmury AI w zakładce Ustawienia aplikacji."
+            text: "Wskazówka: Używasz lokalnego trybu AI (Ollama).\n\nJeśli czat nie odpowiada lub zgłasza błąd połączenia, upewnij się, że:\n1. Masz zainstalowaną i uruchomioną aplikację Ollama (ollama.com).\n2. Pobrałeś model wpisując w terminalu np. `ollama run [nazwa_modelu]` (np. `ollama run llama3`).\n3. Twój serwer Ollama akceptuje żądania z tej przeglądarki (ustaw zmienną środowiskową OLLAMA_ORIGINS=\"*\").\n\nPamiętaj, że pierwsze zapytanie do modelu może potrwać do około minuty ze względu na ładowanie do pamięci (RAM/VRAM).\n\nJeśli wolisz, możesz zawsze wrócić do trybu Chmury AI w zakładce Ustawienia aplikacji."
           }];
         });
       }
@@ -94,33 +99,36 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
       id="ai-chat-modal"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ai-chat-modal-title"
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative flex flex-col w-full max-w-lg h-[80vh] max-h-[800px] rounded-2xl bg-bg-base/95 backdrop-blur-2xl shadow-sm overflow-hidden"
-      >
+        className="relative flex flex-col w-full max-w-lg h-[80vh] max-h-[800px] rounded-2xl bg-surface border border-border shadow-sm overflow-hidden"
+       ref={modalRef}>
         
         {/* Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-[#137566] to-[#1a9c88] px-5 py-4 text-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="bg-bg-base/95 backdrop-blur-2xl p-2 rounded-full backdrop-blur-sm">
-              <Sparkles className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between bg-surface border-b border-border px-5 py-4 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="bg-surface-2 p-2 rounded-full shrink-0">
+              <Sparkles className="w-5 h-5 text-brand" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold">Doradca Finansowy AI</h2>
-              <p className="text-xs text-emerald-100 opacity-90">Twój wirtualny asystent budżetowy</p>
+            <div className="min-w-0">
+              <h2 id="ai-chat-modal-title" className="text-lg font-bold text-text-main truncate" title="Doradca Finansowy AI">Doradca Finansowy AI</h2>
+              <p className="text-xs text-text-muted truncate" title="Twój wirtualny asystent budżetowy">Twój wirtualny asystent budżetowy</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-bg-base/95 backdrop-blur-2xl rounded-full transition text-white">
+          <button onClick={onClose} aria-label="Zamknij" className="p-2 hover:bg-surface-2 active:scale-95 rounded-full transition-all text-text-muted hover:text-text-main shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface">
+        <div className="flex-1 overflow-y-auto min-w-0 p-4 space-y-4 bg-surface custom-scrollbar">
           {(state.aiMode || "none") === "none" && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-2 mb-2">
+            <div className="p-4 bg-warning-subtle border border-warning/20 rounded-xl text-warning text-xs space-y-2 mb-2">
               <p className="font-bold">Tryb "Brak AI" jest obecnie aktywny</p>
               <p>
                 Interaktywny asystent konwersacyjny wymaga włączenia trybu <strong>Lokalne AI (Ollama)</strong> lub <strong>Chmura AI (Gemini)</strong> w zakładce Ustawienia.
@@ -130,13 +138,13 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} animate-slide-up`}>
               <div className={`flex gap-3 max-w-[85%] ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.sender === "user" ? "bg-[#153a35] text-white" : "bg-emerald-100 text-[#137566]"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.sender === "user" ? "bg-brand text-text-inverse" : "bg-brand-subtle text-brand"}`}>
                   {msg.sender === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-                <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
+                <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm min-w-0 ${
                   msg.sender === "user" 
-                    ? "bg-[#153a35] text-white rounded-tr-sm" 
-                    : "bg-bg-base/95 backdrop-blur-2xl text-text-main border border-border rounded-tl-sm"
+                    ? "bg-brand text-text-inverse rounded-tr-sm"
+                    : "bg-surface-2 border border-border text-text-main rounded-tl-sm"
                 }`}>
                   {msg.text}
                 </div>
@@ -146,11 +154,11 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
           {isLoading && (
             <div className="flex justify-start animate-slide-up">
               <div className="flex gap-3 max-w-[85%] flex-row">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#137566] flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-brand-subtle text-brand flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="px-5 py-4 rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border rounded-tl-sm flex items-center gap-2 shadow-sm">
-                  <Loader2 className="w-4 h-4 animate-spin text-[#137566]" />
+                <div className="px-5 py-4 rounded-2xl bg-surface-2 border border-border rounded-tl-sm flex items-center gap-2 shadow-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-brand" />
                   <span className="text-xs text-text-muted font-medium">Asystent pisze...</span>
                 </div>
               </div>
@@ -160,26 +168,26 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSend} className="p-4 bg-bg-base/95 backdrop-blur-2xl border-t border-border shrink-0">
+        <form onSubmit={handleSend} className="p-4 bg-surface border-t border-border shrink-0 rounded-b-2xl">
           <div className="relative flex items-center">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Zapytaj o swój budżet, inwestycje..."
-              className="w-full pl-4 pr-12 py-3.5 bg-surface border border-border rounded-xl outline-none focus:border-[#137566] focus:ring-1 focus:ring-[#137566] transition text-sm"
+              className="w-full pl-4 pr-12 py-3.5 bg-surface text-text-main border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring placeholder:text-text-muted transition-colors text-sm"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="absolute right-2 p-2 bg-[#137566] text-white rounded-xl hover:bg-[#1a9c88] transition disabled:opacity-50 disabled:hover:bg-[#137566]"
+              className="absolute right-2 p-2 bg-brand text-text-inverse rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
           <div className="mt-2 text-center">
-            <span className="text-[10px] text-text-muted">Asystent ma dostęp do historii Twoich transakcji i celów, aby lepiej doradzać.</span>
+            <span className="text-xs text-text-muted">Asystent ma dostęp do historii Twoich transakcji i celów, aby lepiej doradzać.</span>
           </div>
         </form>
 

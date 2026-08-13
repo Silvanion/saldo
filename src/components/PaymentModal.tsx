@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
 import { getLocalDateIso } from "../utils";
@@ -11,6 +13,9 @@ export interface PaymentModalProps {
 }
 
 export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
   const { state } = useApp();
   const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
   const [name, setName] = useState("");
@@ -64,37 +69,43 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="payment-modal"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-modal-title"
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl p-6 shadow-sm"
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 text-2xl text-text-muted hover:text-text-muted" id="close-payment-modal">
-          &times;
-        </button>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#849590]">{initialData ? "Edycja Płatności" : "Nowa Płatność"}</p>
-        <h2 className="text-2xl font-bold text-white mb-4">{initialData ? "Edytuj rachunek" : "Dodaj rachunek"}</h2>
+        className="relative w-full max-w-md rounded-3xl bg-surface border border-border shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+       ref={modalRef}>
+        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-surface sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-2 p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-payment-modal">
+            &times;
+          </button>
+          <p className="text-xs font-medium text-text-muted truncate" title={initialData ? "Edycja Płatności" : "Nowa Płatność"}>{initialData ? "Edycja Płatności" : "Nowa Płatność"}</p>
+          <h2 id="payment-modal-title" className="text-2xl font-bold text-text-main min-w-0 truncate" title={initialData ? "Edytuj rachunek" : "Dodaj rachunek"}>{initialData ? "Edytuj rachunek" : "Dodaj rachunek"}</h2>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 min-w-0">
+          <div className="flex-1 overflow-y-auto min-w-0 p-6 space-y-4 custom-scrollbar">
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Nazwa (np. Internet Orange)</label>
+            <label className="block text-xs font-semibold text-text-main mb-1">Nazwa (np. Internet Orange)</label>
             <input
               required
               maxLength={120}
               placeholder="np. Prąd Enea, Netflix, Internet"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-name"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Kwota (zł)</label>
+            <label className="block text-xs font-semibold text-text-main mb-1">Kwota (zł)</label>
             <input
               required
               type="number"
@@ -103,18 +114,18 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-amount"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-white mb-1">Termin płatności</label>
+            <label className="block text-xs font-semibold text-text-main mb-1">Termin płatności</label>
             <input
               required
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-xl border border-border p-2.5 outline-none focus:border-emerald-500/50"
+              className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-date"
             />
           </div>
@@ -122,17 +133,17 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           {activeProfile?.kind === "shared" && (
             <div className="border-t border-border pt-3">
               {!activeProfile.partnerName ? (
-                <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 text-center font-medium">
+                <div className="text-xs bg-warning-subtle border border-warning/20 text-warning rounded p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-text-muted mb-1">Kto płaci?</label>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">Kto płaci?</label>
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus:border-emerald-500/50 bg-bg-base/95 backdrop-blur-2xl"
+                      className="w-full rounded-xl border border-border p-2 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface transition-colors"
                       id="select-payment-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -141,11 +152,11 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-text-muted mb-1">Dzielimy 50/50?</label>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">Dzielimy 50/50?</label>
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full rounded-xl border border-border p-2 text-sm outline-none focus:border-emerald-500/50 bg-bg-base/95 backdrop-blur-2xl"
+                      className="w-full rounded-xl border border-border p-2 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface transition-colors"
                       id="select-payment-splitmode"
                     >
                       <option value="equal">Tak</option>
@@ -157,14 +168,20 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-bg-base py-3 text-sm font-bold text-white shadow-lg hover:bg-bg-base/95 backdrop-blur-2xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            id="btn-payment-submit"
-          >
-            {isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}
-          </button>
+          </div>
+          
+          <div className="shrink-0 p-6 pt-4 border-t border-border bg-surface rounded-b-3xl">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-payment-submit"
+            >
+              <span className="truncate" title={isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}>
+                {isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}
+              </span>
+            </button>
+          </div>
         </form>
       </motion.div>
     </motion.div>
