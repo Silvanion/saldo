@@ -60,7 +60,6 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [aiError, setAiError] = useState("");
 
-  // Shared Output
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
   const [importStats, setImportStats] = useState({
     invalidAmount: 0,
@@ -68,6 +67,17 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     skippedEmpty: 0,
     tooMany: false
   });
+
+  const duplicateAnalysis = React.useMemo(() => {
+    const existing = activeProfile?.transactions || [];
+    let duplicateCount = 0;
+    const enriched = mappedTransactions.map((tx) => {
+      const res = checkDuplicate(tx, existing);
+      if (res.isLikelyDuplicate) duplicateCount++;
+      return { tx, warning: res.isLikelyDuplicate ? res : null };
+    });
+    return { enriched, duplicateCount };
+  }, [mappedTransactions, activeProfile]);
 
   if (!isOpen) return null;
 
@@ -182,17 +192,6 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       setIsAiProcessing(false);
     }
   };
-
-  const duplicateAnalysis = React.useMemo(() => {
-    const existing = activeProfile?.transactions || [];
-    let duplicateCount = 0;
-    const enriched = mappedTransactions.map((tx) => {
-      const res = checkDuplicate(tx, existing);
-      if (res.isLikelyDuplicate) duplicateCount++;
-      return { tx, warning: res.isLikelyDuplicate ? res : null };
-    });
-    return { enriched, duplicateCount };
-  }, [mappedTransactions, activeProfile]);
 
   const handleConfirmImport = (skipDuplicates = false) => {
     if (onBeforeImport) onBeforeImport();
@@ -320,7 +319,6 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-bold text-text-main">Bezpieczny lokalny import (UTF-8 / Windows-1250)</p>
-import { formatMoney } from "../utils/format";
                   <p className="text-xs text-text-muted">
                     Oczyszczanie nagłówków z znaku BOM jest automatyczne. Dane są przetwarzane wyłącznie lokalnie w przeglądarce i nie opuszczają Twojego urządzenia.
                   </p>
