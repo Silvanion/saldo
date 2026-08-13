@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
@@ -100,6 +100,12 @@ export const initAuth = (
     return () => {};
   }
   try {
+    if (typeof window !== "undefined") {
+      getRedirectResult(auth).catch(() => {
+        // Ignore redirect check error when not returning from redirect
+      });
+    }
+
     return onAuthStateChanged(auth, async (user: User | null) => {
       cachedUser = user;
       if (user) {
@@ -143,7 +149,33 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
     provider.setCustomParameters(customParams);
     scopes.forEach(scope => provider.addScope(scope));
     
-    const result = await signInWithPopup(auth, provider);
+    let result;
+    try {
+      result = await signInWithPopup(auth, provider);
+    } catch (popupError: any) {
+      const code = popupError?.code || "";
+      const msg = (popupError?.message || "").toLowerCase();
+
+      const isPopupBlocked =
+        code === "auth/popup-blocked" ||
+        code === "auth/cancelled-popup-request" ||
+        msg.includes("popup-blocked") ||
+        msg.includes("popup_blocked") ||
+        msg.includes("blocked");
+
+      if (code === "auth/popup-closed-by-user" || msg.includes("popup-closed-by-user") || code === "auth/unauthorized-domain") {
+        throw popupError;
+      }
+
+      if (isPopupBlocked) {
+        console.warn("Okno popup zablokowane przez przeglądarkę / adblock. Przełączanie na signInWithRedirect...", popupError);
+        await signInWithRedirect(auth, provider);
+        return null;
+      }
+
+      throw popupError;
+    }
+
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken && scopes.length > 0) {
       throw new Error("Nie udało się pobrać tokenu dostępu Google z usługi Firebase Auth.");
@@ -161,6 +193,12 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
     }
     if (error?.code === 'auth/popup-closed-by-user' || error?.message?.includes('popup-closed-by-user')) {
        throw new Error("Okno logowania Google zostało zamknięte przed ukończeniem autoryzacji.");
+    }
+    if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/cancelled-popup-request' || error?.message?.includes('popup-blocked')) {
+       throw new Error("Okno wyskakujące zostało zablokowane przez przeglądarkę lub rozszerzenie (AdBlock). Rozpoczynamy przekierowanie do logowania...");
+    }
+    if (error?.code === 'auth/network-request-failed' || error?.message?.includes('network-request-failed')) {
+       throw new Error("Połączenie z usługą autoryzacji Google zostało zablokowane (np. przez rozszerzenie prywatności / AdBlock lub brak sieci).");
     }
     throw error;
   } finally {

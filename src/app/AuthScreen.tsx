@@ -15,15 +15,29 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
 
   const handleError = (err: any) => {
-    if (err.message && err.message.includes("auth/unauthorized-domain")) {
+    const code = err?.code || "";
+    const msg = err?.message || "";
+
+    if (msg.includes("auth/unauthorized-domain") || code === "auth/unauthorized-domain") {
       setIsDomainError(true);
       setError(`Domena ${window.location.hostname} nie jest autoryzowana.`);
-    } else if (err?.code === "auth/popup-closed-by-user" || err?.message?.includes("popup-closed-by-user")) {
+    } else if (code === "auth/popup-closed-by-user" || msg.includes("popup-closed-by-user")) {
       setIsDomainError(false);
       setError("Okno logowania Google zostało zamknięte przed ukończeniem autoryzacji.");
+    } else if (
+      code === "auth/popup-blocked" ||
+      code === "auth/cancelled-popup-request" ||
+      msg.includes("popup-blocked") ||
+      msg.includes("zablokowane przez przeglądarkę")
+    ) {
+      setIsDomainError(false);
+      setError("Okno logowania zostało zablokowane przez przeglądarkę. Rozpoczynamy przekierowanie...");
+    } else if (code === "auth/network-request-failed" || msg.includes("network-request-failed") || msg.includes("zablokowane (np. przez rozszerzenie")) {
+      setIsDomainError(false);
+      setError("Połączenie z usługą autoryzacji Google zostało zablokowane przez AdBlocka lub rozszerzenie prywatności. Wyłącz blokowanie dla tej strony.");
     } else {
       setIsDomainError(false);
-      setError(err.message || "Błąd uwierzytelniania.");
+      setError(msg || "Błąd uwierzytelniania.");
     }
   };
 
