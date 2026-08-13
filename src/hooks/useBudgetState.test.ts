@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useBudgetState } from "./useBudgetState";
 import { validateAndMigrateState } from "../utils/stateMigration";
@@ -17,9 +18,15 @@ vi.mock("firebase/firestore", async (importOriginal) => {
     ...actual,
     doc: vi.fn(() => "mocked-doc-ref"),
     setDoc: vi.fn(),
-    onSnapshot: vi.fn(() => vi.fn()) // return mock unsubscribe
+    onSnapshot: vi.fn(() => vi.fn())
   };
 });
+
+vi.mock("../firebase", () => ({
+  isFirebaseConfigured: false,
+  db: null,
+  auth: null
+}));
 
 // Polyfill localStorage for node environment
 const localStorageMock = (() => {

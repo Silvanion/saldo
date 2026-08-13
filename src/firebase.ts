@@ -159,6 +159,9 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
     if (error?.code === 'auth/unauthorized-domain') {
        throw new Error(`Błąd: Domena "${window.location.hostname}" nie jest autoryzowana. Wejdź w konsolę Firebase -> Authentication -> Ustawienia (Settings) -> Autoryzowane domeny (Authorized domains) i dodaj tę domenę.`);
     }
+    if (error?.code === 'auth/popup-closed-by-user' || error?.message?.includes('popup-closed-by-user')) {
+       throw new Error("Okno logowania Google zostało zamknięte przed ukończeniem autoryzacji.");
+    }
     throw error;
   } finally {
     isSigningIn = false;

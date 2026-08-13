@@ -18,6 +18,9 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
     if (err.message && err.message.includes("auth/unauthorized-domain")) {
       setIsDomainError(true);
       setError(`Domena ${window.location.hostname} nie jest autoryzowana.`);
+    } else if (err?.code === "auth/popup-closed-by-user" || err?.message?.includes("popup-closed-by-user")) {
+      setIsDomainError(false);
+      setError("Okno logowania Google zostało zamknięte przed ukończeniem autoryzacji.");
     } else {
       setIsDomainError(false);
       setError(err.message || "Błąd uwierzytelniania.");
