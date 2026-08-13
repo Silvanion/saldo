@@ -1,450 +1,520 @@
 import { jsPDF } from "jspdf";
-import { Profile, AppLanguage } from "../types";
-import { getMonthName, cleanPolishChars, expenseCategories } from "../utils";
-export function generateReportPdf(profile: Profile, year: number, monthIndex: number, currency: string = 'PLN') {
-  const doc = new jsPDF();
+import { Profile } from "../types";
+import { getMonthName, cleanPolishChars, expenseCategories, iconByCategory } from "../utils";
+import { formatMoney } from "../utils/format";
+
+/**
+ * Generuje elegancki, spójny wizualnie raport PDF dla aplikacji Saldo.
+ */
+export function generateReportPdf(
+  profile: Profile,
+  year: number,
+  monthIndex: number,
+  currency: string = "PLN"
+) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
   const monthName = getMonthName(monthIndex);
-  
-  // Title
+  const cleanStr = (text: string) => cleanPolishChars(text || "");
+
+  // Paleta kolorów Saldo (spójna z UI aplikacji)
+  const colors = {
+    brandTeal: [19, 117, 102] as [number, number, number],
+    brandDarkTeal: [15, 92, 80] as [number, number, number],
+    darkInk: [15, 23, 42] as [number, number, number],
+    bodyText: [51, 65, 85] as [number, number, number],
+    mutedText: [100, 116, 139] as [number, number, number],
+    surfaceLight: [248, 250, 252] as [number, number, number],
+    borderLight: [226, 232, 240] as [number, number, number],
+    incomeGreen: [16, 185, 129] as [number, number, number],
+    incomeBg: [236, 253, 245] as [number, number, number],
+    expenseCoral: [244, 63, 94] as [number, number, number],
+    expenseBg: [254, 242, 242] as [number, number, number],
+    tealSubtleBg: [230, 244, 241] as [number, number, number]
+  };
+
+  let y = 14;
+
+  // --- TOP ACCENT BAR ---
+  doc.setFillColor(...colors.brandTeal);
+  doc.rect(0, 0, 210, 4, "F");
+
+  // --- HEADER SECTION ---
+  y += 4;
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(19, 117, 102); // Primary Teal color
-  doc.text(cleanPolishChars(`SALDO - RAPORT MIESIECZNY`), 14, 20);
-  
-  // Subtitle
+  doc.setFontSize(20);
+  doc.setTextColor(...colors.brandTeal);
+  doc.text("SALDO", 14, y + 6);
+
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(100, 100, 100);
-  doc.text(cleanPolishChars(`Profil: ${profile.name} (${profile.kind === "shared" ? "Budzet wspolny" : "Budzet osobisty"})`), 14, 27);
-  doc.text(cleanPolishChars(`Okres rozliczeniowy: ${monthName} ${year}`), 14, 33);
-  
-  // Divider
-  doc.setDrawColor(220, 220, 220);
-  doc.line(14, 38, 196, 38);
-  
-  // Calculate Totals for this month
-  const targetTransactions = profile.transactions.filter(t => {
+  doc.setFontSize(9);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr("MIESIĘCZNY RAPORT FINANSOWY"), 14, y + 11);
+
+  // Prawy blok informacyjny (Profil i Okres)
+  const profileKindText = profile.kind === "shared" ? "Budżet wspólny" : "Budżet osobisty";
+  const profileLabel = cleanStr(`Profil: ${profile.name} (${profileKindText})`);
+  const periodLabel = cleanStr(`Okres: ${monthName} ${year}`);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(profileLabel, 196 - doc.getTextWidth(profileLabel), y + 6);
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...colors.mutedText);
+  doc.text(periodLabel, 196 - doc.getTextWidth(periodLabel), y + 11);
+
+  y += 16;
+  doc.setDrawColor(...colors.borderLight);
+  doc.line(14, y, 196, y);
+  y += 6;
+
+  // --- KALKULACJE DANYCH ---
+  const targetTransactions = (profile.transactions || []).filter((t) => {
+    if (!t.isoDate) return false;
     const tDate = new Date(`${t.isoDate}T12:00:00`);
     return tDate.getFullYear() === year && tDate.getMonth() === monthIndex;
   });
-  
+
   const incomeTotal = targetTransactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-    
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
   const expenseTotal = targetTransactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-    
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
   const balance = incomeTotal - expenseTotal;
-  
-  // Financial Summary Box
-  doc.setFillColor(245, 248, 247); // Light theme bg
-  doc.rect(14, 43, 182, 35, "F");
-  
+
+  // --- KARTY PODSUMOWANIA FINANSOWEGO (3 KARTY) ---
+  const cardWidth = 58;
+  const cardHeight = 24;
+  const gap = 4;
+
+  // 1. Karta Przychody
+  const x1 = 14;
+  doc.setFillColor(...colors.incomeBg);
+  doc.setDrawColor(167, 243, 208);
+  doc.rect(x1, y, cardWidth, cardHeight, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(6, 95, 70);
+  doc.text(cleanStr("PRZYCHODY RAZEM"), x1 + 4, y + 6);
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.setTextColor(21, 58, 53); // Deep ink
-  doc.text(cleanPolishChars("PODSUMOWANIE FINANSOWE"), 20, 51);
-  
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(80, 80, 80);
-  doc.text(cleanPolishChars(`Przychody razem:`), 20, 59);
+  doc.setTextColor(...colors.incomeGreen);
+  doc.text(cleanStr(formatMoney(incomeTotal, currency)), x1 + 4, y + 16);
+
+  // 2. Karta Wydatki
+  const x2 = x1 + cardWidth + gap;
+  doc.setFillColor(...colors.expenseBg);
+  doc.setDrawColor(254, 202, 202);
+  doc.rect(x2, y, cardWidth, cardHeight, "FD");
+
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(19, 117, 102); // Teal
-  doc.text(`${incomeTotal.toFixed(2)} ${currency}`, 80, 59);
-  
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(80, 80, 80);
-  doc.text(cleanPolishChars(`Wydatki razem:`), 20, 65);
+  doc.setFontSize(8);
+  doc.setTextColor(153, 27, 27);
+  doc.text(cleanStr("WYDATKI RAZEM"), x2 + 4, y + 6);
+
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(213, 94, 80); // Coral
-  doc.text(`${expenseTotal.toFixed(2)} ${currency}`, 80, 65);
-  
-  doc.setDrawColor(220, 220, 220);
-  doc.line(115, 48, 115, 73); // Vertical divider
-  
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(80, 80, 80);
-  doc.text(cleanPolishChars(`Stan konta (Bilans):`), 122, 59);
+  doc.setFontSize(12);
+  doc.setTextColor(...colors.expenseCoral);
+  doc.text(cleanStr(formatMoney(expenseTotal, currency)), x2 + 4, y + 16);
+
+  // 3. Karta Bilans
+  const x3 = x2 + cardWidth + gap;
+  doc.setFillColor(...colors.tealSubtleBg);
+  doc.setDrawColor(153, 224, 212);
+  doc.rect(x3, y, cardWidth, cardHeight, "FD");
+
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(15, 76, 67);
+  doc.text(cleanStr("BILANS OKRESU"), x3 + 4, y + 6);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
   if (balance >= 0) {
-    doc.setTextColor(19, 117, 102);
+    doc.setTextColor(...colors.brandTeal);
   } else {
-    doc.setTextColor(213, 94, 80);
+    doc.setTextColor(...colors.expenseCoral);
   }
-  doc.text(`${balance.toFixed(2)} ${currency}`, 122, 66);
-  
-  // Section 1: Visual Expense Bar Chart
+  const balancePrefix = balance > 0 ? "+" : "";
+  doc.text(cleanStr(`${balancePrefix}${formatMoney(balance, currency)}`), x3 + 4, y + 16);
+
+  y += cardHeight + 10;
+
+  // --- SEKCJA 1: WYDATKI WEDŁUG KATEGORII ---
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(21, 58, 53);
-  doc.text(cleanPolishChars("WYKRES WYDATKOW WEDLUG KATEGORII"), 14, 92);
-  
-  let y = 100;
-  
-  // Calculate expenses for all 6 categories
-  const categoriesList = expenseCategories;
-  const categoryExpenses = categoriesList.map(cat => {
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("WYDATKI WEDŁUG KATEGORII"), 14, y);
+  y += 5;
+
+  const categoryExpenses = expenseCategories.map((cat) => {
     const spent = targetTransactions
-      .filter(t => t.type === "expense" && t.category === cat)
-      .reduce((sum, t) => sum + t.amount, 0);
-    return { name: cat, spent };
-  });
-  
-  // Draw the horizontal bar chart
-  categoryExpenses.forEach(cat => {
-    const percent = expenseTotal > 0 ? (cat.spent / expenseTotal) : 0;
+      .filter((t) => t.type === "expense" && t.category === cat)
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    return { name: cat, spent, icon: iconByCategory[cat] || "•" };
+  }).sort((a, b) => b.spent - a.spent);
+
+  categoryExpenses.forEach((cat) => {
+    const percent = expenseTotal > 0 ? cat.spent / expenseTotal : 0;
     const percentText = `${Math.round(percent * 100)}%`;
-    
-    // Category Name (Left)
+
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(21, 58, 53);
-    doc.text(cleanPolishChars(cat.name), 14, y);
-    
-    // Amount & Percentage (Right)
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.darkInk);
+    doc.text(cleanStr(cat.name), 14, y + 4);
+
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    const textLabel = `${cat.spent.toFixed(2)} ${currency} (${percentText})`;
-    doc.text(textLabel, 196 - doc.getTextWidth(textLabel), y);
-    
-    y += 3;
-    
-    // Gray background bar
-    doc.setFillColor(240, 240, 240);
-    doc.rect(14, y, 182, 3.5, "F");
-    
-    // Colored fill bar (brand Teal)
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.mutedText);
+    const amountLabel = cleanStr(`${formatMoney(cat.spent, currency)} (${percentText})`);
+    doc.text(amountLabel, 196 - doc.getTextWidth(amountLabel), y + 4);
+
+    y += 5.5;
+
+    // Tło paska
+    doc.setFillColor(...colors.surfaceLight);
+    doc.setDrawColor(...colors.borderLight);
+    doc.rect(14, y, 182, 3, "FD");
+
+    // Wypełnienie paska
     if (percent > 0) {
-      doc.setFillColor(19, 117, 102);
-      doc.rect(14, y, 182 * percent, 3.5, "F");
+      doc.setFillColor(...colors.brandTeal);
+      doc.rect(14, y, Math.max(2, 182 * percent), 3, "F");
     }
-    
-    y += 10;
+
+    y += 7.5;
   });
-  
-  // Section 2: Used Tags Summary
+
+  y += 3;
+
+  // --- SEKCJA 2: UŻYTE TAGI ---
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(21, 58, 53);
-  doc.text(cleanPolishChars("UZYTE TAGI W TYM OKRESIE"), 14, y + 2);
-  y += 10;
-  
-  // Extract and aggregate tags from transactions
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("ANALIZA TAGÓW W TYM OKRESIE"), 14, y);
+  y += 6;
+
   const tagMap: Record<string, { count: number; sum: number }> = {};
-  targetTransactions.forEach(t => {
+  targetTransactions.forEach((t) => {
     if (t.tags && Array.isArray(t.tags)) {
-      t.tags.forEach(tag => {
+      t.tags.forEach((tag) => {
         const cleanTag = tag.trim().toLowerCase();
         if (cleanTag) {
           if (!tagMap[cleanTag]) {
             tagMap[cleanTag] = { count: 0, sum: 0 };
           }
           tagMap[cleanTag].count += 1;
-          tagMap[cleanTag].sum += t.amount;
+          tagMap[cleanTag].sum += Number(t.amount) || 0;
         }
       });
     }
   });
-  
+
   const tagsList = Object.entries(tagMap)
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.count - a.count);
-    
+
   if (tagsList.length === 0) {
     doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(120, 120, 120);
-    doc.text(cleanPolishChars("Brak uzytych tagow w transakcjach z tego miesiaca."), 14, y);
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("Brak przypisanych tagów w transakcjach z tego miesiąca."), 14, y + 2);
     y += 8;
   } else {
-    // Render nice tag pills!
     let x = 14;
     doc.setFontSize(8);
-    tagsList.forEach(t => {
-      const tagText = `#${t.name} (${t.count}x, ${t.sum.toFixed(0)} ${currency})`;
-      const cleanText = cleanPolishChars(tagText);
-      const textWidth = doc.getTextWidth(cleanText);
-      const pillWidth = textWidth + 8;
-      const pillHeight = 6;
-      
-      // Wrap line if it overflows page
+    tagsList.forEach((t) => {
+      const tagText = cleanStr(`#${t.name} (${t.count}x, ${formatMoney(t.sum, currency)})`);
+      const textWidth = doc.getTextWidth(tagText);
+      const pillWidth = textWidth + 6;
+      const pillHeight = 5.5;
+
       if (x + pillWidth > 196) {
         x = 14;
-        y += 8;
+        y += 7;
       }
-      
-      // If we are reaching the end of the page, add page (though page 1 has plenty of space for y)
-      if (y > 275) {
+
+      if (y > 270) {
         doc.addPage();
         y = 20;
         x = 14;
       }
-      
-      // Draw Pill background
-      doc.setFillColor(231, 243, 240); // Soft brand teal
-      doc.rect(x, y - 4, pillWidth, pillHeight, "F");
-      
-      // Draw Pill border
-      doc.setDrawColor(19, 117, 102); // 100% alpha teal border (safe for default jsPDF styles)
-      doc.rect(x, y - 4, pillWidth, pillHeight, "S");
-      
-      // Draw Pill text
+
+      doc.setFillColor(...colors.tealSubtleBg);
+      doc.setDrawColor(153, 224, 212);
+      doc.rect(x, y - 4, pillWidth, pillHeight, "FD");
+
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(19, 117, 102);
-      doc.text(cleanText, x + 4, y);
-      
-      x += pillWidth + 3;
-    });
-    y += 10;
-  }
-  
-  // Footer page 1
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text(cleanPolishChars("Strona 1. Raport Finansowy Saldo."), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
-  
-  // PAGE 2: BILLS, RECURRING PAYMENTS AND GOALS
-  doc.addPage();
-  y = 20;
-  
-  // Header Page 2
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(19, 117, 102);
-  doc.text(cleanPolishChars("RACHUNKI I CELE OSZCZEDNOSCIOWE"), 14, y);
-  
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(cleanPolishChars(`Profil: ${profile.name} | Okres: ${monthName} ${year}`), 14, y + 6);
-  
-  doc.setDrawColor(220, 220, 220);
-  doc.line(14, y + 10, 196, y + 10);
-  
-  y += 20;
-  
-  // Section 2: Bills and recurring payments
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(21, 58, 53);
-  doc.text(cleanPolishChars("STAN OPLAT I RACHUNKOW"), 14, y);
-  y += 8;
-  
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text(cleanPolishChars("Nazwa rachunku"), 15, y);
-  doc.text(cleanPolishChars("Termin platnosci"), 80, y);
-  doc.text(cleanPolishChars("Kwota"), 130, y);
-  doc.text(cleanPolishChars("Status"), 165, y);
-  doc.line(14, y + 2, 196, y + 2);
-  y += 7;
-  
-  doc.setFont("helvetica", "normal");
-  const bills = profile.payments;
-  if (bills.length === 0) {
-    doc.text(cleanPolishChars("Brak zdefiniowanych rachunkow."), 15, y);
-    y += 15;
-  } else {
-    bills.forEach(b => {
-      doc.text(cleanPolishChars(b.name), 15, y);
-      doc.text(b.dueDate, 80, y);
-      doc.text(`${b.amount.toFixed(2)} ${currency}`, 130, y);
-      
-      const bStatus = b.status === "Opłacono" ? "Oplacone" : "Do oplacenia";
-      if (b.status === "Opłacono") {
-        doc.setTextColor(19, 117, 102); // green
-      } else {
-        doc.setTextColor(213, 94, 80); // coral
-      }
-      doc.setFont("helvetica", "bold");
-      doc.text(cleanPolishChars(bStatus), 165, y);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(80, 80, 80);
-      
-      y += 6;
+      doc.setTextColor(...colors.brandTeal);
+      doc.text(tagText, x + 3, y);
+
+      x += pillWidth + 3.5;
     });
     y += 8;
   }
-  
-  // Section 3: Goals progress
+
+  y += 4;
+
+  // --- SEKCJA 3: RACHUNKI I PŁATNOŚCI ---
+  if (y > 230) {
+    doc.addPage();
+    y = 20;
+  }
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(21, 58, 53);
-  doc.text(cleanPolishChars("CELE OSZCZEDNOSCIOWE"), 14, y);
-  y += 8;
-  
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("STAN OPŁAT I RACHUNKÓW"), 14, y);
+  y += 6;
+
+  // Nagłówek tabeli rachunków
+  doc.setFillColor(...colors.brandTeal);
+  doc.rect(14, y, 182, 6, "F");
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text(cleanPolishChars("Nazwa celu"), 15, y);
-  doc.text(cleanPolishChars("Zaoszczedzono"), 65, y);
-  doc.text(cleanPolishChars("Kwota docelowa"), 105, y);
-  doc.text(cleanPolishChars("Wizualny postep i procent"), 140, y);
-  doc.line(14, y + 2, 196, y + 2);
-  y += 7;
-  
-  doc.setFont("helvetica", "normal");
-  const goals = profile.goals;
-  if (goals.length === 0) {
-    doc.text(cleanPolishChars("Brak zdefiniowanych celow oszczednosciowych."), 15, y);
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(cleanStr("Nazwa rachunku"), 18, y + 4.2);
+  doc.text(cleanStr("Termin płatności"), 85, y + 4.2);
+  doc.text(cleanStr("Kwota"), 135, y + 4.2);
+  doc.text(cleanStr("Status"), 168, y + 4.2);
+
+  y += 6;
+
+  const payments = profile.payments || [];
+  if (payments.length === 0) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("Brak zdefiniowanych opłat i rachunków."), 18, y + 5);
     y += 10;
   } else {
-    goals.forEach(g => {
-      const progressRatio = g.target > 0 ? Math.min(1, g.saved / g.target) : 0;
-      const progressPercent = `${Math.round(progressRatio * 100)}%`;
-      
-      doc.setFont("helvetica", "normal");
-      doc.text(cleanPolishChars(g.name), 15, y);
-      doc.text(`${g.saved.toFixed(2)} ${currency}`, 65, y);
-      doc.text(`${g.target.toFixed(2)} ${currency}`, 105, y);
-      
-      // Visual Mini Progress Bar
-      const barX = 140;
-      const barY = y - 3;
-      const barW = 35;
-      const barH = 3;
-      
-      // Bar background
-      doc.setFillColor(240, 240, 240);
-      doc.rect(barX, barY, barW, barH, "F");
-      
-      // Bar progress fill (beautiful teal-gold)
-      if (progressRatio > 0) {
-        doc.setFillColor(19, 117, 102);
-        doc.rect(barX, barY, barW * progressRatio, barH, "F");
+    payments.forEach((p, idx) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
       }
-      
-      // Percent text
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(19, 117, 102);
-      doc.text(progressPercent, barX + barW + 3, y);
-      doc.setTextColor(80, 80, 80);
+
+      if (idx % 2 === 1) {
+        doc.setFillColor(...colors.surfaceLight);
+        doc.rect(14, y, 182, 6, "F");
+      }
+
       doc.setFont("helvetica", "normal");
-      
-      y += 7;
+      doc.setFontSize(8);
+      doc.setTextColor(...colors.bodyText);
+      doc.text(cleanStr(p.name.length > 35 ? p.name.slice(0, 32) + "..." : p.name), 18, y + 4.2);
+      doc.text(cleanStr(p.dueDate || "-"), 85, y + 4.2);
+      doc.text(cleanStr(formatMoney(p.amount, currency)), 135, y + 4.2);
+
+      const isPaid = p.status === "Opłacono";
+      if (isPaid) {
+        doc.setFillColor(...colors.incomeBg);
+        doc.setDrawColor(167, 243, 208);
+        doc.rect(166, y + 1, 24, 4.2, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...colors.incomeGreen);
+        doc.text(cleanStr("Opłacono"), 169, y + 4);
+      } else {
+        doc.setFillColor(...colors.expenseBg);
+        doc.setDrawColor(254, 202, 202);
+        doc.rect(166, y + 1, 24, 4.2, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...colors.expenseCoral);
+        doc.text(cleanStr("Do opłacenia"), 167, y + 4);
+      }
+
+      y += 6;
     });
+    y += 4;
   }
-  
-  // Footer page 2
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text(cleanPolishChars("Strona 2. Raport Finansowy Saldo."), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
-  
-  // PAGE 3: TRANSACTION HISTORY
+
+  y += 4;
+
+  // --- SEKCJA 4: CELE OSZCZĘDNOŚCIOWE ---
+  if (y > 230) {
+    doc.addPage();
+    y = 20;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("CELE OSZCZĘDNOŚCIOWE"), 14, y);
+  y += 6;
+
+  const goals = profile.goals || [];
+  if (goals.length === 0) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("Brak zdefiniowanych celów oszczędnościowych."), 14, y + 2);
+    y += 10;
+  } else {
+    goals.forEach((g) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      const ratio = g.target > 0 ? Math.min(1, g.saved / g.target) : 0;
+      const percentText = `${Math.round(ratio * 100)}%`;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...colors.darkInk);
+      doc.text(cleanStr(g.name), 14, y + 4);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...colors.mutedText);
+      const goalProgressText = cleanStr(`${formatMoney(g.saved, currency)} / ${formatMoney(g.target, currency)} (${percentText})`);
+      doc.text(goalProgressText, 196 - doc.getTextWidth(goalProgressText), y + 4);
+
+      y += 5.5;
+
+      doc.setFillColor(...colors.surfaceLight);
+      doc.setDrawColor(...colors.borderLight);
+      doc.rect(14, y, 182, 3, "FD");
+
+      if (ratio > 0) {
+        doc.setFillColor(...colors.brandTeal);
+        doc.rect(14, y, Math.max(2, 182 * ratio), 3, "F");
+      }
+
+      y += 7.5;
+    });
+    y += 4;
+  }
+
+  // --- SEKCJA 5: PEŁNA HISTORIA TRANSAKCJI ---
   doc.addPage();
   y = 20;
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(19, 117, 102);
-  doc.text(cleanPolishChars("HISTORIA TRANSAKCJI"), 14, y);
-  
+  doc.setFontSize(12);
+  doc.setTextColor(...colors.brandTeal);
+  doc.text(cleanStr("HISTORIA TRANSAKCJI"), 14, y);
+
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(cleanPolishChars("Spis wszystkich wplat i wyplat zarejestrowanych w wybranym okresie rozliczeniowym."), 14, y + 6);
-  
-  doc.setDrawColor(220, 220, 220);
-  doc.line(14, y + 10, 196, y + 10);
-  
-  y += 20;
-  
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr("Wszystkie wpłaty i wypłaty w wybranym okresie rozliczeniowym."), 14, y + 5);
+
+  y += 9;
+
+  // Nagłówek tabeli transakcji
+  doc.setFillColor(...colors.brandTeal);
+  doc.rect(14, y, 182, 6.5, "F");
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(21, 58, 53);
-  doc.text(cleanPolishChars("Data"), 15, y);
-  doc.text(cleanPolishChars("Nazwa transakcji"), 40, y);
-  doc.text(cleanPolishChars("Kategoria"), 110, y);
-  doc.text(cleanPolishChars("Konto"), 150, y);
-  doc.text(cleanPolishChars("Kwota"), 178, y);
-  doc.line(14, y + 2, 196, y + 2);
-  y += 7;
-  
-  doc.setFont("helvetica", "normal");
-  let currentPage = 3;
-  
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(cleanStr("Data"), 17, y + 4.5);
+  doc.text(cleanStr("Nazwa transakcji"), 42, y + 4.5);
+  doc.text(cleanStr("Kategoria"), 112, y + 4.5);
+  doc.text(cleanStr("Konto"), 152, y + 4.5);
+  doc.text(cleanStr("Kwota"), 178, y + 4.5);
+
+  y += 6.5;
+
   if (targetTransactions.length === 0) {
-    doc.text(cleanPolishChars("Brak zarejestrowanych transakcji w tym okresie rozliczeniowym."), 15, y);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("Brak zarejestrowanych transakcji w tym okresie rozliczeniowym."), 17, y + 6);
   } else {
-    targetTransactions.sort((a,b) => b.isoDate.localeCompare(a.isoDate)).forEach(t => {
-      // Auto-paginate if table overflows vertical limit
+    const sortedTxs = [...targetTransactions].sort((a, b) => (b.isoDate || "").localeCompare(a.isoDate || ""));
+
+    sortedTxs.forEach((t, idx) => {
       if (y > 270) {
-        // Footer for previous transaction history page
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text(cleanPolishChars(`Strona ${currentPage} o strukturze dynamicznej. Raport Saldo.`), 14, 285);
-        doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
-        
         doc.addPage();
-        currentPage += 1;
         y = 20;
-        
+
+        // Powtórzenie nagłówka tabeli na nowej stronie
+        doc.setFillColor(...colors.brandTeal);
+        doc.rect(14, y, 182, 6.5, "F");
+
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.setTextColor(21, 58, 53);
-        doc.text(cleanPolishChars("Data"), 15, y);
-        doc.text(cleanPolishChars("Nazwa transakcji"), 40, y);
-        doc.text(cleanPolishChars("Kategoria"), 110, y);
-        doc.text(cleanPolishChars("Konto"), 150, y);
-        doc.text(cleanPolishChars("Kwota"), 178, y);
-        doc.line(14, y + 2, 196, y + 2);
-        y += 7;
-        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.text(cleanStr("Data"), 17, y + 4.5);
+        doc.text(cleanStr("Nazwa transakcji"), 42, y + 4.5);
+        doc.text(cleanStr("Kategoria"), 112, y + 4.5);
+        doc.text(cleanStr("Konto"), 152, y + 4.5);
+        doc.text(cleanStr("Kwota"), 178, y + 4.5);
+
+        y += 6.5;
       }
-      
-      // Gather transaction tags for description
-      let nameWithTags = t.name;
+
+      if (idx % 2 === 1) {
+        doc.setFillColor(...colors.surfaceLight);
+        doc.rect(14, y, 182, 6, "F");
+      }
+
+      const isIncome = t.type === "income";
+      const sign = isIncome ? "+" : "-";
+      let txName = t.name || "";
       if (t.tags && t.tags.length > 0) {
-        nameWithTags += ` [${t.tags.join(", ")}]`;
+        txName += ` [#${t.tags.join(", #")}]`;
       }
-      
-      const cleanDesc = cleanPolishChars(nameWithTags.length > 38 ? nameWithTags.slice(0, 35) + "..." : nameWithTags);
-      const cleanCat = cleanPolishChars(t.category);
-      const cleanAcc = cleanPolishChars(t.account);
-      const sign = t.type === "income" ? "+" : "-";
-      
-      // Style positive and negative amounts
-      if (t.type === "income") {
-        doc.setTextColor(19, 117, 102); // Teal for income
-      } else {
-        doc.setTextColor(213, 94, 80); // Coral for expense
-      }
-      
-      doc.text(t.isoDate, 15, y);
-      
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(21, 58, 53);
-      doc.text(cleanDesc, 40, y);
+
       doc.setFont("helvetica", "normal");
-      
-      doc.text(cleanCat, 110, y);
-      doc.text(cleanAcc, 150, y);
-      
-      if (t.type === "income") {
-        doc.setTextColor(19, 117, 102);
+      doc.setFontSize(8);
+      doc.setTextColor(...colors.bodyText);
+      doc.text(cleanStr(t.isoDate || "-"), 17, y + 4.2);
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...colors.darkInk);
+      doc.text(cleanStr(txName.length > 34 ? txName.slice(0, 32) + "..." : txName), 42, y + 4.2);
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...colors.mutedText);
+      doc.text(cleanStr(t.category.length > 20 ? t.category.slice(0, 18) + "..." : t.category), 112, y + 4.2);
+      doc.text(cleanStr(t.account.length > 14 ? t.account.slice(0, 12) + "..." : t.account), 152, y + 4.2);
+
+      doc.setFont("helvetica", "bold");
+      if (isIncome) {
+        doc.setTextColor(...colors.incomeGreen);
       } else {
-        doc.setTextColor(213, 94, 80);
+        doc.setTextColor(...colors.expenseCoral);
       }
-      doc.text(`${sign}${t.amount.toFixed(2)}`, 178, y);
-      doc.setTextColor(80, 80, 80);
-      
+      doc.text(cleanStr(`${sign}${formatMoney(t.amount, currency)}`), 178, y + 4.2);
+
       y += 6;
     });
   }
-  
-  // Footer page 3/final
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text(cleanPolishChars(`Strona ${currentPage} (Koniec raportu). Wygenerowano automatycznie przez aplikacje Saldo.`), 14, 285);
-  doc.text(cleanPolishChars(`Data generowania: ${new Date().toLocaleDateString("pl-PL")}`), 145, 285);
-  
-  // Save PDF
-  doc.save(`Raport_Saldo_${monthName}_${year}.pdf`);
+
+  // --- DYNAMICZNE STOPKI DLA WSZYSTKICH STRON ---
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...colors.borderLight);
+    doc.line(14, 282, 196, 282);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...colors.mutedText);
+
+    const footerLeft = cleanStr(`Saldo - Twój Budżet Domowy | Profil: ${profile.name}`);
+    const footerRight = cleanStr(`Strona ${i} z ${totalPages}`);
+
+    doc.text(footerLeft, 14, 287);
+    doc.text(footerRight, 196 - doc.getTextWidth(footerRight), 287);
+  }
+
+  // Zapis pliku PDF z bezpieczną nazwą
+  const safeMonthName = cleanStr(monthName).replace(/\s+/g, "_");
+  doc.save(`Raport_Saldo_${safeMonthName}_${year}.pdf`);
 }

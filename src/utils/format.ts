@@ -24,11 +24,12 @@ export const parseAmount = (val: string): number => {
 
 
 export function cleanPolishChars(text: string): string {
+  if (!text) return "";
   const map: Record<string, string> = {
     'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
     'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
   };
-  return text.replace(/[ąćęłnóśźżĄĆĘŁŃÓŚŹŻ]/g, match => map[match] || match);
+  return text.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, match => map[match] || match);
 }
 
 export function roundCurrency(value: number): number {

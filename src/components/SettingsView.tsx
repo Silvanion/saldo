@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { User } from "firebase/auth";
-import { iconByCategory, expenseCategories, incomeCategories } from "../utils";
+import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
 import { isFirebaseConfigured } from "../firebase";
@@ -71,6 +71,7 @@ interface SettingsViewProps {
   theme: "light" | "dark" | "auto";
   onThemeChange: (newTheme: "light" | "dark" | "auto") => void;
 
+  selectedDate?: Date;
   calendarToken?: string | null;
   onConnectCalendar?: () => Promise<void>;
   unlockedProfileId?: string | null;
@@ -321,6 +322,7 @@ export function SettingsView({
   onImportLocalData,
   theme,
   onThemeChange,
+  selectedDate,
   recurringRules,
   onSaveRecurringRules,
   transactionRules,
@@ -333,6 +335,20 @@ export function SettingsView({
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
+
+  const targetPdfDate = selectedDate || (() => {
+    if (activeProfile?.transactions && activeProfile.transactions.length > 0) {
+      const sorted = [...activeProfile.transactions].sort((a, b) => (b.isoDate || "").localeCompare(a.isoDate || ""));
+      if (sorted[0]?.isoDate) {
+        return new Date(`${sorted[0].isoDate}T12:00:00`);
+      }
+    }
+    return new Date();
+  })();
+
+  const pdfYear = targetPdfDate.getFullYear();
+  const pdfMonthIdx = targetPdfDate.getMonth();
+  const pdfMonthLabel = getMonthName(pdfMonthIdx);
 
 
   // Active profile edit states
@@ -1815,17 +1831,21 @@ export function SettingsView({
               >
                 📊 Pobierz CSV
               </button>
-              <button
-                onClick={() => {
-                  if (activeProfile) {
-                    const now = new Date();
-                    generateReportPdf(activeProfile, now.getFullYear(), now.getMonth(), activeProfile.currency || "PLN");
-                  }
-                }}
-                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
-              >
-                📄 Pobierz raport PDF
-              </button>
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={() => {
+                    if (activeProfile) {
+                      generateReportPdf(activeProfile, pdfYear, pdfMonthIdx, activeProfile.currency || "PLN");
+                    }
+                  }}
+                  className="w-full bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                >
+                  📄 Pobierz raport PDF
+                </button>
+                <span className="text-[11px] text-text-muted text-center font-medium">
+                  Raport za: <strong className="text-text-main">{pdfMonthLabel} {pdfYear}</strong>
+                </span>
+              </div>
             </div>
           </div>
           

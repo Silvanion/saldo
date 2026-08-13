@@ -196,6 +196,7 @@ export function AppViewRouter({
             saveState={saveState}
             profiles={profiles}
             activeProfileId={activeProfileId}
+            selectedDate={selectedDate}
             onSelectProfile={onSelectProfile}
             onUpdateProfile={handleUpdateProfile}
             onDeleteProfile={handleDeleteProfile}
