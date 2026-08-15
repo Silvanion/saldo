@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Profile, Payment } from "../types";
 import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
-import { Bell, BellOff, BellRing } from "lucide-react";
+import { Bell, BellOff, BellRing, Plus, CalendarClock, AlertCircle, Clock, CalendarDays, Calendar } from "lucide-react";
+import { getHorizonSummary } from "./dashboard/PaymentsTimelineWidget";
 import { formatMoney } from "../utils/format";
 
 interface PaymentsViewProps {
@@ -31,7 +32,7 @@ export function PaymentsView({
   );
   const [notificationStatusMsg, setNotificationStatusMsg] = useState<string>("");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
-  const [timeFilter, setTimeFilter] = useState<"all" | "today" | "week" | "month">("all");
+  const [timeFilter, setTimeFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null);
 
   const handleEnableNotifications = async () => {
@@ -102,6 +103,10 @@ export function PaymentsView({
     return { unpaidCount: count, totalUnpaidSum: sum };
   }, [profile.payments]);
 
+  const horizonSummary = React.useMemo(() => {
+    return getHorizonSummary(profile.payments);
+  }, [profile.payments]);
+
   const filteredPayments = React.useMemo(() => {
     const todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
@@ -118,9 +123,10 @@ export function PaymentsView({
         const diffTime = pDate.getTime() - todayTime;
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         
-        if (timeFilter === "today" && diffDays > 0) return false;
-        if (timeFilter === "week" && diffDays > 7) return false;
-        if (timeFilter === "month" && diffDays > 30) return false;
+        if (timeFilter === "overdue" && diffDays >= 0) return false;
+        if (timeFilter === "today" && diffDays !== 0) return false;
+        if (timeFilter === "week" && (diffDays < 0 || diffDays > 6)) return false;
+        if (timeFilter === "month" && (diffDays < 0 || diffDays > 29)) return false;
       }
       
       return true;
@@ -138,31 +144,110 @@ export function PaymentsView({
 
   return (
     <div className="space-y-6" id="payments-view-container">
-      {/* Overview ribbon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-surface-2 p-5 rounded-2xl border border-border shadow-lg">
+      {/* Overview header + CTA */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-2 p-5 rounded-2xl border border-border shadow-lg">
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-text-main uppercase tracking-wider mb-1 truncate" title="Rachunki i Subskrypcje">Rachunki i Subskrypcje</h3>
-          <p className="text-xs text-text-muted truncate" title="Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-sm font-bold text-text-main uppercase tracking-wider truncate" title="Rachunki i Subskrypcje">
+              Rachunki i Subskrypcje
+            </h3>
+            {unpaidCount > 0 && (
+              <span className="text-xs bg-danger-subtle text-danger border border-danger/20 px-2 py-0.5 rounded-full font-bold">
+                {unpaidCount} do opłacenia
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-text-muted truncate">
             Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.
           </p>
         </div>
-        <div className="flex justify-between sm:justify-end items-center gap-4 flex-wrap min-w-0">
-          <div className="text-right mr-2 min-w-0">
-            <span className="block text-xs uppercase font-semibold text-text-muted truncate" title="Do opłacenia">Do opłacenia</span>
-            <span className="text-lg font-bold text-danger block truncate max-w-full" title={`${unpaidCount} rachunki (${formatMoney(totalUnpaidSum, profile?.currency || 'PLN')})`}>
-              {unpaidCount} rachunki ({formatMoney(totalUnpaidSum, profile?.currency || 'PLN')})
-            </span>
+        <button
+          onClick={() => onOpenPaymentModal()}
+          className="bg-brand text-text-inverse border border-brand font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+          id="btn-add-payment"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Dodaj nową opłatę</span>
+        </button>
+      </div>
+
+      {/* 4-Pillar Horizon Cashflow Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Overdue */}
+        <button
+          onClick={() => setTimeFilter(timeFilter === "overdue" ? "all" : "overdue")}
+          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+            timeFilter === "overdue"
+              ? "bg-danger-subtle border-danger ring-2 ring-danger/20"
+              : "bg-surface border-border hover:border-danger/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs font-bold text-danger mb-1">
+            <span className="flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5" /> Zaległe</span>
+            <span className="bg-danger/10 px-2 py-0.5 rounded-full">{horizonSummary.overdue.count}</span>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <button
-              onClick={() => onOpenPaymentModal()}
-              className="bg-brand text-text-inverse border border-brand font-bold py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-              id="btn-add-payment"
-            >
-              <span>＋ Dodaj opłatę</span>
-            </button>
+          <div className="text-lg font-black text-danger truncate" title={formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}>
+            {formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}
           </div>
-        </div>
+          <p className="text-[10px] text-text-faint mt-1">Wymagają natychmiastowej spłaty</p>
+        </button>
+
+        {/* Today */}
+        <button
+          onClick={() => setTimeFilter(timeFilter === "today" ? "all" : "today")}
+          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+            timeFilter === "today"
+              ? "bg-warning-subtle border-warning ring-2 ring-warning/20"
+              : "bg-surface border-border hover:border-warning/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs font-bold text-warning mb-1">
+            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Na dzisiaj</span>
+            <span className="bg-warning/10 px-2 py-0.5 rounded-full">{horizonSummary.today.count}</span>
+          </div>
+          <div className="text-lg font-black text-warning truncate" title={formatMoney(horizonSummary.today.total, profile.currency || "PLN")}>
+            {formatMoney(horizonSummary.today.total, profile.currency || "PLN")}
+          </div>
+          <p className="text-[10px] text-text-faint mt-1">Termin upływa dzisiaj</p>
+        </button>
+
+        {/* Next 7 Days */}
+        <button
+          onClick={() => setTimeFilter(timeFilter === "week" ? "all" : "week")}
+          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+            timeFilter === "week"
+              ? "bg-brand-subtle border-brand ring-2 ring-brand/20"
+              : "bg-surface border-border hover:border-brand/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs font-bold text-brand mb-1">
+            <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> Najbliższe 7 dni</span>
+            <span className="bg-brand/10 px-2 py-0.5 rounded-full">{horizonSummary.week.count}</span>
+          </div>
+          <div className="text-lg font-black text-brand truncate" title={formatMoney(horizonSummary.week.total, profile.currency || "PLN")}>
+            {formatMoney(horizonSummary.week.total, profile.currency || "PLN")}
+          </div>
+          <p className="text-[10px] text-text-faint mt-1">Obciążenie tego tygodnia</p>
+        </button>
+
+        {/* Next 30 Days */}
+        <button
+          onClick={() => setTimeFilter(timeFilter === "month" ? "all" : "month")}
+          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+            timeFilter === "month"
+              ? "bg-surface-2 border-text-main ring-2 ring-border"
+              : "bg-surface border-border hover:border-text-muted"
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs font-bold text-text-muted mb-1">
+            <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Najbliższe 30 dni</span>
+            <span className="bg-surface-2 px-2 py-0.5 rounded-full">{horizonSummary.month.count}</span>
+          </div>
+          <div className="text-lg font-black text-text-main truncate" title={formatMoney(horizonSummary.month.total, profile.currency || "PLN")}>
+            {formatMoney(horizonSummary.month.total, profile.currency || "PLN")}
+          </div>
+          <p className="text-[10px] text-text-faint mt-1">Miesięczny horyzont płynności</p>
+        </button>
       </div>
 
       {/* Browser Notifications Setup Card */}
@@ -239,23 +324,29 @@ export function PaymentsView({
                 }`}
               >Wszystkie</button>
               <button
+                onClick={() => setTimeFilter("overdue")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
+                  timeFilter === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/20" : "text-text-muted hover:text-danger"
+                }`}
+              >Zaległe</button>
+              <button
                 onClick={() => setTimeFilter("today")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "today" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  timeFilter === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/20" : "text-text-muted hover:text-warning"
                 }`}
-              >Dzisiaj/Zaległe</button>
+              >Dzisiaj</button>
               <button
                 onClick={() => setTimeFilter("week")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
                   timeFilter === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
                 }`}
-              >Ten tydzień</button>
+              >7 dni</button>
               <button
                 onClick={() => setTimeFilter("month")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "month" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  timeFilter === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main"
                 }`}
-              >Ten miesiąc</button>
+              >30 dni</button>
             </div>
             {profile.kind === "shared" && (
               <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border">

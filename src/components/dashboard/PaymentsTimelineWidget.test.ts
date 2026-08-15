@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { groupPaymentsByTimeline, filterPaymentsByRange, getActiveSummary, getNearestHighlightedPaymentIds, getGlobalOverdueCount, getDueThisWeekTotal } from './PaymentsTimelineWidget';
+import {
+  groupPaymentsByTimeline,
+  filterPaymentsByRange,
+  getActiveSummary,
+  getNearestHighlightedPaymentIds,
+  getGlobalOverdueCount,
+  getDueThisWeekTotal,
+  getHorizonSummary
+} from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
 describe('groupPaymentsByTimeline', () => {
@@ -117,6 +125,12 @@ describe('filterPaymentsByRange', () => {
     expect(result.map(p => p.id)).toEqual(['1']);
   });
 
+  it('today range filters only today payments', () => {
+    const result = filterPaymentsByRange(payments, 'today');
+    expect(result.length).toBe(1);
+    expect(result.map(p => p.id)).toEqual(['2']);
+  });
+
   it('week range filters overdue, > 6 days, and no-date payments', () => {
     const result = filterPaymentsByRange(payments, 'week');
     expect(result.length).toBe(2);
@@ -159,7 +173,6 @@ describe('getActiveSummary', () => {
     }, // no date
     ];
     
-    // Simulate what the component does: filter then get active summary
     const weekFiltered = filterPaymentsByRange(payments, 'week');
     const summary = getActiveSummary(weekFiltered);
     expect(summary.count).toBe(2);
@@ -169,6 +182,36 @@ describe('getActiveSummary', () => {
     const allSummary = getActiveSummary(allFiltered);
     expect(allSummary.count).toBe(5);
     expect(allSummary.total).toBe(1500);
+  });
+});
+
+describe('getHorizonSummary', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('aggregates overdue, today, week and month correctly', () => {
+    const payments: Payment[] = [
+      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20', currency: 'PLN' },
+      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25', currency: 'PLN' },
+      { id: '3', name: 'Za 3 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-28', currency: 'PLN' },
+      { id: '4', name: 'Za 20 dni', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-14', currency: 'PLN' },
+      { id: '5', name: 'Opłacone', amount: 500, status: 'Opłacono', category: 'Dom', isRecurring: false, dueDate: '2026-07-25', currency: 'PLN' },
+    ];
+
+    const result = getHorizonSummary(payments);
+
+    expect(result.overdue).toEqual({ count: 1, total: 100 });
+    expect(result.today).toEqual({ count: 1, total: 200 });
+    // Week includes today + 3 days = 200 + 300 = 500
+    expect(result.week).toEqual({ count: 2, total: 500 });
+    // Month includes today + 3 days + 20 days = 200 + 300 + 400 = 900
+    expect(result.month).toEqual({ count: 3, total: 900 });
   });
 });
 
@@ -253,3 +296,4 @@ describe('getDueThisWeekTotal', () => {
     expect(getDueThisWeekTotal(payments)).toBe(700);
   });
 });
+

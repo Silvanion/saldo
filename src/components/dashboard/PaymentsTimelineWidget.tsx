@@ -1,5 +1,4 @@
 import React, { memo, useState } from "react";
-import {} from "../../utils";
 import { Payment } from "../../types";
 import { CalendarClock, AlertCircle, Clock, CalendarDays, Calendar, List, PieChart } from "lucide-react";
 import { formatMoney } from "../../utils/format";
@@ -11,7 +10,53 @@ interface PaymentsTimelineWidgetProps {
   onChangeView: (view: string) => void;
 }
 
-export type TimelineFilter = "all" | "overdue" | "week" | "month";
+export type TimelineFilter = "all" | "overdue" | "today" | "week" | "month";
+
+export interface HorizonSummary {
+  overdue: { count: number; total: number };
+  today: { count: number; total: number };
+  week: { count: number; total: number };
+  month: { count: number; total: number };
+}
+
+export function getHorizonSummary(payments: Payment[]): HorizonSummary {
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  const summary: HorizonSummary = {
+    overdue: { count: 0, total: 0 },
+    today: { count: 0, total: 0 },
+    week: { count: 0, total: 0 },
+    month: { count: 0, total: 0 }
+  };
+
+  payments.forEach(p => {
+    if (!p.dueDate || p.status === "Opłacono") return;
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    const diffTime = pDate.getTime() - todayDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      summary.overdue.count += 1;
+      summary.overdue.total += p.amount;
+    } else {
+      if (diffDays === 0) {
+        summary.today.count += 1;
+        summary.today.total += p.amount;
+      }
+      if (diffDays <= 6) {
+        summary.week.count += 1;
+        summary.week.total += p.amount;
+      }
+      if (diffDays <= 29) {
+        summary.month.count += 1;
+        summary.month.total += p.amount;
+      }
+    }
+  });
+
+  return summary;
+}
 
 export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter): Payment[] {
   if (range === "all") return payments;
@@ -27,6 +72,9 @@ export function filterPaymentsByRange(payments: Payment[], range: TimelineFilter
 
     if (range === "overdue") {
       return diffDays < 0;
+    }
+    if (range === "today") {
+      return diffDays === 0;
     }
 
     if (diffDays < 0) return false;
@@ -53,7 +101,7 @@ export function getDueThisWeekTotal(payments: Payment[]): number {
   todayDate.setHours(0, 0, 0, 0);
 
   return payments.reduce((acc, p) => {
-    if (!p.dueDate) return acc;
+    if (!p.dueDate || p.status === "Opłacono") return acc;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -75,9 +123,18 @@ export function getTimelineTexts(range: TimelineFilter) {
       overviewTitle: "Podsumowanie zaległości"
     };
   }
+  if (range === "today") {
+    return {
+      label: "Na dzisiaj",
+      emptySummary: "Brak płatności na dzisiaj",
+      emptyTitle: "Czysty dzień",
+      emptyDesc: "Brak zobowiązań do zapłaty na dzisiaj.",
+      overviewTitle: "Płatności na dzisiaj"
+    };
+  }
   if (range === "week") {
     return {
-      label: "W tym tygodniu",
+      label: "W tym tygodniu (7 dni)",
       emptySummary: "Brak płatności w tym tygodniu",
       emptyTitle: "Brak zobowiązań",
       emptyDesc: "W tym tygodniu masz spokój.",
@@ -118,7 +175,7 @@ export function getGlobalOverdueCount(payments: Payment[]): number {
   const todayTime = todayDate.getTime();
 
   return payments.reduce((acc, p) => {
-    if (!p.dueDate) return acc;
+    if (!p.dueDate || p.status === "Opłacono") return acc;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     return pDate.getTime() < todayTime ? acc + 1 : acc;
   }, 0);
@@ -135,7 +192,7 @@ export function groupPaymentsByTimeline(payments: Payment[]) {
   todayDate.setHours(0, 0, 0, 0);
 
   payments.forEach(p => {
-    if (!p.dueDate) return;
+    if (!p.dueDate || p.status === "Opłacono") return;
     const pDate = new Date(`${p.dueDate}T00:00:00`);
     const diffTime = pDate.getTime() - todayDate.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -144,9 +201,9 @@ export function groupPaymentsByTimeline(payments: Payment[]) {
       overdue.push(p);
     } else if (diffDays === 0) {
       today.push(p);
-    } else if (diffDays <= 7) {
+    } else if (diffDays <= 6) {
       next7Days.push(p);
-    } else if (diffDays <= 30) {
+    } else if (diffDays <= 29) {
       next30Days.push(p);
     } else {
       later.push(p);
@@ -174,10 +231,10 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const [range, setRange] = useState<TimelineFilter>("all");
   
   const filteredPayments = filterPaymentsByRange(unpaidPayments, range);
+  const horizonSummary = getHorizonSummary(unpaidPayments);
   
   // Limit to max 7 items to prevent endless vertical growth on dashboard
   const MAX_ITEMS = 7;
-  // Sort by date before slicing to ensure we show the most pressing ones
   const sortedFiltered = [...filteredPayments].sort((a, b) => {
     if (!a.dueDate) return 1;
     if (!b.dueDate) return -1;
@@ -187,14 +244,11 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const remainingCount = sortedFiltered.length - MAX_ITEMS;
   
   const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(limitedPayments);
-  const activeSummary = getActiveSummary(filteredPayments); // keep summary for all filtered
-  const overdueCount = getGlobalOverdueCount(limitedPayments); // wait, summary overdue uses limited?
-  // Let's use filteredPayments for overdueCount to keep summary accurate
+  const activeSummary = getActiveSummary(filteredPayments);
   const totalOverdueCountInView = getGlobalOverdueCount(filteredPayments);
   const texts = getTimelineTexts(range);
   const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
   const globalOverdueCount = getGlobalOverdueCount(unpaidPayments);
-  const dueThisWeekTotal = getDueThisWeekTotal(unpaidPayments);
 
   const renderSection = (title: string, items: Payment[], icon: React.ReactNode, colorClass: string, bgClass: string) => {
     if (items.length === 0) return null;
@@ -210,7 +264,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           {items.map(p => {
             const isHighlighted = highlightedIds.has(p.id);
             return (
-              <div key={p.id} className={`bg-surface border ${isHighlighted ? "border-brand/30  " : "border-border shadow-sm"} rounded-xl p-3 hover:border-brand/30 hover:bg-surface-offset transition-colors group flex items-center justify-between gap-3`}>
+              <div key={p.id} className={`bg-surface border ${isHighlighted ? "border-brand/30" : "border-border shadow-sm"} rounded-xl p-3 hover:border-brand/30 hover:bg-surface-offset transition-colors group flex items-center justify-between gap-3`}>
                 <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm font-bold text-text-main group-hover:text-brand transition-colors truncate" title={p.name}>{p.name}</span>
@@ -263,12 +317,12 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         {overdue.length > 0 && (
           <div className="bg-danger-subtle border border-danger/30 rounded-xl p-4 flex flex-col gap-3 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <AlertCircle className="w-4 h-4 text-danger drop- shrink-0" />
+              <AlertCircle className="w-4 h-4 text-danger shrink-0" />
               <h4 className="text-sm font-bold text-danger truncate" title={`Zaległe płatności (${overdue.length})`}>Zaległe płatności ({overdue.length})</h4>
             </div>
             <div className="flex justify-between items-center gap-2">
               <span className="text-xs text-danger/80 truncate" title="Łączna kwota zaległości:">Łączna kwota zaległości:</span>
-              <span className="text-sm font-bold text-danger drop- shrink-0 truncate" title={formatMoney(overdueSum, currency)}>{formatMoney(overdueSum, currency)}</span>
+              <span className="text-sm font-bold text-danger shrink-0 truncate" title={formatMoney(overdueSum, currency)}>{formatMoney(overdueSum, currency)}</span>
             </div>
           </div>
         )}
@@ -284,21 +338,47 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           </div>
           <div className="flex justify-between items-center gap-2">
             <span className="text-xs text-text-muted truncate" title="Suma kwot:">Suma kwot:</span>
-            <span className="text-sm font-bold text-brand drop- shrink-0 truncate" title={formatMoney(sum, currency)}>{formatMoney(sum, currency)}</span>
+            <span className="text-sm font-bold text-brand shrink-0 truncate" title={formatMoney(sum, currency)}>{formatMoney(sum, currency)}</span>
           </div>
           <div className="flex justify-between items-center gap-2">
             <span className="text-xs text-text-muted truncate" title="Najbliższy termin:">Najbliższy termin:</span>
             <span className="text-sm font-bold text-text-main shrink-0 truncate" title={nearest}>{nearest}</span>
           </div>
         </div>
+
+        {/* Cumulative Cashflow Commitment Breakdown */}
+        {upcoming.length > 0 && (
+          <div className="bg-surface-2 border border-border rounded-xl p-3 space-y-2">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Harmonogram kumulatywny</span>
+            <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+              {(() => {
+                let cumulative = 0;
+                return upcoming.map(p => {
+                  cumulative += p.amount;
+                  return (
+                    <div key={p.id} className="flex justify-between items-center text-xs p-1.5 rounded-lg bg-surface border border-border/50">
+                      <div className="min-w-0 flex-1 truncate">
+                        <span className="font-bold text-text-main mr-2">{p.dueDate}</span>
+                        <span className="text-text-muted">{p.name}</span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-danger block">{formatMoney(p.amount, currency)}</span>
+                        <span className="text-[10px] text-text-faint block">suma: {formatMoney(cumulative, currency)}</span>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[420px] relative overflow-hidden group/timeline">
-      <div className="absolute inset-0  pointer-events-none opacity-50 group-hover/timeline:opacity-100 transition-opacity duration-500" />
-      <div className="flex items-center justify-between mb-5 relative z-10 gap-4">
+    <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[480px] relative overflow-hidden group/timeline">
+      <div className="flex items-center justify-between mb-4 relative z-10 gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Oś Czasu">Oś Czasu</p>
           <div className="flex items-center gap-2 min-w-0">
@@ -317,7 +397,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
             className="text-xs font-bold text-text-muted bg-surface border border-border px-2.5 py-1.5 rounded-lg hover:bg-surface-offset hover:text-text-main active:scale-[0.98] transition-all flex items-center gap-1 shadow-inner shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           >
             {viewMode === "compact" ? <PieChart className="w-3.5 h-3.5 shrink-0" /> : <List className="w-3.5 h-3.5 shrink-0" />}
-            {viewMode === "compact" ? "Monthly" : "Compact"}
+            {viewMode === "compact" ? "Cashflow" : "Lista"}
           </button>
           <button
             onClick={() => onChangeView("payments")}
@@ -329,52 +409,93 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         </div>
       </div>
 
-      <div className="mb-4 bg-brand-subtle border border-brand/30 rounded-xl p-3 flex justify-between items-center gap-2 relative z-10 min-w-0">
-        <div className="flex items-center gap-2 min-w-0">
-           <CalendarClock className="w-4 h-4 text-brand drop- shrink-0" />
-           <span className="text-sm font-semibold text-brand truncate" title="Do zapłaty w tym tygodniu">Do zapłaty w tym tygodniu</span>
-        </div>
-        <span className="text-sm font-bold text-brand drop- shrink-0 truncate" title={formatMoney(dueThisWeekTotal, currency)}>{formatMoney(dueThisWeekTotal, currency)}</span>
+      {/* 4-Pillar Horizon Summary Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10 min-w-0">
+        {/* Overdue */}
+        <button
+          onClick={() => setRange(range === "overdue" ? "all" : "overdue")}
+          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+            range === "overdue"
+              ? "bg-danger-subtle border-danger ring-2 ring-danger/20"
+              : "bg-surface-2 border-border hover:border-danger/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold text-danger mb-0.5">
+            <span>🔴 Zaległe</span>
+            <span className="bg-danger/10 px-1.5 py-0.2 rounded">{horizonSummary.overdue.count}</span>
+          </div>
+          <div className="text-xs font-extrabold text-danger truncate" title={formatMoney(horizonSummary.overdue.total, currency)}>
+            {formatMoney(horizonSummary.overdue.total, currency)}
+          </div>
+        </button>
+
+        {/* Today */}
+        <button
+          onClick={() => setRange(range === "today" ? "all" : "today")}
+          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+            range === "today"
+              ? "bg-warning-subtle border-warning ring-2 ring-warning/20"
+              : "bg-surface-2 border-border hover:border-warning/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold text-warning mb-0.5">
+            <span>🟡 Dzisiaj</span>
+            <span className="bg-warning/10 px-1.5 py-0.2 rounded">{horizonSummary.today.count}</span>
+          </div>
+          <div className="text-xs font-extrabold text-warning truncate" title={formatMoney(horizonSummary.today.total, currency)}>
+            {formatMoney(horizonSummary.today.total, currency)}
+          </div>
+        </button>
+
+        {/* Next 7 Days */}
+        <button
+          onClick={() => setRange(range === "week" ? "all" : "week")}
+          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+            range === "week"
+              ? "bg-brand-subtle border-brand ring-2 ring-brand/20"
+              : "bg-surface-2 border-border hover:border-brand/30"
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold text-brand mb-0.5">
+            <span>🟢 7 dni</span>
+            <span className="bg-brand/10 px-1.5 py-0.2 rounded">{horizonSummary.week.count}</span>
+          </div>
+          <div className="text-xs font-extrabold text-brand truncate" title={formatMoney(horizonSummary.week.total, currency)}>
+            {formatMoney(horizonSummary.week.total, currency)}
+          </div>
+        </button>
+
+        {/* Next 30 Days */}
+        <button
+          onClick={() => setRange(range === "month" ? "all" : "month")}
+          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+            range === "month"
+              ? "bg-surface border-text-main ring-2 ring-border"
+              : "bg-surface-2 border-border hover:border-text-muted"
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold text-text-muted mb-0.5">
+            <span>🔵 30 dni</span>
+            <span className="bg-surface-2 px-1.5 py-0.2 rounded">{horizonSummary.month.count}</span>
+          </div>
+          <div className="text-xs font-extrabold text-text-main truncate" title={formatMoney(horizonSummary.month.total, currency)}>
+            {formatMoney(horizonSummary.month.total, currency)}
+          </div>
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0 relative z-10">
-        <div className="flex flex-wrap gap-1 mb-4 bg-surface p-1 rounded-xl w-fit max-w-full border border-border shadow-inner min-w-0">
-          <button onClick={() => setRange("all")} className={`text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
-          <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
-          <button onClick={() => setRange("week")} className={`text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"}`}>Ten tydzień</button>
-          <button onClick={() => setRange("month")} className={`text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
-        </div>
-
-        <div className="mb-5 bg-bg-base/40 rounded-xl p-3 border border-border shadow-inner flex items-center justify-between min-w-0">
-          {activeSummary.count > 0 ? (
-            <div className="flex flex-col w-full gap-1.5 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CalendarDays className="w-4 h-4 text-brand shrink-0" />
-                  <div className="flex items-baseline gap-1.5 min-w-0">
-                    <span className="text-xs font-semibold text-text-main truncate" title={texts.label}>{texts.label}</span>
-                    <span className="text-xs font-medium text-text-faint shrink-0">({activeSummary.count})</span>
-                  </div>
-                </div>
-                <span className="text-sm font-bold text-text-main shrink-0 truncate" title={formatMoney(activeSummary.total, currency)}>{formatMoney(activeSummary.total, currency)}</span>
-              </div>
-              {range === "all" && totalOverdueCountInView > 0 && (
-                <div className="flex items-center gap-1.5 pl-6 min-w-0">
-                  <div className="w-1 h-1 rounded-full bg-danger-subtle0 shrink-0"></div>
-                  <span className="text-xs text-text-muted font-medium truncate" title={`W tym zaległe: ${totalOverdueCountInView}`}>
-                    W tym zaległe: <span className="text-danger font-semibold">{totalOverdueCountInView}</span>
-                  </span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-text-faint min-w-0">
-              <span className="text-lg opacity-80 shrink-0">🏖️</span>
-              <span className="text-xs font-medium truncate" title={texts.emptySummary}>
-                {texts.emptySummary}
-              </span>
-            </div>
-          )}
+        <div className="flex items-center justify-between gap-2 mb-3 bg-surface p-1 rounded-xl border border-border shadow-inner min-w-0">
+          <div className="flex flex-wrap gap-1">
+            <button onClick={() => setRange("all")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
+            <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
+            <button onClick={() => setRange("today")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"}`}>Dziś</button>
+            <button onClick={() => setRange("week")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"}`}>7 dni</button>
+            <button onClick={() => setRange("month")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
+          </div>
+          <span className="text-xs font-mono font-bold text-text-muted pr-1">
+            {activeSummary.count} poz.
+          </span>
         </div>
 
         {activeSummary.count === 0 ? (
@@ -385,7 +506,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           </div>
         ) : (
           viewMode === "compact" ? (
-            <div className="pt-2 pb-2">
+            <div className="pt-1 pb-2">
               {renderSection("Zaległe", overdue, <AlertCircle className="w-4 h-4" />, "text-danger", "bg-danger-subtle")}
               {renderSection("Dzisiaj", today, <Clock className="w-4 h-4" />, "text-warning", "bg-warning-subtle")}
               {renderSection("Najbliższe 7 dni", next7Days, <CalendarDays className="w-4 h-4" />, "text-brand", "bg-brand-subtle")}
