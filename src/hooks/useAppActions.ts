@@ -189,7 +189,6 @@ export function useAppActions({
     [updateActiveProfile]
   );
 
-  // === PROFILES ===
   const handleSelectProfile = useCallback(
     (profileId: string) => {
       const nextProfile = state.profiles.find((p) => p.id === profileId);
@@ -203,6 +202,11 @@ export function useAppActions({
     },
     [state, saveState, unlockProfile, setActiveView]
   );
+
+  const handleSwitchProfile = useCallback(() => {
+    saveState({ ...state, activeProfileId: null });
+    setActiveView("dashboard");
+  }, [state, saveState, setActiveView]);
 
   const handleDeleteProfile = useCallback(
     (profileId: string) => {
@@ -331,6 +335,7 @@ export function useAppActions({
     handleAddSettlement,
     handleDeleteSettlement,
     handleSelectProfile,
+    handleSwitchProfile,
     handleAddProfile,
     handleUpdateProfile,
     handleDeleteProfile,

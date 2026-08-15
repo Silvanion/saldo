@@ -121,4 +121,51 @@ describe('Full App Diagnostic Loop - Forms', () => {
     // Expect no errors to have been logged
     expect(console.error).not.toHaveBeenCalled();
   });
+
+  it('renders Profile Selector screen when activeProfileId is null and profiles exist', async () => {
+    vi.mocked(localDb.loadState).mockResolvedValue({
+      profiles: [
+        { id: 'p1', name: 'Profil Osobisty', kind: 'personal', avatar: '👤', accounts: [], currency: 'PLN' } as any,
+        { id: 'p2', name: 'Profil Wspólny', kind: 'shared', partnerName: 'Anna', avatar: '🏠', accounts: [], currency: 'PLN' } as any
+      ],
+      activeProfileId: null,
+      recurringRules: [],
+      transactionRules: [],
+      schemaVersion: 2,
+      updatedAt: '2026-08-04T10:00:00.000Z',
+      lastModifiedBy: 'test'
+    });
+
+    const ProfileSelectorHarness = () => {
+      const app = useApp();
+      React.useEffect(() => {
+        app.setActiveView('dashboard');
+      }, [app]);
+      
+      return (
+        <AppViewRouter 
+          onOpenTxModal={vi.fn()}
+          onOpenBudgetModal={vi.fn()}
+          onOpenPaymentModal={vi.fn()}
+          onTriggerCalendarAi={vi.fn()}
+          onOpenGoalModal={vi.fn()}
+          onOpenGoalDepositModal={vi.fn()}
+          onOpenProfileModal={vi.fn()}
+          onOpenPinModal={vi.fn()}
+        />
+      );
+    };
+
+    await act(async () => {
+      render(
+        <AppProvider>
+          <ProfileSelectorHarness />
+        </AppProvider>
+      );
+    });
+
+    await screen.findByText('Wybierz profil do pracy');
+    expect(screen.getByText('Profil Osobisty')).toBeDefined();
+    expect(screen.getByText('Profil Wspólny')).toBeDefined();
+  });
 });

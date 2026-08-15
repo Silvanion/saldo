@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Settings, Wallet, Lock, ArrowRight, Plus } from "lucide-react";
 import { useApp } from "./providers/AppContext";
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -107,16 +107,88 @@ export function AppViewRouter({
   const onThemeChange = handleThemeChange;
 
   if (!activeProfile && activeView !== "settings") {
+    if (profiles.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[60vh] bg-surface/30 rounded-2xl m-4 border border-dashed border-border">
+          <h2 className="text-2xl font-bold text-text-main mb-3">Rozpocznij z Saldo</h2>
+          <p className="text-text-muted max-w-md mx-auto mb-8 text-sm">
+            Nie masz jeszcze żadnego aktywnego profilu. Utwórz profil osobisty do własnych wydatków, lub profil wspólny, aby na bieżąco rozliczać się z partnerem.
+          </p>
+          <button 
+            onClick={() => onOpenProfileModal()}
+            className="bg-brand text-text-inverse px-6 py-3 rounded-xl font-bold hover:bg-brand-hover transition shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+          >
+            Utwórz nowy profil (Osobisty / Wspólny)
+          </button>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[60vh] bg-surface/30 rounded-2xl m-4 border border-dashed border-border">
-        <h2 className="text-2xl font-bold text-white mb-3">Rozpocznij z Saldo</h2>
-        <p className="text-text-muted max-w-md mx-auto mb-8 text-sm">
-          Nie masz jeszcze żadnego aktywnego profilu. Utwórz profil osobisty do własnych wydatków, lub profil wspólny, aby na bieżąco rozliczać się z partnerem.
-        </p>
-        <button 
+      <div className="flex flex-col items-center justify-center p-6 sm:p-12 text-center h-full min-h-[60vh] max-w-4xl mx-auto">
+        <div className="text-center space-y-2 mb-8">
+          <div className="inline-flex p-3 bg-brand-subtle text-brand rounded-2xl mb-2">
+            <Wallet className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-main tracking-tight">Wybierz profil do pracy</h2>
+          <p className="text-text-muted max-w-md mx-auto text-sm">
+            Zalogowano pomyślnie. Wybierz profil z poniższej listy, z którego chcesz teraz korzystać:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl mx-auto mb-8">
+          {profiles.map((p) => {
+            const hasPin = Boolean(p.pinHash);
+            const isShared = p.kind === "shared";
+            return (
+              <button
+                key={p.id}
+                onClick={() => onSelectProfile(p.id)}
+                className="bg-surface hover:bg-surface-2 border border-border hover:border-brand/40 p-5 rounded-2xl text-left transition-all active:scale-[0.98] flex flex-col justify-between group shadow-xs hover:shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="w-12 h-12 rounded-2xl bg-brand-subtle text-brand flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                      {p.avatar || "👤"}
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      {hasPin && (
+                        <span className="px-2 py-0.5 bg-surface-2 border border-border rounded-lg text-xs font-medium text-text-muted flex items-center gap-1">
+                          <Lock className="w-3 h-3 text-brand" /> PIN
+                        </span>
+                      )}
+                      <span className={`px-2.5 py-0.5 rounded-lg text-xs font-bold ${
+                        isShared 
+                          ? "bg-brand-subtle text-brand border border-brand/20" 
+                          : "bg-surface-2 text-text-muted border border-border"
+                      }`}>
+                        {isShared ? (p.partnerName ? `Wspólny (${p.partnerName})` : "Wspólny") : "Osobisty"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-text-main mt-4 group-hover:text-brand transition-colors truncate" title={p.name}>
+                    {p.name}
+                  </h3>
+                  <p className="text-xs text-text-muted mt-1 truncate">
+                    {p.transactions?.length || 0} transakcji • {p.currency || "PLN"}
+                  </p>
+                </div>
+
+                <div className="mt-5 pt-3 border-t border-border/50 flex items-center justify-between text-xs font-bold text-brand">
+                  <span>Otwórz ten profil</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
           onClick={() => onOpenProfileModal()}
-          className="bg-[#137566] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0f5c50] transition shadow-sm"
+          className="inline-flex items-center gap-2 bg-surface hover:bg-surface-2 border border-border text-text-main px-5 py-2.5 rounded-xl font-bold text-xs active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
+          <Plus className="w-4 h-4 text-brand" />
           Utwórz nowy profil (Osobisty / Wspólny)
         </button>
       </div>

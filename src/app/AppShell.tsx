@@ -19,7 +19,9 @@ import {
   WifiOff,
   ShieldCheck,
   Database,
-  Info
+  Info,
+  ArrowLeftRight,
+  LogOut
 } from "lucide-react";
 
 export function AppShell({
@@ -34,6 +36,7 @@ export function AppShell({
   const {
     activeView, setActiveView,
     activeProfile,
+    handleSwitchProfile,
     isMobileMenuOpen, setIsMobileMenuOpen,
     isOnline,
     isSyncing,
@@ -235,7 +238,15 @@ export function AppShell({
           </button>
 
           {activeProfile && (
-            <div className="flex items-center gap-3 px-3 py-2 bg-surface/30 border border-border rounded-2xl">
+            <button
+              onClick={() => {
+                handleSwitchProfile();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 w-full px-3 py-2 bg-surface/30 border border-border rounded-2xl hover:bg-surface-2 hover:border-brand/30 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring group"
+              id="btn-switch-profile"
+              title="Przełącz profil"
+            >
               <span className="w-8 h-8 rounded-full bg-surface-offset text-text-main text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
                 {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
               </span>
@@ -245,7 +256,8 @@ export function AppShell({
                   {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
                 </span>
               </div>
-            </div>
+              <ArrowLeftRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
           )}
         </div>
       </aside>
@@ -327,6 +339,17 @@ export function AppShell({
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Zsynchronizowany</span>
               </div>
+            )}
+            {activeProfile && (
+              <button
+                onClick={handleSwitchProfile}
+                className="flex items-center gap-1.5 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-main font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring group"
+                id="btn-header-switch-profile"
+                title="Przełącz profil"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 text-brand group-hover:rotate-180 transition-transform duration-300" />
+                <span className="hidden sm:inline">Przełącz profil</span>
+              </button>
             )}
             {activeProfile && !isProfileLocked && (
               <button

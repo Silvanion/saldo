@@ -163,8 +163,8 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
     ? data.activeProfileId
     : null;
 
-  if (!migrated.activeProfileId && migrated.profiles.length > 0) {
-    migrated.activeProfileId = migrated.profiles[0].id;
+  if (!migrated.activeProfileId) {
+    migrated.activeProfileId = null;
   }
 
   // --- MIGRATION: AppState.recurringRules to Profile.recurringRules ---
