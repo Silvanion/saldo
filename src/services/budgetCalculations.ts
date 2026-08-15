@@ -688,3 +688,206 @@ export function calculateNetWorth(profile: Profile | null): NetWorthBreakdown {
   };
 }
 
+export interface CategoryDriver {
+  category: string;
+  currentAmount: number;
+  previousAmount: number;
+  diffAmount: number;
+  diffPercent: number;
+}
+
+export interface RollingTrendsResult {
+  currentMonthExpense: number;
+  lastMonthExpense: number;
+  avg3MonthExpense: number;
+  avg6MonthExpense: number;
+  diffVsLastMonth: number;
+  diffVs3MAvg: number;
+  topGrowthCategory: CategoryDriver | null;
+  topReductionCategory: CategoryDriver | null;
+  historicalMonthsCount: number;
+}
+
+export function calculateRollingTrends(
+  transactions: Transaction[],
+  selectedDate: Date
+): RollingTrendsResult {
+  const currentYear = selectedDate.getFullYear();
+  const currentMonthIdx = selectedDate.getMonth();
+
+  const getMonthExpenseData = (year: number, monthIdx: number) => {
+    const txs = transactions.filter((t) => {
+      if (t.type !== "expense" || !t.isoDate) return false;
+      const d = new Date(`${t.isoDate}T12:00:00`);
+      return d.getFullYear() === year && d.getMonth() === monthIdx;
+    });
+
+    const categoryMap: Record<string, number> = {};
+    let total = 0;
+    for (const t of txs) {
+      total += t.amount;
+      const cat = t.category || "Inne";
+      categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
+    }
+    return { total: roundCurrency(total), categoryMap };
+  };
+
+  const currentData = getMonthExpenseData(currentYear, currentMonthIdx);
+  const currentMonthExpense = currentData.total;
+
+  const pastMonthsTotals: number[] = [];
+  let prevMonthCategoryMap: Record<string, number> = {};
+
+  for (let i = 1; i <= 6; i++) {
+    let targetMonth = currentMonthIdx - i;
+    let targetYear = currentYear;
+    while (targetMonth < 0) {
+      targetMonth += 12;
+      targetYear -= 1;
+    }
+    const data = getMonthExpenseData(targetYear, targetMonth);
+    if (i === 1) {
+      prevMonthCategoryMap = data.categoryMap;
+    }
+    pastMonthsTotals.push(data.total);
+  }
+
+  const lastMonthExpense = pastMonthsTotals[0] || 0;
+
+  const activePast3M = pastMonthsTotals.slice(0, 3).filter((amt) => amt > 0);
+  const activePast6M = pastMonthsTotals.filter((amt) => amt > 0);
+
+  const avg3MonthExpense = activePast3M.length > 0
+    ? roundCurrency(activePast3M.reduce((sum, v) => sum + v, 0) / activePast3M.length)
+    : currentMonthExpense;
+
+  const avg6MonthExpense = activePast6M.length > 0
+    ? roundCurrency(activePast6M.reduce((sum, v) => sum + v, 0) / activePast6M.length)
+    : avg3MonthExpense;
+
+  const diffVsLastMonth = lastMonthExpense > 0
+    ? Math.round(((currentMonthExpense - lastMonthExpense) / lastMonthExpense) * 100)
+    : 0;
+
+  const diffVs3MAvg = avg3MonthExpense > 0
+    ? Math.round(((currentMonthExpense - avg3MonthExpense) / avg3MonthExpense) * 100)
+    : 0;
+
+  const allCategories = Array.from(
+    new Set([...Object.keys(currentData.categoryMap), ...Object.keys(prevMonthCategoryMap)])
+  );
+
+  const drivers: CategoryDriver[] = allCategories.map((cat) => {
+    const cur = currentData.categoryMap[cat] || 0;
+    const prev = prevMonthCategoryMap[cat] || 0;
+    const diff = roundCurrency(cur - prev);
+    const diffPct = prev > 0 ? Math.round((diff / prev) * 100) : (cur > 0 ? 100 : 0);
+    return {
+      category: cat,
+      currentAmount: cur,
+      previousAmount: prev,
+      diffAmount: diff,
+      diffPercent: diffPct,
+    };
+  });
+
+  const growthDrivers = drivers.filter((d) => d.diffAmount > 0).sort((a, b) => b.diffAmount - a.diffAmount);
+  const reductionDrivers = drivers.filter((d) => d.diffAmount < 0).sort((a, b) => a.diffAmount - b.diffAmount);
+
+  return {
+    currentMonthExpense,
+    lastMonthExpense,
+    avg3MonthExpense,
+    avg6MonthExpense,
+    diffVsLastMonth,
+    diffVs3MAvg,
+    topGrowthCategory: growthDrivers.length > 0 ? growthDrivers[0] : null,
+    topReductionCategory: reductionDrivers.length > 0 ? reductionDrivers[0] : null,
+    historicalMonthsCount: activePast6M.length,
+  };
+}
+
+export interface EmergencySimulatorResult {
+  targetMonths: number;
+  monthlyBurnRate: number;
+  requiredCapital: number;
+  currentLiquidCapital: number;
+  progressPercent: number;
+  shortfall: number;
+  currentMonthlySavings: number;
+  monthsToTarget: number | null;
+  status: "completed" | "on_track" | "no_savings" | "deficit";
+}
+
+export function calculateEmergencySimulator(
+  profile: Profile,
+  selectedDate: Date,
+  targetMonths: 3 | 6 | 12
+): EmergencySimulatorResult {
+  const currentYear = selectedDate.getFullYear();
+  const currentMonthIdx = selectedDate.getMonth();
+
+  const thisMonthTransactions = (profile.transactions || []).filter((t) => {
+    if (!t.isoDate) return false;
+    const d = new Date(`${t.isoDate}T12:00:00`);
+    return d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx;
+  });
+
+  const thisMonthIncome = thisMonthTransactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const thisMonthExpense = thisMonthTransactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const currentMonthlySavings = roundCurrency(thisMonthIncome - thisMonthExpense);
+
+  const rolling = calculateRollingTrends(profile.transactions || [], selectedDate);
+  const monthlyBurnRate = rolling.avg3MonthExpense > 0 ? rolling.avg3MonthExpense : (thisMonthExpense > 0 ? thisMonthExpense : 3000);
+
+  const requiredCapital = roundCurrency(monthlyBurnRate * targetMonths);
+
+  const allIncomes = (profile.transactions || [])
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const allExpenses = (profile.transactions || [])
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const liquidFunds = Math.max(0, allIncomes - allExpenses);
+
+  const goalsSavings = (profile.goals || []).reduce((sum, g) => sum + (Number(g.saved) || 0), 0);
+  const currentLiquidCapital = roundCurrency(liquidFunds + goalsSavings);
+
+  const shortfall = roundCurrency(Math.max(0, requiredCapital - currentLiquidCapital));
+  const progressPercent = requiredCapital > 0
+    ? Math.min(100, Math.round((currentLiquidCapital / requiredCapital) * 100))
+    : 100;
+
+  let monthsToTarget: number | null = null;
+  let status: "completed" | "on_track" | "no_savings" | "deficit" = "on_track";
+
+  if (shortfall <= 0) {
+    status = "completed";
+    monthsToTarget = 0;
+  } else if (currentMonthlySavings <= 0) {
+    status = currentMonthlySavings < 0 ? "deficit" : "no_savings";
+    monthsToTarget = null;
+  } else {
+    status = "on_track";
+    monthsToTarget = Math.ceil(shortfall / currentMonthlySavings);
+  }
+
+  return {
+    targetMonths,
+    monthlyBurnRate,
+    requiredCapital,
+    currentLiquidCapital,
+    progressPercent,
+    shortfall,
+    currentMonthlySavings,
+    monthsToTarget,
+    status,
+  };
+}
+

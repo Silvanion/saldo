@@ -11,7 +11,9 @@ import {
   calculateRunway,
   calculateMoMTrends,
   calculate503020,
-  calculateNetWorth
+  calculateNetWorth,
+  calculateRollingTrends,
+  calculateEmergencySimulator
 } from "./services/budgetCalculations";
 import { Profile, RecurringRule, Transaction } from "./types";
 
@@ -802,4 +804,71 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       expect(nwNull.assetClasses).toEqual([]);
     });
   });
+
+  describe("ANALYTICS V2 — Rolling Trends & Emergency Simulator", () => {
+    const mockTxs: Transaction[] = [
+      // Month 0 (August 2026) - Current
+      { id: "t1", name: "Biedronka", amount: 1500, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-08-05", currency: "PLN" },
+      { id: "t2", name: "Paliwo", amount: 600, type: "expense", category: "Transport", account: "Główne", isoDate: "2026-08-10", currency: "PLN" },
+      { id: "t3", name: "Wynagrodzenie", amount: 6000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-01", currency: "PLN" },
+
+      // Month -1 (July 2026)
+      { id: "t4", name: "Lidl", amount: 1200, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-07-05", currency: "PLN" },
+      { id: "t5", name: "Paliwo", amount: 400, type: "expense", category: "Transport", account: "Główne", isoDate: "2026-07-10", currency: "PLN" },
+
+      // Month -2 (June 2026)
+      { id: "t6", name: "Jedzenie", amount: 1000, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-06-05", currency: "PLN" },
+      { id: "t7", name: "Bilety", amount: 200, type: "expense", category: "Transport", account: "Główne", isoDate: "2026-06-10", currency: "PLN" },
+    ];
+
+    it("calculateRollingTrends — correctly computes rolling averages and drivers", () => {
+      const selectedDate = new Date("2026-08-15T12:00:00");
+      const result = calculateRollingTrends(mockTxs, selectedDate);
+
+      // Aug: 2100 PLN
+      // Jul: 1600 PLN
+      // Jun: 1200 PLN
+      // Past 3M avg (Jul + Jun / 2 = 1400)
+      expect(result.currentMonthExpense).toBe(2100);
+      expect(result.lastMonthExpense).toBe(1600);
+      expect(result.avg3MonthExpense).toBe(1400);
+      expect(result.diffVsLastMonth).toBe(31); // (2100 - 1600)/1600 = +31%
+      expect(result.topGrowthCategory?.category).toBe("Żywność"); // 1500 vs 1200 (+300)
+      expect(result.historicalMonthsCount).toBe(2);
+    });
+
+    it("calculateEmergencySimulator — computes shortfall, progress and months to goal", () => {
+      const selectedDate = new Date("2026-08-15T12:00:00");
+      const profile: Profile = {
+        id: "p1",
+        name: "Test",
+        kind: "personal",
+        transactions: mockTxs, // Income: 6000, Expense Aug: 2100 -> Monthly Savings: 3900 PLN
+        goals: [
+          { id: "g1", name: "Poduszka", target: 10000, saved: 4000, currency: "PLN" }
+        ],
+        payments: [],
+        budgets: {},
+        investments: [],
+        currency: "PLN"
+      };
+
+      // Target 6 months:
+      // Burn rate (3M avg) = 1400 PLN/mc
+      // Required = 6 * 1400 = 8400 PLN
+      // Liquid available = Incomes(6000) - Expenses(4900) + Goals(4000) = 1100 + 4000 = 5100 PLN
+      // Shortfall = 8400 - 5100 = 3300 PLN
+      // Savings rate = 3900 PLN/mc -> 1 month to complete
+      const sim = calculateEmergencySimulator(profile, selectedDate, 6);
+
+      expect(sim.targetMonths).toBe(6);
+      expect(sim.requiredCapital).toBe(8400);
+      expect(sim.currentLiquidCapital).toBe(5100);
+      expect(sim.shortfall).toBe(3300);
+      expect(sim.currentMonthlySavings).toBe(3900);
+      expect(sim.monthsToTarget).toBe(1);
+      expect(sim.status).toBe("on_track");
+    });
+  });
 });
+
