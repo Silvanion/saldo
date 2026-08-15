@@ -10,7 +10,8 @@ import {
   calculateBudgetSummary,
   calculateRunway,
   calculateMoMTrends,
-  calculate503020
+  calculate503020,
+  calculateNetWorth
 } from "./services/budgetCalculations";
 import { Profile, RecurringRule, Transaction } from "./types";
 
@@ -747,6 +748,58 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       expect(res.wants.percentage).toBe(30);
       expect(res.savings.amount).toBe(800);
       expect(res.savings.percentage).toBe(20);
+    });
+
+    it("calculateNetWorth — calculates total assets, liabilities and net worth accurately", () => {
+      const profile: Profile = {
+        id: "p1",
+        name: "Test",
+        kind: "personal",
+        currency: "PLN",
+        transactions: [
+          { id: "t1", name: "Pensja", amount: 10000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-01", currency: "PLN" },
+          { id: "t2", name: "Wydatki", amount: 4000, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-08-05", currency: "PLN" },
+        ], // liquid = 10000 - 4000 = 6000 zł
+        goals: [
+          { id: "g1", name: "Poduszka", target: 20000, saved: 15000, currency: "PLN" },
+          { id: "g2", name: "Wakacje", target: 5000, saved: 3000, currency: "PLN" },
+        ], // goals = 15000 + 3000 = 18000 zł
+        investments: [
+          { id: "i1", name: "IKE Obligacje", amount: 25000, isoDate: "2026-01-01", type: "IKE / IKZE (Emerytura)", currency: "PLN" },
+          { id: "i2", name: "ETF World", amount: 15000, isoDate: "2026-02-01", type: "Akcje / ETF", currency: "PLN" },
+        ], // investments = 25000 + 15000 = 40000 zł
+        payments: [
+          { id: "pay1", name: "Czynsz", amount: 2500, dueDate: "2026-08-30", status: "Do opłacenia", currency: "PLN" },
+          { id: "pay2", name: "Internet", amount: 100, dueDate: "2026-08-20", status: "Opłacono", currency: "PLN" },
+        ], // unpaid = 2500 zł
+        accounts: [
+          { id: "acc1", name: "Konto", bankName: "mBank", hasCreditLimit: true, creditLimit: 1200 },
+        ], // credit = 1200 zł
+        budgets: {},
+      };
+
+      // Total Assets = 6000 (liquid) + 18000 (goals) + 40000 (investments) = 64000 zł
+      // Total Liabilities = 2500 (unpaid) + 1200 (credit) = 3700 zł
+      // Net Worth = 64000 - 3700 = 60300 zł
+      const nw = calculateNetWorth(profile);
+
+      expect(nw.liquidAssets).toBe(6000);
+      expect(nw.goalsAssets).toBe(18000);
+      expect(nw.investmentsAssets).toBe(40000);
+      expect(nw.totalAssets).toBe(64000);
+      expect(nw.unpaidLiabilities).toBe(2500);
+      expect(nw.creditLiabilities).toBe(1200);
+      expect(nw.totalLiabilities).toBe(3700);
+      expect(nw.netWorth).toBe(60300);
+      expect(nw.assetClasses.length).toBeGreaterThan(0);
+    });
+
+    it("calculateNetWorth — handles empty or null profile safely", () => {
+      const nwNull = calculateNetWorth(null);
+      expect(nwNull.netWorth).toBe(0);
+      expect(nwNull.totalAssets).toBe(0);
+      expect(nwNull.totalLiabilities).toBe(0);
+      expect(nwNull.assetClasses).toEqual([]);
     });
   });
 });

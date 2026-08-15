@@ -584,3 +584,107 @@ export function calculate503020(transactions: Transaction[] = [], selectedDate: 
     totalExpense: roundCurrency(totalExpense)
   };
 }
+
+export interface NetWorthAssetClass {
+  name: string;
+  amount: number;
+  percent: number;
+}
+
+export interface NetWorthBreakdown {
+  liquidAssets: number;
+  goalsAssets: number;
+  investmentsAssets: number;
+  totalAssets: number;
+  unpaidLiabilities: number;
+  creditLiabilities: number;
+  totalLiabilities: number;
+  netWorth: number;
+  assetClasses: NetWorthAssetClass[];
+}
+
+export function calculateNetWorth(profile: Profile | null): NetWorthBreakdown {
+  if (!profile) {
+    return {
+      liquidAssets: 0,
+      goalsAssets: 0,
+      investmentsAssets: 0,
+      totalAssets: 0,
+      unpaidLiabilities: 0,
+      creditLiabilities: 0,
+      totalLiabilities: 0,
+      netWorth: 0,
+      assetClasses: [],
+    };
+  }
+
+  // 1. Liquid operating balance:
+  const totalIncome = (profile.transactions || [])
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const totalExpense = (profile.transactions || [])
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const liquidAssets = Math.max(0, roundCurrency(totalIncome - totalExpense));
+
+  // 2. Goals / Savings:
+  const goalsAssets = roundCurrency(
+    (profile.goals || []).reduce((sum, g) => sum + (Number(g.saved) || 0), 0)
+  );
+
+  // 3. Investments capital:
+  const investmentsAssets = roundCurrency(
+    (profile.investments || []).reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0)
+  );
+
+  const totalAssets = roundCurrency(liquidAssets + goalsAssets + investmentsAssets);
+
+  // 4. Liabilities:
+  const unpaidLiabilities = roundCurrency(
+    (profile.payments || [])
+      .filter((p) => p.status !== "Opłacono")
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+  );
+
+  let creditLiabilities = 0;
+  if (profile.accounts && profile.accounts.length > 0) {
+    creditLiabilities = roundCurrency(
+      profile.accounts.reduce((sum, acc) => sum + (acc.hasCreditLimit ? Number(acc.creditLimit) || 0 : 0), 0)
+    );
+  }
+
+  const totalLiabilities = roundCurrency(unpaidLiabilities + creditLiabilities);
+  const netWorth = roundCurrency(totalAssets - totalLiabilities);
+
+  // Asset classes breakdown
+  const classMap: Record<string, number> = {};
+  if (liquidAssets > 0) {
+    classMap["Środki płynne"] = liquidAssets;
+  }
+  if (goalsAssets > 0) {
+    classMap["Cele i Rezerwy"] = goalsAssets;
+  }
+  for (const inv of (profile.investments || [])) {
+    const typeName = inv.type || "Inne inwestycje";
+    classMap[typeName] = (classMap[typeName] || 0) + (Number(inv.amount) || 0);
+  }
+
+  const assetClasses: NetWorthAssetClass[] = Object.entries(classMap).map(([name, amount]) => ({
+    name,
+    amount: roundCurrency(amount),
+    percent: totalAssets > 0 ? Math.round((amount / totalAssets) * 100) : 0,
+  }));
+
+  return {
+    liquidAssets,
+    goalsAssets,
+    investmentsAssets,
+    totalAssets,
+    unpaidLiabilities,
+    creditLiabilities,
+    totalLiabilities,
+    netWorth,
+    assetClasses,
+  };
+}
+

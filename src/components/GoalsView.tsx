@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Profile, Goal, Investment } from "../types";
 import { formatDate } from "../utils";
 import { formatMoney } from "../utils/format";
+import { calculateNetWorth } from "../services/budgetCalculations";
+import { NetWorthHeroCard } from "./wealth/NetWorthHeroCard";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -22,6 +24,8 @@ export function GoalsView({
   const [invAmount, setInvAmount] = useState("");
   const [invType, setInvType] = useState("Poduszka finansowa");
 
+  const netWorthData = calculateNetWorth(profile);
+
   const handleInvSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = parseFloat(invAmount.replace(",", "."));
@@ -32,7 +36,10 @@ export function GoalsView({
   };
 
   return (
-    <div className="space-y-6" id="goals-view-container">
+    <div className="space-y-8" id="goals-view-container">
+      {/* HERO SECTION: NET WORTH / WEALTH SYNTHESIS */}
+      <NetWorthHeroCard netWorthData={netWorthData} currency={profile?.currency || "PLN"} />
+
       {/* SECTION 1: SAVINGS GOALS */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 min-w-0">
