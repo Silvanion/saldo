@@ -15,7 +15,10 @@ import {
   Zap,
   ShieldAlert,
   Calendar,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Command,
+  Globe,
+  Scale
 } from "lucide-react";
 
 import { MockScreenShot, Terminal } from "../components/help/HelpVisuals";
@@ -23,9 +26,11 @@ import { MockScreenShot, Terminal } from "../components/help/HelpVisuals";
 export const helpCategories = [
   "Wszystko",
   "Szybki start",
+  "Paleta komend (⌘K)",
   "Pulpit i Wskaźniki",
-  "Transakcje i CSV",
-  "Rachunki i Kalendarz",
+  "Wielowalutowość & NBP",
+  "Transakcje i Banki CSV",
+  "Rachunki i Timeline",
   "Budżety i Limity",
   "Cele i Inwestycje",
   "Profile i PIN",
@@ -50,15 +55,15 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   },
   {
-    title: "Wskaźnik Bezpieczeństwa",
-    description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada ile możesz wydać.",
+    title: "Wskaźnik Bezpieczeństwa & Runway",
+    description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada na ile miesięcy wystarczy środków.",
     icon: <Zap className="w-5 h-5" />,
     wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   },
   {
-    title: "Bezpieczny Import CSV",
-    description: "Automatyczne unikanie duplikatów i usuwanie uszkodzonych kwot (NaN).",
+    title: "10 Banków & Kursy NBP",
+    description: "Automatyczny import wyciągów z 10 banków w Polsce z przeliczaniem walut po kursie średnim NBP.",
     icon: <FileSpreadsheet className="w-5 h-5" />,
     wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
     iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
@@ -94,8 +99,8 @@ export const helpSectionsData: HelpSectionData[] = [
           badge="Interfejs użytkownika"
           steps={[
             { step: 1, label: "Panel nawigacji", description: "Przełączaj się między Pulpitem, Transakcjami, Budżetami i Inwestycjami w lewym menu." },
-            { step: 2, label: "Przycisk dodawania", description: "Użyj zielonego przycisku '+ Nowa transakcja', aby ręcznie zapisać wydatek lub przychód." },
-            { step: 3, label: "Bezpieczny limit (Safe-to-Spend)", description: "Sprawdzaj górną kartę — pokazuje kwotę wolną od zobowiązań w tym miesiącu." },
+            { step: 2, label: "Paleta komend (⌘K)", description: "Naciśnij Cmd+K / Ctrl+K lub '/', aby błyskawicznie przeszukać transakcje lub wykonać akcję." },
+            { step: 3, label: "Wskaźnik Runway & Safe-to-Spend", description: "Sprawdzaj górne karty — pokazują poduszkę finansową w miesiącach i wolne środki." },
             { step: 4, label: "Wybór Profilu", description: "W prawym górnym rogu przełączaj profil z Osobistego na Wspólny z partnerem." }
           ]}
         >
@@ -110,17 +115,17 @@ export const helpSectionsData: HelpSectionData[] = [
 
             <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">2</div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Wprowadzanie</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Szybkie szukanie</div>
               <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
-                <History className="w-4 h-4 text-text-muted" /> + Nowa transakcja
+                <Command className="w-4 h-4 text-text-muted" /> Paleta Cmd+K
               </div>
             </div>
 
             <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
               <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">3</div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Stan bezpieczny</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Poduszka finansowa</div>
               <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
-                <ShieldCheck className="w-4 h-4 text-text-muted" /> Limit: 2,450
+                <ShieldCheck className="w-4 h-4 text-text-muted" /> Runway: 8.5 mies.
               </div>
             </div>
           </div>
@@ -131,148 +136,188 @@ export const helpSectionsData: HelpSectionData[] = [
             <CheckCircle2 className="w-4 h-4 text-brand" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
           </h4>
           <ol className="list-decimal pl-5 space-y-2">
-            <li><strong>Wprowadź swoje stałe płatności:</strong> W zakładce <em>Płatności</em> dodaj czynsz, prąd, ubezpieczenia i subskrypcje. Dzięki temu wskaźnik <em>Safe-to-Spend</em> od razu rezerwuje na nie fundusze.</li>
-            <li><strong>Zapisz oszczędności na czarną godzinę:</strong> W zakładce <em>Cele</em> stwórz poduszkę finansową. Zostanie ona wyłączona z kwoty do swobodnego wydania.</li>
-            <li><strong>Importuj lub dodawaj transakcje:</strong> Zaciągnij historię z banku przez plik CSV lub rejestruj codzienne zakupy na bieżąco.</li>
+            <li><strong>Wprowadź swoje stałe płatności:</strong> W zakładce <em>Płatności</em> dodaj czynsz, prąd, ubezpieczenia i subskrypcje. Dzięki temu wskaźnik <em>Safe-to-Spend</em> i 4 filary horyzontów od razu rezerwują na nie fundusze.</li>
+            <li><strong>Zapisz oszczędności na czarną godzinę:</strong> W zakładce <em>Cele</em> stwórz poduszkę finansową. Zostanie ona uwzględniona w kalkulacji wskaźnika <em>Runway</em>.</li>
+            <li><strong>Importuj wyciągi z banku:</strong> Użyj importera CSV — wspiera 10 największych banków w Polsce i automatycznie przelicza waluty obce według tabel NBP.</li>
           </ol>
         </div>
       </>
     )
   },
   {
+    id: "command-palette",
+    cat: "Paleta komend (⌘K)",
+    title: "Globalna Paleta Komend (⌘K / Ctrl+K) i szybka nawigacja",
+    icon: <Command className="w-5 h-5" />,
+    badge: "Power UX",
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          W dowolnym miejscu aplikacji możesz nacisnąć <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">⌘K</code> (macOS), <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">Ctrl+K</code> (Windows/Linux) lub klawisz <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">/</code>, aby otworzyć globalną paletę komend.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
+              <span>🔍</span> Wyszukiwanie transakcji
+            </h5>
+            <p className="text-xs text-text-muted">Wpisz nazwę odbiorcy, kategorię lub kwotę, by błyskawicznie odnaleźć transakcję w historii.</p>
+          </div>
+
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
+              <span>⚡</span> Szybkie akcje
+            </h5>
+            <p className="text-xs text-text-muted">Dodawaj transakcje, twórz rachunki, uruchamiaj import CSV i generuj raporty PDF jednym klawiszem.</p>
+          </div>
+
+          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
+            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
+              <span>🔄</span> Przełączanie profili
+            </h5>
+            <p className="text-xs text-text-muted">Błyskawicznie przełączaj się między profilem osobistym a wspólnym bez sięgania po myszkę.</p>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
     id: "dashboard",
     cat: "Pulpit i Wskaźniki",
-    title: "Pulpit główny i wskaźniki finansowe (Safe-to-Spend, Prognoza)",
+    title: "Pulpit główny, wskaźnik Runway i Reguła 50/30/20",
     icon: <LayoutDashboard className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Pulpit główny (Dashboard) to Twój kokpit finansowy. Łączy w sobie wszystkie dane z całego profilu i w czasie rzeczywistym przelicza kluczowe wskaźniki matematyczne.
+          Pulpit główny to kokpit finansowy, który łączy dane z całego profilu i w czasie rzeczywistym przelicza wskaźniki płynności i bezpieczeństwa.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
-          <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
             <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-brand" /> Safe-to-Spend (Bezpieczny limit)
+              <ShieldCheck className="w-4 h-4 text-brand" /> Runway (Poduszka Płynności)
             </h4>
-            <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-              Formuła: <code className="bg-surface-2 border border-border/50 px-1.5 py-0.5 rounded text-text-main">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
-              Chroni Cię przed wydaniem pieniędzy, które za kilka dni będą potrzebne na opłacenie raty kredytu lub rachunku za prąd.
+            <p className="text-xs text-text-muted leading-relaxed">
+              Szacuje na ile miesięcy wystarczy zgromadzonych płynnych aktywów przy średnim miesięcznym tempie wydatków. Wskazuje status: Bezpieczny (≥6 mies.), Umiarkowany (3-6 mies.) lub Krytyczny (&lt;3 mies.).
             </p>
           </div>
 
-          <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
             <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <LineChart className="w-4 h-4 text-brand" /> Prognoza na koniec miesiąca
+              <LineChart className="w-4 h-4 text-brand" /> Dynamika MoM (Miesiąc do Miesiąca)
             </h4>
-            <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-              Analizuje średnie dzienne tempo wydatków w bieżącym miesiącu i prognozuje szacunkowe saldo na 30/31 dzień. Ostrzega, gdy przy obecnym tempie grozi Ci deficyt.
+            <p className="text-xs text-text-muted leading-relaxed">
+              Karty przychodów i wydatków pokazują procentową zmianę w stosunku do poprzedniego miesiąca, pozwalając na szybką ocenę trendów finansowych.
+            </p>
+          </div>
+
+          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
+              <Scale className="w-4 h-4 text-brand" /> Reguła 50 / 30 / 20
+            </h4>
+            <p className="text-xs text-text-muted leading-relaxed">
+              W module Analiz znajdziesz klasyfikację wydatków na Potrzeby (50%), Zachcianki (30%) i Oszczędności (20%) według uznanego standardu budżetowego.
             </p>
           </div>
         </div>
+      </div>
+    )
+  },
+  {
+    id: "multicurrency",
+    cat: "Wielowalutowość & NBP",
+    title: "Wielowalutowość i automatyczne kursy walut NBP",
+    icon: <Globe className="w-5 h-5" />,
+    badge: "Oficjalne tabele A NBP",
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Saldo wspiera konta, transakcje, płatności i cele w walutach obcych (np. EUR, USD, GBP, CHF, NOK, SEK).
+        </p>
 
-        <h4 className="font-bold text-text-main mt-4">Zależności z innymi modułami:</h4>
-        <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-faint">
-          <li>Dodanie nowej płatności w zakładce <strong>Płatności</strong> natychmiast pomniejsza <em>Safe-to-Spend</em>.</li>
-          <li>Oznaczenie płatności jako "Opłacono" zamienia ją w transakcję i aktualizuje bilans przychodów/wydatków.</li>
-          <li>Wpłata na <strong>Cel oszczędnościowy</strong> blokuje środki i wyklucza je z bieżącego portfela.</li>
-        </ul>
+        <div className="bg-surface border border-border/50 p-4 rounded-xl space-y-2">
+          <h4 className="font-semibold text-text-main flex items-center gap-2">
+            <Globe className="w-4 h-4 text-brand" /> Jak działa serwis walutowy NBP?
+          </h4>
+          <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-muted">
+            <li>Aplikacja automatycznie pobiera oficjalną tabelę A kursów średnich Narodowego Banku Polskiego.</li>
+            <li>Pobrane kursy są bezpiecznie cachowane lokalnie, dzięki czemu aplikacja działa w 100% offline bez opóźnień.</li>
+            <li>W przypadku braku sieci lub awarii stosowane są bezpieczne wartości fallback z gwarancją braku błędów NaN.</li>
+          </ul>
+        </div>
       </div>
     )
   },
   {
     id: "transactions",
-    cat: "Transakcje i CSV",
-    title: "Transakcje, bezpieczny import CSV i automatyczna deduplikacja",
+    cat: "Transakcje i Banki CSV",
+    title: "Transakcje, obsługa 10 banków w Polsce i deduplikacja",
     icon: <History className="w-5 h-5" />,
-    badge: "Deduplikacja & NaN protection",
+    badge: "10 Banków & Deduplikacja",
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Moduł Transakcji odpowiada za śledzenie każdego przepływu pieniężnego. Oferuje inteligentne dopasowywanie kategorii, obsługę tagów oraz wbudowany bezpłatny importer wyciągów z banku.
+          Moduł Transakcji oferuje inteligentne dopasowywanie kategorii, obsługę tagów oraz wbudowany bezpłatny importer wyciągów z 10 banków w Polsce.
         </p>
 
-        <MockScreenShot
-          title="Procedura importu wyciągu CSV z banku"
-          badge="Proces importu"
-          steps={[
-            { step: 1, label: "Przycisk Importu", description: "Kliknij 'Importuj CSV' na liście transakcji." },
-            { step: 2, label: "Wybór/Wklejenie", description: "Upuść plik CSV lub wklej treść wyciągu." },
-            { step: 3, label: "Automatyczny Dedupe", description: "System porównuje ID i pomija transakcje już wcześniej wczytane." },
-            { step: 4, label: "Sanity Check (NaN)", description: "Niepoprawne kwoty numeryczne są automatycznie odrzucane." }
-          ]}
-        >
-          <div className="bg-surface p-4 rounded-xl border border-border/50 space-y-3">
-            <div className="flex items-center justify-between text-xs font-medium text-text-muted">
-              <span className="text-text-main">Wyciąg_Bankowy_2026.csv</span>
-              <span>Wykryto 12 transakcji</span>
-            </div>
-            <div className="bg-bg-base p-3 rounded-lg font-mono text-xs text-text-muted border border-border/30 space-y-1.5">
-              <div className="text-text-main">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Zapisano)</div>
-              <div className="text-text-muted">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Pominięto — Duplikat)</div>
-              <div className="text-text-muted">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
-            </div>
-          </div>
-        </MockScreenShot>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 my-2 text-center text-xs font-bold text-text-main">
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">mBank</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">PKO BP</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">ING Śląski</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Santander</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Millennium</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Bank Pekao</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Alior Bank</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">BNP Paribas</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Revolut</div>
+          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Format ogólny</div>
+        </div>
 
         <h4 className="font-bold text-text-main">Mechanizm ochrony danych w imporcie CSV:</h4>
         <ul className="list-disc pl-5 space-y-2 text-xs text-text-faint">
-          <li><strong>Ochrona przed podwójnym importem (Deduplikacja):</strong> Gdy importujesz ten sam plik CSV drugi raz, Saldo rozpoznaje istniejące Identyfikatory transakcji i nie dubluje wpisów.</li>
-          <li><strong>Sprawdzanie poprawności numerycznej:</strong> Jeśli wyciąg zawiera uszkodzone lub nieczytelne kwoty (np. tekstowe znaki zapytania zamienione na NaN), transakcja zostaje bezpiecznie odrzucona.</li>
-          <li><strong>Szybka automatyzacja:</strong> Zdefiniowane słowa kluczowe (np. "Orlen", "Biedronka") przypiszą transakcje do właściwych kategorii w tle, oszczędzając czas.</li>
+          <li><strong>Automatyczna detekcja kolumn i separatorów:</strong> Parser rozpoznaje przecinki, średniki oraz formaty kwot z kropką lub przecinkiem dziesiętnym.</li>
+          <li><strong>Ochrona przed duplikatami:</strong> System porównuje ID i kwoty, uniemożliwiając powtórne zaksięgowanie tej samej operacji.</li>
+          <li><strong>Wielowalutowy import:</strong> Wyciągi w walutach obcych są automatycznie oznaczane właściwym kodem walutowym.</li>
         </ul>
       </div>
     )
   },
   {
     id: "payments",
-    cat: "Rachunki i Kalendarz",
-    title: "Płatności, Subskrypcje i integracja z Kalendarzem Google",
+    cat: "Rachunki i Timeline",
+    title: "4 Filary Horyzontów Zobowiązań i Harmonogram Cashflow",
     icon: <Clock className="w-5 h-5" />,
+    badge: "Cashflow Horizon",
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane na osi czasu z wyraźnym oznaczeniem dni pozostałych do terminu wymagalności.
+          Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane w podziale na 4 horyzonty czasowe:
         </p>
 
-        <div className="bg-brand-subtle border border-brand/20 p-4 rounded-xl text-xs sm:text-sm text-brand space-y-2">
-          <div className="font-bold flex items-center gap-1.5 text-sm">
-            <Calendar className="w-4 h-4" /> Integracja z Kalendarzem Google
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-medium">
+          <div className="p-3 bg-danger-subtle text-danger border border-danger/20 rounded-xl">
+            <span className="font-bold block mb-1">🔴 Zaległe</span>
+            Opłaty po terminie wymagające natychmiastowej spłaty.
           </div>
-          <p>
-            Przy każdej płatności znajduje się przycisk <strong>Dodaj do Kalendarza</strong>. Kliknięcie otwiera formularz dodawania wydarzenia w Google Calendar z przygotowanym tytułem, kwotą i przypomnieniem w dniu płatności!
-          </p>
+          <div className="p-3 bg-warning-subtle text-warning border border-warning/20 rounded-xl">
+            <span className="font-bold block mb-1">🟡 Na dzisiaj</span>
+            Płatności przypadające dokładnie na dzień dzisiejszy.
+          </div>
+          <div className="p-3 bg-brand-subtle text-brand border border-brand/20 rounded-xl">
+            <span className="font-bold block mb-1">🟢 Najbliższe 7 dni</span>
+            Łączne zobowiązania bieżącego tygodnia.
+          </div>
+          <div className="p-3 bg-surface-2 text-text-main border border-border rounded-xl">
+            <span className="font-bold block mb-1">🔵 Najbliższe 30 dni</span>
+            Miesięczna perspektywa obciążeń budżetowych.
+          </div>
         </div>
 
-        <MockScreenShot
-          title="Filtrowanie horyzontu czasowego i podsumowanie tygodnia"
-          badge="Zarządzanie Osią Czasu"
-          steps={[
-            { step: 1, label: "Filtry czasu", description: "Użyj filtrów (np. 'Ten tydzień'), by skupić się na najpilniejszych zobowiązaniach." },
-            { step: 2, label: "Podsumowanie 'Do zapłaty w tym tygodniu'", description: "Widżet automatycznie podlicza kwotę wymagalną w przeciągu najbliższych 7 dni." }
-          ]}
-        >
-          <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
-             <div className="flex gap-2 flex-wrap">
-                <span className="bg-text-main text-surface border border-border px-3 py-1 rounded-full text-xs font-semibold">Wszystkie</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Dzisiaj/Zaległe</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Ten tydzień</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Ten miesiąc</span>
-             </div>
-             <div className="bg-surface-2 border border-border/50 p-3.5 rounded-xl flex justify-between items-center">
-               <span className="text-text-main font-semibold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-text-muted" /> Do zapłaty w tym tygodniu</span>
-               <span className="text-text-main font-bold text-sm">450,00 [waluta]</span>
-             </div>
-          </div>
-        </MockScreenShot>
-
-        <h4 className="font-bold text-text-main mt-6">Cykl życia Płatności:</h4>
-        <div className="flex flex-col sm:flex-row items-center gap-2 text-xs font-medium">
-          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">1. Utworzenie Rachunku</div>
-          <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
-          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">2. Rezerwacja w Safe-to-Spend</div>
-          <ArrowRight className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
-          <div className="p-3 bg-surface text-text-main rounded-xl border border-border/50 text-center w-full">3. Przycisk "Opłacono"</div>
+        <div className="bg-surface border border-border/50 p-4 rounded-xl text-xs space-y-1.5">
+          <strong className="text-text-main block text-sm font-semibold">Harmonogram kumulatywny cashflow:</strong>
+          <p className="leading-relaxed">
+            W widoku osi czasu możesz podejrzeć narastającą sumę płatności dzień po dniu, co pozwala dokładnie zaplanować stan konta i uniknąć chwilowego braku płynności.
+          </p>
         </div>
       </div>
     )
@@ -288,53 +333,6 @@ export const helpSectionsData: HelpSectionData[] = [
           Budżety pozwalają nałożyć miesięczny limit na poszczególne kategorie wydatków (np. 1500 zł na Jedzenie, 500 zł na Rozrywkę).
         </p>
 
-        <div className="space-y-4 my-2 bg-surface border border-border/50 p-4 sm:p-5 rounded-2xl">
-          <div className="space-y-2">
-            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
-              <div className="flex items-center gap-2">
-                 <span className="text-text-main">Jedzenie i Spożywcze</span>
-                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
-                   W normie
-                 </span>
-              </div>
-              <span className="text-text-main">975 / 1500</span>
-            </div>
-            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-brand rounded-full w-[65%]" />
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-4 border-t border-border/50">
-            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
-              <div className="flex items-center gap-2">
-                 <span className="text-text-main">Transport i Paliwo</span>
-                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
-                   Uwaga
-                 </span>
-              </div>
-              <span className="text-text-main">420 / 500</span>
-            </div>
-            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-brand rounded-full w-[84%]" />
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-4 border-t border-border/50">
-            <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
-              <div className="flex items-center gap-2">
-                 <span className="text-text-main">Rozrywka i Wyjścia</span>
-                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
-                   Przekroczony
-                 </span>
-              </div>
-              <span className="text-text-main">575 / 500</span>
-            </div>
-            <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-brand rounded-full w-[100%]" />
-            </div>
-          </div>
-        </div>
-
         <p className="text-xs text-text-faint">
           Gdy wydatek w danej kategorii przekroczy 80% lub 100% ustalonego limitu, na Pulpicie pojawia się specjalny widget <strong>Ostrzeżenia Budżetowe</strong> z propozycją korekty.
         </p>
@@ -343,59 +341,15 @@ export const helpSectionsData: HelpSectionData[] = [
   },
   {
     id: "goals",
-    cat: "Kapitał i Rezerwy",
+    cat: "Cele i Inwestycje",
     title: "Moduł informacyjny: rezerwy i inwestycje długoterminowe",
     icon: <Target className="w-5 h-5" />,
     badge: "Poza budżetem",
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Osobny moduł informacyjny służący do monitorowania majątku długoterminowego. Zgromadzone tu środki nie powiększają wyniku bieżącego miesiąca ani budżetu operacyjnego. Moduł dzieli odkładany kapitał na trzy filary:
+          Osobny moduł informacyjny służący do monitorowania majątku długoterminowego. Zgromadzone tu środki nie powiększają wyniku bieżącego miesiąca ani budżetu operacyjnego.
         </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main">1. Cele terminowe</h5>
-            <p className="text-text-muted">Odizolowane pule środków z konkretną kwotą docelową i horyzontem czasowym.</p>
-          </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main">2. Rezerwa Bezpieczeństwa</h5>
-            <p className="text-text-muted">Fundusz na nieprzewidziane zdarzenia. Fundament stabilności chroniony przed konsumpcją.</p>
-          </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main">3. Kapitał Inwestycyjny</h5>
-            <p className="text-text-muted">Środki pracujące długoterminowo, całkowicie odłączone od operacyjnego portfela.</p>
-          </div>
-        </div>
-
-        <MockScreenShot
-          title="Odznaki postępu i statusy celów"
-          badge="Śledzenie Postępów"
-          steps={[
-            { step: 1, label: "Status i odznaka", description: "Otrzymujesz czytelną odznakę (np. 'W trakcie', 'Prawie u celu!', 'Osiągnięty 🎉')." },
-            { step: 2, label: "Wizualizacja paska", description: "Pasek postępu wypełnia się kolorem, a obok wyświetla się procent realizacji." }
-          ]}
-        >
-          <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
-             <div className="flex justify-between items-center">
-               <span className="font-semibold text-text-main text-sm">Nowy Mac</span>
-               <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-brand-subtle text-brand border-brand/20">
-                 W trakcie
-               </span>
-             </div>
-             <div className="space-y-2">
-               <div className="flex justify-between text-xs text-text-muted font-medium">
-                 <span>Zgromadzono: 2 400 z 8 000 [waluta]</span>
-                 <span className="font-semibold text-text-main">30%</span>
-               </div>
-               <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
-                 <div className="bg-brand h-full rounded-full w-[30%]" />
-               </div>
-             </div>
-          </div>
-        </MockScreenShot>
 
         <div className="bg-brand-subtle border border-brand/20 p-4 rounded-xl text-xs sm:text-sm text-brand flex items-start gap-3">
           <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
@@ -446,35 +400,18 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Twoje dane finansowe należą wyłącznie do Ciebie. Saldo nie korzysta z własnych serwerów bazy danych — zamiast tego zapisuje stan w przeglądarce (IndexedDB) oraz na Twoim prywatnym koncie Google Drive.
         </p>
-
-        <div className="space-y-3 text-xs sm:text-sm text-text-muted">
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <strong className="text-text-main block mb-1.5 font-semibold">1. Synchronizacja z Google Drive:</strong>
-            <p className="leading-relaxed">W Ustawieniach połącz się ze swoim kontem Google. Aplikacja utworzy ukryty plik kopii zapasowej w dedykowanym folderze aplikacji na Twoim własnym Dysku.</p>
-          </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <strong className="text-text-main block mb-1.5 font-semibold">2. Rozwiązywanie Konfliktów Synchronizacji:</strong>
-            <p className="leading-relaxed">Jeśli edytujesz dane na dwóch urządzeniach (np. na telefonie i komputerze), system wykryje różnicę wersji i wyświetli interaktywne okno <strong>Konflikt kopii zapasowej</strong>, pozwalając Ci wybrać najnowszą wersję.</p>
-          </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <strong className="text-text-main block mb-1.5 font-semibold">3. Eksport/Import pliku JSON (Offline):</strong>
-            <p className="leading-relaxed">Możesz w dowolnej chwili pobrać surowy plik danych <code className="bg-surface-2 border border-border/50 px-1.5 py-0.5 rounded text-text-main">.json</code> i przenieść go na dowolne urządzenie pendrive'em lub mailem.</p>
-          </div>
-        </div>
       </div>
     )
   },
   {
     id: "ai",
     cat: "Lokalne AI",
-    title: "Tryby pracy AI (None, Lokalne Ollama, Gemini) oraz Przyszłość",
+    title: "Tryby pracy AI (None, Lokalne Ollama, Gemini)",
     icon: <Sparkles className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Saldo wspiera 3 elastyczne tryby sztucznej inteligencji dopasowane do Twoich wymagań odnośnie prywatności:
+          Saldo wspiera elastyczne tryby sztucznej inteligencji dopasowane do Twoich wymagań odnośnie prywatności:
         </p>
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
@@ -487,45 +424,6 @@ export const helpSectionsData: HelpSectionData[] = [
             Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-surface px-1 py-0.5 rounded">http://localhost:11434</code>).
           </li>
         </ul>
-
-        {/* Step-by-step setup guide for Ollama */}
-        <div className="bg-surface text-text-main p-4 sm:p-5 rounded-2xl border border-border/50 space-y-5 font-sans">
-          <h4 className="font-semibold text-text-main text-sm sm:text-base flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-text-muted" /> Instrukcja konfiguracji Lokalnego AI (Ollama)
-          </h4>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-bg-base p-4 rounded-xl border border-border/50 space-y-3">
-              <span className="font-semibold text-text-main block text-sm">🍎 macOS (Apple Silicon & Intel)</span>
-              <ol className="list-decimal pl-4 space-y-2 text-text-muted text-xs sm:text-sm">
-                <li>Pobierz Ollama z <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-text-main hover:underline transition-all">ollama.com</a>.</li>
-                <li>Otwórz Terminal (<code className="text-text-main">Cmd + Spacja</code> ➔ Terminal).</li>
-                <li>Uruchom z obsługą CORS:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">OLLAMA_ORIGINS="*" ollama serve</code>
-                </li>
-                <li>W nowym oknie wpisz: <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs">ollama run llama3</code>.</li>
-              </ol>
-            </div>
-
-            <div className="bg-bg-base p-4 rounded-xl border border-border/50 space-y-3">
-              <span className="font-semibold text-text-main block text-sm">🪟 Windows (PowerShell / CMD)</span>
-              <ol className="list-decimal pl-4 space-y-2 text-text-muted text-xs sm:text-sm">
-                <li>Zainstaluj Ollama dla Windows.</li>
-                <li>Otwórz PowerShell i ustaw zmienną CORS:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">$env:OLLAMA_ORIGINS="*"</code>
-                </li>
-                <li>Uruchom model:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">ollama run llama3</code>
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl text-xs sm:text-sm text-text-muted">
-          <strong className="text-text-main block font-semibold mb-1.5">Planowane funkcje w przyszłych wersjach:</strong>
-          <p className="leading-relaxed">Chmurowe AI (Gemini OCR dla skanowania paragonów), automatyczna synchronizacja z bankami przez bezpieczny Open Banking (PSD2), obsługa wielu walut z przeliczaniem kursów NBP w czasie rzeczywistym oraz wieloosobowe budżetowanie live!</p>
-        </div>
       </div>
     )
   }
@@ -538,8 +436,20 @@ export interface FaqEntry {
 
 export const faqData: FaqEntry[] = [
   {
-    question: "Jak sprawdzić szczegóły na telefonie (tooltipy)?",
-    answer: "Przytrzymaj dłużej palec na wybranej ikonie akcji. Aplikacja pokaże dymek (tooltip) z opisem bez uruchamiania samego przycisku."
+    question: "Jak otworzyć Paletę Komend (Command Palette)?",
+    answer: "Naciśnij kombinację klawiszy Cmd+K (na komputerach Mac) lub Ctrl+K (na Windows/Linux), albo wciśnij klawisz slash '/'. Możesz też kliknąć przycisk ⌘K w górnym pasku aplikacji."
+  },
+  {
+    question: "Co oznacza wskaźnik Runway (Poduszka Płynności)?",
+    answer: "Runway to szacunkowa liczba miesięcy, przez które utrzymasz obecny standard życia wyłącznie z płynnych oszczędności (konto, cele, obligacje/poduszka), jeśli utracisz bieżące dochody. Wartość ≥ 6 miesięcy oznacza zdrowy, bezpieczny bufor."
+  },
+  {
+    question: "Skąd aplikacja pobiera kursy walut?",
+    answer: "Kursy są pobierane bezpośrednio z oficjalnego API Narodowego Banku Polskiego (Tabela A kursów średnich) i bezpiecznie zapisywane w pamięci lokalnej do pracy offline."
+  },
+  {
+    question: "Jakie banki obsługuje importer CSV 2.0?",
+    answer: "Importer posiada dedykowane presety dla 10 banków: mBank, PKO BP, ING, Santander, Bank Millennium, Bank Pekao, Alior Bank, BNP Paribas, Revolut oraz inteligentny profil Generic dopasowujący dowolny standardowy plik CSV."
   },
   {
     question: "Czy moje dane trafiają na Wasze serwery?",
@@ -548,13 +458,5 @@ export const faqData: FaqEntry[] = [
   {
     question: "Co się stanie, gdy zgubię kod PIN?",
     answer: "Kod PIN zabezpiecza dostęp do wybranego profilu. Możesz zresetować zapomniany PIN w Ustawieniach lub przywrócić niezabezpieczoną kopię zapasową z pliku JSON lub Google Drive."
-  },
-  {
-    question: "Dlaczego import CSV odrzucił niektóre wiersze?",
-    answer: "System posiada wbudowaną walidację unikania duplikatów oraz filtr usuwający błędne wartości (np. puste kwoty lub zakodowany tekst NaN), chroniąc spójność wyliczeń."
-  },
-  {
-    question: "Jak powiązać rachunek z Kalendarzem Google?",
-    answer: "Przejdź do zakładki Płatności i kliknij ikonę kalendarza obok wybranej płatności. Zostanie przygotowane wydarzenie ze szczegółami kwoty i terminu."
   }
 ];

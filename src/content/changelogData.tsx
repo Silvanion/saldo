@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v0.9.5",
+    date: "Sierpień 2026",
+    title: "Wielowalutowość NBP, Command Palette ⌘K, Runway & 4 Filary Cashflow",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Wielowalutowość & CSV 2.0] Importer wyciągów dla 10 banków (mBank, PKO, ING, Santander, Millennium, Pekao, Alior, BNP, Revolut, Generic) z auto-detekcją kolumn i walut oraz integracją z kursami średnimi NBP.",
+      "[Command Palette ⌘K] Globalna paleta komend i szybka wyszukiwarka (skrót Cmd+K / Ctrl+K lub /) — przeszukiwanie transakcji w czasie rzeczywistym, przełączanie profili i szybka nawigacja.",
+      "[Analityka Płynności & Runway] Kafel poduszki finansowej informujący na ile miesięcy wystarczy płynnych środków przy obecnym tempie wydatków (ze statusem: Bezpieczny, Umiarkowany, Krytyczny).",
+      "[Wskaźniki MoM & Reguła 50/30/20] Wskaźniki dynamiki miesiąc-do-miesiąca pod kartami przychodów i wydatków oraz interaktywny panel podziału budżetu 50/30/20 w module Analiz.",
+      "[4 Filary Horyzontów Płatności] Kompleksowy pasek horyzontów (Zaległe, Dzisiaj, 7 dni, 30 dni) w Timeline i Płatnościach z harmonogramem kumulatywnym cashflow.",
+      "[Hierarchia Dashboardu & Dark Polish] Zoptymalizowana kolejność widgetów od bilansu i poduszki po pilne terminy, usunięcie artefaktów wizualnych i neutralny grafitowy dark mode."
+    ]
+  },
+  {
     version: "v0.9.0",
     date: "Sierpień 2026",
     title: "Globalny Polish UX/UI i Nowe Tooltipy",
