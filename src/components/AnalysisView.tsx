@@ -9,20 +9,21 @@ import {
   TrendingUp,
   TrendingDown,
   ShieldCheck,
+  CreditCard,
   Target,
   Clock,
   ArrowUpRight,
   ArrowDownRight,
   Download,
-  AlertCircle,
-  CheckCircle2,
-  Info
+  Sparkles,
+  Zap
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 import {
   calculate503020,
   calculateRollingTrends,
-  calculateEmergencySimulator
+  calculateEmergencySimulator,
+  calculateDebtPayoffSimulator
 } from "../services/budgetCalculations";
 import { formatMoney } from "../utils/format";
 
@@ -36,8 +37,14 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
 
-  // Target simulator state (3, 6, 12 months)
+  // Strategic simulator mode ("cushion" vs "debt")
+  const [simulatorMode, setSimulatorMode] = useState<"cushion" | "debt">("cushion");
+
+  // Emergency cushion target (3, 6, 12 months)
   const [targetMonths, setTargetMonths] = useState<3 | 6 | 12>(6);
+
+  // Debt extra payment amount
+  const [extraDebtPayment, setExtraDebtPayment] = useState<number>(300);
 
   // Filter transactions for this month
   const thisMonthTransactions = useMemo(() => {
@@ -92,6 +99,11 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   const emergencySim = useMemo(() => {
     return calculateEmergencySimulator(profile, selectedDate, targetMonths);
   }, [profile, selectedDate, targetMonths]);
+
+  // Debt payoff simulator
+  const debtSim = useMemo(() => {
+    return calculateDebtPayoffSimulator(profile, selectedDate, extraDebtPayment);
+  }, [profile, selectedDate, extraDebtPayment]);
 
   // Category expense breakdown
   const categorySummary = useMemo(() => {
@@ -327,7 +339,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         </div>
       </div>
 
-      {/* 2-Column Grid: Rolling Trends (Left) & Emergency Cushion Simulator (Right) */}
+      {/* 2-Column Grid: Rolling Trends (Left) & Strategic Simulators (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Card 1: Multi-Month Rolling Trends & Category Drivers */}
@@ -427,88 +439,206 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </div>
         </div>
 
-        {/* Card 2: Interactive Emergency Cushion Simulator */}
-        <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="emergency-simulator-card">
-          <div className="flex items-center justify-between border-b border-border pb-3">
+        {/* Card 2: Interactive Strategic Simulator (Poduszka vs Spłata Zobowiązań) */}
+        <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="strategic-simulator-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4" />
+                {simulatorMode === "cushion" ? <ShieldCheck className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
               </div>
               <div>
-                <h3 className="text-sm font-bold text-text-main">Symulator poduszki bezpieczeństwa</h3>
-                <p className="text-[11px] text-text-muted">Kalkulator rezerwy w oparciu o miesięczny burn rate</p>
+                <h3 className="text-sm font-bold text-text-main">Symulator strategiczny</h3>
+                <p className="text-[11px] text-text-muted">
+                  {simulatorMode === "cushion" ? "Kalkulator rezerwy bezpieczeństwa" : "Plan i kaskada spłaty zadłużenia"}
+                </p>
               </div>
             </div>
 
-            {/* Target selector pills */}
-            <div className="flex bg-surface-2 p-1 rounded-xl border border-border">
-              {([3, 6, 12] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setTargetMonths(m)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    targetMonths === m
-                      ? "bg-brand text-text-inverse shadow-xs"
-                      : "text-text-muted hover:text-text-main"
-                  }`}
-                >
-                  {m}M
-                </button>
-              ))}
+            {/* Mode selector segmented toggle */}
+            <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start sm:self-auto">
+              <button
+                onClick={() => setSimulatorMode("cushion")}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  simulatorMode === "cushion"
+                    ? "bg-surface text-brand shadow-xs border border-border"
+                    : "text-text-muted hover:text-text-main"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Poduszka</span>
+              </button>
+              <button
+                onClick={() => setSimulatorMode("debt")}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  simulatorMode === "debt"
+                    ? "bg-surface text-brand shadow-xs border border-border"
+                    : "text-text-muted hover:text-text-main"
+                }`}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Spłata długu</span>
+              </button>
             </div>
           </div>
 
-          {/* Simulator Calculations */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-baseline">
-              <div>
-                <span className="text-[11px] text-text-faint font-medium block">Wymagany kapitał ({targetMonths} mc)</span>
-                <span className="text-lg font-black text-text-main">
-                  {formatMoney(emergencySim.requiredCapital, profile.currency || "PLN")}
-                </span>
+          {/* MODE 1: EMERGENCY CUSHION SIMULATOR */}
+          {simulatorMode === "cushion" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider">Docelowy horyzont:</span>
+                <div className="flex bg-surface-2 p-0.5 rounded-lg border border-border">
+                  {([3, 6, 12] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setTargetMonths(m)}
+                      className={`px-2.5 py-0.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                        targetMonths === m
+                          ? "bg-brand text-text-inverse shadow-xs"
+                          : "text-text-muted hover:text-text-main"
+                      }`}
+                    >
+                      {m}M
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-[11px] text-text-faint font-medium block">Płynne rezerwy</span>
-                <span className="text-sm font-bold text-brand">
-                  {formatMoney(emergencySim.currentLiquidCapital, profile.currency || "PLN")} ({emergencySim.progressPercent}%)
-                </span>
-              </div>
-            </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50">
-              <div
-                style={{ width: `${emergencySim.progressPercent}%` }}
-                className="h-full rounded-full bg-brand transition-all duration-500"
-              />
-            </div>
+              <div className="flex justify-between items-baseline">
+                <div>
+                  <span className="text-[11px] text-text-faint font-medium block">Wymagany kapitał ({targetMonths} mc)</span>
+                  <span className="text-lg font-black text-text-main">
+                    {formatMoney(emergencySim.requiredCapital, profile.currency || "PLN")}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] text-text-faint font-medium block">Płynne rezerwy</span>
+                  <span className="text-sm font-bold text-brand">
+                    {formatMoney(emergencySim.currentLiquidCapital, profile.currency || "PLN")} ({emergencySim.progressPercent}%)
+                  </span>
+                </div>
+              </div>
 
-            {/* Forecast Message / Status */}
-            <div className="p-3 rounded-xl border border-border bg-surface-2 flex items-start gap-2.5 text-xs">
-              <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                {emergencySim.status === "completed" ? (
-                  <span className="font-bold text-brand">
-                    🎉 Gratulacje! Twoje płynne rezerwy w 100% pokrywają poduszkę bezpieczeństwa na {targetMonths} miesięcy!
-                  </span>
-                ) : emergencySim.monthsToTarget !== null ? (
-                  <span>
-                    Brakująca kwota to <strong>{formatMoney(emergencySim.shortfall, profile.currency || "PLN")}</strong>. 
-                    Przy aktualnym tempie oszczędzania (+{formatMoney(emergencySim.currentMonthlySavings, profile.currency || "PLN")}/mc) 
-                    cel osiągniesz za ok. <strong className="text-brand">{emergencySim.monthsToTarget} {emergencySim.monthsToTarget === 1 ? "miesiąc" : emergencySim.monthsToTarget < 5 ? "miesiące" : "miesięcy"}</strong>.
-                  </span>
-                ) : emergencySim.status === "deficit" ? (
-                  <span className="text-danger font-medium">
-                    W bieżącym miesiącu występuje deficyt budżetowy. Zredukuj koszty, aby wznowić budowanie poduszki.
-                  </span>
-                ) : (
-                  <span className="text-text-muted">
-                    Brak nadwyżki finansowej w tym miesiącu. Wprowadź oszczędności, aby zobaczyć prognozę osiągnięcia celu.
-                  </span>
-                )}
+              {/* Progress Bar */}
+              <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50">
+                <div
+                  style={{ width: `${emergencySim.progressPercent}%` }}
+                  className="h-full rounded-full bg-brand transition-all duration-500"
+                />
+              </div>
+
+              {/* Forecast Message / Status */}
+              <div className="p-3 rounded-xl border border-border bg-surface-2 flex items-start gap-2.5 text-xs">
+                <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  {emergencySim.status === "completed" ? (
+                    <span className="font-bold text-brand">
+                      🎉 Gratulacje! Twoje płynne rezerwy w 100% pokrywają poduszkę bezpieczeństwa na {targetMonths} miesięcy!
+                    </span>
+                  ) : emergencySim.monthsToTarget !== null ? (
+                    <span>
+                      Brakująca kwota: <strong>{formatMoney(emergencySim.shortfall, profile.currency || "PLN")}</strong>. 
+                      Przy aktualnym tempie oszczędzania (+{formatMoney(emergencySim.currentMonthlySavings, profile.currency || "PLN")}/mc) 
+                      cel osiągniesz za ok. <strong className="text-brand">{emergencySim.monthsToTarget} {emergencySim.monthsToTarget === 1 ? "miesiąc" : emergencySim.monthsToTarget < 5 ? "miesiące" : "miesięcy"}</strong>.
+                    </span>
+                  ) : emergencySim.status === "deficit" ? (
+                    <span className="text-danger font-medium">
+                      W bieżącym miesiącu występuje deficyt budżetowy. Zredukuj koszty, aby wznowić budowanie poduszki.
+                    </span>
+                  ) : (
+                    <span className="text-text-muted">
+                      Brak nadwyżki finansowej w tym miesiącu. Wprowadź oszczędności, aby zobaczyć prognozę osiągnięcia celu.
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* MODE 2: DEBT PAYOFF SIMULATOR (SNOWBALL & ACCELERATION) */}
+          {simulatorMode === "debt" && (
+            <div className="space-y-3">
+              {debtSim.isDebtFree ? (
+                <div className="p-6 bg-brand-subtle/40 border border-brand/20 rounded-xl text-center space-y-1.5">
+                  <Sparkles className="w-6 h-6 text-brand mx-auto" />
+                  <p className="font-bold text-sm text-text-main">Brak aktywnych zobowiązań</p>
+                  <p className="text-xs text-text-muted">Wszystkie rachunki są opłacone i brak wykorzystanych limitów kredytowych.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-baseline">
+                    <div>
+                      <span className="text-[11px] text-text-faint font-medium block">Łączne zadłużenie ({debtSim.debtItemsCount} poz.)</span>
+                      <span className="text-lg font-black text-danger">
+                        {formatMoney(debtSim.totalDebt, profile.currency || "PLN")}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[11px] text-text-faint font-medium block">Dostępna nadwyżka</span>
+                      <span className="text-sm font-bold text-brand">
+                        +{formatMoney(debtSim.monthlyAvailableSurplus, profile.currency || "PLN")}/mc
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Extra Payment Selector */}
+                  <div className="p-3 bg-surface-2 rounded-xl border border-border space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-text-main flex items-center gap-1">
+                        <Zap className="w-3.5 h-3.5 text-brand" /> Dodatkowa nadpłata:
+                      </span>
+                      <span className="font-bold text-brand text-xs">+{formatMoney(extraDebtPayment, profile.currency || "PLN")}/mc</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {[100, 300, 500, 1000].map((val) => (
+                        <button
+                          key={val}
+                          onClick={() => setExtraDebtPayment(val)}
+                          className={`flex-1 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                            extraDebtPayment === val
+                              ? "bg-brand text-text-inverse border-brand"
+                              : "bg-surface text-text-muted border-border hover:bg-surface-offset"
+                          }`}
+                        >
+                          +{val}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Snowball Queue Preview */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+                      Kolejność spłaty (Kula Śnieżna — od najmniejszych sald):
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {debtSim.snowballQueue.map((item, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[11px] px-2 py-0.5 rounded-md bg-surface-2 border border-border text-text-muted font-medium"
+                        >
+                          <strong className="text-text-main">{idx + 1}.</strong> {item.name} ({formatMoney(item.amount, profile.currency || "PLN")})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Payoff Acceleration Insight */}
+                  <div className="p-3 rounded-xl border border-brand/20 bg-brand-subtle/50 flex items-start gap-2.5 text-xs">
+                    <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      Plan bazowy: <strong>{debtSim.baselineMonths} mc</strong>. 
+                      Z nadpłatą spłacisz całość w <strong className="text-brand">{debtSim.acceleratedMonths} mc</strong>. 
+                      {debtSim.monthsSaved > 0 ? (
+                        <span className="block font-bold text-brand mt-0.5">
+                          ⚡ Zyskujesz {debtSim.monthsSaved} {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

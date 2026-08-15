@@ -13,7 +13,8 @@ import {
   calculate503020,
   calculateNetWorth,
   calculateRollingTrends,
-  calculateEmergencySimulator
+  calculateEmergencySimulator,
+  calculateDebtPayoffSimulator
 } from "./services/budgetCalculations";
 import { Profile, RecurringRule, Transaction } from "./types";
 
@@ -869,6 +870,52 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       expect(sim.monthsToTarget).toBe(1);
       expect(sim.status).toBe("on_track");
     });
+
+    it("calculateDebtPayoffSimulator — computes snowball queue and acceleration savings", () => {
+      const selectedDate = new Date("2026-08-15T12:00:00");
+      const profileWithDebts: Profile = {
+        id: "p1",
+        name: "Test",
+        kind: "personal",
+        transactions: [
+          { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-01", currency: "PLN" },
+          { id: "t2", name: "Koszty", amount: 4000, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-08-05", currency: "PLN" }
+        ], // Surplus = 1000 PLN/mc
+        goals: [],
+        payments: [
+          { id: "pay1", name: "Czynsz zaległy", amount: 2000, dueDate: "2026-08-30", status: "Do opłacenia", currency: "PLN" },
+          { id: "pay2", name: "Internet", amount: 150, dueDate: "2026-08-20", status: "Do opłacenia", currency: "PLN" },
+          { id: "pay3", name: "Opłacony rachunek", amount: 500, dueDate: "2026-08-10", status: "Opłacono", currency: "PLN" }
+        ],
+        accounts: [
+          { id: "acc1", name: "Karta Kredytowa", bankName: "mBank", hasCreditLimit: true, creditLimit: 3850 }
+        ],
+        budgets: {},
+        investments: [],
+        currency: "PLN"
+      };
+
+      // Total Debt: 2000 (Czynsz) + 150 (Internet) + 3850 (Karta) = 6000 PLN
+      // Surplus = 1000 PLN/mc -> Baseline: 6000 / 1000 = 6 months
+      // With extraPayment = +1000 PLN/mc -> Total payment = 2000 PLN/mc -> Accelerated: 6000 / 2000 = 3 months
+      // Months saved = 6 - 3 = 3 months
+      const result = calculateDebtPayoffSimulator(profileWithDebts, selectedDate, 1000);
+
+      expect(result.totalDebt).toBe(6000);
+      expect(result.debtItemsCount).toBe(3);
+      expect(result.isDebtFree).toBe(false);
+      expect(result.monthlyAvailableSurplus).toBe(1000);
+      expect(result.baselineMonths).toBe(6);
+      expect(result.acceleratedMonths).toBe(3);
+      expect(result.monthsSaved).toBe(3);
+
+      // Snowball queue check (sorted by amount ascending: Internet 150 -> Czynsz 2000 -> Karta 3850)
+      expect(result.snowballQueue[0].name).toBe("Internet");
+      expect(result.snowballQueue[0].amount).toBe(150);
+      expect(result.snowballQueue[1].name).toBe("Czynsz zaległy");
+      expect(result.snowballQueue[2].name).toBe("Karta Kredytowa (Limit kredytowy)");
+    });
   });
 });
+
 
