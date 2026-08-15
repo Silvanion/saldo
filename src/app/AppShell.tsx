@@ -1,8 +1,9 @@
 
 import { useApp } from "./providers/AppContext";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
+import { CommandPaletteModal } from "../components/CommandPaletteModal";
 import {
   LayoutDashboard,
   History,
@@ -21,7 +22,8 @@ import {
   Database,
   Info,
   ArrowLeftRight,
-  LogOut
+  LogOut,
+  Search
 } from "lucide-react";
 
 export function AppShell({
@@ -34,9 +36,14 @@ export function AppShell({
   onOpenAiChatModal?: () => void;
 }) {
   const {
+    state,
     activeView, setActiveView,
     activeProfile,
     handleSwitchProfile,
+    handleSelectProfile,
+    handleExportData,
+    theme,
+    handleThemeChange,
     isMobileMenuOpen, setIsMobileMenuOpen,
     isOnline,
     isSyncing,
@@ -53,6 +60,30 @@ export function AppShell({
   } = useApp();
 
   const [showDemoBanner, setShowDemoBanner] = useState(true);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global keyboard shortcut listener for Command Palette (Cmd+K / Ctrl+K / "/")
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      if (
+        e.key === "/" &&
+        !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName) &&
+        !(e.target as HTMLElement)?.isContentEditable
+      ) {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Format active weekday date for header
   const getTodayFormatted = () => {
@@ -340,6 +371,20 @@ export function AppShell({
                 <span>Zsynchronizowany</span>
               </div>
             )}
+            {/* Command Palette Trigger Button */}
+            <button
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="flex items-center gap-2 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-open-command-palette"
+              title="Wyszukaj lub uruchom polecenie (⌘K / /)"
+            >
+              <Search className="w-3.5 h-3.5 text-brand" />
+              <span className="hidden md:inline">Szukaj...</span>
+              <kbd className="hidden sm:inline-flex items-center text-[10px] font-mono font-bold bg-surface-2 border border-border text-text-faint px-1.5 py-0.5 rounded shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
             {activeProfile && (
               <button
                 onClick={handleSwitchProfile}
@@ -433,6 +478,23 @@ export function AppShell({
           <span className="absolute -top-10 right-0 bg-surface-offset text-text-main text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
         </button>
       )}
+
+      {/* Command Palette Modal */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        activeProfile={activeProfile}
+        profiles={state?.profiles || []}
+        activeView={activeView}
+        setActiveView={setActiveView}
+        onSelectProfile={(id) => handleSelectProfile(id)}
+        onOpenTransactionModal={(tx) => openModal("transaction", tx)}
+        onOpenPaymentModal={() => openModal("payment")}
+        onOpenGoalModal={() => openModal("goal")}
+        onExportData={handleExportData}
+        theme={theme === "dark" ? "dark" : "light"}
+        onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+      />
 
     </div>
   );

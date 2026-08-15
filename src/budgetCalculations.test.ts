@@ -7,9 +7,12 @@ import {
   calculateEmergencyLimit,
   calculateInvestmentCushion,
   getUnpaidAndUrgentPayments,
-  calculateBudgetSummary
+  calculateBudgetSummary,
+  calculateRunway,
+  calculateMoMTrends,
+  calculate503020
 } from "./services/budgetCalculations";
-import { Profile, RecurringRule } from "./types";
+import { Profile, RecurringRule, Transaction } from "./types";
 
 describe("KROK 8A — Bezpieczna kwota do wydania", () => {
   const baseProfile: Profile = {
@@ -612,6 +615,138 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       const res = calculateBudgetSummary(budgets, categorySpentMap, categories);
       expect(res.totalPlannedBudget).toBe(700);
       expect(res.totalActualSpentInBudget).toBe(300);
+    });
+  });
+
+  describe("EPIC 2 — Analytics Foundation (Runway, MoM, 50/30/20)", () => {
+    it("calculateRunway — poprawnie wylicza poduszkę finansową i statusy", () => {
+      // 1. Null profile
+      expect(calculateRunway(null)).toEqual({
+        liquidAssets: 0,
+        avgMonthlyExpenses: 0,
+        runwayMonths: 0,
+        status: "critical"
+      });
+
+      // 2. Profile with income only (no expenses)
+      const noExpensesProfile: Profile = {
+        id: "p-no-exp",
+        name: "Test",
+        kind: "personal",
+        currency: "PLN",
+        budgets: {},
+        transactions: [
+          { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Praca", account: "Konto", isoDate: "2026-07-01", currency: "PLN" }
+        ],
+        payments: [],
+        goals: [],
+        investments: []
+      };
+      const noExpRes = calculateRunway(noExpensesProfile);
+      expect(noExpRes.liquidAssets).toBe(5000);
+      expect(noExpRes.runwayMonths).toBe(Infinity);
+      expect(noExpRes.status).toBe("infinite");
+
+      // 3. Healthy runway (6+ months)
+      const healthyProfile: Profile = {
+        id: "p-healthy",
+        name: "Healthy",
+        kind: "personal",
+        currency: "PLN",
+        budgets: {},
+        transactions: [
+          { id: "t1", name: "Saldo początkowe", amount: 20000, type: "income", category: "Inne", account: "Konto", isoDate: "2026-06-01", currency: "PLN" },
+          { id: "t2", name: "Czerwiec wydatki", amount: 2000, type: "expense", category: "Żywność", account: "Konto", isoDate: "2026-06-15", currency: "PLN" },
+          { id: "t3", name: "Lipiec wydatki", amount: 2000, type: "expense", category: "Żywność", account: "Konto", isoDate: "2026-07-15", currency: "PLN" }
+        ],
+        payments: [],
+        goals: [
+          { id: "g1", name: "Poduszka", target: 10000, saved: 4000, currency: "PLN" }
+        ],
+        investments: [
+          { id: "i1", name: "Obligacje skarbowe", amount: 6000, type: "Poduszka finansowa", isoDate: "2026-01-01", currency: "PLN" }
+        ]
+      };
+      // Liquid assets = (20000 - 4000) + 4000 (goal) + 6000 (cushion) = 26000
+      // Avg monthly expense = (2000 + 2000) / 2 = 2000
+      // Runway = 26000 / 2000 = 13 months -> healthy
+      const healthyRes = calculateRunway(healthyProfile, 3);
+      expect(healthyRes.liquidAssets).toBe(26000);
+      expect(healthyRes.avgMonthlyExpenses).toBe(2000);
+      expect(healthyRes.runwayMonths).toBe(13);
+      expect(healthyRes.status).toBe("healthy");
+
+      // 4. Critical runway (< 3 months)
+      const criticalProfile: Profile = {
+        id: "p-crit",
+        name: "Critical",
+        kind: "personal",
+        currency: "PLN",
+        budgets: {},
+        transactions: [
+          { id: "t1", name: "Stan", amount: 3000, type: "income", category: "Inne", account: "Konto", isoDate: "2026-07-01", currency: "PLN" },
+          { id: "t2", name: "Wydatki", amount: 2000, type: "expense", category: "Dom", account: "Konto", isoDate: "2026-07-15", currency: "PLN" }
+        ],
+        payments: [],
+        goals: [],
+        investments: []
+      };
+      // Liquid assets = 1000, avg expense = 2000 -> 0.5 months -> critical
+      const critRes = calculateRunway(criticalProfile, 1);
+      expect(critRes.liquidAssets).toBe(1000);
+      expect(critRes.runwayMonths).toBe(0.5);
+      expect(critRes.status).toBe("critical");
+    });
+
+    it("calculateMoMTrends — wylicza porównanie miesiąc do miesiąca", () => {
+      const transactions: Transaction[] = [
+        // Previous month (June 2026)
+        { id: "t1", name: "Pensja Czerwiec", amount: 6000, type: "income", category: "Praca", account: "Konto", isoDate: "2026-06-01", currency: "PLN" },
+        { id: "t2", name: "Czynsz Czerwiec", amount: 2000, type: "expense", category: "Dom", account: "Konto", isoDate: "2026-06-05", currency: "PLN" },
+        // Current month (July 2026)
+        { id: "t3", name: "Pensja Lipiec", amount: 6500, type: "income", category: "Praca", account: "Konto", isoDate: "2026-07-01", currency: "PLN" },
+        { id: "t4", name: "Czynsz Lipiec", amount: 2500, type: "expense", category: "Dom", account: "Konto", isoDate: "2026-07-05", currency: "PLN" }
+      ];
+
+      const refDate = new Date("2026-07-15T12:00:00");
+      const trends = calculateMoMTrends(transactions, refDate);
+
+      expect(trends.currentMonthExpenses).toBe(2500);
+      expect(trends.previousMonthExpenses).toBe(2000);
+      expect(trends.expensesDiffAmount).toBe(500);
+      expect(trends.expensesDiffPercent).toBe(25); // +25% expenses
+
+      expect(trends.currentMonthIncome).toBe(6500);
+      expect(trends.previousMonthIncome).toBe(6000);
+      expect(trends.incomeDiffAmount).toBe(500);
+      expect(trends.incomeDiffPercent).toBe(8.33); // +8.33% income
+    });
+
+    it("calculate503020 — dzieli wydatki na Needs (50), Wants (30) i Savings (20)", () => {
+      const transactions: Transaction[] = [
+        // Needs: 500 zł (Żywność) + 1500 zł (Mieszkanie i Rachunki) = 2000 zł
+        { id: "t1", name: "Biedronka", amount: 500, type: "expense", category: "Żywność", account: "Konto", isoDate: "2026-08-05", currency: "PLN" },
+        { id: "t2", name: "Czynsz", amount: 1500, type: "expense", category: "Dom i rachunki", account: "Konto", isoDate: "2026-08-01", currency: "PLN" },
+        // Wants: 600 zł (Rozrywka) + 600 zł (Restauracje) = 1200 zł
+        { id: "t3", name: "Kino", amount: 600, type: "expense", category: "Rozrywka", account: "Konto", isoDate: "2026-08-10", currency: "PLN" },
+        { id: "t4", name: "Kolacja", amount: 600, type: "expense", category: "Restauracje", account: "Konto", isoDate: "2026-08-12", currency: "PLN" },
+        // Savings/Debt: 800 zł (Rata kredytu)
+        { id: "t5", name: "Rata", amount: 800, type: "expense", category: "Kredyt hipoteczny", account: "Konto", isoDate: "2026-08-15", currency: "PLN" }
+      ];
+
+      // Total = 2000 + 1200 + 800 = 4000 zł
+      // Needs % = 2000 / 4000 = 50%
+      // Wants % = 1200 / 4000 = 30%
+      // Savings % = 800 / 4000 = 20%
+      const res = calculate503020(transactions, new Date("2026-08-20T12:00:00"));
+
+      expect(res.totalExpense).toBe(4000);
+      expect(res.needs.amount).toBe(2000);
+      expect(res.needs.percentage).toBe(50);
+      expect(res.wants.amount).toBe(1200);
+      expect(res.wants.percentage).toBe(30);
+      expect(res.savings.amount).toBe(800);
+      expect(res.savings.percentage).toBe(20);
     });
   });
 });

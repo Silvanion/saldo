@@ -403,3 +403,184 @@ export function calculateBudgetSummary(
   });
   return { totalPlannedBudget, totalActualSpentInBudget };
 }
+
+export interface RunwayCalculation {
+  liquidAssets: number;
+  avgMonthlyExpenses: number;
+  runwayMonths: number;
+  status: "critical" | "warning" | "healthy" | "infinite";
+}
+
+export function calculateRunway(profile: Profile | null, monthsToAverage: number = 3): RunwayCalculation {
+  if (!profile) {
+    return { liquidAssets: 0, avgMonthlyExpenses: 0, runwayMonths: 0, status: "critical" };
+  }
+
+  const transactions = Array.isArray(profile.transactions) ? profile.transactions : [];
+  const currentBalance = transactions.reduce((sum, tx) => {
+    const amt = Number(tx.amount) || 0;
+    if (tx.type === "income") return sum + amt;
+    if (tx.type === "expense") return sum - amt;
+    return sum;
+  }, 0);
+
+  const goals = Array.isArray(profile.goals) ? profile.goals : [];
+  const reservedGoalsSum = goals.reduce((sum, g) => {
+    const saved = Number(g.saved) || 0;
+    return saved > 0 ? sum + saved : sum;
+  }, 0);
+
+  const investments = Array.isArray(profile.investments) ? profile.investments : [];
+  const investmentCushion = investments.reduce((sum, inv) => {
+    if (inv.type === "Poduszka finansowa" || /poduszka|oszczędn/i.test(inv.name || "")) {
+      return sum + (Number(inv.amount) || 0);
+    }
+    return sum;
+  }, 0);
+
+  const liquidAssets = Math.max(0, roundCurrency(currentBalance + reservedGoalsSum + investmentCushion));
+
+  // Compute average monthly expenses across last N calendar months with data
+  const monthExpenseMap: Record<string, number> = {};
+  for (const tx of transactions) {
+    if (tx.type === "expense" && tx.isoDate) {
+      const monthKey = tx.isoDate.slice(0, 7); // "YYYY-MM"
+      monthExpenseMap[monthKey] = (monthExpenseMap[monthKey] || 0) + (Number(tx.amount) || 0);
+    }
+  }
+
+  const sortedMonths = Object.keys(monthExpenseMap).sort().reverse().slice(0, Math.max(1, monthsToAverage));
+  let avgMonthlyExpenses = 0;
+  if (sortedMonths.length > 0) {
+    const sumExpenses = sortedMonths.reduce((sum, m) => sum + (monthExpenseMap[m] || 0), 0);
+    avgMonthlyExpenses = roundCurrency(sumExpenses / sortedMonths.length);
+  }
+
+  if (avgMonthlyExpenses <= 0) {
+    return {
+      liquidAssets,
+      avgMonthlyExpenses: 0,
+      runwayMonths: Infinity,
+      status: "infinite"
+    };
+  }
+
+  const runwayMonths = roundCurrency(liquidAssets / avgMonthlyExpenses);
+  let status: RunwayCalculation["status"] = "healthy";
+  if (runwayMonths < 3) {
+    status = "critical";
+  } else if (runwayMonths < 6) {
+    status = "warning";
+  }
+
+  return {
+    liquidAssets,
+    avgMonthlyExpenses,
+    runwayMonths,
+    status
+  };
+}
+
+export interface MoMTrend {
+  currentMonthExpenses: number;
+  previousMonthExpenses: number;
+  expensesDiffAmount: number;
+  expensesDiffPercent: number;
+  currentMonthIncome: number;
+  previousMonthIncome: number;
+  incomeDiffAmount: number;
+  incomeDiffPercent: number;
+}
+
+export function calculateMoMTrends(transactions: Transaction[] = [], referenceDate: Date = new Date()): MoMTrend {
+  const curYear = referenceDate.getFullYear();
+  const curMonth = referenceDate.getMonth();
+
+  const prevDate = new Date(curYear, curMonth - 1, 1);
+  const prevYear = prevDate.getFullYear();
+  const prevMonth = prevDate.getMonth();
+
+  let curExpenses = 0;
+  let curIncome = 0;
+  let prevExpenses = 0;
+  let prevIncome = 0;
+
+  for (const tx of transactions) {
+    if (!tx.isoDate) continue;
+    const d = new Date(`${tx.isoDate}T12:00:00`);
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const amt = Number(tx.amount) || 0;
+
+    if (y === curYear && m === curMonth) {
+      if (tx.type === "expense") curExpenses += amt;
+      if (tx.type === "income") curIncome += amt;
+    } else if (y === prevYear && m === prevMonth) {
+      if (tx.type === "expense") prevExpenses += amt;
+      if (tx.type === "income") prevIncome += amt;
+    }
+  }
+
+  const expensesDiffAmount = roundCurrency(curExpenses - prevExpenses);
+  const expensesDiffPercent = prevExpenses > 0 ? roundCurrency(((curExpenses - prevExpenses) / prevExpenses) * 100) : 0;
+
+  const incomeDiffAmount = roundCurrency(curIncome - prevIncome);
+  const incomeDiffPercent = prevIncome > 0 ? roundCurrency(((curIncome - prevIncome) / prevIncome) * 100) : 0;
+
+  return {
+    currentMonthExpenses: roundCurrency(curExpenses),
+    previousMonthExpenses: roundCurrency(prevExpenses),
+    expensesDiffAmount,
+    expensesDiffPercent,
+    currentMonthIncome: roundCurrency(curIncome),
+    previousMonthIncome: roundCurrency(prevIncome),
+    incomeDiffAmount,
+    incomeDiffPercent
+  };
+}
+
+export interface Breakdown503020 {
+  needs: { amount: number; percentage: number; targetPercentage: 50 };
+  wants: { amount: number; percentage: number; targetPercentage: 30 };
+  savings: { amount: number; percentage: number; targetPercentage: 20 };
+  totalExpense: number;
+}
+
+export function calculate503020(transactions: Transaction[] = [], selectedDate: Date = new Date()): Breakdown503020 {
+  const curYear = selectedDate.getFullYear();
+  const curMonth = selectedDate.getMonth();
+
+  let needsAmount = 0;
+  let wantsAmount = 0;
+  let savingsAmount = 0;
+
+  const NEEDS_PATTERN = /żywność|jedzenie|zakupy spożywcze|dom|mieszkanie|rachunki|opłaty|czynsz|prąd|gaz|woda|transport|paliwo|bilet|zdrowie|leki|apteka|edukacja|dzieci|ubezpieczenie|podatki/i;
+  const SAVINGS_PATTERN = /kredyt|raty|spłata|pożyczka|oszczędn|inwestycj|lokata|emerytur/i;
+
+  for (const tx of transactions) {
+    if (!tx.isoDate || tx.type !== "expense") continue;
+    const d = new Date(`${tx.isoDate}T12:00:00`);
+    if (d.getFullYear() !== curYear || d.getMonth() !== curMonth) continue;
+
+    const amt = Number(tx.amount) || 0;
+    const cat = (tx.category || "").toLowerCase();
+
+    if (SAVINGS_PATTERN.test(cat)) {
+      savingsAmount += amt;
+    } else if (NEEDS_PATTERN.test(cat)) {
+      needsAmount += amt;
+    } else {
+      wantsAmount += amt;
+    }
+  }
+
+  const totalExpense = needsAmount + wantsAmount + savingsAmount;
+  const toPercent = (amt: number) => (totalExpense > 0 ? Math.round((amt / totalExpense) * 100) : 0);
+
+  return {
+    needs: { amount: roundCurrency(needsAmount), percentage: toPercent(needsAmount), targetPercentage: 50 },
+    wants: { amount: roundCurrency(wantsAmount), percentage: toPercent(wantsAmount), targetPercentage: 30 },
+    savings: { amount: roundCurrency(savingsAmount), percentage: toPercent(savingsAmount), targetPercentage: 20 },
+    totalExpense: roundCurrency(totalExpense)
+  };
+}
