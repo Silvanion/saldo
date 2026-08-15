@@ -215,7 +215,7 @@ export function TransactionRulesManager({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-category-rules-card">
+    <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-category-rules-card">
       <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyzacja kategoryzacji</h3>
       <p className="text-sm text-text-muted mb-4 leading-relaxed">
         Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
@@ -522,7 +522,7 @@ export function SettingsView({
         
         {/* SIDEBAR NAVIGATION */}
         <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-2">
-          <div className="bg-surface rounded-2xl border border-border shadow-lg p-3">
+          <div className="bg-surface rounded-2xl border border-border shadow-sm p-3">
             <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none min-w-0">
               <button
                 onClick={() => setSettingsTab("all")}
@@ -583,7 +583,7 @@ export function SettingsView({
 
       {/* SECTION 1: PROFILES */}
       {(settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-profiles-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-profiles-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/30">
             <div>
               <div className="flex items-center gap-2">
@@ -872,7 +872,7 @@ export function SettingsView({
 
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-theme-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-theme-card">
         <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Motyw i wygląd aplikacji</h3>
         <p className="text-xs text-text-muted mb-5 leading-relaxed">
           Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji. Wybierz jasny motyw dla pełnej czytelności w dzień, ciemny dla ochrony oczu w nocy, lub pozwól systemowi na automatyczną zmianę.
@@ -943,7 +943,7 @@ export function SettingsView({
 
       {/* SECTION: AI PROVIDER SETTINGS */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-ai-provider-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-ai-provider-card">
         <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konfiguracja silnika AI</h3>
         <p className="text-xs text-text-muted mb-5 leading-relaxed">
           Wybierz dostawcę inteligencji dla kategoryzacji transakcji, analizy wyciągów oraz asystenta finansowego. Możesz wyłączyć AI, użyć lokalnego modelu (Ollama) lub bezpiecznej chmury.
@@ -1096,7 +1096,7 @@ export function SettingsView({
 
       {/* SECTION 2: PIN SECURITY */}
       {activeProfile && (settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-pin-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-pin-card">
           <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Zabezpieczenie aktywnego profilu</h3>
           <p className="text-sm text-text-muted mb-4 leading-relaxed">
             Dodaj kod PIN, aby zabezpieczyć swoje poufne transakcje i informacje budżetowe przed nieautoryzowanym wglądem innych użytkowników na tym urządzeniu.
@@ -1124,7 +1124,7 @@ export function SettingsView({
 
       {/* SECTION 3: GOOGLE DRIVE CLOUD INTEGRATION */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-google-drive-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-google-drive-card">
         <div className="flex items-center gap-2 mb-2">
           <Cloud className="w-5 h-5 text-brand" />
           <h3 className="text-base font-bold text-text-main">Kopia zapasowa w chmurze (Dysk Google)</h3>
@@ -1342,7 +1342,7 @@ export function SettingsView({
 
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
       {(settingsTab === "all" || settingsTab === "automation") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-recurring-rules-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-recurring-rules-card">
         <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyczne transakcje cykliczne</h3>
         <p className="text-sm text-text-muted mb-4 leading-relaxed">
           Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
@@ -1526,7 +1526,7 @@ export function SettingsView({
 
       {/* SECTION 4: SYNC & SECURITY */}
       {(settingsTab === "all" || settingsTab === "automation" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-sync-security-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-sync-security-card">
         <h3 className="text-base font-bold text-text-main mb-4 flex items-center gap-2">
           <Shield className="w-5 h-5 text-text-muted" />
           Synchronizacja i bezpieczeństwo
@@ -1732,7 +1732,7 @@ export function SettingsView({
 
       {/* SECTION 5: LOCAL FILES & RESET */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-lg p-6" id="settings-local-tools-card">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-local-tools-card">
         <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Lokalna kopia zapasowa i reset</h3>
         <p className="text-sm text-text-muted mb-4 leading-relaxed">
           Zarządzaj lokalnymi kopiami zapasowymi. Możesz zapisać plik JSON z całą bazą danych na dysku komputera/telefonu lub wczytać go bezpośrednio do pamięci urządzenia.
