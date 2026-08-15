@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { AppState } from "../../types";
+import { ConfirmPayload } from "../../uiTypes";
 import { getLocalDateIso } from "../../utils";
 import { validateAndMigrateState } from "../../utils/stateMigration";
 
@@ -14,6 +15,8 @@ interface UseDataSyncActionsProps {
   toggleAutoSync: (enabled: boolean) => void;
   backupToDriveManual: () => Promise<void>;
   restoreFromDriveManual: () => Promise<void>;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
+  openModal: (type: "confirm", payload: ConfirmPayload) => void;
 }
 
 export function useDataSyncActions({
@@ -26,7 +29,9 @@ export function useDataSyncActions({
   disconnectGoogle,
   toggleAutoSync,
   backupToDriveManual,
-  restoreFromDriveManual
+  restoreFromDriveManual,
+  showToast,
+  openModal
 }: UseDataSyncActionsProps) {
   const handleExportData = useCallback(() => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -41,46 +46,51 @@ export function useDataSyncActions({
   }, [state]);
 
   const handleResetData = useCallback(async () => {
-    // TODO: replace with app modal/toast system
-    const confirmed = window.confirm(
-      "OSTRZEŻENIE: Ta operacja usunie wszystkie dane profilów (transakcje, płatności, cele, budżety). Jesteś pewien?"
-    );
-    if (!confirmed) return;
-
-    try {
-      const res = await fetch("/api/state/reset", { method: "POST" });
-      if (res.ok) {
-        const result = await res.json();
-        makeUndoBackup();
-        saveState(result.data);
-        lockProfile();
-        setActiveView("dashboard");
-        alert("Baza danych została zresetowana do ustawień początkowych.");
+    openModal("confirm", {
+      title: "Reset bazy danych",
+      message: "OSTRZEŻENIE: Ta operacja usunie wszystkie dane profilów (transakcje, płatności, cele, budżety). Czy na pewno chcesz kontynuować?",
+      confirmLabel: "Zresetuj dane",
+      tone: "danger",
+      onConfirm: async () => {
+        try {
+          const res = await fetch("/api/state/reset", { method: "POST" });
+          if (res.ok) {
+            const result = await res.json();
+            makeUndoBackup();
+            saveState(result.data);
+            lockProfile();
+            setActiveView("dashboard");
+            showToast("Baza danych została zresetowana do ustawień początkowych.", "success");
+          }
+        } catch (err) {
+          console.error("Failed to reset data:", err);
+          showToast("Nie udało się zresetować bazy danych.", "error");
+        }
       }
-    } catch (err) {
-      console.error("Failed to reset data:", err);
-      alert("Nie udało się zresetować bazy danych.");
-    }
-  }, [makeUndoBackup, saveState, lockProfile, setActiveView]);
+    });
+  }, [openModal, makeUndoBackup, saveState, lockProfile, setActiveView, showToast]);
 
   const handleImportLocalData = useCallback(
     (importedState: AppState) => {
       if (!importedState || !Array.isArray(importedState.profiles)) {
-        alert("Błędna struktura pliku JSON. Import przerwany.");
+        showToast("Błędna struktura pliku JSON. Import przerwany.", "error");
         return;
       }
       const validated = validateAndMigrateState(importedState);
-      // TODO: replace with app modal/toast system
-      const confirmed = window.confirm(
-        "Czy chcesz zastąpić obecne dane danymi z pliku lokalnego? W razie potrzeby możesz cofnąć tę zmianę."
-      );
-      if (!confirmed) return;
 
-      makeUndoBackup();
-      saveState(validated);
-      alert("Kopia lokalna została pomyślnie wczytana!");
+      openModal("confirm", {
+        title: "Wczytanie kopii zapasowej",
+        message: "Czy chcesz zastąpić obecne dane danymi z pliku lokalnego? W razie potrzeby możesz cofnąć tę zmianę.",
+        confirmLabel: "Importuj i nadpisz",
+        tone: "warning",
+        onConfirm: () => {
+          makeUndoBackup();
+          saveState(validated);
+          showToast("Kopia lokalna została pomyślnie wczytana!", "success");
+        }
+      });
     },
-    [makeUndoBackup, saveState]
+    [openModal, makeUndoBackup, saveState, showToast]
   );
 
   const handleConnectGoogle = useCallback(async () => {
@@ -101,31 +111,46 @@ export function useDataSyncActions({
       try {
         await backupToDriveManual();
         if (!silent) {
-          alert("Baza budżetu została pomyślnie zapisana na Dysku Google!");
+          showToast(
+            "Baza budżetu została pomyślnie zapisana na Dysku Google!",
+            "success"
+          );
         }
       } catch (err: any) {
         if (!silent) {
-          alert(err.message || "Błąd zapisu na Dysku Google. Spróbuj ponownie później.");
+          showToast(
+            err.message ||
+              "Błąd zapisu na Dysku Google. Spróbuj ponownie później.",
+            "error"
+          );
         }
       }
     },
-    [backupToDriveManual]
+    [backupToDriveManual, showToast]
   );
 
   const handleLoadFromDrive = useCallback(async () => {
-    // TODO: replace with app modal/toast system
-    const confirmed = window.confirm(
-      "Czy na pewno chcesz pobrać plik 'saldo_budget.json' z Dysku Google i zastąpić całą lokalną bazę danych? Obecne lokalne dane zostaną trwale nadpisane."
-    );
-    if (!confirmed) return;
-
-    try {
-      await restoreFromDriveManual();
-      alert("Baza danych została pomyślnie przywrócona z Dysku Google!");
-    } catch (err: any) {
-      alert(err.message || "Nie udało się pobrać danych z Dysku Google.");
-    }
-  }, [restoreFromDriveManual]);
+    openModal("confirm", {
+      title: "Przywracanie z Dysku Google",
+      message: "Czy na pewno chcesz pobrać plik 'saldo_budget.json' z Dysku Google i zastąpić całą lokalną bazę danych? Obecne lokalne dane zostaną trwale nadpisane.",
+      confirmLabel: "Przywróć z Dysku",
+      tone: "danger",
+      onConfirm: async () => {
+        try {
+          await restoreFromDriveManual();
+          showToast(
+            "Baza danych została pomyślnie przywrócona z Dysku Google!",
+            "success"
+          );
+        } catch (err: any) {
+          showToast(
+            err.message || "Nie udało się pobrać danych z Dysku Google.",
+            "error"
+          );
+        }
+      }
+    });
+  }, [openModal, restoreFromDriveManual, showToast]);
 
   return {
     handleExportData,

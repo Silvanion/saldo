@@ -9,6 +9,7 @@ export function useModalManager() {
   function openModal(type: "goal" | "profile" | "pin" | "budget" | "aiChat" | "changelog"): void;
   function openModal(type: "goalDeposit", payload: import("../types").Goal): void;
   function openModal(type: "calendarAi", payload?: import("../types").Payment): void;
+  function openModal(type: "confirm", payload: import("../uiTypes").ConfirmPayload): void;
   function openModal(type: ModalType, payload?: any) {
     if (type === "goalDeposit") {
       setModalState({ type, payload });
@@ -17,6 +18,8 @@ export function useModalManager() {
     } else if (type === "transaction") {
       setModalState({ type, payload });
     } else if (type === "payment") {
+      setModalState({ type, payload });
+    } else if (type === "confirm") {
       setModalState({ type, payload });
     } else if (type) {
       setModalState({ type } as ModalState);

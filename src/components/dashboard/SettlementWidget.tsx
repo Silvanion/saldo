@@ -10,9 +10,10 @@ interface SettlementWidgetProps {
   profile: Profile;
   onAddSettlement?: (entry: { amount: number; isoDate: string; note?: string }) => void;
   onDeleteSettlement?: (settlementId: string) => void;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
-export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement }: SettlementWidgetProps) {
+export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement, showToast }: SettlementWidgetProps) {
   if (profile.kind !== 'shared') return null;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +45,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement 
     e.preventDefault();
     const val = parseFloat(amountStr.replace(',', '.'));
     if (isNaN(val) || val <= 0) {
-      alert("Proszę podać poprawną kwotę większą od zera.");
+      showToast("Proszę podać poprawną kwotę większą od zera.", "error");
       return;
     }
 

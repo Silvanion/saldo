@@ -71,7 +71,8 @@ export function AppViewRouter({
     handleImportLocalData,
     theme,
     handleThemeChange,
-    handleUpdateProfile
+    handleUpdateProfile,
+    showToast
   } = useApp();
 
   const onPrevMonth = handlePrevMonth;
@@ -128,6 +129,7 @@ export function AppViewRouter({
         return (
           <DashboardView
             profile={activeProfile}
+            showToast={showToast}
             selectedDate={selectedDate}
             onPrevMonth={onPrevMonth}
             onNextMonth={onNextMonth}
@@ -192,6 +194,7 @@ export function AppViewRouter({
       case "settings":
         return (
           <SettingsView
+            showToast={showToast}
             state={state}
             saveState={saveState}
             profiles={profiles}

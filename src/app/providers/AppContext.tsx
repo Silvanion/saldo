@@ -8,6 +8,7 @@ import { useProfileSecurity } from "../../hooks/useProfileSecurity";
 import { useAppActions } from "../../hooks/useAppActions";
 import { useModalManager } from "../../hooks/useModalManager";
 import { useTheme } from "../../hooks/useTheme";
+import { useToast } from "../../hooks/useToast";
 
 type AuthData = ReturnType<typeof useAuth>;
 type BudgetData = ReturnType<typeof useBudgetState>;
@@ -17,7 +18,8 @@ type AppActionsData = ReturnType<typeof useAppActions>;
 type ModalManagerData = ReturnType<typeof useModalManager>;
 
 type ThemeData = ReturnType<typeof useTheme>;
-export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSyncData, ProfileSecurityData, AppActionsData, ModalManagerData {
+type ToastData = ReturnType<typeof useToast>;
+export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSyncData, ProfileSecurityData, AppActionsData, ModalManagerData, ToastData {
   isDemoMode: boolean;
   setIsDemoMode: (val: boolean) => void;
   selectedDate: Date;
@@ -88,6 +90,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const modalData = useModalManager();
   const themeData = useTheme();
+  const toastData = useToast();
 
   const actionsData = useAppActions({
     state: budgetData.state,
@@ -102,7 +105,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toggleAutoSync,
     backupToDriveManual: driveSyncData.backupToDriveManual,
     restoreFromDriveManual: driveSyncData.restoreFromDriveManual,
-    setApiError: budgetData.setApiError
+    setApiError: budgetData.setApiError,
+    showToast: toastData.showToast,
+    openModal: modalData.openModal
   });
 
   const handlePrevMonth = () => {
@@ -139,6 +144,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ...actionsData,
     ...modalData,
     ...themeData,
+    ...toastData,
   };
 
   return (

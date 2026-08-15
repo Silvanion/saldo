@@ -15,6 +15,7 @@ interface Widget {
 }
 
 interface DashboardViewProps {
+  showToast: (msg: string, type?: "success" | "error" | "info") => void;
   profile: Profile;
   selectedDate: Date;
   onPrevMonth: () => void;
@@ -30,6 +31,7 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({
+  showToast,
   profile,
   selectedDate,
   onPrevMonth,
@@ -176,6 +178,7 @@ export function DashboardView({
         profile={profile}
         onAddSettlement={onAddSettlement}
         onDeleteSettlement={onDeleteSettlement}
+        showToast={showToast}
       />
 
       {isEditMode && (

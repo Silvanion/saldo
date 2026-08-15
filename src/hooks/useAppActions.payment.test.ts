@@ -80,7 +80,9 @@ describe("useAppActions - handleDeletePayment", () => {
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
         restoreFromDriveManual: vi.fn(),
-        setApiError: vi.fn()
+        setApiError: vi.fn(),
+        showToast: vi.fn(),
+        openModal: vi.fn()
       })
     );
 
@@ -121,7 +123,9 @@ describe("useAppActions - handleDeletePayment", () => {
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
         restoreFromDriveManual: vi.fn(),
-        setApiError: vi.fn()
+        setApiError: vi.fn(),
+        showToast: vi.fn(),
+        openModal: vi.fn()
       })
     );
 
@@ -162,7 +166,9 @@ describe("useAppActions - handleDeletePayment", () => {
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
         restoreFromDriveManual: vi.fn(),
-        setApiError: vi.fn()
+        setApiError: vi.fn(),
+        showToast: vi.fn(),
+        openModal: vi.fn()
       })
     );
 
@@ -198,7 +204,9 @@ describe("useAppActions - handleDeletePayment", () => {
         toggleAutoSync: vi.fn(),
         backupToDriveManual: vi.fn(),
         restoreFromDriveManual: vi.fn(),
-        setApiError: vi.fn()
+        setApiError: vi.fn(),
+        showToast: vi.fn(),
+        openModal: vi.fn()
       })
     );
 

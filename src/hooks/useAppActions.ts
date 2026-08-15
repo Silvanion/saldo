@@ -20,6 +20,8 @@ interface UseAppActionsProps {
   backupToDriveManual: () => Promise<void>;
   restoreFromDriveManual: () => Promise<void>;
   setApiError?: (message: string | null) => void;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
+  openModal: (type: "confirm", payload: import("../uiTypes").ConfirmPayload) => void;
 }
 
 export function useAppActions({
@@ -35,7 +37,9 @@ export function useAppActions({
   toggleAutoSync,
   backupToDriveManual,
   restoreFromDriveManual,
-  setApiError
+  setApiError,
+  showToast,
+  openModal
 }: UseAppActionsProps) {
   
   // Helper to update active profile safely
@@ -308,7 +312,9 @@ export function useAppActions({
     disconnectGoogle,
     toggleAutoSync,
     backupToDriveManual,
-    restoreFromDriveManual
+    restoreFromDriveManual,
+    showToast,
+    openModal
   });
 
   return {

@@ -8,6 +8,7 @@ import { checkAndNotifyPayments } from "../utils";
 import { AuthScreen } from "./AuthScreen";
 import { SecurityInfoModal } from "../components/SecurityInfoModal";
 import { PWABadge } from "../components/PWABadge";
+import { ToastContainer } from "../components/ToastContainer";
 
 export function AppContent() {
   const {
@@ -81,6 +82,7 @@ export function AppContent() {
           />
         )}
         <SecurityInfoModal />
+        <ToastContainer />
       </AppShell>
     </>
   );

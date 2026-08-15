@@ -15,6 +15,7 @@ import {
 import { CalendarReminderModal } from "../components/CalendarReminderModal";
 import { AiChatModal } from "../components/AiChatModal";
 import { DriveConflictModal } from "../components/DriveConflictModal";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 export function ModalManager() {
   const {
@@ -28,7 +29,8 @@ export function ModalManager() {
     canUseAiChat,
     driveConflictInfo,
     resolveDriveConflict,
-    closeDriveConflictModal
+    closeDriveConflictModal,
+    showToast
   } = useApp();
 
   const onSaveTransaction = (data: any) => {
@@ -86,6 +88,7 @@ export function ModalManager() {
         isOpen={modalState.type === "profile"}
         onClose={closeModal}
         onSave={onSaveProfile}
+        showToast={showToast}
       />
       <PinModal
         isOpen={modalState.type === "pin"}
@@ -126,6 +129,11 @@ export function ModalManager() {
         remoteState={driveConflictInfo?.remoteState || null}
         lastSyncedAt={driveConflictInfo?.lastSyncedAt || null}
         onResolve={resolveDriveConflict}
+      />
+      <ConfirmModal
+        isOpen={modalState.type === "confirm"}
+        onClose={closeModal}
+        payload={modalState.type === "confirm" ? modalState.payload : null}
       />
     </>
   );

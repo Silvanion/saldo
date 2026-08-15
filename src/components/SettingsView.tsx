@@ -38,8 +38,10 @@ import {
 import { generateCsvContent, downloadFile } from "../utils";
 import { generateReportPdf } from "../services/pdfGenerator";
 import { prepareStateForRemoteSave } from "../services/crypto";
+import { ConfirmModal } from "./ConfirmModal";
 
 interface SettingsViewProps {
+  showToast: (msg: string, type?: "success" | "error" | "info") => void;
   state: AppState;
   saveState: (s: AppState) => Promise<void>;
   profiles: Profile[];
@@ -296,6 +298,7 @@ export function TransactionRulesManager({
 }
 
 export function SettingsView({
+  showToast,
   state,
   saveState,
   profiles,
@@ -382,7 +385,7 @@ export function SettingsView({
     if (!editingProfileId || !editProfileData) return;
     if (!editProfileData.name.trim()) return;
     if (editProfileData.kind === "shared" && !editProfileData.partnerName.trim()) {
-      alert("Proszę podać imię partnera dla profilu wspólnego.");
+      showToast("Proszę podać imię partnera dla profilu wspólnego.", "error");
       return;
     }
     
@@ -413,7 +416,7 @@ export function SettingsView({
   const handleAddRecurringRule = (e: React.FormEvent) => {
     e.preventDefault();
     if (!recName.trim() || !recAmount || !recNextDate) {
-      alert("Proszę uzupełnić nazwę, kwotę i termin pierwszej płatności.");
+      showToast("Proszę uzupełnić nazwę, kwotę i termin pierwszej płatności.", "error");
       return;
     }
     const newRule: RecurringRule = {
@@ -483,7 +486,7 @@ export function SettingsView({
 
   const processFile = (file: File) => {
     if (!file.name.endsWith(".json")) {
-      alert("Proszę wybrać plik w formacie JSON (.json).");
+      showToast("Proszę wybrać plik w formacie JSON (.json).", "error");
       return;
     }
     const reader = new FileReader();
@@ -494,10 +497,10 @@ export function SettingsView({
         if (parsed && Array.isArray(parsed.profiles)) {
           setFilePreview(parsed);
         } else {
-          alert("Plik JSON nie zawiera prawidłowej bazy danych aplikacji Saldo.");
+          showToast("Plik JSON nie zawiera prawidłowej bazy danych aplikacji Saldo.", "error");
         }
       } catch (err) {
-        alert("Błąd dekodowania pliku JSON. Upewnij się, że plik nie jest uszkodzony.");
+        showToast("Błąd dekodowania pliku JSON. Upewnij się, że plik nie jest uszkodzony.", "error");
       }
     };
     reader.readAsText(file);
@@ -511,6 +514,7 @@ export function SettingsView({
   };
 
   const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
+  const [showExportConfirm, setShowExportConfirm] = useState(false);
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-16" id="settings-view-container">
@@ -1037,12 +1041,12 @@ export function SettingsView({
                     });
                     const data = await res.json();
                     if (res.ok) {
-                      alert("Połączenie udane! Lokalny serwer AI odpowiada prawidłowo.");
+                      showToast("Połączenie udane! Lokalny serwer AI odpowiada prawidłowo.", "success");
                     } else {
-                      alert("Błąd połączenia: " + (data.message || data.error || "Serwer lokalny niedostępny."));
+                      showToast("Błąd połączenia: " + (data.message || data.error || "Serwer lokalny niedostępny."), "error");
                     }
                   } catch (err: any) {
-                    alert("Błąd sieciowy: Nie udało się połączyć z backendem.");
+                    showToast("Błąd sieciowy: Nie udało się połączyć z backendem.", "error");
                   }
                 }}
                 className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
@@ -1842,7 +1846,7 @@ export function SettingsView({
                 >
                   📄 Pobierz raport PDF
                 </button>
-                <span className="text-[11px] text-text-muted text-center font-medium">
+                <span className="text-xs text-text-muted text-center font-medium">
                   Raport za: <strong className="text-text-main">{pdfMonthLabel} {pdfYear}</strong>
                 </span>
               </div>
@@ -1868,10 +1872,7 @@ export function SettingsView({
                     onOpenPinModal();
                     return;
                   }
-                  if (window.confirm("Ten plik będzie zawierał czytelne dane finansowe. Zapisz go w bezpiecznym miejscu.")) {
-                    const json = JSON.stringify(state, null, 2);
-                    downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
-                  }
+                  setShowExportConfirm(true);
                 }}
                 className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
@@ -1924,6 +1925,29 @@ export function SettingsView({
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showExportConfirm}
+        onClose={() => setShowExportConfirm(false)}
+        payload={
+          showExportConfirm
+            ? {
+                title: "Potwierdź eksport danych",
+                message: "Ten plik będzie zawierał czytelne dane finansowe. Zapisz go w bezpiecznym miejscu.",
+                confirmLabel: "Eksportuj",
+                cancelLabel: "Anuluj",
+                tone: "warning",
+                onConfirm: () => {
+                  const json = JSON.stringify(state, null, 2);
+                  downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
+                  if (onExportData) {
+                    onExportData();
+                  }
+                }
+              }
+            : null
+        }
+      />
     </div>
   );
 }

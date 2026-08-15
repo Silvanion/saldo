@@ -8,11 +8,12 @@ export interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: { name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string }) => void;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
 const AVATAR_OPTIONS = ["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"];
 
-export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
+export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
@@ -36,7 +37,7 @@ export function ProfileModal({ isOpen, onClose, onSave }: ProfileModalProps) {
     if (isSubmitting) return;
     if (!name.trim()) return;
     if (kind === "shared" && !partnerName.trim()) {
-      alert("Proszę podać imię partnera dla profilu wspólnego.");
+      showToast("Proszę podać imię partnera dla profilu wspólnego.", "error");
       return;
     }
     setIsSubmitting(true);

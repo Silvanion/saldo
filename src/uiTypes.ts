@@ -10,6 +10,15 @@ export type AppView =
   | "settings"
   | "help";
 
+export interface ConfirmPayload {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  tone?: "danger" | "warning" | "default";
+  onConfirm: () => void | Promise<void>;
+}
+
 export type ModalType =
   | "transaction"
   | "payment"
@@ -21,6 +30,7 @@ export type ModalType =
   | "calendarAi"
   | "aiChat"
   | "changelog"
+  | "confirm"
   | null;
 
 export type ModalState =
@@ -33,4 +43,6 @@ export type ModalState =
   | { type: "budget" }
   | { type: "calendarAi"; payload?: Payment }
   | { type: "aiChat" }
+  | { type: "changelog" }
+  | { type: "confirm"; payload: ConfirmPayload }
   | { type: null };
