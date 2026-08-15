@@ -52,6 +52,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [mapAmount, setMapAmount] = useState("");
   const [mapDate, setMapDate] = useState("");
   const [mapCategory, setMapCategory] = useState("");
+  const [mapCurrency, setMapCurrency] = useState("");
   const [defaultCategory, setDefaultCategory] = useState("Inne");
   const [defaultAccount, setDefaultAccount] = useState("Konto główne");
   const [typeStrategy, setTypeStrategy] = useState<"auto" | "expense" | "income">("auto");
@@ -90,6 +91,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     const result = parseAndMapCsv({
       rawCsvText: cleaned,
       presetId: selectedPresetId,
+      currency: activeProfile?.currency || "PLN",
       rules: activeProfile?.transactionRules || []
     });
 
@@ -102,6 +104,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     setMapAmount(autoCols.mapAmount);
     setMapDate(autoCols.mapDate);
     setMapCategory(autoCols.mapCategory);
+    setMapCurrency(autoCols.mapCurrency);
 
     setStep(2);
   };
@@ -150,9 +153,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       mapAmount,
       mapDate,
       mapCategory,
+      mapCurrency,
       defaultCategory,
       defaultAccount,
       typeStrategy,
+      currency: activeProfile?.currency || "PLN",
       rules: activeProfile?.transactionRules || []
     });
 
@@ -421,6 +426,17 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   </select>
                 </div>
                 <div className="space-y-1">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna waluty (opcjonalnie)</label>
+                  <select value={mapCurrency} onChange={(e) => setMapCurrency(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
+                    <option value="">-- Domyślna ({activeProfile?.currency || "PLN"}) --</option>
+                    {headers.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1 md:col-span-2">
                   <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
                   <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
                     {expenseCategories.concat(incomeCategories).map((c) => (
@@ -496,6 +512,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       <th className="py-2.5 px-3">Data</th>
                       <th className="py-2.5 px-3">Kategoria</th>
                       <th className="py-2.5 px-3">Konto</th>
+                      <th className="py-2.5 px-3">Waluta</th>
                       <th className="py-2.5 px-3 text-right">Kwota</th>
                     </tr>
                   </thead>
@@ -520,8 +537,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                           </span>
                         </td>
                         <td className="py-2 px-3 text-text-muted">{tx.account}</td>
+                        <td className="py-2 px-3">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-surface-2 border border-border text-text-muted uppercase">
+                            {tx.currency || activeProfile?.currency || "PLN"}
+                          </span>
+                        </td>
                         <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
-                          {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || state?.currencyPreference || "PLN")}
+                          {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
                         </td>
                       </tr>
                     ))}
