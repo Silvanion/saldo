@@ -101,24 +101,24 @@ export const helpSectionsData: HelpSectionData[] = [
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">1</div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Nawigacja</div>
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">1</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Nawigacja</div>
               <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
                 <LayoutDashboard className="w-4 h-4 text-text-muted" /> Pulpit & Transakcje
               </div>
             </div>
 
             <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">2</div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Wprowadzanie</div>
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">2</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Wprowadzanie</div>
               <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
                 <History className="w-4 h-4 text-text-muted" /> + Nowa transakcja
               </div>
             </div>
 
             <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-border/50">3</div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1">Stan bezpieczny</div>
+              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">3</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Stan bezpieczny</div>
               <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
                 <ShieldCheck className="w-4 h-4 text-text-muted" /> Limit: 2,450
               </div>
@@ -128,7 +128,7 @@ export const helpSectionsData: HelpSectionData[] = [
 
         <div className="space-y-3 text-sm text-text-muted">
           <h4 className="font-bold text-text-main text-base flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
+            <CheckCircle2 className="w-4 h-4 text-brand" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
           </h4>
           <ol className="list-decimal pl-5 space-y-2">
             <li><strong>Wprowadź swoje stałe płatności:</strong> W zakładce <em>Płatności</em> dodaj czynsz, prąd, ubezpieczenia i subskrypcje. Dzięki temu wskaźnik <em>Safe-to-Spend</em> od razu rezerwuje na nie fundusze.</li>
@@ -153,7 +153,7 @@ export const helpSectionsData: HelpSectionData[] = [
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
           <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
             <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" /> Safe-to-Spend (Bezpieczny limit)
+              <ShieldCheck className="w-4 h-4 text-brand" /> Safe-to-Spend (Bezpieczny limit)
             </h4>
             <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
               Formuła: <code className="bg-surface-2 border border-border/50 px-1.5 py-0.5 rounded text-text-main">Przychody – Zaksięgowane Wydatki – Nadchodzące Rachunki – Wpłaty na Cele</code>.
@@ -163,7 +163,7 @@ export const helpSectionsData: HelpSectionData[] = [
 
           <div className="p-4 sm:p-5 bg-surface border border-border/50 rounded-xl">
             <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <LineChart className="w-4 h-4 text-blue-500" /> Prognoza na koniec miesiąca
+              <LineChart className="w-4 h-4 text-brand" /> Prognoza na koniec miesiąca
             </h4>
             <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
               Analizuje średnie dzienne tempo wydatków w bieżącym miesiącu i prognozuje szacunkowe saldo na 30/31 dzień. Ostrzega, gdy przy obecnym tempie grozi Ci deficyt.
@@ -207,7 +207,7 @@ export const helpSectionsData: HelpSectionData[] = [
               <span className="text-text-main">Wyciąg_Bankowy_2026.csv</span>
               <span>Wykryto 12 transakcji</span>
             </div>
-            <div className="bg-bg-base p-3 rounded-lg font-mono text-[11px] text-text-muted border border-border/30 space-y-1.5">
+            <div className="bg-bg-base p-3 rounded-lg font-mono text-xs text-text-muted border border-border/30 space-y-1.5">
               <div className="text-text-main">✓ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Zapisano)</div>
               <div className="text-text-muted">⚠ [ID: tx-101] 2026-07-20 | Zakupy Spożywcze | 145.20 [waluta] (Pominięto — Duplikat)</div>
               <div className="text-text-muted">✕ [ID: tx-102] 2026-07-21 | Błędna Kwota | NaN (Odrzucono sanity-check)</div>
@@ -235,7 +235,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane na osi czasu z wyraźnym oznaczeniem dni pozostałych do terminu wymagalności.
         </p>
 
-        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-xs sm:text-sm text-amber-700 dark:text-amber-400 space-y-2">
+        <div className="bg-brand-subtle border border-brand/20 p-4 rounded-xl text-xs sm:text-sm text-brand space-y-2">
           <div className="font-bold flex items-center gap-1.5 text-sm">
             <Calendar className="w-4 h-4" /> Integracja z Kalendarzem Google
           </div>
@@ -254,10 +254,10 @@ export const helpSectionsData: HelpSectionData[] = [
         >
           <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
              <div className="flex gap-2 flex-wrap">
-                <span className="bg-text-main text-surface border border-border px-3 py-1 rounded-full text-[10px] font-semibold">Wszystkie</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Dzisiaj/Zaległe</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Ten tydzień</span>
-                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-[10px] font-semibold">Ten miesiąc</span>
+                <span className="bg-text-main text-surface border border-border px-3 py-1 rounded-full text-xs font-semibold">Wszystkie</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Dzisiaj/Zaległe</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Ten tydzień</span>
+                <span className="bg-surface text-text-muted border border-border/50 px-3 py-1 rounded-full text-xs font-semibold">Ten miesiąc</span>
              </div>
              <div className="bg-surface-2 border border-border/50 p-3.5 rounded-xl flex justify-between items-center">
                <span className="text-text-main font-semibold text-xs flex items-center gap-1.5"><Clock className="w-4 h-4 text-text-muted" /> Do zapłaty w tym tygodniu</span>
@@ -293,14 +293,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
                  <span className="text-text-main">Jedzenie i Spożywcze</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400">
+                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
                    W normie
                  </span>
               </div>
               <span className="text-text-main">975 / 1500</span>
             </div>
             <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
+              <div className="h-full bg-brand rounded-full w-[65%]" />
             </div>
           </div>
 
@@ -308,14 +308,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
                  <span className="text-text-main">Transport i Paliwo</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400">
+                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
                    Uwaga
                  </span>
               </div>
               <span className="text-text-main">420 / 500</span>
             </div>
             <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-amber-400 rounded-full w-[84%]" />
+              <div className="h-full bg-brand rounded-full w-[84%]" />
             </div>
           </div>
 
@@ -323,14 +323,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <div className="flex justify-between items-end text-xs font-semibold text-text-muted mb-1.5">
               <div className="flex items-center gap-2">
                  <span className="text-text-main">Rozrywka i Wyjścia</span>
-                 <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400">
+                 <span className="text-xs px-1.5 py-0.5 rounded-md border font-bold uppercase tracking-wider bg-brand-subtle text-brand border-brand/20">
                    Przekroczony
                  </span>
               </div>
               <span className="text-text-main">575 / 500</span>
             </div>
             <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-              <div className="h-full bg-rose-500 rounded-full w-[100%]" />
+              <div className="h-full bg-brand rounded-full w-[100%]" />
             </div>
           </div>
         </div>
@@ -381,7 +381,7 @@ export const helpSectionsData: HelpSectionData[] = [
           <div className="bg-surface border border-border/50 rounded-xl p-4 space-y-4">
              <div className="flex justify-between items-center">
                <span className="font-semibold text-text-main text-sm">Nowy Mac</span>
-               <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400">
+               <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-brand-subtle text-brand border-brand/20">
                  W trakcie
                </span>
              </div>
@@ -391,13 +391,13 @@ export const helpSectionsData: HelpSectionData[] = [
                  <span className="font-semibold text-text-main">30%</span>
                </div>
                <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
-                 <div className="bg-blue-500 h-full rounded-full w-[30%]" />
+                 <div className="bg-brand h-full rounded-full w-[30%]" />
                </div>
              </div>
           </div>
         </MockScreenShot>
 
-        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-xs sm:text-sm text-red-700 dark:text-red-400 flex items-start gap-3">
+        <div className="bg-brand-subtle border border-brand/20 p-4 rounded-xl text-xs sm:text-sm text-brand flex items-start gap-3">
           <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <strong className="block text-sm font-bold mb-1">Zasada ochrony zgromadzonych rezerw</strong>
@@ -501,9 +501,9 @@ export const helpSectionsData: HelpSectionData[] = [
                 <li>Pobierz Ollama z <a href="https://ollama.com" target="_blank" rel="noreferrer" className="text-text-main hover:underline transition-all">ollama.com</a>.</li>
                 <li>Otwórz Terminal (<code className="text-text-main">Cmd + Spacja</code> ➔ Terminal).</li>
                 <li>Uruchom z obsługą CORS:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">OLLAMA_ORIGINS="*" ollama serve</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">OLLAMA_ORIGINS="*" ollama serve</code>
                 </li>
-                <li>W nowym oknie wpisz: <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px]">ollama run llama3</code>.</li>
+                <li>W nowym oknie wpisz: <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs">ollama run llama3</code>.</li>
               </ol>
             </div>
 
@@ -512,10 +512,10 @@ export const helpSectionsData: HelpSectionData[] = [
               <ol className="list-decimal pl-4 space-y-2 text-text-muted text-xs sm:text-sm">
                 <li>Zainstaluj Ollama dla Windows.</li>
                 <li>Otwórz PowerShell i ustaw zmienną CORS:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">$env:OLLAMA_ORIGINS="*"</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">$env:OLLAMA_ORIGINS="*"</code>
                 </li>
                 <li>Uruchom model:<br />
-                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-[11px] inline-block mt-1.5">ollama run llama3</code>
+                  <code className="bg-surface-2 text-text-main border border-border/50 px-1.5 py-0.5 rounded font-mono text-xs inline-block mt-1.5">ollama run llama3</code>
                 </li>
               </ol>
             </div>

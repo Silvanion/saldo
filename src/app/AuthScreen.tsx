@@ -80,7 +80,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
               <Wallet className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-[34px] font-black text-text-main tracking-tight">saldo</h1>
+          <h1 className="text-4xl font-black text-text-main tracking-tight">saldo</h1>
           <p className="text-text-muted">Twój osobisty asystent finansowy</p>
         </div>
 

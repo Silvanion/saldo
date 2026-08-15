@@ -34,7 +34,7 @@ export function AppContent() {
   if (isGoogleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-base">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#137566]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
       </div>
     );
   }

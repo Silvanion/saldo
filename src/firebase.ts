@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
@@ -88,7 +88,23 @@ export const clearGoogleTokens = (): void => {
 
 export const getGoogleToken = (kind: GoogleScopeSet) => tokens[kind];
 
+const SESSION_PERSISTENCE_MIGRATION_KEY = "saldo-session-persistence-migrated-v1";
+
+const isSessionPersistenceMigrated = () =>
+  typeof localStorage !== "undefined" &&
+  localStorage.getItem(SESSION_PERSISTENCE_MIGRATION_KEY) === "true";
+
 let cachedUser: User | null = null;
+
+export const authPersistenceReady: Promise<void> =
+  authInstance?.app
+    ? setPersistence(authInstance, browserSessionPersistence).catch((error) => {
+        console.warn(
+          "Nie udało się ustawić sesyjnej persystencji Firebase Auth:",
+          error
+        );
+      })
+    : Promise.resolve();
 
 // Initialize Auth State Listener
 export const initAuth = (
@@ -96,17 +112,58 @@ export const initAuth = (
   onAuthFailure?: () => void
 ) => {
   if (!isFirebaseConfigured || !auth?.app) {
-    if (onAuthFailure) onAuthFailure();
+    onAuthFailure?.();
     return () => {};
   }
-  try {
+
+  let cancelled = false;
+  let unsubscribe: (() => void) | null = null;
+
+  authPersistenceReady.then(() => {
+    if (cancelled) return;
+
     if (typeof window !== "undefined") {
       getRedirectResult(auth).catch(() => {
-        // Ignore redirect check error when not returning from redirect
+        // Ignoruj brak wyniku redirectu
       });
     }
 
-    return onAuthStateChanged(auth, async (user: User | null) => {
+    if (cancelled) return;
+
+    unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      if (cancelled) return;
+
+      const migrated = isSessionPersistenceMigrated();
+
+      if (user && !migrated) {
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.warn("Nie udało się wykonać jednorazowej migracji persystencji sesji:", err);
+        } finally {
+          if (typeof localStorage !== "undefined") {
+            localStorage.setItem(
+              SESSION_PERSISTENCE_MIGRATION_KEY,
+              "true"
+            );
+          }
+
+          cachedUser = null;
+          tokens = { basic: null, drive: null, calendar: null };
+          onAuthFailure?.();
+        }
+
+        if (cancelled) return;
+        return;
+      }
+
+      if (!migrated && typeof localStorage !== "undefined") {
+        localStorage.setItem(
+          SESSION_PERSISTENCE_MIGRATION_KEY,
+          "true"
+        );
+      }
+
       cachedUser = user;
       if (user) {
         if (onAuthSuccess) onAuthSuccess(user, tokens.basic);
@@ -115,11 +172,15 @@ export const initAuth = (
         if (onAuthFailure) onAuthFailure();
       }
     });
-  } catch (err) {
-    console.warn("Błąd podczas nasłuchiwania stanu autoryzacji Firebase:", err);
-    if (onAuthFailure) onAuthFailure();
-    return () => {};
-  }
+  }).catch((err) => {
+    console.warn("Błąd podczas inicjalizacji persystencji Firebase:", err);
+    onAuthFailure?.();
+  });
+
+  return () => {
+    cancelled = true;
+    unsubscribe?.();
+  };
 };
 
 // Sign in with Google Popup (Basic)

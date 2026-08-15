@@ -9,7 +9,7 @@ export interface SecurityFeature {
 
 export const securityFeatures: SecurityFeature[] = [
   {
-    icon: <Lock className="w-5 h-5 text-text-faint shrink-0 mt-0.5" />,
+    icon: <Lock className="w-5 h-5 text-brand shrink-0 mt-0.5" />,
     title: "Szyfrowanie End-to-End",
     description: (
       <>
@@ -19,7 +19,7 @@ export const securityFeatures: SecurityFeature[] = [
     )
   },
   {
-    icon: <FileKey className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />,
+    icon: <FileKey className="w-5 h-5 text-brand shrink-0 mt-0.5" />,
     title: "Klucze Kryptograficzne",
     description: (
       <>
@@ -29,7 +29,7 @@ export const securityFeatures: SecurityFeature[] = [
     )
   },
   {
-    icon: <Database className="w-5 h-5 text-[#137566] shrink-0 mt-0.5" />,
+    icon: <Database className="w-5 h-5 text-brand shrink-0 mt-0.5" />,
     title: "Autozapis i Baza Danych",
     description: (
       <>
