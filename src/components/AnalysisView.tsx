@@ -2,8 +2,9 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Profile } from "../types";
 import { getMonthName, expenseCategories, budgetCategories } from "../utils";
 import { generateReportPdf } from "../services/pdfGenerator";
-import { Settings2, Check } from "lucide-react";
+import { Settings2, Check, Scale } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
+import { calculate503020 } from "../services/budgetCalculations";
 import { formatMoney } from "../utils/format";
 
 interface AnalysisViewProps {
@@ -75,6 +76,10 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
   const monthlyDigest = useMemo(() => {
     return generateMonthlyDigest(profile.transactions, currentYear, currentMonthIdx);
   }, [profile.transactions, currentYear, currentMonthIdx]);
+
+  const breakdown503020 = useMemo(() => {
+    return calculate503020(profile.transactions, selectedDate);
+  }, [profile.transactions, selectedDate]);
 
   // Category expense breakdown
   const categorySummary = useMemo(() => {
@@ -185,7 +190,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
     }
 
     return insights;
-  }, [totalIncome, savingsRate, savings, categorySummary, totalPlannedBudget, totalActualSpent]);
+  }, [totalIncome, savingsRate, savings, categorySummary, totalPlannedBudget, totalActualSpent, lastMonthExpense, expenseChange, totalExpense, profile.currency]);
 
   return (
     <div className="space-y-6 pb-12" id="analysis-view-container">
@@ -205,6 +210,94 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         >
           📥 Pobierz raport (PDF)
         </button>
+      </div>
+
+      {/* 50/30/20 Rule Breakdown Section */}
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-lg space-y-5">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-border pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <Scale className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+                Reguła 50 / 30 / 20 (Wzorzec Budżetowy)
+              </h3>
+              <p className="text-xs text-text-muted">
+                Zalecany podział: 50% Potrzeby (rachunki, jedzenie, dom), 30% Zachcianki (rozrywka, wyjścia), 20% Oszczędności i spłata długu.
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-mono font-bold bg-surface-2 px-2.5 py-1 rounded-md text-text-muted shrink-0">
+            Suma wydatków: {formatMoney(breakdown503020.totalExpense, profile.currency || "PLN")}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Needs (50%) */}
+          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-text-main">🟢 Potrzeby (Needs)</span>
+              <span className="text-text-muted font-bold">Cel: 50%</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xl font-black text-brand">{breakdown503020.needs.percentage}%</span>
+              <span className="text-xs font-bold text-text-muted">
+                {formatMoney(breakdown503020.needs.amount, profile.currency || "PLN")}
+              </span>
+            </div>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden">
+              <div
+                style={{ width: `${Math.min(100, breakdown503020.needs.percentage)}%` }}
+                className={`h-full rounded-full transition-all duration-300 ${
+                  breakdown503020.needs.percentage > 60 ? "bg-warning" : "bg-brand"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Wants (30%) */}
+          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-text-main">🔵 Zachcianki (Wants)</span>
+              <span className="text-text-muted font-bold">Cel: 30%</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xl font-black text-indigo-400">{breakdown503020.wants.percentage}%</span>
+              <span className="text-xs font-bold text-text-muted">
+                {formatMoney(breakdown503020.wants.amount, profile.currency || "PLN")}
+              </span>
+            </div>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden">
+              <div
+                style={{ width: `${Math.min(100, breakdown503020.wants.percentage)}%` }}
+                className={`h-full rounded-full transition-all duration-300 ${
+                  breakdown503020.wants.percentage > 40 ? "bg-danger" : "bg-indigo-400"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Savings (20%) */}
+          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-text-main">🟣 Oszczędności i Dług (Savings)</span>
+              <span className="text-text-muted font-bold">Cel: 20%</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xl font-black text-purple-400">{breakdown503020.savings.percentage}%</span>
+              <span className="text-xs font-bold text-text-muted">
+                {formatMoney(breakdown503020.savings.amount, profile.currency || "PLN")}
+              </span>
+            </div>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden">
+              <div
+                style={{ width: `${Math.min(100, breakdown503020.savings.percentage)}%` }}
+                className="h-full rounded-full bg-purple-400 transition-all duration-300"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Analysis body */}

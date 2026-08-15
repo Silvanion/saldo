@@ -88,4 +88,44 @@ describe("calculateDashboardMetrics", () => {
     const emptyResult = calculateDashboardMetrics(noBudgetsProfile, selectedDate, []);
     expect(emptyResult.budgetWarnings.length).toBe(0);
   });
+
+  it("calculates runway and momTrends correctly in dashboard metrics", () => {
+    const profile: Profile = {
+      id: "p3",
+      name: "Test Runway",
+      kind: "personal",
+      currency: "PLN",
+      budgets: {},
+      payments: [],
+      goals: [{ id: "g1", name: "Poduszka", target: 5000, saved: 2000, currency: "PLN" }],
+      investments: [{ id: "i1", name: "Obligacje", amount: 3000, type: "Poduszka finansowa", isoDate: "2026-01-01", currency: "PLN" }],
+      transactions: [
+        // Previous month (June 2026)
+        { id: "1", name: "Pensja Czerwiec", amount: 6000, type: "income", category: "Wynagrodzenie", account: "A1", isoDate: "2026-06-01", currency: "PLN" },
+        { id: "2", name: "Wydatki Czerwiec", amount: 1000, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-06-15", currency: "PLN" },
+        // Current month (July 2026)
+        { id: "3", name: "Pensja Lipiec", amount: 6500, type: "income", category: "Wynagrodzenie", account: "A1", isoDate: "2026-07-01", currency: "PLN" },
+        { id: "4", name: "Wydatki Lipiec", amount: 1200, type: "expense", category: "Żywność", account: "A1", isoDate: "2026-07-15", currency: "PLN" }
+      ]
+    };
+
+    const selectedDate = new Date("2026-07-15T12:00:00Z");
+    const result = calculateDashboardMetrics(profile, selectedDate, []);
+
+    // MoM Trends
+    expect(result.momTrends.currentMonthExpenses).toBe(1200);
+    expect(result.momTrends.previousMonthExpenses).toBe(1000);
+    expect(result.momTrends.expensesDiffPercent).toBe(20); // +20%
+    expect(result.momTrends.incomeDiffPercent).toBe(8.33); // +8.33%
+
+    // Runway
+    // Balance = (6000 - 1000) + (6500 - 1200) = 10300
+    // Liquid assets = 10300 + 2000 (goal) + 3000 (cushion) = 15300
+    // Avg monthly expenses = (1000 + 1200) / 2 = 1100
+    // Runway = 15300 / 1100 = 13.91 months -> healthy
+    expect(result.runway.liquidAssets).toBe(15300);
+    expect(result.runway.avgMonthlyExpenses).toBe(1100);
+    expect(result.runway.runwayMonths).toBe(13.91);
+    expect(result.runway.status).toBe("healthy");
+  });
 });

@@ -211,6 +211,8 @@ export function DashboardView({
                 investmentCushion={metrics.investmentCushion}
                 endOfMonthForecast={metrics.endOfMonthForecast}
                 safeBreakdown={metrics.safeBreakdown}
+                runway={metrics.runway}
+                momTrends={metrics.momTrends}
                 onChangeView={onChangeView}
               />
             );

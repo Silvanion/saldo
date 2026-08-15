@@ -9,8 +9,12 @@ import {
   calculateInvestmentCushion,
   getUnpaidAndUrgentPayments,
   calculateBudgetSummary,
+  calculateRunway,
+  calculateMoMTrends,
   SafeToSpendBreakdown,
-  BudgetWarning
+  BudgetWarning,
+  RunwayCalculation,
+  MoMTrend
 } from '../services/budgetCalculations';
 import { budgetCategories, monthsPl } from '../utils';
 
@@ -54,6 +58,8 @@ export interface DashboardMetrics {
   endOfMonthForecast: ReturnType<typeof calculateEndOfMonthForecast>;
   budgetWarnings: BudgetWarning[];
   safeBreakdown: SafeToSpendBreakdown;
+  runway: RunwayCalculation;
+  momTrends: MoMTrend;
   chartData: DashboardChartPoint[];
   recentTransactions: DashboardRecentTransaction[];
 }
@@ -113,6 +119,9 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
     .slice(0, 4);
 
+  const runway = calculateRunway(profile, 3);
+  const momTrends = calculateMoMTrends(transactions, selectedDate);
+
   return {
     totalIncome,
     totalExpense,
@@ -127,6 +136,8 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     endOfMonthForecast,
     budgetWarnings,
     safeBreakdown,
+    runway,
+    momTrends,
     chartData: mappedChartData,
     recentTransactions
   };

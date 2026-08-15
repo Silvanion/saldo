@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import { DelayedTooltip } from "./DelayedTooltip";
-import {} from "../../utils";
-import { SafeToSpendBreakdown } from "../../services/budgetCalculations";
+import { SafeToSpendBreakdown, RunwayCalculation, MoMTrend } from "../../services/budgetCalculations";
 import { formatMoney } from "../../utils/format";
 
 interface StatsWidgetProps {
@@ -13,6 +12,8 @@ interface StatsWidgetProps {
   investmentCushion: number;
   endOfMonthForecast: any;
   safeBreakdown: SafeToSpendBreakdown;
+  runway?: RunwayCalculation;
+  momTrends?: MoMTrend;
   onChangeView: (view: string) => void;
 }
 
@@ -25,6 +26,8 @@ export const StatsWidget = memo(function StatsWidget({
   investmentCushion,
   endOfMonthForecast,
   safeBreakdown,
+  runway,
+  momTrends,
   onChangeView
 }: StatsWidgetProps) {
   return (
@@ -32,7 +35,7 @@ export const StatsWidget = memo(function StatsWidget({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="widget-content-stats-grid">
         {/* Income Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
-          <div className="absolute inset-0  rounded-2xl pointer-events-none" />
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" />
           <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl text-xl font-bold shrink-0">
             ↗
           </span>
@@ -40,12 +43,22 @@ export const StatsWidget = memo(function StatsWidget({
           <h2 className="text-2xl font-bold text-brand mb-1 relative z-10 truncate pr-10" id="dash-income-total" title={formatMoney(totalIncome, currency)}>
             {formatMoney(totalIncome, currency)}
           </h2>
-          <small className="text-xs text-text-faint font-medium relative z-10 truncate block" title="W tym okresie rozliczeniowym">W tym okresie rozliczeniowym</small>
+          {momTrends && momTrends.previousMonthIncome > 0 ? (
+            <div className="flex items-center gap-1.5 relative z-10">
+              <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md border ${momTrends.incomeDiffPercent >= 0 ? "bg-brand-subtle text-brand border-brand/20" : "bg-danger-subtle text-danger border-danger/20"}`}>
+                {momTrends.incomeDiffPercent >= 0 ? "↗ +" : "↘ "}
+                {momTrends.incomeDiffPercent}% MoM
+              </span>
+              <small className="text-xs text-text-faint font-medium truncate">vs zeszły mies.</small>
+            </div>
+          ) : (
+            <small className="text-xs text-text-faint font-medium relative z-10 truncate block" title="W tym okresie rozliczeniowym">W tym okresie rozliczeniowym</small>
+          )}
         </div>
 
         {/* Expense Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
-          <div className="absolute inset-0  rounded-2xl pointer-events-none" />
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" />
           <span className="absolute top-4 right-4 bg-danger-subtle text-danger p-2 rounded-xl text-xl font-bold shrink-0">
             ↙
           </span>
@@ -53,14 +66,24 @@ export const StatsWidget = memo(function StatsWidget({
           <h2 className="text-2xl font-bold text-danger mb-1 relative z-10 truncate pr-10" id="dash-expense-total" title={formatMoney(totalExpense, currency)}>
             {formatMoney(totalExpense, currency)}
           </h2>
-          <small className="text-xs text-text-faint font-medium relative z-10 truncate block" title={totalExpense > 0 ? "Wydatki w wybranym miesiącu" : "Brak zarejestrowanych wydatków"}>
-            {totalExpense > 0 ? "Wydatki w wybranym miesiącu" : "Brak zarejestrowanych wydatków"}
-          </small>
+          {momTrends && momTrends.previousMonthExpenses > 0 ? (
+            <div className="flex items-center gap-1.5 relative z-10">
+              <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md border ${momTrends.expensesDiffPercent <= 0 ? "bg-brand-subtle text-brand border-brand/20" : "bg-danger-subtle text-danger border-danger/20"}`}>
+                {momTrends.expensesDiffPercent > 0 ? "↗ +" : "↘ "}
+                {momTrends.expensesDiffPercent}% MoM
+              </span>
+              <small className="text-xs text-text-faint font-medium truncate">vs zeszły mies.</small>
+            </div>
+          ) : (
+            <small className="text-xs text-text-faint font-medium relative z-10 truncate block" title={totalExpense > 0 ? "Wydatki w wybranym miesiącu" : "Brak zarejestrowanych wydatków"}>
+              {totalExpense > 0 ? "Wydatki w wybranym miesiącu" : "Brak zarejestrowanych wydatków"}
+            </small>
+          )}
         </div>
 
         {/* Balance Card */}
         <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
-          <div className="absolute inset-0  rounded-2xl pointer-events-none" />
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" />
           <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl text-xl font-bold shrink-0">
             ◎
           </span>
@@ -96,7 +119,7 @@ export const StatsWidget = memo(function StatsWidget({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* End of Month Forecast Card */}
         <div className="border border-border bg-surface rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:bg-surface transition min-w-0">
-          <div className="absolute inset-0  pointer-events-none" />
+          <div className="absolute inset-0 pointer-events-none" />
           <div className="absolute -right-6 -top-6 text-9xl opacity-5 pointer-events-none shrink-0">📅</div>
           <div className="flex items-start justify-between relative z-10 min-w-0">
             <div className="min-w-0 flex-1">
@@ -147,7 +170,6 @@ export const StatsWidget = memo(function StatsWidget({
               : "bg-surface border-border hover:bg-surface"
           }`}
         >
-          {/* Glow/Gradient removed for clean solid look */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <span className="text-2xl shrink-0">🛡️</span>
@@ -204,6 +226,70 @@ export const StatsWidget = memo(function StatsWidget({
             </div>
           </div>
         </div>
+
+        {/* Runway & Liquidity Cushion Card */}
+        {runway && (
+          <div className="border border-border bg-surface rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:bg-surface transition min-w-0 lg:col-span-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <span className="text-2xl shrink-0">⏳</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                    <h3 className="text-sm font-bold text-text-main truncate" title="Runway — Poduszka Płynności Finansowej">
+                      Runway (Poduszka Płynności)
+                    </h3>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${
+                        runway.status === "healthy"
+                          ? "bg-brand-subtle text-brand border-brand/20"
+                          : runway.status === "warning"
+                          ? "bg-warning-subtle text-warning border-warning/20"
+                          : runway.status === "infinite"
+                          ? "bg-brand-subtle text-brand border-brand/20"
+                          : "bg-danger-subtle text-danger border-danger/20"
+                      }`}
+                    >
+                      {runway.status === "healthy" && "🟢 Bezpieczna (≥6 mies.)"}
+                      {runway.status === "warning" && "🟡 Umiarkowana (3-6 mies.)"}
+                      {runway.status === "critical" && "🔴 Krytyczna (<3 mies.)"}
+                      {runway.status === "infinite" && "♾️ Nielimitowana"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-muted font-medium truncate">
+                    Szacunek na ile miesięcy wystarczy środków przy średnich miesięcznych wydatkach
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onChangeView("analysis")}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all whitespace-nowrap shadow-sm border shrink-0 bg-surface-2 hover:bg-surface text-text-main border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                Szczegóły płynności →
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 pt-4 border-t border-border relative z-10">
+              <div className="bg-surface p-3.5 rounded-xl border border-border min-w-0 flex flex-col">
+                <span className="text-xs uppercase font-semibold text-text-muted block mb-1">Długość poduszki</span>
+                <span className="text-xl font-black text-text-main">
+                  {runway.runwayMonths === Infinity ? "Nielimitowana" : `${runway.runwayMonths} mies.`}
+                </span>
+              </div>
+              <div className="bg-surface p-3.5 rounded-xl border border-border min-w-0 flex flex-col">
+                <span className="text-xs uppercase font-semibold text-text-muted block mb-1">Płynne aktywa</span>
+                <span className="text-lg font-bold text-brand truncate" title={formatMoney(runway.liquidAssets, currency)}>
+                  {formatMoney(runway.liquidAssets, currency)}
+                </span>
+              </div>
+              <div className="bg-surface p-3.5 rounded-xl border border-border min-w-0 flex flex-col">
+                <span className="text-xs uppercase font-semibold text-text-muted block mb-1">Śr. miesięczne koszty</span>
+                <span className="text-lg font-bold text-danger truncate" title={formatMoney(runway.avgMonthlyExpenses, currency)}>
+                  {formatMoney(runway.avgMonthlyExpenses, currency)} / mies.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
