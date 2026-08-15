@@ -2,6 +2,12 @@ import { jsPDF } from "jspdf";
 import { Profile } from "../types";
 import { getMonthName, cleanPolishChars, expenseCategories, iconByCategory } from "../utils";
 import { formatMoney } from "../utils/format";
+import {
+  calculate503020,
+  calculateRollingTrends,
+  calculateEmergencySimulator,
+  calculateDebtPayoffSimulator
+} from "./budgetCalculations";
 
 /**
  * Generuje elegancki, spójny wizualnie raport PDF dla aplikacji Saldo.
@@ -265,6 +271,269 @@ export function generateReportPdf(
   }
 
   y += 4;
+
+  // --- SEKCJA ANALITYCZNA A: WZORZEC BUDŻETOWY 50/30/20 ---
+  const selectedDate = new Date(year, monthIndex, 15);
+  const breakdown503020 = calculate503020(profile.transactions, selectedDate);
+
+  if (y > 220) {
+    doc.addPage();
+    y = 20;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("WZORZEC BUDZETOWY 50 / 30 / 20"), 14, y);
+  y += 6;
+
+  const ruleCardW = 58;
+  const ruleCardH = 20;
+  const ruleGap = 4;
+
+  const rules503020 = [
+    { label: "POTRZEBY (50%)", pct: breakdown503020.needs.percentage, amount: breakdown503020.needs.amount, target: 50, color: colors.incomeGreen, bg: colors.incomeBg, border: [167, 243, 208] as [number, number, number] },
+    { label: "ZACHCIANKI (30%)", pct: breakdown503020.wants.percentage, amount: breakdown503020.wants.amount, target: 30, color: [99, 102, 241] as [number, number, number], bg: [238, 242, 255] as [number, number, number], border: [199, 210, 254] as [number, number, number] },
+    { label: "OSZCZEDNOSCI (20%)", pct: breakdown503020.savings.percentage, amount: breakdown503020.savings.amount, target: 20, color: [168, 85, 247] as [number, number, number], bg: [243, 232, 255] as [number, number, number], border: [216, 180, 254] as [number, number, number] }
+  ];
+
+  rules503020.forEach((rule, idx) => {
+    const rx = 14 + idx * (ruleCardW + ruleGap);
+
+    doc.setFillColor(...rule.bg);
+    doc.setDrawColor(...rule.border);
+    doc.rect(rx, y, ruleCardW, ruleCardH, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr(rule.label), rx + 3, y + 5);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(...rule.color);
+    doc.text(`${rule.pct}%`, rx + 3, y + 13);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr(formatMoney(rule.amount, currency)), rx + 3, y + 17.5);
+  });
+
+  y += ruleCardH + 4;
+
+  // Insight tekstowy
+  const overBudgetRules = rules503020.filter(r => r.pct > r.target + 10);
+  if (overBudgetRules.length > 0) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr(`Uwaga: ${overBudgetRules.map(r => r.label.split(" (")[0]).join(", ")} przekracza zalecany udzial procentowy.`), 14, y);
+    y += 6;
+  }
+
+  y += 4;
+
+  // --- SEKCJA ANALITYCZNA B: TRENDY WIELOMIESIECZNE & STEROWNIKI ---
+  const rollingTrends = calculateRollingTrends(profile.transactions, selectedDate);
+
+  if (y > 220) {
+    doc.addPage();
+    y = 20;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("TRENDY WIELOMIESIECZNE I STEROWNIKI KOSZTOW"), 14, y);
+  y += 6;
+
+  // 2 karty obok siebie: Średnia 3M + Zmiana MoM
+  const trendCardW = 89;
+  const trendCardH = 18;
+
+  // Karta: Średnia krocząca 3M
+  doc.setFillColor(...colors.surfaceLight);
+  doc.setDrawColor(...colors.borderLight);
+  doc.rect(14, y, trendCardW, trendCardH, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr("SREDNIA KROCZACA (3M)"), 17, y + 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr(formatMoney(rollingTrends.avg3MonthExpense, currency)), 17, y + 12);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  const avg3Color = rollingTrends.diffVs3MAvg > 0 ? colors.expenseCoral : colors.incomeGreen;
+  doc.setTextColor(...avg3Color);
+  const avg3Sign = rollingTrends.diffVs3MAvg > 0 ? "+" : "";
+  doc.text(`${avg3Sign}${rollingTrends.diffVs3MAvg}% vs srednia`, 17, y + 16);
+
+  // Karta: Zmiana MoM
+  const trendX2 = 14 + trendCardW + ruleGap;
+  doc.setFillColor(...colors.surfaceLight);
+  doc.setDrawColor(...colors.borderLight);
+  doc.rect(trendX2, y, trendCardW, trendCardH, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr("WYDATKI ZESZLY MIESIAC"), trendX2 + 3, y + 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr(formatMoney(rollingTrends.lastMonthExpense, currency)), trendX2 + 3, y + 12);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  const momColor = rollingTrends.diffVsLastMonth > 0 ? colors.expenseCoral : colors.incomeGreen;
+  doc.setTextColor(...momColor);
+  const momSign = rollingTrends.diffVsLastMonth > 0 ? "+" : "";
+  doc.text(`${momSign}${rollingTrends.diffVsLastMonth}% MoM`, trendX2 + 3, y + 16);
+
+  y += trendCardH + 4;
+
+  // Sterowniki kosztów
+  if (rollingTrends.topGrowthCategory || rollingTrends.topReductionCategory) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("GLOWNE STEROWNIKI ZMIAN (vs poprzedni mc)"), 14, y + 3);
+    y += 7;
+
+    if (rollingTrends.topGrowthCategory) {
+      doc.setFillColor(...colors.expenseBg);
+      doc.setDrawColor(254, 202, 202);
+      doc.rect(14, y, 89, 10, "FD");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(...colors.expenseCoral);
+      doc.text(cleanStr(`Wzrost: ${rollingTrends.topGrowthCategory.category}`), 17, y + 4.5);
+      doc.text(cleanStr(`+${formatMoney(rollingTrends.topGrowthCategory.diffAmount, currency)}`), 17, y + 8.5);
+    }
+
+    if (rollingTrends.topReductionCategory) {
+      doc.setFillColor(...colors.incomeBg);
+      doc.setDrawColor(167, 243, 208);
+      doc.rect(107, y, 89, 10, "FD");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(...colors.incomeGreen);
+      doc.text(cleanStr(`Oszczednosc: ${rollingTrends.topReductionCategory.category}`), 110, y + 4.5);
+      doc.text(cleanStr(`${formatMoney(rollingTrends.topReductionCategory.diffAmount, currency)}`), 110, y + 8.5);
+    }
+
+    y += 14;
+  }
+
+  y += 4;
+
+  // --- SEKCJA ANALITYCZNA C: PODSUMOWANIE STRATEGICZNE ---
+  const emergencySim = calculateEmergencySimulator(profile, selectedDate, 6);
+  const debtSim = calculateDebtPayoffSimulator(profile, selectedDate, 300);
+
+  if (y > 210) {
+    doc.addPage();
+    y = 20;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("PODSUMOWANIE STRATEGICZNE"), 14, y);
+  y += 6;
+
+  // Karta: Poduszka bezpieczeństwa (6M)
+  doc.setFillColor(...colors.tealSubtleBg);
+  doc.setDrawColor(153, 224, 212);
+  doc.rect(14, y, 89, 24, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(...colors.brandDarkTeal);
+  doc.text(cleanStr("PODUSZKA BEZPIECZENSTWA (6M)"), 17, y + 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr(`Wymagane: ${formatMoney(emergencySim.requiredCapital, currency)}`), 17, y + 11);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...colors.brandTeal);
+  doc.text(cleanStr(`Rezerwy: ${formatMoney(emergencySim.currentLiquidCapital, currency)} (${emergencySim.progressPercent}%)`), 17, y + 16);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(...colors.mutedText);
+  if (emergencySim.status === "completed") {
+    doc.text(cleanStr("Cel osiagniety!"), 17, y + 21);
+  } else if (emergencySim.monthsToTarget !== null) {
+    doc.text(cleanStr(`Do celu: ok. ${emergencySim.monthsToTarget} mies.`), 17, y + 21);
+  } else {
+    doc.text(cleanStr("Brak nadwyzki do oszczedzania"), 17, y + 21);
+  }
+
+  // Karta: Spłata zobowiązań
+  doc.setFillColor(...colors.surfaceLight);
+  doc.setDrawColor(...colors.borderLight);
+  doc.rect(107, y, 89, 24, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr("SPLATA ZOBOWIAZAN (SNOWBALL)"), 110, y + 5);
+
+  if (debtSim.isDebtFree) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...colors.incomeGreen);
+    doc.text(cleanStr("Brak aktywnych zobowiazan"), 110, y + 12);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(7);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr("Wszystkie rachunki oplacone."), 110, y + 17);
+  } else {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...colors.expenseCoral);
+    doc.text(cleanStr(`Laczny dlug: ${formatMoney(debtSim.totalDebt, currency)}`), 110, y + 11);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(...colors.darkInk);
+    doc.text(cleanStr(`Plan bazowy: ${debtSim.baselineMonths} mc`), 110, y + 16);
+
+    // Snowball queue preview (top 3)
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(7);
+    doc.setTextColor(...colors.mutedText);
+    const topQueue = debtSim.snowballQueue.slice(0, 3).map((q, i) => `${i + 1}. ${q.name}`).join(", ");
+    const queueText = topQueue.length > 45 ? topQueue.slice(0, 42) + "..." : topQueue;
+    doc.text(cleanStr(queueText || "Brak pozycji"), 110, y + 21);
+  }
+
+  y += 28;
+
+  // Insight podsumowujący
+  if (!debtSim.isDebtFree && debtSim.baselineMonths && debtSim.baselineMonths > 0) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(...colors.brandTeal);
+    doc.text(cleanStr(`Wnioski: Przy obecnym tempie splata zobowiazan zajmie ok. ${debtSim.baselineMonths} mies. Nadplata +300 ${currency}/mc skroci czas do ${debtSim.acceleratedMonths} mies.`), 14, y);
+    y += 6;
+  }
+
+  y += 6;
 
   // --- SEKCJA 3: RACHUNKI I PŁATNOŚCI ---
   if (y > 230) {
