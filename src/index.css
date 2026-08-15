@@ -53,29 +53,29 @@
 }
 
 .dark {
-  /* DARK THEME (Current Premium Dark) */
-  --color-bg-base: #020617;
-  --color-surface: #0f172a;
-  --color-surface-2: #1e293b;
-  --color-surface-offset: #334155;
+  /* DARK THEME (Premium Fintech Dark - Neutral Monolithic) */
+  --color-bg-base: #121315;
+  --color-surface: #181a1d;
+  --color-surface-2: #202327;
+  --color-surface-offset: #2b3036;
 
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(255, 255, 255, 0.09);
   --color-divider: rgba(255, 255, 255, 0.05);
 
-  --color-text-main: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-text-faint: #475569;
-  --color-text-inverse: #020617;
+  --color-text-main: #f3f4f6;
+  --color-text-muted: #b0b7c3;
+  --color-text-faint: #7b8491;
+  --color-text-inverse: #111315;
 
-  --color-brand: #137566;
-  --color-brand-hover: #0f5d51;
+  --color-brand: #3f6b5f;
+  --color-brand-hover: #33584e;
 
-  --color-brand-subtle: rgba(19, 117, 102, 0.15);
-  --color-warning: #f59e0b; /* amber-500 dla odpowiedniego kontrastu w dark mode */
-  --color-warning-subtle: rgba(245, 158, 11, 0.15);
-  --color-danger: #ef4444; /* red-500 dla odpowiedniego kontrastu w dark mode */
-  --color-danger-subtle: rgba(239, 68, 68, 0.15);
-  --color-focus-ring: rgba(19, 117, 102, 0.4);
+  --color-brand-subtle: rgba(63, 107, 95, 0.18);
+  --color-warning: #e8a23a;
+  --color-warning-subtle: rgba(232, 162, 58, 0.16);
+  --color-danger: #e35b5b;
+  --color-danger-subtle: rgba(227, 91, 91, 0.16);
+  --color-focus-ring: rgba(63, 107, 95, 0.38);
 }
 
 .glass-panel {
@@ -87,11 +87,11 @@
 }
 
 .dark .glass-panel {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 @keyframes fadeIn {
