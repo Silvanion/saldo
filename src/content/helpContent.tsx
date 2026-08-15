@@ -18,7 +18,9 @@ import {
   FileSpreadsheet,
   Command,
   Globe,
-  Scale
+  Scale,
+  TrendingUp,
+  CreditCard
 } from "lucide-react";
 
 import { MockScreenShot, Terminal } from "../components/help/HelpVisuals";
@@ -28,6 +30,7 @@ export const helpCategories = [
   "Szybki start",
   "Paleta komend (⌘K)",
   "Pulpit i Wskaźniki",
+  "Analizy i Symulatory",
   "Wielowalutowość & NBP",
   "Transakcje i Banki CSV",
   "Rachunki i Timeline",
@@ -55,11 +58,11 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
   },
   {
-    title: "Wskaźnik Bezpieczeństwa & Runway",
-    description: "Aplikacja sama przelicza rezerwy na rachunki i podpowiada na ile miesięcy wystarczy środków.",
-    icon: <Zap className="w-5 h-5" />,
+    title: "Symulatory i Decyzje",
+    description: "Kalkulatory poduszki bezpieczeństwa (3/6/12M) oraz kaskada spłaty długu metodą Kuli Śnieżnej.",
+    icon: <Zap className="w-5 h-5 text-brand" />,
     wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3",
-    iconClass: "p-2 bg-surface-2 text-text-muted border border-border/50 rounded-xl shrink-0"
+    iconClass: "p-2 bg-brand-subtle text-brand border border-brand/20 rounded-xl shrink-0"
   },
   {
     title: "10 Banków & Kursy NBP",
@@ -98,84 +101,50 @@ export const helpSectionsData: HelpSectionData[] = [
           title="Aplikacja Saldo — Wskazówki nawigacji"
           badge="Interfejs użytkownika"
           steps={[
-            { step: 1, label: "Panel nawigacji", description: "Przełączaj się między Pulpitem, Transakcjami, Budżetami i Inwestycjami w lewym menu." },
-            { step: 2, label: "Paleta komend (⌘K)", description: "Naciśnij Cmd+K / Ctrl+K lub '/', aby błyskawicznie przeszukać transakcje lub wykonać akcję." },
-            { step: 3, label: "Wskaźnik Runway & Safe-to-Spend", description: "Sprawdzaj górne karty — pokazują poduszkę finansową w miesiącach i wolne środki." },
-            { step: 4, label: "Wybór Profilu", description: "W prawym górnym rogu przełączaj profil z Osobistego na Wspólny z partnerem." }
+            {
+              step: 1,
+              label: "Wprowadź stałe dochody i rachunki",
+              description: "Dodaj w sekcji Płatności comiesięczne opłaty (czynsz, prąd, abonamenty) oraz termin wypłaty wynagrodzenia."
+            },
+            {
+              step: 2,
+              label: "Zaimportuj wyciąg bankowy CSV",
+              description: "Kliknij 'Importuj CSV' w zakładce Transakcje i przeciągnij plik z mBanku, PKO, ING lub innego banku."
+            },
+            {
+              step: 3,
+              label: "Sprawdź Safe-to-Spend i Runway",
+              description: "Zobacz swój bilans na Pulpicie — aplikacja od razu wyliczy ile możesz bezpiecznie wydać po potrąceniu opłat."
+            }
           ]}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">1</div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Nawigacja</div>
-              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
-                <LayoutDashboard className="w-4 h-4 text-text-muted" /> Pulpit & Transakcje
-              </div>
-            </div>
-
-            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">2</div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Szybkie szukanie</div>
-              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
-                <Command className="w-4 h-4 text-text-muted" /> Paleta Cmd+K
-              </div>
-            </div>
-
-            <div className="bg-surface border border-border/50 p-3 rounded-xl relative overflow-hidden">
-              <div className="absolute top-2 right-2 bg-surface-2 text-text-muted font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-border/50">3</div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Poduszka finansowa</div>
-              <div className="font-semibold text-text-main flex items-center gap-1.5 text-sm">
-                <ShieldCheck className="w-4 h-4 text-text-muted" /> Runway: 8.5 mies.
-              </div>
-            </div>
+          <div className="p-4 bg-surface-2 rounded-xl border border-border text-center text-xs text-text-muted">
+            <span className="font-bold text-text-main">Pulpit Finansowy</span> — Twoje centrum dowodzenia i wskaźniki płynności w czasie rzeczywistym.
           </div>
         </MockScreenShot>
-
-        <div className="space-y-3 text-sm text-text-muted">
-          <h4 className="font-bold text-text-main text-base flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand" /> Jak prawidłowo wdrożyć Saldo w 5 minut?
-          </h4>
-          <ol className="list-decimal pl-5 space-y-2">
-            <li><strong>Wprowadź swoje stałe płatności:</strong> W zakładce <em>Płatności</em> dodaj czynsz, prąd, ubezpieczenia i subskrypcje. Dzięki temu wskaźnik <em>Safe-to-Spend</em> i 4 filary horyzontów od razu rezerwują na nie fundusze.</li>
-            <li><strong>Zapisz oszczędności na czarną godzinę:</strong> W zakładce <em>Cele</em> stwórz poduszkę finansową. Zostanie ona uwzględniona w kalkulacji wskaźnika <em>Runway</em>.</li>
-            <li><strong>Importuj wyciągi z banku:</strong> Użyj importera CSV — wspiera 10 największych banków w Polsce i automatycznie przelicza waluty obce według tabel NBP.</li>
-          </ol>
-        </div>
       </>
     )
   },
   {
     id: "command-palette",
     cat: "Paleta komend (⌘K)",
-    title: "Globalna Paleta Komend (⌘K / Ctrl+K) i szybka nawigacja",
-    icon: <Command className="w-5 h-5" />,
-    badge: "Power UX",
+    title: "Paleta Komend (⌘K / /) — Błyskawiczna nawigacja i wyszukiwanie",
+    icon: <Command className="w-5 h-5 text-brand" />,
+    badge: "Skróty klawiszowe",
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          W dowolnym miejscu aplikacji możesz nacisnąć <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">⌘K</code> (macOS), <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">Ctrl+K</code> (Windows/Linux) lub klawisz <code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded text-text-main font-bold">/</code>, aby otworzyć globalną paletę komend.
+          Paleta Komend umożliwia błyskawiczne sterowanie aplikacją Saldo bez odrywania rąk od klawiatury. Otworzysz ją z dowolnego miejsca za pomocą skrótu <strong>Cmd+K</strong> (Mac), <strong>Ctrl+K</strong> (Windows/Linux) lub naciskając pojedynczy klawisz <strong>/</strong> (slash).
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
-              <span>🔍</span> Wyszukiwanie transakcji
-            </h5>
-            <p className="text-xs text-text-muted">Wpisz nazwę odbiorcy, kategorię lub kwotę, by błyskawicznie odnaleźć transakcję w historii.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-text-main block">🔍 Szybkie szukanie transakcji</span>
+            <p className="text-text-muted">Wpisz nazwę sklepu (np. "Biedronka", "Orlen"), kwotę lub kategorię, a lista wyników pojawi się natychmiastowo.</p>
           </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
-              <span>⚡</span> Szybkie akcje
-            </h5>
-            <p className="text-xs text-text-muted">Dodawaj transakcje, twórz rachunki, uruchamiaj import CSV i generuj raporty PDF jednym klawiszem.</p>
-          </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl space-y-1">
-            <h5 className="font-semibold text-text-main flex items-center gap-1.5">
-              <span>🔄</span> Przełączanie profili
-            </h5>
-            <p className="text-xs text-text-muted">Błyskawicznie przełączaj się między profilem osobistym a wspólnym bez sięgania po myszkę.</p>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-text-main block">⚡ Nawigacja i Akcje</span>
+            <p className="text-text-muted">Wpisz nazwę widoku ("Płatności", "Analizy", "Cele") lub polecenie "+ Nowa transakcja", "+ Dodaj płatność", aby natychmiast otworzyć odpowiedni formularz.</p>
           </div>
         </div>
       </div>
@@ -184,40 +153,56 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "dashboard",
     cat: "Pulpit i Wskaźniki",
-    title: "Pulpit główny, wskaźnik Runway i Reguła 50/30/20",
+    title: "Pulpit Główny — Safe-to-Spend, Runway i Bilans Płynności",
     icon: <LayoutDashboard className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Pulpit główny to kokpit finansowy, który łączy dane z całego profilu i w czasie rzeczywistym przelicza wskaźniki płynności i bezpieczeństwa.
+          Pulpit Główny w Saldo to centrum dowodzenia Twoimi finansami. Każdy wskaźnik pełni ściśle określoną rolę chroniącą Cię przed wpadnięciem w dołek finansowy.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2">
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-brand" /> Runway (Poduszka Płynności)
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Szacuje na ile miesięcy wystarczy zgromadzonych płynnych aktywów przy średnim miesięcznym tempie wydatków. Wskazuje status: Bezpieczny (≥6 mies.), Umiarkowany (3-6 mies.) lub Krytyczny (&lt;3 mies.).
-            </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-brand block">Safe-to-Spend (Bezpieczna kwota)</span>
+            <p className="text-text-muted">Środki wolne do wydania po potrąceniu zaplanowanych rachunków, rat kredytowych i celów oszczędnościowych.</p>
           </div>
-
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <LineChart className="w-4 h-4 text-brand" /> Dynamika MoM (Miesiąc do Miesiąca)
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Karty przychodów i wydatków pokazują procentową zmianę w stosunku do poprzedniego miesiąca, pozwalając na szybką ocenę trendów finansowych.
-            </p>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-text-main block">Wskaźnik Runway (Poduszka w miesiącach)</span>
+            <p className="text-text-muted">Informuje na ile miesięcy wystarczy płynnych oszczędności w razie utraty dochodu przy obecnym tempie kosztów.</p>
           </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "analytics-simulators",
+    cat: "Analizy i Symulatory",
+    title: "Inteligentne Analizy, Trendy Wielomiesięczne i Symulatory Decyzyjne",
+    icon: <TrendingUp className="w-5 h-5 text-brand" />,
+    badge: "Nowość w v1.0",
+    defaultOpen: true,
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Moduł analityczny w Saldo łączy analizę historyczną z symulatorami strategicznymi, które pomagają podejmować optymalne decyzje o budowie poduszki i redukcji długu:
+        </p>
 
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
-            <h4 className="font-semibold text-text-main flex items-center gap-2 mb-2">
-              <Scale className="w-4 h-4 text-brand" /> Reguła 50 / 30 / 20
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              W module Analiz znajdziesz klasyfikację wydatków na Potrzeby (50%), Zachcianki (30%) i Oszczędności (20%) według uznanego standardu budżetowego.
-            </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-brand block">📈 Średnie Kroczące (3M / 6M) & Sterowniki</span>
+            <p className="text-text-muted">Aplikacja wylicza średni miesięczny koszt życia z ostatnich miesięcy i wskazuje kategorie o największym wzroście oraz największej oszczędności.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-brand block">🛡️ Symulator Poduszki Finansowej (3/6/12M)</span>
+            <p className="text-text-muted">Przelicza wymagany kapitał rezerwy bezpieczeństwa i podaje szacowany czas w miesiącach do osiągnięcia celu przy obecnej nadwyżce.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-danger block">💳 Kaskada Spłaty Długu (Kula Śnieżna)</span>
+            <p className="text-text-muted">Szereguje aktywne zobowiązania od najmniejszych sald dla szybkiego uwalniania przepływów i symuluje zysk czasowy przy dodatkowej nadpłacie.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1">
+            <span className="font-bold text-text-main block">⚖️ Wzorzec Budżetowy 50 / 30 / 20</span>
+            <p className="text-text-muted">Weryfikuje strukturę wydatków względem złotego standardu: 50% Potrzeby bazowe, 30% Zachcianki, 20% Oszczędności i inwestycje.</p>
           </div>
         </div>
       </div>
@@ -226,98 +211,56 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "multicurrency",
     cat: "Wielowalutowość & NBP",
-    title: "Wielowalutowość i automatyczne kursy walut NBP",
-    icon: <Globe className="w-5 h-5" />,
-    badge: "Oficjalne tabele A NBP",
+    title: "Obsługa Walut Obcych i Kursy Średnie NBP",
+    icon: <Globe className="w-5 h-5 text-brand" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Saldo wspiera konta, transakcje, płatności i cele w walutach obcych (np. EUR, USD, GBP, CHF, NOK, SEK).
+          Saldo obsługuje wielowalutowość z automatycznym pobieraniem oficjalnych tabel kursów średnich Narodowego Banku Polskiego (NBP):
         </p>
 
-        <div className="bg-surface border border-border/50 p-4 rounded-xl space-y-2">
-          <h4 className="font-semibold text-text-main flex items-center gap-2">
-            <Globe className="w-4 h-4 text-brand" /> Jak działa serwis walutowy NBP?
-          </h4>
-          <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-muted">
-            <li>Aplikacja automatycznie pobiera oficjalną tabelę A kursów średnich Narodowego Banku Polskiego.</li>
-            <li>Pobrane kursy są bezpiecznie cachowane lokalnie, dzięki czemu aplikacja działa w 100% offline bez opóźnień.</li>
-            <li>W przypadku braku sieci lub awarii stosowane są bezpieczne wartości fallback z gwarancją braku błędów NaN.</li>
-          </ul>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: "transactions",
-    cat: "Transakcje i Banki CSV",
-    title: "Transakcje, obsługa 10 banków w Polsce i deduplikacja",
-    icon: <History className="w-5 h-5" />,
-    badge: "10 Banków & Deduplikacja",
-    content: (
-      <div className="space-y-4 text-sm text-text-muted">
-        <p className="leading-relaxed">
-          Moduł Transakcji oferuje inteligentne dopasowywanie kategorii, obsługę tagów oraz wbudowany bezpłatny importer wyciągów z 10 banków w Polsce.
-        </p>
-
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 my-2 text-center text-xs font-bold text-text-main">
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">mBank</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">PKO BP</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">ING Śląski</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Santander</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Millennium</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Bank Pekao</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Alior Bank</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">BNP Paribas</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Revolut</div>
-          <div className="p-2.5 bg-surface border border-border/50 rounded-xl">Format ogólny</div>
-        </div>
-
-        <h4 className="font-bold text-text-main">Mechanizm ochrony danych w imporcie CSV:</h4>
-        <ul className="list-disc pl-5 space-y-2 text-xs text-text-faint">
-          <li><strong>Automatyczna detekcja kolumn i separatorów:</strong> Parser rozpoznaje przecinki, średniki oraz formaty kwot z kropką lub przecinkiem dziesiętnym.</li>
-          <li><strong>Ochrona przed duplikatami:</strong> System porównuje ID i kwoty, uniemożliwiając powtórne zaksięgowanie tej samej operacji.</li>
-          <li><strong>Wielowalutowy import:</strong> Wyciągi w walutach obcych są automatycznie oznaczane właściwym kodem walutowym.</li>
+        <ul className="list-disc pl-5 space-y-2 text-xs">
+          <li><strong>Waluta bazowa profilu:</strong> PLN, EUR, USD, GBP lub CHF z precyzyjnym formatowaniem.</li>
+          <li><strong>Transakcje wielowalutowe:</strong> Jeśli zaimportujesz płatność w EUR na profilu PLN, aplikacja automatycznie przeliczy ją po kursie NBP z dnia transakcji.</li>
+          <li><strong>Praca offline:</strong> Pobrane kursy są przechowywane w lokalnej pamięci podręcznej, co gwarantuje pełną funkcjonalność bez internetu.</li>
         </ul>
       </div>
     )
   },
   {
-    id: "payments",
-    cat: "Rachunki i Timeline",
-    title: "4 Filary Horyzontów Zobowiązań i Harmonogram Cashflow",
-    icon: <Clock className="w-5 h-5" />,
-    badge: "Cashflow Horizon",
+    id: "transactions-csv",
+    cat: "Transakcje i Banki CSV",
+    title: "Księga Transakcji i Inteligentny Importer CSV (10 Banków)",
+    icon: <History className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Nigdy więcej nie zapomnisz o terminie zapłaty za czynsz, internet czy ratę kredytu. Rachunki są prezentowane w podziale na 4 horyzonty czasowe:
+          Możesz błyskawicznie zasilić aplikację transakcjami z wyciągów bankowych w formacie CSV:
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-medium">
-          <div className="p-3 bg-danger-subtle text-danger border border-danger/20 rounded-xl">
-            <span className="font-bold block mb-1">🔴 Zaległe</span>
-            Opłaty po terminie wymagające natychmiastowej spłaty.
-          </div>
-          <div className="p-3 bg-warning-subtle text-warning border border-warning/20 rounded-xl">
-            <span className="font-bold block mb-1">🟡 Na dzisiaj</span>
-            Płatności przypadające dokładnie na dzień dzisiejszy.
-          </div>
-          <div className="p-3 bg-brand-subtle text-brand border border-brand/20 rounded-xl">
-            <span className="font-bold block mb-1">🟢 Najbliższe 7 dni</span>
-            Łączne zobowiązania bieżącego tygodnia.
-          </div>
-          <div className="p-3 bg-surface-2 text-text-main border border-border rounded-xl">
-            <span className="font-bold block mb-1">🔵 Najbliższe 30 dni</span>
-            Miesięczna perspektywa obciążeń budżetowych.
-          </div>
+        <div className="p-3.5 bg-surface border border-border rounded-xl text-xs space-y-1.5">
+          <span className="font-bold text-text-main block">Dedykowane presety dla banków w Polsce:</span>
+          <p className="text-text-muted">mBank, PKO BP (iPKO), ING Bank Śląski, Santander Bank Polska, Bank Millennium, Bank Pekao (Pekao24), Alior Bank, BNP Paribas, Revolut oraz inteligentny parser Generic.</p>
         </div>
+      </div>
+    )
+  },
+  {
+    id: "payments-timeline",
+    cat: "Rachunki i Timeline",
+    title: "4 Filary Horyzontów Płatności i Oś Czasu Cashflow",
+    icon: <Clock className="w-5 h-5" />,
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Oś czasu w Saldo porządkuje nadchodzące i cykliczne płatności w 4 czytelnych horyzontach czasowych:
+        </p>
 
-        <div className="bg-surface border border-border/50 p-4 rounded-xl text-xs space-y-1.5">
-          <strong className="text-text-main block text-sm font-semibold">Harmonogram kumulatywny cashflow:</strong>
-          <p className="leading-relaxed">
-            W widoku osi czasu możesz podejrzeć narastającą sumę płatności dzień po dniu, co pozwala dokładnie zaplanować stan konta i uniknąć chwilowego braku płynności.
-          </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-center">
+          <div className="p-2.5 bg-danger-subtle text-danger border border-danger/20 rounded-xl font-bold">1. Zaległe</div>
+          <div className="p-2.5 bg-brand-subtle text-brand border border-brand/20 rounded-xl font-bold">2. Dzisiaj</div>
+          <div className="p-2.5 bg-surface-2 text-text-main border border-border rounded-xl font-bold">3. 7 Dni</div>
+          <div className="p-2.5 bg-surface-2 text-text-muted border border-border rounded-xl font-bold">4. 30 Dni</div>
         </div>
       </div>
     )
@@ -325,7 +268,7 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "budgets",
     cat: "Budżety i Limity",
-    title: "Budżety kategorii, paski postępu i alerty ostrzegawcze",
+    title: "Budżety miesięczne i wskaźniki ostrzeżeń",
     icon: <Wallet className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
@@ -342,20 +285,20 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "goals",
     cat: "Cele i Inwestycje",
-    title: "Moduł informacyjny: rezerwy i inwestycje długoterminowe",
+    title: "Majątek Netto (Net Worth v1) i Cele Oszczędnościowe",
     icon: <Target className="w-5 h-5" />,
     badge: "Poza budżetem",
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Osobny moduł informacyjny służący do monitorowania majątku długoterminowego. Zgromadzone tu środki nie powiększają wyniku bieżącego miesiąca ani budżetu operacyjnego.
+          Osobny moduł informacyjny służący do monitorowania majątku netto oraz postępów w celach oszczędnościowych:
         </p>
 
         <div className="bg-brand-subtle border border-brand/20 p-4 rounded-xl text-xs sm:text-sm text-brand flex items-start gap-3">
           <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
-            <strong className="block text-sm font-bold mb-1">Zasada ochrony zgromadzonych rezerw</strong>
-            Aplikacja posiada blokadę chroniącą przed przypadkowym usunięciem celu, na który wpłacono już realne pieniądze. Aby usunąć taki cel, należy najpierw wycofać środki (zmniejszyć zgromadzoną kwotę do 0).
+            <strong className="block text-sm font-bold mb-1">Czystość semantyczna Net Worth</strong>
+            Wpisy w sekcji inwestycji i celów mają charakter wyłącznie ewidencyjny. Nie powiększają kwoty Safe-to-Spend ani nie zniekształcają miesięcznego bilansu operacyjnego.
           </div>
         </div>
       </div>
@@ -373,14 +316,14 @@ export const helpSectionsData: HelpSectionData[] = [
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+          <div className="p-4 bg-surface border border-border rounded-xl">
             <h5 className="font-semibold text-text-main mb-1.5">Profil Wspólny i Podział Wydatków</h5>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed">
               W profilu typu Shared każda transakcja ma oznaczenie kto płacił (Ja / Partner) oraz tryb podziału (Równo 50/50 lub Tylko ja). Widget Rozliczeń automatycznie podlicza balans kto komu ile jest winien!
             </p>
           </div>
 
-          <div className="p-4 bg-surface border border-border/50 rounded-xl">
+          <div className="p-4 bg-surface border border-border rounded-xl">
             <h5 className="font-semibold text-text-main mb-1.5">Blokada PIN dla prywatności</h5>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed">
               W Ustawieniach możesz włączyć 4-cyfrowy kod PIN dla dowolnego profilu. Po zablokowaniu, przełączenie na ten profil wymaga wpisania kodu.
@@ -393,7 +336,7 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "backup",
     cat: "Kopia i Chmura",
-    title: "Kopie zapasowe na Google Drive, eksport JSON i obsługa konfliktów",
+    title: "Lokalne kopie bezpieczeństwa i integracja z Dyskiem Google",
     icon: <Database className="w-5 h-5" />,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
@@ -441,7 +384,19 @@ export const faqData: FaqEntry[] = [
   },
   {
     question: "Co oznacza wskaźnik Runway (Poduszka Płynności)?",
-    answer: "Runway to szacunkowa liczba miesięcy, przez które utrzymasz obecny standard życia wyłącznie z płynnych oszczędności (konto, cele, obligacje/poduszka), jeśli utracisz bieżące dochody. Wartość ≥ 6 miesięcy oznacza zdrowy, bezpieczny bufor."
+    answer: "Runway to szacunkowa liczba miesięcy, przez które utrzymasz obecny standard życia wyłącznie z płynnych oszczędności, jeśli utracisz bieżące dochody. Wartość ≥ 6 miesięcy oznacza zdrowy bufor."
+  },
+  {
+    question: "Jak działa Symulator Poduszki Finansowej (3/6/12M)?",
+    answer: "Symulator przelicza wymagany kapitał w oparciu o Twoje realne średnie miesięczne wydatki z ostatnich 3-6 miesięcy (burn rate). Następnie porównuje je z dostępnymi płynnymi rezerwami i podaje dokładny czas w miesiącach do osiągnięcia celu przy bieżącym tempie oszczędzania."
+  },
+  {
+    question: "Na czym polega metoda Kuli Śnieżnej (Snowball) w spłacie długu?",
+    answer: "Metoda Kuli Śnieżnej szereguje zobowiązania od najmniejszego salda do największego. Spłacenie najmniejszego długu najpierw daje natychmiastowe zwycięstwo psychologiczne i uwalnia miesięczną ratę, którą w całości przeznaczasz na nadpłacanie kolejnej pozycji."
+  },
+  {
+    question: "Czym różni się Majątek Netto (Net Worth) od kwoty Safe-to-Spend?",
+    answer: "Net Worth to nadrzędna ewidencja całego zgromadzonego majątku (aktywa minus pasywa), podczas gdy Safe-to-Spend to bieżące środki operacyjne na koncie wolne do wydania po potrąceniu rachunków."
   },
   {
     question: "Skąd aplikacja pobiera kursy walut?",

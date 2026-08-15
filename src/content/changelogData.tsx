@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone } from "lucide-react";
+import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone, TrendingUp } from "lucide-react";
 
 export interface ChangelogEntry {
   version: string;
@@ -10,6 +10,19 @@ export interface ChangelogEntry {
 }
 
 export const changelogData: ChangelogEntry[] = [
+  {
+    version: "v1.0.0",
+    date: "Sierpień 2026",
+    title: "Analytics & Insights v2, Net Worth v1 oraz Pełny UI Polish Pass",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Analytics & Insights v2] Inteligentny silnik analityczny: średnie kroczące wydatków (3M / 6M), automatyczna identyfikacja sterowników kosztów (kategorie o największym wzroście i oszczędności) oraz podział 50/30/20.",
+      "[Symulatory Strategiczne] Zintegrowany kalkulator poduszki bezpieczeństwa (3M, 6M, 12M w oparciu o miesięczny burn rate) oraz kaskada spłaty zadłużenia metodą Kuli Śnieżnej (Snowball) z symulacją przyspieszenia spłaty.",
+      "[Majątek Netto (Net Worth v1)] Nadrzędna karta majątku netto w widoku Celów z podziałem na klasy aktywów i ścisłą separacją semantyczną od bieżącego budżetu operacyjnego.",
+      "[Księga Transakcji Polish] Zunifikowany pasek narzędzi, natychmiastowe czyszczenie wyszukiwarki, przełączniki segmented controls, pigułki tagów i akcje wierszy z mikro-podpowiedziami DelayedTooltip.",
+      "[Globalna Spójność UI] Ujednolicenie zaokrągleń, cieni (shadow-sm), obramowań i typografii w widokach Ustawień, Pomocy, Pulpitu i Transakcji."
+    ]
+  },
   {
     version: "v0.9.5",
     date: "Sierpień 2026",
