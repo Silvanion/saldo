@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Transaction } from "../types";
-import {} from "../utils";
 import { formatMoney } from "../utils/format";
+import { Tag, PieChart, Info } from "lucide-react";
 
 interface TransactionsTagsAnalysisProps {
   currency: string;
@@ -56,77 +56,87 @@ export function TransactionsTagsAnalysis({
   }, [tagSummaries]);
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm  p-6 flex flex-col relative overflow-hidden" id="tags-analysis-card">
-      {/* Background decorations removed */}
-      <div className="mb-4 relative z-10">
-        <p className="text-xs font-medium text-text-muted">Raportowanie i Analiza</p>
-        <h3 className="text-lg font-bold text-text-main">Wydatki według tagów</h3>
-      </div>
-
-      {/* Mini dashboard stats cards */}
-      <div className="grid grid-cols-2 gap-3 mb-5 relative z-10">
-        <div className="bg-surface p-3 rounded-xl border border-border">
-          <p className="text-xs text-text-muted font-medium">Otagowane wydatki</p>
-          <p className="text-base font-bold text-text-main mt-1">{formatMoney(uniqueTaggedExpensesSum, currency)}</p>
-        </div>
-        <div className="bg-surface p-3 rounded-xl border border-border">
-          <p className="text-xs text-text-muted font-medium">Pokrycie tagami</p>
-          <p className="text-base font-bold text-text-main mt-1">
-            {totalOverallExpenses > 0
-              ? `${Math.round((uniqueTaggedExpensesSum / totalOverallExpenses) * 100)}%`
-              : "0%"}
-          </p>
-        </div>
-      </div>
-
-      {/* Tag distribution bar chart */}
-      <div className="flex-1 overflow-y-auto space-y-3 max-h-[350px] pr-1 relative z-10 custom-scrollbar">
-        {tagSummaries.length === 0 ? (
-          <div className="text-center py-12 text-sm text-text-muted">
-            <span className="text-2xl block mb-2 opacity-50">🏷️</span>
-            Brak otagowanych wydatków. Dodaj tagi do transakcji, aby wygenerować raport.
+    <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 flex flex-col justify-between relative overflow-hidden" id="tags-analysis-card">
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="mb-4">
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider">Raportowanie i Etykiety</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <h3 className="text-base font-bold text-text-main">Wydatki według tagów</h3>
+            <span className="text-[10px] font-bold text-brand bg-brand-subtle border border-brand/20 px-2 py-0.5 rounded-full">
+              {tagSummaries.length} tagów
+            </span>
           </div>
-        ) : (
-          tagSummaries.map((tag) => {
-            const isSelected = selectedTag === tag.name;
-            const pctOfMax = Math.round((tag.spent / maxSpentTagVal) * 100);
-            const pctOfTotal = totalOverallExpenses > 0 ? Math.round((tag.spent / totalOverallExpenses) * 100) : 0;
-            
-            return (
-              <div
-                key={tag.name}
-                onClick={() => onSelectTag(isSelected ? null : tag.name)}
-                className={`group p-3 rounded-xl border transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                  isSelected
-                    ? "bg-brand-subtle border-brand/20 shadow-sm"
-                    : "bg-surface border-border hover:bg-surface-2"
-                }`}
-              >
-                <div className="flex justify-between items-center text-xs mb-2">
-                  <span className="font-bold text-text-main flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-brand" : "bg-text-faint"}`}></span>
-                    #{tag.name}
-                  </span>
-                  <span className="text-text-muted font-medium text-xs">
-                    <strong className="text-text-muted">{formatMoney(tag.spent, currency)}</strong> ({pctOfTotal}%)
-                  </span>
+        </div>
+
+        {/* Mini stats cards */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-surface-2 p-3 rounded-xl border border-border">
+            <p className="text-[11px] text-text-faint font-medium">Otagowane wydatki</p>
+            <p className="text-sm font-black text-text-main mt-0.5">{formatMoney(uniqueTaggedExpensesSum, currency)}</p>
+          </div>
+          <div className="bg-surface-2 p-3 rounded-xl border border-border">
+            <p className="text-[11px] text-text-faint font-medium">Pokrycie tagami</p>
+            <p className="text-sm font-black text-brand mt-0.5">
+              {totalOverallExpenses > 0
+                ? `${Math.round((uniqueTaggedExpensesSum / totalOverallExpenses) * 100)}%`
+                : "0%"}
+            </p>
+          </div>
+        </div>
+
+        {/* Tag distribution bar list */}
+        <div className="space-y-2 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar">
+          {tagSummaries.length === 0 ? (
+            <div className="text-center py-10 text-xs text-text-muted bg-surface-2 rounded-xl border border-dashed border-border">
+              <span className="text-2xl block mb-1 opacity-50">🏷️</span>
+              <p className="font-bold text-text-main">Brak otagowanych wydatków</p>
+              <p className="text-text-faint mt-0.5">Dodaj tagi podczas wprowadzania transakcji.</p>
+            </div>
+          ) : (
+            tagSummaries.map((tag) => {
+              const isSelected = selectedTag === tag.name;
+              const pctOfMax = Math.round((tag.spent / maxSpentTagVal) * 100);
+              const pctOfTotal = totalOverallExpenses > 0 ? Math.round((tag.spent / totalOverallExpenses) * 100) : 0;
+              
+              return (
+                <div
+                  key={tag.name}
+                  onClick={() => onSelectTag(isSelected ? null : tag.name)}
+                  className={`group p-3 rounded-xl border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                    isSelected
+                      ? "bg-brand-subtle border-brand/30 shadow-xs"
+                      : "bg-surface border-border hover:bg-surface-offset"
+                  }`}
+                >
+                  <div className="flex justify-between items-center text-xs mb-1.5">
+                    <span className="font-bold text-text-main flex items-center gap-1.5 truncate">
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? "bg-brand" : "bg-text-faint"}`}></span>
+                      <span className="truncate">#{tag.name}</span>
+                    </span>
+                    <span className="text-xs text-text-muted font-bold shrink-0 ml-2">
+                      {formatMoney(tag.spent, currency)} <span className="text-[10px] text-text-faint font-normal">({pctOfTotal}%)</span>
+                    </span>
+                  </div>
+                  <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border/50">
+                    <div
+                      style={{ width: `${pctOfMax}%` }}
+                      className={`h-full rounded-full transition-all duration-500 ${isSelected ? "bg-brand" : "bg-text-muted group-hover:bg-brand"}`}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
-                  <div
-                    style={{ width: `${pctOfMax}%` }}
-                    className={`h-full rounded-full transition-all duration-500 ${isSelected ? "bg-brand" : "bg-text-faint group-hover:bg-text-muted"}`}
-                  ></div>
-                </div>
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
       </div>
 
-      {/* Informational advice footer */}
-      <div className="mt-6 border-t border-border pt-4 text-xs text-text-muted leading-relaxed bg-surface p-3 rounded-xl border border-border relative z-10">
-        <span className="font-bold text-text-muted block mb-1">💡 Wskazówka:</span>
-        Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim wydatki i precyzyjnie przeanalizować ich udział.
+      {/* Informational tip footer */}
+      <div className="mt-4 pt-3 border-t border-border flex items-start gap-2.5 text-xs text-text-muted bg-surface-2/70 p-3 rounded-xl border border-border relative z-10">
+        <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+        <p className="leading-relaxed">
+          Kliknij na tag w tabeli lub panelu bocznym, aby natychmiast wyfiltrować wszystkie powiązane z nim transakcje.
+        </p>
       </div>
     </div>
   );
