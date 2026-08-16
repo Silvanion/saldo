@@ -275,6 +275,10 @@ export function generateReportPdf(
   // --- SEKCJA ANALITYCZNA A: WZORZEC BUDŻETOWY 50/30/20 ---
   const selectedDate = new Date(year, monthIndex, 15);
   const breakdown503020 = calculate503020(profile.transactions, selectedDate);
+  const hasExpenseData = expenseTotal > 0;
+  const cardGap = 4;
+
+  if (hasExpenseData) {
 
   if (y > 220) {
     doc.addPage();
@@ -289,7 +293,6 @@ export function generateReportPdf(
 
   const ruleCardW = 58;
   const ruleCardH = 20;
-  const ruleGap = 4;
 
   const rules503020 = [
     { label: "POTRZEBY (50%)", pct: breakdown503020.needs.percentage, amount: breakdown503020.needs.amount, target: 50, color: colors.incomeGreen, bg: colors.incomeBg, border: [167, 243, 208] as [number, number, number] },
@@ -298,7 +301,7 @@ export function generateReportPdf(
   ];
 
   rules503020.forEach((rule, idx) => {
-    const rx = 14 + idx * (ruleCardW + ruleGap);
+    const rx = 14 + idx * (ruleCardW + cardGap);
 
     doc.setFillColor(...rule.bg);
     doc.setDrawColor(...rule.border);
@@ -334,8 +337,13 @@ export function generateReportPdf(
 
   y += 4;
 
+  } // end: hasExpenseData (50/30/20)
+
   // --- SEKCJA ANALITYCZNA B: TRENDY WIELOMIESIECZNE & STEROWNIKI ---
   const rollingTrends = calculateRollingTrends(profile.transactions, selectedDate);
+  const hasTrendData = rollingTrends.avg3MonthExpense > 0 || rollingTrends.lastMonthExpense > 0;
+
+  if (hasTrendData) {
 
   if (y > 220) {
     doc.addPage();
@@ -375,7 +383,7 @@ export function generateReportPdf(
   doc.text(`${avg3Sign}${rollingTrends.diffVs3MAvg}% vs srednia`, 17, y + 16);
 
   // Karta: Zmiana MoM
-  const trendX2 = 14 + trendCardW + ruleGap;
+  const trendX2 = 14 + trendCardW + cardGap;
   doc.setFillColor(...colors.surfaceLight);
   doc.setDrawColor(...colors.borderLight);
   doc.rect(trendX2, y, trendCardW, trendCardH, "FD");
@@ -436,9 +444,14 @@ export function generateReportPdf(
 
   y += 4;
 
+  } // end: hasTrendData (Trendy)
+
   // --- SEKCJA ANALITYCZNA C: PODSUMOWANIE STRATEGICZNE ---
   const emergencySim = calculateEmergencySimulator(profile, selectedDate, 6);
   const debtSim = calculateDebtPayoffSimulator(profile, selectedDate, 300);
+  const hasStrategicData = hasExpenseData || !debtSim.isDebtFree;
+
+  if (hasStrategicData) {
 
   if (y > 210) {
     doc.addPage();
@@ -534,6 +547,8 @@ export function generateReportPdf(
   }
 
   y += 6;
+
+  } // end: hasStrategicData (Podsumowanie strategiczne)
 
   // --- SEKCJA 3: RACHUNKI I PŁATNOŚCI ---
   if (y > 230) {
