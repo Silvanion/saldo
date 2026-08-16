@@ -201,13 +201,15 @@ export function TransactionsView({
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full rounded-xl border border-border py-2 px-4 pl-9 pr-8 focus-visible:ring-2 focus-visible:ring-focus-ring text-xs bg-surface-2 focus:bg-surface text-text-main placeholder:text-text-faint transition shadow-xs"
                   id="tx-search-input"
+                  aria-label="Wyszukaj transakcje po nazwie, kategorii, koncie lub tagu"
                 />
                 <Search className="w-4 h-4 text-text-faint absolute left-3 top-2.5 pointer-events-none" />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm("")}
-                    className="absolute right-2.5 top-2.5 text-text-faint hover:text-text-main p-0.5 rounded cursor-pointer"
+                    className="absolute right-2.5 top-2.5 text-text-faint hover:text-text-main p-0.5 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                     title="Wyczyść szukanie"
+                    aria-label="Wyczyść wyszukiwanie"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -296,6 +298,7 @@ export function TransactionsView({
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
                     className="w-[125px] rounded-lg border border-border py-1 px-2 text-xs bg-surface text-text-main shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    aria-label="Data początkowa zakresu"
                   />
                   <span className="text-text-faint text-xs">-</span>
                   <input
@@ -303,6 +306,7 @@ export function TransactionsView({
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
                     className="w-[125px] rounded-lg border border-border py-1 px-2 text-xs bg-surface text-text-main shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    aria-label="Data końcowa zakresu"
                   />
                 </div>
                 
@@ -320,6 +324,7 @@ export function TransactionsView({
                     value={minAmount}
                     onChange={(e) => setMinAmount(e.target.value)}
                     className="w-[75px] rounded-lg border border-border py-1 px-2 text-xs bg-surface text-text-main shadow-xs placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    aria-label="Kwota minimalna"
                   />
                   <span className="text-text-faint text-xs">-</span>
                   <input
@@ -329,6 +334,7 @@ export function TransactionsView({
                     value={maxAmount}
                     onChange={(e) => setMaxAmount(e.target.value)}
                     className="w-[75px] rounded-lg border border-border py-1 px-2 text-xs bg-surface text-text-main shadow-xs placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    aria-label="Kwota maksymalna"
                   />
                 </div>
               </div>

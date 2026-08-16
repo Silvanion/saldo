@@ -171,7 +171,7 @@ export function BankAccountsManager({
                     <p className="text-xs text-brand font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} className="text-text-muted hover:text-danger active:scale-95 transition-colors p-1 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-focus-ring">
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} aria-label={`Usuń konto bankowe ${acc.name}`} className="text-text-muted hover:text-danger active:scale-95 transition-colors p-1 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-focus-ring">
                   &times;
                 </button>
               </div>
@@ -764,6 +764,7 @@ export function SettingsView({
                           onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
                           className="p-2 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                           title="Edytuj profil"
+                          aria-label={`Edytuj profil: ${p.name}`}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -771,6 +772,7 @@ export function SettingsView({
                           onClick={onOpenPinModal}
                           className="p-2 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                           title="Zarządzaj kodem PIN"
+                          aria-label={`Zarządzaj kodem PIN dla profilu: ${p.name}`}
                         >
                           <KeyRound className="w-4 h-4" />
                         </button>
@@ -778,6 +780,7 @@ export function SettingsView({
                           onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
                           className="p-2 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                           title="Usuń profil"
+                          aria-label={`Usuń profil: ${p.name}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -829,6 +832,7 @@ export function SettingsView({
                         onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
                         className="p-1.5 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                         title="Edytuj profil"
+                        aria-label={`Edytuj profil: ${p.name}`}
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -836,6 +840,7 @@ export function SettingsView({
                         onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
                         className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                         title="Usuń profil"
+                        aria-label={`Usuń profil: ${p.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

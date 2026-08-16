@@ -152,6 +152,7 @@ export function DashboardView({
               onClick={onPrevMonth}
               className="px-4 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-text-muted hover:text-text-main font-bold border-r border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-prev-month"
+              aria-label="Poprzedni miesiąc"
             >
               ← Poprzedni
             </button>
@@ -159,6 +160,7 @@ export function DashboardView({
               onClick={onNextMonth}
               className="px-4 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-text-muted hover:text-text-main font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-next-month"
+              aria-label="Następny miesiąc"
             >
               Następny →
             </button>

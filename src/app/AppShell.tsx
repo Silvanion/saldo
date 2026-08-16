@@ -96,6 +96,14 @@ export function AppShell({
 
   return (
     <div className="flex h-screen bg-bg-base overflow-hidden font-sans" id="app-root-shell">
+      {/* Skip to Main Content link for keyboard / screen-reader accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-brand focus:text-text-inverse focus:font-bold focus:text-sm focus:rounded-xl focus:shadow-xl focus:ring-4 focus:ring-focus-ring"
+      >
+        Przejdź do głównej treści
+      </a>
+
       {/* Mobile Drawer Backdrop */}
       {isMobileMenuOpen && (
         <div
@@ -377,6 +385,7 @@ export function AppShell({
               className="flex items-center gap-2 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-open-command-palette"
               title="Wyszukaj lub uruchom polecenie (⌘K / /)"
+              aria-label="Wyszukaj lub uruchom polecenie"
             >
               <Search className="w-3.5 h-3.5 text-brand" />
               <span className="hidden md:inline">Szukaj...</span>
@@ -391,6 +400,7 @@ export function AppShell({
                 className="flex items-center gap-1.5 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-main font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring group"
                 id="btn-header-switch-profile"
                 title="Przełącz profil"
+                aria-label="Przełącz profil"
               >
                 <ArrowLeftRight className="w-3.5 h-3.5 text-brand group-hover:rotate-180 transition-transform duration-300" />
                 <span className="hidden sm:inline">Przełącz profil</span>
@@ -401,6 +411,7 @@ export function AppShell({
                 onClick={onQuickAdd}
                 className="bg-brand text-text-inverse font-bold py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                 id="btn-quick-add-tx"
+                aria-label="Dodaj nową transakcję"
               >
                 ＋ Dodaj wpis
               </button>
@@ -461,7 +472,7 @@ export function AppShell({
         )}
 
         {/* ACTIVE MODULE VIEW CANVAS */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6" id="canvas-view">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 focus:outline-none" id="main-content" tabIndex={-1}>
           {children}
         </div>
       </main>
