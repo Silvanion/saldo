@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Profile } from "../types";
 import { getMonthName, expenseCategories, budgetCategories } from "../utils";
-import { generateReportPdf } from "../services/pdfGenerator";
 import {
   Settings2,
   Check,
@@ -241,7 +240,10 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           </div>
         </div>
         <button
-          onClick={() => generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN")}
+          onClick={async () => {
+            const { generateReportPdf } = await import("../services/pdfGenerator");
+            generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN");
+          }}
           className="bg-surface hover:bg-surface-offset text-text-muted hover:text-text-main border border-border font-bold py-2 px-4 rounded-xl active:scale-[0.98] transition-all shadow-xs text-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           id="btn-download-pdf-report"
           title="Pobierz oficjalny raport PDF za wybrany miesiąc"

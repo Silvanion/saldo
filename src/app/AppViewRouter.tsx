@@ -1,17 +1,26 @@
 import { Settings, Wallet, Lock, ArrowRight, Plus } from "lucide-react";
 import { useApp } from "./providers/AppContext";
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Payment, Goal } from "../types";
 import { AppView } from "../uiTypes";
 import { DashboardView } from "../components/DashboardView";
-import { TransactionsView } from "../components/TransactionsView";
-import { PaymentsView } from "../components/PaymentsView";
-import { BudgetView } from "../components/BudgetView";
-import { GoalsView } from "../components/GoalsView";
-import { AnalysisView } from "../components/AnalysisView";
-import { SettingsView } from "../components/SettingsView";
-import { HelpView } from "../components/HelpView";
+
+const TransactionsView = lazy(() => import("../components/TransactionsView").then(m => ({ default: m.TransactionsView })));
+const PaymentsView = lazy(() => import("../components/PaymentsView").then(m => ({ default: m.PaymentsView })));
+const BudgetView = lazy(() => import("../components/BudgetView").then(m => ({ default: m.BudgetView })));
+const GoalsView = lazy(() => import("../components/GoalsView").then(m => ({ default: m.GoalsView })));
+const AnalysisView = lazy(() => import("../components/AnalysisView").then(m => ({ default: m.AnalysisView })));
+const SettingsView = lazy(() => import("../components/SettingsView").then(m => ({ default: m.SettingsView })));
+const HelpView = lazy(() => import("../components/HelpView").then(m => ({ default: m.HelpView })));
+
+function ViewFallback() {
+  return (
+    <div className="flex items-center justify-center py-24 min-h-[300px]">
+      <div className="w-8 h-8 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
+    </div>
+  );
+}
 
 export function AppViewRouter({
   onOpenTxModal,
@@ -321,7 +330,9 @@ export function AppViewRouter({
         transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
         className="w-full min-h-full flex flex-col min-w-0"
       >
-        {renderView()}
+        <Suspense fallback={<ViewFallback />}>
+          {renderView()}
+        </Suspense>
       </motion.div>
     </AnimatePresence>
   );

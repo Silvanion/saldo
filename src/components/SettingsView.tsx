@@ -36,7 +36,6 @@ import {
   KeyRound
 } from "lucide-react";
 import { generateCsvContent, downloadFile } from "../utils";
-import { generateReportPdf } from "../services/pdfGenerator";
 import { prepareStateForRemoteSave } from "../services/crypto";
 import { ConfirmModal } from "./ConfirmModal";
 
@@ -1837,8 +1836,9 @@ export function SettingsView({
               </button>
               <div className="flex flex-col gap-1">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (activeProfile) {
+                      const { generateReportPdf } = await import("../services/pdfGenerator");
                       generateReportPdf(activeProfile, pdfYear, pdfMonthIdx, activeProfile.currency || "PLN");
                     }
                   }}
