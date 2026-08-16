@@ -50,7 +50,11 @@ export function DelayedTooltip({
     }
   };
 
-  const handleTouch = () => {
+  const handleTouch = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (target && (target.closest("button") || target.closest("input") || target.closest("a") || target.closest("select"))) {
+      return;
+    }
     isTouchRef.current = true;
     clearPending();
     setOpen((prev) => !prev);
@@ -113,7 +117,7 @@ export function DelayedTooltip({
         onFocus={handleEnter}
         onBlur={handleLeave}
         onTouchStart={handleTouch}
-        className="inline-block cursor-help"
+        className="inline-block"
       >
         {children}
       </span>

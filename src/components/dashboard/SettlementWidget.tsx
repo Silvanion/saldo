@@ -96,7 +96,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-border pb-0.5 truncate" title="Do rozliczenia (Historia)">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-border pb-0.5 truncate">
               Do rozliczenia (Historia)
             </p>
           </DelayedTooltip>

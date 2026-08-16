@@ -410,11 +410,11 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
       </div>
 
       {/* 4-Pillar Horizon Summary Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10 min-w-0">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-3 sm:mb-4 relative z-10 min-w-0">
         {/* Overdue */}
         <button
           onClick={() => setRange(range === "overdue" ? "all" : "overdue")}
-          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
             range === "overdue"
               ? "bg-danger-subtle border-danger ring-2 ring-danger/20"
               : "bg-surface-2 border-border hover:border-danger/30"
@@ -432,7 +432,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         {/* Today */}
         <button
           onClick={() => setRange(range === "today" ? "all" : "today")}
-          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
             range === "today"
               ? "bg-warning-subtle border-warning ring-2 ring-warning/20"
               : "bg-surface-2 border-border hover:border-warning/30"
@@ -450,7 +450,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         {/* Next 7 Days */}
         <button
           onClick={() => setRange(range === "week" ? "all" : "week")}
-          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
             range === "week"
               ? "bg-brand-subtle border-brand ring-2 ring-brand/20"
               : "bg-surface-2 border-border hover:border-brand/30"
@@ -468,7 +468,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
         {/* Next 30 Days */}
         <button
           onClick={() => setRange(range === "month" ? "all" : "month")}
-          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
             range === "month"
               ? "bg-surface border-text-main ring-2 ring-border"
               : "bg-surface-2 border-border hover:border-text-muted"
@@ -486,14 +486,14 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0 relative z-10">
         <div className="flex items-center justify-between gap-2 mb-3 bg-surface p-1 rounded-xl border border-border shadow-inner min-w-0">
-          <div className="flex flex-wrap gap-1">
-            <button onClick={() => setRange("all")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
-            <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
-            <button onClick={() => setRange("today")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"}`}>Dziś</button>
-            <button onClick={() => setRange("week")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"}`}>7 dni</button>
-            <button onClick={() => setRange("month")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
+            <button onClick={() => setRange("all")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
+            <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
+            <button onClick={() => setRange("today")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"}`}>Dziś</button>
+            <button onClick={() => setRange("week")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"}`}>7 dni</button>
+            <button onClick={() => setRange("month")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
           </div>
-          <span className="text-xs font-mono font-bold text-text-muted pr-1">
+          <span className="text-xs font-mono font-bold text-text-muted pr-1 shrink-0 whitespace-nowrap">
             {activeSummary.count} poz.
           </span>
         </div>

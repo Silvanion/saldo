@@ -97,7 +97,7 @@ export const StatsWidget = memo(function StatsWidget({
             label="Aktualna nadwyżka finansowa (suma przychodów minus suma wydatków w wybranym miesiącu)."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <small className="text-xs text-text-muted font-medium cursor-help border-b border-dashed border-border relative z-10 pb-0.5 truncate max-w-full inline-block" title="Co to znaczy?">
+            <small className="text-xs text-text-muted font-medium cursor-help border-b border-dashed border-border relative z-10 pb-0.5 truncate max-w-full inline-block">
               Co to znaczy?
             </small>
           </DelayedTooltip>
@@ -210,7 +210,7 @@ export const StatsWidget = memo(function StatsWidget({
                     label="Środki przypisane do Twoich celów oszczędnościowych. Nie są uwzględniane w bezpiecznej kwocie do wydania."
                     tooltipClassName="w-48 bg-surface border-border text-text-main"
                   >
-                    <span className="text-xs font-medium text-text-muted cursor-help border-b border-dashed border-border pb-0.5 truncate max-w-full block" title="Zarezerwowane">
+                    <span className="text-xs font-medium text-text-muted cursor-help border-b border-dashed border-border pb-0.5 truncate max-w-full block">
                       Zarezerwowane
                     </span>
                   </DelayedTooltip>

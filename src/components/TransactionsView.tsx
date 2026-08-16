@@ -459,7 +459,7 @@ export function TransactionsView({
                             <button
                               onClick={() => onOpenTxModal(tx)}
                               className="p-1.5 text-text-faint hover:text-brand hover:bg-brand-subtle rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
-                              title="Edytuj"
+                              aria-label="Edytuj transakcję"
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -468,7 +468,7 @@ export function TransactionsView({
                             <button
                               onClick={() => setTransactionToDelete(tx)}
                               className="p-1.5 text-text-faint hover:text-danger hover:bg-danger-subtle rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
-                              title="Usuń"
+                              aria-label="Usuń transakcję"
                               id={`btn-delete-tx-${tx.id}`}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
