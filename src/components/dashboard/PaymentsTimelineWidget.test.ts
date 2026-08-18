@@ -3,6 +3,7 @@ import {
   groupPaymentsByTimeline,
   filterPaymentsByRange,
   getActiveSummary,
+  getActiveDecisionSummary,
   getNearestHighlightedPaymentIds,
   getGlobalOverdueCount,
   getDueThisWeekTotal,
@@ -183,6 +184,56 @@ describe('getActiveSummary', () => {
     const allSummary = getActiveSummary(allFiltered);
     expect(allSummary.count).toBe(5);
     expect(allSummary.total).toBe(1500);
+  });
+});
+
+describe('getActiveDecisionSummary', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('computes count, total, nearestDueDate and overdueCount for active range', () => {
+    const payments: Payment[] = [
+      { id: '1', name: 'Zaległe', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20', currency: 'PLN' },
+      { id: '2', name: 'Dzisiaj', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25', currency: 'PLN' },
+      { id: '3', name: 'Za 5 dni', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-30', currency: 'PLN' },
+      { id: '4', name: 'Opłacone', amount: 400, status: 'Opłacono', category: 'Dom', isRecurring: false, dueDate: '2026-07-22', currency: 'PLN' },
+      { id: '5', name: 'Brak daty', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '', currency: 'PLN' },
+    ];
+
+    const decision = getActiveDecisionSummary(payments);
+
+    // Only unpaid items with a valid dueDate are included: '1' (100), '2' (200), '3' (300) = 600 total, 3 items
+    expect(decision.count).toBe(3);
+    expect(decision.total).toBe(600);
+    expect(decision.overdueCount).toBe(1); // '1' is unpaid & past due
+    expect(decision.nearestDueDate).toBe('2026-07-25'); // Today is the nearest upcoming date
+  });
+
+  it('handles empty payments list gracefully without misleading nearest date', () => {
+    const decision = getActiveDecisionSummary([]);
+    expect(decision.count).toBe(0);
+    expect(decision.total).toBe(0);
+    expect(decision.nearestDueDate).toBeNull();
+    expect(decision.overdueCount).toBe(0);
+  });
+
+  it('picks earliest date when all items are overdue', () => {
+    const payments: Payment[] = [
+      { id: '1', name: 'Zaległe 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20', currency: 'PLN' },
+      { id: '2', name: 'Zaległe 2', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-15', currency: 'PLN' },
+    ];
+
+    const decision = getActiveDecisionSummary(payments);
+    expect(decision.count).toBe(2);
+    expect(decision.total).toBe(300);
+    expect(decision.overdueCount).toBe(2);
+    expect(decision.nearestDueDate).toBe('2026-07-15');
   });
 });
 

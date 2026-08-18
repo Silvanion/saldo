@@ -96,6 +96,44 @@ export function getActiveSummary(filteredPayments: Payment[]) {
   };
 }
 
+export interface ActiveDecisionSummary {
+  count: number;
+  total: number;
+  nearestDueDate: string | null;
+  overdueCount: number;
+}
+
+export function getActiveDecisionSummary(filteredPayments: Payment[]): ActiveDecisionSummary {
+  const validPayments = filteredPayments
+    .filter(p => !!p.dueDate && p.status !== "Opłacono")
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+  const count = validPayments.length;
+  const total = validPayments.reduce((acc, p) => acc + p.amount, 0);
+
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const todayTime = todayDate.getTime();
+
+  let overdueCount = 0;
+  let nearestDueDate: string | null = null;
+
+  for (const p of validPayments) {
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    if (pDate.getTime() < todayTime) {
+      overdueCount++;
+    } else if (!nearestDueDate) {
+      nearestDueDate = p.dueDate;
+    }
+  }
+
+  if (!nearestDueDate && validPayments.length > 0) {
+    nearestDueDate = validPayments[0].dueDate;
+  }
+
+  return { count, total, nearestDueDate, overdueCount };
+}
+
 export function getDueThisWeekTotal(payments: Payment[]): number {
   const todayDate = new Date();
   todayDate.setHours(0, 0, 0, 0);
@@ -262,6 +300,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   // Limited grouped dataset for compact list rendering only
   const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(limitedPayments);
   const activeSummary = getActiveSummary(filteredPayments);
+  const decisionSummary = getActiveDecisionSummary(filteredPayments);
   const totalOverdueCountInView = getGlobalOverdueCount(filteredPayments);
   const texts = getTimelineTexts(range);
   const highlightedIds = getNearestHighlightedPaymentIds(today, next7Days);
@@ -497,7 +536,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0 relative z-10">
-        <div className="flex items-center justify-between gap-2 mb-3 bg-surface p-1 rounded-xl border border-border shadow-inner min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-2 bg-surface p-1 rounded-xl border border-border shadow-inner min-w-0">
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
             <button onClick={() => setRange("all")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
             <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
@@ -506,9 +545,41 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
             <button onClick={() => setRange("month")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
           </div>
           <span className="text-xs font-mono font-bold text-text-muted pr-1 shrink-0 whitespace-nowrap">
-            {activeSummary.count} poz.
+            {decisionSummary.count} poz.
           </span>
         </div>
+
+        {/* Compact Decision Summary Strip */}
+        {decisionSummary.count > 0 && (
+          <div className="flex items-center justify-between gap-2 px-3 py-1.5 mb-2.5 bg-surface-2/60 border border-border/70 rounded-xl text-xs min-w-0" id="timeline-decision-summary">
+            <div className="flex items-center gap-1.5 min-w-0 truncate text-text-muted">
+              <span className="font-semibold text-text-main shrink-0 truncate max-w-[120px]" title={texts.label}>
+                {texts.label}:
+              </span>
+              <span className="shrink-0 font-medium">
+                {decisionSummary.count} {decisionSummary.count === 1 ? "poz." : "poz."}
+              </span>
+              {decisionSummary.nearestDueDate && (
+                <>
+                  <span className="text-text-faint hidden xs:inline">•</span>
+                  <span className="text-text-faint hidden xs:inline truncate" title={`Termin: ${decisionSummary.nearestDueDate}`}>
+                    Termin: <strong className="text-text-muted font-medium">{decisionSummary.nearestDueDate}</strong>
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="font-black text-brand whitespace-nowrap" title={formatMoney(decisionSummary.total, currency)}>
+                {formatMoney(decisionSummary.total, currency)}
+              </span>
+              {decisionSummary.overdueCount > 0 && range !== "overdue" && (
+                <span className="bg-danger-subtle text-danger font-bold text-[10px] px-1.5 py-0.2 rounded border border-danger/20 shrink-0" title={`W tym zaległe: ${decisionSummary.overdueCount}`}>
+                  🔴 {decisionSummary.overdueCount}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {activeSummary.count === 0 ? (
           <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
