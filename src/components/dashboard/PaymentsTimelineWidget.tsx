@@ -221,6 +221,19 @@ export function groupPaymentsByTimeline(payments: Payment[]) {
   return { overdue, today, next7Days, next30Days, later };
 }
 
+export function getMonthlyOverviewMetrics(grouped: ReturnType<typeof groupPaymentsByTimeline>) {
+  const upcoming = [...grouped.today, ...grouped.next7Days, ...grouped.next30Days].sort((a, b) =>
+    a.dueDate.localeCompare(b.dueDate)
+  );
+  const sum = upcoming.reduce((acc, p) => acc + p.amount, 0);
+  const count = upcoming.length;
+  const nearest = upcoming.length > 0 ? upcoming[0].dueDate : "-";
+  const overdueSum = grouped.overdue.reduce((acc, p) => acc + p.amount, 0);
+  const overdueCount = grouped.overdue.length;
+
+  return { upcoming, sum, count, nearest, overdueSum, overdueCount };
+}
+
 export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   currency,
   unpaidPayments,
@@ -233,7 +246,10 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const filteredPayments = filterPaymentsByRange(unpaidPayments, range);
   const horizonSummary = getHorizonSummary(unpaidPayments);
   
-  // Limit to max 7 items to prevent endless vertical growth on dashboard
+  // Full grouped dataset for analytics / monthly overview calculations
+  const fullGrouped = groupPaymentsByTimeline(filteredPayments);
+
+  // Limit to max 7 items to prevent endless vertical growth on dashboard compact list
   const MAX_ITEMS = 7;
   const sortedFiltered = [...filteredPayments].sort((a, b) => {
     if (!a.dueDate) return 1;
@@ -243,6 +259,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   const limitedPayments = sortedFiltered.slice(0, MAX_ITEMS);
   const remainingCount = sortedFiltered.length - MAX_ITEMS;
   
+  // Limited grouped dataset for compact list rendering only
   const { overdue, today, next7Days, next30Days, later } = groupPaymentsByTimeline(limitedPayments);
   const activeSummary = getActiveSummary(filteredPayments);
   const totalOverdueCountInView = getGlobalOverdueCount(filteredPayments);
@@ -296,9 +313,9 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
   };
 
   const renderMonthlyOverview = () => {
-    const upcoming = [...today, ...next7Days, ...next30Days].sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+    const { upcoming, sum, count, nearest, overdueSum, overdueCount } = getMonthlyOverviewMetrics(fullGrouped);
     
-    if (upcoming.length === 0 && overdue.length === 0) {
+    if (upcoming.length === 0 && overdueCount === 0) {
       return (
         <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
           <div className="text-2xl mb-1 opacity-50 shrink-0">🏖️</div>
@@ -307,18 +324,13 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
       );
     }
 
-    const sum = upcoming.reduce((acc, p) => acc + p.amount, 0);
-    const count = upcoming.length;
-    const nearest = upcoming.length > 0 ? upcoming[0].dueDate : "-";
-    const overdueSum = overdue.reduce((acc, p) => acc + p.amount, 0);
-
     return (
       <div className="flex flex-col gap-4 pt-2">
-        {overdue.length > 0 && (
+        {overdueCount > 0 && (
           <div className="bg-danger-subtle border border-danger/30 rounded-xl p-4 flex flex-col gap-3 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <AlertCircle className="w-4 h-4 text-danger shrink-0" />
-              <h4 className="text-sm font-bold text-danger truncate" title={`Zaległe płatności (${overdue.length})`}>Zaległe płatności ({overdue.length})</h4>
+              <h4 className="text-sm font-bold text-danger truncate" title={`Zaległe płatności (${overdueCount})`}>Zaległe płatności ({overdueCount})</h4>
             </div>
             <div className="flex justify-between items-center gap-2">
               <span className="text-xs text-danger/80 truncate" title="Łączna kwota zaległości:">Łączna kwota zaległości:</span>
@@ -489,7 +501,7 @@ export const PaymentsTimelineWidget = memo(function PaymentsTimelineWidget({
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
             <button onClick={() => setRange("all")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>Wszystkie</button>
             <button onClick={() => setRange("overdue")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"}`}>Zaległe</button>
-            <button onClick={() => setRange("today")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"}`}>Dziś</button>
+            <button onClick={() => setRange("today")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"}`}>Dzisiaj</button>
             <button onClick={() => setRange("week")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"}`}>7 dni</button>
             <button onClick={() => setRange("month")} className={`text-xs font-bold px-2.5 py-1 rounded-lg active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${range === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-muted hover:bg-surface-offset"}`}>30 dni</button>
           </div>

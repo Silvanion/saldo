@@ -6,7 +6,8 @@ import {
   getNearestHighlightedPaymentIds,
   getGlobalOverdueCount,
   getDueThisWeekTotal,
-  getHorizonSummary
+  getHorizonSummary,
+  getMonthlyOverviewMetrics
 } from './PaymentsTimelineWidget';
 import { Payment } from '../../types';
 
@@ -296,4 +297,79 @@ describe('getDueThisWeekTotal', () => {
     expect(getDueThisWeekTotal(payments)).toBe(700);
   });
 });
+
+describe('getMonthlyOverviewMetrics & >7 items dataset separation', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-25T12:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calculates monthly overview count, sum, overdue metrics and nearest date correctly', () => {
+    const payments: Payment[] = [
+      { id: '1', name: 'Zaległe 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20', currency: 'PLN' },
+      { id: '2', name: 'Dzisiaj 1', amount: 200, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25', currency: 'PLN' },
+      { id: '3', name: '7 dni 1', amount: 300, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-28', currency: 'PLN' },
+      { id: '4', name: '30 dni 1', amount: 400, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-10', currency: 'PLN' },
+      { id: '5', name: 'Później 1', amount: 500, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-09-01', currency: 'PLN' },
+    ];
+
+    const grouped = groupPaymentsByTimeline(payments);
+    const metrics = getMonthlyOverviewMetrics(grouped);
+
+    // Upcoming includes today (200) + 7dni (300) + 30dni (400) = 900
+    expect(metrics.count).toBe(3);
+    expect(metrics.sum).toBe(900);
+    expect(metrics.nearest).toBe('2026-07-25');
+    expect(metrics.overdueCount).toBe(1);
+    expect(metrics.overdueSum).toBe(100);
+  });
+
+  it('regression: when there are more than 7 unpaid payments, compact mode is capped at 7 while monthly overview uses full dataset', () => {
+    // 10 payments within the month: 1 overdue, 1 today, 3 in 7 days, 5 in 30 days
+    const payments: Payment[] = [
+      { id: 'ov-1', name: 'Overdue 1', amount: 50, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-20', currency: 'PLN' },
+      { id: 'td-1', name: 'Today 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-25', currency: 'PLN' },
+      { id: 'w-1', name: 'Week 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-26', currency: 'PLN' },
+      { id: 'w-2', name: 'Week 2', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-27', currency: 'PLN' },
+      { id: 'w-3', name: 'Week 3', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-07-28', currency: 'PLN' },
+      { id: 'm-1', name: 'Month 1', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-01', currency: 'PLN' },
+      { id: 'm-2', name: 'Month 2', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-05', currency: 'PLN' },
+      { id: 'm-3', name: 'Month 3', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-10', currency: 'PLN' },
+      { id: 'm-4', name: 'Month 4', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-15', currency: 'PLN' },
+      { id: 'm-5', name: 'Month 5', amount: 100, status: 'Do opłacenia', category: 'Dom', isRecurring: false, dueDate: '2026-08-20', currency: 'PLN' },
+    ];
+
+    expect(payments.length).toBe(10);
+
+    // 1. Compact list dataset: limited to MAX_ITEMS = 7
+    const MAX_ITEMS = 7;
+    const sortedFiltered = [...payments].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    const limitedPayments = sortedFiltered.slice(0, MAX_ITEMS);
+    const compactGrouped = groupPaymentsByTimeline(limitedPayments);
+
+    const compactTotalVisibleRows = 
+      compactGrouped.overdue.length +
+      compactGrouped.today.length +
+      compactGrouped.next7Days.length +
+      compactGrouped.next30Days.length +
+      compactGrouped.later.length;
+
+    expect(compactTotalVisibleRows).toBe(7);
+
+    // 2. Full dataset for monthly overview / Cashflow
+    const fullGrouped = groupPaymentsByTimeline(payments);
+    const monthlyMetrics = getMonthlyOverviewMetrics(fullGrouped);
+
+    // Must include ALL 9 upcoming payments (1 today + 3 week + 5 month = 900 PLN)
+    expect(monthlyMetrics.count).toBe(9);
+    expect(monthlyMetrics.sum).toBe(900);
+    expect(monthlyMetrics.overdueCount).toBe(1);
+    expect(monthlyMetrics.overdueSum).toBe(50);
+  });
+});
+
 
