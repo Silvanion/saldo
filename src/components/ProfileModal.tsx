@@ -114,6 +114,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
                         }
                       }}
                       className={`text-2xl p-2 rounded-xl border transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-focus-ring ${avatar === emoji ? 'bg-brand-surface border-brand shadow-sm' : 'bg-surface border-border hover:bg-surface-offset grayscale hover:grayscale-0'}`}
+                      aria-label={`Wybierz ikonę ${emoji}`}
                     >
                       {emoji}
                     </button>

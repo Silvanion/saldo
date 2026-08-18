@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Profile, Payment } from "../types";
 import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
 import { Bell, BellOff, BellRing, Plus, CalendarClock, AlertCircle, Clock, CalendarDays, Calendar } from "lucide-react";
 import { getHorizonSummary } from "./dashboard/PaymentsTimelineWidget";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { formatMoney } from "../utils/format";
 
 interface PaymentsViewProps {
@@ -34,6 +36,9 @@ export function PaymentsView({
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
   const [timeFilter, setTimeFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null);
+  const deleteModalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(!!paymentToDelete);
+  useFocusTrap(deleteModalRef, !!paymentToDelete, () => setPaymentToDelete(null));
 
   const handleEnableNotifications = async () => {
     try {
@@ -501,8 +506,14 @@ export function PaymentsView({
 
       {paymentToDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-surface rounded-2xl max-w-sm w-full p-6 shadow-xl border border-border/30 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-text-main mb-2">Usunąć płatność?</h3>
+          <div
+            ref={deleteModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-payment-title"
+            className="bg-surface rounded-2xl max-w-sm w-full p-6 shadow-xl border border-border/30 animate-in fade-in zoom-in-95 duration-200"
+          >
+            <h3 id="delete-payment-title" className="text-xl font-bold text-text-main mb-2">Usunąć płatność?</h3>
             
             {profile.transactions.some(tx => tx.sourcePaymentId === paymentToDelete.id) ? (
               <>

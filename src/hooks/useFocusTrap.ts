@@ -11,71 +11,105 @@ const focusableSelectors = [
 
 export function useFocusTrap(ref: RefObject<HTMLElement | null>, isOpen: boolean, onClose?: () => void) {
   useEffect(() => {
-    if (!isOpen || !ref.current) return;
+    if (!isOpen) return;
 
-    const modalElement = ref.current;
-    const previousFocus = document.activeElement as HTMLElement | null;
+    let cleanupListeners: (() => void) | undefined;
+    let initialFocusTimeout: any;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && onClose) {
-        e.preventDefault();
-        onClose();
-        return;
-      }
+    const setupTrap = () => {
+      const modalElement = ref.current;
+      if (!modalElement) return false;
 
-      if (e.key !== "Tab") return;
+      const previousFocus = document.activeElement as HTMLElement | null;
 
-      const focusableElements = Array.from(
-        modalElement.querySelectorAll<HTMLElement>(focusableSelectors)
-      ).filter(el => {
-        if ((el as HTMLElement).offsetParent === null) return false;
-        return true;
-      });
-
-      if (focusableElements.length === 0) {
-        e.preventDefault();
-        return;
-      }
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement || document.activeElement === modalElement) {
-          e.preventDefault();
-          (lastElement as HTMLElement).focus();
+      const isVisible = (el: HTMLElement) => {
+        if (typeof el.checkVisibility === "function") {
+          return el.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true });
         }
-      } else {
-        if (document.activeElement === lastElement) {
+        return el.getClientRects().length > 0 || (el.offsetWidth > 0 && el.offsetHeight > 0);
+      };
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && onClose) {
           e.preventDefault();
-          (firstElement as HTMLElement).focus();
+          onClose();
+          return;
         }
-      }
+
+        if (e.key !== "Tab") return;
+
+        const focusableElements = Array.from(
+          modalElement.querySelectorAll<HTMLElement>(focusableSelectors)
+        ).filter(el => isVisible(el as HTMLElement));
+
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (
+            document.activeElement === firstElement ||
+            document.activeElement === modalElement ||
+            !modalElement.contains(document.activeElement)
+          ) {
+            e.preventDefault();
+            (lastElement as HTMLElement).focus();
+          }
+        } else {
+          if (
+            document.activeElement === lastElement ||
+            !modalElement.contains(document.activeElement)
+          ) {
+            e.preventDefault();
+            (firstElement as HTMLElement).focus();
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      // Initial focus on the first element if none is focused within the modal
+      initialFocusTimeout = setTimeout(() => {
+        if (ref.current && !ref.current.contains(document.activeElement)) {
+          const focusableElements = Array.from(
+            ref.current.querySelectorAll<HTMLElement>(focusableSelectors)
+          ).filter(el => isVisible(el as HTMLElement));
+          
+          if (focusableElements.length > 0) {
+            (focusableElements[0] as HTMLElement).focus();
+          }
+        }
+      }, 50);
+
+      cleanupListeners = () => {
+        document.removeEventListener("keydown", handleKeyDown);
+        clearTimeout(initialFocusTimeout);
+        
+        // Restore focus when closing
+        if (previousFocus && typeof previousFocus.focus === "function") {
+          previousFocus.focus();
+        }
+      };
+
+      return true;
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Initial focus on the first element if none is focused within the modal
-    const initialFocusTimeout = setTimeout(() => {
-      if (ref.current && !ref.current.contains(document.activeElement)) {
-        const focusableElements = Array.from(
-          ref.current.querySelectorAll<HTMLElement>(focusableSelectors)
-        ).filter(el => (el as HTMLElement).offsetParent !== null);
-        
-        if (focusableElements.length > 0) {
-          (focusableElements[0] as HTMLElement).focus();
-        }
-      }
-    }, 50);
+    if (!setupTrap()) {
+      const raf = requestAnimationFrame(() => {
+        setupTrap();
+      });
+      return () => {
+        cancelAnimationFrame(raf);
+        cleanupListeners?.();
+      };
+    }
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      clearTimeout(initialFocusTimeout);
-      
-      // Restore focus when closing
-      if (previousFocus && typeof previousFocus.focus === "function") {
-        previousFocus.focus();
-      }
+      cleanupListeners?.();
     };
   }, [isOpen, ref, onClose]);
 }

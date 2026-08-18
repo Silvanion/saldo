@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { formatMoney } from "../utils/format";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import {
@@ -48,6 +50,9 @@ export function TransactionsView({
   const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
   const [itemsToShow, setItemsToShow] = useState(25);
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+  const deleteModalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(!!transactionToDelete);
+  useFocusTrap(deleteModalRef, !!transactionToDelete, () => setTransactionToDelete(null));
 
   // Debounce search term to prevent keyboard delay
   useEffect(() => {
@@ -613,6 +618,10 @@ export function TransactionsView({
 
             {/* Dialog Modal Box */}
             <motion.div
+              ref={deleteModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-tx-title"
               initial={{ opacity: 0, scale: 0.95, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -625,7 +634,7 @@ export function TransactionsView({
                   <Trash2 className="w-5 h-5 text-danger" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-text-main">Potwierdź usunięcie</h3>
+                  <h3 id="delete-tx-title" className="text-lg font-bold text-text-main">Potwierdź usunięcie</h3>
                   <p className="text-xs text-text-muted">Czy na pewno chcesz usunąć tę transakcję?</p>
                 </div>
               </div>

@@ -13,3 +13,5 @@ patch_*.cjs
 .agents/
 .vite-cache/
 design-system/
+test-results/
+playwright-report/

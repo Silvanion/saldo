@@ -477,6 +477,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               type="submit"
               disabled={!amount || !name || isSubmitting || !!duplicateWarning}
               className="w-full bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-tx-submit"
             >
               <span className="truncate" title={isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}>
                 {isSubmitting ? "Zapisywanie..." : isEditing ? "Zapisz zmiany" : "Dodaj transakcję"}

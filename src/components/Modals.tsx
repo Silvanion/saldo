@@ -540,6 +540,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
                 inputMode="numeric"
                 pattern="[0-9]{4,8}"
                 placeholder="••••"
+                aria-label="Wprowadź kod PIN"
                 autoFocus
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
@@ -6,6 +6,8 @@ import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, Arro
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
 import { formatMoney } from "../utils/format";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 
 interface Widget {
   id: string;
@@ -75,6 +77,9 @@ export function DashboardView({
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const customizerModalRef = useRef<HTMLDivElement>(null);
+  useScrollLock(isCustomizerOpen);
+  useFocusTrap(customizerModalRef, isCustomizerOpen, () => setIsCustomizerOpen(false));
 
   const saveWidgets = useCallback((newWidgets: Widget[]) => {
     setWidgets(newWidgets);
@@ -333,6 +338,10 @@ export function DashboardView({
               className="absolute inset-0 bg-black/60 backdrop-blur-xs"
             />
             <motion.div
+              ref={customizerModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="dashboard-customizer-title"
               initial={{ opacity: 0, scale: 0.95, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -352,7 +361,7 @@ export function DashboardView({
                   ⚙️
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-text-main">Dostosuj Ekran Główny</h3>
+                  <h3 id="dashboard-customizer-title" className="text-base font-bold text-text-main">Dostosuj Ekran Główny</h3>
                   <p className="text-xs text-text-muted">Zarządzaj widocznością kafelków i ich kolejnością.</p>
                 </div>
               </div>
@@ -378,7 +387,7 @@ export function DashboardView({
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
                           className="p-1.5 hover:bg-surface-3 disabled:opacity-30 text-text-muted transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          aria-label="Przesuń wyżej"
+                          aria-label={`Przesuń wyżej: ${w.name}`}
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
@@ -387,7 +396,7 @@ export function DashboardView({
                           onClick={() => handleMoveDown(index)}
                           disabled={index === widgets.length - 1}
                           className="p-1.5 hover:bg-surface-3 disabled:opacity-30 text-text-muted transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          aria-label="Przesuń niżej"
+                          aria-label={`Przesuń niżej: ${w.name}`}
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
@@ -398,7 +407,7 @@ export function DashboardView({
                         className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer flex items-center ${
                           w.visible ? "bg-brand justify-end" : "bg-surface-3 justify-start"
                         }`}
-                        aria-label={w.visible ? "Ukryj widget" : "Pokaż widget"}
+                        aria-label={w.visible ? `Ukryj widget: ${w.name}` : `Pokaż widget: ${w.name}`}
                       >
                         <motion.div
                           layout
