@@ -1,6 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, EmailAuthProvider, reauthenticateWithCredential, updatePassword, verifyBeforeUpdateEmail, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, Firestore } from "firebase/firestore";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, EmailAuthProvider, reauthenticateWithCredential, updatePassword, verifyBeforeUpdateEmail, deleteUser, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -358,6 +358,86 @@ export const changeEmail = async (currentPassword: string, newEmail: string): Pr
     }
     throw new Error(error?.message || "Wystąpił błąd podczas zmiany adresu email.");
   }
+};
+
+// Trwałe usunięcie konta i danych w chmurze (RODO / GDPR)
+export const deleteOwnAccount = async (currentPassword?: string): Promise<void> => {
+  if (!isFirebaseConfigured || !auth?.currentUser) {
+    throw new Error("Brak zalogowanego użytkownika lub połączenia z Firebase.");
+  }
+
+  const user = auth.currentUser;
+  const hasPasswordProvider = user.providerData?.some((p: any) => p.providerId === "password");
+
+  // 1. Reautentykacja
+  if (hasPasswordProvider) {
+    if (!currentPassword) {
+      throw new Error("Wymagane jest podanie aktualnego hasła do potwierdzenia tożsamości.");
+    }
+    if (!user.email) {
+      throw new Error("Konto nie posiada przypisanego adresu email.");
+    }
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+    } catch (error: any) {
+      const code = error?.code || "";
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+        throw new Error("Aktualne hasło jest nieprawidłowe.");
+      } else if (code === "auth/too-many-requests") {
+        throw new Error("Zbyt wiele prób. Spróbuj ponownie później.");
+      } else if (code === "auth/requires-recent-login") {
+        throw new Error("Ta operacja wymaga ponownego zalogowania ze względów bezpieczeństwa.");
+      } else if (code === "auth/network-request-failed") {
+        throw new Error("Brak połączenia z siecią. Sprawdź swoje połączenie internetowe.");
+      }
+      throw new Error(error?.message || "Błąd uwierzytelnienia przed usunięciem konta.");
+    }
+  } else {
+    // Google-only account
+    throw new Error("Usuwanie kont powiązanych wyłącznie z Google nie jest obsługiwane z poziomu hasła. Zarządzaj dostępem na koncie Google.");
+  }
+
+  // 2. Krok 1 usuwania: Usunięcie dokumentu użytkownika z Firestore
+  let firestoreDeleted = false;
+  if (db) {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await deleteDoc(userDocRef);
+      firestoreDeleted = true;
+    } catch (error: any) {
+      const code = error?.code || "";
+      console.error("Firestore document deletion failed:", error);
+      if (code === "permission-denied") {
+        throw new Error("Brak uprawnień do usunięcia danych w chmurze (błąd uprawnień Firestore).");
+      }
+      throw new Error(error?.message || "Nie udało się usunąć danych w chmurze. Konto logowania nie zostało naruszone.");
+    }
+  }
+
+  // 3. Krok 2 usuwania: Usunięcie konta Firebase Auth
+  try {
+    await deleteUser(user);
+  } catch (error: any) {
+    console.error("Firebase Auth user deletion failed:", error);
+    const code = error?.code || "";
+    if (code === "auth/requires-recent-login") {
+      throw new Error(
+        firestoreDeleted
+          ? "Twoje dane w chmurze zostały pomyślnie usunięte, ale usunięcie konta logowania wymaga świeżej sesji. Zaloguj się ponownie, aby dokończyć usuwanie konta."
+          : "Operacja usunięcia konta wymaga ponownego zalogowania."
+      );
+    }
+    throw new Error(
+      firestoreDeleted
+        ? "Twoje dane w chmurze zostały usunięte, ale wystąpił błąd podczas usuwania konta logowania. Spróbuj ponownie za chwilę."
+        : error?.message || "Wystąpił błąd podczas usuwania konta."
+    );
+  }
+
+  // 4. Krok 3: Wyczyść lokalne tokeny sesji
+  tokens = { basic: null, drive: null, calendar: null };
+  cachedUser = null;
 };
 
 // Retrieve currently cached access token (for basic compat)

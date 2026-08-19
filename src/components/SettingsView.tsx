@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
-import { isFirebaseConfigured, changePassword, changeEmail, logout } from "../firebase";
+import { isFirebaseConfigured, changePassword, changeEmail, logout, deleteOwnAccount } from "../firebase";
 import {
   Cloud,
   CloudUpload,
@@ -38,6 +38,7 @@ import {
   Plus,
   KeyRound,
   Mail,
+  UserX,
   Eye,
   EyeOff,
   X
@@ -621,6 +622,14 @@ export function SettingsView({
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
 
+  // Cloud account deletion states
+  const [showCloudDeleteModal, setShowCloudDeleteModal] = useState(false);
+  const [deleteAccountPassword, setDeleteAccountPassword] = useState("");
+  const [deleteAccountPhrase, setDeleteAccountPhrase] = useState("");
+  const [deleteAccountError, setDeleteAccountError] = useState("");
+  const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
+  const [showDeletePwd, setShowDeletePwd] = useState(false);
+
   const handleLogoutOnly = async () => {
     try {
       await logout();
@@ -638,6 +647,34 @@ export function SettingsView({
       window.location.reload();
     } catch (e: any) {
       showToast(e.message || "Błąd podczas czyszczenia danych urządzenia", "error");
+    }
+  };
+
+  const handleDeleteOwnAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (deleteAccountPhrase.trim() !== "USUŃ KONTO") {
+      setDeleteAccountError('Wpisz dokładnie frazę "USUŃ KONTO", aby potwierdzić.');
+      return;
+    }
+    if (hasPasswordProvider && !deleteAccountPassword) {
+      setDeleteAccountError("Wprowadź aktualne hasło do konta.");
+      return;
+    }
+
+    setDeleteAccountLoading(true);
+    setDeleteAccountError("");
+
+    try {
+      await deleteOwnAccount(deleteAccountPassword);
+      await clearState();
+      Object.keys(activeKeys).forEach((k) => delete activeKeys[k]);
+      showToast("Twoje konto i dane w chmurze zostały trwale usunięte.", "success");
+      setShowCloudDeleteModal(false);
+      window.location.reload();
+    } catch (err: any) {
+      setDeleteAccountError(err.message || "Wystąpił błąd podczas usuwania konta.");
+    } finally {
+      setDeleteAccountLoading(false);
     }
   };
 
@@ -2302,6 +2339,41 @@ export function SettingsView({
                 <span>Zresetuj urządzenie / Wyczyść dane lokalne</span>
               </button>
             </div>
+
+            {/* Usuń konto i dane w chmurze */}
+            {googleUser ? (
+              <div className="bg-danger-subtle border border-danger/30 rounded-xl p-4 shadow-xs">
+                <h4 className="text-sm font-bold text-danger mb-1 flex items-center gap-2">
+                  <UserX className="w-4 h-4 text-danger shrink-0" />
+                  Usuń konto i dane w chmurze (RODO / GDPR)
+                </h4>
+                <p className="text-xs text-danger/90 mb-3 leading-relaxed">
+                  Ta operacja <strong>trwale usunie Twoje konto logowania</strong> oraz wszystkie powiązane z nim dane z bazy danych w chmurze. 
+                  Nie dotyczy to tylko tego urządzenia — tracisz bezpowrotnie dostęp do kopii chmurowych. Operacji tej <strong>nie można cofnąć</strong>.
+                </p>
+
+                {hasPasswordProvider ? (
+                  <button
+                    onClick={() => {
+                      setDeleteAccountError("");
+                      setDeleteAccountPassword("");
+                      setDeleteAccountPhrase("");
+                      setShowCloudDeleteModal(true);
+                    }}
+                    className="bg-danger text-text-inverse hover:bg-danger/90 active:scale-[0.98] transition-all py-2.5 px-4 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring w-full sm:w-auto justify-center"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Usuń konto i wszystkie dane w chmurze</span>
+                  </button>
+                ) : (
+                  <div className="p-3 bg-surface-2 rounded-lg border border-border/50">
+                    <p className="text-xs text-text-muted">
+                      Twoje konto jest połączone wyłącznie przez logowanie Google. Aby usunąć powiązanie, odepnij aplikację w ustawieniach konta Google lub skorzystaj z lokalnego resetu urządzenia powyżej.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       )}
@@ -2382,6 +2454,98 @@ export function SettingsView({
             : null
         }
       />
+
+      {showCloudDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-surface rounded-2xl max-w-md w-full p-6 shadow-xl border border-danger/30 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-full bg-danger-subtle text-danger flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold text-text-main mb-2">Trwałe usunięcie konta i danych</h3>
+            <p className="text-xs text-text-muted mb-4 leading-relaxed">
+              Ta operacja jest <strong className="text-danger">całkowicie nieodwracalna</strong>. Trwale usunie Twój profil chmurowy,
+              wszystkie zsynchronizowane bazy danych powiązane z tym kontem oraz usunie konto uwierzytelniania.
+            </p>
+
+            {deleteAccountError && (
+              <div className="p-3 mb-4 bg-danger-subtle text-danger border border-danger/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{deleteAccountError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleDeleteOwnAccount} className="space-y-4">
+              {hasPasswordProvider && (
+                <div>
+                  <label className="block text-xs font-bold text-text-main mb-1">
+                    Aktualne hasło do konta:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showDeletePwd ? "text" : "password"}
+                      required
+                      placeholder="Wprowadź hasło"
+                      value={deleteAccountPassword}
+                      onChange={(e) => setDeleteAccountPassword(e.target.value)}
+                      disabled={deleteAccountLoading}
+                      className="w-full text-xs rounded-xl border border-border p-2.5 pr-10 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowDeletePwd(!showDeletePwd)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                    >
+                      {showDeletePwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-text-main mb-1">
+                  Wpisz <span className="font-mono text-danger font-black">USUŃ KONTO</span> aby potwierdzić:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="USUŃ KONTO"
+                  value={deleteAccountPhrase}
+                  onChange={(e) => setDeleteAccountPhrase(e.target.value)}
+                  disabled={deleteAccountLoading}
+                  className="w-full text-xs rounded-xl border border-danger/40 p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-danger text-danger font-bold tracking-wider"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={deleteAccountLoading}
+                  onClick={() => {
+                    setShowCloudDeleteModal(false);
+                    setDeleteAccountPassword("");
+                    setDeleteAccountPhrase("");
+                    setDeleteAccountError("");
+                  }}
+                  className="flex-1 bg-surface hover:bg-surface-2 border border-border text-text-muted font-bold py-2.5 rounded-xl text-xs active:scale-[0.98] transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring disabled:opacity-50"
+                >
+                  Anuluj
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    deleteAccountLoading ||
+                    deleteAccountPhrase.trim() !== "USUŃ KONTO" ||
+                    (hasPasswordProvider && !deleteAccountPassword)
+                  }
+                  className="flex-1 bg-danger hover:bg-danger/90 text-text-inverse font-bold py-2.5 rounded-xl text-xs shadow-sm active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring disabled:opacity-50 cursor-pointer"
+                >
+                  {deleteAccountLoading ? "Usuwanie..." : "Trwale usuń konto"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
