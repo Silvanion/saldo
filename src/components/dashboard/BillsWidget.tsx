@@ -36,12 +36,12 @@ export const BillsWidget = memo(function BillsWidget({
     } else if (diffDays === 0) {
       return {
         label: "Dzisiaj!",
-        badgeClass: "bg-danger-subtle text-danger border-danger/40 animate-pulse text-[10px] font-bold",
+        badgeClass: "bg-danger-subtle text-danger border-danger/40 text-[10px] font-bold",
       };
     } else if (diffDays === 1) {
       return {
         label: "Jutro",
-        badgeClass: "bg-danger-subtle text-danger border-danger/40 text-[10px] font-bold",
+        badgeClass: "bg-warning-subtle text-warning border-warning/30 text-[10px] font-bold",
       };
     } else if (diffDays <= 3) {
       return {
@@ -82,9 +82,9 @@ export const BillsWidget = memo(function BillsWidget({
 
       <div className="flex-1 flex flex-col min-h-0 relative z-10">
         {unpaidPayments.length === 0 ? (
-          <div className="text-center py-6 bg-surface-2 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
+          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
             <div className="text-2xl mb-1 opacity-50 shrink-0">🍵</div>
-            <p className="text-xs text-text-muted font-bold truncate">Brak rachunków do opłacenia</p>
+            <p className="text-xs text-text-muted font-medium truncate">Brak rachunków do opłacenia</p>
             <p className="text-xs text-text-faint truncate">Wszystkie bieżące opłaty są uregulowane.</p>
           </div>
         ) : (
@@ -135,7 +135,7 @@ export const BillsWidget = memo(function BillsWidget({
               </div>
             ))}
             {unpaidPayments.length > 5 && (
-              <p className="text-center text-xs text-text-faint font-medium pt-1">
+              <p className="text-center text-xs text-text-faint font-semibold pt-2 pb-1">
                 + {unpaidPayments.length - 5} innych opłat (zobacz w zakładce Zarządzaj)
               </p>
             )}
