@@ -186,4 +186,26 @@ describe("PaymentsView (Urgency badges & Empty state)", () => {
     fireEvent.click(deleteBtn);
     expect(screen.getByText("Usunąć płatność?")).toBeTruthy();
   });
+
+  it("renders refined header hierarchy and time filter controls", () => {
+    const payments: Payment[] = [
+      { id: "1", name: "Rachunek 1", amount: 100, status: "Do opłacenia", category: "Dom", isRecurring: false, dueDate: "2026-07-25", currency: "PLN" },
+    ];
+
+    render(
+      <PaymentsView
+        {...defaultProps}
+        profile={{ ...baseProfile, payments }}
+      />
+    );
+
+    expect(screen.getByText("Harmonogram Płatności")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Rachunki i Subskrypcje" })).toBeTruthy();
+    expect(screen.getByText("1 do opłacenia")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Wszystkie" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Zaległe" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Dzisiaj" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "7 dni" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "30 dni" })).toBeTruthy();
+  });
 });

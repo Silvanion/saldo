@@ -150,14 +150,17 @@ export function PaymentsView({
   return (
     <div className="space-y-6" id="payments-view-container">
       {/* Overview header + CTA */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-2 p-5 rounded-2xl border border-border shadow-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-2 p-5 rounded-2xl border border-border shadow-sm">
         <div className="min-w-0">
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Harmonogram Płatności">
+            Harmonogram Płatności
+          </p>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-bold text-text-main uppercase tracking-wider truncate" title="Rachunki i Subskrypcje">
+            <h2 className="text-base sm:text-xl font-bold text-text-main truncate" title="Rachunki i Subskrypcje">
               Rachunki i Subskrypcje
-            </h3>
+            </h2>
             {unpaidCount > 0 && (
-              <span className="text-xs bg-danger-subtle text-danger border border-danger/20 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-danger-subtle text-danger border border-danger/30 shrink-0">
                 {unpaidCount} do opłacenia
               </span>
             )}
@@ -256,7 +259,7 @@ export function PaymentsView({
       </div>
 
       {/* Browser Notifications Setup Card */}
-      <div className="bg-surface rounded-2xl border border-border shadow-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
+      <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
         <div className="flex items-start gap-3.5 min-w-0">
           <div className={`p-2.5 rounded-xl shrink-0 ${
             notificationPermission === "granted" 
@@ -316,73 +319,73 @@ export function PaymentsView({
         onAddPayment={onAddPayment}
       />
 
-      <div className="bg-surface rounded-2xl border border-border shadow-lg p-6 min-w-0">
+      <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 min-w-0">
           <h3 className="text-base font-bold text-text-main shrink-0 truncate" title="Lista Twoich opłat">Lista Twoich opłat</h3>
           
           <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto min-w-0">
-            <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border">
+            <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner">
               <button
                 onClick={() => setTimeFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "all" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                  timeFilter === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                 }`}
               >Wszystkie</button>
               <button
                 onClick={() => setTimeFilter("overdue")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/20" : "text-text-muted hover:text-danger"
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                  timeFilter === "overdue" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"
                 }`}
               >Zaległe</button>
               <button
                 onClick={() => setTimeFilter("today")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/20" : "text-text-muted hover:text-warning"
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                  timeFilter === "today" ? "bg-warning-subtle text-warning shadow-sm border border-warning/30" : "text-text-muted hover:text-warning hover:bg-warning-subtle"
                 }`}
               >Dzisiaj</button>
               <button
                 onClick={() => setTimeFilter("week")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                  timeFilter === "week" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"
                 }`}
               >7 dni</button>
               <button
                 onClick={() => setTimeFilter("month")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                  timeFilter === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main"
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                  timeFilter === "month" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                 }`}
               >30 dni</button>
             </div>
             {profile.kind === "shared" && (
-              <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border">
+              <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner">
                 <button
                   onClick={() => setPaidByFilter("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                    paidByFilter === "all" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                    paidByFilter === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                   }`}
                 >
                   Wszystkie role
                 </button>
                 <button
                   onClick={() => setPaidByFilter("me")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                    paidByFilter === "me" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                    paidByFilter === "me" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                   }`}
                 >
                   Ja
                 </button>
                 <button
                   onClick={() => setPaidByFilter("partner")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                    paidByFilter === "partner" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                    paidByFilter === "partner" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                   }`}
                 >
                   Partner
                 </button>
                 <button
                   onClick={() => setPaidByFilter("joint")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                    paidByFilter === "joint" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main"
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                    paidByFilter === "joint" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                   }`}
                 >Wspólne</button>
               </div>
