@@ -1,4 +1,5 @@
-import { Payment } from "../types";
+import { Payment, Profile, SupportedCurrency } from "../types";
+import { resolveCurrency } from "./format";
 
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (typeof window === "undefined" || !("Notification" in window)) {
@@ -8,7 +9,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return permission;
 }
 
-export function checkAndNotifyPayments(profile: import("../types").Profile, appCurrency?: import("../types").SupportedCurrency) {
+export function checkAndNotifyPayments(profile: Profile, appCurrency?: SupportedCurrency) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
 
@@ -40,26 +41,24 @@ export function checkAndNotifyPayments(profile: import("../types").Profile, appC
   const newNotifiedKeys = [...notifiedKeys, ...toNotify.map((p) => `${p.id}_${p.status}_${p.dueDate}`)];
   sessionStorage.setItem("saldo_notified_payments", JSON.stringify(newNotifiedKeys));
 
-  import("./format").then(({ resolveCurrency }) => {
-    // Send notification
-    if (toNotify.length === 1) {
-      const p = toNotify[0];
-      const pDate = new Date(`${p.dueDate}T00:00:00`);
-      const diffDays = Math.ceil((pDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      let timeLabel = "";
-      if (diffDays === 0) timeLabel = "dzisiaj";
-      else if (diffDays === 1) timeLabel = "jutro";
-      else timeLabel = `za ${diffDays} dni`;
+  // Send notification
+  if (toNotify.length === 1) {
+    const p = toNotify[0];
+    const pDate = new Date(`${p.dueDate}T00:00:00`);
+    const diffDays = Math.ceil((pDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    let timeLabel = "";
+    if (diffDays === 0) timeLabel = "dzisiaj";
+    else if (diffDays === 1) timeLabel = "jutro";
+    else timeLabel = `za ${diffDays} dni`;
 
-      const resolvedCur = resolveCurrency(p.currency, profile.currency, appCurrency);
-      new Notification("Zbliżający się termin płatności!", {
-        body: `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} ${resolvedCur} jest do opłacenia ${timeLabel} (${p.dueDate}).`,
-      });
-    } else {
-      const listNames = toNotify.map((p) => p.name).join(", ");
-      new Notification("Masz zbliżające się płatności!", {
-        body: `Do opłacenia masz ${toNotify.length} rachunki: ${listNames}.`,
-      });
-    }
-  });
+    const resolvedCur = resolveCurrency(p.currency, profile.currency, appCurrency);
+    new Notification("Zbliżający się termin płatności!", {
+      body: `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} ${resolvedCur} jest do opłacenia ${timeLabel} (${p.dueDate}).`,
+    });
+  } else {
+    const listNames = toNotify.map((p) => p.name).join(", ");
+    new Notification("Masz zbliżające się płatności!", {
+      body: `Do opłacenia masz ${toNotify.length} rachunki: ${listNames}.`,
+    });
+  }
 }

@@ -26,6 +26,7 @@ export function AppContent() {
     failedAttempts,
     lockoutUntil,
     lockProfile,
+    isSecurityInfoOpen,
   } = useApp();
 
   // Check and display browser notifications for upcoming payments
@@ -104,7 +105,7 @@ export function AppContent() {
             lockoutUntil={lockoutUntil}
           />
         )}
-        <SecurityInfoModal />
+        {isSecurityInfoOpen && <SecurityInfoModal />}
         <ToastContainer />
       </AppShell>
     </>

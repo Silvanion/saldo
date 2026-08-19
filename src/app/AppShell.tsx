@@ -1,9 +1,10 @@
 
 import { useApp } from "./providers/AppContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
-import { CommandPaletteModal } from "../components/CommandPaletteModal";
+
+const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
   LayoutDashboard,
   History,
@@ -491,21 +492,25 @@ export function AppShell({
       )}
 
       {/* Command Palette Modal */}
-      <CommandPaletteModal
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setIsCommandPaletteOpen(false)}
-        activeProfile={activeProfile}
-        profiles={state?.profiles || []}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        onSelectProfile={(id) => handleSelectProfile(id)}
-        onOpenTransactionModal={(tx) => openModal("transaction", tx)}
-        onOpenPaymentModal={() => openModal("payment")}
-        onOpenGoalModal={() => openModal("goal")}
-        onExportData={handleExportData}
-        theme={theme === "dark" ? "dark" : "light"}
-        onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
-      />
+      {isCommandPaletteOpen && (
+        <Suspense fallback={null}>
+          <CommandPaletteModal
+            isOpen={true}
+            onClose={() => setIsCommandPaletteOpen(false)}
+            activeProfile={activeProfile}
+            profiles={state?.profiles || []}
+            activeView={activeView}
+            setActiveView={setActiveView}
+            onSelectProfile={(id) => handleSelectProfile(id)}
+            onOpenTransactionModal={(tx) => openModal("transaction", tx)}
+            onOpenPaymentModal={() => openModal("payment")}
+            onOpenGoalModal={() => openModal("goal")}
+            onExportData={handleExportData}
+            theme={theme === "dark" ? "dark" : "light"}
+            onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+          />
+        </Suspense>
+      )}
 
     </div>
   );

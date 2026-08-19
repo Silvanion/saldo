@@ -83,7 +83,14 @@ export default defineConfig(() => {
               if (id.includes('firebase')) {
                 return 'vendor-firebase';
               }
-              if (id.includes('jspdf')) {
+              if (
+                id.includes('jspdf') ||
+                id.includes('html2canvas') ||
+                id.includes('dompurify') ||
+                id.includes('purify') ||
+                id.includes('fflate') ||
+                id.includes('canvg')
+              ) {
                 return 'vendor-pdf';
               }
               if (id.includes('papaparse')) {

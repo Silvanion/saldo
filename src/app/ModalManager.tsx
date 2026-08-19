@@ -1,5 +1,5 @@
 import { useApp } from "./providers/AppContext";
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Profile, Goal, Payment } from "../types";
 import { ModalState } from "../uiTypes";
 import {
@@ -10,12 +10,13 @@ import {
   ProfileModal,
   PinModal,
   BudgetModal,
-  ChangelogModal
 } from "../components/Modals";
-import { CalendarReminderModal } from "../components/CalendarReminderModal";
-import { AiChatModal } from "../components/AiChatModal";
-import { DriveConflictModal } from "../components/DriveConflictModal";
 import { ConfirmModal } from "../components/ConfirmModal";
+
+const CalendarReminderModal = lazy(() => import("../components/CalendarReminderModal").then(m => ({ default: m.CalendarReminderModal })));
+const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
+const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
+const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
 
 export function ModalManager() {
   const {
@@ -58,24 +59,30 @@ export function ModalManager() {
 
   return (
     <>
-      <TransactionModal
-        isOpen={modalState.type === "transaction" && activeProfile !== null}
-        onClose={closeModal}
-        activeProfile={activeProfile}
-        initialData={modalState.type === "transaction" ? modalState.payload : undefined}
-        onSave={onSaveTransaction}
-      />
-      <PaymentModal
-        isOpen={modalState.type === "payment"}
-        onClose={closeModal}
-        initialData={modalState.type === "payment" ? modalState.payload : undefined}
-        onSave={onSavePayment}
-      />
-      <GoalModal
-        isOpen={modalState.type === "goal"}
-        onClose={closeModal}
-        onSave={onSaveGoal}
-      />
+      {modalState.type === "transaction" && activeProfile && (
+        <TransactionModal
+          isOpen={true}
+          onClose={closeModal}
+          activeProfile={activeProfile}
+          initialData={modalState.payload}
+          onSave={onSaveTransaction}
+        />
+      )}
+      {modalState.type === "payment" && (
+        <PaymentModal
+          isOpen={true}
+          onClose={closeModal}
+          initialData={modalState.payload}
+          onSave={onSavePayment}
+        />
+      )}
+      {modalState.type === "goal" && (
+        <GoalModal
+          isOpen={true}
+          onClose={closeModal}
+          onSave={onSaveGoal}
+        />
+      )}
       {modalState.type === "goalDeposit" && (
         <GoalDepositModal
           isOpen={true}
@@ -84,57 +91,79 @@ export function ModalManager() {
           onSave={(amount) => onSaveGoalDeposit(amount, (modalState as any).payload)}
         />
       )}
-      <ProfileModal
-        isOpen={modalState.type === "profile"}
-        onClose={closeModal}
-        onSave={onSaveProfile}
-        showToast={showToast}
-      />
-      <PinModal
-        isOpen={modalState.type === "pin"}
-        onClose={closeModal}
-        onSave={onSavePin}
-        onExportData={handleExportData}
-      />
-      {activeProfile && (
+      {modalState.type === "profile" && (
+        <ProfileModal
+          isOpen={true}
+          onClose={closeModal}
+          onSave={onSaveProfile}
+          showToast={showToast}
+        />
+      )}
+      {modalState.type === "pin" && (
+        <PinModal
+          isOpen={true}
+          onClose={closeModal}
+          onSave={onSavePin}
+          onExportData={handleExportData}
+        />
+      )}
+      {modalState.type === "budget" && activeProfile && (
         <BudgetModal
-          isOpen={modalState.type === "budget"}
+          isOpen={true}
           currentBudgets={activeProfile.budgets}
           onClose={closeModal}
           onSave={onSaveBudgets}
         />
       )}
-      <CalendarReminderModal
-        isOpen={modalState.type === "calendarAi"}
-        payment={modalState.type === "calendarAi" ? (modalState as any).payload ?? null : null}
-        onClose={closeModal}
-        calendarToken={calendarToken}
-        onConnectCalendar={() => connectGoogle("calendar")}
-        onCalendarAuthInvalid={invalidateCalendarToken}
-      />
+      {modalState.type === "calendarAi" && (
+        <Suspense fallback={null}>
+          <CalendarReminderModal
+            isOpen={true}
+            payment={(modalState as any).payload ?? null}
+            onClose={closeModal}
+            calendarToken={calendarToken}
+            onConnectCalendar={() => connectGoogle("calendar")}
+            onCalendarAuthInvalid={invalidateCalendarToken}
+          />
+        </Suspense>
+      )}
 
-      <AiChatModal
-        isOpen={modalState.type === "aiChat" && canUseAiChat}
-        onClose={closeModal}
-        activeProfile={activeProfile}
-      />
-      <ChangelogModal
-        isOpen={modalState.type === "changelog"}
-        onClose={closeModal}
-      />
-      <DriveConflictModal
-        isOpen={!!driveConflictInfo}
-        onClose={closeDriveConflictModal}
-        localState={driveConflictInfo?.localState || null}
-        remoteState={driveConflictInfo?.remoteState || null}
-        lastSyncedAt={driveConflictInfo?.lastSyncedAt || null}
-        onResolve={resolveDriveConflict}
-      />
-      <ConfirmModal
-        isOpen={modalState.type === "confirm"}
-        onClose={closeModal}
-        payload={modalState.type === "confirm" ? modalState.payload : null}
-      />
+      {modalState.type === "aiChat" && canUseAiChat && (
+        <Suspense fallback={null}>
+          <AiChatModal
+            isOpen={true}
+            onClose={closeModal}
+            activeProfile={activeProfile}
+          />
+        </Suspense>
+      )}
+      {modalState.type === "changelog" && (
+        <Suspense fallback={null}>
+          <ChangelogModal
+            isOpen={true}
+            onClose={closeModal}
+          />
+        </Suspense>
+      )}
+      {driveConflictInfo && (
+        <Suspense fallback={null}>
+          <DriveConflictModal
+            isOpen={true}
+            onClose={closeDriveConflictModal}
+            localState={driveConflictInfo.localState || null}
+            remoteState={driveConflictInfo.remoteState || null}
+            lastSyncedAt={driveConflictInfo.lastSyncedAt || null}
+            onResolve={resolveDriveConflict}
+          />
+        </Suspense>
+      )}
+      {modalState.type === "confirm" && (
+        <ConfirmModal
+          isOpen={true}
+          onClose={closeModal}
+          payload={modalState.payload}
+        />
+      )}
     </>
   );
 }

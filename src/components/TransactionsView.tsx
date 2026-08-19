@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
-import { ImportTransactionsModal } from "./ImportTransactionsModal";
+
+const ImportTransactionsModal = lazy(() => import("./ImportTransactionsModal").then(m => ({ default: m.ImportTransactionsModal })));
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -737,12 +738,16 @@ export function TransactionsView({
         )}
       </AnimatePresence>
 
-      <ImportTransactionsModal
-        isOpen={isCSVModalOpen}
-        onClose={() => setIsCSVModalOpen(false)}
-        onImport={onImportTransactions}
-        onBeforeImport={onBeforeImport}
-      />
+      {isCSVModalOpen && (
+        <Suspense fallback={null}>
+          <ImportTransactionsModal
+            isOpen={true}
+            onClose={() => setIsCSVModalOpen(false)}
+            onImport={onImportTransactions}
+            onBeforeImport={onBeforeImport}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
