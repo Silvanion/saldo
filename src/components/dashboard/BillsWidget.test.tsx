@@ -32,7 +32,6 @@ describe("BillsWidget", () => {
 
     expect(screen.getByText("Brak rachunków do opłacenia")).toBeTruthy();
     expect(screen.getByText("Wszystkie bieżące opłaty są uregulowane.")).toBeTruthy();
-    expect(screen.getByText("🍵")).toBeTruthy();
     expect(screen.queryByText(/innych opłat/i)).toBeNull();
   });
 

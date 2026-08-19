@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
-import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info } from "lucide-react";
+import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
 import { formatMoney } from "../utils/format";
@@ -152,31 +152,33 @@ export function DashboardView({
           <p className="text-sm text-text-muted">Podsumowanie i wskaźniki dla tego miesiąca.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center bg-surface rounded-xl border border-border shadow-sm overflow-hidden flex-1 sm:flex-none">
+          <div className="flex items-center bg-surface rounded-xl border border-border shadow-xs overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="px-4 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-text-muted hover:text-text-main font-bold border-r border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main border-r border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-prev-month"
               aria-label="Poprzedni miesiąc"
             >
-              ← Poprzedni
+              <ChevronLeft className="w-4 h-4 shrink-0" />
+              <span>Poprzedni</span>
             </button>
             <button
               onClick={onNextMonth}
-              className="px-4 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-text-muted hover:text-text-main font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-next-month"
               aria-label="Następny miesiąc"
             >
-              Następny →
+              <span>Następny</span>
+              <ChevronRight className="w-4 h-4 shrink-0" />
             </button>
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2.5 bg-surface border border-border rounded-xl shadow-sm text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="p-2 bg-surface border border-border rounded-xl shadow-xs text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-focus-ring"
             title="Dostosuj ekran"
             aria-label="Dostosuj układ ekranu głównego"
           >
-            <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
+            <Settings className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300" />
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { formatDate, iconByCategory } from "../../utils";
 import { Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { Plus } from "lucide-react";
+import { Plus, ArrowRight, ReceiptText } from "lucide-react";
 
 interface ActivityWidgetProps {
   currency: string;
@@ -28,28 +28,31 @@ export const ActivityWidget = memo(function ActivityWidget({
         </div>
         <button
           onClick={() => onChangeView("transactions")}
-          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           title="Przejdź do Księgi"
         >
-          Księga →
+          <span>Księga</span>
+          <ArrowRight className="w-3 h-3" />
         </button>
       </div>
 
       <div className="flex-1 flex flex-col justify-start overflow-y-auto pr-1 custom-scrollbar relative z-10">
         {recentTransactions.length === 0 ? (
-          <div className="text-center py-6 bg-surface-2 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
-            <div className="text-2xl mb-1 opacity-50 shrink-0">🧾</div>
-            <p className="text-xs text-text-muted font-bold truncate px-2">
+          <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col items-center justify-center min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle flex items-center justify-center mb-2 border border-brand/20 shadow-xs">
+              <ReceiptText className="w-5 h-5 text-brand" />
+            </div>
+            <p className="text-xs text-text-main font-bold truncate px-2">
               {profileKind === "shared" ? "Brak wspólnych wydatków" : "Brak zarejestrowanych transakcji"}
             </p>
-            <p className="text-xs text-text-faint truncate">Dodaj pierwszy wydatek lub przychód.</p>
+            <p className="text-[11px] text-text-faint truncate mt-0.5">Dodaj pierwszy wydatek lub przychód.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {recentTransactions.map((t) => (
-              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-all shadow-sm group gap-2 min-w-0">
+              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-all shadow-xs group gap-2 min-w-0">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border shadow-xs ${
                     t.type === 'income' ? 'bg-brand-subtle border-brand/20 text-brand' : 'bg-surface-2 border-border text-text-muted'
                   }`}>
                     <span className="text-sm shrink-0">
@@ -74,7 +77,7 @@ export const ActivityWidget = memo(function ActivityWidget({
                   </div>
                 </div>
                 <div className="text-right shrink-0 pl-2 min-w-0">
-                  <p className={`text-xs font-black truncate ${t.type === 'income' ? 'text-brand' : 'text-text-main'}`} title={t.type === 'income' ? `+${formatMoney(t.amount, t.currency || currency)}` : `-${formatMoney(t.amount, t.currency || currency)}`}>
+                  <p className={`text-xs font-bold tabular-nums truncate ${t.type === 'income' ? 'text-brand' : 'text-text-main'}`} title={t.type === 'income' ? `+${formatMoney(t.amount, t.currency || currency)}` : `-${formatMoney(t.amount, t.currency || currency)}`}>
                     {t.type === 'income' ? '+' : '-'}{formatMoney(t.amount, t.currency || currency)}
                   </p>
                 </div>
@@ -87,7 +90,7 @@ export const ActivityWidget = memo(function ActivityWidget({
       <div className="pt-3 mt-3 border-t border-border relative z-10">
         <button
           onClick={() => onOpenTxModal()}
-          className="w-full py-2.5 bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-text-main text-xs font-bold rounded-xl border border-border shadow-sm flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+          className="w-full py-2.5 bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-text-main text-xs font-bold rounded-xl border border-border shadow-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           title="Szybki zapis transakcji"
         >
           <Plus className="w-4 h-4" />

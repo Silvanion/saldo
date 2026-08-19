@@ -26,7 +26,6 @@ describe("BudgetWarningsWidget", () => {
 
     expect(screen.getByText("Brak skonfigurowanych limitów")).toBeTruthy();
     expect(screen.getByText("Ustaw budżety dla kategorii, by śledzić wydatki.")).toBeTruthy();
-    expect(screen.getByText("💡")).toBeTruthy();
   });
 
   it("calculates global budget ratio badge correctly for normal, warning, and exceeded thresholds", () => {

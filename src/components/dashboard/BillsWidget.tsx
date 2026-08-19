@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Payment } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { CalendarClock, Plus, Check } from "lucide-react";
+import { CalendarClock, Plus, Check, ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface BillsWidgetProps {
   currency: string;
@@ -73,30 +73,33 @@ export const BillsWidget = memo(function BillsWidget({
         </div>
         <button
           onClick={() => onChangeView("payments")}
-          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           title="Zarządzaj"
         >
-          Zarządzaj →
+          <span>Zarządzaj</span>
+          <ArrowRight className="w-3 h-3" />
         </button>
       </div>
 
       <div className="flex-1 flex flex-col min-h-0 relative z-10">
         {unpaidPayments.length === 0 ? (
-          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
-            <div className="text-2xl mb-1 opacity-50 shrink-0">🍵</div>
-            <p className="text-xs text-text-muted font-medium truncate">Brak rachunków do opłacenia</p>
-            <p className="text-xs text-text-faint truncate">Wszystkie bieżące opłaty są uregulowane.</p>
+          <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col items-center justify-center min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle flex items-center justify-center mb-2 border border-brand/20 shadow-xs">
+              <CheckCircle2 className="w-5 h-5 text-brand" />
+            </div>
+            <p className="text-xs text-text-main font-bold truncate">Brak rachunków do opłacenia</p>
+            <p className="text-[11px] text-text-faint truncate mt-0.5">Wszystkie bieżące opłaty są uregulowane.</p>
           </div>
         ) : (
           <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
             {topItems.map((p) => (
-              <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-colors group gap-2 min-w-0 shadow-sm">
+              <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-colors group gap-2 min-w-0 shadow-xs">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <button
                     onClick={() => onTogglePaymentStatus(p.id)}
                     className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-transparent hover:border-brand/40 hover:text-brand hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                     title="Oznacz jako opłacone"
-                    aria-label="Oznacz jako opłacone"
+                    aria-label={`Oznacz jako opłacone: ${p.name}`}
                   >
                     <Check className="w-3.5 h-3.5" />
                   </button>
@@ -112,7 +115,7 @@ export const BillsWidget = memo(function BillsWidget({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                      <p className="text-xs text-text-faint font-medium whitespace-nowrap shrink-0" title={p.dueDate}>{p.dueDate}</p>
+                      <p className="text-xs text-text-faint font-medium whitespace-nowrap tabular-nums shrink-0" title={p.dueDate}>{p.dueDate}</p>
                       {(() => {
                         const status = getDueStatus(p.dueDate);
                         if (status.label) {
@@ -128,7 +131,7 @@ export const BillsWidget = memo(function BillsWidget({
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-2 min-w-0">
-                  <p className="text-sm font-black text-text-main group-hover:text-brand transition-colors truncate" title={formatMoney(p.amount, p.currency || currency)}>
+                  <p className="text-sm font-bold tabular-nums text-text-main group-hover:text-brand transition-colors truncate" title={formatMoney(p.amount, p.currency || currency)}>
                     {formatMoney(p.amount, p.currency || currency)}
                   </p>
                 </div>
@@ -146,7 +149,7 @@ export const BillsWidget = memo(function BillsWidget({
       <div className="pt-3 mt-3 border-t border-border relative z-10">
         <button
           onClick={onOpenPaymentModal}
-          className="w-full py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
+          className="w-full py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
           title="Dodaj nową opłatę"
         >
           <Plus className="w-4 h-4" />
