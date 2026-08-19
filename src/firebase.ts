@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, EmailAuthProvider, reauthenticateWithCredential, updatePassword, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
@@ -296,6 +296,36 @@ export const verifyEmail = async () => {
     throw new Error("Brak zalogowanego użytkownika do weryfikacji.");
   }
   return sendEmailVerification(auth.currentUser);
+};
+
+// Zmiana hasła po uwierzytelnieniu
+export const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+  if (!isFirebaseConfigured || !auth?.currentUser) {
+    throw new Error("Brak zalogowanego użytkownika lub połączenia z Firebase.");
+  }
+  if (!auth.currentUser.email) {
+    throw new Error("Użytkownik nie posiada powiązanego adresu email.");
+  }
+
+  try {
+    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    await updatePassword(auth.currentUser, newPassword);
+  } catch (error: any) {
+    const code = error?.code || "";
+    if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+      throw new Error("Aktualne hasło jest nieprawidłowe.");
+    } else if (code === "auth/too-many-requests") {
+      throw new Error("Zbyt wiele prób. Spróbuj ponownie później.");
+    } else if (code === "auth/weak-password") {
+      throw new Error("Nowe hasło jest zbyt słabe. Wymagane co najmniej 6 znaków.");
+    } else if (code === "auth/requires-recent-login") {
+      throw new Error("Ta operacja wymaga ponownego zalogowania ze względów bezpieczeństwa.");
+    } else if (code === "auth/network-request-failed") {
+      throw new Error("Brak połączenia z siecią. Sprawdź swoje połączenie internetowe.");
+    }
+    throw new Error(error?.message || "Wystąpił błąd podczas zmiany hasła.");
+  }
 };
 
 // Retrieve currently cached access token (for basic compat)

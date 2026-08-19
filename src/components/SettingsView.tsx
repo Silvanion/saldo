@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
-import { isFirebaseConfigured } from "../firebase";
+import { isFirebaseConfigured, changePassword } from "../firebase";
 import {
   Cloud,
   CloudUpload,
@@ -37,11 +37,25 @@ import {
   Settings2,
   Plus,
   KeyRound,
+  Eye,
+  EyeOff,
   X
 } from "lucide-react";
 import { generateCsvContent, downloadFile } from "../utils";
 import { prepareStateForRemoteSave } from "../services/crypto";
 import { ConfirmModal } from "./ConfirmModal";
+
+function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: string; color: string } {
+  if (!password || password.length < 6) return { level: 0, label: "Za krótkie (min. 6 znaków)", color: "bg-border" };
+  const hasMinLength = password.length >= 8;
+  const hasDigit = /\d/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  if (hasMinLength && hasDigit && hasSpecial) return { level: 3, label: "Silne hasło", color: "bg-success" };
+  if (hasMinLength && hasDigit) return { level: 2, label: "Średnie hasło", color: "bg-warning" };
+  if (password.length >= 6) return { level: 1, label: "Słabe hasło", color: "bg-danger" };
+  return { level: 0, label: "Za krótkie", color: "bg-border" };
+}
 
 interface SettingsViewProps {
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
@@ -366,6 +380,50 @@ export function SettingsView({
 
   // Active profile edit states
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+  
+  // Password change states
+  const [pwdCurrent, setPwdCurrent] = useState("");
+  const [pwdNew, setPwdNew] = useState("");
+  const [pwdConfirm, setPwdConfirm] = useState("");
+  const [showPwds, setShowPwds] = useState(false);
+  const [pwdError, setPwdError] = useState("");
+  const [pwdSuccess, setPwdSuccess] = useState("");
+  const [pwdLoading, setPwdLoading] = useState(false);
+  
+  const hasPasswordProvider = googleUser?.providerData?.some(p => p.providerId === 'password');
+  
+  const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdError("");
+    setPwdSuccess("");
+    
+    if (pwdNew !== pwdConfirm) {
+      setPwdError("Nowe hasła nie są identyczne.");
+      return;
+    }
+    if (pwdCurrent === pwdNew) {
+      setPwdError("Nowe hasło musi być inne niż obecne.");
+      return;
+    }
+    const strength = getPasswordStrength(pwdNew);
+    if (strength.level < 3) {
+      setPwdError("Nowe hasło jest zbyt słabe (wymagane min. 8 znaków, cyfra i znak specjalny).");
+      return;
+    }
+    
+    setPwdLoading(true);
+    try {
+      await changePassword(pwdCurrent, pwdNew);
+      setPwdSuccess("Hasło zostało pomyślnie zmienione.");
+      setPwdCurrent("");
+      setPwdNew("");
+      setPwdConfirm("");
+    } catch (err: any) {
+      setPwdError(err.message || "Wystąpił błąd podczas zmiany hasła.");
+    } finally {
+      setPwdLoading(false);
+    }
+  };
   const [editProfileData, setEditProfileData] = useState<{
     name: string;
     kind: "personal" | "shared";
@@ -1777,6 +1835,111 @@ export function SettingsView({
                         </select>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Zmiana hasła konta */}
+            <div className="bg-surface rounded-xl p-4 border border-border/30">
+              <div className="flex items-start gap-3">
+                <KeyRound className="w-5 h-5 text-text-muted shrink-0" />
+                <div className="w-full">
+                  <h4 className="text-sm font-bold text-text-main">Zmiana hasła konta</h4>
+                  
+                  {googleUser && !hasPasswordProvider ? (
+                    <div className="mt-2 p-3 bg-surface-2 rounded-lg border border-border/50">
+                      <p className="text-xs text-text-muted">
+                        Twoje konto jest połączone wyłącznie przez Google. Hasłem zarządzasz bezpośrednio na koncie Google.
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handlePasswordChangeSubmit} className="mt-3 space-y-3">
+                      <p className="text-xs text-text-muted mb-3">Zmień hasło dostępowe do konta (email/hasło).</p>
+                      
+                      {pwdSuccess && (
+                        <div className="p-3 bg-success-subtle text-success border border-success/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 shrink-0" />
+                          {pwdSuccess}
+                        </div>
+                      )}
+                      
+                      {pwdError && (
+                        <div className="p-3 bg-danger-subtle text-danger border border-danger/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          {pwdError}
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <input
+                            type={showPwds ? "text" : "password"}
+                            required
+                            placeholder="Obecne hasło"
+                            value={pwdCurrent}
+                            onChange={(e) => setPwdCurrent(e.target.value)}
+                            disabled={pwdLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 pr-10 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPwds(!showPwds)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                          >
+                            {showPwds ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                        
+                        <div className="relative">
+                          <input
+                            type={showPwds ? "text" : "password"}
+                            required
+                            placeholder="Nowe hasło"
+                            value={pwdNew}
+                            onChange={(e) => setPwdNew(e.target.value)}
+                            disabled={pwdLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 pr-10 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                        </div>
+                        
+                        {pwdNew.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full transition-all duration-300 ${getPasswordStrength(pwdNew).color}`}
+                                style={{ width: `${(getPasswordStrength(pwdNew).level / 3) * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-bold text-text-muted min-w-[120px] text-right">
+                              {getPasswordStrength(pwdNew).label}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="relative">
+                          <input
+                            type={showPwds ? "text" : "password"}
+                            required
+                            placeholder="Potwierdź nowe hasło"
+                            value={pwdConfirm}
+                            onChange={(e) => setPwdConfirm(e.target.value)}
+                            disabled={pwdLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 pr-10 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="submit"
+                          disabled={pwdLoading || !pwdCurrent || !pwdNew || !pwdConfirm || pwdNew !== pwdConfirm || getPasswordStrength(pwdNew).level < 3}
+                          className="bg-brand text-text-inverse px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-hover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+                        >
+                          {pwdLoading ? "Aktualizowanie..." : "Zmień hasło"}
+                        </button>
+                      </div>
+                    </form>
                   )}
                 </div>
               </div>
