@@ -279,7 +279,7 @@ describe('SettingsView Diagnostic Loop', () => {
       />
     );
 
-    const exportBtn = screen.getByText('🔓 Eksport czytelnych danych');
+    const exportBtn = screen.getByText('Eksport czytelnych danych');
     fireEvent.click(exportBtn);
 
     // ConfirmModal should be open
@@ -347,7 +347,7 @@ describe('SettingsView Diagnostic Loop', () => {
       />
     );
 
-    const exportBtn = screen.getByText('🔓 Eksport czytelnych danych');
+    const exportBtn = screen.getByText('Eksport czytelnych danych');
     fireEvent.click(exportBtn);
 
     expect(screen.getByRole('dialog')).toBeTruthy();

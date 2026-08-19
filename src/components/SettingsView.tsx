@@ -14,6 +14,8 @@ import {
   Upload,
   AlertTriangle,
   FileJson,
+  FileSpreadsheet,
+  FileText,
   CheckCircle,
   Info,
   Sparkles,
@@ -31,6 +33,7 @@ import {
   Sliders,
   Palette,
   ArrowRight,
+  ChevronDown,
   Settings2,
   Plus,
   KeyRound,
@@ -224,7 +227,7 @@ export function TransactionRulesManager({
         Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
       </p>
 
-      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-surface border border-border">
+      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-surface-2 border border-border shadow-xs">
         <div>
           <label className="block text-xs font-bold text-text-muted uppercase mb-1">Słowo kluczowe (Fraza)</label>
           <input
@@ -232,7 +235,7 @@ export function TransactionRulesManager({
             value={rulePattern}
             onChange={(e) => setRulePattern(e.target.value)}
             placeholder="np. biedronka, netflix, orlen"
-            className="w-full text-xs rounded-xl border border-border p-2 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
           />
         </div>
         <div>
@@ -240,7 +243,7 @@ export function TransactionRulesManager({
           <select
             value={ruleCategory}
             onChange={(e) => setRuleCategory(e.target.value)}
-            className="w-full text-xs rounded-xl border border-border p-2 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
           >
             {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
               <option key={cat} value={cat}>
@@ -252,7 +255,7 @@ export function TransactionRulesManager({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle font-bold py-2 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle font-bold py-2.5 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             ＋ Zapisz dopasowanie
           </button>
@@ -260,23 +263,26 @@ export function TransactionRulesManager({
       </form>
 
       {transactionRules.length === 0 ? (
-        <p className="text-xs text-text-muted italic text-center py-4">Brak zapisanych dopasowań. Zdefiniuj własne słowa kluczowe, by przyspieszyć przypisywanie kategorii.</p>
+        <div className="p-8 bg-bg-base/30 rounded-xl border border-dashed border-border text-center">
+          <p className="text-xs text-text-main font-bold">Brak zapisanych dopasowań</p>
+          <p className="text-[11px] text-text-faint mt-0.5">Zdefiniuj własne słowa kluczowe, by przyspieszyć przypisywanie kategorii.</p>
+        </div>
       ) : (
-        <div className="border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="border border-border rounded-xl overflow-hidden shadow-xs">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface border-b border-border text-text-muted font-bold">
-                <th className="py-2 px-3">Słowo kluczowe</th>
-                <th className="py-2 px-3">Kategoria docelowa</th>
-                <th className="py-2 px-3 text-right">Akcja</th>
+              <tr className="bg-surface-2 border-b border-border text-text-muted font-bold">
+                <th className="py-2.5 px-3">Słowo kluczowe</th>
+                <th className="py-2.5 px-3">Kategoria docelowa</th>
+                <th className="py-2.5 px-3 text-right">Akcja</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
               {transactionRules.map((r) => (
-                <tr key={r.id} className="hover:bg-surface/50 transition">
+                <tr key={r.id} className="hover:bg-surface-2/50 transition">
                   <td className="py-2.5 px-3 font-mono font-bold text-text-main">{r.pattern}</td>
                   <td className="py-2.5 px-3">
-                    <span className="inline-flex items-center gap-1 bg-brand-subtle text-brand px-2 py-0.5 rounded-full text-xs font-bold border border-brand/20">
+                    <span className="inline-flex items-center gap-1 bg-brand-subtle text-brand px-2 py-0.5 rounded-full text-xs font-bold border border-brand/20 shadow-xs">
                       <span>{r.categoryIcon || "✨"}</span>
                       {r.category}
                     </span>
@@ -285,9 +291,10 @@ export function TransactionRulesManager({
                     <button
                       type="button"
                       onClick={() => handleDeleteTransactionRule(r.id)}
-                      className="text-xs font-bold text-danger hover:underline active:scale-95 transition-all inline-block rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      aria-label={`Usuń regułę dla ${r.pattern}`}
+                      className="text-text-muted hover:text-danger hover:bg-danger-subtle p-1.5 rounded-xl active:scale-95 transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
                     >
-                      Usuń
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </td>
                 </tr>
@@ -1212,10 +1219,10 @@ export function SettingsView({
               )}
               <span>Połącz z kontem Google Drive</span>
             </button>
-            <details className="group mt-4 border border-border rounded-xl bg-surface overflow-hidden text-left max-w-md mx-auto">
-              <summary className="p-3 text-xs font-bold text-text-muted cursor-pointer hover:bg-surface flex justify-between items-center list-none select-none">
-                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-text-muted" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
-                <span className="group-open:rotate-180 transition-transform text-text-muted">▼</span>
+            <details className="group mt-4 border border-border rounded-xl bg-surface overflow-hidden text-left max-w-md mx-auto shadow-xs">
+              <summary className="p-3 text-xs font-bold text-text-muted cursor-pointer hover:bg-surface-2 flex justify-between items-center list-none select-none">
+                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-text-muted shrink-0" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
+                <ChevronDown className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0" />
               </summary>
               <div className="p-4 border-t border-border/30 text-xs text-text-muted space-y-3 leading-relaxed">
                 <p>
@@ -1233,7 +1240,7 @@ export function SettingsView({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-brand-subtle border border-brand/20 rounded-xl gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-brand-subtle border border-brand/20 rounded-xl gap-4 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
                 {googleUser.photoURL ? (
                   <img
@@ -1257,24 +1264,35 @@ export function SettingsView({
               </div>
               <button
                 onClick={onDisconnectGoogle}
-                className="text-xs font-bold text-text-muted hover:text-danger active:scale-95 transition-colors flex items-center gap-1 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="text-xs font-bold text-text-muted hover:text-danger hover:bg-danger-subtle p-2 rounded-xl active:scale-95 transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
                 id="btn-google-drive-disconnect"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                Odłącz konto
+                <span>Odłącz konto</span>
               </button>
             </div>
 
             {/* Backups Action Stats */}
-            <div className="p-4 bg-surface rounded-xl border border-border grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-surface rounded-xl border border-border grid grid-cols-1 md:grid-cols-2 gap-4 shadow-xs">
               <div>
                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Nazwa pliku na dysku</span>
                 <span className="text-xs font-bold text-text-main font-mono block mt-0.5">saldo_budget.json</span>
-                <span className="text-xs text-text-muted block mt-1">Status: {gdriveFileId ? "🟢 Plik istnieje" : "⚪ Plik zostanie utworzony przy pierwszym zapisie"}</span>
+                <span className="text-xs text-text-muted flex items-center gap-1.5 mt-1">
+                  Status:
+                  {gdriveFileId ? (
+                    <span className="inline-flex items-center gap-1 text-brand font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand" /> Plik istnieje
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-text-faint font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-text-muted" /> Plik zostanie utworzony przy pierwszym zapisie
+                    </span>
+                  )}
+                </span>
               </div>
               <div>
                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Ostatni zapis w chmurze</span>
-                <span className="text-xs font-bold text-text-main block mt-0.5">
+                <span className="text-xs font-bold text-text-main block mt-0.5 tabular-nums">
                   {gdriveLastSynced || "Brak wykonanego zapisu"}
                 </span>
                 <span className="text-xs text-text-muted block mt-1">Dostępny do wczytania</span>
@@ -1358,7 +1376,7 @@ export function SettingsView({
           Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
         </p>
 
-        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-surface border border-border space-y-3 mb-5">
+        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-surface-2 border border-border space-y-3 mb-5 shadow-xs">
           <strong className="block text-xs font-bold text-text-muted">Utwórz nową transakcję cykliczną</strong>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -1368,7 +1386,7 @@ export function SettingsView({
                 value={recName}
                 onChange={(e) => setRecName(e.target.value)}
                 placeholder="np. Abonament Netflix, Pensja"
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
               />
             </div>
             <div>
@@ -1379,7 +1397,7 @@ export function SettingsView({
                 value={recAmount}
                 onChange={(e) => setRecAmount(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="np. 43.99"
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums shadow-xs"
               />
             </div>
             <div>
@@ -1387,7 +1405,7 @@ export function SettingsView({
               <select
                 value={recType}
                 onChange={(e) => setRecType(e.target.value as "expense" | "income")}
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
               >
                 <option value="expense">Wydatek (Koszt)</option>
                 <option value="income">Przychód (Wpływ)</option>
@@ -1401,7 +1419,7 @@ export function SettingsView({
               <select
                 value={recCategory}
                 onChange={(e) => setRecCategory(e.target.value)}
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
               >
                 {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
                   <option key={cat} value={cat}>
@@ -1417,7 +1435,7 @@ export function SettingsView({
                 value={recAccount}
                 onChange={(e) => setRecAccount(e.target.value)}
                 placeholder="np. Konto główne"
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
               />
             </div>
             <div>
@@ -1425,7 +1443,7 @@ export function SettingsView({
               <select
                 value={recFrequency}
                 onChange={(e) => setRecFrequency(e.target.value as any)}
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
               >
                 <option value="weekly">Co tydzień</option>
                 <option value="biweekly">Co dwa tygodnie</option>
@@ -1440,7 +1458,7 @@ export function SettingsView({
                 type="date"
                 value={recNextDate}
                 onChange={(e) => setRecNextDate(e.target.value)}
-                className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums shadow-xs"
               />
             </div>
           </div>
@@ -1448,7 +1466,7 @@ export function SettingsView({
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="bg-brand text-text-inverse hover:bg-brand-hover font-bold py-2.5 px-6 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="bg-brand text-text-inverse hover:bg-brand-hover font-bold py-2.5 px-6 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               ＋ Dodaj harmonogram płatności
             </button>
@@ -1456,20 +1474,23 @@ export function SettingsView({
         </form>
 
         {recurringRules.length === 0 ? (
-          <p className="text-xs text-text-muted italic text-center py-4">Brak zdefiniowanych transakcji cyklicznych.</p>
+          <div className="p-8 bg-bg-base/30 rounded-xl border border-dashed border-border text-center">
+            <p className="text-xs text-text-main font-bold">Brak zdefiniowanych transakcji cyklicznych</p>
+            <p className="text-[11px] text-text-faint mt-0.5">Dodaj stałe koszty lub wpływy (np. abonamenty, pensję), by automatyzować budżet.</p>
+          </div>
         ) : (
-          <div className="border border-border rounded-xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden shadow-xs">
             <div className="overflow-x-auto min-w-0">
-              <table className="w-full text-left border-collapse text-xs min-w-[600px]">
+              <table className="w-full text-left text-xs min-w-[600px]">
                 <thead>
-                  <tr className="bg-surface border-b border-border text-text-muted font-bold">
-                    <th className="py-2 px-3">Nazwa / Kategoria</th>
-                    <th className="py-2 px-3">Częstotliwość</th>
-                    <th className="py-2 px-3">Najbliższy termin</th>
-                    <th className="py-2 px-3">Konto</th>
-                    <th className="py-2 px-3 text-right">Kwota</th>
-                    <th className="py-2 px-3 text-center">Status</th>
-                    <th className="py-2 px-3 text-right">Akcja</th>
+                  <tr className="bg-surface-2 border-b border-border text-text-muted font-bold">
+                    <th className="py-2.5 px-3">Nazwa / Kategoria</th>
+                    <th className="py-2.5 px-3">Częstotliwość</th>
+                    <th className="py-2.5 px-3">Najbliższy termin</th>
+                    <th className="py-2.5 px-3">Konto</th>
+                    <th className="py-2.5 px-3 text-right">Kwota</th>
+                    <th className="py-2.5 px-3 text-center">Status</th>
+                    <th className="py-2.5 px-3 text-right">Akcja</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border bg-surface">
@@ -1482,7 +1503,7 @@ export function SettingsView({
                       yearly: "Co rok"
                     };
                     return (
-                      <tr key={r.id} className={`hover:bg-surface/50 transition ${!r.isActive ? "opacity-60" : ""}`}>
+                      <tr key={r.id} className={`hover:bg-surface-2/50 transition ${!r.isActive ? "opacity-60" : ""}`}>
                         <td className="py-2.5 px-3">
                           <strong className="block text-text-main">{r.name}</strong>
                           <span className="text-xs text-text-muted font-medium">
@@ -1492,35 +1513,36 @@ export function SettingsView({
                         <td className="py-2.5 px-3 font-bold text-text-muted">
                           {freqLabels[r.frequency] || r.frequency}
                         </td>
-                        <td className="py-2.5 px-3 text-text-muted font-mono">
+                        <td className="py-2.5 px-3 text-text-muted tabular-nums">
                           {r.nextDueDate}
                         </td>
                         <td className="py-2.5 px-3 text-text-muted">
                           {r.account}
                         </td>
-                        <td className={`py-2.5 px-3 text-right font-black ${r.type === "income" ? "text-brand" : "text-danger"}`}>
+                        <td className={`py-2.5 px-3 text-right font-black tabular-nums ${r.type === "income" ? "text-brand" : "text-danger"}`}>
                           {r.type === "income" ? "+" : "-"} {r.amount.toFixed(2)} {activeProfile?.currency || "PLN"}
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <button
                             type="button"
                             onClick={() => handleToggleRecurringRule(r.id)}
-                            className={`inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold cursor-pointer border active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                            className={`inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold cursor-pointer border active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs ${
                               r.isActive
                                 ? "bg-brand-subtle border-brand/20 text-brand"
-                                : "bg-surface border-border text-text-muted"
+                                : "bg-surface-2 border-border text-text-muted"
                             }`}
                           >
                             {r.isActive ? "Aktywny" : "Wstrzymany"}
                           </button>
                         </td>
-                        <td className="py-2.5 px-3 text-right space-x-2">
+                        <td className="py-2.5 px-3 text-right">
                           <button
                             type="button"
                             onClick={() => handleDeleteRecurringRule(r.id)}
-                            className="text-xs font-bold text-danger hover:underline active:scale-95 transition-all rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            aria-label={`Usuń regułę cykliczną ${r.name}`}
+                            className="text-text-muted hover:text-danger hover:bg-danger-subtle p-1.5 rounded-xl active:scale-95 transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
                           >
-                            Usuń
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>
@@ -1797,7 +1819,7 @@ export function SettingsView({
             <div className="bg-surface-2 border border-warning/20 rounded-xl p-3 space-y-1.5 min-w-0">
               <div className="flex justify-between text-xs text-text-muted">
                 <span>Liczba profili w kopii:</span>
-                <strong className="text-text-muted">{filePreview.profiles?.length || 0}</strong>
+                <strong className="text-text-muted tabular-nums">{filePreview.profiles?.length || 0}</strong>
               </div>
               <div className="flex justify-between text-xs text-text-muted">
                 <span>Dostępne profile:</span>
@@ -1807,7 +1829,7 @@ export function SettingsView({
               </div>
               <div className="flex justify-between text-xs text-text-muted">
                 <span>Łączna liczba wpisów transakcji:</span>
-                <strong className="text-text-muted">
+                <strong className="text-text-muted tabular-nums">
                   {filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0}
                 </strong>
               </div>
@@ -1816,13 +1838,13 @@ export function SettingsView({
             <div className="flex gap-2">
               <button
                 onClick={confirmLocalImport}
-                className="flex-1 bg-warning text-text-inverse font-bold py-2 rounded-xl text-xs hover:bg-warning/90 active:scale-[0.98] transition-all cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="flex-1 bg-warning text-text-inverse font-bold py-2.5 rounded-xl text-xs hover:bg-warning/90 active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 ✓ Nadpisz dane i przywróć
               </button>
               <button
                 onClick={() => setFilePreview(null)}
-                className="px-4 bg-surface border border-border text-text-muted hover:text-text-main rounded-xl text-sm font-medium active:scale-[0.98] transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="px-4 bg-surface border border-border text-text-muted hover:text-text-main rounded-xl text-xs font-medium active:scale-[0.98] transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Anuluj
               </button>
@@ -1831,7 +1853,7 @@ export function SettingsView({
         )}
 
         <div className="space-y-4">
-          <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
             <h4 className="text-sm font-bold text-text-main mb-3">Eksport danych aktywnego profilu</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
@@ -1841,9 +1863,10 @@ export function SettingsView({
                     downloadFile(csv, `saldo-${activeProfile.name}-transakcje.csv`, "text/csv;charset=utf-8;");
                   }
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
-                📊 Pobierz CSV
+                <FileSpreadsheet className="w-4 h-4 text-brand" />
+                <span>Pobierz CSV</span>
               </button>
               <div className="flex flex-col gap-1">
                 <button
@@ -1853,9 +1876,10 @@ export function SettingsView({
                       generateReportPdf(activeProfile, pdfYear, pdfMonthIdx, activeProfile.currency || "PLN");
                     }
                   }}
-                  className="w-full bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
-                  📄 Pobierz raport PDF
+                  <FileText className="w-4 h-4 text-brand" />
+                  <span>Pobierz raport PDF</span>
                 </button>
                 <span className="text-xs text-text-muted text-center font-medium">
                   Raport za: <strong className="text-text-main">{pdfMonthLabel} {pdfYear}</strong>
@@ -1864,7 +1888,7 @@ export function SettingsView({
             </div>
           </div>
           
-          <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
             <h4 className="text-sm font-bold text-text-main mb-3">Kopia zapasowa systemu</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
@@ -1873,9 +1897,10 @@ export function SettingsView({
                   const json = JSON.stringify(safeState, null, 2);
                   downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
-                🔒 Eksport zaszyfrowanej kopii
+                <Lock className="w-4 h-4 text-brand" />
+                <span>Eksport zaszyfrowanej kopii</span>
               </button>
               <button
                 onClick={() => {
@@ -1885,19 +1910,21 @@ export function SettingsView({
                   }
                   setShowExportConfirm(true);
                 }}
-                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2 px-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
-                🔓 Eksport czytelnych danych
+                <FileJson className="w-4 h-4 text-brand" />
+                <span>Eksport czytelnych danych</span>
               </button>
             </div>
           </div>
 
           <button
             onClick={onResetData}
-            className="w-full bg-danger-subtle text-danger border border-danger/20 hover:bg-danger/10 hover:border-danger/30 active:scale-[0.98] transition-all py-3 rounded-xl text-xs font-bold shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full bg-danger-subtle text-danger border border-danger/20 hover:bg-danger/10 hover:border-danger/30 active:scale-[0.98] transition-all py-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-reset-db-data"
           >
-            ⚠️ Przywróć stan początkowy (Usuń wszystko)
+            <AlertTriangle className="w-4 h-4 text-danger" />
+            <span>Przywróć stan początkowy (Usuń wszystko)</span>
           </button>
         </div>
       </div>
