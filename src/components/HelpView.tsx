@@ -66,12 +66,15 @@ export function HelpView() {
   const [selectedCategory, setSelectedCategory] = useState("Wszystko");
 
   const filteredSections = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return helpSectionsData.filter((item) => {
       const matchCat = selectedCategory === "Wszystko" || item.cat === selectedCategory;
       const matchSearch =
-        searchQuery.trim() === "" ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.cat.toLowerCase().includes(searchQuery.toLowerCase());
+        q === "" ||
+        item.title.toLowerCase().includes(q) ||
+        item.cat.toLowerCase().includes(q) ||
+        (item.badge && item.badge.toLowerCase().includes(q)) ||
+        (item.keywords && item.keywords.some((k) => k.toLowerCase().includes(q)));
       return matchCat && matchSearch;
     });
   }, [searchQuery, selectedCategory]);
