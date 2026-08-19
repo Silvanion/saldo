@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Profile } from "../types";
-import { iconByCategory, budgetCategories } from "../utils";
+import { iconByCategory, budgetCategories, formatDate } from "../utils";
 import { formatMoney } from "../utils/format";
 import { SlidersHorizontal, AlertCircle, AlertTriangle } from "lucide-react";
 
@@ -151,7 +151,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden mt-3.5 border border-border/50" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mt-3.5 border border-border/50" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     style={{ width: `${limit > 0 ? percent : 0}%` }}
                     className={`h-full rounded-full transition-all duration-500 ${
@@ -160,9 +160,9 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                   ></div>
                 </div>
 
-                {isOver && (
+                {isOver ? (
                   <div
-                    className="mt-3 bg-danger-subtle border border-danger/30 text-danger rounded-xl p-2.5 text-xs font-semibold flex items-center gap-2 min-w-0"
+                    className="mt-2.5 bg-danger-subtle border border-danger/30 text-danger rounded-xl p-2.5 text-xs font-semibold flex items-center gap-2 min-w-0"
                     id={`alert-budget-over-${category}`}
                   >
                     <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
@@ -170,10 +170,9 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                       Przekroczono zaplanowany budżet o <span className="tabular-nums font-bold">{formatMoney(spent - limit, profile.currency || 'PLN')}</span>!
                     </p>
                   </div>
-                )}
-                {isClose && (
+                ) : isClose ? (
                   <div
-                    className="mt-3 bg-warning-subtle border border-warning/30 text-warning rounded-xl p-2.5 text-xs font-semibold flex items-center gap-2 min-w-0"
+                    className="mt-2.5 bg-warning-subtle border border-warning/30 text-warning rounded-xl p-2.5 text-xs font-semibold flex items-center gap-2 min-w-0"
                     id={`alert-budget-close-${category}`}
                   >
                     <AlertTriangle className="w-4 h-4 shrink-0 text-warning" />
@@ -181,23 +180,49 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                       Blisko limitu. Pozostało <span className="tabular-nums font-bold">{formatMoney(limit - spent, profile.currency || 'PLN')}</span>.
                     </p>
                   </div>
+                ) : limit > 0 ? (
+                  <div className="mt-2 flex justify-between items-center text-[11px] text-text-faint px-0.5">
+                    <span>Pozostało do limitu:</span>
+                    <span className="font-semibold text-text-muted tabular-nums">
+                      {formatMoney(limit - spent, profile.currency || 'PLN')}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-2 text-[11px] text-text-faint px-0.5">
+                    Brak ustalonego limitu dla tej kategorii.
+                  </div>
                 )}
               </div>
 
               {/* Small list of category transactions */}
-              <div className="border-t border-border pt-3 min-w-0">
-                <p className="text-[10px] uppercase font-bold text-text-faint tracking-wider mb-2 truncate" title="Ostatnie wydatki w tej kategorii">
-                  Ostatnie wydatki w tej kategorii
-                </p>
-                {catTransactions.length === 0 ? (
-                  <p className="text-xs text-text-faint truncate" title="Brak wydatków w tym miesiącu.">
-                    Brak wydatków w tym miesiącu.
+              <div className="border-t border-border/80 pt-3 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <p className="text-[10px] uppercase font-bold text-text-faint tracking-wider truncate" title="Ostatnie wydatki w tej kategorii">
+                    Ostatnie wydatki
                   </p>
+                  {catTransactions.length > 0 && (
+                    <span className="text-[10px] font-bold text-text-faint tabular-nums">
+                      {catTransactions.length} {catTransactions.length === 1 ? 'wpis' : catTransactions.length < 5 ? 'wpisy' : 'wpisów'}
+                    </span>
+                  )}
+                </div>
+
+                {catTransactions.length === 0 ? (
+                  <div className="bg-surface-2/30 rounded-xl p-2.5 border border-border/40 text-center">
+                    <p className="text-xs text-text-faint truncate" title="Brak wydatków w tym miesiącu.">
+                      Brak wydatków w tym miesiącu
+                    </p>
+                  </div>
                 ) : (
-                  <div className="space-y-1.5 pr-1">
+                  <div className="bg-surface-2/30 rounded-xl p-2.5 border border-border/50 space-y-2">
                     {catTransactions.slice(0, 3).map((t) => (
                       <div key={t.id} className="flex justify-between items-center text-xs min-w-0 gap-2">
-                        <span className="text-text-muted flex-1 min-w-0 truncate" title={t.name}>{t.name}</span>
+                        <div className="min-w-0 flex-1 flex items-center gap-1.5">
+                          <span className="text-text-muted truncate font-medium" title={t.name}>{t.name}</span>
+                          <span className="text-[10px] text-text-faint shrink-0 whitespace-nowrap">
+                            {formatDate(t.isoDate)}
+                          </span>
+                        </div>
                         <span className="font-bold text-text-main tabular-nums shrink-0 whitespace-nowrap" title={formatMoney(t.amount, profile.currency || 'PLN')}>
                           {formatMoney(t.amount, profile.currency || 'PLN')}
                         </span>

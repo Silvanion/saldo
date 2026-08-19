@@ -97,7 +97,7 @@ describe("BudgetView (Header metrics, CTA, Alert banners & Category cards)", () 
     expect(alertClose).toBeTruthy();
   });
 
-  it("renders recent expenses inside category cards", () => {
+  it("renders recent expenses inside category cards and empty state for unused categories", () => {
     const tx: Transaction = {
       id: "tx-rach",
       name: "Prąd Enea",
@@ -122,6 +122,14 @@ describe("BudgetView (Header metrics, CTA, Alert banners & Category cards)", () 
       />
     );
 
+    // Recent expense item and count
     expect(screen.getByText("Prąd Enea")).toBeTruthy();
+    expect(screen.getByText("1 wpis")).toBeTruthy();
+
+    // Contextual remaining amount under progress bar for normal budget state
+    expect(screen.getAllByText("Pozostało do limitu:").length).toBeGreaterThan(0);
+
+    // Empty state for categories with no expenses
+    expect(screen.getAllByText("Brak wydatków w tym miesiącu").length).toBeGreaterThan(0);
   });
 });
