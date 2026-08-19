@@ -62,19 +62,16 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
 
   let statusText = "Wszystko rozliczone z historii";
   let statusColor = "text-text-muted";
-  let bgColor = "bg-surface border-border  shadow-sm relative overflow-hidden";
-  let dropShadowClass = "drop-";
+  let containerClass = "bg-surface border-border";
 
   if (historyNet > 0) {
     statusText = `${partnerName} jest Ci winien: ${formatMoney(historyNet, profile?.currency || 'PLN')}`;
     statusColor = "text-brand";
-    bgColor = "bg-brand-subtle border-brand/20  shadow-sm relative overflow-hidden";
-    dropShadowClass = "drop-";
+    containerClass = "bg-brand-subtle/30 border-brand/30";
   } else if (historyNet < 0) {
     statusText = `Jesteś winien ${partnerName}: ${formatMoney(Math.abs(historyNet), profile?.currency || 'PLN')}`;
     statusColor = "text-danger";
-    bgColor = "bg-danger-subtle border-danger/20  shadow-sm relative overflow-hidden";
-    dropShadowClass = "drop-";
+    containerClass = "bg-danger-subtle/30 border-danger/30";
   }
 
   let upcomingText = "";
@@ -87,20 +84,32 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
   const settlementsList: SettlementEntry[] = profile.settlements || [];
 
   return (
-    <div className={`p-5 rounded-2xl border ${bgColor} mb-6`} id="settlement-widget">
-      <div className={`absolute inset-0 bg-gradient-to-br ${historyNet > 0 ? "from-brand/10" : historyNet < 0 ? "from-danger/10" : "from-surface-3/10"} to-transparent pointer-events-none`} />
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+    <div className={`p-5 rounded-2xl border ${containerClass} shadow-sm mb-6 relative overflow-hidden`} id="settlement-widget">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 min-w-0">
         <div className="min-w-0 flex-1">
           <DelayedTooltip
-            className="mb-1 flex min-w-0 max-w-full"
+            className="mb-0.5 inline-flex min-w-0 max-w-full"
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider cursor-help border-b border-dashed border-border pb-0.5 truncate">
-              Do rozliczenia (Historia)
+            <p className="text-xs font-bold text-text-faint uppercase tracking-wider cursor-help border-b border-dashed border-border/60 pb-0.5 truncate" title="Rozliczenie z partnerem">
+              Rozliczenie z partnerem
             </p>
           </DelayedTooltip>
-          <h3 className={`text-sm sm:text-base font-bold truncate ${statusColor} ${dropShadowClass}`} title={statusText}>{statusText}</h3>
+          <div className="flex items-center gap-2 min-w-0 mt-0.5">
+            <h3 className={`text-base font-bold truncate ${statusColor}`} title={statusText}>{statusText}</h3>
+            {historyNet !== 0 ? (
+              <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold shrink-0 border ${
+                historyNet > 0 ? "bg-brand-subtle text-brand border-brand/20" : "bg-danger-subtle text-danger border-danger/30"
+              }`}>
+                {historyNet > 0 ? "Nadpłata" : "Niedopłata"}
+              </span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold shrink-0 border bg-surface-2 text-text-muted border-border">
+                Uregulowane
+              </span>
+            )}
+          </div>
           {upcomingText && (
             <p className="text-xs text-text-muted mt-1 font-medium truncate" title={upcomingText} id="settlement-upcoming-info">
               {upcomingText}
@@ -113,7 +122,8 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             <button
               onClick={handleOpenModal}
               id="open-settlement-modal-btn"
-              className="px-4 py-2 bg-brand-subtle border border-brand/20 hover:bg-brand-subtle text-brand active:scale-[0.98] transition-all text-xs font-bold rounded-xl"
+              className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+              title="Rozlicz saldo z partnerem"
             >
               Rozlicz
             </button>
@@ -123,10 +133,11 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             <button
               onClick={() => setShowHistory(!showHistory)}
               id="settlement-history-toggle-btn"
-              className="px-4 py-2 bg-surface/50 border border-border hover:bg-surface-offset text-text-muted hover:text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer shadow-inner"
+              className="text-xs font-bold text-text-muted bg-surface border border-border hover:bg-surface-offset hover:text-text-main px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+              title="Pokaż historię rozliczeń"
             >
-              <History className="w-4 h-4 text-text-muted" />
-              Historia ({settlementsList.length})
+              <History className="w-3.5 h-3.5 text-text-muted shrink-0" />
+              <span>Historia ({settlementsList.length})</span>
             </button>
           )}
         </div>
@@ -139,33 +150,34 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             <ArrowRightLeft className="w-3.5 h-3.5 text-text-faint shrink-0" />
             <span className="truncate" title="Historia rozliczeń ręcznych">Historia rozliczeń ręcznych</span>
           </h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar min-h-0">
             {settlementsList.map((s) => {
               const isPartnerPaid = s.amount > 0;
               return (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between p-2.5 bg-surface border border-border rounded-lg text-xs shadow-inner gap-3"
+                  className="flex items-center justify-between p-3 bg-surface hover:bg-surface-offset border border-border rounded-xl text-xs shadow-sm gap-3 group transition-colors min-w-0"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-bold text-text-main truncate" title={isPartnerPaid ? `${partnerName} oddał(a) Tobie` : `Oddałeś(aś) ${partnerName}`}>
+                      <span className="font-bold text-text-main group-hover:text-brand transition-colors truncate" title={isPartnerPaid ? `${partnerName} oddał(a) Tobie` : `Oddałeś(aś) ${partnerName}`}>
                         {isPartnerPaid ? `${partnerName} oddał(a) Tobie` : `Oddałeś(aś) ${partnerName}`}
                       </span>
-                      <span className="text-text-faint shrink-0">{formatDate(s.isoDate)}</span>
+                      <span className="text-text-faint font-medium shrink-0">{formatDate(s.isoDate)}</span>
                     </div>
-                    {s.note && <p className="text-text-muted text-xs mt-0.5 truncate" title={s.note}>{s.note}</p>}
+                    {s.note && <p className="text-text-muted text-xs mt-0.5 truncate font-medium" title={s.note}>{s.note}</p>}
                   </div>
                   <div className="flex items-center gap-3 shrink-0 ml-2 max-w-[40%]">
-                    <span className={`font-bold truncate ${isPartnerPaid ? 'text-brand drop-' : 'text-danger drop-'}`} title={isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}>
+                    <span className={`font-black truncate ${isPartnerPaid ? 'text-brand' : 'text-danger'}`} title={isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}>
                       {isPartnerPaid ? `+${formatMoney(s.amount, profile?.currency || 'PLN')}` : `-${formatMoney(Math.abs(s.amount), profile?.currency || 'PLN')}`}
                     </span>
                     {onDeleteSettlement && (
                       <button
                         onClick={() => onDeleteSettlement(s.id)}
                         id={`delete-settlement-${s.id}`}
-                        className="p-1 text-text-faint hover:text-danger active:scale-95 transition-all cursor-pointer shrink-0"
+                        className="p-1 text-text-faint hover:text-danger hover:bg-danger-subtle rounded-lg active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
                         title="Usuń wpis rozliczenia"
+                        aria-label="Usuń wpis rozliczenia"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -182,18 +194,20 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div
-            className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-border"
             id="settlement-modal"
           >
             <div className="shrink-0 p-6 pb-4 border-b border-border relative">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 p-2 leading-none text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl active:scale-95 transition-colors shrink-0"
+                className="absolute top-6 right-6 p-2 leading-none text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl active:scale-95 transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                title="Zamknij"
+                aria-label="Zamknij"
               >
-                &times;
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 pr-8">
                 <div className="p-3 bg-brand-subtle text-brand rounded-xl border border-brand/20 shrink-0">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
@@ -216,9 +230,9 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
                     <button
                       type="button"
                       onClick={() => setDirection('partner_paid_me')}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate ${
+                      className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
                         direction === 'partner_paid_me'
-                          ? 'bg-brand-subtle border-brand/50 text-brand '
+                          ? 'bg-brand-subtle border-brand/40 text-brand'
                           : 'bg-surface border-border text-text-muted hover:bg-surface-2'
                       }`}
                       title={`${partnerName} oddał(a) mi`}
@@ -228,9 +242,9 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
                     <button
                       type="button"
                       onClick={() => setDirection('i_paid_partner')}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate ${
+                      className={`py-2 px-3 text-xs font-bold rounded-xl border active:scale-[0.98] transition-all min-w-0 truncate cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
                         direction === 'i_paid_partner'
-                          ? 'bg-danger-subtle border-danger/50 text-danger '
+                          ? 'bg-danger-subtle border-danger/40 text-danger'
                           : 'bg-surface border-border text-text-muted hover:bg-surface-2'
                       }`}
                       title={`Ja oddałem(am) ${partnerName}`}
@@ -266,7 +280,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
                     required
                     value={isoDate}
                     onChange={(e) => setIsoDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-sm font-medium text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow [color-scheme:dark]"
+                    className="w-full px-3.5 py-2.5 bg-surface-2 border border-border rounded-xl text-sm font-medium text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition-shadow"
                     id="settlement-date-input"
                   />
                 </div>
@@ -291,7 +305,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl active:scale-[0.98] transition-colors shrink-0"
+                className="px-4 py-2 text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl active:scale-[0.98] transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Anuluj
               </button>
@@ -299,7 +313,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
                 type="submit"
                 form="settlement-form"
                 id="settlement-submit-btn"
-                className="px-5 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-all shrink-0 shadow-lg"
+                className="px-5 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-all shrink-0 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Zapisz rozliczenie
               </button>
@@ -310,3 +324,4 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
     </div>
   );
 }
+
