@@ -3,11 +3,11 @@
  */
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { AnalysisView } from "./AnalysisView";
 import { Profile } from "../types";
 
-describe("AnalysisView (50/30/20 & monthly summary)", () => {
+describe("AnalysisView (full polish)", () => {
   afterEach(() => {
     cleanup();
   });
@@ -95,5 +95,29 @@ describe("AnalysisView (50/30/20 & monthly summary)", () => {
 
     expect(screen.getByText("Wnioski i podpowiedzi")).toBeTruthy();
     expect(screen.getByText(/Świetna stopa oszczędności!|Dobry kierunek oszczędzania/)).toBeTruthy();
+  });
+
+  it("renders rolling trends and simulator mode toggle", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Trendy wielomiesięczne")).toBeTruthy();
+    expect(screen.getByText("Symulator strategiczny")).toBeTruthy();
+
+    // Toggle simulator mode to debt
+    const debtBtn = screen.getByRole("button", { name: /Spłata długu/i });
+    fireEvent.click(debtBtn);
+    expect(screen.getByText(/Brak aktywnych zobowiązań|Łączne zadłużenie/)).toBeTruthy();
+  });
+
+  it("renders category breakdown empty state when no expenses in month", () => {
+    const emptyProfile = {
+      ...mockProfile,
+      transactions: [],
+    };
+
+    render(<AnalysisView profile={emptyProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Brak widocznych kategorii")).toBeTruthy();
+    expect(screen.getByText("Dostosuj filtr widoczności lub dodaj wydatki.")).toBeTruthy();
   });
 });

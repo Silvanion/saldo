@@ -360,7 +360,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="rolling-trends-card">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
@@ -368,19 +368,19 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                 <p className="text-[11px] text-text-muted">Średnie kroczące i dynamika zmian kosztów</p>
               </div>
             </div>
-            <span className="text-[10px] font-bold text-text-faint bg-surface-2 border border-border px-2 py-0.5 rounded">
+            <span className="text-[10px] font-bold text-text-faint bg-surface-2 border border-border px-2 py-0.5 rounded tabular-nums shadow-xs">
               Historia: {rollingTrends.historicalMonthsCount} mc
             </span>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-surface-2 rounded-xl border border-border">
+            <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
               <span className="text-[11px] text-text-faint font-medium block">Średnia krocząca (3M)</span>
-              <span className="text-sm font-black text-text-main mt-0.5 block">
+              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums">
                 {formatMoney(rollingTrends.avg3MonthExpense, profile.currency || "PLN")}
               </span>
-              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold">
+              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums">
                 {rollingTrends.diffVs3MAvg > 0 ? (
                   <span className="text-danger flex items-center gap-0.5">
                     <ArrowUpRight className="w-3 h-3" /> +{rollingTrends.diffVs3MAvg}% vs średnia
@@ -393,12 +393,12 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               </div>
             </div>
 
-            <div className="p-3 bg-surface-2 rounded-xl border border-border">
+            <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
               <span className="text-[11px] text-text-faint font-medium block">Wydatki zeszły miesiąc</span>
-              <span className="text-sm font-black text-text-main mt-0.5 block">
+              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums">
                 {formatMoney(rollingTrends.lastMonthExpense, profile.currency || "PLN")}
               </span>
-              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold">
+              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums">
                 {rollingTrends.diffVsLastMonth > 0 ? (
                   <span className="text-danger flex items-center gap-0.5">
                     <ArrowUpRight className="w-3 h-3" /> +{rollingTrends.diffVsLastMonth}% MoM
@@ -419,33 +419,33 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {rollingTrends.topGrowthCategory ? (
-                <div className="p-2.5 bg-danger-subtle/50 border border-danger/20 rounded-xl flex items-center justify-between">
+                <div className="p-2.5 bg-danger-subtle/50 border border-danger/20 rounded-xl flex items-center justify-between shadow-xs">
                   <div className="min-w-0">
                     <span className="text-[10px] font-bold text-danger uppercase tracking-wider block">Wzrost kosztów</span>
                     <span className="text-xs font-bold text-text-main truncate block">{rollingTrends.topGrowthCategory.category}</span>
                   </div>
-                  <span className="text-xs font-black text-danger shrink-0 ml-2">
+                  <span className="text-xs font-black text-danger shrink-0 ml-2 tabular-nums">
                     +{formatMoney(rollingTrends.topGrowthCategory.diffAmount, profile.currency || "PLN")}
                   </span>
                 </div>
               ) : (
-                <div className="p-2.5 bg-surface-2 border border-border rounded-xl text-center text-xs text-text-faint">
+                <div className="p-2.5 bg-bg-base/30 border border-dashed border-border rounded-xl text-center text-xs text-text-faint">
                   Brak wzrostów w kategoriach
                 </div>
               )}
 
               {rollingTrends.topReductionCategory ? (
-                <div className="p-2.5 bg-brand-subtle/50 border border-brand/20 rounded-xl flex items-center justify-between">
+                <div className="p-2.5 bg-brand-subtle/50 border border-brand/20 rounded-xl flex items-center justify-between shadow-xs">
                   <div className="min-w-0">
                     <span className="text-[10px] font-bold text-brand uppercase tracking-wider block">Oszczędność</span>
                     <span className="text-xs font-bold text-text-main truncate block">{rollingTrends.topReductionCategory.category}</span>
                   </div>
-                  <span className="text-xs font-black text-brand shrink-0 ml-2">
+                  <span className="text-xs font-black text-brand shrink-0 ml-2 tabular-nums">
                     {formatMoney(rollingTrends.topReductionCategory.diffAmount, profile.currency || "PLN")}
                   </span>
                 </div>
               ) : (
-                <div className="p-2.5 bg-surface-2 border border-border rounded-xl text-center text-xs text-text-faint">
+                <div className="p-2.5 bg-bg-base/30 border border-dashed border-border rounded-xl text-center text-xs text-text-faint">
                   Brak redukcji w kategoriach
                 </div>
               )}
@@ -457,7 +457,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="strategic-simulator-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
                 {simulatorMode === "cushion" ? <ShieldCheck className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
               </div>
               <div>
@@ -469,7 +469,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             </div>
 
             {/* Mode selector segmented toggle */}
-            <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start sm:self-auto">
+            <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start sm:self-auto shadow-xs">
               <button
                 onClick={() => setSimulatorMode("cushion")}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -500,7 +500,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider">Docelowy horyzont:</span>
-                <div className="flex bg-surface-2 p-0.5 rounded-lg border border-border">
+                <div className="flex bg-surface-2 p-0.5 rounded-lg border border-border shadow-xs">
                   {([3, 6, 12] as const).map((m) => (
                     <button
                       key={m}
@@ -520,20 +520,20 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               <div className="flex justify-between items-baseline">
                 <div>
                   <span className="text-[11px] text-text-faint font-medium block">Wymagany kapitał ({targetMonths} mc)</span>
-                  <span className="text-lg font-black text-text-main">
+                  <span className="text-lg font-black text-text-main tabular-nums">
                     {formatMoney(emergencySim.requiredCapital, profile.currency || "PLN")}
                   </span>
                 </div>
                 <div className="text-right">
                   <span className="text-[11px] text-text-faint font-medium block">Płynne rezerwy</span>
-                  <span className="text-sm font-bold text-brand">
+                  <span className="text-sm font-bold text-brand tabular-nums">
                     {formatMoney(emergencySim.currentLiquidCapital, profile.currency || "PLN")} ({emergencySim.progressPercent}%)
                   </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50">
+              <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-valuenow={emergencySim.progressPercent} aria-valuemin={0} aria-valuemax={100}>
                 <div
                   style={{ width: `${emergencySim.progressPercent}%` }}
                   className="h-full rounded-full bg-brand transition-all duration-500"
@@ -541,7 +541,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               </div>
 
               {/* Forecast Message / Status */}
-              <div className="p-3 rounded-xl border border-border bg-surface-2 flex items-start gap-2.5 text-xs">
+              <div className="p-3 rounded-xl border border-border bg-surface-2 flex items-start gap-2.5 text-xs shadow-xs">
                 <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
                   {emergencySim.status === "completed" ? (
@@ -550,9 +550,9 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                     </span>
                   ) : emergencySim.monthsToTarget !== null ? (
                     <span>
-                      Brakująca kwota: <strong>{formatMoney(emergencySim.shortfall, profile.currency || "PLN")}</strong>. 
-                      Przy aktualnym tempie oszczędzania (+{formatMoney(emergencySim.currentMonthlySavings, profile.currency || "PLN")}/mc) 
-                      cel osiągniesz za ok. <strong className="text-brand">{emergencySim.monthsToTarget} {emergencySim.monthsToTarget === 1 ? "miesiąc" : emergencySim.monthsToTarget < 5 ? "miesiące" : "miesięcy"}</strong>.
+                      Brakująca kwota: <strong className="tabular-nums">{formatMoney(emergencySim.shortfall, profile.currency || "PLN")}</strong>. 
+                      Przy aktualnym tempie oszczędzania (+<span className="tabular-nums">{formatMoney(emergencySim.currentMonthlySavings, profile.currency || "PLN")}</span>/mc) 
+                      cel osiągniesz za ok. <strong className="text-brand tabular-nums">{emergencySim.monthsToTarget} {emergencySim.monthsToTarget === 1 ? "miesiąc" : emergencySim.monthsToTarget < 5 ? "miesiące" : "miesięcy"}</strong>.
                     </span>
                   ) : emergencySim.status === "deficit" ? (
                     <span className="text-danger font-medium">
@@ -572,7 +572,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
           {simulatorMode === "debt" && (
             <div className="space-y-3">
               {debtSim.isDebtFree ? (
-                <div className="p-6 bg-brand-subtle/40 border border-brand/20 rounded-xl text-center space-y-1.5">
+                <div className="p-6 bg-brand-subtle/40 border border-brand/20 rounded-xl text-center space-y-1.5 shadow-xs">
                   <Sparkles className="w-6 h-6 text-brand mx-auto" />
                   <p className="font-bold text-sm text-text-main">Brak aktywnych zobowiązań</p>
                   <p className="text-xs text-text-muted">Wszystkie rachunki są opłacone i brak wykorzystanych limitów kredytowych.</p>
@@ -582,32 +582,32 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                   <div className="flex justify-between items-baseline">
                     <div>
                       <span className="text-[11px] text-text-faint font-medium block">Łączne zadłużenie ({debtSim.debtItemsCount} poz.)</span>
-                      <span className="text-lg font-black text-danger">
+                      <span className="text-lg font-black text-danger tabular-nums">
                         {formatMoney(debtSim.totalDebt, profile.currency || "PLN")}
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-[11px] text-text-faint font-medium block">Dostępna nadwyżka</span>
-                      <span className="text-sm font-bold text-brand">
+                      <span className="text-sm font-bold text-brand tabular-nums">
                         +{formatMoney(debtSim.monthlyAvailableSurplus, profile.currency || "PLN")}/mc
                       </span>
                     </div>
                   </div>
 
                   {/* Extra Payment Selector */}
-                  <div className="p-3 bg-surface-2 rounded-xl border border-border space-y-2">
+                  <div className="p-3 bg-surface-2 rounded-xl border border-border space-y-2 shadow-xs">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-text-main flex items-center gap-1">
                         <Zap className="w-3.5 h-3.5 text-brand" /> Dodatkowa nadpłata:
                       </span>
-                      <span className="font-bold text-brand text-xs">+{formatMoney(extraDebtPayment, profile.currency || "PLN")}/mc</span>
+                      <span className="font-bold text-brand text-xs tabular-nums">+{formatMoney(extraDebtPayment, profile.currency || "PLN")}/mc</span>
                     </div>
                     <div className="flex gap-2">
                       {[100, 300, 500, 1000].map((val) => (
                         <button
                           key={val}
                           onClick={() => setExtraDebtPayment(val)}
-                          className={`flex-1 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                          className={`flex-1 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shadow-xs tabular-nums ${
                             extraDebtPayment === val
                               ? "bg-brand text-text-inverse border-brand"
                               : "bg-surface text-text-muted border-border hover:bg-surface-offset"
@@ -628,23 +628,23 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                       {debtSim.snowballQueue.map((item, idx) => (
                         <span
                           key={idx}
-                          className="text-[11px] px-2 py-0.5 rounded-md bg-surface-2 border border-border text-text-muted font-medium"
+                          className="text-[11px] px-2 py-0.5 rounded-md bg-surface-2 border border-border text-text-muted font-medium shadow-xs"
                         >
-                          <strong className="text-text-main">{idx + 1}.</strong> {item.name} ({formatMoney(item.amount, profile.currency || "PLN")})
+                          <strong className="text-text-main">{idx + 1}.</strong> {item.name} (<span className="tabular-nums">{formatMoney(item.amount, profile.currency || "PLN")}</span>)
                         </span>
                       ))}
                     </div>
                   </div>
 
                   {/* Payoff Acceleration Insight */}
-                  <div className="p-3 rounded-xl border border-brand/20 bg-brand-subtle/50 flex items-start gap-2.5 text-xs">
+                  <div className="p-3 rounded-xl border border-brand/20 bg-brand-subtle/50 flex items-start gap-2.5 text-xs shadow-xs">
                     <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                     <div className="leading-relaxed">
-                      Plan bazowy: <strong>{debtSim.baselineMonths} mc</strong>. 
-                      Z nadpłatą spłacisz całość w <strong className="text-brand">{debtSim.acceleratedMonths} mc</strong>. 
+                      Plan bazowy: <strong className="tabular-nums">{debtSim.baselineMonths} mc</strong>. 
+                      Z nadpłatą spłacisz całość w <strong className="text-brand tabular-nums">{debtSim.acceleratedMonths} mc</strong>. 
                       {debtSim.monthsSaved > 0 ? (
                         <span className="block font-bold text-brand mt-0.5">
-                          ⚡ Zyskujesz {debtSim.monthsSaved} {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!
+                          ⚡ Zyskujesz <span className="tabular-nums">{debtSim.monthsSaved}</span> {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!
                         </span>
                       ) : null}
                     </div>
@@ -749,7 +749,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               <div className="relative shrink-0">
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-text-muted hover:text-text-main active:scale-[0.98] transition-all bg-surface-2 px-2.5 py-1.5 rounded-xl border border-border shrink-0 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="flex items-center gap-1.5 text-xs font-bold text-text-muted hover:text-text-main active:scale-[0.98] transition-all bg-surface-2 px-2.5 py-1.5 rounded-xl border border-border shrink-0 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
                   title="Dostosuj"
                 >
                   <Settings2 className="w-3.5 h-3.5 shrink-0" />
@@ -798,7 +798,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
             </div>
             <div className="space-y-3.5 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar">
               {categorySummary.length === 0 ? (
-                <p className="text-xs text-text-muted italic text-center py-6">Brak widocznych kategorii w wybranym miesiącu.</p>
+                <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-brand-subtle flex items-center justify-center mb-2 border border-brand/20 shadow-xs">
+                    <Target className="w-4 h-4 text-brand" />
+                  </div>
+                  <p className="text-xs text-text-main font-bold truncate">Brak widocznych kategorii</p>
+                  <p className="text-[11px] text-text-faint truncate mt-0.5">Dostosuj filtr widoczności lub dodaj wydatki.</p>
+                </div>
               ) : (
                 categorySummary.map((cat) => {
                   const hasLimit = cat.limit > 0;
@@ -833,7 +839,7 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                           </span>
                           {hasLimit && (
                             <span
-                              className={`text-[10px] px-1.5 py-0.2 rounded border font-bold uppercase tracking-wider shrink-0 truncate max-w-[80px] ${badgeClass}`}
+                              className={`text-[10px] px-1.5 py-0.2 rounded border font-bold uppercase tracking-wider shrink-0 truncate max-w-[80px] shadow-xs ${badgeClass}`}
                               title={badgeText}
                             >
                               {badgeText}
@@ -842,20 +848,20 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
                         </div>
                         <div className="text-right shrink-0 whitespace-nowrap">
                           <strong
-                            className={`whitespace-nowrap ${hasLimit && limitPct > 100 ? "text-danger" : "text-text-main"}`}
+                            className={`whitespace-nowrap tabular-nums ${hasLimit && limitPct > 100 ? "text-danger" : "text-text-main"}`}
                             title={formatMoney(cat.spent, profile.currency || "PLN")}
                           >
                             {formatMoney(cat.spent, profile.currency || "PLN")}
                           </strong>
                           <span
-                            className="text-text-faint ml-1"
+                            className="text-text-faint ml-1 tabular-nums"
                             title={hasLimit ? `z ${formatMoney(cat.limit, profile.currency || "PLN")}` : `(${cat.pctOfExpense}%)`}
                           >
                             {hasLimit ? `z ${formatMoney(cat.limit, profile.currency || "PLN")}` : `(${cat.pctOfExpense}%)`}
                           </span>
                         </div>
                       </div>
-                      <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border/40">
+                      <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border/40" role="progressbar" aria-valuenow={cat.pctOfExpense} aria-valuemin={0} aria-valuemax={100}>
                         <div
                           style={{ width: `${cat.pctOfExpense}%` }}
                           className={`${barColor} h-full rounded-full transition-all duration-300`}
@@ -873,12 +879,12 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
               <h4 className="text-xs font-bold text-text-faint uppercase tracking-wider mb-2 truncate" title="Stopa oszczędności">
                 Miesięczna stopa oszczędności
               </h4>
-              <div className="flex items-center gap-3.5 min-w-0 bg-surface-2 p-3 rounded-xl border border-border">
-                <div className="w-12 h-12 rounded-full border-3 border-brand/30 flex items-center justify-center font-black text-brand text-xs shrink-0">
+              <div className="flex items-center gap-3.5 min-w-0 bg-surface-2 p-3 rounded-xl border border-border shadow-xs">
+                <div className="w-12 h-12 rounded-full border-2 border-brand/40 flex items-center justify-center font-black text-brand text-xs tabular-nums shrink-0 shadow-xs bg-brand-subtle/30">
                   {savingsRate}%
                 </div>
                 <p className="text-xs text-text-muted leading-relaxed min-w-0">
-                  Zabezpieczasz <strong className="text-text-main">{formatMoney(savings, profile.currency || "PLN")}</strong> z przychodów rzędu <strong>{formatMoney(totalIncome, profile.currency || "PLN")}</strong>.
+                  Zabezpieczasz <strong className="text-text-main tabular-nums">{formatMoney(savings, profile.currency || "PLN")}</strong> z przychodów rzędu <strong className="tabular-nums">{formatMoney(totalIncome, profile.currency || "PLN")}</strong>.
                 </p>
               </div>
             </div>
