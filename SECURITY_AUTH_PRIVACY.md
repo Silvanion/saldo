@@ -7,7 +7,7 @@ Niniejszy dokument opisuje architekturę bezpieczeństwa, wdrożone moduły uwie
 ## 1. Architektura Bezpieczeństwa i Model Danych
 
 - **Model Hybrydowy Auth**: Obsługa logowania za pomocą poczty e-mail i hasła (`firebase/auth`) oraz kont Google (`GoogleAuthProvider`).
-- **Szyfrowanie End-to-End (E2E) Profilu**: Profile zabezpieczone kodem PIN są szyfrowane lokalnie algorytmem `AES-GCM` (256-bit) z derywacją klucza `PBKDF2` (100 000 iteracji, sól kryptograficzna).
+- **Szyfrowanie po stronie klienta (Client-Side Encryption)**: Profile zabezpieczone kodem PIN są szyfrowane lokalnie w przeglądarce algorytmem `AES-GCM` (256-bit) z derywacją klucza `PBKDF2` (100 000 iteracji, sól kryptograficzna) przed zapisem do IndexedDB lub synchronizacją z Firestore.
 - **Zarządzanie Pamięcią Kluczy (`activeKeys`)**: Odszyfrowane klucze profilu znajdują się wyłącznie w ulotnej pamięci operacyjnej JavaScript (`in-memory map`). Nigdy nie są zapisywane w `localStorage` ani przesyłane w postaci jawnej do chmury.
 - **Bezpieczeństwo Firestore (`firestore.rules`)**:
   - Dostęp typu *Owner-only*: Odczyt, modyfikacja i usunięcie dokumentu `users/{userId}` są dozwolone wyłącznie dla uwierzytelnionego użytkownika (`request.auth.uid == userId`).
