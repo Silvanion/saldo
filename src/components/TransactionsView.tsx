@@ -447,7 +447,10 @@ export function TransactionsView({
                             {tx.name}
                           </span>
                           {profile.kind === "shared" && tx.paidBy && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0" title={tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}>
+                            <span
+                              className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-surface-2 text-text-muted border border-border shrink-0 truncate max-w-[90px]"
+                              title={`${tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}${tx.splitMode === 'equal' ? ' (50-50)' : ''}`}
+                            >
                               {tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {tx.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -463,10 +466,10 @@ export function TransactionsView({
                                   e.stopPropagation();
                                   setSelectedTag(selectedTag === tag ? null : tag);
                                 }}
-                                className={`cursor-pointer text-[10px] px-1.5 py-0.2 rounded font-medium border active:scale-[0.98] transition-all ${
+                                className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded-md font-medium border active:scale-[0.98] transition-all ${
                                   selectedTag === tag
                                     ? "bg-brand-subtle text-brand border-brand/30"
-                                    : "bg-surface-2 text-text-muted border-border hover:bg-surface"
+                                    : "bg-surface-2 text-text-muted border-border hover:bg-surface-offset hover:text-text-main"
                                 }`}
                               >
                                 #{tag}
@@ -484,7 +487,7 @@ export function TransactionsView({
                       <td className="py-3 px-3 text-xs text-text-faint max-w-[120px] truncate" title={tx.account}>
                         {tx.account}
                       </td>
-                      <td className={`py-3 px-3 text-sm font-black text-right whitespace-nowrap ${tx.type === "income" ? "text-brand" : "text-text-main"}`} title={formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}>
+                      <td className={`py-3 px-3 text-sm font-black text-right whitespace-nowrap tabular-nums ${tx.type === "income" ? "text-brand" : "text-text-main"}`} title={formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}>
                         {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                       </td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -545,17 +548,20 @@ export function TransactionsView({
               </div>
             ) : (
               visibleTransactions.map((tx) => (
-                <div key={tx.id} className="p-4 bg-surface border border-border rounded-xl space-y-2 relative min-w-0 shadow-xs">
-                  <div className="flex items-start justify-between gap-2 min-w-0">
+                <div key={tx.id} className="p-3.5 sm:p-4 bg-surface-2/60 hover:bg-surface-2 border border-border/80 rounded-xl space-y-2.5 relative min-w-0 shadow-sm transition-colors">
+                  <div className="flex items-start justify-between gap-2.5 min-w-0">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-base shrink-0 bg-surface-2 rounded-full w-8 h-8 flex items-center justify-center border border-border">
+                      <span className="text-base shrink-0 bg-surface rounded-full w-8 h-8 flex items-center justify-center border border-border shadow-xs">
                         {tx.categoryIcon || iconByCategory[tx.category] || "📂"}
                       </span>
                       <div className="min-w-0">
                         <h4 className="font-bold text-text-main text-sm flex items-center gap-1.5 min-w-0">
                           <span className="truncate" title={tx.name}>{tx.name}</span>
                           {profile.kind === "shared" && tx.paidBy && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0" title={tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}>
+                            <span
+                              className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-surface-2 text-text-muted border border-border shrink-0 truncate max-w-[90px]"
+                              title={`${tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}${tx.splitMode === 'equal' ? ' (50-50)' : ''}`}
+                            >
                               {tx.paidBy === 'me' ? 'Ja' : tx.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {tx.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -564,17 +570,17 @@ export function TransactionsView({
                         <p className="text-xs text-text-faint truncate" title={formatDate(tx.isoDate)}>{formatDate(tx.isoDate)}</p>
                       </div>
                     </div>
-                    <span className={`text-sm font-black whitespace-nowrap shrink-0 ${tx.type === "income" ? "text-brand" : "text-text-main"}`} title={formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}>
+                    <span className={`text-sm font-black tabular-nums whitespace-nowrap shrink-0 ${tx.type === "income" ? "text-brand" : "text-text-main"}`} title={formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}>
                       {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || profile?.currency || 'PLN')}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border text-xs text-text-muted min-w-0">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/80 text-xs text-text-muted min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
-                      <span className="bg-surface-2 border border-border px-2 py-0.5 rounded-md text-[10px] text-text-muted font-medium truncate max-w-[120px]" title={tx.category}>
+                      <span className="bg-surface border border-border px-2 py-0.5 rounded-md text-[10px] text-text-muted font-medium truncate max-w-[110px]" title={tx.category}>
                         {tx.category}
                       </span>
-                      <span className="bg-surface-2 border border-border px-2 py-0.5 rounded-md text-[10px] text-text-faint truncate max-w-[120px]" title={tx.account}>
+                      <span className="bg-surface border border-border px-2 py-0.5 rounded-md text-[10px] text-text-faint truncate max-w-[110px]" title={tx.account}>
                         {tx.account}
                       </span>
                     </div>
@@ -582,15 +588,17 @@ export function TransactionsView({
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => onOpenTxModal(tx)}
-                        className="text-text-muted hover:text-text-main text-xs font-bold px-2.5 py-1 bg-surface-2 rounded-lg active:scale-[0.98] transition-all border border-border cursor-pointer flex items-center gap-1"
+                        className="text-text-muted hover:text-text-main text-xs font-bold px-2.5 py-1 bg-surface hover:bg-surface-offset rounded-lg active:scale-[0.98] transition-all border border-border cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+                        aria-label={`Edytuj transakcję ${tx.name}`}
                       >
                         <Pencil className="w-3 h-3" />
                         <span>Edytuj</span>
                       </button>
                       <button
                         onClick={() => setTransactionToDelete(tx)}
-                        className="text-danger hover:text-danger text-xs font-bold px-2.5 py-1 bg-danger-subtle rounded-lg active:scale-[0.98] transition-all border border-danger/20 cursor-pointer flex items-center gap-1"
+                        className="text-danger hover:text-danger text-xs font-bold px-2.5 py-1 bg-danger-subtle hover:bg-danger-subtle/80 rounded-lg active:scale-[0.98] transition-all border border-danger/20 cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-focus-ring"
                         id={`btn-delete-tx-mob-${tx.id}`}
+                        aria-label={`Usuń transakcję ${tx.name}`}
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Usuń</span>
@@ -599,7 +607,7 @@ export function TransactionsView({
                   </div>
 
                   {tx.tags && tx.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-1">
+                    <div className="flex flex-wrap gap-1 pt-0.5">
                       {tx.tags.map((tag) => (
                         <span
                           key={tag}
@@ -607,10 +615,10 @@ export function TransactionsView({
                             e.stopPropagation();
                             setSelectedTag(selectedTag === tag ? null : tag);
                           }}
-                          className={`cursor-pointer text-[10px] px-1.5 py-0.2 rounded font-medium border active:scale-[0.98] transition-all ${
+                          className={`cursor-pointer text-[10px] px-1.5 py-0.5 rounded-md font-medium border active:scale-[0.98] transition-all ${
                             selectedTag === tag
-                              ? "bg-brand-subtle text-brand border-brand/30"
-                              : "bg-surface-2 text-text-muted border-border"
+                              ? "bg-brand-subtle text-brand border-brand/30 shadow-xs"
+                              : "bg-surface text-text-muted border-border hover:bg-surface-offset hover:text-text-main"
                           }`}
                         >
                           #{tag}

@@ -155,4 +155,45 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
     fireEvent.click(clearTagBtn);
     expect(screen.queryByRole("button", { name: /Wyczyść filtr tagu/i })).toBeNull();
   });
+
+  it("renders payer badges and accessible mobile edit/delete buttons in shared profile", () => {
+    const onOpenTxModal = vi.fn();
+    const sharedTx: Transaction = {
+      id: "tx-shared",
+      name: "Czynsz Mieszkanie",
+      amount: 1500,
+      type: "expense",
+      category: "Rachunki",
+      account: "Konto Główne",
+      isoDate: "2026-08-10",
+      paidBy: "me",
+      splitMode: "equal",
+      currency: "PLN",
+    };
+
+    const sharedProfile: Profile = {
+      ...mockProfile,
+      kind: "shared",
+      transactions: [sharedTx],
+    };
+
+    render(
+      <TransactionsView
+        profile={sharedProfile}
+        onOpenTxModal={onOpenTxModal}
+        onDeleteTransaction={vi.fn()}
+        onImportTransactions={vi.fn()}
+      />
+    );
+
+    // Verify payer badges
+    const payerBadges = screen.getAllByText(/Ja \(50-50\)/);
+    expect(payerBadges.length).toBeGreaterThan(0);
+
+    // Verify mobile edit button
+    const editMobBtn = screen.getByRole("button", { name: "Edytuj transakcję Czynsz Mieszkanie" });
+    expect(editMobBtn).toBeTruthy();
+    fireEvent.click(editMobBtn);
+    expect(onOpenTxModal).toHaveBeenCalledWith(sharedTx);
+  });
 });
