@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Profile, Payment } from "../types";
 import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
-import { Bell, BellOff, BellRing, Plus, CalendarClock, AlertCircle, Clock, CalendarDays, Calendar } from "lucide-react";
+import { Bell, BellOff, BellRing, Plus, CalendarClock, AlertCircle, Clock, CalendarDays, Calendar, Pencil, Trash2 } from "lucide-react";
 import { getHorizonSummary } from "./dashboard/PaymentsTimelineWidget";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -72,22 +72,22 @@ export function PaymentsView({
     if (diffDays < 0) {
       return {
         label: "Przeterminowane!",
-        badgeClass: "bg-danger-subtle text-danger border-danger/20 text-xs font-bold shadow-sm"
+        badgeClass: "bg-danger-subtle text-danger border-danger/30 text-[10px] font-bold tracking-wider"
       };
     } else if (diffDays === 0) {
       return {
         label: "Dzisiaj!",
-        badgeClass: "bg-danger-subtle text-danger border-danger/20 animate-pulse text-xs font-bold"
+        badgeClass: "bg-danger-subtle text-danger border-danger/30 text-[10px] font-bold tracking-wider"
       };
     } else if (diffDays === 1) {
       return {
         label: "Jutro",
-        badgeClass: "bg-danger-subtle text-danger border-danger/20 text-xs font-bold"
+        badgeClass: "bg-warning-subtle text-warning border-warning/30 text-[10px] font-bold tracking-wider"
       };
     } else if (diffDays <= 3) {
       return {
         label: `Za ${diffDays} dni`,
-        badgeClass: "bg-warning-subtle text-warning border-warning/20 text-xs font-bold"
+        badgeClass: "bg-warning-subtle text-warning border-warning/30 text-[10px] font-bold tracking-wider"
       };
     }
     return {
@@ -392,19 +392,27 @@ export function PaymentsView({
         
         <div className="space-y-3">
           {sortedPayments.length === 0 ? (
-            <div className="text-center py-10">
-              {profile.payments.length > 0 ? (
-                <p className="text-sm text-text-muted">Brak płatności pasujących do wybranego filtra (np. "Kto zapłacił").</p>
-              ) : (
-                <>
-                  <p className="text-sm text-text-muted">Brak zdefiniowanych płatności.</p>
-                  <button
-                    onClick={() => onOpenPaymentModal()}
-                    className="text-brand text-xs font-semibold hover:underline mt-1 active:scale-[0.98] transition-transform focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer rounded"
-                  >
-                    Dodaj swój pierwszy rachunek już teraz &rarr;
-                  </button>
-                </>
+            <div className="text-center py-8 bg-bg-base/30 rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-w-0">
+              <div className="text-2xl mb-1 opacity-50 shrink-0">
+                {profile.payments.length > 0 ? "🔍" : "🍵"}
+              </div>
+              <p className="text-xs text-text-muted font-medium truncate">
+                {profile.payments.length > 0
+                  ? "Brak płatności pasujących do wybranego filtra"
+                  : "Brak zdefiniowanych płatności"}
+              </p>
+              <p className="text-xs text-text-faint truncate">
+                {profile.payments.length > 0
+                  ? "Zmień kryteria filtrowania, aby zobaczyć pozostałe rachunki."
+                  : "Wszystkie bieżące opłaty są uregulowane lub brak zdefiniowanych terminów."}
+              </p>
+              {profile.payments.length === 0 && (
+                <button
+                  onClick={() => onOpenPaymentModal()}
+                  className="mt-3 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
+                >
+                  + Dodaj pierwszy rachunek
+                </button>
               )}
             </div>
           ) : (
@@ -430,7 +438,10 @@ export function PaymentsView({
                         <h4 className="text-sm font-bold text-text-main flex items-center gap-1.5 min-w-0 max-w-full">
                           <span className="truncate" title={p.name}>{p.name}</span>
                           {profile.kind === "shared" && p.paidBy && (
-                            <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-surface-2 text-text-muted border border-border shrink-0 truncate max-w-[80px]" title={p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}>
+                            <span
+                              className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-surface-2 text-text-muted border border-border shrink-0 truncate max-w-[90px]"
+                              title={`${p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}${p.splitMode === 'equal' ? ' (50-50)' : ''}`}
+                            >
                               {p.paidBy === 'me' ? 'Ja' : p.paidBy === 'partner' ? 'Partner' : 'Wspólne'}
                               {p.splitMode === 'equal' ? ' (50-50)' : ''}
                             </span>
@@ -440,7 +451,7 @@ export function PaymentsView({
                           const status = getDueStatus(p.dueDate, isPaid);
                           if (status.label) {
                             return (
-                              <span className={`px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[100px] ${status.badgeClass}`} id={`payment-item-badge-${p.id}`} title={status.label}>
+                              <span className={`px-1.5 py-0.5 rounded-md border shrink-0 truncate max-w-[120px] ${status.badgeClass}`} id={`payment-item-badge-${p.id}`} title={status.label}>
                                 {status.label}
                               </span>
                             );
@@ -479,21 +490,21 @@ export function PaymentsView({
                       </button>
                       <button
                         onClick={() => onOpenPaymentModal(p)}
-                        className="p-1.5 text-text-muted hover:text-text-main rounded active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-lg active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                         title="Edytuj rachunek"
                         aria-label="Edytuj rachunek"
                         id={`btn-edit-payment-${p.id}`}
                       >
-                        ✏️
+                        <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setPaymentToDelete(p)}
-                        className="p-1.5 text-text-muted hover:text-danger rounded active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-lg active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                         title="Usuń rachunek"
                         aria-label="Usuń rachunek"
                         id={`btn-delete-payment-${p.id}`}
                       >
-                        🗑️
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
