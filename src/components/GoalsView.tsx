@@ -4,6 +4,7 @@ import { formatDate } from "../utils";
 import { formatMoney } from "../utils/format";
 import { calculateNetWorth } from "../services/budgetCalculations";
 import { NetWorthHeroCard } from "./wealth/NetWorthHeroCard";
+import { Plus, Trash2, ArrowLeftRight, Target } from "lucide-react";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -44,34 +45,45 @@ export function GoalsView({
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 min-w-0">
           <div className="min-w-0">
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider truncate" title="Planowanie Przyszłości">Planowanie Przyszłości</p>
-            <h2 className="text-xl font-bold text-text-main truncate" title="Cele oszczędnościowe">Cele oszczędnościowe</h2>
-            <p className="text-xs text-text-muted mt-1 max-w-sm leading-relaxed">
-              <strong>Zarezerwowane na cele:</strong> wpłaty nie tworzą wydatków. Środki odłożone na cele są po prostu odejmowane od salda "Do wydania" jako rezerwa.
+            <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Planowanie Przyszłości">
+              Planowanie Przyszłości
+            </p>
+            <h2 className="text-xl font-bold text-text-main truncate" title="Cele oszczędnościowe">
+              Cele oszczędnościowe
+            </h2>
+            <p className="text-xs text-text-muted mt-1 max-w-lg leading-relaxed">
+              <strong>Zarezerwowane na cele:</strong> wpłaty nie tworzą wydatków. Środki odłożone na cele są po prostu odejmowane od salda &bdquo;Do wydania&rdquo; jako rezerwa.
             </p>
           </div>
           <button
             onClick={onOpenGoalModal}
-            className="bg-brand text-text-inverse font-bold py-2 px-5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-lg text-sm shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 self-start sm:self-auto shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-goal"
           >
-            ＋ Nowy cel
+            <Plus className="w-4 h-4" />
+            <span>Nowy cel</span>
           </button>
         </div>
 
         {profile.goals.length === 0 ? (
-          <div className="bg-surface border border-border rounded-2xl p-8 text-center shadow-lg">
-            <span className="text-3xl">🎯</span>
-            <p className="text-sm font-bold text-text-muted mt-2">Nie zdefiniowałeś jeszcze celów oszczędnościowych.</p>
+          <div className="text-center py-10 px-6 bg-bg-base/30 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3 border border-brand/20 shadow-xs">
+              <Target className="w-6 h-6 text-brand" />
+            </div>
+            <h3 className="text-sm font-bold text-text-main">Nie zdefiniowałeś jeszcze celów oszczędnościowych</h3>
+            <p className="text-xs text-text-muted max-w-sm mt-1 mb-4">
+              Wyznacz cel oszczędnościowy (np. wakacje, poduszka finansowa), aby łatwo odkładać rezerwę.
+            </p>
             <button
               onClick={onOpenGoalModal}
-              className="text-brand text-xs font-bold hover:text-brand-hover active:scale-[0.98] transition-all mt-1 inline-block cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 px-3.5 py-2 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
             >
-              Stwórz swój pierwszy cel &rarr;
+              <Plus className="w-3.5 h-3.5" />
+              <span>Stwórz swój pierwszy cel</span>
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="goals-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="goals-grid">
             {profile.goals.map((g) => {
               const percent = g.target > 0 ? Math.min(100, Math.round((g.saved / g.target) * 100)) : 0;
               const isCompleted = g.saved >= g.target;
@@ -109,55 +121,65 @@ export function GoalsView({
               }
 
               return (
-                <div key={g.id} className="bg-surface border border-border rounded-2xl p-5 shadow-lg hover:shadow-xl hover:bg-surface transition flex flex-col justify-between h-[13rem] relative min-w-0">
+                <div
+                  key={g.id}
+                  className="bg-surface border border-border rounded-2xl p-5 shadow-sm hover:border-brand/30 transition-colors flex flex-col justify-between min-h-[12.5rem] relative min-w-0 space-y-3"
+                >
                   <div className="min-w-0">
-                    <div className="flex justify-between items-start mb-2 min-w-0 gap-2">
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 ${isCompleted ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-main border-border"}`}>
+                    <div className="flex justify-between items-start mb-2.5 min-w-0 gap-2">
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 shadow-xs ${isCompleted ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-main border-border"}`}>
                         {isCompleted ? "🏆" : "🎯"}
                       </span>
-                      <div className="flex items-center gap-2 shrink-0 min-w-0">
+                      <div className="flex items-center gap-1.5 shrink-0 min-w-0">
                         {badgeInfo && (
-                          <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[80px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[100px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
                             {badgeInfo.text}
                           </span>
                         )}
                         <button
                           onClick={() => onDeleteGoal(g.id)}
-                          className="text-text-muted hover:text-danger text-xs active:scale-[0.98] transition-all px-1 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
+                          className="text-text-muted hover:text-danger hover:bg-danger-subtle/50 text-xs active:scale-[0.98] transition-all p-1 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded-lg border border-transparent hover:border-danger/20"
                           title="Usuń cel"
-                          aria-label="Usuń cel"
+                          aria-label={`Usuń cel ${g.name}`}
                           id={`btn-delete-goal-${g.id}`}
                         >
-                          ✕
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
                     <h3 className="text-sm font-bold text-text-main line-clamp-1" title={g.name}>{g.name}</h3>
                     <p className="text-xs text-text-muted mt-0.5 truncate" title={`${formatMoney(g.saved, g.currency || profile?.currency || 'PLN')} z ${formatMoney(g.target, g.currency || profile?.currency || 'PLN')}`}>
-                      {formatMoney(g.saved, g.currency || profile?.currency || 'PLN')} z {formatMoney(g.target, g.currency || profile?.currency || 'PLN')}
+                      <span className="font-bold text-text-main tabular-nums">{formatMoney(g.saved, g.currency || profile?.currency || 'PLN')}</span>
+                      <span className="text-text-faint"> z </span>
+                      <span className="tabular-nums">{formatMoney(g.target, g.currency || profile?.currency || 'PLN')}</span>
                     </p>
                     {paceText && (
-                      <p className="text-xs text-text-muted mt-1.5 font-semibold bg-surface-2 inline-block px-2 py-1 rounded-md border border-border truncate max-w-full" title={paceText}>
+                      <p className="text-[11px] text-text-muted mt-2 font-medium bg-surface-2 inline-block px-2 py-1 rounded-md border border-border truncate max-w-full" title={paceText}>
                         {paceText}
                       </p>
                     )}
                   </div>
-                  <div className="min-w-0">
+
+                  <div className="min-w-0 pt-1">
                     {/* Progress */}
-                    <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mt-3 mb-1">
+                    <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mb-2 border border-border/50" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                       <div
                         style={{ width: `${percent}%` }}
                         className={`${isCompleted ? "bg-brand" : "bg-brand"} h-full rounded-full transition-all duration-500`}
                       ></div>
                     </div>
                     <div className="flex justify-between items-center gap-2 min-w-0">
-                      <span className="text-xs font-bold text-text-muted shrink-0 truncate" title={`${percent}% celu`}>{percent}% celu</span>
+                      <span className="text-xs font-bold text-text-muted tabular-nums shrink-0 truncate" title={`${percent}% celu`}>
+                        {percent}% celu
+                      </span>
                       <button
                         onClick={() => onOpenGoalDepositModal(g)}
-                        className="text-xs font-bold text-brand hover:text-brand-hover active:scale-[0.98] transition-all shrink-0 truncate max-w-[100px] cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded px-1"
+                        className="text-xs font-bold text-brand hover:text-brand-hover bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 active:scale-[0.98] transition-all shrink-0 truncate cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded-lg px-2.5 py-1 flex items-center gap-1 shadow-xs"
                         id={`btn-deposit-goal-${g.id}`}
+                        aria-label={`Transfer na cel ${g.name}`}
                       >
-                        ⇄ Transfer
+                        <ArrowLeftRight className="w-3 h-3" />
+                        <span>Transfer</span>
                       </button>
                     </div>
                   </div>
