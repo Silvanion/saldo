@@ -3,6 +3,7 @@ import { useApp } from "./providers/AppContext";
 import React, { useState, useEffect, Suspense, lazy } from "react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
@@ -461,14 +462,36 @@ export function AppShell({
         </div>
 
         {apiError && (
-          <div className="bg-danger-subtle border-b border-danger/20 px-6 py-3 flex items-center justify-between text-danger text-xs animate-fade-in shrink-0" id="api-error-banner">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">⚠️</span>
-              <span className="font-bold">{apiError}</span>
+          <div
+            className="bg-danger-subtle border-b border-danger/20 px-6 py-3 flex items-center justify-between text-danger text-xs animate-fade-in shrink-0"
+            id="api-error-banner"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm shrink-0">⚠️</span>
+              <span className="font-bold truncate">{apiError}</span>
             </div>
-            <button onClick={() => setApiError(null)} className="text-danger hover:text-danger/80 active:scale-[0.98] transition-all font-bold text-sm shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring" aria-label="Zamknij błąd">
-              &times;
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => {
+                  setApiError(null);
+                  refreshState?.();
+                }}
+                className="px-2.5 py-1 bg-danger/10 hover:bg-danger/20 active:scale-[0.98] text-danger rounded-lg font-bold text-xs transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                id="btn-retry-api"
+              >
+                Ponów
+              </button>
+              <button
+                onClick={() => setApiError(null)}
+                className="text-danger hover:text-danger/80 active:scale-[0.98] transition-all font-bold text-base shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring p-1 rounded-md"
+                aria-label="Zamknij błąd"
+                id="btn-dismiss-api-error"
+              >
+                &times;
+              </button>
+            </div>
           </div>
         )}
 
@@ -493,23 +516,25 @@ export function AppShell({
 
       {/* Command Palette Modal */}
       {isCommandPaletteOpen && (
-        <Suspense fallback={null}>
-          <CommandPaletteModal
-            isOpen={true}
-            onClose={() => setIsCommandPaletteOpen(false)}
-            activeProfile={activeProfile}
-            profiles={state?.profiles || []}
-            activeView={activeView}
-            setActiveView={setActiveView}
-            onSelectProfile={(id) => handleSelectProfile(id)}
-            onOpenTransactionModal={(tx) => openModal("transaction", tx)}
-            onOpenPaymentModal={() => openModal("payment")}
-            onOpenGoalModal={() => openModal("goal")}
-            onExportData={handleExportData}
-            theme={theme === "dark" ? "dark" : "light"}
-            onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={() => setIsCommandPaletteOpen(false)} title="Nie udało się załadować palety poleceń">
+          <Suspense fallback={null}>
+            <CommandPaletteModal
+              isOpen={true}
+              onClose={() => setIsCommandPaletteOpen(false)}
+              activeProfile={activeProfile}
+              profiles={state?.profiles || []}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              onSelectProfile={(id) => handleSelectProfile(id)}
+              onOpenTransactionModal={(tx) => openModal("transaction", tx)}
+              onOpenPaymentModal={() => openModal("payment")}
+              onOpenGoalModal={() => openModal("goal")}
+              onExportData={handleExportData}
+              theme={theme === "dark" ? "dark" : "light"}
+              onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
     </div>

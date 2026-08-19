@@ -66,4 +66,23 @@ describe("useToast", () => {
     expect(result.current.toasts).toHaveLength(0);
     vi.useRealTimers();
   });
+
+  it("should not add empty or whitespace-only messages", () => {
+    const { result } = renderHook(() => useToast());
+    act(() => {
+      result.current.showToast("   ", "info");
+    });
+    expect(result.current.toasts).toHaveLength(0);
+  });
+
+  it("should deduplicate identical active toasts", () => {
+    const { result } = renderHook(() => useToast());
+    act(() => {
+      result.current.showToast("Powtórzony błąd", "error");
+      result.current.showToast("Powtórzony błąd", "error");
+      result.current.showToast("Powtórzony błąd", "error");
+    });
+    expect(result.current.toasts).toHaveLength(1);
+    expect(result.current.toasts[0].message).toBe("Powtórzony błąd");
+  });
 });

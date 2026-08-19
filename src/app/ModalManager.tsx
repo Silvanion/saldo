@@ -12,11 +12,27 @@ import {
   BudgetModal,
 } from "../components/Modals";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 const CalendarReminderModal = lazy(() => import("../components/CalendarReminderModal").then(m => ({ default: m.CalendarReminderModal })));
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
+
+function ModalFallback() {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
+      role="status"
+      aria-label="Ładowanie okna dialogowego..."
+    >
+      <div className="bg-surface border border-border p-5 rounded-2xl shadow-xl flex items-center gap-3">
+        <div className="w-5 h-5 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
+        <span className="text-sm font-bold text-text-main">Ładowanie...</span>
+      </div>
+    </div>
+  );
+}
 
 export function ModalManager() {
   const {
@@ -116,46 +132,54 @@ export function ModalManager() {
         />
       )}
       {modalState.type === "calendarAi" && (
-        <Suspense fallback={null}>
-          <CalendarReminderModal
-            isOpen={true}
-            payment={(modalState as any).payload ?? null}
-            onClose={closeModal}
-            calendarToken={calendarToken}
-            onConnectCalendar={() => connectGoogle("calendar")}
-            onCalendarAuthInvalid={invalidateCalendarToken}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować przypomnień kalendarza">
+          <Suspense fallback={<ModalFallback />}>
+            <CalendarReminderModal
+              isOpen={true}
+              payment={(modalState as any).payload ?? null}
+              onClose={closeModal}
+              calendarToken={calendarToken}
+              onConnectCalendar={() => connectGoogle("calendar")}
+              onCalendarAuthInvalid={invalidateCalendarToken}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {modalState.type === "aiChat" && canUseAiChat && (
-        <Suspense fallback={null}>
-          <AiChatModal
-            isOpen={true}
-            onClose={closeModal}
-            activeProfile={activeProfile}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować asystenta AI">
+          <Suspense fallback={<ModalFallback />}>
+            <AiChatModal
+              isOpen={true}
+              onClose={closeModal}
+              activeProfile={activeProfile}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
       {modalState.type === "changelog" && (
-        <Suspense fallback={null}>
-          <ChangelogModal
-            isOpen={true}
-            onClose={closeModal}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować historii zmian">
+          <Suspense fallback={<ModalFallback />}>
+            <ChangelogModal
+              isOpen={true}
+              onClose={closeModal}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
       {driveConflictInfo && (
-        <Suspense fallback={null}>
-          <DriveConflictModal
-            isOpen={true}
-            onClose={closeDriveConflictModal}
-            localState={driveConflictInfo.localState || null}
-            remoteState={driveConflictInfo.remoteState || null}
-            lastSyncedAt={driveConflictInfo.lastSyncedAt || null}
-            onResolve={resolveDriveConflict}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={closeDriveConflictModal} title="Nie udało się załadować asystenta konfliktów Drive">
+          <Suspense fallback={<ModalFallback />}>
+            <DriveConflictModal
+              isOpen={true}
+              onClose={closeDriveConflictModal}
+              localState={driveConflictInfo.localState || null}
+              remoteState={driveConflictInfo.remoteState || null}
+              lastSyncedAt={driveConflictInfo.lastSyncedAt || null}
+              onResolve={resolveDriveConflict}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
       {modalState.type === "confirm" && (
         <ConfirmModal

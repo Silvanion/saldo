@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Profile, Payment, Goal } from "../types";
 import { AppView } from "../uiTypes";
 import { DashboardView } from "../components/DashboardView";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 const TransactionsView = lazy(() => import("../components/TransactionsView").then(m => ({ default: m.TransactionsView })));
 const PaymentsView = lazy(() => import("../components/PaymentsView").then(m => ({ default: m.PaymentsView })));
@@ -16,8 +17,13 @@ const HelpView = lazy(() => import("../components/HelpView").then(m => ({ defaul
 
 function ViewFallback() {
   return (
-    <div className="flex items-center justify-center py-24 min-h-[300px]">
-      <div className="w-8 h-8 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
+    <div
+      className="flex flex-col items-center justify-center py-24 min-h-[300px] text-center animate-in fade-in duration-150"
+      role="status"
+      aria-label="Ładowanie widoku..."
+    >
+      <div className="w-8 h-8 rounded-full border-2 border-brand/20 border-t-brand animate-spin mb-3" />
+      <span className="text-xs font-bold text-text-muted">Ładowanie widoku...</span>
     </div>
   );
 }
@@ -270,6 +276,7 @@ export function AppViewRouter({
           <AnalysisView
             profile={activeProfile}
             selectedDate={selectedDate}
+            showToast={showToast}
           />
         );
       case "settings":
@@ -330,9 +337,17 @@ export function AppViewRouter({
         transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
         className="w-full min-h-full flex flex-col min-w-0"
       >
-        <Suspense fallback={<ViewFallback />}>
-          {renderView()}
-        </Suspense>
+        <ErrorBoundary
+          resetKeys={[activeView]}
+          showHomeButton={activeView !== "dashboard"}
+          onNavigateHome={() => setActiveView("dashboard")}
+          title="Nie udało się załadować widoku"
+          message="Wystąpił błąd podczas renderowania wybranego widoku. Twoje dane lokalne są bezpieczne."
+        >
+          <Suspense fallback={<ViewFallback />}>
+            {renderView()}
+          </Suspense>
+        </ErrorBoundary>
       </motion.div>
     </AnimatePresence>
   );

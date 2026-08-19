@@ -32,9 +32,10 @@ import { formatMoney } from "../utils/format";
 interface AnalysisViewProps {
   profile: Profile;
   selectedDate: Date;
+  showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
-export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, showToast }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -244,8 +245,13 @@ export function AnalysisView({ profile, selectedDate }: AnalysisViewProps) {
         </div>
         <button
           onClick={async () => {
-            const { generateReportPdf } = await import("../services/pdfGenerator");
-            generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN");
+            try {
+              const { generateReportPdf } = await import("../services/pdfGenerator");
+              generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN");
+            } catch (err) {
+              console.error("PDF generation failed:", err);
+              showToast?.("Nie udało się wygenerować raportu PDF. Spróbuj ponownie za chwilę.", "error");
+            }
           }}
           className="bg-surface hover:bg-surface-offset text-text-muted hover:text-text-main border border-border font-bold py-2.5 sm:py-2 px-4 rounded-xl active:scale-[0.98] transition-all shadow-xs text-xs flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           id="btn-download-pdf-report"

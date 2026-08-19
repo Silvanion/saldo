@@ -46,4 +46,27 @@ test.describe("Security & Privacy E2E Flows", () => {
     const securityHeader = page.getByRole("heading", { name: /Zabezpieczenie aktywnego profilu|Prywatność/i });
     await expect(securityHeader.first()).toBeVisible({ timeout: 5000 });
   });
+
+  test("C. System Status & Recovery Banner: displays operational state and security details", async ({ page }) => {
+    await setupApp(page);
+
+    // Verify footer status bar exists
+    const statusBanner = page.locator("#offline-worker-status-banner");
+    await expect(statusBanner).toBeVisible({ timeout: 5000 });
+    await expect(statusBanner.getByText(/System (Online|Offline)/i)).toBeVisible();
+
+    // Verify security details button triggers modal
+    const securityDetailsBtn = page.locator("#btn-security-details");
+    await expect(securityDetailsBtn).toBeVisible({ timeout: 5000 });
+    await securityDetailsBtn.click();
+
+    const securityModal = page.locator("#security-info-modal");
+    await expect(securityModal).toBeVisible({ timeout: 5000 });
+
+    // Close modal safely
+    const closeBtn = page.locator("#close-security-modal");
+    await expect(closeBtn).toBeVisible();
+    await closeBtn.click();
+    await expect(securityModal).not.toBeVisible();
+  });
 });
