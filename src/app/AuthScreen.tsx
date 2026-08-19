@@ -1,18 +1,47 @@
-import React, { useState } from "react";
-import { Wallet, Mail, Lock, LogIn, UserPlus, AlertTriangle } from "lucide-react";
-import { loginWithEmail, registerWithEmail, googleSignInBasic } from "../firebase";
+import React, { useState, useMemo } from "react";
+import { Wallet, Mail, Lock, LogIn, UserPlus, AlertTriangle, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
+import { loginWithEmail, registerWithEmail, googleSignInBasic, resetPassword, verifyEmail } from "../firebase";
 
 interface AuthScreenProps {
   onDemoClick: () => void;
 }
 
+function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: string; color: string } {
+  if (!password || password.length < 6) return { level: 0, label: "Za krótkie (min. 6 znaków)", color: "bg-border" };
+  const hasMinLength = password.length >= 8;
+  const hasDigit = /\d/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  if (hasMinLength && hasDigit && hasSpecial) return { level: 3, label: "Silne hasło", color: "bg-success" };
+  if (hasMinLength && hasDigit) return { level: 2, label: "Średnie hasło", color: "bg-warning" };
+  if (password.length >= 6) return { level: 1, label: "Słabe hasło", color: "bg-danger" };
+  return { level: 0, label: "Za krótkie", color: "bg-border" };
+}
+
 export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
   const [isDomainError, setIsDomainError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Reset password flow
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+
+  const passwordMismatch = !isLogin && confirmPassword.length > 0 && password !== confirmPassword;
+
+  const canSubmitRegister = !isLogin
+    ? password.length >= 6 && password === confirmPassword
+    : true;
 
   const handleError = (err: any) => {
     const code = err?.code || "";
@@ -35,6 +64,18 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
     } else if (code === "auth/network-request-failed" || msg.includes("network-request-failed") || msg.includes("zablokowane (np. przez rozszerzenie")) {
       setIsDomainError(false);
       setError("Połączenie z usługą autoryzacji Google zostało zablokowane przez AdBlocka lub rozszerzenie prywatności. Wyłącz blokowanie dla tej strony.");
+    } else if (code === "auth/email-already-in-use") {
+      setIsDomainError(false);
+      setError("Konto z tym adresem email już istnieje. Zaloguj się lub użyj opcji resetowania hasła.");
+    } else if (code === "auth/weak-password") {
+      setIsDomainError(false);
+      setError("Hasło jest zbyt słabe. Użyj co najmniej 6 znaków.");
+    } else if (code === "auth/invalid-email") {
+      setIsDomainError(false);
+      setError("Podany adres email jest nieprawidłowy.");
+    } else if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+      setIsDomainError(false);
+      setError("Nieprawidłowy adres email lub hasło.");
     } else {
       setIsDomainError(false);
       setError(msg || "Błąd uwierzytelniania.");
@@ -45,12 +86,25 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
     e.preventDefault();
     setError("");
     setIsDomainError(false);
+    setSuccessMessage("");
     setLoading(true);
     try {
       if (isLogin) {
         await loginWithEmail(email, password);
       } else {
+        if (passwordMismatch) {
+          setError("Hasła nie są identyczne.");
+          setLoading(false);
+          return;
+        }
         await registerWithEmail(email, password);
+        // Send email verification after successful registration
+        try {
+          await verifyEmail();
+        } catch {
+          // Non-blocking: verification email is best-effort
+        }
+        setSuccessMessage("Konto utworzone! Sprawdź swoją skrzynkę email, aby potwierdzić adres.");
       }
     } catch (err: any) {
       handleError(err);
@@ -62,6 +116,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   const handleGoogleSignIn = async () => {
     setError("");
     setIsDomainError(false);
+    setSuccessMessage("");
     setLoading(true);
     try {
       await googleSignInBasic();
@@ -71,6 +126,98 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setResetSent(false);
+    setResetLoading(true);
+    try {
+      await resetPassword(resetEmail);
+      setResetSent(true);
+    } catch (err: any) {
+      const code = err?.code || "";
+      if (code === "auth/user-not-found") {
+        // Don't reveal whether user exists — show success anyway
+        setResetSent(true);
+      } else if (code === "auth/invalid-email") {
+        setError("Podany adres email jest nieprawidłowy.");
+      } else {
+        setError(err?.message || "Nie udało się wysłać linku resetującego.");
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  // Reset password mini-form
+  if (showResetForm) {
+    return (
+      <div className="min-h-screen bg-bg-base flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-6">
+          <div className="text-center space-y-2">
+            <div className="flex justify-center mb-4">
+              <div className="bg-brand text-text-inverse p-3.5 rounded-2xl shadow-lg">
+                <KeyRound className="w-8 h-8" />
+              </div>
+            </div>
+            <h1 className="text-2xl font-black text-text-main tracking-tight">Resetowanie hasła</h1>
+            <p className="text-text-muted text-sm">Podaj adres email powiązany z Twoim kontem. Wyślemy link do zmiany hasła.</p>
+          </div>
+
+          {error && (
+            <div className="bg-danger-subtle text-danger border border-danger/20 p-3 rounded-xl text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          {resetSent ? (
+            <div className="bg-success-subtle text-success border border-success/20 p-4 rounded-xl text-sm flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold mb-1">Link wysłany!</p>
+                <p>Jeśli konto z adresem <strong>{resetEmail}</strong> istnieje, otrzymasz wiadomość z linkiem do zmiany hasła. Sprawdź również folder spam.</p>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Email</label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    className="w-full pl-11 pr-4 py-3.5 bg-surface border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium"
+                    placeholder="twoj@email.com"
+                    autoFocus
+                  />
+                  <Mail className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="w-full bg-brand text-text-inverse py-3.5 rounded-xl font-bold hover:bg-brand-hover transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                {resetLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
+              </button>
+            </form>
+          )}
+
+          <button
+            type="button"
+            onClick={() => { setShowResetForm(false); setError(""); setResetSent(false); }}
+            className="w-full flex items-center justify-center gap-2 text-sm text-text-muted font-bold hover:text-text-main transition"
+          >
+            <ArrowLeft className="w-4 h-4" /> Wróć do logowania
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main auth form
   return (
     <div className="min-h-screen bg-bg-base flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-8">
@@ -83,6 +230,13 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           <h1 className="text-4xl font-black text-text-main tracking-tight">saldo</h1>
           <p className="text-text-muted">Twój osobisty asystent finansowy</p>
         </div>
+
+        {successMessage && (
+          <div className="bg-success-subtle text-success border border-success/20 p-3 rounded-xl text-sm text-center flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            {successMessage}
+          </div>
+        )}
 
         {error && !isDomainError && (
           <div className="bg-danger-subtle text-danger border border-danger/20 p-3 rounded-xl text-sm text-center">
@@ -137,33 +291,98 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Hasło</label>
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3.5 bg-surface border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium"
+                className="w-full pl-11 pr-11 py-3.5 bg-surface border border-border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium"
                 placeholder="••••••••"
               />
               <Lock className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 p-1 text-text-faint hover:text-text-main rounded-lg transition"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+              </button>
             </div>
+
+            {/* Password strength indicator — registration only */}
+            {!isLogin && password.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <div className="flex gap-1">
+                  {[1, 2, 3].map((seg) => (
+                    <div
+                      key={seg}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        passwordStrength.level >= seg ? passwordStrength.color : "bg-border"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className={`text-[11px] font-medium ${
+                  passwordStrength.level >= 3 ? "text-success" :
+                  passwordStrength.level >= 2 ? "text-warning" :
+                  "text-danger"
+                }`}>
+                  {passwordStrength.label}
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Confirm password — registration only */}
+          {!isLogin && (
+            <div>
+              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Powtórz hasło</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={`w-full pl-11 pr-4 py-3.5 bg-surface border rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring transition text-sm font-medium ${
+                    passwordMismatch ? "border-danger" : "border-border"
+                  }`}
+                  placeholder="••••••••"
+                />
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-text-muted" />
+              </div>
+              {passwordMismatch && (
+                <p className="text-danger text-[11px] font-medium mt-1">Hasła nie są identyczne.</p>
+              )}
+            </div>
+          )}
+
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-brand text-text-inverse py-3.5 rounded-xl font-bold hover:bg-brand-hover transition flex items-center justify-center gap-2 shadow-sm mt-2"
+            disabled={loading || (!isLogin && !canSubmitRegister)}
+            className="w-full bg-brand text-text-inverse py-3.5 rounded-xl font-bold hover:bg-brand-hover transition flex items-center justify-center gap-2 shadow-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Przetwarzanie..." : isLogin ? <><LogIn className="w-5 h-5" /> Zaloguj się</> : <><UserPlus className="w-5 h-5" /> Zarejestruj się</>}
           </button>
         </form>
 
-        <div className="text-center text-sm">
+        <div className="flex items-center justify-between text-sm">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => { setIsLogin(!isLogin); setError(""); setSuccessMessage(""); setConfirmPassword(""); }}
             className="text-text-muted font-bold hover:text-text-main hover:underline"
           >
             {isLogin ? "Nie masz konta? Zarejestruj się" : "Masz już konto? Zaloguj się"}
           </button>
+
+          {isLogin && (
+            <button
+              type="button"
+              onClick={() => { setShowResetForm(true); setResetEmail(email); setError(""); }}
+              className="text-text-muted font-bold hover:text-brand hover:underline text-xs"
+            >
+              Zapomniałeś hasła?
+            </button>
+          )}
         </div>
 
         <div className="relative">

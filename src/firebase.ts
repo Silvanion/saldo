@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
@@ -280,6 +280,22 @@ export const loginWithEmail = async (email: string, pass: string) => {
     throw new Error("Logowanie jest niedostępne (brak połączenia z Firebase).");
   }
   return signInWithEmailAndPassword(auth, email, pass);
+};
+
+// Reset hasła — wysyłka linku na podany email
+export const resetPassword = async (email: string) => {
+  if (!isFirebaseConfigured || !auth?.app) {
+    throw new Error("Reset hasła jest niedostępny (brak połączenia z Firebase).");
+  }
+  return sendPasswordResetEmail(auth, email);
+};
+
+// Weryfikacja email — wysyłka linku weryfikacyjnego do zalogowanego użytkownika
+export const verifyEmail = async () => {
+  if (!auth?.currentUser) {
+    throw new Error("Brak zalogowanego użytkownika do weryfikacji.");
+  }
+  return sendEmailVerification(auth.currentUser);
 };
 
 // Retrieve currently cached access token (for basic compat)
