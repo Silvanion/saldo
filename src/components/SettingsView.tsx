@@ -33,7 +33,8 @@ import {
   ArrowRight,
   Settings2,
   Plus,
-  KeyRound
+  KeyRound,
+  X
 } from "lucide-react";
 import { generateCsvContent, downloadFile } from "../utils";
 import { prepareStateForRemoteSave } from "../services/crypto";
@@ -127,14 +128,14 @@ export function BankAccountsManager({
         Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
         Twój <strong>limit awaryjny</strong> traktuj tu wyłącznie jako bufor bezpieczeństwa – nie są to środki wliczone do budżetu i nie należy ich traktować jako "safe-to-spend".
       </p>
-      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-surface border border-border min-w-0">
+      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-surface-2 border border-border min-w-0 shadow-xs">
         <div>
-          <label className="block text-sm font-medium text-text-main mb-1 truncate" title="Nazwa konta / portfela">Nazwa konta / portfela</label>
-          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full bg-surface text-sm rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring min-w-0" />
+          <label className="block text-xs font-bold text-text-muted uppercase mb-1 truncate" title="Nazwa konta / portfela">Nazwa konta / portfela</label>
+          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring min-w-0 shadow-xs" />
         </div>
         <div>
           <label className="block text-xs font-bold text-text-muted uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
-          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring" />
+          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs" />
         </div>
         <div className="flex items-center pt-5">
           <label className="flex items-center cursor-pointer">
@@ -146,11 +147,11 @@ export function BankAccountsManager({
         {accHasLimit && (
           <div>
             <label className="block text-xs font-bold text-text-muted uppercase mb-1">Kwota limitu</label>
-            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full bg-surface text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring" />
+            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums shadow-xs" />
           </div>
         )}
         <div className="flex items-end lg:col-span-1">
-          <button type="submit" className="w-full bg-surface border border-border text-brand font-bold py-2 rounded-xl hover:bg-surface-offset hover:border-brand/20 active:scale-[0.98] transition-all text-xs shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring">
+          <button type="submit" className="w-full bg-surface border border-border text-brand hover:border-brand/30 hover:bg-surface-offset font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all text-xs shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring">
             + Dodaj konto
           </button>
         </div>
@@ -160,19 +161,19 @@ export function BankAccountsManager({
         <div className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {accounts.map((acc, index) => (
-              <div key={acc.id} className="flex items-center justify-between p-3 bg-surface border border-border rounded-xl hover:shadow-sm transition">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <strong className="text-xs text-text-main">{acc.name}</strong>
-                    {index === 0 && <span className="text-xs font-bold uppercase tracking-wider bg-surface text-text-muted px-2 py-1 rounded border border-border">Domyślne</span>}
+              <div key={acc.id} className="flex items-center justify-between p-3.5 bg-surface border border-border rounded-xl hover:shadow-xs transition shadow-xs">
+                <div className="min-w-0 flex-1 pr-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <strong className="text-xs text-text-main font-bold truncate">{acc.name}</strong>
+                    {index === 0 && <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-subtle text-brand border border-brand/20 px-2 py-0.5 rounded shadow-xs">Domyślne</span>}
                   </div>
-                  {acc.bankName && <span className="mt-1 inline-block text-xs text-text-muted bg-surface px-2 py-0.5 rounded">{acc.bankName}</span>}
+                  {acc.bankName && <span className="mt-1 inline-block text-xs text-text-muted bg-surface-2 border border-border px-2 py-0.5 rounded shadow-xs">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
-                    <p className="text-xs text-brand font-bold mt-1">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
+                    <p className="text-xs text-brand font-bold mt-1 tabular-nums">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} aria-label={`Usuń konto bankowe ${acc.name}`} className="text-text-muted hover:text-danger active:scale-95 transition-colors p-1 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-focus-ring">
-                  &times;
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} aria-label={`Usuń konto bankowe ${acc.name}`} className="text-text-muted hover:text-danger hover:bg-danger-subtle active:scale-95 transition-colors p-1.5 cursor-pointer rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0">
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ))}
@@ -180,7 +181,10 @@ export function BankAccountsManager({
           <p className="text-xs text-text-muted">💡 Wskazówka: pierwsze konto z listy będzie domyślnie podpowiadane przy wprowadzaniu nowej transakcji.</p>
         </div>
       ) : (
-        <p className="text-xs text-text-muted italic">Nie dodałeś jeszcze żadnych kont. Będziesz je wpisywać ręcznie.</p>
+        <div className="p-8 bg-bg-base/30 rounded-xl border border-dashed border-border text-center">
+          <p className="text-xs text-text-main font-bold">Brak kont operacyjnych</p>
+          <p className="text-[11px] text-text-faint mt-0.5">Nie dodałeś jeszcze żadnych kont. Będziesz je wpisywać ręcznie.</p>
+        </div>
       )}
     </div>
   );
@@ -521,54 +525,54 @@ export function SettingsView({
         
         {/* SIDEBAR NAVIGATION */}
         <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-2">
-          <div className="bg-surface rounded-2xl border border-border shadow-sm p-3">
-            <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none min-w-0">
+          <div className="bg-surface rounded-2xl border border-border shadow-sm p-2">
+            <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 custom-scrollbar min-w-0">
               <button
                 onClick={() => setSettingsTab("all")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "all"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-sm"
-                    : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
                 <Settings2 className="w-4 h-4 shrink-0" /> <span className="truncate">Wszystkie sekcje</span>
               </button>
               <button
                 onClick={() => setSettingsTab("profiles")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "profiles"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-sm"
-                    : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
                 <Users className="w-4 h-4 shrink-0" /> <span className="truncate">Profile i PIN ({profiles.length})</span>
               </button>
               <button
                 onClick={() => setSettingsTab("appearance")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "appearance"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-sm"
-                    : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
                 <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Motyw i AI</span>
               </button>
               <button
                 onClick={() => setSettingsTab("backup")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "backup"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-sm"
-                    : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
                 <Cloud className="w-4 h-4 shrink-0" /> <span className="truncate">Chmura i Kopie</span>
               </button>
               <button
                 onClick={() => setSettingsTab("automation")}
-                className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "automation"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-sm"
-                    : "bg-transparent text-text-muted hover:bg-surface hover:text-text-main lg:border-none border border-border"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
                 <Cpu className="w-4 h-4 shrink-0" /> <span className="truncate">Reguły i Konta</span>
@@ -612,7 +616,9 @@ export function SettingsView({
                         <Edit2 className="w-4 h-4 text-brand" />
                         <h4 className="text-sm font-extrabold text-text-main">Edycja profilu: {p.name}</h4>
                       </div>
-                      <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-main p-1 text-lg leading-none active:scale-95 transition-colors">&times;</button>
+                      <button onClick={cancelEditingProfile} className="text-text-muted hover:text-text-main p-1.5 rounded-xl hover:bg-surface-2 active:scale-95 transition-colors cursor-pointer" aria-label="Zamknij edycję">
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
                     <form onSubmit={handleSaveEditedProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -886,18 +892,18 @@ export function SettingsView({
           {/* Light Theme Option */}
           <button
             onClick={() => onThemeChange("light")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs ${
               theme === "light"
-                ? "bg-brand-subtle border-brand/20 ring-1 ring-brand/20"
-                : "bg-surface border-border hover:bg-surface-2 hover:border-brand/20"
+                ? "bg-brand-subtle/50 border-brand/30 ring-1 ring-brand/20 shadow-xs"
+                : "bg-surface border-border hover:bg-surface-2 hover:border-border"
             }`}
             id="btn-set-theme-light"
           >
-            <div className={`p-2 rounded-xl ${theme === "light" ? "bg-brand-subtle text-brand" : "bg-surface-2 text-text-muted"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${theme === "light" ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-muted border-border"}`}>
               <Sun className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-text-main">Jasny motyw</strong>
+              <strong className="block text-sm text-text-main font-bold">Jasny motyw</strong>
               <span className="text-xs text-text-muted mt-0.5 block font-medium">Klasyczny i przejrzysty</span>
             </div>
           </button>
@@ -905,18 +911,18 @@ export function SettingsView({
           {/* Dark Theme Option */}
           <button
             onClick={() => onThemeChange("dark")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs ${
               theme === "dark"
-                ? "bg-brand-subtle border-brand/20 ring-1 ring-brand/20"
-                : "bg-surface border-border hover:bg-surface-2 hover:border-brand/20"
+                ? "bg-brand-subtle/50 border-brand/30 ring-1 ring-brand/20 shadow-xs"
+                : "bg-surface border-border hover:bg-surface-2 hover:border-border"
             }`}
             id="btn-set-theme-dark"
           >
-            <div className={`p-2 rounded-xl ${theme === "dark" ? "bg-brand-subtle text-brand" : "bg-surface-2 text-text-muted"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${theme === "dark" ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-muted border-border"}`}>
               <Moon className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-text-main">Ciemny motyw</strong>
+              <strong className="block text-sm text-text-main font-bold">Ciemny motyw</strong>
               <span className="text-xs text-text-muted mt-0.5 block font-medium">Komfortowy dla wzroku</span>
             </div>
           </button>
@@ -924,18 +930,18 @@ export function SettingsView({
           {/* Auto Theme Option */}
           <button
             onClick={() => onThemeChange("auto")}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs ${
               theme === "auto"
-                ? "bg-brand-subtle border-brand/20 ring-1 ring-brand/20"
-                : "bg-surface border-border hover:bg-surface-2 hover:border-brand/20"
+                ? "bg-brand-subtle/50 border-brand/30 ring-1 ring-brand/20 shadow-xs"
+                : "bg-surface border-border hover:bg-surface-2 hover:border-border"
             }`}
             id="btn-set-theme-auto"
           >
-            <div className={`p-2 rounded-xl ${theme === "auto" ? "bg-brand-subtle text-brand" : "bg-surface-2 text-text-muted"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs ${theme === "auto" ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-muted border-border"}`}>
               <Monitor className="w-5 h-5" />
             </div>
             <div>
-              <strong className="block text-sm text-text-main">Automatyczny</strong>
+              <strong className="block text-sm text-text-main font-bold">Automatyczny</strong>
               <span className="text-xs text-text-muted mt-0.5 block font-medium">Zależny od pory dnia</span>
             </div>
           </button>
