@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
-import { isFirebaseConfigured, changePassword } from "../firebase";
+import { isFirebaseConfigured, changePassword, changeEmail } from "../firebase";
 import {
   Cloud,
   CloudUpload,
@@ -37,6 +37,7 @@ import {
   Settings2,
   Plus,
   KeyRound,
+  Mail,
   Eye,
   EyeOff,
   X
@@ -390,6 +391,15 @@ export function SettingsView({
   const [pwdSuccess, setPwdSuccess] = useState("");
   const [pwdLoading, setPwdLoading] = useState(false);
   
+  // Email change states
+  const [emailCurrentPwd, setEmailCurrentPwd] = useState("");
+  const [emailNew, setEmailNew] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
+  const [showEmailPwd, setShowEmailPwd] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailSuccess, setEmailSuccess] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
+
   const hasPasswordProvider = googleUser?.providerData?.some(p => p.providerId === 'password');
   
   const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
@@ -424,6 +434,31 @@ export function SettingsView({
       setPwdLoading(false);
     }
   };
+
+  const handleEmailChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError("");
+    setEmailSuccess("");
+    
+    if (emailNew !== emailConfirm) {
+      setEmailError("Nowe adresy email nie są identyczne.");
+      return;
+    }
+    
+    setEmailLoading(true);
+    try {
+      await changeEmail(emailCurrentPwd, emailNew);
+      setEmailSuccess("Na nowy adres email została wysłana wiadomość weryfikacyjna. Kliknij link w wiadomości, aby potwierdzić zmianę.");
+      setEmailCurrentPwd("");
+      setEmailNew("");
+      setEmailConfirm("");
+    } catch (err: any) {
+      setEmailError(err.message || "Wystąpił błąd podczas zmiany adresu email.");
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
   const [editProfileData, setEditProfileData] = useState<{
     name: string;
     kind: "personal" | "shared";
@@ -1835,6 +1870,97 @@ export function SettingsView({
                         </select>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Zmiana adresu email */}
+            <div className="bg-surface rounded-xl p-4 border border-border/30">
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-text-muted shrink-0" />
+                <div className="w-full">
+                  <h4 className="text-sm font-bold text-text-main">Zmiana adresu email</h4>
+                  
+                  {googleUser && !hasPasswordProvider ? (
+                    <div className="mt-2 p-3 bg-surface-2 rounded-lg border border-border/50">
+                      <p className="text-xs text-text-muted">
+                        Twoje konto jest połączone wyłącznie przez Google. Adresem email zarządzasz bezpośrednio na koncie Google.
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleEmailChangeSubmit} className="mt-3 space-y-3">
+                      <p className="text-xs text-text-muted mb-3">Zmień powiązany adres email dla tego konta.</p>
+                      
+                      {emailSuccess && (
+                        <div className="p-3 bg-success-subtle text-success border border-success/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 shrink-0" />
+                          {emailSuccess}
+                        </div>
+                      )}
+                      
+                      {emailError && (
+                        <div className="p-3 bg-danger-subtle text-danger border border-danger/20 rounded-lg text-xs font-bold flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          {emailError}
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <input
+                            type={showEmailPwd ? "text" : "password"}
+                            required
+                            placeholder="Obecne hasło"
+                            value={emailCurrentPwd}
+                            onChange={(e) => setEmailCurrentPwd(e.target.value)}
+                            disabled={emailLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 pr-10 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowEmailPwd(!showEmailPwd)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                          >
+                            {showEmailPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                        
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            placeholder="Nowy adres email"
+                            value={emailNew}
+                            onChange={(e) => setEmailNew(e.target.value)}
+                            disabled={emailLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                        </div>
+                        
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            placeholder="Potwierdź nowy adres email"
+                            value={emailConfirm}
+                            onChange={(e) => setEmailConfirm(e.target.value)}
+                            disabled={emailLoading}
+                            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="submit"
+                          disabled={emailLoading || !emailCurrentPwd || !emailNew || !emailConfirm || emailNew !== emailConfirm}
+                          className="bg-brand text-text-inverse px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-hover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+                        >
+                          {emailLoading ? "Wysyłanie linku..." : "Zmień adres email"}
+                        </button>
+                      </div>
+                    </form>
                   )}
                 </div>
               </div>
