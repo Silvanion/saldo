@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";
-import { isFirebaseConfigured, changePassword, changeEmail } from "../firebase";
+import { isFirebaseConfigured, changePassword, changeEmail, logout } from "../firebase";
 import {
   Cloud,
   CloudUpload,
@@ -43,7 +43,8 @@ import {
   X
 } from "lucide-react";
 import { generateCsvContent, downloadFile } from "../utils";
-import { prepareStateForRemoteSave } from "../services/crypto";
+import { prepareStateForRemoteSave, activeKeys } from "../services/crypto";
+import { clearState } from "../services/localDb";
 import { ConfirmModal } from "./ConfirmModal";
 
 function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: string; color: string } {
@@ -618,6 +619,27 @@ export function SettingsView({
 
   const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
   const [showExportConfirm, setShowExportConfirm] = useState(false);
+  const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
+
+  const handleLogoutOnly = async () => {
+    try {
+      await logout();
+      window.location.reload();
+    } catch (e: any) {
+      showToast(e.message || "Błąd podczas wylogowywania", "error");
+    }
+  };
+
+  const handleLocalDeviceReset = async () => {
+    try {
+      await clearState();
+      Object.keys(activeKeys).forEach((k) => delete activeKeys[k]);
+      await logout();
+      window.location.reload();
+    } catch (e: any) {
+      showToast(e.message || "Błąd podczas czyszczenia danych urządzenia", "error");
+    }
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-16" id="settings-view-container">
@@ -2242,6 +2264,47 @@ export function SettingsView({
         </div>
       </div>
       )}
+
+      {/* SECTION 6: PRIVACY & DEVICE MANAGEMENT */}
+      {(settingsTab === "all" || settingsTab === "security") && (
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-privacy-card">
+          <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Prywatność i zarządzanie urządzeniem</h3>
+          <p className="text-sm text-text-muted mb-4 leading-relaxed">
+            Zarządzaj sesją i danymi zapisanymi na tym konkretnym urządzeniu. Te opcje pozwalają na bezpieczne czyszczenie lokalnych śladów.
+          </p>
+
+          <div className="space-y-4">
+            {googleUser && (
+              <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
+                <h4 className="text-sm font-bold text-text-main mb-1">Konto w chmurze</h4>
+                <p className="text-xs text-text-muted mb-3">Zakończ sesję na tym urządzeniu. Twoje dane w chmurze pozostaną nienaruszone, ale aplikacja wyloguje się lokalnie.</p>
+                <button
+                  onClick={handleLogoutOnly}
+                  className="bg-surface border border-border text-text-muted hover:border-text-main hover:text-text-main active:scale-[0.98] transition-all py-2.5 px-4 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring w-full sm:w-auto justify-center"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Wyloguj z konta Google / chmury na tym urządzeniu</span>
+                </button>
+              </div>
+            )}
+
+            <div className="bg-danger-subtle/50 border border-danger/20 rounded-xl p-4 shadow-xs">
+              <h4 className="text-sm font-bold text-danger mb-1">Zresetuj Saldo na tym urządzeniu</h4>
+              <p className="text-xs text-danger/80 mb-3">
+                Ta akcja bezpiecznie wyczyści całą lokalną bazę danych w tej przeglądarce, usunie zapisane klucze z pamięci oraz wyloguje Cię z sesji. 
+                Dane zapisane wcześniej w chmurze pozostaną bezpieczne, jednak to urządzenie zostanie wyzerowane.
+              </p>
+              <button
+                onClick={() => setShowDeviceResetConfirm(true)}
+                className="bg-danger-subtle text-danger border border-danger/30 hover:bg-danger/10 active:scale-[0.98] transition-all py-2.5 px-4 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring w-full sm:w-auto justify-center"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Zresetuj urządzenie / Wyczyść dane lokalne</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         </div>
       </div>
 
@@ -2294,6 +2357,26 @@ export function SettingsView({
                   if (onExportData) {
                     onExportData();
                   }
+                }
+              }
+            : null
+        }
+      />
+
+      <ConfirmModal
+        isOpen={showDeviceResetConfirm}
+        onClose={() => setShowDeviceResetConfirm(false)}
+        payload={
+          showDeviceResetConfirm
+            ? {
+                title: "Zresetować Saldo na tym urządzeniu?",
+                message: "UWAGA: Ta akcja usunie CAŁĄ lokalną bazę danych z tej przeglądarki, wyczyści pamięć podręczną i klucze. Wszelkie niezapisane dane zostaną bezpowrotnie utracone. Dane na serwerze nie zostaną naruszone.",
+                confirmLabel: "Zresetuj to urządzenie",
+                cancelLabel: "Anuluj",
+                tone: "danger",
+                onConfirm: () => {
+                  setShowDeviceResetConfirm(false);
+                  handleLocalDeviceReset();
                 }
               }
             : null
