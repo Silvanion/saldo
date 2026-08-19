@@ -1,0 +1,99 @@
+/**
+ * @vitest-environment jsdom
+ */
+import React from "react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, screen, cleanup } from "@testing-library/react";
+import { AnalysisView } from "./AnalysisView";
+import { Profile } from "../types";
+
+describe("AnalysisView (50/30/20 & monthly summary)", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  const mockProfile: Profile = {
+    id: "test-profile",
+    name: "Główne",
+    currency: "PLN",
+    kind: "personal",
+    accounts: [],
+    transactions: [
+      {
+        id: "tx-1",
+        name: "Pensja",
+        amount: 8000,
+        type: "income",
+        category: "Wynagrodzenie",
+        isoDate: "2026-08-05",
+        currency: "PLN",
+        account: "Konto",
+      },
+      {
+        id: "tx-2",
+        name: "Czynsz",
+        amount: 2500,
+        type: "expense",
+        category: "Dom",
+        isoDate: "2026-08-08",
+        currency: "PLN",
+        account: "Konto",
+      },
+      {
+        id: "tx-3",
+        name: "Restauracja",
+        amount: 600,
+        type: "expense",
+        category: "Rozrywka",
+        isoDate: "2026-08-12",
+        currency: "PLN",
+        account: "Konto",
+      },
+      {
+        id: "tx-4",
+        name: "Oszczędności",
+        amount: 1000,
+        type: "expense",
+        category: "Oszczędności",
+        isoDate: "2026-08-15",
+        currency: "PLN",
+        account: "Konto",
+      },
+    ],
+    payments: [],
+    goals: [],
+    budgets: {
+      Dom: 3000,
+      Rozrywka: 800,
+    },
+    investments: [],
+  };
+
+  const testDate = new Date("2026-08-19T12:00:00");
+
+  it("renders 50/30/20 breakdown section with needs, wants, and savings", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Reguła 50 / 30 / 20 (Wzorzec Budżetowy)")).toBeTruthy();
+    expect(screen.getByText("Potrzeby (Needs)")).toBeTruthy();
+    expect(screen.getByText("Zachcianki (Wants)")).toBeTruthy();
+    expect(screen.getByText("Oszczędności i Dług (Savings)")).toBeTruthy();
+
+    expect(screen.getByText("Cel: 50%")).toBeTruthy();
+    expect(screen.getByText("Cel: 30%")).toBeTruthy();
+    expect(screen.getByText("Cel: 20%")).toBeTruthy();
+  });
+
+  it("renders monthly operational summary KPIs and advice cards", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Miesięczny przegląd operacyjny")).toBeTruthy();
+    expect(screen.getByText("Przychody")).toBeTruthy();
+    expect(screen.getByText("Wydatki")).toBeTruthy();
+    expect(screen.getByText("Bilans")).toBeTruthy();
+    expect(screen.getByText("Oszczędności")).toBeTruthy();
+
+    expect(screen.getByText("Wnioski i podpowiedzi")).toBeTruthy();
+    expect(screen.getByText(/Świetna stopa oszczędności!|Dobry kierunek oszczędzania/)).toBeTruthy();
+  });
+});
