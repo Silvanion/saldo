@@ -13,26 +13,12 @@ import {
 } from "../components/Modals";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ModalFallback } from "../components/ModalFallback";
 
 const CalendarReminderModal = lazy(() => import("../components/CalendarReminderModal").then(m => ({ default: m.CalendarReminderModal })));
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
-
-function ModalFallback() {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
-      role="status"
-      aria-label="Ładowanie okna dialogowego..."
-    >
-      <div className="bg-surface border border-border p-5 rounded-2xl shadow-xl flex items-center gap-3">
-        <div className="w-5 h-5 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
-        <span className="text-sm font-bold text-text-main">Ładowanie...</span>
-      </div>
-    </div>
-  );
-}
 
 export function ModalManager() {
   const {

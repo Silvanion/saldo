@@ -218,11 +218,12 @@ export function GoalsView({
             </div>
             <form onSubmit={handleInvSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Kategoria</label>
+                <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-inv-type">Kategoria</label>
                 <select
                   value={invType}
                   onChange={(e) => setInvType(e.target.value)}
                   className="w-full rounded-xl border bg-surface border-border p-2.5 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow cursor-pointer"
+                  id="select-inv-type"
                 >
                   <option value="Poduszka finansowa">Poduszka finansowa</option>
                   <option value="IKE / IKZE (Emerytura)">IKE / IKZE (Emerytura)</option>
@@ -233,7 +234,7 @@ export function GoalsView({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Nazwa aktywa / konta</label>
+                <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-inv-name">Nazwa aktywa / konta</label>
                 <input
                   required
                   placeholder="np. Obligacje Skarbowe, IKE mBank"
@@ -244,7 +245,7 @@ export function GoalsView({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Wpłacona kwota (zł)</label>
+                <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-inv-amount">Wpłacona kwota (zł)</label>
                 <input
                   required
                   type="number"

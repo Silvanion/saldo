@@ -80,7 +80,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         <div className="flex-1 overflow-y-auto min-w-0 p-6 custom-scrollbar">
           <form id="goal-modal-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Nazwa celu (np. Wakacje)">Nazwa celu (np. Wakacje)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Nazwa celu (np. Wakacje)" htmlFor="input-goal-name">Nazwa celu (np. Wakacje)</label>
               <input
                 required
                 maxLength={120}
@@ -93,7 +93,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota docelowa (zł)">Kwota docelowa (zł)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota docelowa (zł)" htmlFor="input-goal-target">Kwota docelowa (zł)</label>
               <input
                 required
                 type="number"
@@ -188,7 +188,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
         <div className="flex-1 overflow-y-auto min-w-0 p-6 custom-scrollbar">
           <form id="goal-deposit-modal-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota (wpłata lub wypłata)">Kwota (wpłata lub wypłata)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota (wpłata lub wypłata)" htmlFor="input-goal-deposit-amount">Kwota (wpłata lub wypłata)</label>
               <input
                 required
                 type="number"
@@ -298,7 +298,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
           <form id="budget-modal-form" onSubmit={handleSubmit} className="space-y-3">
             {budgetCategories.map((category) => (
               <div key={category}>
-                <label className="block text-xs font-medium text-text-muted mb-1 truncate" title={`${category} (zł)`}>{category} (zł)</label>
+                <label className="block text-xs font-medium text-text-muted mb-1 truncate" title={`${category} (zł)`} htmlFor={`input-budget-${category}`}>{category} (zł)</label>
                 <input
                   type="number"
                   min="0"
@@ -577,7 +577,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             </div>
 
             {isLockedOut && (
-              <div className="bg-warning-subtle border border-warning/20 rounded-xl p-3 text-center">
+              <div role="alert" aria-live="assertive" className="bg-warning-subtle border border-warning/20 rounded-xl p-3 text-center" id="unlock-lockout-msg">
                 <p className="text-xs font-bold text-warning">Zbyt wiele nieudanych prób</p>
                 <p className="text-sm font-bold text-warning tabular-nums mt-1">
                   Spróbuj ponownie za {lockoutRemaining}s
@@ -586,7 +586,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             )}
 
             {errorMsg && !isLockedOut && (
-              <p className="text-sm text-center text-danger font-bold animate-fade-in" id="unlock-error-msg">
+              <p role="alert" aria-live="assertive" className="text-sm text-center text-danger font-bold animate-fade-in" id="unlock-error-msg">
                 {errorMsg}
               </p>
             )}

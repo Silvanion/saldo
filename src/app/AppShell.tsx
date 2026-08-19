@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ModalFallback } from "../components/ModalFallback";
 
 const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
@@ -517,7 +518,7 @@ export function AppShell({
       {/* Command Palette Modal */}
       {isCommandPaletteOpen && (
         <ErrorBoundary onReset={() => setIsCommandPaletteOpen(false)} title="Nie udało się załadować palety poleceń">
-          <Suspense fallback={null}>
+          <Suspense fallback={<ModalFallback label="Ładowanie palety poleceń..." />}>
             <CommandPaletteModal
               isOpen={true}
               onClose={() => setIsCommandPaletteOpen(false)}

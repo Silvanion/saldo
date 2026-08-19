@@ -79,7 +79,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 min-w-0">
           <div className="flex-1 overflow-y-auto min-w-0 p-6 space-y-4 custom-scrollbar">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Nazwa profilu (np. Moje Finanse)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-profile-name">Nazwa profilu (np. Moje Finanse)</label>
             <input
               required
               maxLength={80}
@@ -125,7 +125,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Rodzaj profilu</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-profile-kind">Rodzaj profilu</label>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as "personal" | "shared")}
@@ -139,7 +139,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
 
           {kind === "shared" && (
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Imię partnera / członka rodziny</label>
+              <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-profile-partner">Imię partnera / członka rodziny</label>
               <DelayedTooltip label="Imię partnera nie może składać się z samych spacji">
                 <input
                   required
@@ -156,7 +156,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
           )}
 
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Opcjonalny kod PIN (do blokady profilu)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-profile-pin">Opcjonalny kod PIN (do blokady profilu)</label>
             <input
               type="password"
               inputMode="numeric"

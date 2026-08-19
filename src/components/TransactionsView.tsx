@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
 
+import { ErrorBoundary } from "./ErrorBoundary";
+import { ModalFallback } from "./ModalFallback";
+
 const ImportTransactionsModal = lazy(() => import("./ImportTransactionsModal").then(m => ({ default: m.ImportTransactionsModal })));
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
 import { useScrollLock } from "../hooks/useScrollLock";
@@ -739,14 +742,16 @@ export function TransactionsView({
       </AnimatePresence>
 
       {isCSVModalOpen && (
-        <Suspense fallback={null}>
-          <ImportTransactionsModal
-            isOpen={true}
-            onClose={() => setIsCSVModalOpen(false)}
-            onImport={onImportTransactions}
-            onBeforeImport={onBeforeImport}
-          />
-        </Suspense>
+        <ErrorBoundary onReset={() => setIsCSVModalOpen(false)} title="Nie udało się załadować modułu importu">
+          <Suspense fallback={<ModalFallback label="Ładowanie modułu importu..." />}>
+            <ImportTransactionsModal
+              isOpen={true}
+              onClose={() => setIsCSVModalOpen(false)}
+              onImport={onImportTransactions}
+              onBeforeImport={onBeforeImport}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </div>
   );

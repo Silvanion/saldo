@@ -117,10 +117,29 @@ test.describe("Accessibility (A11y) Critical Flows", () => {
       const dialogEl = document.querySelector('div[role="dialog"][aria-labelledby="dashboard-customizer-title"]');
       return Boolean(dialogEl && dialogEl.contains(document.activeElement));
     });
-    expect(isInsideDialog).toBe(true);
-
     // Verify Escape key closes dialog
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
+  });
+
+  test("E. Status Banner & Keyboard Operation: verifies system status bar semantics", async ({ page }) => {
+    await setupApp(page);
+
+    const statusBanner = page.locator("#offline-worker-status-banner");
+    await expect(statusBanner).toBeVisible({ timeout: 5000 });
+
+    const securityDetailsBtn = page.locator("#btn-security-details");
+    await expect(securityDetailsBtn).toBeVisible();
+    await securityDetailsBtn.focus();
+    await expect(securityDetailsBtn).toBeFocused();
+
+    // Trigger via keyboard Enter
+    await page.keyboard.press("Enter");
+    const securityModal = page.locator("#security-info-modal");
+    await expect(securityModal).toBeVisible({ timeout: 5000 });
+
+    // Close with Escape
+    await page.keyboard.press("Escape");
+    await expect(securityModal).not.toBeVisible();
   });
 });

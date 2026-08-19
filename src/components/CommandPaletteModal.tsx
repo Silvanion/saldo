@@ -354,12 +354,15 @@ export function CommandPaletteModal({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Wpisz polecenie, widok lub szukaj transakcji..."
+              aria-label="Wyszukaj polecenie, widok lub transakcję"
               className="w-full bg-transparent text-text-main placeholder:text-text-faint text-sm font-medium focus:outline-none"
             />
             {query && (
               <button
+                type="button"
                 onClick={() => setQuery("")}
-                className="text-xs text-text-muted hover:text-text-main px-2 py-0.5 rounded-md hover:bg-surface-2 transition-colors mr-2"
+                aria-label="Wyczyść wyszukiwanie"
+                className="text-xs text-text-muted hover:text-text-main px-2 py-0.5 rounded-md hover:bg-surface-2 transition-colors mr-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Wyczyść
               </button>

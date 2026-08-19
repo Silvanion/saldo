@@ -221,7 +221,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-text-muted mb-1">Kwota</label>
+              <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-tx-amount">Kwota</label>
               <input
                 required
                 type="number"
@@ -235,11 +235,12 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Waluta</label>
+              <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-tx-currency">Waluta</label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value as any)}
                 className="w-full rounded-xl border border-border p-2.5 bg-surface text-text-main placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
+                id="select-tx-currency"
               >
                 <option value="PLN">PLN</option>
                 <option value="EUR">EUR</option>
@@ -250,7 +251,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Opis transakcji</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-tx-name">Opis transakcji</label>
             <input
               required
               maxLength={120}
@@ -264,7 +265,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Kategoria</label>
+              <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-tx-category">Kategoria</label>
               <select
                 value={category}
                 onChange={(e) => handleCategoryChange(e.target.value)}
@@ -279,7 +280,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Konto / Portfel</label>
+              <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-tx-account">Konto / Portfel</label>
 
               <select
                 value={account}
@@ -315,7 +316,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     key={ico}
                     type="button"
                     onClick={() => setCategoryIcon(ico)}
-                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-surface-2 transition shrink-0 ${
+                    aria-label={`Wybierz ikonę kategorii ${ico}`}
+                    className={`text-lg p-1 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-surface-2 transition shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring ${
                       categoryIcon === ico ? "bg-surface-2 border-2 border-text-main" : "border border-transparent"
                     }`}
                   >
@@ -327,7 +329,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Data</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-tx-date">Data</label>
             <input
               required
               type="date"
@@ -340,7 +342,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
 
           {/* Tagowanie wydatków */}
           <div className="border-t border-border pt-3">
-            <label className="block text-xs font-medium text-text-muted mb-1">Tagi (opcjonalnie)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="input-tx-tag">Tagi (opcjonalnie)</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -378,7 +380,8 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-xs font-medium text-text-muted hover:text-text-muted"
+                      aria-label={`Usuń tag #${t}`}
+                      className="text-xs font-medium text-text-muted hover:text-text-muted cursor-pointer"
                     >
                       &times;
                     </button>

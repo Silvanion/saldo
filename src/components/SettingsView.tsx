@@ -2244,8 +2244,13 @@ export function SettingsView({
                 <button
                   onClick={async () => {
                     if (activeProfile) {
-                      const { generateReportPdf } = await import("../services/pdfGenerator");
-                      generateReportPdf(activeProfile, pdfYear, pdfMonthIdx, activeProfile.currency || "PLN");
+                      try {
+                        const { generateReportPdf } = await import("../services/pdfGenerator");
+                        generateReportPdf(activeProfile, pdfYear, pdfMonthIdx, activeProfile.currency || "PLN");
+                      } catch (error) {
+                        console.error("Błąd podczas generowania raportu PDF:", error);
+                        showToast("Nie udało się wygenerować raportu PDF. Spróbuj ponownie.", "error");
+                      }
                     }
                   }}
                   className="w-full bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
