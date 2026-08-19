@@ -1754,6 +1754,30 @@ export function SettingsView({
                       </button>
                     )}
                   </div>
+
+                  {/* Auto-lock selector — only visible when PIN is active */}
+                  {activeProfile?.pinHash && (
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-medium text-text-muted">Auto-lock po bezczynności</span>
+                        <select
+                          value={state.autoLockMinutes !== undefined ? state.autoLockMinutes : 5}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            saveState({ ...state, autoLockMinutes: val });
+                          }}
+                          className="text-xs font-bold bg-surface border border-border rounded-lg px-2 py-1.5 text-text-main cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          id="select-auto-lock-timeout"
+                        >
+                          <option value={1}>1 min</option>
+                          <option value={5}>5 min</option>
+                          <option value={15}>15 min</option>
+                          <option value={30}>30 min</option>
+                          <option value={0}>Nigdy</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

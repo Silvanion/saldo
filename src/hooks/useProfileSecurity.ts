@@ -3,6 +3,9 @@ import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
 import { deriveKeyFromPin, activeKeys, decryptProfile, generateRandomSalt } from "../services/crypto";
 
+const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
+const BASE_LOCKOUT_MS = 30_000; // 30 seconds
+
 export function useProfileSecurity({
   state,
   activeProfile,
@@ -14,6 +17,8 @@ export function useProfileSecurity({
 }) {
   const [unlockedProfileId, setUnlockedProfileId] = useState<string | null>(null);
   const [isSecurityInfoOpen, setIsSecurityInfoOpen] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
 
   const unlockProfile = useCallback((profileId: string) => {
     setUnlockedProfileId(profileId);
@@ -40,6 +45,12 @@ export function useProfileSecurity({
   const handleUnlockProfile = useCallback(
     async (pin: string): Promise<boolean> => {
       if (!activeProfile) return false;
+
+      // Check lockout
+      if (lockoutUntil && Date.now() < lockoutUntil) {
+        return false;
+      }
+
       try {
         const salt = activeProfile.salt || activeProfile.id;
         const hashed = await hashPin(pin, salt);
@@ -61,7 +72,19 @@ export function useProfileSecurity({
           
           saveState({ ...state, profiles: updatedProfiles }, true);
           unlockProfile(activeProfile.id);
+          // Reset brute-force counters on success
+          setFailedAttempts(0);
+          setLockoutUntil(null);
           return true;
+        }
+
+        // Failed attempt
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= MAX_ATTEMPTS_BEFORE_LOCKOUT) {
+          const exponent = newAttempts - MAX_ATTEMPTS_BEFORE_LOCKOUT;
+          const lockoutMs = BASE_LOCKOUT_MS * Math.pow(2, Math.min(exponent, 6)); // cap at ~32 min
+          setLockoutUntil(Date.now() + lockoutMs);
         }
         return false;
       } catch (err) {
@@ -69,7 +92,7 @@ export function useProfileSecurity({
         return false;
       }
     },
-    [activeProfile, unlockProfile, state, saveState]
+    [activeProfile, unlockProfile, state, saveState, failedAttempts, lockoutUntil]
   );
 
   const handleSetProfilePin = useCallback(
@@ -113,6 +136,9 @@ export function useProfileSecurity({
     checkAccess,
     isProfileLocked,
     handleUnlockProfile,
-    handleSetProfilePin
+    handleSetProfilePin,
+    failedAttempts,
+    lockoutUntil,
   };
 }
+

@@ -9,6 +9,8 @@ import { AuthScreen } from "./AuthScreen";
 import { SecurityInfoModal } from "../components/SecurityInfoModal";
 import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
+import { useIdleLock } from "../hooks/useIdleLock";
+import { activeKeys } from "../services/crypto";
 
 export function AppContent() {
   const {
@@ -20,7 +22,10 @@ export function AppContent() {
     openModal,
     saveState,
     googleUser,
-    isGoogleLoading
+    isGoogleLoading,
+    failedAttempts,
+    lockoutUntil,
+    lockProfile,
   } = useApp();
 
   // Check and display browser notifications for upcoming payments
@@ -29,6 +34,22 @@ export function AppContent() {
       checkAndNotifyPayments(activeProfile, state.currencyPreference);
     }
   }, [activeProfile?.payments]);
+
+  // Auto-lock PIN-protected profile after inactivity
+  const autoLockMs = state.autoLockMinutes !== undefined
+    ? state.autoLockMinutes * 60_000
+    : 5 * 60_000; // default 5 min
+
+  useIdleLock({
+    isEnabled: !!activeProfile?.pinHash && !isProfileLocked && autoLockMs > 0,
+    timeoutMs: autoLockMs,
+    onLock: () => {
+      if (activeProfile) {
+        delete activeKeys[activeProfile.id];
+      }
+      lockProfile();
+    },
+  });
 
   // Main Authentication Gate
   if (isGoogleLoading) {
@@ -79,6 +100,8 @@ export function AppContent() {
             onSelectOtherProfile={() => {
               openModal("profile");
             }}
+            failedAttempts={failedAttempts}
+            lockoutUntil={lockoutUntil}
           />
         )}
         <SecurityInfoModal />
@@ -87,3 +110,4 @@ export function AppContent() {
     </>
   );
 }
+

@@ -473,26 +473,52 @@ interface UnlockModalProps {
   profileName: string;
   onUnlock: (pin: string) => Promise<boolean>;
   onSelectOtherProfile: () => void;
+  failedAttempts?: number;
+  lockoutUntil?: number | null;
 }
 
-export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfile }: UnlockModalProps) {
+export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfile, failedAttempts = 0, lockoutUntil = null }: UnlockModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen);
   const [pin, setPin] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isShaking, setIsShaking] = useState(false);
+  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+
+  // Lockout countdown timer
+  useEffect(() => {
+    if (!lockoutUntil || lockoutUntil <= Date.now()) {
+      setLockoutRemaining(0);
+      return;
+    }
+    setLockoutRemaining(Math.ceil((lockoutUntil - Date.now()) / 1000));
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockoutRemaining(0);
+        clearInterval(interval);
+      } else {
+        setLockoutRemaining(remaining);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
 
   if (!isOpen) return null;
 
+  const isLockedOut = lockoutRemaining > 0;
+  const attemptsBeforeLockout = Math.max(0, 5 - failedAttempts);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLockedOut) return;
     setErrorMsg("");
     const success = await onUnlock(pin);
     if (success) {
       setPin("");
     } else {
-      setErrorMsg("Nieprawidłowy kod PIN. Spróbuj ponownie.");
+      setErrorMsg(isLockedOut ? "" : "Nieprawidłowy kod PIN. Spróbuj ponownie.");
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
       setPin("");
@@ -544,14 +570,30 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
                 autoFocus
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] transition-colors ${errorMsg ? 'border-danger focus-visible:ring-2 focus-visible:ring-danger text-danger bg-danger-subtle' : 'border-border focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main'}`}
+                disabled={isLockedOut}
+                className={`w-full rounded-xl border-2 p-4 text-center text-3xl tracking-[1em] transition-colors ${isLockedOut ? 'border-border bg-surface opacity-50 cursor-not-allowed' : errorMsg ? 'border-danger focus-visible:ring-2 focus-visible:ring-danger text-danger bg-danger-subtle' : 'border-border focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main'}`}
                 id="input-unlock-pin"
               />
             </div>
 
-            {errorMsg && (
+            {isLockedOut && (
+              <div className="bg-warning-subtle border border-warning/20 rounded-xl p-3 text-center">
+                <p className="text-xs font-bold text-warning">Zbyt wiele nieudanych prób</p>
+                <p className="text-sm font-bold text-warning tabular-nums mt-1">
+                  Spróbuj ponownie za {lockoutRemaining}s
+                </p>
+              </div>
+            )}
+
+            {errorMsg && !isLockedOut && (
               <p className="text-sm text-center text-danger font-bold animate-fade-in" id="unlock-error-msg">
                 {errorMsg}
+              </p>
+            )}
+
+            {failedAttempts > 0 && failedAttempts < 5 && !isLockedOut && (
+              <p className="text-xs text-center text-text-faint">
+                Pozostało prób: <span className="font-bold tabular-nums text-warning">{attemptsBeforeLockout}</span>
               </p>
             )}
           </form>
@@ -562,10 +604,11 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
             <button
               type="submit"
               form="unlock-modal-form"
-              className="w-full rounded-xl bg-brand py-4 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              disabled={isLockedOut}
+              className="w-full rounded-xl bg-brand py-4 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
               id="btn-unlock-submit"
             >
-              Odblokuj profil
+              {isLockedOut ? "Zablokowane" : "Odblokuj profil"}
             </button>
             
             <button
