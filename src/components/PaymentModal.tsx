@@ -148,13 +148,21 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           </div>
           
           {activeProfile?.kind === "shared" && (
-            <div className="border-t border-border pt-3">
+            <div className="p-4 bg-surface-2/60 border border-border/80 rounded-2xl space-y-3" id="payment-shared-section">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <p className="text-xs font-bold text-text-faint uppercase tracking-wider truncate">
+                  Rozliczenie Wspólne
+                </p>
+                <span className="text-[10px] font-bold text-brand bg-brand-subtle border border-brand/20 px-1.5 py-0.5 rounded-md shrink-0">
+                  Podział kosztów
+                </span>
+              </div>
               {!activeProfile.partnerName ? (
                 <div className="text-xs bg-warning-subtle border border-warning/30 text-warning rounded-xl p-3 text-center font-medium">
                   Uzupełnij imię partnera w ustawieniach profilu, by dzielić koszty.
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-text-main mb-1.5" htmlFor="select-payment-paidby">
                       Kto płaci?
@@ -162,7 +170,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={paidBy}
                       onChange={(e) => setPaidBy(e.target.value as any)}
-                      className="w-full text-sm rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main transition-colors"
+                      className="w-full text-sm rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main transition-colors cursor-pointer"
                       id="select-payment-paidby"
                     >
                       <option value="me">Ja ({activeProfile.name})</option>
@@ -177,7 +185,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
                     <select
                       value={splitMode}
                       onChange={(e) => setSplitMode(e.target.value as any)}
-                      className="w-full text-sm rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main transition-colors"
+                      className="w-full text-sm rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main transition-colors cursor-pointer"
                       id="select-payment-splitmode"
                     >
                       <option value="equal">Tak</option>
