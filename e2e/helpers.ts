@@ -1,24 +1,54 @@
 import { Page, expect } from "@playwright/test";
 
-export async function setupApp(page: Page) {
+export type E2EView = 
+  | "dashboard" 
+  | "transactions" 
+  | "payments" 
+  | "budget" 
+  | "goals" 
+  | "analysis" 
+  | "settings" 
+  | "help";
+
+export async function setupApp(page: Page, options?: { profileName?: string }) {
   await page.goto("/");
+
   const offlineBtn = page.getByRole("button", { name: /Używaj offline/i });
-  if (await offlineBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await offlineBtn.click();
-  }
+  await expect(offlineBtn).toBeVisible({ timeout: 15000 });
+  await offlineBtn.click();
 
-  // If prompted to create initial profile:
+  // Check if we are on "Rozpocznij z Saldo" (0 profiles) or "Wybierz profil do pracy" (>0 profiles)
   const createProfilePromptBtn = page.getByRole("button", { name: /Utwórz nowy profil/i });
-  if (await createProfilePromptBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  const profileSelectionHeading = page.getByRole("heading", { name: "Wybierz profil do pracy" });
+
+  await Promise.race([
+    createProfilePromptBtn.waitFor({ state: "visible", timeout: 10000 }).catch(() => null),
+    profileSelectionHeading.waitFor({ state: "visible", timeout: 10000 }).catch(() => null),
+  ]);
+
+  if (await createProfilePromptBtn.isVisible()) {
     await createProfilePromptBtn.click();
-  }
-
-  const profileNameInput = page.locator("#input-profile-name");
-  if (await profileNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await profileNameInput.fill("Testowy Profil E2E");
+    const profileNameInput = page.locator("#input-profile-name");
+    await expect(profileNameInput).toBeVisible({ timeout: 5000 });
+    await profileNameInput.fill(options?.profileName || "Testowy Profil E2E");
     await page.getByRole("button", { name: "Utwórz profil" }).click();
+  } else if (await profileSelectionHeading.isVisible()) {
+    const targetProfileBtn = page.getByRole("button", { name: options?.profileName || /Testowy Profil E2E/i }).first();
+    if (await targetProfileBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await targetProfileBtn.click();
+    } else {
+      const anyProfileBtn = page.locator("div.grid button").first();
+      await expect(anyProfileBtn).toBeVisible({ timeout: 5000 });
+      await anyProfileBtn.click();
+    }
   }
 
-  await expect(page.locator("#app-root-shell")).toBeVisible({ timeout: 10000 });
-  await expect(page.locator("#nav-dashboard")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("#app-root-shell")).toBeVisible({ timeout: 15000 });
+  await expect(page.locator("#nav-dashboard")).toBeVisible({ timeout: 15000 });
+}
+
+export async function navigateToView(page: Page, view: E2EView) {
+  const navBtn = page.locator(`#nav-${view}`);
+  await expect(navBtn).toBeVisible({ timeout: 10000 });
+  await navBtn.click();
 }

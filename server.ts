@@ -83,7 +83,7 @@ async function startServer() {
     }
   }));
 
-  // Global Rate Limiting (Basic)
+  // Global Rate Limiting (API routes only)
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 1000, // Limit each IP to 1000 requests per windowMs
@@ -92,7 +92,7 @@ async function startServer() {
     legacyHeaders: false,
     validate: { xForwardedForHeader: false, trustProxy: false }
   });
-  app.use(globalLimiter);
+  app.use("/api", globalLimiter);
 
   app.use(express.json({ limit: "5mb" })); // Increased payload size to accommodate 3MB base64 images
 
