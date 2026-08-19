@@ -4,7 +4,7 @@ import { formatDate } from "../utils";
 import { formatMoney } from "../utils/format";
 import { calculateNetWorth } from "../services/budgetCalculations";
 import { NetWorthHeroCard } from "./wealth/NetWorthHeroCard";
-import { Plus, Trash2, ArrowLeftRight, Target } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Target, TrendingUp } from "lucide-react";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -191,10 +191,17 @@ export function GoalsView({
       </div>
 
       {/* SECTION 2: LONG-TERM INVESTMENTS */}
-      <div className="border-t border-border pt-6 mt-8 p-6 bg-surface/20 rounded-3xl border-dashed min-w-0">
-        <div className="flex items-center gap-3 mb-2 min-w-0">
-          <h2 className="text-xl font-bold text-text-main truncate" title="Inwestycje długoterminowe">Inwestycje długoterminowe</h2>
-          <span className="text-xs font-bold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-md border border-border shrink-0 truncate max-w-[120px]" title="Moduł informacyjny">Moduł informacyjny</span>
+      <div className="border-t border-border pt-6 mt-8 p-5 sm:p-6 bg-surface-2/30 rounded-3xl border border-border/70 min-w-0">
+        <div className="flex flex-wrap items-center gap-2.5 mb-2 min-w-0">
+          <span className="p-1 rounded-lg bg-brand-subtle text-brand border border-brand/20">
+            <TrendingUp className="w-4 h-4" />
+          </span>
+          <h2 className="text-xl font-bold text-text-main truncate" title="Inwestycje długoterminowe">
+            Inwestycje długoterminowe
+          </h2>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-surface text-text-muted px-2 py-0.5 rounded-full border border-border shrink-0 truncate max-w-[130px]" title="Moduł informacyjny">
+            Moduł informacyjny
+          </span>
         </div>
         <p className="text-xs text-text-muted max-w-3xl leading-relaxed mb-6">
           Ta sekcja służy wyłącznie do ewidencji wpłat kapitałowych. Wpisy <strong>nie są</strong> traktowane jako zysk, <strong>nie są</strong> oszczędnościami bieżącymi i <strong>nie wpływają</strong> na wynik budżetu ani <em>Safe-to-spend</em>.
@@ -202,18 +209,20 @@ export function GoalsView({
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick contribute form */}
-          <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
-            <h3 className="text-sm font-bold text-text-main mb-3">Rejestruj wpłatę kapitałową</h3>
-            <p className="text-xs text-text-muted leading-relaxed mb-4">
-              Zapisz kwoty odkładane na IKE, IKZE, fundusze inwestycyjne, akcje lub obligacje skarbowe.
-            </p>
+          <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-text-main">Rejestruj wpłatę kapitałową</h3>
+              <p className="text-xs text-text-muted leading-relaxed mt-1">
+                Zapisz kwoty odkładane na IKE, IKZE, fundusze, akcje lub obligacje skarbowe.
+              </p>
+            </div>
             <form onSubmit={handleInvSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1">Kategoria</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Kategoria</label>
                 <select
                   value={invType}
                   onChange={(e) => setInvType(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2.5 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow cursor-pointer"
                 >
                   <option value="Poduszka finansowa">Poduszka finansowa</option>
                   <option value="IKE / IKZE (Emerytura)">IKE / IKZE (Emerytura)</option>
@@ -224,42 +233,44 @@ export function GoalsView({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1">Nazwa aktywa / konta</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Nazwa aktywa / konta</label>
                 <input
                   required
                   placeholder="np. Obligacje Skarbowe, IKE mBank"
                   value={invName}
                   onChange={(e) => setInvName(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2.5 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-name"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1">Wpłacona kwota (zł)</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Wpłacona kwota (zł)</label>
                 <input
                   required
                   type="number"
                   min="1"
+                  step="0.01"
                   placeholder="0,00"
                   value={invAmount}
                   onChange={(e) => setInvAmount(e.target.value)}
-                  className="w-full rounded-xl border bg-surface border-border p-2 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
+                  className="w-full rounded-xl border bg-surface border-border p-2.5 text-xs focus-visible:ring-2 focus-visible:ring-focus-ring text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-amount"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-brand text-text-inverse font-bold py-2 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs shadow-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="w-full bg-brand text-text-inverse font-bold py-2.5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring flex items-center justify-center gap-1.5"
                 id="btn-inv-submit"
               >
-                Dodaj wpłatę
+                <Plus className="w-4 h-4" />
+                <span>Dodaj wpłatę</span>
               </button>
             </form>
           </div>
 
           {/* Investment log book */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
+            <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
               <h3 className="text-sm font-bold text-text-main mb-3">Wniesiony kapitał (podsumowanie)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(
@@ -269,39 +280,40 @@ export function GoalsView({
                     return acc;
                   }, {} as Record<string, number>)
                 ).map(([type, total]) => (
-                  <div key={type} className="p-3 bg-surface border border-border rounded-xl min-w-0">
-                    <span className="block text-xs text-text-muted uppercase tracking-wide truncate" title={type}>{type}</span>
-                    <strong className="text-sm text-text-main block truncate max-w-full" title={formatMoney(total, profile?.currency || 'PLN')}>{formatMoney(total, profile?.currency || 'PLN')}</strong>
+                  <div key={type} className="p-3 bg-surface-2/60 border border-border/80 rounded-xl min-w-0 shadow-xs space-y-0.5">
+                    <span className="block text-[11px] font-medium text-text-muted uppercase tracking-wider truncate" title={type}>{type}</span>
+                    <strong className="text-sm font-bold text-text-main tabular-nums block truncate max-w-full" title={formatMoney(total, profile?.currency || 'PLN')}>{formatMoney(total, profile?.currency || 'PLN')}</strong>
                   </div>
                 ))}
                 {profile.investments.length === 0 && (
-                  <p className="text-xs text-text-faint col-span-full">Brak danych inwestycyjnych.</p>
+                  <p className="text-xs text-text-faint col-span-full py-1">Brak danych inwestycyjnych.</p>
                 )}
               </div>
             </div>
 
-            <div className="bg-surface border border-border rounded-2xl p-5 shadow-lg">
+            <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
               <h3 className="text-sm font-bold text-text-main mb-3">Historia wpłat kapitałowych</h3>
-              <div className="divide-y divide-border overflow-y-auto max-h-[14rem] pr-1">
+              <div className="divide-y divide-border/60 overflow-y-auto max-h-[14rem] pr-1">
                 {profile.investments.length === 0 ? (
-                  <p className="text-xs text-text-faint py-10 text-center italic">
-                    Nie wprowadzono jeszcze żadnych wpłat inwestycyjnych.
-                  </p>
+                  <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border/70 my-1">
+                    <p className="text-xs text-text-muted font-medium">Brak historii wpłat</p>
+                    <p className="text-[11px] text-text-faint mt-0.5">Użyj formularza obok, aby zarejestrować pierwszą wpłatę kapitałową.</p>
+                  </div>
                 ) : (
                   [...profile.investments]
                     .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
                     .map((inv) => (
-                      <div key={inv.id} className="flex justify-between items-center py-3 min-w-0 gap-4">
+                      <div key={inv.id} className="flex justify-between items-center py-2.5 px-1 min-w-0 gap-3 hover:bg-surface-2/40 rounded-lg transition-colors">
                         <div className="min-w-0 flex-1">
-                          <strong className="text-xs text-text-main block truncate" title={inv.name}>{inv.name}</strong>
+                          <strong className="text-xs font-bold text-text-main block truncate" title={inv.name}>{inv.name}</strong>
                           <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                            <span className="text-xs text-text-muted shrink-0 truncate">{formatDate(inv.isoDate)}</span>
+                            <span className="text-[11px] text-text-faint shrink-0 whitespace-nowrap">{formatDate(inv.isoDate)}</span>
                             {inv.type && (
-                              <span className="text-xs bg-surface-2 text-text-muted px-1.5 py-0.5 rounded font-medium max-w-[100px] truncate block shrink-0" title={inv.type}>{inv.type}</span>
+                              <span className="text-[10px] bg-surface-2 text-text-muted px-1.5 py-0.5 rounded-md font-medium border border-border shrink-0 max-w-[120px] truncate" title={inv.type}>{inv.type}</span>
                             )}
                           </div>
                         </div>
-                        <strong className="text-sm text-text-main shrink-0 whitespace-nowrap" title={formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}>{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
+                        <strong className="text-sm font-bold text-text-main tabular-nums shrink-0 whitespace-nowrap" title={formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}>{formatMoney(inv.amount, inv.currency || profile?.currency || 'PLN')}</strong>
                       </div>
                     ))
                 )}
