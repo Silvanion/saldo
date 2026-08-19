@@ -223,27 +223,27 @@ export function TransactionsView({
 
               {/* Segmented Control: Type Filter */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex bg-surface-2 p-1 rounded-xl border border-border">
+                <div className="flex bg-surface p-1 rounded-xl border border-border shadow-inner">
                   <button
                     onClick={() => setFilterType("all")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                      filterType === "all" ? "bg-surface text-text-main shadow-xs border border-border" : "text-text-muted hover:text-text-main"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                     }`}
                   >
                     Wszystkie
                   </button>
                   <button
                     onClick={() => setFilterType("expense")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                      filterType === "expense" ? "bg-danger-subtle text-danger border border-danger/20 shadow-xs" : "text-text-muted hover:text-text-main"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "expense" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"
                     }`}
                   >
                     Wydatki
                   </button>
                   <button
                     onClick={() => setFilterType("income")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                      filterType === "income" ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs" : "text-text-muted hover:text-text-main"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "income" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"
                     }`}
                   >
                     Przychody
@@ -252,35 +252,35 @@ export function TransactionsView({
                 
                 {/* Segmented Control: Role (Shared Profiles Only) */}
                 {profile.kind === "shared" && (
-                  <div className="flex bg-surface-2 p-1 rounded-xl border border-border">
+                  <div className="flex bg-surface p-1 rounded-xl border border-border shadow-inner">
                     <button
                       onClick={() => setPaidByFilter("all")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                        paidByFilter === "all" ? "bg-surface text-text-main shadow-xs border border-border" : "text-text-muted hover:text-text-main"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Wszyscy
                     </button>
                     <button
                       onClick={() => setPaidByFilter("me")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                        paidByFilter === "me" ? "bg-surface text-text-main shadow-xs border border-border" : "text-text-muted hover:text-text-main"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "me" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Ja
                     </button>
                     <button
                       onClick={() => setPaidByFilter("partner")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                        paidByFilter === "partner" ? "bg-surface text-text-main shadow-xs border border-border" : "text-text-muted hover:text-text-main"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "partner" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Partner
                     </button>
                     <button
                       onClick={() => setPaidByFilter("joint")}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
-                        paidByFilter === "joint" ? "bg-surface text-text-main shadow-xs border border-border" : "text-text-muted hover:text-text-main"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "joint" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Wspólne
@@ -372,7 +372,7 @@ export function TransactionsView({
                       className={`text-xs px-2.5 py-0.5 rounded-full font-bold border active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
                         isSelected
                           ? "bg-brand-subtle text-brand border-brand/30 shadow-xs"
-                          : "bg-surface text-text-muted border-border hover:bg-surface-2"
+                          : "bg-surface-2 text-text-muted border-border hover:bg-surface-offset hover:text-text-main"
                       }`}
                     >
                       #{tag}
@@ -382,9 +382,11 @@ export function TransactionsView({
                 {selectedTag && (
                   <button
                     onClick={() => setSelectedTag(null)}
-                    className="text-xs text-danger font-bold hover:underline ml-1.5 active:scale-[0.98] transition-transform cursor-pointer rounded"
+                    className="inline-flex items-center gap-1 text-xs text-danger font-bold bg-danger-subtle border border-danger/20 hover:bg-danger-subtle/80 px-2.5 py-0.5 rounded-full ml-1 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    aria-label="Wyczyść filtr tagu"
                   >
-                    Wyczyść tag &times;
+                    <span>Wyczyść tag</span>
+                    <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
@@ -407,9 +409,30 @@ export function TransactionsView({
               <tbody className="divide-y divide-border">
                 {visibleTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-xs text-text-muted bg-surface-2 rounded-xl border border-dashed border-border my-2">
-                      <p className="font-bold text-sm text-text-main mb-1">Brak transakcji</p>
-                      <p className="text-text-faint">Nie znaleziono pozycji spełniających kryteria filtrów.</p>
+                    <td colSpan={6} className="py-10 text-center bg-bg-base/30 rounded-xl border border-dashed border-border my-2">
+                      <div className="flex flex-col items-center justify-center min-w-0">
+                        <div className="text-2xl mb-1 opacity-50 shrink-0">
+                          {profile.transactions.length > 0 ? "🔍" : "🍵"}
+                        </div>
+                        <p className="font-bold text-xs text-text-main mb-0.5 truncate">
+                          {profile.transactions.length > 0
+                            ? "Brak transakcji pasujących do filtrów"
+                            : "Brak zarejestrowanych transakcji"}
+                        </p>
+                        <p className="text-xs text-text-muted truncate">
+                          {profile.transactions.length > 0
+                            ? "Zmień kryteria wyszukiwania lub zresetuj filtry."
+                            : "Dodaj pierwszy wydatek lub przychód, aby rozpocząć rejestrację."}
+                        </p>
+                        {profile.transactions.length === 0 && (
+                          <button
+                            onClick={() => onOpenTxModal()}
+                            className="mt-3 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
+                          >
+                            + Dodaj pierwszą transakcję
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -497,8 +520,28 @@ export function TransactionsView({
           {/* Mobile Card List View */}
           <div className="block md:hidden space-y-3" id="tx-mobile-list">
             {visibleTransactions.length === 0 ? (
-              <div className="py-10 text-center text-xs text-text-muted bg-surface-2 border border-dashed border-border rounded-xl">
-                {profile.transactions.length === 0 && profile.kind === "shared" ? "Dodaj pierwszy wspólny wydatek." : "Brak transakcji spełniających kryteria."}
+              <div className="py-10 px-4 text-center bg-bg-base/30 border border-dashed border-border rounded-xl flex flex-col items-center justify-center min-w-0">
+                <div className="text-2xl mb-1 opacity-50 shrink-0">
+                  {profile.transactions.length > 0 ? "🔍" : "🍵"}
+                </div>
+                <p className="font-bold text-xs text-text-main mb-0.5 truncate">
+                  {profile.transactions.length > 0
+                    ? "Brak transakcji pasujących do filtrów"
+                    : "Brak zarejestrowanych transakcji"}
+                </p>
+                <p className="text-xs text-text-muted truncate">
+                  {profile.transactions.length > 0
+                    ? "Zmień kryteria wyszukiwania lub zresetuj filtry."
+                    : "Dodaj pierwszy wydatek lub przychód, aby rozpocząć."}
+                </p>
+                {profile.transactions.length === 0 && (
+                  <button
+                    onClick={() => onOpenTxModal()}
+                    className="mt-3 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
+                  >
+                    + Dodaj transakcję
+                  </button>
+                )}
               </div>
             ) : (
               visibleTransactions.map((tx) => (
