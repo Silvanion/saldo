@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { BudgetWarning } from "../../services/budgetCalculations";
 import { formatMoney } from "../../utils/format";
-import { Target, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 
 interface BudgetWarningsWidgetProps {
   currency: string;
@@ -25,12 +25,12 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
   return (
     <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden" id="widget-content-budget-box">
       <div className="flex items-center justify-between gap-4 mb-4 relative z-10 min-w-0">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Plan Budżetu">Plan Budżetu</p>
           <div className="flex items-center gap-2 min-w-0">
-            <h3 className="text-base font-bold text-text-main truncate" title="Wykorzystanie limitów">Użycie budżetów</h3>
+            <h3 className="text-base font-bold text-text-main truncate" title="Użycie budżetów">Użycie budżetów</h3>
             <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold shrink-0 border ${
-              globalBudgetRatio > 100 ? "bg-danger-subtle text-danger border-danger/20" : globalBudgetRatio > 80 ? "bg-warning-subtle text-warning border-warning/20" : "bg-brand-subtle text-brand border-brand/20"
+              globalBudgetRatio > 100 ? "bg-danger-subtle text-danger border-danger/30" : globalBudgetRatio > 80 ? "bg-warning-subtle text-warning border-warning/30" : "bg-brand-subtle text-brand border-brand/20"
             }`}>
               {Math.round(globalBudgetRatio)}% planu
             </span>
@@ -39,6 +39,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         <button
           onClick={() => onChangeView("budget")}
           className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+          title="Szczegóły"
         >
           Szczegóły →
         </button>
@@ -60,34 +61,34 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-start overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col min-h-0 relative z-10">
         {budgetWarnings.length === 0 ? (
-          <div className="text-center py-6 bg-surface-2 rounded-xl border border-dashed border-border h-full flex flex-col justify-center">
-            <span className="text-2xl mb-1 block opacity-50">💡</span>
-            <p className="text-xs text-text-muted font-bold">Brak skonfigurowanych limitów</p>
-            <p className="text-xs text-text-faint">Ustaw budżety dla kategorii, by śledzić wydatki.</p>
+          <div className="text-center py-6 bg-bg-base/30 rounded-xl border border-dashed border-border h-full flex flex-col justify-center min-w-0">
+            <div className="text-2xl mb-1 opacity-50 shrink-0">💡</div>
+            <p className="text-xs text-text-muted font-medium truncate">Brak skonfigurowanych limitów</p>
+            <p className="text-xs text-text-faint truncate">Ustaw budżety dla kategorii, by śledzić wydatki.</p>
           </div>
         ) : (
-          <div className="space-y-2 overflow-y-auto overflow-x-hidden pr-1 custom-scrollbar min-w-0">
-            {budgetWarnings.map((w, i) => {
+          <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar min-w-0">
+            {budgetWarnings.map((w) => {
               const isCritical = w.status === 'exceeded';
               const isWarning = w.status === 'warning';
               
-              const colorClass = isCritical ? 'text-danger' : isWarning ? 'text-warning' : 'text-brand';
+              const colorClass = isCritical ? 'text-danger font-black' : isWarning ? 'text-warning font-bold' : 'text-text-muted font-bold';
               const bgClass = isCritical ? 'bg-danger' : isWarning ? 'bg-warning' : 'bg-brand';
-              const badgeClass = isCritical ? 'bg-danger-subtle text-danger border-danger/20' : isWarning ? 'bg-warning-subtle text-warning border-warning/20' : 'bg-brand-subtle text-brand border-brand/20';
+              const badgeClass = isCritical ? 'bg-danger-subtle text-danger border-danger/30' : isWarning ? 'bg-warning-subtle text-warning border-warning/30' : 'bg-brand-subtle text-brand border-brand/20';
               const statusLabel = isCritical ? 'Przekroczony' : isWarning ? 'Uwaga' : 'W normie';
 
               return (
-                <div key={i} className="flex flex-col gap-1.5 p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-colors shadow-sm group min-w-0">
+                <div key={w.category} className="flex flex-col gap-1.5 p-3 rounded-xl border border-border bg-surface hover:bg-surface-offset transition-colors shadow-sm group min-w-0">
                   <div className="flex justify-between items-center text-xs gap-2 min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider shrink-0 ${badgeClass}`}>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border uppercase tracking-wider shrink-0 ${badgeClass}`}>
                         {statusLabel}
                       </span>
-                      <span className="font-bold text-text-main truncate" title={w.category}>{w.category}</span>
+                      <span className="font-bold text-text-main group-hover:text-brand transition-colors truncate" title={w.category}>{w.category}</span>
                     </div>
-                    <span className={`font-black shrink-0 ${colorClass}`}>
+                    <span className={`shrink-0 ${colorClass}`}>
                       {w.percent}%
                     </span>
                   </div>
@@ -112,6 +113,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         <button
           onClick={onOpenBudgetModal}
           className="w-full py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
+          title="Konfiguruj budżety"
         >
           <Settings className="w-4 h-4" />
           <span>Konfiguruj budżety</span>
@@ -120,3 +122,4 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
     </div>
   );
 });
+
