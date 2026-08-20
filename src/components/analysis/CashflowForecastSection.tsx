@@ -99,13 +99,13 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
 
   return (
     <div
-      className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-6"
+      className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6"
       id="cashflow-forecast-card"
       role="region"
       aria-label="Prognoza Cashflow i Płynności"
     >
       {/* Header with segmented horizon control */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-border pb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
             <TrendingUp className="w-5 h-5" />
@@ -117,7 +117,7 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
                 {horizon} dni
               </span>
             </div>
-            <p className="text-xs text-text-muted mt-0.5">
+            <p className="text-xs text-text-muted mt-0.5 leading-snug">
               Symulacja salda z uwzględnieniem rachunków, pensji cyklicznych i budżetów
             </p>
           </div>
@@ -125,7 +125,7 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
 
         {/* Horizon selector buttons */}
         <div
-          className="flex bg-surface-2 p-1 rounded-xl border border-border self-start sm:self-auto shadow-xs"
+          className="flex bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto shadow-xs"
           role="tablist"
           aria-label="Wybór horyzontu prognozy"
         >
@@ -136,7 +136,7 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
               role="tab"
               aria-selected={horizon === h}
               onClick={() => setHorizon(h)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-focus-ring ${
                 horizon === h
                   ? "bg-surface text-brand shadow-xs border border-border"
                   : "text-text-muted hover:text-text-main"
@@ -150,15 +150,15 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Card 1: Projected End Balance */}
-        <div className="p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+        <div className="p-3 sm:p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
             Prognoza na {formatDate(activeSummary.targetDate)}
           </span>
-          <div className="my-2">
+          <div className="my-1.5 sm:my-2">
             <span
-              className={`text-xl font-black tabular-nums block ${
+              className={`text-lg sm:text-xl font-black tabular-nums block truncate ${
                 activeSummary.projectedBalance < 0
                   ? "text-danger"
                   : activeSummary.projectedBalance < forecast.safetyBuffer
@@ -170,28 +170,28 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
               {formatMoney(activeSummary.projectedBalance, currency)}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold tabular-nums">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold tabular-nums">
             {activeSummary.netChange >= 0 ? (
-              <span className="text-brand flex items-center gap-0.5">
-                <ArrowUpRight className="w-3.5 h-3.5" /> +{formatMoney(activeSummary.netChange, currency)}
+              <span className="text-brand flex items-center gap-0.5 truncate">
+                <ArrowUpRight className="w-3.5 h-3.5 shrink-0" /> +{formatMoney(activeSummary.netChange, currency)}
               </span>
             ) : (
-              <span className="text-danger flex items-center gap-0.5">
-                <ArrowDownRight className="w-3.5 h-3.5" /> {formatMoney(activeSummary.netChange, currency)}
+              <span className="text-danger flex items-center gap-0.5 truncate">
+                <ArrowDownRight className="w-3.5 h-3.5 shrink-0" /> {formatMoney(activeSummary.netChange, currency)}
               </span>
             )}
-            <span className="text-text-faint font-normal">vs dziś</span>
+            <span className="text-text-faint font-normal shrink-0">vs dziś</span>
           </div>
         </div>
 
         {/* Card 2: Lowest Balance Point (Cash Dip) */}
-        <div className="p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+        <div className="p-3 sm:p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
             Najniższy punkt (Cash Dip)
           </span>
-          <div className="my-2">
+          <div className="my-1.5 sm:my-2">
             <span
-              className={`text-xl font-black tabular-nums block ${
+              className={`text-lg sm:text-xl font-black tabular-nums block truncate ${
                 activeSummary.lowestPoint.amount < 0
                   ? "text-danger"
                   : activeSummary.lowestPoint.amount < forecast.safetyBuffer
@@ -203,33 +203,33 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
               {formatMoney(activeSummary.lowestPoint.amount, currency)}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted font-medium">
+          <span className="text-[10px] sm:text-[11px] text-text-muted font-medium truncate">
             Termin: <strong className="text-text-main">{formatDate(activeSummary.lowestPoint.date)}</strong>
           </span>
         </div>
 
         {/* Card 3: Risk Days Warning */}
         <div
-          className={`p-4 rounded-xl border shadow-xs flex flex-col justify-between ${
+          className={`p-3 sm:p-4 rounded-xl border shadow-xs flex flex-col justify-between ${
             activeSummary.riskDaysCount > 0
               ? "bg-warning-subtle/50 border-warning/30 text-warning"
               : "bg-surface-2 border-border text-text-main"
           }`}
         >
-          <span className="text-[11px] font-bold uppercase tracking-wider block">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider block truncate">
             {activeSummary.riskDaysCount > 0 ? "Dni ryzyka płynności" : "Stabilność płynności"}
           </span>
-          <div className="my-2 flex items-center gap-2">
+          <div className="my-1.5 sm:my-2 flex items-center gap-1.5 sm:gap-2 min-w-0">
             {activeSummary.riskDaysCount > 0 ? (
-              <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
+              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-warning shrink-0" />
             ) : (
-              <ShieldCheck className="w-5 h-5 text-brand shrink-0" />
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-brand shrink-0" />
             )}
-            <span className="text-xl font-black tabular-nums" id="kpi-risk-days">
+            <span className="text-lg sm:text-xl font-black tabular-nums truncate" id="kpi-risk-days">
               {activeSummary.riskDaysCount} {activeSummary.riskDaysCount === 1 ? "dzień" : "dni"}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted font-medium">
+          <span className="text-[10px] sm:text-[11px] text-text-muted font-medium truncate">
             {activeSummary.riskDaysCount > 0
               ? `Poniżej bufora ${formatMoney(forecast.safetyBuffer, currency)}`
               : "Brak zagrożeń poniżej progu"}
@@ -237,16 +237,16 @@ export function CashflowForecastSection({ profile, recurringRules = [] }: Cashfl
         </div>
 
         {/* Card 4: Upcoming Outflows */}
-        <div className="p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+        <div className="p-3 sm:p-4 bg-surface-2 rounded-xl border border-border shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
             Wypływy w okresie ({horizon}d)
           </span>
-          <div className="my-2">
-            <span className="text-xl font-black text-text-main tabular-nums block" id="kpi-total-outflows">
+          <div className="my-1.5 sm:my-2">
+            <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block truncate" id="kpi-total-outflows">
               {formatMoney(activeSummary.totalExpenses, currency)}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted font-medium">
+          <span className="text-[10px] sm:text-[11px] text-text-muted font-medium truncate" title={`Rachunki: ${formatMoney(activeSummary.totalBills, currency)} + Zmienne: ${formatMoney(activeSummary.totalVariableSpend, currency)}`}>
             Rachunki: <strong>{formatMoney(activeSummary.totalBills, currency)}</strong> + Zmienne:{" "}
             <strong>{formatMoney(activeSummary.totalVariableSpend, currency)}</strong>
           </span>

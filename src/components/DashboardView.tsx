@@ -206,7 +206,7 @@ export function DashboardView({
       )}
 
       {/* Flexible Masonry/Grid Layout for Widgets */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch relative z-0">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 items-stretch relative z-0">
         {widgets.filter(w => w.visible || isEditMode).map((widget, index) => {
           let widgetContent = null;
 

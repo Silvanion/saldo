@@ -173,10 +173,10 @@ export function PaymentsView({
 
   return (
     <div className="space-y-6" id="payments-view-container">
-      {/* Overview header + CTA */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-2 p-5 rounded-2xl border border-border shadow-sm">
-        <div className="min-w-0">
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Harmonogram Płatności">
+      {/* Top Overview & Context Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-surface-2 p-4 sm:p-5 rounded-2xl border border-border shadow-sm">
+        <div>
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider">
             Harmonogram Płatności
           </p>
           <div className="flex items-center gap-2 mb-1">
@@ -195,7 +195,7 @@ export function PaymentsView({
         </div>
         <button
           onClick={() => onOpenPaymentModal()}
-          className="bg-brand text-text-inverse border border-brand font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+          className="bg-brand text-text-inverse border border-brand font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0 w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-focus-ring"
           id="btn-add-payment"
         >
           <Plus className="w-4 h-4" />
@@ -204,13 +204,13 @@ export function PaymentsView({
       </div>
 
       {/* View Mode Segmented Switch */}
-      <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start shadow-xs" role="tablist" aria-label="Tryb widoku płatności">
+      <div className="flex bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto shadow-xs" role="tablist" aria-label="Tryb widoku płatności">
         <button
           type="button"
           role="tab"
           aria-selected={viewMode === "all"}
           onClick={() => setViewMode("all")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+          className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer text-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring ${
             viewMode === "all"
               ? "bg-surface text-brand shadow-xs border border-border"
               : "text-text-muted hover:text-text-main"
@@ -224,7 +224,7 @@ export function PaymentsView({
           role="tab"
           aria-selected={viewMode === "subscriptions"}
           onClick={() => setViewMode("subscriptions")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring ${
+          className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring ${
             viewMode === "subscriptions"
               ? "bg-surface text-brand shadow-xs border border-border"
               : "text-text-muted hover:text-text-main"
@@ -239,11 +239,11 @@ export function PaymentsView({
       {viewMode === "all" ? (
         <>
           {/* 4-Pillar Horizon Cashflow Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Overdue */}
         <button
           onClick={() => setTimeFilter(timeFilter === "overdue" ? "all" : "overdue")}
-          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
             timeFilter === "overdue"
               ? "bg-danger-subtle border-danger ring-2 ring-danger/20"
               : "bg-surface border-border hover:border-danger/30"
@@ -253,16 +253,16 @@ export function PaymentsView({
             <span className="flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5" /> Zaległe</span>
             <span className="bg-danger/10 px-2 py-0.5 rounded-full">{horizonSummary.overdue.count}</span>
           </div>
-          <div className="text-lg font-black text-danger truncate" title={formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}>
+          <div className="text-base sm:text-lg font-black text-danger truncate" title={formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}>
             {formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}
           </div>
-          <p className="text-[10px] text-text-faint mt-1">Wymagają natychmiastowej spłaty</p>
+          <p className="text-[10px] text-text-faint mt-1 truncate">Wymagają natychmiastowej spłaty</p>
         </button>
 
         {/* Today */}
         <button
           onClick={() => setTimeFilter(timeFilter === "today" ? "all" : "today")}
-          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
             timeFilter === "today"
               ? "bg-warning-subtle border-warning ring-2 ring-warning/20"
               : "bg-surface border-border hover:border-warning/30"
@@ -272,16 +272,16 @@ export function PaymentsView({
             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Na dzisiaj</span>
             <span className="bg-warning/10 px-2 py-0.5 rounded-full">{horizonSummary.today.count}</span>
           </div>
-          <div className="text-lg font-black text-warning truncate" title={formatMoney(horizonSummary.today.total, profile.currency || "PLN")}>
+          <div className="text-base sm:text-lg font-black text-warning truncate" title={formatMoney(horizonSummary.today.total, profile.currency || "PLN")}>
             {formatMoney(horizonSummary.today.total, profile.currency || "PLN")}
           </div>
-          <p className="text-[10px] text-text-faint mt-1">Termin upływa dzisiaj</p>
+          <p className="text-[10px] text-text-faint mt-1 truncate">Termin upływa dzisiaj</p>
         </button>
 
         {/* Next 7 Days */}
         <button
           onClick={() => setTimeFilter(timeFilter === "week" ? "all" : "week")}
-          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
             timeFilter === "week"
               ? "bg-brand-subtle border-brand ring-2 ring-brand/20"
               : "bg-surface border-border hover:border-brand/30"
@@ -291,16 +291,16 @@ export function PaymentsView({
             <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> Najbliższe 7 dni</span>
             <span className="bg-brand/10 px-2 py-0.5 rounded-full">{horizonSummary.week.count}</span>
           </div>
-          <div className="text-lg font-black text-brand truncate" title={formatMoney(horizonSummary.week.total, profile.currency || "PLN")}>
+          <div className="text-base sm:text-lg font-black text-brand truncate" title={formatMoney(horizonSummary.week.total, profile.currency || "PLN")}>
             {formatMoney(horizonSummary.week.total, profile.currency || "PLN")}
           </div>
-          <p className="text-[10px] text-text-faint mt-1">Obciążenie tego tygodnia</p>
+          <p className="text-[10px] text-text-faint mt-1 truncate">Obciążenie tego tygodnia</p>
         </button>
 
         {/* Next 30 Days */}
         <button
           onClick={() => setTimeFilter(timeFilter === "month" ? "all" : "month")}
-          className={`p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
+          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
             timeFilter === "month"
               ? "bg-surface-2 border-text-main ring-2 ring-border"
               : "bg-surface border-border hover:border-text-muted"
@@ -310,10 +310,10 @@ export function PaymentsView({
             <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Najbliższe 30 dni</span>
             <span className="bg-surface-2 px-2 py-0.5 rounded-full">{horizonSummary.month.count}</span>
           </div>
-          <div className="text-lg font-black text-text-main truncate" title={formatMoney(horizonSummary.month.total, profile.currency || "PLN")}>
+          <div className="text-base sm:text-lg font-black text-text-main truncate" title={formatMoney(horizonSummary.month.total, profile.currency || "PLN")}>
             {formatMoney(horizonSummary.month.total, profile.currency || "PLN")}
           </div>
-          <p className="text-[10px] text-text-faint mt-1">Miesięczny horyzont płynności</p>
+          <p className="text-[10px] text-text-faint mt-1 truncate">Miesięczny horyzont płynności</p>
         </button>
       </div>
 
@@ -378,8 +378,8 @@ export function PaymentsView({
         onAddPayment={onAddPayment}
       />
 
-      <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 min-w-0">
+      <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 sm:p-6 min-w-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3 sm:gap-4 min-w-0">
           <h3 className="text-base font-bold text-text-main shrink-0 truncate" title="Lista Twoich opłat">Lista Twoich opłat</h3>
           
           <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto min-w-0">
@@ -579,62 +579,62 @@ export function PaymentsView({
         </>
       ) : (
         /* SUBSCRIPTIONS & FIXED COSTS HUB MODE */
-        <div className="space-y-6" id="subscription-hub-container">
+        <div className="space-y-4 sm:space-y-6" id="subscription-hub-container">
           {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
             {/* Card 1: Monthly Total */}
-            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
-              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+            <div className="p-3.5 sm:p-4 bg-surface rounded-xl sm:rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
                 Miesięcznie
               </span>
-              <div className="my-2">
-                <span className="text-xl font-black text-text-main tabular-nums block" id="kpi-hub-monthly">
+              <div className="my-1.5 sm:my-2">
+                <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block truncate" id="kpi-hub-monthly">
                   {formatMoney(fixedCostHub.monthlyTotal, profile.currency || "PLN")}
                 </span>
               </div>
-              <p className="text-[10px] text-text-muted">Suma kosztów stałych / mc</p>
+              <p className="text-[10px] text-text-muted truncate">Suma kosztów stałych / mc</p>
             </div>
 
             {/* Card 2: Yearly Total */}
-            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
-              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+            <div className="p-3.5 sm:p-4 bg-surface rounded-xl sm:rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
                 Rocznie
               </span>
-              <div className="my-2">
-                <span className="text-xl font-black text-text-main tabular-nums block" id="kpi-hub-yearly">
+              <div className="my-1.5 sm:my-2">
+                <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block truncate" id="kpi-hub-yearly">
                   {formatMoney(fixedCostHub.yearlyTotal, profile.currency || "PLN")}
                 </span>
               </div>
-              <p className="text-[10px] text-text-muted">Szacowany koszt w skali roku</p>
+              <p className="text-[10px] text-text-muted truncate">Szacowany koszt w roku</p>
             </div>
 
             {/* Card 3: Active Count */}
-            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
-              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+            <div className="p-3.5 sm:p-4 bg-surface rounded-xl sm:rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
                 Aktywne pozycje
               </span>
-              <div className="my-2 flex items-center gap-2">
-                <Layers className="w-5 h-5 text-brand shrink-0" />
-                <span className="text-xl font-black text-text-main tabular-nums" id="kpi-hub-count">
+              <div className="my-1.5 sm:my-2 flex items-center gap-1.5 sm:gap-2">
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-brand shrink-0" />
+                <span className="text-lg sm:text-xl font-black text-text-main tabular-nums truncate" id="kpi-hub-count">
                   {fixedCostHub.activeCount}
                 </span>
               </div>
               <p className="text-[10px] text-text-muted truncate">
-                Subskrypcje: {fixedCostHub.subscriptionsCount} • Rachunki: {fixedCostHub.billsCount}
+                Subskrypcje: {fixedCostHub.subscriptionsCount} • Rach.: {fixedCostHub.billsCount}
               </p>
             </div>
 
             {/* Card 4: Next Upcoming Payment */}
-            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
-              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+            <div className="p-3.5 sm:p-4 bg-surface rounded-xl sm:rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] sm:text-[11px] font-bold text-text-faint uppercase tracking-wider block truncate">
                 Najbliższa opłata
               </span>
-              <div className="my-2 min-w-0">
-                <span className="text-sm font-bold text-text-main truncate block" id="kpi-hub-next-name" title={fixedCostHub.nextUpcomingItem?.name || "Brak"}>
+              <div className="my-1.5 sm:my-2 min-w-0">
+                <span className="text-xs sm:text-sm font-bold text-text-main truncate block" id="kpi-hub-next-name" title={fixedCostHub.nextUpcomingItem?.name || "Brak"}>
                   {fixedCostHub.nextUpcomingItem ? fixedCostHub.nextUpcomingItem.name : "Brak"}
                 </span>
                 {fixedCostHub.nextUpcomingItem && (
-                  <span className="text-xs font-black text-brand tabular-nums block">
+                  <span className="text-xs font-black text-brand tabular-nums block truncate">
                     {formatMoney(fixedCostHub.nextUpcomingItem.amount, fixedCostHub.nextUpcomingItem.currency)}
                   </span>
                 )}
@@ -648,7 +648,7 @@ export function PaymentsView({
           </div>
 
           {/* List of Detected Fixed Costs */}
-          <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0">
+          <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 sm:p-6 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2 border-b border-border pb-3">
               <div>
                 <h3 className="text-base font-bold text-text-main">Wykryte subskrypcje i koszty stałe</h3>

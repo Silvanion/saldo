@@ -335,19 +335,19 @@ export function AppShell({
         )}
 
         {/* TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-surface backdrop-blur-md border-b border-border/50 px-6 py-4 shrink-0 shadow-sm z-10 gap-4" id="top-bar-header">
-          <div className="flex items-center gap-3 min-w-0">
+        <header className="flex items-center justify-between bg-surface backdrop-blur-md border-b border-border/50 px-4 sm:px-6 py-3 sm:py-4 shrink-0 shadow-sm z-10 gap-3 sm:gap-4" id="top-bar-header">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 rounded-xl border border-border hover:bg-surface-offset active:scale-[0.98] transition-all lg:hidden shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="p-1.5 rounded-xl border border-border hover:bg-surface-offset active:scale-[0.98] transition-all lg:hidden shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-open-mobile-menu"
               aria-label="Otwórz menu"
             >
               <Menu className="w-5 h-5 text-text-main" />
             </button>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-text-faint tracking-widest uppercase truncate" title={getTodayFormatted()}>{getTodayFormatted()}</p>
-              <h1 className="text-lg md:text-xl font-bold text-text-main tracking-tight truncate">
+              <p className="text-[10px] sm:text-xs font-bold text-text-faint tracking-widest uppercase truncate" title={getTodayFormatted()}>{getTodayFormatted()}</p>
+              <h1 className="text-base sm:text-lg md:text-xl font-bold text-text-main tracking-tight truncate">
                 {activeView === "dashboard" && (new Date().getHours() >= 5 && new Date().getHours() < 18 ? "Dzień dobry" : "Dobry wieczór")}
                 {activeView === "transactions" && "Księga Transakcji"}
                 {activeView === "payments" && "Zaplanowane Opłaty"}
@@ -385,7 +385,7 @@ export function AppShell({
             {/* Command Palette Trigger Button */}
             <button
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="flex items-center gap-2 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="flex items-center gap-2 py-2 px-2.5 sm:px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-open-command-palette"
               title="Wyszukaj lub uruchom polecenie (⌘K / /)"
               aria-label="Wyszukaj lub uruchom polecenie"
@@ -400,7 +400,7 @@ export function AppShell({
             {activeProfile && (
               <button
                 onClick={handleSwitchProfile}
-                className="flex items-center gap-1.5 py-2 px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-main font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring group"
+                className="flex items-center gap-1.5 py-2 px-2.5 sm:px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-main font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring group"
                 id="btn-header-switch-profile"
                 title="Przełącz profil"
                 aria-label="Przełącz profil"
@@ -412,7 +412,7 @@ export function AppShell({
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
-                className="bg-brand text-text-inverse font-bold py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="bg-brand text-text-inverse font-bold py-2 px-3 sm:px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring whitespace-nowrap"
                 id="btn-quick-add-tx"
                 aria-label="Dodaj nową transakcję"
               >
@@ -424,7 +424,7 @@ export function AppShell({
 
         {/* Slim Status and Security Bar */}
         <div
-          className={`text-xs px-6 py-2 border-b flex flex-wrap items-center justify-between gap-3 transition-all duration-300 shrink-0 ${
+          className={`text-xs px-4 sm:px-6 py-1.5 sm:py-2 border-b flex flex-wrap items-center justify-between gap-2 sm:gap-3 transition-all duration-300 shrink-0 ${
             isOnline
               ? "bg-brand-subtle border-brand/20 text-brand"
               : "bg-warning-subtle border-warning/20 text-warning"
@@ -464,7 +464,7 @@ export function AppShell({
 
         {apiError && (
           <div
-            className="bg-danger-subtle border-b border-danger/20 px-6 py-3 flex items-center justify-between text-danger text-xs animate-fade-in shrink-0"
+            className="bg-danger-subtle border-b border-danger/20 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between text-danger text-xs animate-fade-in shrink-0"
             id="api-error-banner"
             role="alert"
             aria-live="assertive"
@@ -497,7 +497,7 @@ export function AppShell({
         )}
 
         {/* ACTIVE MODULE VIEW CANVAS */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 focus:outline-none" id="main-content" tabIndex={-1}>
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 focus:outline-none" id="main-content" tabIndex={-1}>
           {children}
         </div>
       </main>

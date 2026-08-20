@@ -237,13 +237,13 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
   ]);
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in" id="analysis-view-container">
+    <div className="space-y-4 sm:space-y-6 pb-12 animate-fade-in" id="analysis-view-container">
       {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-2xl border border-border shadow-sm p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-surface rounded-2xl border border-border shadow-sm p-4 sm:p-6">
         <div>
           <p className="text-xs font-bold text-text-faint uppercase tracking-wider">Inteligencja Finansowa</p>
           <div className="flex items-center gap-2.5 mt-0.5">
-            <h2 className="text-xl font-bold text-text-main">Analiza i Prognozy ({monthName} {currentYear})</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-text-main">Analiza i Prognozy ({monthName} {currentYear})</h2>
           </div>
         </div>
         <button
@@ -273,8 +273,8 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
       />
 
       {/* 50/30/20 Rule Breakdown Section */}
-      <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-5" id="breakdown-50-30-20-card">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-border pb-4">
+      <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5" id="breakdown-50-30-20-card">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-border pb-3 sm:pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
               <Scale className="w-5 h-5" />
@@ -288,14 +288,14 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold tabular-nums bg-surface-2 px-2.5 py-1 rounded-lg text-text-muted border border-border shrink-0 shadow-xs">
+          <span className="text-xs font-bold tabular-nums bg-surface-2 px-2.5 py-1 rounded-lg text-text-muted border border-border shrink-0 shadow-xs self-start sm:self-auto">
             Suma wydatków: <span className="text-text-main font-black">{formatMoney(breakdown503020.totalExpense, profile.currency || "PLN")}</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {/* Needs (50%) */}
-          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
             <div className="flex justify-between items-center text-xs">
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
@@ -320,7 +320,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           </div>
 
           {/* Wants (30%) */}
-          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
             <div className="flex justify-between items-center text-xs">
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="w-2 h-2 rounded-full bg-text-muted shrink-0" />
@@ -345,7 +345,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           </div>
 
           {/* Savings (20%) */}
-          <div className="p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
             <div className="flex justify-between items-center text-xs">
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
@@ -370,10 +370,10 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
       </div>
 
       {/* 2-Column Grid: Rolling Trends (Left) & Strategic Simulators (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         
         {/* Card 1: Multi-Month Rolling Trends & Category Drivers */}
-        <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="rolling-trends-card">
+        <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4" id="rolling-trends-card">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
@@ -390,38 +390,38 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
-              <span className="text-[11px] text-text-faint font-medium block">Średnia krocząca (3M)</span>
-              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums">
+              <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">Średnia krocząca (3M)</span>
+              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums truncate">
                 {formatMoney(rollingTrends.avg3MonthExpense, profile.currency || "PLN")}
               </span>
-              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums">
+              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums truncate">
                 {rollingTrends.diffVs3MAvg > 0 ? (
-                  <span className="text-danger flex items-center gap-0.5">
-                    <ArrowUpRight className="w-3 h-3" /> +{rollingTrends.diffVs3MAvg}% vs średnia
+                  <span className="text-danger flex items-center gap-0.5 truncate">
+                    <ArrowUpRight className="w-3 h-3 shrink-0" /> +{rollingTrends.diffVs3MAvg}% vs śr.
                   </span>
                 ) : (
-                  <span className="text-brand flex items-center gap-0.5">
-                    <ArrowDownRight className="w-3 h-3" /> {rollingTrends.diffVs3MAvg}% vs średnia
+                  <span className="text-brand flex items-center gap-0.5 truncate">
+                    <ArrowDownRight className="w-3 h-3 shrink-0" /> {rollingTrends.diffVs3MAvg}% vs śr.
                   </span>
                 )}
               </div>
             </div>
 
             <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
-              <span className="text-[11px] text-text-faint font-medium block">Wydatki zeszły miesiąc</span>
-              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums">
+              <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">Wydatki zeszły mc</span>
+              <span className="text-sm font-black text-text-main mt-0.5 block tabular-nums truncate">
                 {formatMoney(rollingTrends.lastMonthExpense, profile.currency || "PLN")}
               </span>
-              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums">
+              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold tabular-nums truncate">
                 {rollingTrends.diffVsLastMonth > 0 ? (
-                  <span className="text-danger flex items-center gap-0.5">
-                    <ArrowUpRight className="w-3 h-3" /> +{rollingTrends.diffVsLastMonth}% MoM
+                  <span className="text-danger flex items-center gap-0.5 truncate">
+                    <ArrowUpRight className="w-3 h-3 shrink-0" /> +{rollingTrends.diffVsLastMonth}% MoM
                   </span>
                 ) : (
-                  <span className="text-brand flex items-center gap-0.5">
-                    <ArrowDownRight className="w-3 h-3" /> {rollingTrends.diffVsLastMonth}% MoM
+                  <span className="text-brand flex items-center gap-0.5 truncate">
+                    <ArrowDownRight className="w-3 h-3 shrink-0" /> {rollingTrends.diffVsLastMonth}% MoM
                   </span>
                 )}
               </div>
@@ -433,7 +433,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
             <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
               Główne sterowniki zmian (vs poprzedni mc)
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
               {rollingTrends.topGrowthCategory ? (
                 <div className="p-2.5 bg-danger-subtle/50 border border-danger/20 rounded-xl flex items-center justify-between shadow-xs">
                   <div className="min-w-0">
@@ -470,7 +470,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
         </div>
 
         {/* Card 2: Interactive Strategic Simulator (Poduszka vs Spłata Zobowiązań) */}
-        <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4" id="strategic-simulator-card">
+        <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4" id="strategic-simulator-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
@@ -485,10 +485,10 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
             </div>
 
             {/* Mode selector segmented toggle */}
-            <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start sm:self-auto shadow-xs">
+            <div className="flex bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto shadow-xs">
               <button
                 onClick={() => setSimulatorMode("cushion")}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   simulatorMode === "cushion"
                     ? "bg-surface text-brand shadow-xs border border-border"
                     : "text-text-muted hover:text-text-main"
@@ -499,7 +499,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
               </button>
               <button
                 onClick={() => setSimulatorMode("debt")}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   simulatorMode === "debt"
                     ? "bg-surface text-brand shadow-xs border border-border"
                     : "text-text-muted hover:text-text-main"
@@ -679,47 +679,47 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Advice and alerts */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-text-main uppercase tracking-wider">Miesięczny przegląd operacyjny</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 min-w-0">
-              <div className="p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Przychody">Przychody</p>
-                <p className="text-sm font-black text-brand tabular-nums truncate" title={formatMoney(monthlyDigest.totalIncome, profile.currency || "PLN")}>
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+            <h3 className="text-xs sm:text-sm font-bold text-text-main uppercase tracking-wider">Miesięczny przegląd operacyjny</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 min-w-0">
+              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
+                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Przychody">Przychody</p>
+                <p className="text-xs sm:text-sm font-black text-brand tabular-nums truncate" title={formatMoney(monthlyDigest.totalIncome, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.totalIncome, profile.currency || "PLN")}
                 </p>
               </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Wydatki">Wydatki</p>
-                <p className="text-sm font-black text-danger tabular-nums truncate" title={formatMoney(monthlyDigest.totalExpenses, profile.currency || "PLN")}>
+              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
+                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Wydatki">Wydatki</p>
+                <p className="text-xs sm:text-sm font-black text-danger tabular-nums truncate" title={formatMoney(monthlyDigest.totalExpenses, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.totalExpenses, profile.currency || "PLN")}
                 </p>
               </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Bilans">Bilans</p>
-                <p className={`text-sm font-black tabular-nums truncate ${monthlyDigest.balance >= 0 ? "text-brand" : "text-danger"}`} title={formatMoney(monthlyDigest.balance, profile.currency || "PLN")}>
+              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
+                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Bilans">Bilans</p>
+                <p className={`text-xs sm:text-sm font-black tabular-nums truncate ${monthlyDigest.balance >= 0 ? "text-brand" : "text-danger"}`} title={formatMoney(monthlyDigest.balance, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.balance, profile.currency || "PLN")}
                 </p>
               </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Stopa oszczędności">Oszczędności</p>
-                <p className="text-sm font-black text-text-main tabular-nums truncate" title={monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}>
+              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
+                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Stopa oszczędności">Oszczędności</p>
+                <p className="text-xs sm:text-sm font-black text-text-main tabular-nums truncate" title={monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}>
                   {monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}
                 </p>
               </div>
             </div>
-            <div className="p-3.5 bg-surface-2 border border-border rounded-xl text-text-main text-xs sm:text-sm leading-relaxed shadow-xs">
+            <div className="p-3 sm:p-3.5 bg-surface-2 border border-border rounded-xl text-text-main text-xs sm:text-sm leading-relaxed shadow-xs">
               {monthlyDigest.summaryText}
             </div>
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-text-main uppercase tracking-wider">Wnioski i podpowiedzi</h3>
-            <div className="space-y-2.5">
+            <h3 className="text-xs sm:text-sm font-bold text-text-main uppercase tracking-wider">Wnioski i podpowiedzi</h3>
+            <div className="space-y-2 sm:space-y-2.5">
               {insightsList.map((ins, idx) => (
                 <div
                   key={idx}
-                  className={`p-3.5 rounded-xl border flex items-start gap-3 transition min-w-0 shadow-xs ${
+                  className={`p-3 sm:p-3.5 rounded-xl border flex items-start gap-2.5 sm:gap-3 transition min-w-0 shadow-xs ${
                     ins.type === "success"
                       ? "bg-brand-subtle/50 border-brand/20 text-brand"
                       : ins.type === "warning"
@@ -727,7 +727,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                       : "bg-surface-2 border-border text-text-muted"
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                     ins.type === "success"
                       ? "bg-brand-subtle border-brand/30 text-brand"
                       : ins.type === "warning"
@@ -735,11 +735,11 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                       : "bg-surface border-border text-text-muted"
                   }`}>
                     {ins.type === "success" ? (
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     ) : ins.type === "warning" ? (
-                      <AlertTriangle className="w-4 h-4" />
+                      <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     ) : (
-                      <Lightbulb className="w-4 h-4" />
+                      <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -759,7 +759,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
         </div>
 
         {/* Breakdown box */}
-        <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-4 gap-4 min-w-0">
               <h3 className="text-sm font-bold text-text-main truncate uppercase tracking-wider" title="Struktura wydatków">
