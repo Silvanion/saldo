@@ -245,6 +245,7 @@ export function AppViewRouter({
           <PaymentsView
             profile={activeProfile}
             selectedDate={selectedDate}
+            recurringRules={state?.recurringRules || activeProfile?.recurringRules || []}
             onOpenPaymentModal={onOpenPaymentModal}
             onTogglePaymentStatus={onTogglePaymentStatus}
             onAddPayment={handleAddPayment}

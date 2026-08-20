@@ -1,16 +1,34 @@
 import React, { useState, useRef } from "react";
-import { Profile, Payment } from "../types";
+import { Profile, Payment, RecurringRule } from "../types";
 import { formatDate, requestNotificationPermission, getLocalDateIso } from "../utils";
 import { SuggestedPaymentsPanel } from "./SuggestedPaymentsPanel";
-import { Bell, BellOff, BellRing, Plus, CalendarClock, AlertCircle, Clock, CalendarDays, Calendar, Pencil, Trash2 } from "lucide-react";
+import {
+  Bell,
+  BellOff,
+  BellRing,
+  Plus,
+  CalendarClock,
+  AlertCircle,
+  Clock,
+  CalendarDays,
+  Calendar,
+  Pencil,
+  Trash2,
+  Sparkles,
+  Home,
+  CheckCircle2,
+  Layers
+} from "lucide-react";
 import { getHorizonSummary } from "./dashboard/PaymentsTimelineWidget";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { formatMoney } from "../utils/format";
+import { getFixedCostHubData, FixedCostItem } from "../services/subscriptionHub";
 
 interface PaymentsViewProps {
   profile: Profile;
   selectedDate: Date;
+  recurringRules?: RecurringRule[];
   onOpenPaymentModal: (payment?: Payment) => void;
   onTogglePaymentStatus: (paymentId: string) => void;
   onAddPayment: (payment: any) => void;
@@ -22,6 +40,7 @@ interface PaymentsViewProps {
 export function PaymentsView({
   profile,
   selectedDate,
+  recurringRules = [],
   onOpenPaymentModal,
   onTogglePaymentStatus,
   onAddPayment,
@@ -29,6 +48,7 @@ export function PaymentsView({
   calendarToken,
   onTriggerCalendarAi
 }: PaymentsViewProps) {
+  const [viewMode, setViewMode] = useState<"all" | "subscriptions">("all");
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
     typeof window !== "undefined" && "Notification" in window ? Notification.permission : "denied"
   );
@@ -39,6 +59,10 @@ export function PaymentsView({
   const deleteModalRef = useRef<HTMLDivElement>(null);
   useScrollLock(!!paymentToDelete);
   useFocusTrap(deleteModalRef, !!paymentToDelete, () => setPaymentToDelete(null));
+
+  const fixedCostHub = React.useMemo(() => {
+    return getFixedCostHubData(profile, recurringRules);
+  }, [profile, recurringRules]);
 
   const handleEnableNotifications = async () => {
     try {
@@ -179,8 +203,43 @@ export function PaymentsView({
         </button>
       </div>
 
-      {/* 4-Pillar Horizon Cashflow Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* View Mode Segmented Switch */}
+      <div className="flex bg-surface-2 p-1 rounded-xl border border-border self-start shadow-xs" role="tablist" aria-label="Tryb widoku płatności">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "all"}
+          onClick={() => setViewMode("all")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            viewMode === "all"
+              ? "bg-surface text-brand shadow-xs border border-border"
+              : "text-text-muted hover:text-text-main"
+          }`}
+          id="btn-view-mode-all"
+        >
+          Wszystkie płatności ({profile.payments.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "subscriptions"}
+          onClick={() => setViewMode("subscriptions")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            viewMode === "subscriptions"
+              ? "bg-surface text-brand shadow-xs border border-border"
+              : "text-text-muted hover:text-text-main"
+          }`}
+          id="btn-view-mode-subscriptions"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Subskrypcje i koszty stałe ({fixedCostHub.activeCount})
+        </button>
+      </div>
+
+      {viewMode === "all" ? (
+        <>
+          {/* 4-Pillar Horizon Cashflow Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Overdue */}
         <button
           onClick={() => setTimeFilter(timeFilter === "overdue" ? "all" : "overdue")}
@@ -517,6 +576,225 @@ export function PaymentsView({
           )}
         </div>
       </div>
+        </>
+      ) : (
+        /* SUBSCRIPTIONS & FIXED COSTS HUB MODE */
+        <div className="space-y-6" id="subscription-hub-container">
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Card 1: Monthly Total */}
+            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+                Miesięcznie
+              </span>
+              <div className="my-2">
+                <span className="text-xl font-black text-text-main tabular-nums block" id="kpi-hub-monthly">
+                  {formatMoney(fixedCostHub.monthlyTotal, profile.currency || "PLN")}
+                </span>
+              </div>
+              <p className="text-[10px] text-text-muted">Suma kosztów stałych / mc</p>
+            </div>
+
+            {/* Card 2: Yearly Total */}
+            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+                Rocznie
+              </span>
+              <div className="my-2">
+                <span className="text-xl font-black text-text-main tabular-nums block" id="kpi-hub-yearly">
+                  {formatMoney(fixedCostHub.yearlyTotal, profile.currency || "PLN")}
+                </span>
+              </div>
+              <p className="text-[10px] text-text-muted">Szacowany koszt w skali roku</p>
+            </div>
+
+            {/* Card 3: Active Count */}
+            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+                Aktywne pozycje
+              </span>
+              <div className="my-2 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-brand shrink-0" />
+                <span className="text-xl font-black text-text-main tabular-nums" id="kpi-hub-count">
+                  {fixedCostHub.activeCount}
+                </span>
+              </div>
+              <p className="text-[10px] text-text-muted truncate">
+                Subskrypcje: {fixedCostHub.subscriptionsCount} • Rachunki: {fixedCostHub.billsCount}
+              </p>
+            </div>
+
+            {/* Card 4: Next Upcoming Payment */}
+            <div className="p-4 bg-surface rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+              <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
+                Najbliższa opłata
+              </span>
+              <div className="my-2 min-w-0">
+                <span className="text-sm font-bold text-text-main truncate block" id="kpi-hub-next-name" title={fixedCostHub.nextUpcomingItem?.name || "Brak"}>
+                  {fixedCostHub.nextUpcomingItem ? fixedCostHub.nextUpcomingItem.name : "Brak"}
+                </span>
+                {fixedCostHub.nextUpcomingItem && (
+                  <span className="text-xs font-black text-brand tabular-nums block">
+                    {formatMoney(fixedCostHub.nextUpcomingItem.amount, fixedCostHub.nextUpcomingItem.currency)}
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-text-muted truncate">
+                {fixedCostHub.nextUpcomingItem
+                  ? `Termin: ${formatDate(fixedCostHub.nextUpcomingItem.nextDueDate)}`
+                  : "Wszystkie opłaty uregulowane"}
+              </p>
+            </div>
+          </div>
+
+          {/* List of Detected Fixed Costs */}
+          <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2 border-b border-border pb-3">
+              <div>
+                <h3 className="text-base font-bold text-text-main">Wykryte subskrypcje i koszty stałe</h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Zestawienie stałych zobowiązań z podziałem na subskrypcje, rachunki stałe i opłaty cykliczne
+                </p>
+              </div>
+              <span className="text-xs font-bold text-text-faint bg-surface-2 px-2.5 py-1 rounded-lg border border-border self-start sm:self-auto">
+                {fixedCostHub.items.length} {fixedCostHub.items.length === 1 ? "pozycja" : "pozycji"}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {fixedCostHub.items.length === 0 ? (
+                <div className="text-center py-10 bg-bg-base/30 rounded-xl border border-dashed border-border flex flex-col items-center justify-center p-6" id="subscription-hub-empty-state">
+                  <div className="text-3xl mb-2 opacity-60">🍵</div>
+                  <h4 className="text-sm font-bold text-text-main mb-1">Brak wykrytych kosztów stałych</h4>
+                  <p className="text-xs text-text-muted max-w-sm mb-4 leading-relaxed">
+                    Dodaj powtarzalną płatność lub rachunek stały, aby zobaczyć zestawienie abonamentów, czynszu i opłat cyklicznych.
+                  </p>
+                  <button
+                    onClick={() => onOpenPaymentModal()}
+                    className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-4 py-2 rounded-xl hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  >
+                    + Dodaj nową opłatę
+                  </button>
+                </div>
+              ) : (
+                fixedCostHub.items.map((item) => {
+                  const isSubscription = item.type === "subscription";
+                  const isFixedBill = item.type === "fixed_bill";
+
+                  const freqLabel =
+                    item.frequency === "monthly"
+                      ? "Co miesiąc"
+                      : item.frequency === "weekly"
+                      ? "Co tydzień"
+                      : item.frequency === "biweekly"
+                      ? "Co 2 tyg."
+                      : item.frequency === "quarterly"
+                      ? "Kwartalnie"
+                      : "Rocznie";
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-border bg-surface shadow-xs hover:border-brand/40 transition-all gap-4 min-w-0"
+                    >
+                      {/* Left: Icon & Info */}
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                            isSubscription
+                              ? "bg-brand-subtle text-brand border-brand/20"
+                              : isFixedBill
+                              ? "bg-surface-offset text-text-main border-border"
+                              : "bg-surface-2 text-text-muted border-border"
+                          }`}
+                        >
+                          {isSubscription ? (
+                            <Sparkles className="w-5 h-5" />
+                          ) : isFixedBill ? (
+                            <Home className="w-5 h-5" />
+                          ) : (
+                            <CalendarClock className="w-5 h-5" />
+                          )}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <h4 className="text-sm font-bold text-text-main truncate" title={item.name}>
+                              {item.name}
+                            </h4>
+
+                            {/* Type badge */}
+                            <span
+                              className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 ${
+                                isSubscription
+                                  ? "bg-brand-subtle text-brand border-brand/20"
+                                  : isFixedBill
+                                  ? "bg-surface-offset text-text-main border-border"
+                                  : "bg-surface-2 text-text-muted border-border"
+                              }`}
+                            >
+                              {isSubscription ? "Subskrypcja" : isFixedBill ? "Rachunek stały" : "Koszt cykliczny"}
+                            </span>
+
+                            {item.category && (
+                              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-surface-2 text-text-muted border border-border shrink-0 truncate max-w-[120px]">
+                                {item.category}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-xs text-text-muted mt-1">
+                            {freqLabel} • Termin: <strong className="text-text-main">{formatDate(item.nextDueDate)}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right: Amounts & Status */}
+                      <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-border/50">
+                        <div className="text-left sm:text-right">
+                          <span className="text-base sm:text-lg font-black text-text-main tabular-nums block">
+                            {formatMoney(item.amount, item.currency)}
+                          </span>
+                          <span className="text-[11px] text-text-faint font-medium block">
+                            {item.frequency !== "monthly"
+                              ? `ok. ${formatMoney(item.monthlyAmount, item.currency)} / mc`
+                              : `${formatMoney(item.yearlyAmount, item.currency)} / rok`}
+                          </span>
+                        </div>
+
+                        {/* Status badge */}
+                        <div className="shrink-0">
+                          {item.status === "paid" ? (
+                            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-success-subtle text-success border border-success/30 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Opłacono
+                            </span>
+                          ) : item.status === "overdue" ? (
+                            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-danger-subtle text-danger border border-danger/30">
+                              Zaległa
+                            </span>
+                          ) : item.status === "due_today" ? (
+                            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-danger-subtle text-danger border border-danger/30">
+                              Dzisiaj
+                            </span>
+                          ) : item.status === "due_soon" ? (
+                            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-warning-subtle text-warning border border-warning/30">
+                              Wkrótce
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-surface-2 text-text-muted border border-border">
+                              Aktywna
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {paymentToDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">

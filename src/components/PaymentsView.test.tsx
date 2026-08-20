@@ -208,4 +208,55 @@ describe("PaymentsView (Urgency badges & Empty state)", () => {
     expect(screen.getByRole("button", { name: "7 dni" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "30 dni" })).toBeTruthy();
   });
+
+  describe("Subscription & Fixed Cost Hub Mode", () => {
+    it("switches to subscription mode and renders KPI summary cards and detected items", () => {
+      const payments: Payment[] = [
+        { id: "1", name: "Netflix Premium", amount: 60, status: "Do opłacenia", category: "Rozrywka", isRecurring: true, dueDate: "2026-07-28", currency: "PLN" },
+        { id: "2", name: "Czynsz za mieszkanie", amount: 2500, status: "Do opłacenia", category: "Mieszkanie", isRecurring: false, dueDate: "2026-08-01", currency: "PLN" },
+      ];
+
+      render(
+        <PaymentsView
+          {...defaultProps}
+          profile={{ ...baseProfile, payments }}
+        />
+      );
+
+      // Verify mode tabs
+      const subHubTab = screen.getByRole("tab", { name: /Subskrypcje i koszty stałe/i });
+      expect(subHubTab).toBeTruthy();
+
+      // Click to switch mode
+      fireEvent.click(subHubTab);
+      expect(subHubTab.getAttribute("aria-selected")).toBe("true");
+
+      // Verify KPI summary cards
+      expect(screen.getByText("Miesięcznie")).toBeTruthy();
+      expect(screen.getByText("Rocznie")).toBeTruthy();
+      expect(screen.getByText("Aktywne pozycje")).toBeTruthy();
+      expect(screen.getByText("Najbliższa opłata")).toBeTruthy();
+
+      // Verify detected items & type badges
+      expect(screen.getAllByText("Netflix Premium").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText("Subskrypcja")).toBeTruthy();
+      expect(screen.getByText("Czynsz za mieszkanie")).toBeTruthy();
+      expect(screen.getByText("Rachunek stały")).toBeTruthy();
+    });
+
+    it("renders subscription hub empty state when no recurring or fixed cost candidates exist", () => {
+      render(
+        <PaymentsView
+          {...defaultProps}
+          profile={{ ...baseProfile, payments: [] }}
+        />
+      );
+
+      const subHubTab = screen.getByRole("tab", { name: /Subskrypcje i koszty stałe/i });
+      fireEvent.click(subHubTab);
+
+      expect(screen.getByText("Brak wykrytych kosztów stałych")).toBeTruthy();
+      expect(screen.getByText("Dodaj powtarzalną płatność lub rachunek stały, aby zobaczyć zestawienie abonamentów, czynszu i opłat cyklicznych.")).toBeTruthy();
+    });
+  });
 });
