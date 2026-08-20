@@ -246,7 +246,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             <button
               onClick={() => setTab("csv")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
-                tab === "csv" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
+                tab === "csv" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
@@ -254,7 +254,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             <button
               onClick={() => setTab("ai")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
-                tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-surface" : "text-text-muted hover:bg-surface"
+                tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
               }`}
             >
               <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
@@ -334,7 +334,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               {/* Drag & Drop File */}
               <div
                 className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                  dragActive ? "border-brand bg-brand-surface" : "border-border bg-surface"
+                  dragActive ? "border-brand bg-brand-subtle" : "border-border bg-surface"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}

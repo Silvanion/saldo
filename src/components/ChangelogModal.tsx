@@ -28,7 +28,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-brand-surface flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle border border-brand/20 flex items-center justify-center shrink-0">
               <History className="w-5 h-5 text-brand" />
             </div>
             <div className="min-w-0">

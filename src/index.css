@@ -16,6 +16,8 @@
   --color-brand-hover: var(--color-brand-hover);
 
   --color-brand-subtle: var(--color-brand-subtle);
+  --color-success: var(--color-success);
+  --color-success-subtle: var(--color-success-subtle);
   --color-warning: var(--color-warning);
   --color-warning-subtle: var(--color-warning-subtle);
   --color-danger: var(--color-danger);
@@ -27,6 +29,8 @@
 }
 
 :root {
+  color-scheme: light;
+
   /* LIGHT THEME (Premium Fintech Light - Monolithic Neutral) */
   --color-bg-base: #f5f5f5; /* Czysty, obiektywny jasny szary bez niebieskich tonów */
   --color-surface: #ffffff; /* Czysta biel */
@@ -45,6 +49,8 @@
   --color-brand-hover: #17332a;
 
   --color-brand-subtle: rgba(42, 75, 65, 0.08); /* Subtelne tło dla brandu */
+  --color-success: #16a34a; /* green-600 dla pozytywnych stanów */
+  --color-success-subtle: #f0fdf4; /* green-50 dla subtelnego tła sukcesu */
   --color-warning: #d97706; /* amber-600 dla mocnego ostrzeżenia */
   --color-warning-subtle: #fef3c7; /* amber-50 dla subtelnego tła ostrzeżenia */
   --color-danger: #dc2626; /* red-600 dla wyraźnych błędów/usunięć */
@@ -53,6 +59,8 @@
 }
 
 .dark {
+  color-scheme: dark;
+
   /* DARK THEME (Premium Fintech Dark - Neutral Monolithic) */
   --color-bg-base: #121315;
   --color-surface: #181a1d;
@@ -67,15 +75,17 @@
   --color-text-faint: #7b8491;
   --color-text-inverse: #111315;
 
-  --color-brand: #3f6b5f;
-  --color-brand-hover: #33584e;
+  --color-brand: #4ea38f; /* Wyraźna, dostępna zieleń akcentowa (WCAG AA > 5:1 na ciemnym tle) */
+  --color-brand-hover: #5ebb9f;
 
-  --color-brand-subtle: rgba(63, 107, 95, 0.18);
+  --color-brand-subtle: rgba(78, 163, 143, 0.18);
+  --color-success: #34d399; /* emerald-400 dla czytelnego sukcesu w dark mode */
+  --color-success-subtle: rgba(52, 211, 153, 0.16);
   --color-warning: #e8a23a;
   --color-warning-subtle: rgba(232, 162, 58, 0.16);
   --color-danger: #e35b5b;
   --color-danger-subtle: rgba(227, 91, 91, 0.16);
-  --color-focus-ring: rgba(63, 107, 95, 0.38);
+  --color-focus-ring: rgba(78, 163, 143, 0.45);
 }
 
 .glass-panel {
@@ -87,11 +97,11 @@
 }
 
 .dark .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(24, 26, 29, 0.85);
   backdrop-filter: blur(12px) saturate(115%);
   -webkit-backdrop-filter: blur(12px) saturate(115%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 @keyframes fadeIn {

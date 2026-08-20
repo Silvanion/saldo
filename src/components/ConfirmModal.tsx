@@ -59,12 +59,12 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
         <div className="p-6">
           <div className="flex items-start gap-4">
             <div
-              className={`shrink-0 p-2.5 rounded-xl ${
+              className={`shrink-0 p-2.5 rounded-xl border ${
                 isDanger
-                  ? "bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400"
+                  ? "bg-danger-subtle text-danger border-danger/20"
                   : isWarning
-                  ? "bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400"
-                  : "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+                  ? "bg-warning-subtle text-warning border-warning/20"
+                  : "bg-brand-subtle text-brand border-brand/20"
               }`}
             >
               {isDanger && <AlertCircle className="w-6 h-6" />}

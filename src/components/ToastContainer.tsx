@@ -21,22 +21,22 @@ export function ToastContainer() {
             key={toast.id}
             role={isError ? "alert" : "status"}
             className={`
-              flex items-start gap-3 p-4 rounded-xl shadow-lg
+              flex items-start gap-3 p-4 rounded-xl shadow-lg border backdrop-blur-md
               transition-all duration-300 ease-in-out
               motion-reduce:transition-none
               ${
                 isError
-                  ? "bg-red-50 dark:bg-red-900/50 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800"
+                  ? "bg-danger-subtle text-text-main border-danger/30"
                   : isSuccess
-                  ? "bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800"
-                  : "bg-blue-50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800"
+                  ? "bg-success-subtle text-text-main border-success/30"
+                  : "bg-brand-subtle text-text-main border-brand/30"
               }
             `}
           >
             <div className="shrink-0 mt-0.5">
-              {isError && <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400" />}
-              {isSuccess && <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />}
-              {!isError && !isSuccess && <Info className="w-5 h-5 text-blue-500 dark:text-blue-400" />}
+              {isError && <AlertCircle className="w-5 h-5 text-danger" />}
+              {isSuccess && <CheckCircle className="w-5 h-5 text-success" />}
+              {!isError && !isSuccess && <Info className="w-5 h-5 text-brand" />}
             </div>
             
             <div className="flex-1 text-sm font-medium pt-0.5">
@@ -45,17 +45,7 @@ export function ToastContainer() {
 
             <button
               onClick={() => dismissToast(toast.id)}
-              className={`
-                shrink-0 p-1 rounded-md transition-colors
-                focus:outline-none focus:ring-2 focus:ring-offset-2
-                ${
-                  isError
-                    ? "hover:bg-red-100 dark:hover:bg-red-800 focus:ring-red-500"
-                    : isSuccess
-                    ? "hover:bg-green-100 dark:hover:bg-green-800 focus:ring-green-500"
-                    : "hover:bg-blue-100 dark:hover:bg-blue-800 focus:ring-blue-500"
-                }
-              `}
+              className="shrink-0 p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-offset transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
               aria-label="Zamknij powiadomienie"
             >
               <X className="w-4 h-4" />
