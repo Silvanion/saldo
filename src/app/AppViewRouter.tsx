@@ -276,6 +276,7 @@ export function AppViewRouter({
           <AnalysisView
             profile={activeProfile}
             selectedDate={selectedDate}
+            recurringRules={state?.recurringRules || activeProfile?.recurringRules || []}
             showToast={showToast}
           />
         );

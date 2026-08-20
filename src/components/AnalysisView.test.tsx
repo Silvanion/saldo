@@ -120,4 +120,21 @@ describe("AnalysisView (full polish)", () => {
     expect(screen.getByText("Brak widocznych kategorii")).toBeTruthy();
     expect(screen.getByText("Dostosuj filtr widoczności lub dodaj wydatki.")).toBeTruthy();
   });
+
+  it("renders Cashflow Forecast section with horizon tabs and KPI metrics", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Prognoza Cashflow & Płynności")).toBeTruthy();
+    expect(screen.getByText("Najniższy punkt (Cash Dip)")).toBeTruthy();
+    expect(screen.getByText(/Dni ryzyka płynności|Stabilność płynności/)).toBeTruthy();
+    expect(screen.getByText("Trajektoria salda gotówkowego")).toBeTruthy();
+
+    const horizon60Btn = screen.getByRole("tab", { name: "60 dni" });
+    fireEvent.click(horizon60Btn);
+    expect(horizon60Btn.getAttribute("aria-selected")).toBe("true");
+
+    const horizon90Btn = screen.getByRole("tab", { name: "90 dni" });
+    fireEvent.click(horizon90Btn);
+    expect(horizon90Btn.getAttribute("aria-selected")).toBe("true");
+  });
 });

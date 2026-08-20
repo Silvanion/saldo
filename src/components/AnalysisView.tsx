@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Profile } from "../types";
+import { Profile, RecurringRule } from "../types";
 import { getMonthName, expenseCategories, budgetCategories } from "../utils";
 import {
   Settings2,
@@ -28,14 +28,16 @@ import {
   calculateDebtPayoffSimulator
 } from "../services/budgetCalculations";
 import { formatMoney } from "../utils/format";
+import { CashflowForecastSection } from "./analysis/CashflowForecastSection";
 
 interface AnalysisViewProps {
   profile: Profile;
   selectedDate: Date;
+  recurringRules?: RecurringRule[];
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
-export function AnalysisView({ profile, selectedDate, showToast }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -661,6 +663,9 @@ export function AnalysisView({ profile, selectedDate, showToast }: AnalysisViewP
           )}
         </div>
       </div>
+
+      {/* Cashflow Forecast 30/60/90 Days Section */}
+      <CashflowForecastSection profile={profile} recurringRules={recurringRules} />
 
       {/* Analysis body: Monthly Digest (Left) & Category Structure (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
