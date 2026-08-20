@@ -29,6 +29,7 @@ import {
 } from "../services/budgetCalculations";
 import { formatMoney } from "../utils/format";
 import { CashflowForecastSection } from "./analysis/CashflowForecastSection";
+import { FinancialHealthSection } from "./analysis/FinancialHealthSection";
 
 interface AnalysisViewProps {
   profile: Profile;
@@ -263,6 +264,13 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           <span>Eksportuj raport PDF</span>
         </button>
       </div>
+
+      {/* Financial Health Score & Alerts Section */}
+      <FinancialHealthSection
+        profile={profile}
+        recurringRules={recurringRules}
+        selectedDate={selectedDate}
+      />
 
       {/* 50/30/20 Rule Breakdown Section */}
       <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-5" id="breakdown-50-30-20-card">

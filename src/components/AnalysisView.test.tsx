@@ -137,4 +137,33 @@ describe("AnalysisView (full polish)", () => {
     fireEvent.click(horizon90Btn);
     expect(horizon90Btn.getAttribute("aria-selected")).toBe("true");
   });
+
+  it("renders Financial Health Score section with 4 pillars, grade badge, and alerts", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Kondycja finansowa")).toBeTruthy();
+    expect(screen.getByText("Wynik")).toBeTruthy();
+    expect(screen.getByText("na 100 pkt")).toBeTruthy();
+    expect(screen.getByText("Budżet")).toBeTruthy();
+    expect(screen.getByText("Płatności")).toBeTruthy();
+    expect(screen.getByText("Płynność")).toBeTruthy();
+    expect(screen.getByText("Koszty stałe")).toBeTruthy();
+
+    expect(screen.getByText(/Alerty i sygnały decyzyjne/)).toBeTruthy();
+  });
+
+  it("renders low-data advisory when profile has no financial records", () => {
+    const emptyProfile: Profile = {
+      ...mockProfile,
+      transactions: [],
+      payments: [],
+      budgets: {},
+    };
+
+    render(<AnalysisView profile={emptyProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText("Kondycja finansowa")).toBeTruthy();
+    expect(screen.getByText(/Ocena wstępna\./)).toBeTruthy();
+    expect(screen.getByText(/Dodaj płatności, budżety lub historię wydatków/)).toBeTruthy();
+  });
 });
