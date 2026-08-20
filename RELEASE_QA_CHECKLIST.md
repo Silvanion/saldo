@@ -17,7 +17,7 @@ Dodatkowo repo posiada osobną dokumentację bezpieczeństwa i prywatności w `S
 ### 1. Gate przed merge/release
 
 - [ ] Branch release nie ma lokalnych zmian i `git status` jest czysty.
-- [ ] Release jest oparty co najmniej o commit `2059821 fix(a11y): standardize async states dialogs and controls`.
+- [ ] Release jest oparty co najmniej o commit `3732bf7 fix(theme): improve dark mode contrast system tokens and native control integration`.
 - [ ] Nie ma niezamierzonych zmian w `server.ts`, `firestore.rules`, auth flow ani persistence layer.
 - [ ] Jeśli release zawiera zmiany security/privacy, porównano je z zakresem opisanym w `SECURITY_AUTH_PRIVACY.md`.
 
