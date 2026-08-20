@@ -166,4 +166,42 @@ describe("AnalysisView (full polish)", () => {
     expect(screen.getByText(/Ocena wstępna\./)).toBeTruthy();
     expect(screen.getByText(/Dodaj płatności, budżety lub historię wydatków/)).toBeTruthy();
   });
+
+  it("renders Debt Payoff Simulator with KPIs, comparison cards, and snowball queue", () => {
+    const profileWithDebts: Profile = {
+      ...mockProfile,
+      payments: [
+        { id: "pay-1", name: "Rachunek za telefon", amount: 120, dueDate: "2026-08-25", status: "Do opłacenia", currency: "PLN" },
+        { id: "pay-2", name: "Czynsz zaległy", amount: 2400, dueDate: "2026-08-30", status: "Do opłacenia", currency: "PLN" }
+      ],
+      accounts: [
+        { id: "acc-1", name: "Karta Kredytowa", bankName: "Santander", hasCreditLimit: true, creditLimit: 2480 }
+      ]
+    };
+
+    render(<AnalysisView profile={profileWithDebts} selectedDate={testDate} />);
+
+    // Switch to Debt mode
+    const debtBtn = screen.getByRole("button", { name: /Spłata długu/i });
+    fireEvent.click(debtBtn);
+
+    expect(screen.getByText("Plan spłaty zobowiązań")).toBeTruthy();
+    expect(screen.getByText(/Kula śnieżna \(Snowball\)/)).toBeTruthy();
+    expect(screen.getByText("Łączne zobowiązania")).toBeTruthy();
+    expect(screen.getByText("Liczba pozycji")).toBeTruthy();
+    expect(screen.getByText("Szacowany czas")).toBeTruthy();
+    expect(screen.getByText("Oszczędność czasu")).toBeTruthy();
+
+    // Check Snowball Queue items rendered
+    expect(screen.getAllByText("Rachunek za telefon").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Czynsz zaległy").length).toBeGreaterThan(0);
+    expect(screen.getByText("Karta Kredytowa (Limit kredytowy)")).toBeTruthy();
+
+    // Check Extra Payment Buttons and interaction
+    const plus500Btn = screen.getByRole("button", { name: "+500" });
+    fireEvent.click(plus500Btn);
+    expect(plus500Btn.className).toContain("bg-brand");
+  });
 });
+
+

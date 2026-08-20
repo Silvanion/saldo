@@ -586,83 +586,168 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
 
           {/* MODE 2: DEBT PAYOFF SIMULATOR (SNOWBALL & ACCELERATION) */}
           {simulatorMode === "debt" && (
-            <div className="space-y-3">
+            <div className="space-y-4" id="debt-payoff-simulator-section">
               {debtSim.isDebtFree ? (
-                <div className="p-6 bg-brand-subtle/40 border border-brand/20 rounded-xl text-center space-y-1.5 shadow-xs">
+                <div className="p-6 bg-brand-subtle/40 border border-brand/20 rounded-xl text-center space-y-2 shadow-xs" id="debt-simulator-empty-state">
                   <Sparkles className="w-6 h-6 text-brand mx-auto" />
                   <p className="font-bold text-sm text-text-main">Brak aktywnych zobowiązań</p>
-                  <p className="text-xs text-text-muted">Wszystkie rachunki są opłacone i brak wykorzystanych limitów kredytowych.</p>
+                  <p className="text-xs text-text-muted max-w-md mx-auto leading-relaxed">
+                    Wszystkie rachunki są opłacone i brak wykorzystanych limitów kredytowych. Symulator aktywuje się automatycznie, gdy pojawią się nieopłacone płatności lub limity na rachunkach.
+                  </p>
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-baseline">
-                    <div>
-                      <span className="text-[11px] text-text-faint font-medium block">Łączne zadłużenie ({debtSim.debtItemsCount} poz.)</span>
-                      <span className="text-lg font-black text-danger tabular-nums">
+                  {/* Strategy Badge & Headline */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap pb-1">
+                    <span className="text-[10px] font-bold text-text-faint uppercase tracking-wider">
+                      Plan spłaty zobowiązań
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20 uppercase tracking-wider shrink-0">
+                      Strategia: Kula śnieżna (Snowball)
+                    </span>
+                  </div>
+
+                  {/* 4 KPI Cards Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                    <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
+                      <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">
+                        Łączne zobowiązania
+                      </span>
+                      <span className="text-sm sm:text-base font-black text-danger tabular-nums block mt-0.5 truncate" id="kpi-debt-total">
                         {formatMoney(debtSim.totalDebt, profile.currency || "PLN")}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[11px] text-text-faint font-medium block">Dostępna nadwyżka</span>
-                      <span className="text-sm font-bold text-brand tabular-nums">
-                        +{formatMoney(debtSim.monthlyAvailableSurplus, profile.currency || "PLN")}/mc
+
+                    <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
+                      <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">
+                        Liczba pozycji
+                      </span>
+                      <span className="text-sm sm:text-base font-black text-text-main tabular-nums block mt-0.5 truncate" id="kpi-debt-count">
+                        {debtSim.debtItemsCount} {debtSim.debtItemsCount === 1 ? "pozycja" : debtSim.debtItemsCount < 5 ? "pozycje" : "pozycji"}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
+                      <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">
+                        Szacowany czas
+                      </span>
+                      <span className="text-sm sm:text-base font-black text-brand tabular-nums block mt-0.5 truncate" id="kpi-debt-time">
+                        {debtSim.acceleratedMonths} {debtSim.acceleratedMonths === 1 ? "miesiąc" : debtSim.acceleratedMonths! < 5 ? "miesiące" : "miesięcy"}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-surface-2 rounded-xl border border-border shadow-xs">
+                      <span className="text-[10px] sm:text-[11px] text-text-faint font-medium block truncate">
+                        Oszczędność czasu
+                      </span>
+                      <span className="text-sm sm:text-base font-black text-success tabular-nums block mt-0.5 truncate" id="kpi-debt-saved">
+                        {debtSim.monthsSaved > 0 ? `-${debtSim.monthsSaved} mc` : "0 mc"}
                       </span>
                     </div>
                   </div>
 
-                  {/* Extra Payment Selector */}
+                  {/* Extra Payment Control */}
                   <div className="p-3 bg-surface-2 rounded-xl border border-border space-y-2 shadow-xs">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-text-main flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 text-brand" /> Dodatkowa nadpłata:
+                        <Zap className="w-3.5 h-3.5 text-brand" /> Nadpłata miesięczna:
                       </span>
-                      <span className="font-bold text-brand text-xs tabular-nums">+{formatMoney(extraDebtPayment, profile.currency || "PLN")}/mc</span>
+                      <span className="font-bold text-brand text-xs tabular-nums">
+                        +{formatMoney(extraDebtPayment, profile.currency || "PLN")}/mc
+                      </span>
                     </div>
-                    <div className="flex gap-2">
-                      {[100, 300, 500, 1000].map((val) => (
+                    <div className="flex gap-1.5 sm:gap-2">
+                      {[0, 100, 300, 500, 1000].map((val) => (
                         <button
                           key={val}
+                          type="button"
                           onClick={() => setExtraDebtPayment(val)}
-                          className={`flex-1 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shadow-xs tabular-nums ${
+                          className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shadow-xs tabular-nums text-center focus-visible:ring-2 focus-visible:ring-focus-ring ${
                             extraDebtPayment === val
                               ? "bg-brand text-text-inverse border-brand"
-                              : "bg-surface text-text-muted border-border hover:bg-surface-offset"
+                              : "bg-surface text-text-muted border-border hover:bg-surface-offset hover:text-text-main"
                           }`}
+                          id={`btn-extra-payment-${val}`}
                         >
-                          +{val}
+                          {val === 0 ? "Brak" : `+${val}`}
                         </button>
                       ))}
                     </div>
                   </div>
 
+                  {/* Scenario Comparison Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="p-3 bg-surface rounded-xl border border-border shadow-xs space-y-1">
+                      <span className="text-[10px] font-bold text-text-faint uppercase tracking-wider block">
+                        Scenariusz bazowy (Bez nadpłaty)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-sm font-black text-text-main tabular-nums">
+                          {debtSim.baselineMonths} {debtSim.baselineMonths === 1 ? "miesiąc" : debtSim.baselineMonths! < 5 ? "miesiące" : "miesięcy"}
+                        </span>
+                        <span className="text-xs text-text-muted tabular-nums">
+                          {formatMoney(debtSim.baselineMonthlyPayment, profile.currency || "PLN")}/mc
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-brand-subtle/50 rounded-xl border border-brand/30 shadow-xs space-y-1">
+                      <span className="text-[10px] font-bold text-brand uppercase tracking-wider block">
+                        Scenariusz przyspieszony (Z nadpłatą)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-sm font-black text-brand tabular-nums">
+                          {debtSim.acceleratedMonths} {debtSim.acceleratedMonths === 1 ? "miesiąc" : debtSim.acceleratedMonths! < 5 ? "miesiące" : "miesięcy"}
+                        </span>
+                        <span className="text-xs text-brand font-bold tabular-nums">
+                          {formatMoney(debtSim.acceleratedMonthlyPayment, profile.currency || "PLN")}/mc
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Snowball Queue Preview */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <span className="text-[11px] font-bold text-text-faint uppercase tracking-wider block">
                       Kolejność spłaty (Kula Śnieżna — od najmniejszych sald):
                     </span>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {debtSim.snowballQueue.map((item, idx) => (
-                        <span
+                        <div
                           key={idx}
-                          className="text-[11px] px-2 py-0.5 rounded-md bg-surface-2 border border-border text-text-muted font-medium shadow-xs"
+                          className="flex items-center justify-between p-2.5 rounded-xl bg-surface-2 border border-border shadow-xs min-w-0"
                         >
-                          <strong className="text-text-main">{idx + 1}.</strong> {item.name} (<span className="tabular-nums">{formatMoney(item.amount, profile.currency || "PLN")}</span>)
-                        </span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-surface border border-border text-[11px] font-bold text-text-muted flex items-center justify-center shrink-0">
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs font-bold text-text-main truncate" title={item.name}>
+                              {item.name}
+                            </span>
+                          </div>
+                          <span className="text-xs font-black text-danger tabular-nums shrink-0 ml-2">
+                            {formatMoney(item.amount, profile.currency || "PLN")}
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Payoff Acceleration Insight */}
-                  <div className="p-3 rounded-xl border border-brand/20 bg-brand-subtle/50 flex items-start gap-2.5 text-xs shadow-xs">
+                  <div className="p-3.5 rounded-xl border border-brand/20 bg-brand-subtle/50 flex items-start gap-2.5 text-xs shadow-xs">
                     <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                    <div className="leading-relaxed">
+                    <div className="leading-relaxed text-text-main">
                       Plan bazowy: <strong className="tabular-nums">{debtSim.baselineMonths} mc</strong>. 
-                      Z nadpłatą spłacisz całość w <strong className="text-brand tabular-nums">{debtSim.acceleratedMonths} mc</strong>. 
+                      Z wybraną nadpłatą spłacisz całość w <strong className="text-brand tabular-nums">{debtSim.acceleratedMonths} mc</strong>. 
                       {debtSim.monthsSaved > 0 ? (
-                        <span className="block font-bold text-brand mt-0.5">
+                        <span className="block font-bold text-brand mt-1">
                           ⚡ Zyskujesz <span className="tabular-nums">{debtSim.monthsSaved}</span> {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!
                         </span>
-                      ) : null}
+                      ) : (
+                        <span className="block text-text-muted mt-0.5">
+                          Zwiększ nadpłatę, aby zobaczyć skrócenie czasu spłaty.
+                        </span>
+                      )}
                     </div>
                   </div>
                 </>
