@@ -865,6 +865,29 @@ describe("debtCalculations", () => {
         // Custom targets cheap-small
         expect(result.custom?.payoffQueue[0].debtId).toBe("cheap-small");
       });
+
+      it("Sprint 14: calculates one-time overpayment what-if simulation shortening payoff duration and reducing interest", () => {
+        const debtList: DebtItem[] = [
+          {
+            id: "d1",
+            name: "Kredyt gotówkowy",
+            institution: "Bank A",
+            type: "cash_loan",
+            currency: "PLN",
+            balance: 20000,
+            monthlyPayment: 500,
+            interestRate: 10.0,
+            status: "active",
+            createdAt: "2026-01-01"
+          }
+        ];
+
+        const base = calculatePortfolioPayoffStrategies(debtList, 0, undefined, undefined, 0);
+        const withLumpSum = calculatePortfolioPayoffStrategies(debtList, 0, undefined, undefined, 5000);
+
+        expect(withLumpSum.avalanche.totalMonths).toBeLessThan(base.avalanche.totalMonths);
+        expect(withLumpSum.avalanche.totalInterestPaid).toBeLessThan(base.avalanche.totalInterestPaid);
+      });
     });
   });
 });

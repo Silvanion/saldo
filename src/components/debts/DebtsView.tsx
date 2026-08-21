@@ -171,6 +171,11 @@ export function DebtsView({
   const [selectedPayoffStrategy, setSelectedPayoffStrategy] = useState<DebtPayoffStrategyType>("avalanche");
   const [customDebtOrder, setCustomDebtOrder] = useState<string[]>([]);
 
+  // Sprint 14: What-If simulation parameters (Transient local state)
+  const [oneTimeOverpayment, setOneTimeOverpayment] = useState<number>(0);
+  const [previewStrategy, setPreviewStrategy] = useState<DebtPayoffStrategyType | null>(null);
+  const [isWhatIfExpanded, setIsWhatIfExpanded] = useState<boolean>(false);
+
   const activeDebts = useMemo(() => {
     return debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
   }, [debts]);
@@ -243,6 +248,8 @@ export function DebtsView({
   const handleLoadScenario = (scenario: DebtPayoffScenario) => {
     setSelectedPayoffStrategy(scenario.strategy);
     setExtraMonthlyPayoff(scenario.extraMonthlyPayment);
+    setOneTimeOverpayment(0);
+    setPreviewStrategy(null);
     setCustomDebtOrder(
       scenario.strategy === "custom" && scenario.customDebtOrder?.length
         ? scenario.customDebtOrder
@@ -307,7 +314,23 @@ export function DebtsView({
   };
 
   const payoffComparison = useMemo(() => {
-    return calculatePortfolioPayoffStrategies(debts, extraMonthlyPayoff, undefined, validatedCustomOrder);
+    return calculatePortfolioPayoffStrategies(
+      debts,
+      extraMonthlyPayoff,
+      undefined,
+      validatedCustomOrder,
+      oneTimeOverpayment
+    );
+  }, [debts, extraMonthlyPayoff, validatedCustomOrder, oneTimeOverpayment]);
+
+  const basePayoffComparison = useMemo(() => {
+    return calculatePortfolioPayoffStrategies(
+      debts,
+      extraMonthlyPayoff,
+      undefined,
+      validatedCustomOrder,
+      0
+    );
   }, [debts, extraMonthlyPayoff, validatedCustomOrder]);
 
   // Filter and sort debts
@@ -1017,6 +1040,199 @@ export function DebtsView({
                       ))}
                     </div>
                   </div>
+                </div>
+
+                {/* SPRINT 14: WHAT-IF PLANNING PANEL */}
+                <div className="pt-3 border-t border-border/60 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      id="btn-toggle-what-if"
+                      onClick={() => setIsWhatIfExpanded(!isWhatIfExpanded)}
+                      aria-expanded={isWhatIfExpanded}
+                      aria-controls="what-if-planning-panel"
+                      className="flex items-center gap-2 text-xs font-bold text-text-main hover:text-brand transition cursor-pointer"
+                    >
+                      <Sparkles className="w-4 h-4 text-brand" />
+                      <span>Symulacja wariantowa (What-If)</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
+                        {oneTimeOverpayment > 0 || previewStrategy ? "Aktywna symulacja" : "Opcjonalnie"}
+                      </span>
+                    </button>
+
+                    {(oneTimeOverpayment > 0 || previewStrategy) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOneTimeOverpayment(0);
+                          setPreviewStrategy(null);
+                        }}
+                        className="text-xs font-bold text-text-muted hover:text-danger transition cursor-pointer"
+                        aria-label="Zresetuj parametry symulacji What-If"
+                      >
+                        Zresetuj symulację
+                      </button>
+                    )}
+                  </div>
+
+                  {isWhatIfExpanded && (
+                    <div
+                      id="what-if-planning-panel"
+                      className="p-4 bg-surface-2/50 rounded-xl border border-border space-y-3.5 animate-fade-in text-xs"
+                    >
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* 1. One-time overpayment input */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label
+                              htmlFor="one-time-overpayment-input"
+                              className="font-bold text-text-faint uppercase text-[10px] tracking-wider"
+                            >
+                              Jednorazowa nadpłata
+                            </label>
+                            {oneTimeOverpayment > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setOneTimeOverpayment(0)}
+                                className="text-[11px] font-bold text-text-muted hover:text-brand transition cursor-pointer"
+                                aria-label="Wyzeruj jednorazową nadpłatę"
+                              >
+                                Wyzeruj (0 zł)
+                              </button>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <input
+                              id="one-time-overpayment-input"
+                              type="number"
+                              min="0"
+                              step="500"
+                              value={oneTimeOverpayment === 0 ? "" : oneTimeOverpayment}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setOneTimeOverpayment(isNaN(val) || val < 0 ? 0 : val);
+                              }}
+                              className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                              placeholder="0"
+                            />
+                            <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
+                              {currency}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-text-faint mt-1">
+                            Symulowany jednorazowy zastrzyk gotówki w 1. miesiącu planu.
+                          </p>
+                        </div>
+
+                        {/* 2. Strategy What-If Switch */}
+                        <div>
+                          <span className="font-bold text-text-faint uppercase text-[10px] tracking-wider block mb-1.5">
+                            Podgląd alternatywnej strategii
+                          </span>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                              { id: "avalanche" as const, label: "Lawina" },
+                              { id: "snowball" as const, label: "Kula Śnieżna" },
+                              { id: "custom" as const, label: "Własna" },
+                              { id: "baseline" as const, label: "Status Quo" }
+                            ].map((st) => {
+                              const isCurrentMain = selectedPayoffStrategy === st.id;
+                              const isPreviewActive = previewStrategy === st.id;
+
+                              return (
+                                <button
+                                  key={st.id}
+                                  type="button"
+                                  onClick={() => {
+                                    if (isPreviewActive) {
+                                      setPreviewStrategy(null);
+                                    } else {
+                                      setPreviewStrategy(st.id);
+                                    }
+                                  }}
+                                  className={`px-2.5 py-1.5 rounded-lg font-bold text-xs border transition cursor-pointer text-center ${
+                                    isPreviewActive
+                                      ? "bg-brand text-text-inverse border-brand shadow-xs"
+                                      : isCurrentMain
+                                      ? "bg-surface border-brand/50 text-brand ring-1 ring-brand/30"
+                                      : "bg-surface text-text-muted hover:text-text-main border-border"
+                                  }`}
+                                >
+                                  {st.label} {isCurrentMain && !isPreviewActive ? "(Bieżąca)" : ""}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[10px] text-text-faint mt-1">
+                            Kliknij, aby tymczasowo podejrzeć wynik innej metody.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 3. Action-oriented What-if Result Summary */}
+                      {(oneTimeOverpayment > 0 || previewStrategy) && (
+                        <div className="p-3 bg-surface rounded-xl border border-brand/30 space-y-1.5 animate-fade-in" id="what-if-result-summary-box">
+                          <div className="flex items-center gap-1.5 font-bold text-text-main text-xs">
+                            <Info className="w-3.5 h-3.5 text-brand" />
+                            <span>Wpływ symulacji na plan spłaty:</span>
+                          </div>
+                          <ul className="space-y-1 pl-5 list-disc text-text-muted text-[11px] leading-relaxed">
+                            {(() => {
+                              const activeBaseRes =
+                                selectedPayoffStrategy === "avalanche"
+                                  ? basePayoffComparison.avalanche
+                                  : selectedPayoffStrategy === "snowball"
+                                  ? basePayoffComparison.snowball
+                                  : selectedPayoffStrategy === "custom"
+                                  ? basePayoffComparison.custom
+                                  : basePayoffComparison.baseline;
+
+                              const currentSimRes =
+                                (previewStrategy || selectedPayoffStrategy) === "avalanche"
+                                  ? payoffComparison.avalanche
+                                  : (previewStrategy || selectedPayoffStrategy) === "snowball"
+                                  ? payoffComparison.snowball
+                                  : (previewStrategy || selectedPayoffStrategy) === "custom"
+                                  ? payoffComparison.custom
+                                  : payoffComparison.baseline;
+
+                              const durDiff = activeBaseRes.totalMonths - currentSimRes.totalMonths;
+                              const intDiff = activeBaseRes.totalInterestPaid - currentSimRes.totalInterestPaid;
+
+                              return (
+                                <>
+                                  <li>
+                                    {durDiff > 0
+                                      ? `Wariant symulacyjny skraca orientacyjny czas spłaty o ${durDiff} ${
+                                          durDiff === 1 ? "miesiąc" : durDiff < 5 ? "miesiące" : "miesięcy"
+                                        }.`
+                                      : durDiff < 0
+                                      ? `Wariant symulacyjny wydłuża orientacyjny czas spłaty o ${Math.abs(durDiff)} ${
+                                          Math.abs(durDiff) === 1 ? "miesiąc" : Math.abs(durDiff) < 5 ? "miesiące" : "miesięcy"
+                                        }.`
+                                      : "Termin spłaty pozostaje orientacyjnie taki sam."}
+                                  </li>
+                                  {intDiff !== 0 && (
+                                    <li>
+                                      {intDiff > 0
+                                        ? `Szacowany koszt odsetek jest niższy o około ${formatMoney(intDiff, currency)}.`
+                                        : `Szacowany koszt odsetek jest wyższy o około ${formatMoney(Math.abs(intDiff), currency)}.`}
+                                    </li>
+                                  )}
+                                  <li>
+                                    Szacowany termin spłaty: <strong className="text-text-main font-bold">{currentSimRes.debtFreeDate}</strong>.
+                                  </li>
+                                </>
+                              );
+                            })()}
+                          </ul>
+                          <p className="text-[10px] text-text-faint pt-1 border-t border-border/40">
+                            Szacunek na podstawie podanych danych. Parametr tymczasowej symulacji — nie modyfikuje zapisanych scenariuszy.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Saved Scenarios Sub-section */}

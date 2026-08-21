@@ -1030,7 +1030,8 @@ function simulateSinglePayoffStrategy(
   strategy: DebtPayoffStrategyType,
   extraPayment: number,
   startDateStr?: string,
-  customPayoffOrder?: string[]
+  customPayoffOrder?: string[],
+  oneTimeOverpayment: number = 0
 ): DebtPayoffStrategyResult {
   const strategyInfo = {
     avalanche: {
@@ -1123,8 +1124,36 @@ function simulateSinglePayoffStrategy(
       break;
     }
 
+    // 0. In month 1: Apply one-time overpayment if provided
+    if (currentMonth === 1 && oneTimeOverpayment > 0 && strategy !== "baseline") {
+      let lumpSum = oneTimeOverpayment;
+      const targetDebts = [...simDebts].filter((d) => d.balance > 0.01);
+      if (strategy === "avalanche") {
+        targetDebts.sort((a, b) => (b.rate !== a.rate ? b.rate - a.rate : a.balance - b.balance));
+      } else if (strategy === "snowball") {
+        targetDebts.sort((a, b) => (a.balance !== b.balance ? a.balance - b.balance : b.rate - a.rate));
+      } else if (strategy === "custom") {
+        targetDebts.sort((a, b) => {
+          const idxA = customOrderMap.get(a.id) ?? 9999;
+          const idxB = customOrderMap.get(b.id) ?? 9999;
+          return idxA - idxB;
+        });
+      }
+      for (const target of targetDebts) {
+        if (lumpSum <= 0.01) break;
+        const toPay = Math.min(target.balance, lumpSum);
+        target.balance -= toPay;
+        lumpSum -= toPay;
+        if (target.balance <= 0.01 && target.payoffMonth === null) {
+          target.balance = 0;
+          target.payoffMonth = 1;
+        }
+      }
+    }
+
     // 1. Accrue interest for this month
     for (const d of remainingDebts) {
+      if (d.balance <= 0.01) continue;
       const monthInterest = d.balance * d.monthlyRate;
       d.totalInterest += monthInterest;
       d.balance += monthInterest;
@@ -1133,6 +1162,7 @@ function simulateSinglePayoffStrategy(
     // 2. Pay minimum payments
     let basePaidThisMonth = 0;
     for (const d of remainingDebts) {
+      if (d.balance <= 0.01) continue;
       const payment = Math.min(d.balance, d.minPayment);
       d.balance -= payment;
       basePaidThisMonth += payment;
@@ -1220,32 +1250,34 @@ function simulateSinglePayoffStrategy(
 }
 
 /**
- * Main Pure Calculation Engine for Debt Payoff Strategies (Sprint 4 & 5)
+ * Main Pure Calculation Engine for Debt Payoff Strategies (Sprint 4, 5 & 14)
  */
 export function calculatePortfolioPayoffStrategies(
   debts: DebtItem[] = [],
   extraMonthlyPayment: number = 0,
   startDateStr?: string,
-  customPayoffOrder?: string[]
+  customPayoffOrder?: string[],
+  oneTimeOverpayment: number = 0
 ): PortfolioPayoffComparison {
   const activeDebts = debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
   const extraPayment = Math.max(0, Number(extraMonthlyPayment) || 0);
+  const oneTime = Math.max(0, Number(oneTimeOverpayment) || 0);
 
   // 1. Simulate Baseline (Status Quo)
-  const baseline = simulateSinglePayoffStrategy(activeDebts, "baseline", 0, startDateStr);
+  const baseline = simulateSinglePayoffStrategy(activeDebts, "baseline", 0, startDateStr, undefined, 0);
 
   // 2. Simulate Avalanche (Highest APR First)
-  const avalanche = simulateSinglePayoffStrategy(activeDebts, "avalanche", extraPayment, startDateStr);
+  const avalanche = simulateSinglePayoffStrategy(activeDebts, "avalanche", extraPayment, startDateStr, undefined, oneTime);
   avalanche.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - avalanche.totalInterestPaid);
   avalanche.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - avalanche.totalMonths);
 
   // 3. Simulate Snowball (Smallest Balance First)
-  const snowball = simulateSinglePayoffStrategy(activeDebts, "snowball", extraPayment, startDateStr);
+  const snowball = simulateSinglePayoffStrategy(activeDebts, "snowball", extraPayment, startDateStr, undefined, oneTime);
   snowball.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - snowball.totalInterestPaid);
   snowball.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - snowball.totalMonths);
 
   // 4. Simulate Custom (Custom Payoff Order)
-  const custom = simulateSinglePayoffStrategy(activeDebts, "custom", extraPayment, startDateStr, customPayoffOrder);
+  const custom = simulateSinglePayoffStrategy(activeDebts, "custom", extraPayment, startDateStr, customPayoffOrder, oneTime);
   custom.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - custom.totalInterestPaid);
   custom.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - custom.totalMonths);
 

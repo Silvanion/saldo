@@ -964,4 +964,84 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Podsumowanie różnic między scenariuszami")).toBeTruthy();
     expect(screen.getByText(/prowadzi do spłaty orientacyjnie/i)).toBeTruthy();
   });
+
+  it("Sprint 14: handles one-time overpayment what-if simulation with safe input, reset, and result summary", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Expand What-If panel
+    const toggleWhatIfBtn = screen.getByRole("button", { name: /Symulacja wariantowa \(What-If\)/i });
+    expect(toggleWhatIfBtn.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggleWhatIfBtn);
+    expect(toggleWhatIfBtn.getAttribute("aria-expanded")).toBe("true");
+
+    const oneTimeInput = screen.getByLabelText(/Jednorazowa nadpłata/i);
+    expect(oneTimeInput).toBeTruthy();
+
+    // Type 10000 one-time overpayment
+    fireEvent.change(oneTimeInput, { target: { value: "10000" } });
+    expect((oneTimeInput as HTMLInputElement).value).toBe("10000");
+
+    // Result summary appears
+    expect(screen.getByText("Wpływ symulacji na plan spłaty:")).toBeTruthy();
+    expect(screen.getByText(/Wariant symulacyjny skraca orientacyjny czas spłaty o/i)).toBeTruthy();
+    expect(screen.getByText(/Szacowany koszt odsetek jest niższy o około/i)).toBeTruthy();
+
+    // Reset one-time overpayment
+    const resetOneTimeBtn = screen.getByRole("button", { name: /Wyzeruj jednorazową nadpłatę/i });
+    fireEvent.click(resetOneTimeBtn);
+    expect((oneTimeInput as HTMLInputElement).value).toBe("");
+
+    // Safe handling of negative values
+    fireEvent.change(oneTimeInput, { target: { value: "-5000" } });
+    expect((oneTimeInput as HTMLInputElement).value).toBe("");
+  });
+
+  it("Sprint 14: supports strategy what-if preview and maintains save safety without mutating saved scenarios", () => {
+    const onSavePayoffScenario = vi.fn();
+    const profileWithScenario: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-saved-1",
+          name: "Plan Lawina 500",
+          strategy: "avalanche",
+          extraMonthlyPayment: 500,
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    render(
+      <DebtsView
+        profile={profileWithScenario}
+        onSavePayoffScenario={onSavePayoffScenario}
+      />
+    );
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Expand What-If panel
+    const toggleWhatIfBtn = screen.getByRole("button", { name: /Symulacja wariantowa \(What-If\)/i });
+    fireEvent.click(toggleWhatIfBtn);
+
+    // Click preview strategy 'Status Quo'
+    const previewStatusQuoBtn = screen.getByRole("button", { name: "Status Quo" });
+    fireEvent.click(previewStatusQuoBtn);
+
+    // Result summary box renders comparison against baseline
+    expect(screen.getByText("Wpływ symulacji na plan spłaty:")).toBeTruthy();
+
+    // Main strategy selection remains intact
+    const loadSavedBtn = screen.getByRole("button", { name: /Wczytaj scenariusz Plan Lawina 500/i });
+    fireEvent.click(loadSavedBtn);
+
+    // Temporary what-if parameters reset upon explicit scenario load
+    expect(screen.queryByText("Aktywna symulacja")).toBeNull();
+  });
 });
