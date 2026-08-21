@@ -126,9 +126,9 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Kredyty i Hipoteka")).toBeTruthy();
 
     // Real computed total balance: 350000 + 8000 = 358000
-    expect(screen.getByText(/358\s*000/)).toBeTruthy();
+    expect(screen.getAllByText(/358\s*000/).length).toBeGreaterThanOrEqual(1);
     // Monthly payment: 2600 + 400 = 3000
-    expect(screen.getByText(/3\s*000/)).toBeTruthy();
+    expect(screen.getAllByText(/3\s*000/).length).toBeGreaterThanOrEqual(1);
     // Highest APR debt
     expect(screen.getAllByText("Karta Visa").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("APR 18.5%")).toBeTruthy();
@@ -255,9 +255,9 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(strategyTopBtn);
 
     expect(screen.getByText("Symulator strategii spłaty całego portfela")).toBeTruthy();
-    expect(screen.getByText("Metoda Lawiny (Avalanche)")).toBeTruthy();
-    expect(screen.getByText("Metoda Kuli Śnieżnej (Snowball)")).toBeTruthy();
-    expect(screen.getByText("Status Quo (Tylko raty)")).toBeTruthy();
+    expect(screen.getAllByText("Metoda Lawiny (Avalanche)")[0]).toBeTruthy();
+    expect(screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)")[0]).toBeTruthy();
+    expect(screen.getAllByText("Status Quo (Tylko raty)")[0]).toBeTruthy();
 
     // Click preset +1 000 zł
     const preset1000Btn = screen.getByRole("button", { name: /\+1\s*000/i });
@@ -267,7 +267,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText(/Kolejność likwidacji kredytów/i)).toBeTruthy();
 
     // Click Snowball strategy card
-    const snowballCard = screen.getByText("Metoda Kuli Śnieżnej (Snowball)");
+    const snowballCard = screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)")[0];
     fireEvent.click(snowballCard);
 
     expect(screen.getByText(/Plan i kolejność spłaty: Metoda Kuli Śnieżnej/i)).toBeTruthy();
@@ -864,5 +864,104 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     const deleteBtn = screen.getByRole("button", { name: /Usuń scenariusz Plan Kula Bazowy/i });
     fireEvent.click(deleteBtn);
     expect(onDeletePayoffScenario).toHaveBeenCalledWith("sc-base");
+  });
+
+  it("Sprint 13: renders Payoff Progress Summary block with balance, percentage, and counts", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Progress block presence
+    expect(screen.getByText("Postęp spłaty portfela zadłużenia")).toBeTruthy();
+    expect(screen.getByText("Saldo początkowe:")).toBeTruthy();
+    expect(screen.getByText("Aktualne saldo:")).toBeTruthy();
+    expect(screen.getByText("Czynne umowy:")).toBeTruthy();
+    expect(screen.getByText("Spłacone umowy:")).toBeTruthy();
+    expect(screen.getByRole("progressbar")).toBeTruthy();
+  });
+
+  it("Sprint 13: handles flexible extra monthly payment with custom input, reset, and safe validation", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    const extraInput = screen.getByLabelText(/Dodatkowy budżet na nadpłatę/i);
+    expect(extraInput).toBeTruthy();
+
+    // Type custom overpayment amount: 750
+    fireEvent.change(extraInput, { target: { value: "750" } });
+    expect((extraInput as HTMLInputElement).value).toBe("750");
+
+    // Reset button appears
+    const resetBtn = screen.getByRole("button", { name: /Wyzeruj \(0 zł\)/i });
+    expect(resetBtn).toBeTruthy();
+    fireEvent.click(resetBtn);
+    expect((extraInput as HTMLInputElement).value).toBe("");
+
+    // Safe handling of negative or invalid values
+    fireEvent.change(extraInput, { target: { value: "-300" } });
+    expect((extraInput as HTMLInputElement).value).toBe("");
+  });
+
+  it("Sprint 13: displays Debt-Free Milestone card with conservative wording and estimates", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Milestone card
+    expect(screen.getByText("Kamień milowy spłaty zadłużenia")).toBeTruthy();
+    expect(screen.getByText("Szacowany termin spłaty:")).toBeTruthy();
+    expect(screen.getByText("Orientacyjny czas do końca:")).toBeTruthy();
+    expect(screen.getByText("Szacowany koszt odsetek:")).toBeTruthy();
+    expect(screen.getByText("Różnica względem wariantu bazowego:")).toBeTruthy();
+  });
+
+  it("Sprint 13: displays quick summary estimates on saved scenario cards and comparison decision summary", () => {
+    const profileWithScenarios: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-1",
+          name: "Wariant Lawina 500",
+          strategy: "avalanche",
+          extraMonthlyPayment: 500,
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "sc-2",
+          name: "Wariant Kula 200",
+          strategy: "snowball",
+          extraMonthlyPayment: 200,
+          createdAt: "2026-01-02"
+        }
+      ]
+    };
+
+    render(<DebtsView profile={profileWithScenarios} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Quick scenario summary text
+    expect(screen.getByText("Wariant Lawina 500")).toBeTruthy();
+    expect(screen.getByText("Wariant Kula 200")).toBeTruthy();
+    expect(screen.getAllByText(/Termin:/i).length).toBeGreaterThanOrEqual(2);
+
+    // Select both scenarios to compare
+    const check1 = screen.getByRole("checkbox", { name: /Wybierz scenariusz Wariant Lawina 500 do porównania/i });
+    const check2 = screen.getByRole("checkbox", { name: /Wybierz scenariusz Wariant Kula 200 do porównania/i });
+    fireEvent.click(check1);
+    fireEvent.click(check2);
+
+    // Open comparison modal
+    const compareTrigger = screen.getByRole("button", { name: /Porównaj scenariusze \(wybrano 2 z 2\)/i });
+    fireEvent.click(compareTrigger);
+
+    // Decision summary box in comparison modal
+    expect(screen.getByText("Podsumowanie różnic między scenariuszami")).toBeTruthy();
+    expect(screen.getByText(/prowadzi do spłaty orientacyjnie/i)).toBeTruthy();
   });
 });

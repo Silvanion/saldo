@@ -146,6 +146,26 @@ export function DebtsView({
     return calculateDebtPortfolioAnalytics(debts);
   }, [debts]);
 
+  // Sprint 13: Calculate portfolio payoff progress
+  const portfolioProgress = useMemo(() => {
+    let totalOriginal = 0;
+    let totalCurrent = 0;
+    debts.forEach((d) => {
+      const orig = Number(d.originalAmount) || Number(d.creditLimit) || Number(d.balance) || 0;
+      totalOriginal += orig;
+      totalCurrent += Number(d.balance) || 0;
+    });
+    const paidPct =
+      totalOriginal > 0
+        ? Math.max(0, Math.min(100, ((totalOriginal - totalCurrent) / totalOriginal) * 100))
+        : 0;
+    return {
+      totalOriginal,
+      totalCurrent,
+      paidPct
+    };
+  }, [debts]);
+
   // Sprint 4 & 5: Portfolio Payoff Strategy Simulator (including Custom Order)
   const [extraMonthlyPayoff, setExtraMonthlyPayoff] = useState<number>(500);
   const [selectedPayoffStrategy, setSelectedPayoffStrategy] = useState<DebtPayoffStrategyType>("avalanche");
@@ -552,6 +572,65 @@ export function DebtsView({
         </div>
       </div>
 
+      {/* 2AA. SPRINT 13: PAYOFF PROGRESS SUMMARY */}
+      {debts.length > 0 && portfolioProgress.totalOriginal > 0 && (
+        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3" id="debt-payoff-progress-block">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <div className="flex items-center gap-2">
+              <TrendingDown className="w-4 h-4 text-brand" />
+              <h3 className="text-sm font-bold text-text-main">
+                Postęp spłaty portfela zadłużenia
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-text-muted">
+              <span>Spłacono:</span>
+              <span className="text-brand font-black text-sm tabular-nums">
+                {portfolioProgress.paidPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full h-2.5 bg-surface-2 rounded-full overflow-hidden border border-border/50">
+            <div
+              className="h-full bg-brand transition-all duration-500 rounded-full"
+              style={{ width: `${Math.min(100, Math.max(0, portfolioProgress.paidPct))}%` }}
+              role="progressbar"
+              aria-valuenow={Math.round(portfolioProgress.paidPct)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Procent spłaconego zadłużenia"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs text-text-muted">
+            <div>
+              <span className="text-text-faint text-[11px] block">Saldo początkowe:</span>
+              <strong className="text-text-main font-bold tabular-nums">
+                {formatMoney(portfolioProgress.totalOriginal, currency)}
+              </strong>
+            </div>
+            <div>
+              <span className="text-text-faint text-[11px] block">Aktualne saldo:</span>
+              <strong className="text-brand font-bold tabular-nums">
+                {formatMoney(portfolioProgress.totalCurrent, currency)}
+              </strong>
+            </div>
+            <div>
+              <span className="text-text-faint text-[11px] block">Czynne umowy:</span>
+              <strong className="text-text-main font-bold">
+                {kpiData.activeCount}
+              </strong>
+            </div>
+            <div>
+              <span className="text-text-faint text-[11px] block">Spłacone umowy:</span>
+              <strong className="text-success font-bold">
+                {kpiData.closedCount}
+              </strong>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 2B. SPRINT 2: COMPACT DEEP ANALYTICS & INSIGHT SIGNALS */}
       {debts.length > 0 && (
         <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
@@ -886,19 +965,34 @@ export function DebtsView({
                 </div>
 
                 <div className="pt-2 border-t border-border/60">
-                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-2">
-                    Dodatkowy budżet na nadpłatę (ponad minimalne raty)
-                  </label>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <label htmlFor="extra-monthly-payoff-input" className="block text-xs font-bold text-text-faint uppercase tracking-wider">
+                      Dodatkowy budżet na nadpłatę (ponad minimalne raty)
+                    </label>
+                    {extraMonthlyPayoff > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setExtraMonthlyPayoff(0)}
+                        className="text-xs font-bold text-text-muted hover:text-brand transition cursor-pointer"
+                      >
+                        Wyzeruj (0 zł)
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="relative w-40">
                       <input
+                        id="extra-monthly-payoff-input"
                         type="number"
                         min="0"
                         step="50"
-                        value={extraMonthlyPayoff}
-                        onChange={(e) => setExtraMonthlyPayoff(Math.max(0, parseFloat(e.target.value) || 0))}
+                        value={extraMonthlyPayoff === 0 ? "" : extraMonthlyPayoff}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          setExtraMonthlyPayoff(isNaN(val) || val < 0 ? 0 : val);
+                        }}
                         className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
-                        placeholder="500"
+                        placeholder="0"
                       />
                       <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
                         {currency}
@@ -981,23 +1075,42 @@ export function DebtsView({
                             ? "Własna kolejność"
                             : "Status Quo";
 
+                        const scOrder =
+                          sc.strategy === "custom"
+                            ? buildValidatedCustomOrder(activeDebts, sc.customDebtOrder)
+                            : undefined;
+                        const scSim = calculatePortfolioPayoffStrategies(
+                          activeDebts,
+                          sc.extraMonthlyPayment || 0,
+                          undefined,
+                          scOrder
+                        );
+                        const scRes =
+                          sc.strategy === "avalanche"
+                            ? scSim.avalanche
+                            : sc.strategy === "snowball"
+                            ? scSim.snowball
+                            : sc.strategy === "custom"
+                            ? scSim.custom
+                            : scSim.baseline;
+
                         return (
                           <div
                             key={sc.id}
-                            className={`p-3 rounded-xl border flex items-center justify-between gap-2.5 transition shadow-2xs ${
+                            className={`p-3 rounded-xl border flex flex-col justify-between gap-2.5 transition shadow-2xs ${
                               isSelected
                                 ? "bg-brand-subtle/20 border-brand ring-1 ring-brand/30"
                                 : "bg-surface border-border hover:border-brand/30"
                             }`}
                           >
-                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className="flex items-start gap-2.5 min-w-0 flex-1">
                               <input
                                 type="checkbox"
                                 checked={isSelected}
                                 disabled={!isSelected && validSelectedScenarioIds.length >= 2}
                                 onChange={() => handleToggleSelectScenario(sc.id)}
                                 aria-label={`Wybierz scenariusz ${sc.name} do porównania`}
-                                className="w-4 h-4 rounded border-border text-brand focus:ring-brand accent-brand cursor-pointer shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="w-4 h-4 rounded border-border text-brand focus:ring-brand accent-brand cursor-pointer shrink-0 disabled:opacity-30 disabled:cursor-not-allowed mt-0.5"
                                 title={
                                   !isSelected && validSelectedScenarioIds.length >= 2
                                     ? "Możesz wybrać maksymalnie 2 scenariusze"
@@ -1014,18 +1127,27 @@ export function DebtsView({
                                     {strategyLabel}
                                   </span>
                                 </div>
-                                <div className="text-[11px] text-text-muted">
-                                  Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
+                                <div className="text-[11px] text-text-muted space-y-0.5">
+                                  <div>
+                                    Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
+                                  </div>
+                                  {scRes && (
+                                    <div className="flex items-center gap-2 text-[10px] text-text-faint pt-0.5">
+                                      <span>Termin: <strong className="text-text-main font-semibold">{scRes.debtFreeDate}</strong></span>
+                                      <span>•</span>
+                                      <span>Odsetki: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(scRes.totalInterestPaid, currency)}</strong></span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className="flex items-center justify-end gap-1 shrink-0 pt-2 border-t border-border/40">
                               <button
                                 type="button"
                                 onClick={() => handleLoadScenario(sc)}
                                 aria-label={`Wczytaj scenariusz ${sc.name}`}
-                                className="px-2.5 py-1.5 rounded-lg bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-[11px] font-bold border border-border hover:border-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                className="px-2.5 py-1 rounded-lg bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-[11px] font-bold border border-border hover:border-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                               >
                                 Wczytaj
                               </button>
@@ -1270,6 +1392,84 @@ export function DebtsView({
                   </div>
                 </div>
               </div>
+
+              {/* SPRINT 13: DEBT-FREE MILESTONE CARD */}
+              {selectedPayoffStrategy && (
+                (() => {
+                  const currentRes =
+                    selectedPayoffStrategy === "avalanche"
+                      ? payoffComparison.avalanche
+                      : selectedPayoffStrategy === "snowball"
+                      ? payoffComparison.snowball
+                      : selectedPayoffStrategy === "custom"
+                      ? payoffComparison.custom
+                      : payoffComparison.baseline;
+
+                  return (
+                    <div className="bg-surface-2/60 border border-brand/30 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3 animate-fade-in" id="debt-free-milestone-card">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
+                            <Calendar className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-text-main">
+                              Kamień milowy spłaty zadłużenia
+                            </h4>
+                            <p className="text-[11px] text-text-muted">
+                              Szacunek dla wybranej metody:{" "}
+                              <strong className="text-text-main">{currentRes.strategyLabel}</strong>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-left sm:text-right">
+                          <span className="text-[11px] text-text-faint block">Szacowany termin spłaty:</span>
+                          <span className="text-sm sm:text-base font-black text-brand tabular-nums">
+                            {currentRes.debtFreeDate}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
+                          <span className="text-[11px] text-text-faint block">Orientacyjny czas do końca:</span>
+                          <strong className="text-sm font-bold text-text-main tabular-nums">
+                            {currentRes.totalMonths} mies.
+                            {currentRes.totalMonths > 0 && (
+                              <span className="text-xs font-normal text-text-muted ml-1">
+                                (~{Math.round((currentRes.totalMonths / 12) * 10) / 10} lat)
+                              </span>
+                            )}
+                          </strong>
+                        </div>
+
+                        <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
+                          <span className="text-[11px] text-text-faint block">Szacowany koszt odsetek:</span>
+                          <strong className="text-sm font-bold text-text-main tabular-nums">
+                            {formatMoney(currentRes.totalInterestPaid, currency)}
+                          </strong>
+                        </div>
+
+                        <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
+                          <span className="text-[11px] text-text-faint block">Różnica względem wariantu bazowego:</span>
+                          {currentRes.interestSavedVsBaseline > 0 ? (
+                            <strong className="text-sm font-bold text-brand tabular-nums">
+                              +{formatMoney(currentRes.interestSavedVsBaseline, currency)} oszczędności
+                            </strong>
+                          ) : (
+                            <span className="text-xs text-text-muted font-medium">Wariant bazowy (Status Quo)</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-[10px] text-text-muted leading-relaxed">
+                        Na podstawie podanych danych. Wynik jest orientacyjną symulacją matematyczną i zakłada terminowe opłacanie minimalnych rat oraz stałą miesięczną nadpłatę.
+                      </p>
+                    </div>
+                  );
+                })()
+              )}
 
               {/* Sprint 8: Payoff Strategies Knowledge Center (Explainer Hub) */}
               <PayoffStrategiesKnowledgeCenter />

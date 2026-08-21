@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { DebtItem, DebtPayoffScenario, SupportedCurrency } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { X, GitCompare, ShieldCheck, Layers, Percent, Sparkles, RotateCcw, ArrowRight } from "lucide-react";
+import {
+  calculatePortfolioPayoffStrategies,
+  buildValidatedCustomOrder
+} from "../../services/debtCalculations";
+import {
+  X,
+  GitCompare,
+  ShieldCheck,
+  Layers,
+  Percent,
+  Sparkles,
+  RotateCcw,
+  ArrowRight,
+  Info,
+  Calendar,
+  TrendingDown
+} from "lucide-react";
 
 export interface PayoffScenarioComparisonModalProps {
   isOpen: boolean;
@@ -34,6 +50,68 @@ export function PayoffScenarioComparisonModal({
         return { label: "Status Quo", icon: RotateCcw, badge: "Bazowa" };
     }
   };
+
+  const simulatedScenarios = useMemo(() => {
+    return scenarios.map((sc) => {
+      const validatedOrder =
+        sc.strategy === "custom"
+          ? buildValidatedCustomOrder(activeDebts, sc.customDebtOrder)
+          : undefined;
+      const comparison = calculatePortfolioPayoffStrategies(
+        activeDebts,
+        sc.extraMonthlyPayment || 0,
+        undefined,
+        validatedOrder
+      );
+      const res =
+        sc.strategy === "avalanche"
+          ? comparison.avalanche
+          : sc.strategy === "snowball"
+          ? comparison.snowball
+          : sc.strategy === "custom"
+          ? comparison.custom
+          : comparison.baseline;
+      return {
+        scenario: sc,
+        result: res
+      };
+    });
+  }, [scenarios, activeDebts]);
+
+  const decisionSummary = useMemo(() => {
+    if (simulatedScenarios.length !== 2) return null;
+    const [s1, s2] = simulatedScenarios;
+    if (!s1.result || !s2.result) return null;
+
+    const diffMonths = s1.result.totalMonths - s2.result.totalMonths;
+    const diffInterest = s1.result.totalInterestPaid - s2.result.totalInterestPaid;
+    const diffPayment = s1.scenario.extraMonthlyPayment - s2.scenario.extraMonthlyPayment;
+
+    let timeComparisonText = "Oba scenariusze osiągają spłatę w tym samym terminie";
+    if (diffMonths < 0) {
+      timeComparisonText = `Scenariusz „${s1.scenario.name}” prowadzi do spłaty orientacyjnie ${Math.abs(diffMonths)} mies. wcześniej niż „${s2.scenario.name}”`;
+    } else if (diffMonths > 0) {
+      timeComparisonText = `Scenariusz „${s2.scenario.name}” prowadzi do spłaty orientacyjnie ${diffMonths} mies. wcześniej niż „${s1.scenario.name}”`;
+    }
+
+    let interestComparisonText = "Oba scenariusze dają zbliżony szacowany koszt odsetek";
+    if (diffInterest < -1) {
+      interestComparisonText = `Scenariusz „${s1.scenario.name}” wiąże się z niższym szacowanym kosztem odsetek o około ${formatMoney(Math.abs(diffInterest), currency)}`;
+    } else if (diffInterest > 1) {
+      interestComparisonText = `Scenariusz „${s2.scenario.name}” wiąże się z niższym szacowanym kosztem odsetek o około ${formatMoney(diffInterest, currency)}`;
+    }
+
+    let paymentComparisonText = "Oba scenariusze zakładają identyczną miesięczną nadpłatę";
+    if (diffPayment !== 0) {
+      paymentComparisonText = `Różnica w miesięcznej nadpłacie wynosi ${formatMoney(Math.abs(diffPayment), currency)} / mc`;
+    }
+
+    return {
+      timeComparisonText,
+      interestComparisonText,
+      paymentComparisonText
+    };
+  }, [simulatedScenarios, currency]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
@@ -76,14 +154,29 @@ export function PayoffScenarioComparisonModal({
           </p>
         </div>
 
+        {/* Feature E: Neutral Decision Summary Box */}
+        {decisionSummary && (
+          <div className="p-4 rounded-xl bg-brand-subtle/30 border border-brand/20 space-y-2 text-xs">
+            <div className="flex items-center gap-2 font-bold text-text-main">
+              <Info className="w-4 h-4 text-brand" />
+              <span>Podsumowanie różnic między scenariuszami</span>
+            </div>
+            <ul className="space-y-1.5 pl-6 list-disc text-text-muted text-[11px] leading-relaxed">
+              <li>{decisionSummary.timeComparisonText}</li>
+              <li>{decisionSummary.interestComparisonText}</li>
+              <li>{decisionSummary.paymentComparisonText}</li>
+            </ul>
+          </div>
+        )}
+
         {/* Comparison Columns (1 or 2 scenarios) */}
-        {scenarios.length === 0 ? (
+        {simulatedScenarios.length === 0 ? (
           <p className="text-xs text-text-muted text-center py-6">
             Brak wybranego scenariusza
           </p>
         ) : (
-          <div className={`grid grid-cols-1 ${scenarios.length > 1 ? "sm:grid-cols-2" : ""} gap-4`}>
-            {scenarios.map((sc, index) => {
+          <div className={`grid grid-cols-1 ${simulatedScenarios.length > 1 ? "sm:grid-cols-2" : ""} gap-4`}>
+            {simulatedScenarios.map(({ scenario: sc, result }, index) => {
               const strategyInfo = getStrategyBadge(sc.strategy);
               const StrategyIcon = strategyInfo.icon;
 
@@ -130,9 +223,31 @@ export function PayoffScenarioComparisonModal({
                         Miesięczna nadpłata:
                       </span>
                       <span className="text-sm font-black text-brand tabular-nums block">
-                        +{formatMoney(sc.extraMonthlyPayment, currency)} / mc
+                        +{formatMoney(sc.extraMonthlyPayment || 0, currency)} / mc
                       </span>
                     </div>
+
+                    {/* Estimated Payoff & Interest details */}
+                    {result && (
+                      <div className="p-3 bg-surface rounded-xl border border-border/80 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-text-faint flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>Termin spłaty:</span>
+                          </span>
+                          <strong className="text-text-main font-bold">{result.debtFreeDate}</strong>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-text-faint flex items-center gap-1">
+                            <TrendingDown className="w-3.5 h-3.5 text-brand" />
+                            <span>Szacowane odsetki:</span>
+                          </span>
+                          <strong className="text-text-main font-bold tabular-nums">
+                            {formatMoney(result.totalInterestPaid, currency)}
+                          </strong>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Payoff queue order parameter */}
                     <div className="space-y-1.5 pt-1">
