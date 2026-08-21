@@ -45,6 +45,7 @@ const TestHarness = () => {
       onOpenGoalDepositModal={vi.fn()}
       onOpenProfileModal={vi.fn()}
       onOpenPinModal={vi.fn()}
+      openModal={vi.fn()}
     />
   );
 };
@@ -152,6 +153,7 @@ describe('Full App Diagnostic Loop - Forms', () => {
           onOpenGoalDepositModal={vi.fn()}
           onOpenProfileModal={vi.fn()}
           onOpenPinModal={vi.fn()}
+          openModal={vi.fn()}
         />
       );
     };

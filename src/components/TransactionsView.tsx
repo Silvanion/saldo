@@ -211,7 +211,7 @@ export function TransactionsView({
                   id="btn-smart-rules-preview"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Zastosuj reguły</span>
+                  <span>Reguły ({smartRules.length})</span>
                 </button>
               )}
               

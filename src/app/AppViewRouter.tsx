@@ -36,7 +36,8 @@ export function AppViewRouter({
   onOpenGoalModal,
   onOpenGoalDepositModal,
   onOpenProfileModal,
-  onOpenPinModal
+  onOpenPinModal,
+  openModal
 }: {
   onOpenTxModal: (tx?: import("../types").Transaction) => void;
   onOpenBudgetModal: () => void;
