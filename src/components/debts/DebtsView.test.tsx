@@ -760,4 +760,109 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect((btn as HTMLButtonElement).disabled).toBe(false);
     });
   });
+
+  it("Sprint 11 Acceptance: seamlessly performs full interactive lifecycle of debt simulator", () => {
+    const onSavePayoffScenario = vi.fn();
+    const onDeletePayoffScenario = vi.fn();
+    const showToast = vi.fn();
+
+    const profile: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-base",
+          name: "Plan Kula Bazowy",
+          strategy: "snowball",
+          extraMonthlyPayment: 250,
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    render(
+      <DebtsView
+        profile={profile}
+        onSavePayoffScenario={onSavePayoffScenario}
+        onDeletePayoffScenario={onDeletePayoffScenario}
+        showToast={showToast}
+      />
+    );
+
+    // 1. Navigate to simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // 2. Test strategy selection: Switch to Custom
+    const customCard = screen.getByText("Własna kolejność");
+    fireEvent.click(customCard);
+    expect(screen.getByText("Ustal kolejność spłaty")).toBeTruthy();
+    expect(screen.getByText("Cel priorytetowy #1")).toBeTruthy();
+
+    // 3. Reorder custom queue: Move priority
+    const moveDownFirst = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Kredyt hipoteczny niżej/i
+    });
+    fireEvent.click(moveDownFirst);
+
+    // 4. Test Knowledge Center disclosure
+    const knowledgeTrigger = screen.getByRole("button", {
+      name: /Jak działają strategie spłaty zadłużenia\?/i
+    });
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(knowledgeTrigger);
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    fireEvent.click(knowledgeTrigger);
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
+
+    // 5. Test saving current Custom plan as scenario
+    const saveBtn = screen.getByRole("button", { name: /Zapisz bieżący plan/i });
+    fireEvent.click(saveBtn);
+    const nameInput = screen.getByPlaceholderText(/np\. Wariant optymistyczny/i);
+    fireEvent.change(nameInput, { target: { value: "Mój Plan Niestandardowy 500" } });
+    const submitSaveBtn = screen.getByRole("button", { name: "Zapisz scenariusz" });
+    fireEvent.click(submitSaveBtn);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Mój Plan Niestandardowy 500",
+        strategy: "custom"
+      })
+    );
+
+    // 6. Test renaming the base scenario
+    const renameBtn = screen.getByRole("button", { name: /Zmień nazwę scenariusza Plan Kula Bazowy/i });
+    fireEvent.click(renameBtn);
+    expect(screen.getByText("Zmień nazwę scenariusza")).toBeTruthy();
+    const renameInput = screen.getByDisplayValue("Plan Kula Bazowy");
+    fireEvent.change(renameInput, { target: { value: "Plan Kula 300 (Zmieniony)" } });
+    const submitRenameBtn = screen.getByRole("button", { name: "Zapisz" });
+    fireEvent.click(submitRenameBtn);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "sc-base",
+        name: "Plan Kula 300 (Zmieniony)"
+      })
+    );
+
+    // 7. Test duplicating the base scenario
+    const duplicateBtn = screen.getByRole("button", { name: /Duplikuj scenariusz Plan Kula Bazowy/i });
+    fireEvent.click(duplicateBtn);
+    expect(screen.getByText("Duplikuj scenariusz spłaty")).toBeTruthy();
+    const duplicateInput = screen.getByDisplayValue("Plan Kula Bazowy — kopia");
+    expect(duplicateInput).toBeTruthy();
+    const submitDuplicateBtn = screen.getByRole("button", { name: "Utwórz kopię" });
+    fireEvent.click(submitDuplicateBtn);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Plan Kula Bazowy — kopia",
+        strategy: "snowball",
+        extraMonthlyPayment: 250
+      })
+    );
+
+    // 8. Test deleting a scenario
+    const deleteBtn = screen.getByRole("button", { name: /Usuń scenariusz Plan Kula Bazowy/i });
+    fireEvent.click(deleteBtn);
+    expect(onDeletePayoffScenario).toHaveBeenCalledWith("sc-base");
+  });
 });
