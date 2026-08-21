@@ -637,4 +637,127 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(showToast).toHaveBeenCalled();
     expect(screen.queryByText("Porównanie zapisanych konfiguracji")).toBeNull();
   });
+
+  it("handles scenario renaming flow with prefilled input and submit", () => {
+    const onSavePayoffScenario = vi.fn();
+    const profileWithScenario: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-1",
+          name: "Plan Kula 300 zł",
+          strategy: "snowball",
+          extraMonthlyPayment: 300,
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    render(<DebtsView profile={profileWithScenario} onSavePayoffScenario={onSavePayoffScenario} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Click "Zmień nazwę"
+    const renameBtn = screen.getByRole("button", { name: /Zmień nazwę scenariusza Plan Kula 300 zł/i });
+    fireEvent.click(renameBtn);
+
+    // Verify modal is open
+    expect(screen.getByText("Zmień nazwę scenariusza")).toBeTruthy();
+    const input = screen.getByDisplayValue("Plan Kula 300 zł");
+    expect(input).toBeTruthy();
+
+    // Change value and submit
+    fireEvent.change(input, { target: { value: "Plan Kula 350 zł (Poprawiony)" } });
+    const submitBtn = screen.getByRole("button", { name: "Zapisz" });
+    fireEvent.click(submitBtn);
+
+    expect(onSavePayoffScenario).toHaveBeenCalledTimes(1);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "sc-1",
+        name: "Plan Kula 350 zł (Poprawiony)",
+        strategy: "snowball",
+        extraMonthlyPayment: 300
+      })
+    );
+  });
+
+  it("handles scenario duplication flow, preserving strategy and order settings", () => {
+    const onSavePayoffScenario = vi.fn();
+    const profileWithCustomScenario: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-custom",
+          name: "Mój Plan Własny",
+          strategy: "custom",
+          extraMonthlyPayment: 750,
+          customDebtOrder: ["debt-2", "debt-1"],
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    render(<DebtsView profile={profileWithCustomScenario} onSavePayoffScenario={onSavePayoffScenario} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Click "Duplikuj"
+    const duplicateBtn = screen.getByRole("button", { name: /Duplikuj scenariusz Mój Plan Własny/i });
+    fireEvent.click(duplicateBtn);
+
+    // Verify duplicate modal is open with prefilled copy name
+    expect(screen.getByText("Duplikuj scenariusz spłaty")).toBeTruthy();
+    const input = screen.getByDisplayValue("Mój Plan Własny — kopia");
+    expect(input).toBeTruthy();
+
+    // Submit
+    const submitBtn = screen.getByRole("button", { name: "Utwórz kopię" });
+    fireEvent.click(submitBtn);
+
+    expect(onSavePayoffScenario).toHaveBeenCalledTimes(1);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith({
+      name: "Mój Plan Własny — kopia",
+      strategy: "custom",
+      extraMonthlyPayment: 750,
+      customDebtOrder: ["debt-2", "debt-1"]
+    });
+  });
+
+  it("disables duplicate button when 5 scenarios exist, while rename remains enabled", () => {
+    const fullScenariosProfile: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [1, 2, 3, 4, 5].map((i) => ({
+        id: `sc-${i}`,
+        name: `Plan ${i}`,
+        strategy: "avalanche",
+        extraMonthlyPayment: 100 * i,
+        createdAt: "2026-01-01"
+      }))
+    };
+
+    render(<DebtsView profile={fullScenariosProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Verify duplicate buttons are disabled
+    const duplicateButtons = screen.getAllByRole("button", { name: /Duplikuj scenariusz Plan/i });
+    expect(duplicateButtons.length).toBe(5);
+    duplicateButtons.forEach((btn) => {
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    // Verify rename buttons remain enabled
+    const renameButtons = screen.getAllByRole("button", { name: /Zmień nazwę scenariusza Plan/i });
+    expect(renameButtons.length).toBe(5);
+    renameButtons.forEach((btn) => {
+      expect((btn as HTMLButtonElement).disabled).toBe(false);
+    });
+  });
 });
