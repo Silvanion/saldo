@@ -13,6 +13,7 @@ import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
 import { DebtFormModal } from "./DebtFormModal";
 import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
+import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
 import { formatMoney } from "../../utils/format";
 import {
@@ -90,7 +91,7 @@ export function DebtsView({
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
 
-  // Sprint 7: Saved Payoff Scenarios state
+  // Sprint 7 & 9: Saved Payoff Scenarios & Comparison state
   const savedScenarios = useMemo(() => {
     return profile?.debtPayoffScenarios || [];
   }, [profile?.debtPayoffScenarios]);
@@ -98,6 +99,28 @@ export function DebtsView({
   const [isSaveScenarioModalOpen, setIsSaveScenarioModalOpen] = useState(false);
   const [scenarioNameInput, setScenarioNameInput] = useState("");
   const [editingScenarioId, setEditingScenarioId] = useState<string | null>(null);
+
+  // Sprint 9: Scenario Comparison state
+  const [selectedScenarioIdsForCompare, setSelectedScenarioIdsForCompare] = useState<string[]>([]);
+  const [isCompareScenariosModalOpen, setIsCompareScenariosModalOpen] = useState(false);
+
+  const validSelectedScenarioIds = useMemo(() => {
+    const existingIds = new Set(savedScenarios.map((s) => s.id));
+    return selectedScenarioIdsForCompare.filter((id) => existingIds.has(id));
+  }, [selectedScenarioIdsForCompare, savedScenarios]);
+
+  const handleToggleSelectScenario = (scenarioId: string) => {
+    setSelectedScenarioIdsForCompare((prev) => {
+      const existing = prev.filter((id) => savedScenarios.some((s) => s.id === id));
+      if (existing.includes(scenarioId)) {
+        return existing.filter((id) => id !== scenarioId);
+      }
+      if (existing.length >= 2) {
+        return existing; // Maximum 2 scenarios
+      }
+      return [...existing, scenarioId];
+    });
+  };
 
   const debts = useMemo(() => {
     return profile?.debts || [];
@@ -849,21 +872,43 @@ export function DebtsView({
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      id="btn-save-scenario"
-                      onClick={() => handleOpenSaveScenarioModal()}
-                      disabled={savedScenarios.length >= 5}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand/30 bg-brand-subtle text-brand text-xs font-bold hover:bg-brand hover:text-text-inverse transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring self-start sm:self-auto"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      <span>Zapisz bieżący plan</span>
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+                      <button
+                        type="button"
+                        id="btn-compare-scenarios"
+                        onClick={() => setIsCompareScenariosModalOpen(true)}
+                        disabled={savedScenarios.length < 2 || validSelectedScenarioIds.length < 2}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-surface text-text-main text-xs font-bold hover:bg-surface-hover hover:border-brand/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
+                        aria-label={`Porównaj scenariusze (wybrano ${validSelectedScenarioIds.length} z 2)`}
+                        title={
+                          savedScenarios.length < 2
+                            ? "Wymaga co najmniej 2 zapisanych scenariuszy"
+                            : validSelectedScenarioIds.length < 2
+                            ? "Zaznacz 2 scenariusze do porównania"
+                            : "Otwórz porównanie wybranych 2 scenariuszy"
+                        }
+                      >
+                        <GitCompare className="w-3.5 h-3.5 text-brand" />
+                        <span>Porównaj scenariusze ({validSelectedScenarioIds.length} / 2)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="btn-save-scenario"
+                        onClick={() => handleOpenSaveScenarioModal()}
+                        disabled={savedScenarios.length >= 5}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand/30 bg-brand-subtle text-brand text-xs font-bold hover:bg-brand hover:text-text-inverse transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Zapisz bieżący plan</span>
+                      </button>
+                    </div>
                   </div>
 
                   {savedScenarios.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
                       {savedScenarios.map((sc) => {
+                        const isSelected = validSelectedScenarioIds.includes(sc.id);
                         const strategyLabel =
                           sc.strategy === "avalanche"
                             ? "Lawina"
@@ -876,19 +921,39 @@ export function DebtsView({
                         return (
                           <div
                             key={sc.id}
-                            className="p-3 rounded-xl bg-surface border border-border flex items-center justify-between gap-2.5 hover:border-brand/30 transition shadow-2xs"
+                            className={`p-3 rounded-xl border flex items-center justify-between gap-2.5 transition shadow-2xs ${
+                              isSelected
+                                ? "bg-brand-subtle/20 border-brand ring-1 ring-brand/30"
+                                : "bg-surface border-border hover:border-brand/30"
+                            }`}
                           >
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className="text-xs font-bold text-text-main truncate" title={sc.name}>
-                                  {sc.name}
-                                </span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0">
-                                  {strategyLabel}
-                                </span>
-                              </div>
-                              <div className="text-[11px] text-text-muted">
-                                Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                disabled={!isSelected && validSelectedScenarioIds.length >= 2}
+                                onChange={() => handleToggleSelectScenario(sc.id)}
+                                aria-label={`Wybierz scenariusz ${sc.name} do porównania`}
+                                className="w-4 h-4 rounded border-border text-brand focus:ring-brand accent-brand cursor-pointer shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                                title={
+                                  !isSelected && validSelectedScenarioIds.length >= 2
+                                    ? "Możesz wybrać maksymalnie 2 scenariusze"
+                                    : undefined
+                                }
+                              />
+
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="text-xs font-bold text-text-main truncate" title={sc.name}>
+                                    {sc.name}
+                                  </span>
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0">
+                                    {strategyLabel}
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-text-muted">
+                                  Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
+                                </div>
                               </div>
                             </div>
 
@@ -1601,6 +1666,16 @@ export function DebtsView({
           </div>
         </div>
       )}
+
+      {/* MODAL 6: COMPARE SCENARIOS */}
+      <PayoffScenarioComparisonModal
+        isOpen={isCompareScenariosModalOpen}
+        onClose={() => setIsCompareScenariosModalOpen(false)}
+        scenarios={savedScenarios.filter((s) => validSelectedScenarioIds.includes(s.id))}
+        activeDebts={activeDebts}
+        currency={currency}
+        onLoadScenario={handleLoadScenario}
+      />
     </div>
   );
 }

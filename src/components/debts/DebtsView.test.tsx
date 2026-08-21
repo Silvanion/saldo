@@ -550,4 +550,91 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByText(/Zastrzeżenie edukacyjne:/i)).toBeNull();
   });
+
+  it("handles scenario comparison selection, enforces max 2 limit, and opens comparison modal", () => {
+    const showToast = vi.fn();
+    const profileWith3Scenarios: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-1",
+          name: "Plan Kula 300 zł",
+          strategy: "snowball",
+          extraMonthlyPayment: 300,
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "sc-2",
+          name: "Plan Własny 1000 zł",
+          strategy: "custom",
+          extraMonthlyPayment: 1000,
+          customDebtOrder: ["debt-2", "debt-1"],
+          createdAt: "2026-01-02"
+        },
+        {
+          id: "sc-3",
+          name: "Plan Lawina 500 zł",
+          strategy: "avalanche",
+          extraMonthlyPayment: 500,
+          createdAt: "2026-01-03"
+        }
+      ]
+    };
+
+    render(<DebtsView profile={profileWith3Scenarios} showToast={showToast} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // 1. Check compare button initially disabled (0/2)
+    const compareBtn = screen.getByRole("button", { name: /Porównaj scenariusze/i });
+    expect((compareBtn as HTMLButtonElement).disabled).toBe(true);
+
+    // 2. Select first scenario (sc-1)
+    const checkbox1 = screen.getByRole("checkbox", { name: /Wybierz scenariusz Plan Kula 300 zł do porównania/i });
+    fireEvent.click(checkbox1);
+    expect((checkbox1 as HTMLInputElement).checked).toBe(true);
+    expect((compareBtn as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText(/Porównaj scenariusze \(1 \/ 2\)/i)).toBeTruthy();
+
+    // 3. Select second scenario (sc-2)
+    const checkbox2 = screen.getByRole("checkbox", { name: /Wybierz scenariusz Plan Własny 1000 zł do porównania/i });
+    fireEvent.click(checkbox2);
+    expect((checkbox2 as HTMLInputElement).checked).toBe(true);
+    expect((compareBtn as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByText(/Porównaj scenariusze \(2 \/ 2\)/i)).toBeTruthy();
+
+    // 4. Verify 3rd checkbox is disabled due to max 2 selection limit
+    const checkbox3 = screen.getByRole("checkbox", { name: /Wybierz scenariusz Plan Lawina 500 zł do porównania/i });
+    expect((checkbox3 as HTMLButtonElement).disabled).toBe(true);
+
+    // 5. Open comparison modal
+    fireEvent.click(compareBtn);
+
+    // Verify modal content
+    expect(screen.getByText("Porównanie zapisanych konfiguracji")).toBeTruthy();
+    expect(screen.getByText("Zestawienie parametrów wybranych scenariuszy spłaty")).toBeTruthy();
+    expect(screen.getByText(/To zestawienie pokazuje parametry zapisanych scenariuszy/i)).toBeTruthy();
+
+    // Verify scenario details in comparison columns
+    expect(screen.getByText("Scenariusz #1")).toBeTruthy();
+    expect(screen.getByText("Scenariusz #2")).toBeTruthy();
+    expect(screen.getAllByText("Plan Kula 300 zł").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Plan Własny 1000 zł").length).toBeGreaterThanOrEqual(2);
+
+    // Verify strategy-specific order descriptions
+    expect(screen.getByText("Kolejność ustalana automatycznie przez metodę")).toBeTruthy();
+    // Custom order shows debt names (Karta Visa, Kredyt hipoteczny)
+    expect(screen.getAllByText("Karta Visa").length).toBeGreaterThanOrEqual(1);
+
+    // 6. Test loading scenario directly from comparison column
+    const loadButtons = screen.getAllByRole("button", { name: /Wczytaj ten scenariusz/i });
+    expect(loadButtons.length).toBe(2);
+    fireEvent.click(loadButtons[0]);
+
+    // Modal should close and scenario loaded
+    expect(showToast).toHaveBeenCalled();
+    expect(screen.queryByText("Porównanie zapisanych konfiguracji")).toBeNull();
+  });
 });
