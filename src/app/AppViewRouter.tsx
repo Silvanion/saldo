@@ -76,6 +76,8 @@ export function AppViewRouter({
     handleUpdateDebt,
     handleDeleteDebt,
     handleToggleDebtStatus,
+    handleSavePayoffScenario,
+    handleDeletePayoffScenario,
     handleExportData,
     handleResetData,
     googleUser,
@@ -291,6 +293,8 @@ export function AppViewRouter({
             onUpdateDebt={handleUpdateDebt}
             onDeleteDebt={handleDeleteDebt}
             onToggleDebtStatus={handleToggleDebtStatus}
+            onSavePayoffScenario={handleSavePayoffScenario}
+            onDeletePayoffScenario={handleDeletePayoffScenario}
             showToast={showToast}
           />
         );

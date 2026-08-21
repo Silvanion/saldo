@@ -369,4 +369,130 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect((moveUp as HTMLButtonElement).disabled).toBe(true);
     expect((moveDown as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it("renders saved scenarios panel, opens save modal, and submits new scenario", () => {
+    const onSavePayoffScenario = vi.fn();
+    const onDeletePayoffScenario = vi.fn();
+
+    render(
+      <DebtsView
+        profile={mockProfile}
+        onSavePayoffScenario={onSavePayoffScenario}
+        onDeletePayoffScenario={onDeletePayoffScenario}
+      />
+    );
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Verify Saved Scenarios empty state
+    expect(screen.getByText("Zapisane scenariusze (0 / 5)")).toBeTruthy();
+    expect(screen.getByText(/Brak zapisanych scenariuszy/i)).toBeTruthy();
+
+    // Click "Zapisz bieżący plan"
+    const saveBtn = screen.getByRole("button", { name: /Zapisz bieżący plan/i });
+    fireEvent.click(saveBtn);
+
+    // Verify modal is open
+    expect(screen.getByText("Zapisz scenariusz spłaty")).toBeTruthy();
+
+    // Fill scenario name
+    const input = screen.getByPlaceholderText(/np\. Wariant optymistyczny/i);
+    fireEvent.change(input, { target: { value: "Mój plan testowy" } });
+
+    // Submit
+    const submitBtn = screen.getByRole("button", { name: "Zapisz scenariusz" });
+    fireEvent.click(submitBtn);
+
+    expect(onSavePayoffScenario).toHaveBeenCalledTimes(1);
+    expect(onSavePayoffScenario).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Mój plan testowy",
+        strategy: "avalanche",
+        extraMonthlyPayment: 500
+      })
+    );
+  });
+
+  it("renders existing saved scenarios, loads a scenario on click, and triggers deletion", () => {
+    const onDeletePayoffScenario = vi.fn();
+    const showToast = vi.fn();
+
+    const profileWithScenarios: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [
+        {
+          id: "sc-1",
+          name: "Plan Kula 300 zł",
+          strategy: "snowball",
+          extraMonthlyPayment: 300,
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "sc-2",
+          name: "Plan Własny 1000 zł",
+          strategy: "custom",
+          extraMonthlyPayment: 1000,
+          customDebtOrder: ["debt-2", "debt-1"],
+          createdAt: "2026-01-02"
+        }
+      ]
+    };
+
+    render(
+      <DebtsView
+        profile={profileWithScenarios}
+        onDeletePayoffScenario={onDeletePayoffScenario}
+        showToast={showToast}
+      />
+    );
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Verify counter and rendered scenario cards
+    expect(screen.getByText("Zapisane scenariusze (2 / 5)")).toBeTruthy();
+    expect(screen.getByText("Plan Kula 300 zł")).toBeTruthy();
+    expect(screen.getByText("Plan Własny 1000 zł")).toBeTruthy();
+
+    // Click "Wczytaj" on custom scenario sc-2
+    const loadCustomBtn = screen.getByRole("button", { name: /Wczytaj scenariusz Plan Własny 1000 zł/i });
+    fireEvent.click(loadCustomBtn);
+
+    // Verify toast and custom order load
+    expect(showToast).toHaveBeenCalledWith("Wczytano scenariusz: Plan Własny 1000 zł", "info");
+    expect(screen.getByText(/Plan i kolejność spłaty: Własna kolejność/i)).toBeTruthy();
+
+    // Click Delete on sc-1
+    const deleteBtn = screen.getByRole("button", { name: /Usuń scenariusz Plan Kula 300 zł/i });
+    fireEvent.click(deleteBtn);
+
+    expect(onDeletePayoffScenario).toHaveBeenCalledWith("sc-1");
+  });
+
+  it("disables save button when 5 scenarios are already stored in profile", () => {
+    const fullScenariosProfile: Profile = {
+      ...mockProfile,
+      debtPayoffScenarios: [1, 2, 3, 4, 5].map((i) => ({
+        id: `sc-${i}`,
+        name: `Plan ${i}`,
+        strategy: "avalanche",
+        extraMonthlyPayment: 100 * i,
+        createdAt: "2026-01-01"
+      }))
+    };
+
+    render(<DebtsView profile={fullScenariosProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    expect(screen.getByText("Zapisane scenariusze (5 / 5)")).toBeTruthy();
+
+    const saveBtn = screen.getByRole("button", { name: /Zapisz bieżący plan/i });
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+  });
 });

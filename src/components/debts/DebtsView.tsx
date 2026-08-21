@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { DebtItem, DebtType, Profile } from "../../types";
+import { DebtItem, DebtType, Profile, DebtPayoffScenario } from "../../types";
 import {
   calculatePortfolioDebtKpis,
   calculateDebtPortfolioAnalytics,
@@ -43,7 +43,11 @@ import {
   PieChart,
   Activity,
   ArrowUpRight,
-  Info
+  Info,
+  Bookmark,
+  Trash2,
+  Save,
+  X
 } from "lucide-react";
 
 export interface DebtsViewProps {
@@ -52,6 +56,8 @@ export interface DebtsViewProps {
   onUpdateDebt?: (debtId: string, updates: Partial<DebtItem>) => void;
   onDeleteDebt?: (debtId: string) => void;
   onToggleDebtStatus?: (debtId: string) => void;
+  onSavePayoffScenario?: (scenario: Omit<DebtPayoffScenario, "id" | "createdAt"> & { id?: string }) => void;
+  onDeletePayoffScenario?: (scenarioId: string) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -65,6 +71,8 @@ export function DebtsView({
   onUpdateDebt,
   onDeleteDebt,
   onToggleDebtStatus,
+  onSavePayoffScenario,
+  onDeletePayoffScenario,
   showToast
 }: DebtsViewProps) {
   const [activeMainTab, setActiveMainTab] = useState<MainTab>("portfolio");
@@ -80,6 +88,15 @@ export function DebtsView({
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
+
+  // Sprint 7: Saved Payoff Scenarios state
+  const savedScenarios = useMemo(() => {
+    return profile?.debtPayoffScenarios || [];
+  }, [profile?.debtPayoffScenarios]);
+
+  const [isSaveScenarioModalOpen, setIsSaveScenarioModalOpen] = useState(false);
+  const [scenarioNameInput, setScenarioNameInput] = useState("");
+  const [editingScenarioId, setEditingScenarioId] = useState<string | null>(null);
 
   const debts = useMemo(() => {
     return profile?.debts || [];
@@ -129,6 +146,57 @@ export function DebtsView({
       current[idx + 1] = temp;
       setCustomDebtOrder(current);
     }
+  };
+
+  const handleOpenSaveScenarioModal = (existingScenario?: DebtPayoffScenario) => {
+    if (existingScenario) {
+      setEditingScenarioId(existingScenario.id);
+      setScenarioNameInput(existingScenario.name);
+    } else {
+      setEditingScenarioId(null);
+      const strategyLabel =
+        selectedPayoffStrategy === "avalanche"
+          ? "Lawina"
+          : selectedPayoffStrategy === "snowball"
+          ? "Kula Śnieżna"
+          : selectedPayoffStrategy === "custom"
+          ? "Własna kolejność"
+          : "Status Quo";
+      setScenarioNameInput(`Plan ${strategyLabel} (+${formatMoney(extraMonthlyPayoff, currency)})`);
+    }
+    setIsSaveScenarioModalOpen(true);
+  };
+
+  const handleSaveScenarioSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = scenarioNameInput.trim();
+    if (trimmed.length < 2) return;
+
+    if (onSavePayoffScenario) {
+      onSavePayoffScenario({
+        id: editingScenarioId || undefined,
+        name: trimmed,
+        strategy: selectedPayoffStrategy,
+        extraMonthlyPayment: extraMonthlyPayoff,
+        customDebtOrder: selectedPayoffStrategy === "custom" ? validatedCustomOrder : undefined
+      });
+    }
+
+    setIsSaveScenarioModalOpen(false);
+    setScenarioNameInput("");
+    setEditingScenarioId(null);
+  };
+
+  const handleLoadScenario = (scenario: DebtPayoffScenario) => {
+    setSelectedPayoffStrategy(scenario.strategy);
+    setExtraMonthlyPayoff(scenario.extraMonthlyPayment);
+    setCustomDebtOrder(
+      scenario.strategy === "custom" && scenario.customDebtOrder?.length
+        ? scenario.customDebtOrder
+        : []
+    );
+
+    showToast?.(`Wczytano scenariusz: ${scenario.name}`, "info");
   };
 
   const payoffComparison = useMemo(() => {
@@ -769,6 +837,91 @@ export function DebtsView({
                     </div>
                   </div>
                 </div>
+
+                {/* Saved Scenarios Sub-section */}
+                <div className="pt-3 border-t border-border/60 space-y-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Bookmark className="w-4 h-4 text-brand shrink-0" />
+                      <span className="text-xs font-bold text-text-main">
+                        Zapisane scenariusze ({savedScenarios.length} / 5)
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      id="btn-save-scenario"
+                      onClick={() => handleOpenSaveScenarioModal()}
+                      disabled={savedScenarios.length >= 5}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand/30 bg-brand-subtle text-brand text-xs font-bold hover:bg-brand hover:text-text-inverse transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring self-start sm:self-auto"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>Zapisz bieżący plan</span>
+                    </button>
+                  </div>
+
+                  {savedScenarios.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+                      {savedScenarios.map((sc) => {
+                        const strategyLabel =
+                          sc.strategy === "avalanche"
+                            ? "Lawina"
+                            : sc.strategy === "snowball"
+                            ? "Kula Śnieżna"
+                            : sc.strategy === "custom"
+                            ? "Własna kolejność"
+                            : "Status Quo";
+
+                        return (
+                          <div
+                            key={sc.id}
+                            className="p-3 rounded-xl bg-surface border border-border flex items-center justify-between gap-2.5 hover:border-brand/30 transition shadow-2xs"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5 mb-0.5">
+                                <span className="text-xs font-bold text-text-main truncate" title={sc.name}>
+                                  {sc.name}
+                                </span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0">
+                                  {strategyLabel}
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-text-muted">
+                                Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleLoadScenario(sc)}
+                                aria-label={`Wczytaj scenariusz ${sc.name}`}
+                                className="px-2.5 py-1.5 rounded-lg bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-[11px] font-bold border border-border hover:border-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                              >
+                                Wczytaj
+                              </button>
+                              {onDeletePayoffScenario && (
+                                <button
+                                  type="button"
+                                  onClick={() => onDeletePayoffScenario(sc.id)}
+                                  aria-label={`Usuń scenariusz ${sc.name}`}
+                                  className="p-1.5 rounded-lg text-text-muted hover:text-danger hover:bg-danger-subtle transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                  title="Usuń scenariusz"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-text-muted">
+                      Brak zapisanych scenariuszy. Możesz zapisać do 5 wariantów nadpłat i strategii, aby łatwo je odtwarzać.
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* 4 Strategy Comparison Cards */}
@@ -1349,6 +1502,100 @@ export function DebtsView({
           debt={selectedDebtForRefinance}
           onClose={() => setSelectedDebtForRefinance(null)}
         />
+      )}
+
+      {/* MODAL 5: SAVE SCENARIO */}
+      {isSaveScenarioModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div
+            className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="save-scenario-modal-title"
+          >
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center">
+                  <Bookmark className="w-4 h-4" />
+                </div>
+                <h3 id="save-scenario-modal-title" className="text-base font-bold text-text-main">
+                  Zapisz scenariusz spłaty
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSaveScenarioModalOpen(false)}
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                aria-label="Zamknij"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveScenarioSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-text-muted mb-1.5">
+                  Nazwa scenariusza
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={50}
+                  value={scenarioNameInput}
+                  onChange={(e) => setScenarioNameInput(e.target.value)}
+                  placeholder="np. Wariant optymistyczny 750 zł"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  autoFocus
+                />
+              </div>
+
+              {/* Summary of current parameters */}
+              <div className="p-3 bg-surface-2/60 rounded-xl border border-border/80 text-xs space-y-1.5 text-text-muted">
+                <div className="flex justify-between">
+                  <span>Wybrana metoda:</span>
+                  <strong className="text-text-main">
+                    {selectedPayoffStrategy === "avalanche"
+                      ? "Metoda Lawiny"
+                      : selectedPayoffStrategy === "snowball"
+                      ? "Metoda Kuli Śnieżnej"
+                      : selectedPayoffStrategy === "custom"
+                      ? "Własna kolejność"
+                      : "Status Quo"}
+                  </strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Miesięczna nadpłata:</span>
+                  <strong className="text-brand font-bold tabular-nums">
+                    +{formatMoney(extraMonthlyPayoff, currency)} / mc
+                  </strong>
+                </div>
+                {selectedPayoffStrategy === "custom" && (
+                  <div className="flex justify-between">
+                    <span>Liczba celów w kolejce:</span>
+                    <strong className="text-text-main">{validatedCustomOrder.length}</strong>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSaveScenarioModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                >
+                  Anuluj
+                </button>
+                <button
+                  type="submit"
+                  disabled={scenarioNameInput.trim().length < 2}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                >
+                  Zapisz scenariusz
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

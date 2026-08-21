@@ -1,6 +1,6 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
-import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem } from "../types";
+import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem, DebtPayoffScenario } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { applySmartRulesToTransactions } from "../services/smartRules";
@@ -278,6 +278,67 @@ export function useAppActions({
     [updateActiveProfile, showToast]
   );
 
+  const handleSavePayoffScenario = useCallback(
+    (scenarioData: Omit<DebtPayoffScenario, "id" | "createdAt"> & { id?: string }) => {
+      let isUpdate = false;
+      let limitReached = false;
+
+      updateActiveProfile((p) => {
+        const existingScenarios = p.debtPayoffScenarios || [];
+        if (scenarioData.id) {
+          // Update existing
+          isUpdate = true;
+          return {
+            debtPayoffScenarios: existingScenarios.map((s) =>
+              s.id === scenarioData.id
+                ? {
+                    ...s,
+                    ...scenarioData,
+                    updatedAt: new Date().toISOString()
+                  }
+                : s
+            )
+          };
+        }
+
+        // New scenario: enforce max 5 limit
+        if (existingScenarios.length >= 5) {
+          limitReached = true;
+          return {};
+        }
+
+        const newScenario: DebtPayoffScenario = {
+          ...scenarioData,
+          id: "scenario-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+          createdAt: new Date().toISOString()
+        };
+
+        return {
+          debtPayoffScenarios: [newScenario, ...existingScenarios]
+        };
+      });
+
+      if (limitReached) {
+        showToast("Osiągnięto limit 5 zapisanych scenariuszy. Usuń jeden przed dodaniem nowego.", "error");
+      } else if (isUpdate) {
+        showToast("Zaktualizowano scenariusz spłaty", "success");
+      } else {
+        showToast("Zapisano nowy scenariusz spłaty", "success");
+      }
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleDeletePayoffScenario = useCallback(
+    (scenarioId: string) => {
+      updateActiveProfile((p) => ({
+        debtPayoffScenarios: (p.debtPayoffScenarios || []).filter((s) => s.id !== scenarioId)
+      }));
+      showToast("Usunięto scenariusz spłaty", "info");
+    },
+    [updateActiveProfile, showToast]
+  );
+
   const handleAddSettlement = useCallback(
     (entry: { amount: number; isoDate: string; note?: string }) => {
       const newSettlement: SettlementEntry = {
@@ -457,6 +518,8 @@ export function useAppActions({
     handleUpdateDebt,
     handleDeleteDebt,
     handleToggleDebtStatus,
+    handleSavePayoffScenario,
+    handleDeletePayoffScenario,
     handleSelectProfile,
     handleSwitchProfile,
     handleAddProfile,

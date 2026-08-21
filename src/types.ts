@@ -159,6 +159,16 @@ export interface DebtItem {
   updatedAt?: string;
 }
 
+export interface DebtPayoffScenario {
+  id: string;
+  name: string;
+  strategy: "avalanche" | "snowball" | "baseline" | "custom";
+  extraMonthlyPayment: number;
+  customDebtOrder?: string[];
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface Profile {
   id: string;
   name: string;
@@ -179,6 +189,7 @@ export interface Profile {
   smartRules?: SmartRule[];
   settlements?: SettlementEntry[];
   debts?: DebtItem[];
+  debtPayoffScenarios?: DebtPayoffScenario[];
   currency: SupportedCurrency;
 }
 
@@ -193,6 +204,7 @@ export interface AppState {
   transactionRules?: TransactionRule[];
   smartRules?: SmartRule[];
   debts?: DebtItem[];
+  debtPayoffScenarios?: DebtPayoffScenario[];
   aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
   localAiModel?: string;
