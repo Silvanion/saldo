@@ -273,33 +273,100 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText(/Plan i kolejność spłaty: Metoda Kuli Śnieżnej/i)).toBeTruthy();
   });
 
-  it("renders Custom strategy card and allows reordering debts via accessible Move Up / Move Down buttons", () => {
+  it("renders Custom strategy card with refined copy and interactive reorder panel", () => {
     render(<DebtsView profile={mockProfile} />);
 
     // Switch to Payoff Strategy simulator tab
     const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
     fireEvent.click(strategyTopBtn);
 
-    // Verify Custom strategy card exists
+    // 1. Verify Custom card and copy
     expect(screen.getByText("Własna kolejność")).toBeTruthy();
+    expect(
+      screen.getByText(/Elastyczna — samodzielnie ustalasz priorytety spłaty/i)
+    ).toBeTruthy();
+
+    // 2. Click Custom strategy card
+    const customCard = screen.getByText("Własna kolejność");
+    fireEvent.click(customCard);
+
+    // 3. Verify Reorder panel header & active goals counter
+    expect(screen.getByText("Ustal kolejność spłaty")).toBeTruthy();
+    expect(screen.getByText(/Liczba aktywnych celów: 2/i)).toBeTruthy();
+
+    // 4. Verify Priority Leader #1 badge and explainer text
+    expect(screen.getByText("Cel priorytetowy #1")).toBeTruthy();
+    expect(
+      screen.getByText(/To zobowiązanie otrzymuje całą nadwyżkę nadpłaty do czasu pełnej spłaty/i)
+    ).toBeTruthy();
+
+    // 5. Verify action explainer box
+    expect(screen.getByText(/Zasada działania:/i)).toBeTruthy();
+
+    // 6. Verify accessible aria-labels and disabled states
+    const moveUpFirst = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Kredyt hipoteczny wyżej \(obecnie pozycja 1 z 2\)/i
+    });
+    const moveDownFirst = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Kredyt hipoteczny niżej \(obecnie pozycja 1 z 2\)/i
+    });
+    const moveUpLast = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Karta Visa wyżej \(obecnie pozycja 2 z 2\)/i
+    });
+    const moveDownLast = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Karta Visa niżej \(obecnie pozycja 2 z 2\)/i
+    });
+
+    expect((moveUpFirst as HTMLButtonElement).disabled).toBe(true);
+    expect((moveDownFirst as HTMLButtonElement).disabled).toBe(false);
+    expect((moveUpLast as HTMLButtonElement).disabled).toBe(false);
+    expect((moveDownLast as HTMLButtonElement).disabled).toBe(true);
+
+    // 7. Click Move Down on the first debt to change priority leader
+    fireEvent.click(moveDownFirst);
+
+    // Now Karta Visa is position 1
+    const newMoveDownFirst = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Karta Visa niżej \(obecnie pozycja 1 z 2\)/i
+    });
+    expect((newMoveDownFirst as HTMLButtonElement).disabled).toBe(false);
+
+    // Verify roadmap and plan reflect Custom strategy
+    expect(screen.getByText(/Plan i kolejność spłaty: Własna kolejność/i)).toBeTruthy();
+
+    // 8. Verify switching to Avalanche works without regressions
+    const avalancheCard = screen.getByText("Metoda Lawiny (Avalanche)");
+    fireEvent.click(avalancheCard);
+    expect(screen.getByText(/Plan i kolejność spłaty: Metoda Lawiny/i)).toBeTruthy();
+  });
+
+  it("handles single active debt safely with disabled reorder buttons", () => {
+    const singleDebtProfile = {
+      ...mockProfile,
+      debts: [mockProfile.debts[0]]
+    };
+
+    render(<DebtsView profile={singleDebtProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
 
     // Click Custom strategy card
     const customCard = screen.getByText("Własna kolejność");
     fireEvent.click(customCard);
 
-    // Verify Reorder panel is visible
-    expect(screen.getByText("Ustal kolejność spłaty")).toBeTruthy();
-    expect(screen.getByText(/Kolejność zobowiązań/i)).toBeTruthy();
+    expect(screen.getByText(/Liczba aktywnych celów: 1/i)).toBeTruthy();
+    expect(screen.getByText("Cel priorytetowy #1")).toBeTruthy();
 
-    // Check accessible buttons with aria-label
-    const moveDownBtn = screen.getByRole("button", { name: /Przenieś Kredyt hipoteczny niżej/i });
-    expect(moveDownBtn).toBeTruthy();
+    const moveUp = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Kredyt hipoteczny wyżej \(obecnie pozycja 1 z 1\)/i
+    });
+    const moveDown = screen.getByRole("button", {
+      name: /Przenieś zobowiązanie Kredyt hipoteczny niżej \(obecnie pozycja 1 z 1\)/i
+    });
 
-    // Reorder debt
-    fireEvent.click(moveDownBtn);
-
-    // Verify roadmap and plan reflect Custom strategy
-    expect(screen.getByText(/Plan i kolejność spłaty: Własna kolejność/i)).toBeTruthy();
-    expect(screen.getByText("Pierwszy cel spłaty")).toBeTruthy();
+    expect((moveUp as HTMLButtonElement).disabled).toBe(true);
+    expect((moveDown as HTMLButtonElement).disabled).toBe(true);
   });
 });

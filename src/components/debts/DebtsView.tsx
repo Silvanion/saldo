@@ -896,7 +896,7 @@ export function DebtsView({
                         {payoffComparison.custom.strategyLabel}
                       </h4>
                       <p className="text-xs text-text-muted mb-4 leading-relaxed">
-                        {payoffComparison.custom.strategyDescription}
+                        Elastyczna — samodzielnie ustalasz priorytety spłaty. Cała nadwyżka budżetowa trafia na cel nr 1, a po jego zamknięciu uwolniona rata zasila kolejne pozycje.
                       </p>
                     </div>
 
@@ -978,86 +978,92 @@ export function DebtsView({
                         </span>
                       </h4>
                       <p className="text-xs text-text-muted mt-0.5">
-                        Ustaw kolejność, w jakiej nadwyżki finansowe będą likwidować poszczególne zobowiązania.
+                        Ustaw kolejność, w jakiej nadwyżka budżetowa będzie likwidować poszczególne zobowiązania. Zmiana pozycji natychmiast aktualizuje poniższy harmonogram.
                       </p>
                     </div>
-                    <span className="text-xs font-semibold text-text-faint">
-                      Kolejność zobowiązań ({activeDebts.length})
+                    <span className="text-xs font-semibold text-text-faint whitespace-nowrap">
+                      Liczba aktywnych celów: {activeDebts.length}
                     </span>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-3">
                     {validatedCustomOrder.map((id, index) => {
                       const debtItem = activeDebts.find((d) => d.id === id);
                       if (!debtItem) return null;
                       const isFirst = index === 0;
                       const isLast = index === validatedCustomOrder.length - 1;
+                      const totalCount = validatedCustomOrder.length;
 
                       return (
                         <div
                           key={id}
-                          className="p-3.5 sm:p-4 bg-surface-2/40 border border-border/80 rounded-xl flex items-center justify-between gap-3 hover:border-border transition"
+                          className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            isFirst
+                              ? "bg-brand-subtle/30 border-brand/40 shadow-xs ring-1 ring-brand/20"
+                              : "bg-surface-2/40 border-border/80 hover:border-border"
+                          }`}
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-7 h-7 rounded-lg bg-surface border border-border text-xs font-black text-text-main flex items-center justify-center shrink-0">
+                          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                            <div
+                              className={`w-8 h-8 rounded-xl text-xs font-black flex items-center justify-center shrink-0 ${
+                                isFirst
+                                  ? "bg-brand text-text-inverse shadow-2xs"
+                                  : "bg-surface border border-border text-text-muted"
+                              }`}
+                            >
                               {index + 1}
                             </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center flex-wrap gap-2 mb-0.5">
                                 <span className="text-xs font-bold text-text-main truncate">
                                   {debtItem.name}
                                 </span>
-                                <span className="text-[10px] text-text-muted shrink-0">
+                                <span className="text-[11px] text-text-muted shrink-0">
                                   ({debtItem.institution})
                                 </span>
-                                {index === 0 && (
-                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-subtle text-brand border border-brand/20 shrink-0">
-                                    Pierwszy cel spłaty
+                                {isFirst && (
+                                  <span className="text-[10px] font-black px-2 py-0.5 rounded bg-brand text-text-inverse shrink-0 shadow-2xs">
+                                    Cel priorytetowy #1
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[11px] text-text-muted flex items-center gap-2 mt-0.5">
-                                <span>Saldo: {formatMoney(debtItem.balance, currency)}</span>
+                              <div className="text-[11px] text-text-muted flex items-center flex-wrap gap-x-2.5 gap-y-0.5 mt-1">
+                                <span>Saldo: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(debtItem.balance, currency)}</strong></span>
                                 <span>•</span>
-                                <span className="font-bold text-brand tabular-nums">
-                                  {debtItem.interestRate.toFixed(2)}% APR
-                                </span>
+                                <span>Oprocentowanie: <strong className="text-brand font-bold tabular-nums">{debtItem.interestRate.toFixed(2)}% APR</strong></span>
                                 <span>•</span>
-                                <span>Rata: {formatMoney(debtItem.monthlyPayment, currency)}</span>
+                                <span>Rata: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(debtItem.monthlyPayment, currency)}</strong></span>
                               </div>
+                              {isFirst && (
+                                <p className="text-[10px] text-brand font-medium mt-1">
+                                  To zobowiązanie otrzymuje całą nadwyżkę nadpłaty do czasu pełnej spłaty.
+                                </p>
+                              )}
                             </div>
                           </div>
 
-                          {/* Move Up / Down Buttons */}
-                          <div className="flex items-center gap-1 shrink-0">
+                          {/* Move Up / Down Buttons with WCAG Touch Target */}
+                          <div className="flex items-center gap-2 self-end sm:self-center shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 w-full sm:w-auto justify-end">
                             <button
                               type="button"
                               onClick={() => handleMoveDebtUp(id)}
                               disabled={isFirst}
-                              aria-label={`Przenieś ${debtItem.name} wyżej`}
-                              className={`p-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                                isFirst
-                                  ? "opacity-30 cursor-not-allowed border-border text-text-muted bg-surface-2"
-                                  : "bg-surface hover:bg-surface-hover border-border text-text-main"
-                              }`}
+                              aria-label={`Przenieś zobowiązanie ${debtItem.name} wyżej (obecnie pozycja ${index + 1} z ${totalCount})`}
+                              className="p-2 sm:px-3 sm:py-2 min-h-[40px] min-w-[40px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-95 cursor-pointer shadow-2xs"
                               title="Przenieś wyżej"
                             >
-                              <ArrowUp className="w-3.5 h-3.5" />
+                              <ArrowUp className="w-4 h-4" />
                               <span className="hidden sm:inline text-[11px]">Przenieś wyżej</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => handleMoveDebtDown(id)}
                               disabled={isLast}
-                              aria-label={`Przenieś ${debtItem.name} niżej`}
-                              className={`p-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                                isLast
-                                  ? "opacity-30 cursor-not-allowed border-border text-text-muted bg-surface-2"
-                                  : "bg-surface hover:bg-surface-hover border-border text-text-main"
-                              }`}
+                              aria-label={`Przenieś zobowiązanie ${debtItem.name} niżej (obecnie pozycja ${index + 1} z ${totalCount})`}
+                              className="p-2 sm:px-3 sm:py-2 min-h-[40px] min-w-[40px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-95 cursor-pointer shadow-2xs"
                               title="Przenieś niżej"
                             >
-                              <ArrowDown className="w-3.5 h-3.5" />
+                              <ArrowDown className="w-4 h-4" />
                               <span className="hidden sm:inline text-[11px]">Przenieś niżej</span>
                             </button>
                           </div>
@@ -1066,8 +1072,11 @@ export function DebtsView({
                     })}
                   </div>
 
-                  <div className="text-[11px] text-text-muted bg-surface-2/60 p-3 rounded-xl border border-border/60">
-                    ℹ️ <strong>Wskazówka:</strong> Nadwyżka budżetowa (oraz raty ze spłaconych wcześniej kredytów) będzie w 100% kierowana na pierwsze aktywne zobowiązanie z powyższej listy, aż do jego całkowitego zamknięcia.
+                  <div className="text-[11px] text-text-muted bg-surface-2/60 p-3.5 rounded-xl border border-border/60 flex items-start gap-2.5">
+                    <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">
+                      <strong>Zasada działania:</strong> Nadwyżka budżetowa (oraz raty ze spłaconych wcześniej kredytów) trafia w 100% na cel priorytetowy z pozycji nr 1. Po jego całkowitej spłacie uwolnione środki automatycznie przechodzą na kolejne zobowiązanie.
+                    </p>
                   </div>
                 </div>
               )}
@@ -1183,8 +1192,11 @@ export function DebtsView({
                       </div>
 
                       {activePlan.strategy !== "baseline" && activePlan.payoffQueue.length > 1 && (
-                        <div className="p-3 bg-brand-subtle/30 rounded-xl border border-brand/20 text-xs text-text-main leading-relaxed">
-                          💡 <strong>Efekt kaskadowy (Roll):</strong> Po spłaceniu każdego kredytu z listy, cała kwota jego dotychczasowej raty nie wraca do konsumpcji, lecz automatycznie zasila nadpłatę kolejnego zobowiązania, wykładniczo przyspieszając kolejne spłaty.
+                        <div className="p-3.5 bg-brand-subtle/30 rounded-xl border border-brand/20 text-xs text-text-main leading-relaxed flex items-start gap-2.5">
+                          <Sparkles className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                          <p>
+                            <strong>Efekt kaskadowy (Roll):</strong> Po spłaceniu każdego kredytu z listy, cała kwota jego dotychczasowej raty nie wraca do konsumpcji, lecz automatycznie zasila nadpłatę kolejnego zobowiązania, wykładniczo przyspieszając kolejne spłaty.
+                          </p>
                         </div>
                       )}
                     </div>
