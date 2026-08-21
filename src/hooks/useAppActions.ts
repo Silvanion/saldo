@@ -1,6 +1,6 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
-import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency } from "../types";
+import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { applySmartRulesToTransactions } from "../services/smartRules";
@@ -222,6 +222,62 @@ export function useAppActions({
     [updateActiveProfile]
   );
 
+  // === DEBT PORTFOLIO ACTIONS ===
+  const handleAddDebt = useCallback(
+    (debtData: Omit<DebtItem, "id" | "createdAt">) => {
+      const newDebt: DebtItem = {
+        ...debtData,
+        id: "debt-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        createdAt: new Date().toISOString()
+      };
+      updateActiveProfile((p) => ({
+        debts: [newDebt, ...(p.debts || [])]
+      }));
+      showToast("Dodano nowe zobowiązanie do portfela", "success");
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleUpdateDebt = useCallback(
+    (debtId: string, updates: Partial<DebtItem>) => {
+      updateActiveProfile((p) => ({
+        debts: (p.debts || []).map((d) =>
+          d.id === debtId ? { ...d, ...updates, updatedAt: new Date().toISOString() } : d
+        )
+      }));
+      showToast("Zaktualizowano dane zobowiązania", "success");
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleDeleteDebt = useCallback(
+    (debtId: string) => {
+      updateActiveProfile((p) => ({
+        debts: (p.debts || []).filter((d) => d.id !== debtId)
+      }));
+      showToast("Usunięto zobowiązanie z portfela", "info");
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleToggleDebtStatus = useCallback(
+    (debtId: string) => {
+      let isNowClosed = false;
+      updateActiveProfile((p) => ({
+        debts: (p.debts || []).map((d) => {
+          if (d.id === debtId) {
+            const nextStatus = d.status === "closed" ? "active" : "closed";
+            isNowClosed = nextStatus === "closed";
+            return { ...d, status: nextStatus, updatedAt: new Date().toISOString() };
+          }
+          return d;
+        })
+      }));
+      showToast(isNowClosed ? "Oznaczono jako spłacone / zamknięte" : "Przywrócono zobowiązanie jako aktywne", "info");
+    },
+    [updateActiveProfile, showToast]
+  );
+
   const handleAddSettlement = useCallback(
     (entry: { amount: number; isoDate: string; note?: string }) => {
       const newSettlement: SettlementEntry = {
@@ -397,6 +453,10 @@ export function useAppActions({
     handleApplySmartRulesBulk,
     handleAddSettlement,
     handleDeleteSettlement,
+    handleAddDebt,
+    handleUpdateDebt,
+    handleDeleteDebt,
+    handleToggleDebtStatus,
     handleSelectProfile,
     handleSwitchProfile,
     handleAddProfile,

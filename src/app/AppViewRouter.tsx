@@ -72,6 +72,10 @@ export function AppViewRouter({
     handleAddSettlement,
     handleDeleteSettlement,
     handleSaveAccounts,
+    handleAddDebt,
+    handleUpdateDebt,
+    handleDeleteDebt,
+    handleToggleDebtStatus,
     handleExportData,
     handleResetData,
     googleUser,
@@ -280,7 +284,16 @@ export function AppViewRouter({
           />
         );
       case "debts":
-        return <DebtsView showToast={showToast} />;
+        return (
+          <DebtsView
+            profile={activeProfile || undefined}
+            onAddDebt={handleAddDebt}
+            onUpdateDebt={handleUpdateDebt}
+            onDeleteDebt={handleDeleteDebt}
+            onToggleDebtStatus={handleToggleDebtStatus}
+            showToast={showToast}
+          />
+        );
       case "analysis":
         return (
           <AnalysisView

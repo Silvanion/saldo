@@ -1,16 +1,12 @@
 import React, { useState, useMemo } from "react";
-import {
-  MOCK_DEBTS,
-  MOCK_PORTFOLIO_KPIS,
-  MOCK_STRATEGIES,
-  MOCK_KNOWLEDGE_ARTICLES,
-  MockDebtItem,
-  DebtCategory
-} from "./mockData";
+import { DebtItem, DebtType, Profile } from "../../types";
+import { calculatePortfolioDebtKpis } from "../../services/debtCalculations";
 import { DebtPortfolioCard } from "./DebtPortfolioCard";
 import { DebtDetailsModal, DebtDetailTab } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
+import { DebtFormModal } from "./DebtFormModal";
+import { MOCK_STRATEGIES, MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
 import { formatMoney } from "../../utils/format";
 import {
   Plus,
@@ -30,38 +26,68 @@ import {
   Filter,
   ArrowUpDown,
   Search,
-  HelpCircle,
   Landmark,
   ShieldCheck,
   Zap,
   Flame,
-  Snowflake
+  Clock,
+  RotateCcw
 } from "lucide-react";
 
 export interface DebtsViewProps {
+  profile?: Profile;
+  onAddDebt?: (debt: Omit<DebtItem, "id" | "createdAt">) => void;
+  onUpdateDebt?: (debtId: string, updates: Partial<DebtItem>) => void;
+  onDeleteDebt?: (debtId: string) => void;
+  onToggleDebtStatus?: (debtId: string) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
 type MainTab = "portfolio" | "scenarios" | "offers" | "knowledge";
-type SortOption = "cost" | "payment" | "payoff_date" | "apr" | "risk";
+type FilterType = "all" | "active" | "closed" | DebtType;
+type SortOption = "apr" | "payment" | "cost" | "payoff_date" | "balance";
 
-export function DebtsView({ showToast }: DebtsViewProps) {
+export function DebtsView({
+  profile,
+  onAddDebt,
+  onUpdateDebt,
+  onDeleteDebt,
+  onToggleDebtStatus,
+  showToast
+}: DebtsViewProps) {
   const [activeMainTab, setActiveMainTab] = useState<MainTab>("portfolio");
-  const [selectedFilter, setSelectedFilter] = useState<"all" | DebtCategory>("all");
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
   const [sortBy, setSortBy] = useState<SortOption>("apr");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Modals state
-  const [selectedDebtForDetails, setSelectedDebtForDetails] = useState<MockDebtItem | null>(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [debtToEdit, setDebtToEdit] = useState<DebtItem | null>(null);
+  const [selectedDebtForDetails, setSelectedDebtForDetails] = useState<DebtItem | null>(null);
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
-  const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<MockDebtItem | null>(null);
-  const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<MockDebtItem | null>(null);
+  const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
+  const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
+
+  const debts = useMemo(() => {
+    return profile?.debts || [];
+  }, [profile?.debts]);
+
+  const currency = profile?.currency || "PLN";
+
+  // Calculate real portfolio KPIs
+  const kpiData = useMemo(() => {
+    return calculatePortfolioDebtKpis(debts);
+  }, [debts]);
 
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
-    let list = [...MOCK_DEBTS];
+    let list = [...debts];
 
-    if (selectedFilter !== "all") {
+    if (selectedFilter === "active") {
+      list = list.filter((d) => d.status !== "closed");
+    } else if (selectedFilter === "closed") {
+      list = list.filter((d) => d.status === "closed");
+    } else if (selectedFilter !== "all") {
       list = list.filter((d) => d.type === selectedFilter);
     }
 
@@ -70,31 +96,48 @@ export function DebtsView({ showToast }: DebtsViewProps) {
       list = list.filter(
         (d) =>
           d.name.toLowerCase().includes(q) ||
-          d.institution.toLowerCase().includes(q) ||
-          d.typeLabel.toLowerCase().includes(q)
+          d.institution.toLowerCase().includes(q)
       );
     }
 
     list.sort((a, b) => {
       switch (sortBy) {
         case "apr":
-          return b.interestRate - a.interestRate;
+          return (b.interestRate || 0) - (a.interestRate || 0);
         case "payment":
-          return b.monthlyPayment - a.monthlyPayment;
+          return (b.monthlyPayment || 0) - (a.monthlyPayment || 0);
+        case "balance":
+          return (b.balance || 0) - (a.balance || 0);
         case "cost":
-          return b.remainingInterest - a.remainingInterest;
+          return (b.balance * b.interestRate) - (a.balance * a.interestRate);
         case "payoff_date":
-          return a.remainingMonths - b.remainingMonths;
-        case "risk":
         default:
-          return b.balance - a.balance;
+          return (a.remainingMonths || 999) - (b.remainingMonths || 999);
       }
     });
 
     return list;
-  }, [selectedFilter, sortBy, searchQuery]);
+  }, [debts, selectedFilter, sortBy, searchQuery]);
 
-  const handleOpenDetails = (debt: MockDebtItem, tab: DebtDetailTab = "overview") => {
+  const handleOpenAddModal = () => {
+    setDebtToEdit(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleOpenEditModal = (debt: DebtItem) => {
+    setDebtToEdit(debt);
+    setIsFormModalOpen(true);
+  };
+
+  const handleSaveForm = (data: Omit<DebtItem, "id" | "createdAt">) => {
+    if (debtToEdit) {
+      onUpdateDebt?.(debtToEdit.id, data);
+    } else {
+      onAddDebt?.(data);
+    }
+  };
+
+  const handleOpenDetails = (debt: DebtItem, tab: DebtDetailTab = "overview") => {
     setInitialDetailsTab(tab);
     setSelectedDebtForDetails(debt);
   };
@@ -104,8 +147,8 @@ export function DebtsView({ showToast }: DebtsViewProps) {
       setActiveMainTab("scenarios");
     } else if (actionName === "offers") {
       setActiveMainTab("offers");
-    } else {
-      showToast?.(`Akcja "${actionName}" — to jest makieta Sprint 0. Funkcjonalność edycji pojawi się w kolejnym sprincie.`, "info");
+    } else if (actionName === "import") {
+      showToast?.("Import zadłużenia z BIK/CSV będzie dostępny w kolejnym sprincie.", "info");
     }
   };
 
@@ -123,14 +166,14 @@ export function DebtsView({ showToast }: DebtsViewProps) {
             </h1>
           </div>
           <p className="text-xs text-text-muted mt-1">
-            Cały portfel zadłużenia w jednym miejscu • Analiza kosztów, symulator nadpłat i porównania ofert
+            Cały portfel zadłużenia w jednym miejscu • Analiza kosztów, symulator nadpłat i strategie spłaty
           </p>
         </div>
 
-        {/* 4 Required Top Actions */}
+        {/* Top Actions */}
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => handleTopActionClick("Dodaj zobowiązanie")}
+            onClick={handleOpenAddModal}
             className="bg-brand text-text-inverse font-bold py-2.5 px-3.5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-debt"
           >
@@ -139,7 +182,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </button>
 
           <button
-            onClick={() => handleTopActionClick("Dodaj ofertę")}
+            onClick={() => handleTopActionClick("offers")}
             className="bg-surface hover:bg-surface-2 border border-border text-text-main font-bold py-2.5 px-3 rounded-xl active:scale-[0.98] transition-all shadow-2xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-scenario"
           >
@@ -149,7 +192,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </button>
 
           <button
-            onClick={() => handleTopActionClick("Importuj dane")}
+            onClick={() => handleTopActionClick("import")}
             className="bg-surface hover:bg-surface-2 border border-border text-text-muted hover:text-text-main font-bold py-2.5 px-3 rounded-xl active:scale-[0.98] transition-all shadow-2xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-import-debts"
             title="Importuj dane z wyciągów lub BIK"
@@ -169,7 +212,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         </div>
       </div>
 
-      {/* 2. PORTFOLIO KPI AREA (8 Mock Indicators) */}
+      {/* 2. PORTFOLIO KPI AREA (8 Real Indicators) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" id="portfolio-kpis-grid">
         {/* KPI 1: Łączne saldo */}
         <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
@@ -178,10 +221,13 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(MOCK_PORTFOLIO_KPIS.totalBalance, "PLN")}
+              {formatMoney(kpiData.totalBalance, currency)}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted">4 aktywne zobowiązania</span>
+          <span className="text-[11px] text-text-muted">
+            {kpiData.activeCount} {kpiData.activeCount === 1 ? "aktywne dług" : "aktywne długi"}
+            {kpiData.closedCount > 0 ? ` (${kpiData.closedCount} spłaconych)` : ""}
+          </span>
         </div>
 
         {/* KPI 2: Miesięczna obsługa */}
@@ -191,7 +237,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(MOCK_PORTFOLIO_KPIS.monthlyDebtService, "PLN")}
+              {formatMoney(kpiData.monthlyDebtService, currency)}
             </span>
           </div>
           <span className="text-[11px] text-text-muted">suma bieżących rat i spłat</span>
@@ -204,10 +250,10 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(MOCK_PORTFOLIO_KPIS.remainingInterest, "PLN")}
+              {formatMoney(kpiData.remainingInterest, currency)}
             </span>
           </div>
-          <span className="text-[11px] text-danger font-medium">koszt obsługi kapitału</span>
+          <span className="text-[11px] text-danger font-medium">szacowany koszt obsługi</span>
         </div>
 
         {/* KPI 4: Śr. koszt długu */}
@@ -217,7 +263,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-xl sm:text-2xl font-black text-brand tabular-nums">
-              {MOCK_PORTFOLIO_KPIS.weightedInterestRate.toFixed(1)}%
+              {kpiData.weightedInterestRate.toFixed(1)}%
             </span>
           </div>
           <span className="text-[11px] text-text-muted">średnia ważona kapitałem</span>
@@ -230,12 +276,15 @@ export function DebtsView({ showToast }: DebtsViewProps) {
             Najdroższy dług
           </span>
           <div className="my-1">
-            <span className="text-sm sm:text-base font-bold text-text-main truncate block" title={MOCK_PORTFOLIO_KPIS.mostExpensiveDebt.name}>
-              {MOCK_PORTFOLIO_KPIS.mostExpensiveDebt.name}
+            <span
+              className="text-sm sm:text-base font-bold text-text-main truncate block"
+              title={kpiData.mostExpensiveDebt?.name || "Brak"}
+            >
+              {kpiData.mostExpensiveDebt?.name || "Brak aktywnych"}
             </span>
           </div>
           <span className="text-xs font-black text-danger tabular-nums">
-            APR {MOCK_PORTFOLIO_KPIS.mostExpensiveDebt.apr.toFixed(1)}%
+            {kpiData.mostExpensiveDebt ? `APR ${kpiData.mostExpensiveDebt.apr.toFixed(1)}%` : "0.0%"}
           </span>
         </div>
 
@@ -245,12 +294,17 @@ export function DebtsView({ showToast }: DebtsViewProps) {
             Najbliższa płatność
           </span>
           <div className="my-1">
-            <span className="text-sm sm:text-base font-bold text-text-main truncate block">
-              {MOCK_PORTFOLIO_KPIS.nearestPayment.name}
+            <span
+              className="text-sm sm:text-base font-bold text-text-main truncate block"
+              title={kpiData.nearestPayment?.name || "Brak"}
+            >
+              {kpiData.nearestPayment?.name || "Brak"}
             </span>
           </div>
           <span className="text-xs text-text-muted font-bold">
-            {MOCK_PORTFOLIO_KPIS.nearestPayment.date} ({formatMoney(MOCK_PORTFOLIO_KPIS.nearestPayment.amount, "PLN")})
+            {kpiData.nearestPayment
+              ? `${kpiData.nearestPayment.date} (${formatMoney(kpiData.nearestPayment.amount, currency)})`
+              : "Brak terminów"}
           </span>
         </div>
 
@@ -262,10 +316,12 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-sm sm:text-base font-bold text-text-main truncate block">
-              Możliwy zwrot w 18 mies.
+              {kpiData.weightedInterestRate > 6.5 ? "Warto sprawdzić oferty" : "Warunki stabilne"}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted">oferty tańsze o 0.95 p.p.</span>
+          <span className="text-[11px] text-text-muted">
+            {kpiData.weightedInterestRate > 6.5 ? "potencjał optymalizacji stawek" : "brak pilnych zmian"}
+          </span>
         </div>
 
         {/* KPI 8: Potencjał nadpłaty */}
@@ -276,10 +332,10 @@ export function DebtsView({ showToast }: DebtsViewProps) {
           </span>
           <div className="my-1">
             <span className="text-sm sm:text-base font-bold text-brand truncate block">
-              -6 lat / -39 800 zł
+              {kpiData.totalBalance > 50000 ? "Oszczędność do kilkudziesięciu tys. zł" : "Szybka spłata możliwa"}
             </span>
           </div>
-          <span className="text-[11px] text-text-muted">przy nadpłacie 1 000 zł/mc</span>
+          <span className="text-[11px] text-text-muted">sprawdź w symulatorze</span>
         </div>
       </div>
 
@@ -296,8 +352,14 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         >
           <Layers className="w-4 h-4" />
           <span>Portfel zobowiązań</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${activeMainTab === "portfolio" ? 'bg-text-inverse/20 text-text-inverse' : 'bg-surface-2 text-text-muted'}`}>
-            {MOCK_DEBTS.length}
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+              activeMainTab === "portfolio"
+                ? "bg-text-inverse/20 text-text-inverse"
+                : "bg-surface-2 text-text-muted"
+            }`}
+          >
+            {debts.length}
           </span>
         </button>
 
@@ -356,7 +418,18 @@ export function DebtsView({ showToast }: DebtsViewProps) {
                     : "text-text-muted hover:text-text-main hover:bg-surface-2"
                 }`}
               >
-                Wszystkie ({MOCK_DEBTS.length})
+                Wszystkie ({debts.length})
+              </button>
+
+              <button
+                onClick={() => setSelectedFilter("active")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedFilter === "active"
+                    ? "bg-brand-subtle text-brand border border-brand/20"
+                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                }`}
+              >
+                Aktywne ({kpiData.activeCount})
               </button>
 
               <button
@@ -402,6 +475,19 @@ export function DebtsView({ showToast }: DebtsViewProps) {
               >
                 BNPL
               </button>
+
+              {kpiData.closedCount > 0 && (
+                <button
+                  onClick={() => setSelectedFilter("closed")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    selectedFilter === "closed"
+                      ? "bg-brand-subtle text-brand border border-brand/20"
+                      : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                  }`}
+                >
+                  Zamknięte ({kpiData.closedCount})
+                </button>
+              )}
             </div>
 
             {/* Sort Dropdown */}
@@ -417,25 +503,50 @@ export function DebtsView({ showToast }: DebtsViewProps) {
               >
                 <option value="apr">Najwyższy APR / Koszt</option>
                 <option value="payment">Wysokość raty</option>
-                <option value="cost">Suma pozostałych odsetek</option>
+                <option value="balance">Wielkość salda</option>
                 <option value="payoff_date">Termin spłaty</option>
-                <option value="risk">Największe saldo</option>
               </select>
             </div>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 gap-4" id="debt-cards-list">
-            {filteredDebts.map((debt) => (
-              <DebtPortfolioCard
-                key={debt.id}
-                debt={debt}
-                onOpenDetails={handleOpenDetails}
-                onOpenOverpayment={(d) => setSelectedDebtForOverpayment(d)}
-                onOpenRefinance={(d) => setSelectedDebtForRefinance(d)}
-              />
-            ))}
-          </div>
+          {/* Cards Grid / Empty State */}
+          {filteredDebts.length === 0 ? (
+            <div className="text-center py-12 px-6 bg-surface rounded-2xl border border-dashed border-border flex flex-col items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
+                <Landmark className="w-7 h-7 text-brand" />
+              </div>
+              <h3 className="text-base font-bold text-text-main">
+                {debts.length === 0 ? "Nie dodałeś jeszcze żadnych zobowiązań" : "Brak wyników dla wybranych filtrów"}
+              </h3>
+              <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
+                {debts.length === 0
+                  ? "Zarządzaj całym portfelem zadłużenia (hipoteki, pożyczki, karty kredytowe) w jednym miejscu. Śledź koszty, raty i licz oszczędności z nadpłat."
+                  : "Zmień kryteria filtrowania lub wyszukiwania, aby zobaczyć zobowiązania."}
+              </p>
+              <button
+                onClick={handleOpenAddModal}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Dodaj pierwsze zobowiązanie</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4" id="debt-cards-list">
+              {filteredDebts.map((debt) => (
+                <DebtPortfolioCard
+                  key={debt.id}
+                  debt={debt}
+                  onOpenDetails={handleOpenDetails}
+                  onOpenOverpayment={(d) => setSelectedDebtForOverpayment(d)}
+                  onOpenRefinance={(d) => setSelectedDebtForRefinance(d)}
+                  onEdit={handleOpenEditModal}
+                  onDelete={(id) => onDeleteDebt?.(id)}
+                  onToggleStatus={(id) => onToggleDebtStatus?.(id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -447,7 +558,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
               Porównanie strategii spłaty całego portfela
             </h3>
             <p className="text-xs text-text-muted mb-6">
-              Która strategia jest optymalna przy miesięcznej nadwyżce 1 000 PLN?
+              Wybierz model optymalizacji spłaty zadłużenia dostosowany do Twoich celów.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -482,7 +593,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
 
                   <div className="space-y-2 pt-3 border-t border-border/50 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-text-faint">Czas:</span>
+                      <span className="text-text-faint">Horyzont:</span>
                       <span className="font-bold text-text-main">{strategy.timeframe}</span>
                     </div>
                     <div className="flex justify-between">
@@ -490,7 +601,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
                       <span className="font-bold text-brand">{strategy.interestSavings}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-faint">Płynność:</span>
+                      <span className="text-text-faint">Wpływ na płynność:</span>
                       <span className="font-medium text-text-muted">{strategy.liquidityImpact}</span>
                     </div>
                   </div>
@@ -510,43 +621,17 @@ export function DebtsView({ showToast }: DebtsViewProps) {
                 Kalkulator ofert i refinansowania
               </h3>
               <p className="text-xs text-text-muted">
-                Porównaj swój obecny kredyt hipoteczny z propozycjami innych banków.
+                Porównaj swoje obecne kredyty z ofertami innych banków (moduł ofertowy).
               </p>
             </div>
-            <button
-              onClick={() => setSelectedDebtForRefinance(MOCK_DEBTS[0])}
-              className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer self-start sm:self-auto shrink-0 shadow-xs"
-            >
-              Uruchom kalkulator porównawczy
-            </button>
-          </div>
-
-          {/* Sample Offer Preview Card */}
-          <div className="bg-surface border border-border rounded-2xl p-5">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
-              <span className="text-xs font-bold text-text-faint uppercase">Zapisana oferta A</span>
-              <span className="text-xs font-bold text-brand bg-brand-subtle px-2 py-0.5 rounded">
-                Break-even: 19 mies.
-              </span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-              <div>
-                <span className="text-text-muted block">Nowe oprocentowanie:</span>
-                <span className="text-base font-bold text-brand">5.90% stałe</span>
-              </div>
-              <div>
-                <span className="text-text-muted block">Nowa rata:</span>
-                <span className="text-base font-bold text-text-main">2 610 zł / mc</span>
-              </div>
-              <div>
-                <span className="text-text-muted block">Miesięczna oszczędność:</span>
-                <span className="text-base font-bold text-brand">+330 zł / mc</span>
-              </div>
-              <div>
-                <span className="text-text-muted block">Zysk w 5 lat:</span>
-                <span className="text-base font-bold text-text-main">16 800 zł</span>
-              </div>
-            </div>
+            {debts.length > 0 && (
+              <button
+                onClick={() => setSelectedDebtForRefinance(debts[0])}
+                className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer self-start sm:self-auto shrink-0 shadow-xs"
+              >
+                Uruchom kalkulator porównawczy
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -556,7 +641,10 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         <div className="space-y-6 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {MOCK_KNOWLEDGE_ARTICLES.map((art) => (
-              <div key={art.id} className="p-5 bg-surface border border-border rounded-2xl flex flex-col justify-between hover:border-brand/40 transition">
+              <div
+                key={art.id}
+                className="p-5 bg-surface border border-border rounded-2xl flex flex-col justify-between hover:border-brand/40 transition"
+              >
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-brand px-2 py-0.5 bg-brand-subtle rounded-md">
@@ -569,7 +657,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs font-bold text-brand">
-                  <span>Przeczytaj przewodnik</span>
+                  <span>Przewodnik edukacyjny</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -578,7 +666,18 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         </div>
       )}
 
-      {/* MODALS */}
+      {/* MODAL 1: ADD / EDIT DEBT */}
+      {isFormModalOpen && (
+        <DebtFormModal
+          isOpen={true}
+          onClose={() => setIsFormModalOpen(false)}
+          onSave={handleSaveForm}
+          initialData={debtToEdit}
+          currency={currency}
+        />
+      )}
+
+      {/* MODAL 2: DEBT DETAILS */}
       {selectedDebtForDetails && (
         <DebtDetailsModal
           isOpen={true}
@@ -596,6 +695,7 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         />
       )}
 
+      {/* MODAL 3: OVERPAYMENT SIMULATOR */}
       {selectedDebtForOverpayment && (
         <OverpaymentSimulatorModal
           isOpen={true}
@@ -604,10 +704,11 @@ export function DebtsView({ showToast }: DebtsViewProps) {
         />
       )}
 
+      {/* MODAL 4: REFINANCE COMPARISON */}
       {selectedDebtForRefinance && (
         <RefinanceComparisonModal
           isOpen={true}
-          debt={selectedDebtForRefinance}
+          debt={selectedDebtForRefinance as any}
           onClose={() => setSelectedDebtForRefinance(null)}
         />
       )}

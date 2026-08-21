@@ -133,6 +133,32 @@ export interface SettlementEntry {
   createdAt: string;
 }
 
+export type DebtType = "mortgage" | "credit_card" | "cash_loan" | "revolving" | "bnpl" | "other";
+
+export interface DebtItem {
+  id: string;
+  name: string;
+  institution: string;
+  type: DebtType;
+  currency: SupportedCurrency;
+  balance: number;
+  originalAmount?: number;
+  monthlyPayment: number;
+  interestRate: number; // annual interest rate in % e.g. 6.85
+  rateType?: "fixed" | "variable";
+  startDate?: string;
+  endDate?: string;
+  remainingMonths?: number;
+  fixedRateEndDate?: string;
+  nextPaymentDate?: string;
+  propertyValue?: number;
+  creditLimit?: number;
+  status: "active" | "closed";
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface Profile {
   id: string;
   name: string;
@@ -152,6 +178,7 @@ export interface Profile {
   transactionRules?: TransactionRule[];
   smartRules?: SmartRule[];
   settlements?: SettlementEntry[];
+  debts?: DebtItem[];
   currency: SupportedCurrency;
 }
 
@@ -165,6 +192,7 @@ export interface AppState {
   recurringRules?: RecurringRule[];
   transactionRules?: TransactionRule[];
   smartRules?: SmartRule[];
+  debts?: DebtItem[];
   aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
   localAiModel?: string;

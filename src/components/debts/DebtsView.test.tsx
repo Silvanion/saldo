@@ -3,73 +3,211 @@
  */
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
+import { DebtItem, Profile } from "../../types";
 
-describe("DebtsView (Sprint 0 Mock)", () => {
+const mockDebts: DebtItem[] = [
+  {
+    id: "debt-1",
+    name: "Kredyt hipoteczny",
+    institution: "PKO BP",
+    type: "mortgage",
+    currency: "PLN",
+    balance: 350000,
+    originalAmount: 400000,
+    monthlyPayment: 2600,
+    interestRate: 6.85,
+    rateType: "fixed",
+    fixedRateEndDate: "03.2028",
+    propertyValue: 500000,
+    status: "active",
+    createdAt: "2026-01-01"
+  },
+  {
+    id: "debt-2",
+    name: "Karta Visa",
+    institution: "mBank",
+    type: "credit_card",
+    currency: "PLN",
+    balance: 8000,
+    creditLimit: 10000,
+    monthlyPayment: 400,
+    interestRate: 18.5,
+    status: "active",
+    createdAt: "2026-01-01"
+  },
+  {
+    id: "debt-3",
+    name: "Stary kredyt gotówkowy",
+    institution: "Santander",
+    type: "cash_loan",
+    currency: "PLN",
+    balance: 0,
+    monthlyPayment: 0,
+    interestRate: 9.5,
+    status: "closed",
+    createdAt: "2025-01-01"
+  }
+];
+
+const mockProfile: Profile = {
+  id: "prof-1",
+  name: "Główny",
+  kind: "personal",
+  currency: "PLN",
+  transactions: [],
+  payments: [],
+  goals: [],
+  investments: [],
+  budgets: {},
+  debts: mockDebts
+};
+
+describe("DebtsView (Sprint 1 MVP)", () => {
   afterEach(cleanup);
 
-  it("renders the module header, top actions, and 8 KPI indicators", () => {
-    render(<DebtsView showToast={vi.fn()} />);
+  it("renders empty state when no debts exist", () => {
+    const emptyProfile: Profile = { ...mockProfile, debts: [] };
+    const onAddDebt = vi.fn();
+
+    render(<DebtsView profile={emptyProfile} onAddDebt={onAddDebt} />);
+
+    expect(screen.getByText("Nie dodałeś jeszcze żadnych zobowiązań")).toBeTruthy();
+    expect(screen.getByText("Dodaj pierwsze zobowiązanie")).toBeTruthy();
+
+    // KPIs show 0
+    expect(screen.getByText("Łączne saldo")).toBeTruthy();
+    expect(screen.getByText("0 aktywne długi")).toBeTruthy();
+  });
+
+  it("opens add debt modal and submits new debt", () => {
+    const emptyProfile: Profile = { ...mockProfile, debts: [] };
+    const onAddDebt = vi.fn();
+
+    const { container } = render(<DebtsView profile={emptyProfile} onAddDebt={onAddDebt} />);
+
+    const addBtn = screen.getByRole("button", { name: /Dodaj pierwsze zobowiązanie/i });
+    fireEvent.click(addBtn);
+
+    expect(screen.getByText("Dodaj nowe zobowiązanie")).toBeTruthy();
+
+    // Fill form
+    fireEvent.change(screen.getByPlaceholderText("Hipoteka mieszkanie"), {
+      target: { value: "Nowy kredyt gotówkowy" }
+    });
+    fireEvent.change(screen.getByPlaceholderText("350000"), {
+      target: { value: "15000" }
+    });
+    fireEvent.change(screen.getByPlaceholderText("2500"), {
+      target: { value: "650" }
+    });
+    fireEvent.change(screen.getByPlaceholderText("6.85"), {
+      target: { value: "11.5" }
+    });
+
+    const submitBtn = container.ownerDocument.querySelector('button[type="submit"]') as HTMLButtonElement;
+    fireEvent.click(submitBtn);
+
+    expect(onAddDebt).toHaveBeenCalledTimes(1);
+    expect(onAddDebt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Nowy kredyt gotówkowy",
+        balance: 15000,
+        monthlyPayment: 650,
+        interestRate: 11.5
+      })
+    );
+  });
+
+  it("renders real debts and computed portfolio KPIs", () => {
+    render(<DebtsView profile={mockProfile} />);
 
     expect(screen.getByText("Kredyty i Hipoteka")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Dodaj zobowiązanie/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Porównaj strategie/i })).toBeTruthy();
 
-    // Check KPIs
-    expect(screen.getByText("Łączne saldo")).toBeTruthy();
-    expect(screen.getByText("Miesięczna obsługa")).toBeTruthy();
-    expect(screen.getByText("Pozostałe odsetki")).toBeTruthy();
-    expect(screen.getByText("Śr. koszt długu (WACD)")).toBeTruthy();
-    expect(screen.getByText("Najdroższy dług")).toBeTruthy();
-    expect(screen.getByText("Najbliższa płatność")).toBeTruthy();
-    expect(screen.getByText("Refi alert")).toBeTruthy();
-    expect(screen.getAllByText("Potencjał nadpłaty").length).toBeGreaterThanOrEqual(1);
+    // Real computed total balance: 350000 + 8000 = 358000
+    expect(screen.getByText(/358\s*000/)).toBeTruthy();
+    // Monthly payment: 2600 + 400 = 3000
+    expect(screen.getByText(/3\s*000/)).toBeTruthy();
+    // Highest APR debt
+    expect(screen.getAllByText("Karta Visa").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("APR 18.5%")).toBeTruthy();
+
+    // Debts cards
+    expect(screen.getAllByText("Kredyt hipoteczny").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders sample debt cards and allows filtering by category", () => {
-    render(<DebtsView showToast={vi.fn()} />);
+  it("filters by category chip and closed debts", () => {
+    const { container } = render(<DebtsView profile={mockProfile} />);
 
-    // Default renders all
-    expect(screen.getAllByText("Hipoteka mieszkanie").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Karta kredytowa Visa Gold")).toBeTruthy();
-    expect(screen.getByText("Kredyt gotówkowy na remont")).toBeTruthy();
-    expect(screen.getByText("Allegro Pay / PayPo (Sprzęt AGD)")).toBeTruthy();
+    // Filter by Hipoteki
+    const mortgageChip = screen.getByRole("button", { name: "Hipoteki" });
+    fireEvent.click(mortgageChip);
 
-    // Filter by mortgage
-    const mortgageFilter = screen.getByRole("button", { name: "Hipoteki" });
-    fireEvent.click(mortgageFilter);
+    const cardsList = container.querySelector("#debt-cards-list") as HTMLElement;
+    expect(within(cardsList).getAllByText("Kredyt hipoteczny").length).toBeGreaterThanOrEqual(1);
+    expect(within(cardsList).queryByText("Karta Visa")).toBeNull();
 
-    expect(screen.getAllByText("Hipoteka mieszkanie").length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText("Karta kredytowa Visa Gold")).toBeNull();
+    // Filter by Zamknięte
+    const closedChip = screen.getByRole("button", { name: /Zamknięte \(1\)/i });
+    fireEvent.click(closedChip);
 
-    // Switch to all
-    const allFilter = screen.getByRole("button", { name: /Wszystkie/i });
-    fireEvent.click(allFilter);
-    expect(screen.getByText("Karta kredytowa Visa Gold")).toBeTruthy();
+    expect(within(cardsList).getByText("Stary kredyt gotówkowy")).toBeTruthy();
+    expect(within(cardsList).queryByText("Kredyt hipoteczny")).toBeNull();
   });
 
-  it("opens debt details modal when clicking Szczegóły", () => {
-    render(<DebtsView showToast={vi.fn()} />);
+  it("triggers edit and delete actions", () => {
+    const onUpdateDebt = vi.fn();
+    const onDeleteDebt = vi.fn();
 
-    const detailsButtons = screen.getAllByText("Szczegóły");
-    fireEvent.click(detailsButtons[0]);
+    render(
+      <DebtsView
+        profile={mockProfile}
+        onUpdateDebt={onUpdateDebt}
+        onDeleteDebt={onDeleteDebt}
+      />
+    );
+
+    // Edit button on first card
+    const editBtns = screen.getAllByTitle("Edytuj zobowiązanie");
+    fireEvent.click(editBtns[0]);
+    expect(screen.getByText("Edytuj zobowiązanie")).toBeTruthy();
+
+    // Close modal
+    fireEvent.click(screen.getByRole("button", { name: /Anuluj/i }));
+
+    // Delete button
+    const deleteBtns = screen.getAllByTitle("Usuń zobowiązanie");
+    fireEvent.click(deleteBtns[0]);
+
+    expect(screen.getByText("Czy na pewno chcesz usunąć to zobowiązanie?")).toBeTruthy();
+
+    // Confirm delete
+    const confirmDeleteBtn = screen.getByRole("button", { name: "Usuń" });
+    fireEvent.click(confirmDeleteBtn);
+
+    expect(onDeleteDebt).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens debt details and overpayment modals", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Click Szczegóły on first card
+    const detailBtns = screen.getAllByText("Szczegóły");
+    fireEvent.click(detailBtns[0]);
 
     expect(screen.getByRole("dialog")).toBeTruthy();
-    expect(screen.getByText("Harmonogram spłat")).toBeTruthy();
-    expect(screen.getByText("Koszty i warunki umowy")).toBeTruthy();
-  });
+    expect(screen.getByText("Warunki i parametry")).toBeTruthy();
 
-  it("switches to Scenariusze and Wiedza tabs", () => {
-    const { container } = render(<DebtsView showToast={vi.fn()} />);
+    // Close details
+    const closeBtn = screen.getByRole("button", { name: "Zamknij" });
+    fireEvent.click(closeBtn);
 
-    const scenariosTab = container.querySelector("#tab-btn-scenarios") as HTMLButtonElement;
-    fireEvent.click(scenariosTab);
-    expect(screen.getByText("Porównanie strategii spłaty całego portfela")).toBeTruthy();
-    expect(screen.getByText("Lawina zadłużenia (Najwyższy APR)")).toBeTruthy();
+    // Click Symulator nadpłaty
+    const overpaymentBtn = screen.getByRole("button", { name: "Symulator nadpłaty" });
+    fireEvent.click(overpaymentBtn);
 
-    const knowledgeTab = container.querySelector("#tab-btn-knowledge") as HTMLButtonElement;
-    fireEvent.click(knowledgeTab);
-    expect(screen.getByText("Stała vs Zmienna stopa: kiedy warto refinansować?")).toBeTruthy();
+    expect(screen.getByText("Symulator nadpłaty zobowiązania")).toBeTruthy();
+    expect(screen.getByText("Rzeczywiste porównanie scenariuszy")).toBeTruthy();
   });
 });

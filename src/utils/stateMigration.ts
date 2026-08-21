@@ -126,6 +126,7 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
         return clean;
       }),
       settlements: Array.isArray(profileObj.settlements) ? profileObj.settlements : [],
+      debts: Array.isArray(profileObj.debts) ? profileObj.debts : [],
       currency: (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) as import("../types").SupportedCurrency
     };
 
