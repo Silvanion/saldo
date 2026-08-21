@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   calculatePortfolioDebtKpis,
   calculateAmortizationSchedule,
-  calculateOverpayment
+  calculateOverpayment,
+  calculateRefinanceComparison,
+  calculateDebtPortfolioAnalytics
 } from "./debtCalculations";
 import { DebtItem } from "../types";
 
@@ -116,6 +118,142 @@ describe("debtCalculations", () => {
       expect(result.withOverpayment.monthlyPayment).toBeLessThan(result.baseline.monthlyPayment);
       expect(result.savings.monthlyReduction).toBeGreaterThan(0);
       expect(result.savings.interestSaved).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculateRefinanceComparison (Sprint 2 Refinance MVP)", () => {
+    it("evaluates a beneficial refinance offer with lower rate and reasonable break-even", () => {
+      const result = calculateRefinanceComparison({
+        balance: 400000,
+        currentRate: 7.2,
+        currentMonthlyPayment: 2950,
+        currentRemainingMonths: 240,
+        newRate: 5.8,
+        newTermMonths: 240,
+        closingCosts: 6000
+      });
+
+      expect(result.refinanced.monthlyPayment).toBeLessThan(result.current.monthlyPayment);
+      expect(result.comparison.monthlyDifference).toBeGreaterThan(0);
+      expect(result.comparison.totalInterestDifference).toBeGreaterThan(6000);
+      expect(result.comparison.netLifetimeSavings).toBeGreaterThan(0);
+      expect(result.comparison.breakEvenMonths).toBeLessThanOrEqual(48);
+      expect(result.comparison.benefitStatus).toBe("likely_beneficial");
+    });
+
+    it("evaluates a higher rate scenario as not beneficial", () => {
+      const result = calculateRefinanceComparison({
+        balance: 300000,
+        currentRate: 6.0,
+        currentMonthlyPayment: 2150,
+        currentRemainingMonths: 240,
+        newRate: 7.5,
+        newTermMonths: 240,
+        closingCosts: 3000
+      });
+
+      expect(result.comparison.benefitStatus).toBe("not_beneficial");
+      expect(result.comparison.netLifetimeSavings).toBeLessThan(0);
+      expect(result.comparison.statusReason).toContain("wyższe");
+    });
+
+    it("evaluates a scenario where closing costs exceed interest savings", () => {
+      const result = calculateRefinanceComparison({
+        balance: 50000,
+        currentRate: 6.5,
+        currentMonthlyPayment: 1500,
+        currentRemainingMonths: 36,
+        newRate: 6.0,
+        newTermMonths: 36,
+        closingCosts: 10000 // excessive cost for small loan
+      });
+
+      expect(result.comparison.benefitStatus).toBe("not_beneficial");
+      expect(result.comparison.netLifetimeSavings).toBeLessThan(0);
+    });
+
+    it("handles 0 closing costs accurately with breakEvenMonths = 0", () => {
+      const result = calculateRefinanceComparison({
+        balance: 200000,
+        currentRate: 7.0,
+        currentMonthlyPayment: 1800,
+        currentRemainingMonths: 180,
+        newRate: 5.5,
+        newTermMonths: 180,
+        closingCosts: 0
+      });
+
+      expect(result.comparison.breakEvenMonths).toBe(0);
+      expect(result.comparison.netLifetimeSavings).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculateDebtPortfolioAnalytics (Sprint 2 Deeper Analytics)", () => {
+    const testDebts: DebtItem[] = [
+      {
+        id: "1",
+        name: "Hipoteka mieszkaniowa",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 400000,
+        monthlyPayment: 2800,
+        interestRate: 6.85,
+        rateType: "fixed",
+        remainingMonths: 240,
+        status: "active",
+        createdAt: "2026-01-01"
+      },
+      {
+        id: "2",
+        name: "Karta Visa",
+        institution: "mBank",
+        type: "credit_card",
+        currency: "PLN",
+        balance: 10000,
+        monthlyPayment: 500,
+        interestRate: 18.9,
+        rateType: "variable",
+        status: "active",
+        createdAt: "2026-01-01"
+      },
+      {
+        id: "3",
+        name: "Raty Allegro",
+        institution: "Allegro Pay",
+        type: "bnpl",
+        currency: "PLN",
+        balance: 1200,
+        monthlyPayment: 600,
+        interestRate: 0,
+        remainingMonths: 2,
+        status: "active",
+        createdAt: "2026-01-01"
+      }
+    ];
+
+    it("computes debt mix, cost concentration, and rate exposure", () => {
+      const analytics = calculateDebtPortfolioAnalytics(testDebts);
+
+      expect(analytics.totalActiveBalance).toBe(411200);
+      expect(analytics.totalMonthlyService).toBe(3900);
+      expect(analytics.debtMix.length).toBe(3);
+
+      // Cost concentration: Mortgage generates bulk of long-term interest
+      expect(analytics.costConcentration.top1Debt?.name).toBe("Hipoteka mieszkaniowa");
+      expect(analytics.costConcentration.top1Debt?.sharePct).toBeGreaterThan(80);
+
+      // Rate exposure
+      expect(analytics.rateExposure.fixedBalance).toBe(400000);
+      expect(analytics.rateExposure.fixedSharePct).toBeGreaterThan(95);
+
+      // Payoff horizon
+      expect(analytics.payoffHorizon.shortest?.name).toBe("Raty Allegro");
+      expect(analytics.payoffHorizon.longest?.name).toBe("Hipoteka mieszkaniowa");
+
+      // Refinance candidates & signals
+      expect(analytics.refinanceCandidates.length).toBeGreaterThan(0);
+      expect(analytics.insightSignals.length).toBeGreaterThan(0);
     });
   });
 });

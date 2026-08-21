@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { calculateAmortizationSchedule, calculateOverpayment } from "../../services/debtCalculations";
+import { calculateAmortizationSchedule, calculateOverpayment, calculateRefinanceComparison } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -83,6 +83,19 @@ export function DebtDetailsModal({
       overpaymentAmount: 1000,
       frequency: "monthly",
       targetStrategy: "reduce_term"
+    });
+  }, [debt]);
+
+  const refinancePreview = useMemo(() => {
+    if (!debt || debt.type !== "mortgage") return null;
+    const targetRate = Math.max(1, Math.round((debt.interestRate - 1.0) * 100) / 100);
+    return calculateRefinanceComparison({
+      balance: debt.balance,
+      currentRate: debt.interestRate,
+      currentMonthlyPayment: debt.monthlyPayment,
+      currentRemainingMonths: debt.remainingMonths,
+      newRate: targetRate,
+      closingCosts: 4500
     });
   }, [debt]);
 
@@ -465,7 +478,7 @@ export function DebtDetailsModal({
                   <div>
                     <h3 className="text-sm font-bold text-text-main">Analiza opłacalności refinansowania</h3>
                     <p className="text-xs text-text-muted">
-                      Obecna stawka: {debt.interestRate.toFixed(2)}%
+                      Obecna stawka: {debt.interestRate.toFixed(2)}% • Symulacja przy obniżeniu o 1.0 p.p.
                     </p>
                   </div>
                   {onOpenRefinanceModal && (
@@ -473,21 +486,48 @@ export function DebtDetailsModal({
                       onClick={() => onOpenRefinanceModal(debt)}
                       className="px-4 py-2 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer"
                     >
-                      Porównaj z nową ofertą
+                      Otwórz kalkulator refinansowania
                     </button>
                   )}
                 </div>
 
-                <div className="p-4 bg-surface border border-border rounded-xl space-y-2 text-xs text-text-muted">
-                  <div className="flex justify-between py-1 border-b border-border/40">
-                    <span>Szacowany czas zwrotu kosztów (Break-Even):</span>
-                    <span className="font-bold text-text-main">18-19 miesięcy</span>
+                {refinancePreview && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 bg-surface border border-border rounded-xl">
+                      <span className="text-xs font-bold text-text-faint uppercase block mb-1">
+                        Szacowany czas zwrotu
+                      </span>
+                      <span className="text-xl font-black text-text-main block mb-1">
+                        {refinancePreview.comparison.breakEvenMonths !== null
+                          ? `${refinancePreview.comparison.breakEvenMonths} mies.`
+                          : "Brak zwrotu"}
+                      </span>
+                      <span className="text-[11px] text-text-muted">
+                        przy kosztach wejścia {formatMoney(4500, currency)}
+                      </span>
+                    </div>
+
+                    <div className="p-4 bg-surface border border-border rounded-xl">
+                      <span className="text-xs font-bold text-text-faint uppercase block mb-1">
+                        Miesięczna ulga w racie
+                      </span>
+                      <span className="text-xl font-black text-success block mb-1">
+                        -{formatMoney(refinancePreview.comparison.monthlyDifference, currency)}
+                      </span>
+                      <span className="text-[11px] text-text-muted">co miesiąc w budżecie</span>
+                    </div>
+
+                    <div className="p-4 bg-surface border border-brand/30 rounded-xl">
+                      <span className="text-xs font-bold text-brand uppercase block mb-1">
+                        Oszczędność netto
+                      </span>
+                      <span className="text-xl font-black text-brand block mb-1">
+                        +{formatMoney(refinancePreview.comparison.netLifetimeSavings, currency)}
+                      </span>
+                      <span className="text-[11px] text-text-muted">w całym okresie po kosztach</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between py-1">
-                    <span>Status:</span>
-                    <span className="font-bold text-brand">Moduł ofert i refinansowania w fazie preview</span>
-                  </div>
-                </div>
+                )}
               </div>
             )}
 

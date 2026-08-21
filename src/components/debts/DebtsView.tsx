@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { DebtItem, DebtType, Profile } from "../../types";
-import { calculatePortfolioDebtKpis } from "../../services/debtCalculations";
+import { calculatePortfolioDebtKpis, calculateDebtPortfolioAnalytics } from "../../services/debtCalculations";
 import { DebtPortfolioCard } from "./DebtPortfolioCard";
 import { DebtDetailsModal, DebtDetailTab } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
@@ -31,7 +31,11 @@ import {
   Zap,
   Flame,
   Clock,
-  RotateCcw
+  RotateCcw,
+  PieChart,
+  Activity,
+  ArrowUpRight,
+  Info
 } from "lucide-react";
 
 export interface DebtsViewProps {
@@ -59,6 +63,7 @@ export function DebtsView({
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
   const [sortBy, setSortBy] = useState<SortOption>("apr");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAnalyticsDetails, setShowAnalyticsDetails] = useState(true);
 
   // Modals state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -74,9 +79,13 @@ export function DebtsView({
 
   const currency = profile?.currency || "PLN";
 
-  // Calculate real portfolio KPIs
+  // Calculate real portfolio KPIs and deep analytics
   const kpiData = useMemo(() => {
     return calculatePortfolioDebtKpis(debts);
+  }, [debts]);
+
+  const analytics = useMemo(() => {
+    return calculateDebtPortfolioAnalytics(debts);
   }, [debts]);
 
   // Filter and sort debts
@@ -316,11 +325,13 @@ export function DebtsView({
           </span>
           <div className="my-1">
             <span className="text-sm sm:text-base font-bold text-text-main truncate block">
-              {kpiData.weightedInterestRate > 6.5 ? "Warto sprawdzić oferty" : "Warunki stabilne"}
+              {analytics.refinanceCandidates.length > 0 ? "Warto sprawdzić oferty" : "Warunki stabilne"}
             </span>
           </div>
           <span className="text-[11px] text-text-muted">
-            {kpiData.weightedInterestRate > 6.5 ? "potencjał optymalizacji stawek" : "brak pilnych zmian"}
+            {analytics.refinanceCandidates.length > 0
+              ? `${analytics.refinanceCandidates.length} kandydatów do weryfikacji`
+              : "brak pilnych zmian"}
           </span>
         </div>
 
@@ -338,6 +349,83 @@ export function DebtsView({
           <span className="text-[11px] text-text-muted">sprawdź w symulatorze</span>
         </div>
       </div>
+
+      {/* 2B. SPRINT 2: COMPACT DEEP ANALYTICS & INSIGHT SIGNALS */}
+      {debts.length > 0 && (
+        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between gap-3 pb-2 border-b border-border/60">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-brand" />
+              <h3 className="text-sm font-bold text-text-main">
+                Struktura portfela i sygnały decyzyjne
+              </h3>
+            </div>
+            <button
+              onClick={() => setShowAnalyticsDetails(!showAnalyticsDetails)}
+              className="text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+            >
+              {showAnalyticsDetails ? "Zwiń" : "Rozwiń"}
+            </button>
+          </div>
+
+          {showAnalyticsDetails && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Insight Signals Row */}
+              {analytics.insightSignals.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {analytics.insightSignals.map((sig) => (
+                    <div
+                      key={sig.id}
+                      className="p-3.5 rounded-xl border bg-surface-2/50 border-border flex items-start gap-2.5"
+                    >
+                      <Sparkles className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-xs font-bold text-text-main block">{sig.title}</span>
+                        <p className="text-[11px] text-text-muted leading-relaxed mt-0.5">{sig.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Debt Mix Breakdown Table / Bars */}
+              {analytics.debtMix.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+                    Rozkład kapitału i miesięcznego obciążenia wg typu
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {analytics.debtMix.map((mix) => (
+                      <div key={mix.type} className="p-3 bg-surface-2/40 border border-border/60 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-text-main">{mix.typeLabel}</span>
+                          <span className="font-bold text-text-muted">{mix.count} szt.</span>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-[11px] text-text-muted mb-1">
+                            <span>Saldo ({mix.balanceSharePct}%):</span>
+                            <span className="font-bold text-text-main tabular-nums">{formatMoney(mix.totalBalance, currency)}</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-surface-offset rounded-full overflow-hidden">
+                            <div className="h-full bg-brand rounded-full" style={{ width: `${mix.balanceSharePct}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between text-[11px] text-text-muted pt-1 border-t border-border/40">
+                          <span>Miesięczna rata:</span>
+                          <span className="font-semibold text-text-main tabular-nums">{formatMoney(mix.monthlyBurden, currency)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 3. PRIMARY TABS: [Portfel] [Scenariusze] [Oferty] [Wiedza] */}
       <div className="flex items-center gap-2 border-b border-border pb-1 overflow-x-auto custom-scrollbar">
@@ -621,18 +709,52 @@ export function DebtsView({
                 Kalkulator ofert i refinansowania
               </h3>
               <p className="text-xs text-text-muted">
-                Porównaj swoje obecne kredyty z ofertami innych banków (moduł ofertowy).
+                Porównaj swoje obecne kredyty z ofertami innych banków i sprawdź punkt zwrotu kosztów przejścia.
               </p>
             </div>
             {debts.length > 0 && (
               <button
-                onClick={() => setSelectedDebtForRefinance(debts[0])}
-                className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer self-start sm:self-auto shrink-0 shadow-xs"
+                onClick={() => {
+                  const candidate = analytics.refinanceCandidates[0]?.debt || debts.find(d => d.type === "mortgage") || debts[0];
+                  setSelectedDebtForRefinance(candidate);
+                }}
+                className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer self-start sm:self-auto shrink-0 shadow-xs flex items-center gap-1.5"
               >
-                Uruchom kalkulator porównawczy
+                <Scale className="w-3.5 h-3.5" />
+                <span>Uruchom kalkulator porównawczy</span>
               </button>
             )}
           </div>
+
+          {/* Refinance Candidates List */}
+          {analytics.refinanceCandidates.length > 0 && (
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
+                Zidentyfikowani kandydaci do weryfikacji refinansowania ({analytics.refinanceCandidates.length})
+              </span>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analytics.refinanceCandidates.map((cand) => (
+                  <div key={cand.debt.id} className="p-4 bg-surface rounded-2xl border border-brand/30 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-bold text-text-main">{cand.debt.name}</span>
+                        <span className="text-xs font-black text-brand tabular-nums">{cand.debt.interestRate.toFixed(2)}%</span>
+                      </div>
+                      <p className="text-xs text-text-muted leading-relaxed mb-3">{cand.reason}</p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedDebtForRefinance(cand.debt)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover cursor-pointer"
+                    >
+                      <span>Przelicz refinansowanie</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -708,7 +830,7 @@ export function DebtsView({
       {selectedDebtForRefinance && (
         <RefinanceComparisonModal
           isOpen={true}
-          debt={selectedDebtForRefinance as any}
+          debt={selectedDebtForRefinance}
           onClose={() => setSelectedDebtForRefinance(null)}
         />
       )}

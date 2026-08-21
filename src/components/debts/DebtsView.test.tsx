@@ -210,4 +210,34 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Symulator nadpłaty zobowiązania")).toBeTruthy();
     expect(screen.getByText("Rzeczywiste porównanie scenariuszy")).toBeTruthy();
   });
+
+  it("renders deeper debt analytics signals and mix breakdown", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    expect(screen.getByText("Struktura portfela i sygnały decyzyjne")).toBeTruthy();
+    expect(screen.getByText("Rozkład kapitału i miesięcznego obciążenia wg typu")).toBeTruthy();
+
+    // Toggle collapse/expand
+    const toggleBtn = screen.getByRole("button", { name: "Zwiń" });
+    fireEvent.click(toggleBtn);
+    expect(screen.queryByText("Rozkład kapitału i miesięcznego obciążenia wg typu")).toBeNull();
+  });
+
+  it("opens refinance comparison modal and simulates new rate", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Click Refinansowanie on mortgage card
+    const refiBtn = screen.getByRole("button", { name: "Refinansowanie" });
+    fireEvent.click(refiBtn);
+
+    expect(screen.getByText("Kalkulator opłacalności refinansowania")).toBeTruthy();
+    expect(screen.getByText("Wprowadź parametry nowej propozycji / oferty")).toBeTruthy();
+    expect(screen.getByText("Punkt zwrotu kosztów")).toBeTruthy();
+
+    // Change rate input
+    const rateInput = screen.getByPlaceholderText("5.85");
+    fireEvent.change(rateInput, { target: { value: "5.50" } });
+
+    expect(screen.getByText("5.50%")).toBeTruthy();
+  });
 });
