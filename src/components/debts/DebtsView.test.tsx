@@ -495,4 +495,59 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     const saveBtn = screen.getByRole("button", { name: /Zapisz bieżący plan/i });
     expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it("renders Payoff Strategies Knowledge Center, toggles disclosure, and presents all 4 methods", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // 1. Trigger button is rendered with aria-expanded="false"
+    const knowledgeTrigger = screen.getByRole("button", {
+      name: /Jak działają strategie spłaty zadłużenia\?/i
+    });
+    expect(knowledgeTrigger).toBeTruthy();
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
+    expect(knowledgeTrigger.getAttribute("aria-controls")).toBe("payoff-strategies-knowledge-content");
+
+    // Initially explanations are collapsed
+    expect(screen.queryByText(/Zastrzeżenie edukacyjne:/i)).toBeNull();
+
+    // 2. Click to open Knowledge Center
+    fireEvent.click(knowledgeTrigger);
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("true");
+
+    // 3. Verify all four strategies explanations are present
+    expect(screen.getAllByText("Metoda Lawiny (Avalanche)").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getByText(/Priorytet otrzymuje zobowiązanie o najwyższej rocznej stopie oprocentowania/i)
+    ).toBeTruthy();
+
+    expect(screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getByText(/Priorytet otrzymuje zobowiązanie o najmniejszym aktualnym saldzie zadłużenia/i)
+    ).toBeTruthy();
+
+    expect(screen.getByText("Własna kolejność (Custom)")).toBeTruthy();
+    expect(
+      screen.getByText(/Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji/i)
+    ).toBeTruthy();
+
+    expect(screen.getAllByText("Status Quo (Tylko raty)").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getByText(/Każde zobowiązanie spłacane jest wyłącznie według minimalnego harmonogramu umownego/i)
+    ).toBeTruthy();
+
+    // 4. Verify educational disclaimer
+    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Prezentowane materiały nie stanowią zindywidualizowanej rekomendacji finansowej/i)
+    ).toBeTruthy();
+
+    // 5. Click again to collapse
+    fireEvent.click(knowledgeTrigger);
+    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText(/Zastrzeżenie edukacyjne:/i)).toBeNull();
+  });
 });

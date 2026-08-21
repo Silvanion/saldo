@@ -12,6 +12,7 @@ import { DebtDetailsModal, DebtDetailTab } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
 import { DebtFormModal } from "./DebtFormModal";
+import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
 import { formatMoney } from "../../utils/format";
 import {
@@ -1118,6 +1119,9 @@ export function DebtsView({
                   </div>
                 </div>
               </div>
+
+              {/* Sprint 8: Payoff Strategies Knowledge Center (Explainer Hub) */}
+              <PayoffStrategiesKnowledgeCenter />
 
               {/* Custom Order Reorder Panel */}
               {selectedPayoffStrategy === "custom" && activeDebts.length > 0 && (
