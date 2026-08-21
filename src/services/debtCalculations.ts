@@ -103,6 +103,43 @@ export interface RefinanceMultiOfferComparisonResult {
   bestOfferId: string | null;
 }
 
+export type DebtPayoffStrategyType = "avalanche" | "snowball" | "baseline";
+
+export interface DebtPayoffQueueItem {
+  debtId: string;
+  debtName: string;
+  institution: string;
+  type: DebtType;
+  initialBalance: number;
+  interestRate: number;
+  monthlyPayment: number;
+  payoffMonth: number;
+  payoffDate: string; // e.g. "2028-06"
+  totalInterestPaid: number;
+}
+
+export interface DebtPayoffStrategyResult {
+  strategy: DebtPayoffStrategyType;
+  strategyLabel: string;
+  strategyBadge: string;
+  strategyDescription: string;
+  extraMonthlyPayment: number;
+  totalMonthlyCommitment: number;
+  totalMonths: number;
+  debtFreeDate: string;
+  totalInterestPaid: number;
+  interestSavedVsBaseline: number;
+  monthsSavedVsBaseline: number;
+  payoffQueue: DebtPayoffQueueItem[];
+}
+
+export interface PortfolioPayoffComparison {
+  baseline: DebtPayoffStrategyResult;
+  avalanche: DebtPayoffStrategyResult;
+  snowball: DebtPayoffStrategyResult;
+  recommendedStrategy: DebtPayoffStrategyType;
+}
+
 export interface DebtTypeMixItem {
   type: DebtType;
   typeLabel: string;
@@ -848,3 +885,253 @@ export function calculateDebtPortfolioAnalytics(debts: DebtItem[] = []): DebtAna
     insightSignals
   };
 }
+
+/**
+ * Formats a base date + month offset into a readable year-month string (e.g. "wrz 2029" or "2029-09")
+ */
+function formatPayoffMonthDate(startDateStr: string | undefined, monthOffset: number): string {
+  const base = startDateStr ? new Date(startDateStr) : new Date();
+  const validBase = isNaN(base.getTime()) ? new Date() : base;
+
+  const targetDate = new Date(validBase.getFullYear(), validBase.getMonth() + monthOffset, 1);
+  const year = targetDate.getFullYear();
+  const month = targetDate.getMonth();
+
+  const monthNames = [
+    "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+    "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+  ];
+
+  return `${monthNames[month]} ${year}`;
+}
+
+/**
+ * Simulates a portfolio payoff strategy month-by-month (Sprint 4 Payoff Strategies)
+ */
+function simulateSinglePayoffStrategy(
+  activeDebts: DebtItem[],
+  strategy: DebtPayoffStrategyType,
+  extraPayment: number,
+  startDateStr?: string
+): DebtPayoffStrategyResult {
+  const strategyInfo = {
+    avalanche: {
+      label: "Metoda Lawiny (Avalanche)",
+      badge: "Najwyższy APR",
+      description: "Matematycznie optymalna — nadpłacasz dług o najwyższym oprocentowaniu, oszczędzając najwięcej na odsetkach."
+    },
+    snowball: {
+      label: "Metoda Kuli Śnieżnej (Snowball)",
+      badge: "Najmniejsze saldo",
+      description: "Behawioralna — likwidujesz najpierw najmniejsze salda, szybko zmniejszając liczbę czynnych kredytów."
+    },
+    baseline: {
+      label: "Status Quo (Tylko raty)",
+      badge: "Brak nadpłat",
+      description: "Spłacasz wyłącznie minimalne wymagane raty każdego kredytu bez dodatkowych nadpłat."
+    }
+  }[strategy];
+
+  if (!activeDebts || activeDebts.length === 0) {
+    return {
+      strategy,
+      strategyLabel: strategyInfo.label,
+      strategyBadge: strategyInfo.badge,
+      strategyDescription: strategyInfo.description,
+      extraMonthlyPayment: extraPayment,
+      totalMonthlyCommitment: 0,
+      totalMonths: 0,
+      debtFreeDate: formatPayoffMonthDate(startDateStr, 0),
+      totalInterestPaid: 0,
+      interestSavedVsBaseline: 0,
+      monthsSavedVsBaseline: 0,
+      payoffQueue: []
+    };
+  }
+
+  const baselineMonthlySum = activeDebts.reduce((sum, d) => sum + Math.max(0, Number(d.monthlyPayment) || 0), 0);
+  const totalMonthlyCommitment = baselineMonthlySum + (strategy === "baseline" ? 0 : extraPayment);
+
+  // Initialize simulation items
+  interface SimDebtItem {
+    id: string;
+    name: string;
+    institution: string;
+    type: DebtType;
+    balance: number;
+    initialBalance: number;
+    rate: number;
+    monthlyRate: number;
+    minPayment: number;
+    totalInterest: number;
+    payoffMonth: number | null;
+  }
+
+  const simDebts: SimDebtItem[] = activeDebts.map((d) => {
+    const bal = Math.max(0, Number(d.balance) || 0);
+    const rate = Math.max(0, Number(d.interestRate) || 0);
+    const minPay = Math.max(0, Number(d.monthlyPayment) || 0);
+
+    return {
+      id: d.id,
+      name: d.name,
+      institution: d.institution,
+      type: d.type,
+      balance: bal,
+      initialBalance: bal,
+      rate,
+      monthlyRate: (rate / 100) / 12,
+      minPayment: minPay,
+      totalInterest: 0,
+      payoffMonth: null
+    };
+  });
+
+  const MAX_MONTHS = 600; // 50 years cap safety
+  let currentMonth = 0;
+
+  while (currentMonth < MAX_MONTHS) {
+    currentMonth++;
+    const remainingDebts = simDebts.filter((d) => d.balance > 0.01);
+    if (remainingDebts.length === 0) {
+      break;
+    }
+
+    // 1. Accrue interest for this month
+    for (const d of remainingDebts) {
+      const monthInterest = d.balance * d.monthlyRate;
+      d.totalInterest += monthInterest;
+      d.balance += monthInterest;
+    }
+
+    // 2. Pay minimum payments
+    let basePaidThisMonth = 0;
+    for (const d of remainingDebts) {
+      const payment = Math.min(d.balance, d.minPayment);
+      d.balance -= payment;
+      basePaidThisMonth += payment;
+
+      if (d.balance <= 0.01 && d.payoffMonth === null) {
+        d.balance = 0;
+        d.payoffMonth = currentMonth;
+      }
+    }
+
+    // 3. Apply surplus (Extra payment + freed-up minimum payments)
+    if (strategy !== "baseline") {
+      let surplus = Math.max(0, totalMonthlyCommitment - basePaidThisMonth);
+
+      // Sort remaining active debts according to strategy
+      const stillActive = simDebts.filter((d) => d.balance > 0.01);
+      if (strategy === "avalanche") {
+        // Highest APR first; tie-breaker: smaller balance
+        stillActive.sort((a, b) => (b.rate !== a.rate ? b.rate - a.rate : a.balance - b.balance));
+      } else if (strategy === "snowball") {
+        // Lowest balance first; tie-breaker: higher APR
+        stillActive.sort((a, b) => (a.balance !== b.balance ? a.balance - b.balance : b.rate - a.rate));
+      }
+
+      for (const target of stillActive) {
+        if (surplus <= 0.01) break;
+        const extraToApply = Math.min(target.balance, surplus);
+        target.balance -= extraToApply;
+        surplus -= extraToApply;
+
+        if (target.balance <= 0.01 && target.payoffMonth === null) {
+          target.balance = 0;
+          target.payoffMonth = currentMonth;
+        }
+      }
+    }
+  }
+
+  // Ensure all debts have payoff month
+  for (const d of simDebts) {
+    if (d.payoffMonth === null) {
+      d.payoffMonth = MAX_MONTHS;
+    }
+  }
+
+  const totalMonths = Math.max(0, ...simDebts.map((d) => d.payoffMonth || 0));
+  const totalInterestPaid = Math.round(simDebts.reduce((sum, d) => sum + d.totalInterest, 0));
+
+  // Build payoff queue sorted by payoffMonth ascending
+  const payoffQueue: DebtPayoffQueueItem[] = [...simDebts]
+    .sort((a, b) => (a.payoffMonth || 0) - (b.payoffMonth || 0))
+    .map((d) => ({
+      debtId: d.id,
+      debtName: d.name,
+      institution: d.institution,
+      type: d.type,
+      initialBalance: d.initialBalance,
+      interestRate: d.rate,
+      monthlyPayment: d.minPayment,
+      payoffMonth: d.payoffMonth || totalMonths,
+      payoffDate: formatPayoffMonthDate(startDateStr, d.payoffMonth || totalMonths),
+      totalInterestPaid: Math.round(d.totalInterest)
+    }));
+
+  return {
+    strategy,
+    strategyLabel: strategyInfo.label,
+    strategyBadge: strategyInfo.badge,
+    strategyDescription: strategyInfo.description,
+    extraMonthlyPayment: extraPayment,
+    totalMonthlyCommitment: Math.round(totalMonthlyCommitment),
+    totalMonths,
+    debtFreeDate: formatPayoffMonthDate(startDateStr, totalMonths),
+    totalInterestPaid,
+    interestSavedVsBaseline: 0, // calculated in comparison wrapper
+    monthsSavedVsBaseline: 0, // calculated in comparison wrapper
+    payoffQueue
+  };
+}
+
+/**
+ * Main Pure Calculation Engine for Debt Payoff Strategies (Sprint 4)
+ */
+export function calculatePortfolioPayoffStrategies(
+  debts: DebtItem[] = [],
+  extraMonthlyPayment: number = 0,
+  startDateStr?: string
+): PortfolioPayoffComparison {
+  const activeDebts = debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
+  const extraPayment = Math.max(0, Number(extraMonthlyPayment) || 0);
+
+  // 1. Simulate Baseline (Status Quo)
+  const baseline = simulateSinglePayoffStrategy(activeDebts, "baseline", 0, startDateStr);
+
+  // 2. Simulate Avalanche (Highest APR First)
+  const avalanche = simulateSinglePayoffStrategy(activeDebts, "avalanche", extraPayment, startDateStr);
+  avalanche.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - avalanche.totalInterestPaid);
+  avalanche.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - avalanche.totalMonths);
+
+  // 3. Simulate Snowball (Smallest Balance First)
+  const snowball = simulateSinglePayoffStrategy(activeDebts, "snowball", extraPayment, startDateStr);
+  snowball.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - snowball.totalInterestPaid);
+  snowball.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - snowball.totalMonths);
+
+  // 4. Recommendation heuristic:
+  // If Avalanche saves noticeably more (> 200 zł) than Snowball, recommend Avalanche.
+  // Otherwise, if Snowball eliminates the first debt faster, recommend Snowball for psychological momentum.
+  let recommendedStrategy: DebtPayoffStrategyType = "avalanche";
+  if (avalanche.interestSavedVsBaseline >= snowball.interestSavedVsBaseline + 200) {
+    recommendedStrategy = "avalanche";
+  } else if (
+    snowball.payoffQueue.length > 0 &&
+    avalanche.payoffQueue.length > 0 &&
+    snowball.payoffQueue[0].payoffMonth < avalanche.payoffQueue[0].payoffMonth
+  ) {
+    recommendedStrategy = "snowball";
+  } else {
+    recommendedStrategy = "avalanche";
+  }
+
+  return {
+    baseline,
+    avalanche,
+    snowball,
+    recommendedStrategy
+  };
+}
+

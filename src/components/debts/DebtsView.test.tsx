@@ -246,4 +246,30 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Łączny zysk netto po kosztach")).toBeTruthy();
     expect(screen.getByText("Czas zwrotu (Break-even)")).toBeTruthy();
   });
+
+  it("switches to Payoff Strategy simulator tab and tests Avalanche and Snowball strategies", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Click 'Porównaj strategie'
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    expect(screen.getByText("Symulator strategii spłaty całego portfela")).toBeTruthy();
+    expect(screen.getByText("Metoda Lawiny (Avalanche)")).toBeTruthy();
+    expect(screen.getByText("Metoda Kuli Śnieżnej (Snowball)")).toBeTruthy();
+    expect(screen.getByText("Status Quo (Tylko raty)")).toBeTruthy();
+
+    // Click preset +1 000 zł
+    const preset1000Btn = screen.getByRole("button", { name: /\+1\s*000/i });
+    fireEvent.click(preset1000Btn);
+
+    // Verify roadmap is rendered
+    expect(screen.getByText(/Kolejność likwidacji kredytów/i)).toBeTruthy();
+
+    // Click Snowball strategy card
+    const snowballCard = screen.getByText("Metoda Kuli Śnieżnej (Snowball)");
+    fireEvent.click(snowballCard);
+
+    expect(screen.getByText(/Plan i kolejność spłaty: Metoda Kuli Śnieżnej/i)).toBeTruthy();
+  });
 });

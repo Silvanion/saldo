@@ -6,6 +6,7 @@ import {
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
   calculateDebtPortfolioAnalytics,
+  calculatePortfolioPayoffStrategies,
   RefinanceOfferInput
 } from "./debtCalculations";
 import { DebtItem } from "../types";
@@ -346,6 +347,122 @@ describe("debtCalculations", () => {
       // Refinance candidates & signals
       expect(analytics.refinanceCandidates.length).toBeGreaterThan(0);
       expect(analytics.insightSignals.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculatePortfolioPayoffStrategies (Sprint 4 Payoff Strategies)", () => {
+    const portfolioDebts: DebtItem[] = [
+      {
+        id: "1",
+        name: "Karta Kredytowa",
+        institution: "mBank",
+        type: "credit_card",
+        currency: "PLN",
+        balance: 6000,
+        monthlyPayment: 300,
+        interestRate: 18.5,
+        status: "active",
+        createdAt: "2026-01-01"
+      },
+      {
+        id: "2",
+        name: "Pożyczka Gotówkowa",
+        institution: "Santander",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 20000,
+        monthlyPayment: 600,
+        interestRate: 11.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      },
+      {
+        id: "3",
+        name: "Hipoteka",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 300000,
+        monthlyPayment: 2300,
+        interestRate: 6.8,
+        status: "active",
+        createdAt: "2026-01-01"
+      }
+    ];
+
+    it("handles empty debts array gracefully", () => {
+      const result = calculatePortfolioPayoffStrategies([], 500);
+      expect(result.baseline.totalMonths).toBe(0);
+      expect(result.avalanche.totalMonths).toBe(0);
+      expect(result.snowball.totalMonths).toBe(0);
+      expect(result.baseline.payoffQueue).toHaveLength(0);
+    });
+
+    it("simulates baseline payoff with 0 extra payment", () => {
+      const result = calculatePortfolioPayoffStrategies(portfolioDebts, 0);
+      expect(result.baseline.extraMonthlyPayment).toBe(0);
+      expect(result.baseline.totalMonths).toBeGreaterThan(0);
+      expect(result.baseline.totalInterestPaid).toBeGreaterThan(0);
+      expect(result.baseline.payoffQueue).toHaveLength(3);
+    });
+
+    it("accelerates payoff and saves interest with extra payment under Avalanche and Snowball", () => {
+      const extraPayment = 1000;
+      const result = calculatePortfolioPayoffStrategies(portfolioDebts, extraPayment);
+
+      // Both strategies should finish faster and pay less interest than baseline
+      expect(result.avalanche.totalMonths).toBeLessThan(result.baseline.totalMonths);
+      expect(result.snowball.totalMonths).toBeLessThan(result.baseline.totalMonths);
+
+      expect(result.avalanche.totalInterestPaid).toBeLessThan(result.baseline.totalInterestPaid);
+      expect(result.snowball.totalInterestPaid).toBeLessThan(result.baseline.totalInterestPaid);
+
+      expect(result.avalanche.interestSavedVsBaseline).toBeGreaterThan(10000);
+      expect(result.snowball.interestSavedVsBaseline).toBeGreaterThan(10000);
+
+      // Avalanche (targeting 18.5% credit card first) saves more or equal interest compared to Snowball
+      expect(result.avalanche.totalInterestPaid).toBeLessThanOrEqual(result.snowball.totalInterestPaid);
+      expect(result.recommendedStrategy).toBe("avalanche");
+
+      // Verify payoff queue order
+      expect(result.avalanche.payoffQueue[0].debtName).toBe("Karta Kredytowa"); // highest APR & smallest
+      expect(result.avalanche.payoffQueue[0].payoffMonth).toBeLessThan(result.avalanche.payoffQueue[1].payoffMonth);
+    });
+
+    it("verifies snowball targets smallest balance first when rates differ", () => {
+      const debts: DebtItem[] = [
+        {
+          id: "1",
+          name: "Dług Mały ale Tani",
+          institution: "Bank A",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 2000,
+          monthlyPayment: 200,
+          interestRate: 5.0,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "2",
+          name: "Dług Duży i Drogi",
+          institution: "Bank B",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 40000,
+          monthlyPayment: 1000,
+          interestRate: 15.0,
+          status: "active",
+          createdAt: "2026-01-01"
+        }
+      ];
+
+      const result = calculatePortfolioPayoffStrategies(debts, 500);
+
+      // Avalanche targets high rate (Dług Duży i Drogi)
+      // Snowball targets small balance (Dług Mały ale Tani)
+      expect(result.snowball.payoffQueue[0].debtName).toBe("Dług Mały ale Tani");
+      expect(result.avalanche.totalInterestPaid).toBeLessThan(result.snowball.totalInterestPaid);
     });
   });
 });

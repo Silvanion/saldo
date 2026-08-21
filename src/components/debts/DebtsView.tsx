@@ -1,12 +1,17 @@
 import React, { useState, useMemo } from "react";
 import { DebtItem, DebtType, Profile } from "../../types";
-import { calculatePortfolioDebtKpis, calculateDebtPortfolioAnalytics } from "../../services/debtCalculations";
+import {
+  calculatePortfolioDebtKpis,
+  calculateDebtPortfolioAnalytics,
+  calculatePortfolioPayoffStrategies,
+  DebtPayoffStrategyType
+} from "../../services/debtCalculations";
 import { DebtPortfolioCard } from "./DebtPortfolioCard";
 import { DebtDetailsModal, DebtDetailTab } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
 import { DebtFormModal } from "./DebtFormModal";
-import { MOCK_STRATEGIES, MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
+import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
 import { formatMoney } from "../../utils/format";
 import {
   Plus,
@@ -87,6 +92,14 @@ export function DebtsView({
   const analytics = useMemo(() => {
     return calculateDebtPortfolioAnalytics(debts);
   }, [debts]);
+
+  // Sprint 4: Portfolio Payoff Strategy Simulator
+  const [extraMonthlyPayoff, setExtraMonthlyPayoff] = useState<number>(500);
+  const [selectedPayoffStrategy, setSelectedPayoffStrategy] = useState<DebtPayoffStrategyType>("avalanche");
+
+  const payoffComparison = useMemo(() => {
+    return calculatePortfolioPayoffStrategies(debts, extraMonthlyPayoff);
+  }, [debts, extraMonthlyPayoff]);
 
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
@@ -638,65 +651,366 @@ export function DebtsView({
         </div>
       )}
 
-      {/* 5. TAB CONTENT 2: SCENARIOS & STRATEGIES */}
+      {/* 5. TAB CONTENT 2: SCENARIOS & STRATEGIES (Sprint 4 Real Engine) */}
       {activeMainTab === "scenarios" && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border">
-            <h3 className="text-base font-bold text-text-main mb-1">
-              Porównanie strategii spłaty całego portfela
-            </h3>
-            <p className="text-xs text-text-muted mb-6">
-              Wybierz model optymalizacji spłaty zadłużenia dostosowany do Twoich celów.
-            </p>
+        <div className="space-y-6 animate-fade-in" id="payoff-strategies-container">
+          {debts.filter((d) => d.status !== "closed").length === 0 ? (
+            <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
+                <GitCompare className="w-7 h-7 text-brand" />
+              </div>
+              <h3 className="text-base font-bold text-text-main">
+                Brak czynnych zobowiązań do symulacji spłaty
+              </h3>
+              <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
+                Dodaj swoje kredyty w zakładce „Portfel kredytowy”, aby uruchomić symulator metody Lawiny (Avalanche) i Kuli Śnieżnej (Snowball).
+              </p>
+              <button
+                onClick={handleOpenAddModal}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Dodaj zobowiązanie</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Extra Payment Budget Config Panel */}
+              <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+                      <GitCompare className="w-5 h-5 text-brand" />
+                      Symulator strategii spłaty całego portfela
+                    </h3>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      Porównaj spłatę metodą Lawiny (Avalanche) i Kuli Śnieżnej (Snowball) z mechanizmem kaskadowego przenoszenia rat.
+                    </p>
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {MOCK_STRATEGIES.map((strategy) => (
+                  <div className="bg-surface-2 px-3.5 py-2 rounded-xl border border-border flex items-center gap-3">
+                    <span className="text-xs text-text-faint font-semibold">Łączna miesięczna wpłata:</span>
+                    <span className="text-sm font-black text-text-main tabular-nums">
+                      {formatMoney(kpiData.monthlyDebtService + extraMonthlyPayoff, currency)} / mc
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border/60">
+                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-2">
+                    Dodatkowy budżet na nadpłatę (ponad minimalne raty)
+                  </label>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="relative w-40">
+                      <input
+                        type="number"
+                        min="0"
+                        step="50"
+                        value={extraMonthlyPayoff}
+                        onChange={(e) => setExtraMonthlyPayoff(Math.max(0, parseFloat(e.target.value) || 0))}
+                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                        placeholder="500"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
+                        {currency}
+                      </span>
+                    </div>
+
+                    {/* Preset buttons */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {[0, 200, 500, 1000, 2000].map((amount) => (
+                        <button
+                          key={amount}
+                          type="button"
+                          onClick={() => setExtraMonthlyPayoff(amount)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold transition border cursor-pointer ${
+                            extraMonthlyPayoff === amount
+                              ? "bg-brand text-text-inverse border-brand shadow-xs"
+                              : "bg-surface-2 text-text-muted hover:text-text-main border-border"
+                          }`}
+                        >
+                          +{formatMoney(amount, currency)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Strategy Comparison Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* 1. Avalanche */}
                 <div
-                  key={strategy.id}
-                  className={`p-5 rounded-2xl border flex flex-col justify-between transition-all ${
-                    strategy.recommended
-                      ? "bg-brand-subtle/50 border-brand shadow-sm"
-                      : "bg-surface-2/60 border-border"
+                  onClick={() => setSelectedPayoffStrategy("avalanche")}
+                  className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+                    selectedPayoffStrategy === "avalanche"
+                      ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
+                      : "bg-surface border-border hover:border-brand/40"
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
-                        {strategy.badge}
+                        {payoffComparison.avalanche.strategyBadge}
                       </span>
-                      {strategy.recommended && (
+                      {payoffComparison.recommendedStrategy === "avalanche" && (
                         <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-brand text-text-inverse">
                           Rekomendacja
                         </span>
                       )}
                     </div>
 
-                    <h4 className="text-sm font-bold text-text-main mt-2 mb-1.5">
-                      {strategy.name}
+                    <h4 className="text-sm font-bold text-text-main mt-2 mb-1">
+                      {payoffComparison.avalanche.strategyLabel}
                     </h4>
                     <p className="text-xs text-text-muted mb-4 leading-relaxed">
-                      {strategy.description}
+                      {payoffComparison.avalanche.strategyDescription}
                     </p>
                   </div>
 
                   <div className="space-y-2 pt-3 border-t border-border/50 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-text-faint">Horyzont:</span>
-                      <span className="font-bold text-text-main">{strategy.timeframe}</span>
+                      <span className="text-text-faint">Wolność od długu:</span>
+                      <span className="font-bold text-text-main">{payoffComparison.avalanche.debtFreeDate}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-faint">Oszczędność:</span>
-                      <span className="font-bold text-brand">{strategy.interestSavings}</span>
+                      <span className="text-text-faint">Zaoszczędzone odsetki:</span>
+                      <span className="font-bold text-brand">
+                        +{formatMoney(payoffComparison.avalanche.interestSavedVsBaseline, currency)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-faint">Wpływ na płynność:</span>
-                      <span className="font-medium text-text-muted">{strategy.liquidityImpact}</span>
+                      <span className="text-text-faint">Zaoszczędzony czas:</span>
+                      <span className="font-bold text-success">
+                        {payoffComparison.avalanche.monthsSavedVsBaseline > 0
+                          ? `-${payoffComparison.avalanche.monthsSavedVsBaseline} mies. (~${Math.round((payoffComparison.avalanche.monthsSavedVsBaseline / 12) * 10) / 10} lat)`
+                          : "0 mies."}
+                      </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                {/* 2. Snowball */}
+                <div
+                  onClick={() => setSelectedPayoffStrategy("snowball")}
+                  className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+                    selectedPayoffStrategy === "snowball"
+                      ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
+                      : "bg-surface border-border hover:border-brand/40"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
+                        {payoffComparison.snowball.strategyBadge}
+                      </span>
+                      {payoffComparison.recommendedStrategy === "snowball" && (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-brand text-text-inverse">
+                          Rekomendacja
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className="text-sm font-bold text-text-main mt-2 mb-1">
+                      {payoffComparison.snowball.strategyLabel}
+                    </h4>
+                    <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      {payoffComparison.snowball.strategyDescription}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-3 border-t border-border/50 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Wolność od długu:</span>
+                      <span className="font-bold text-text-main">{payoffComparison.snowball.debtFreeDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Zaoszczędzone odsetki:</span>
+                      <span className="font-bold text-brand">
+                        +{formatMoney(payoffComparison.snowball.interestSavedVsBaseline, currency)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Zaoszczędzony czas:</span>
+                      <span className="font-bold text-success">
+                        {payoffComparison.snowball.monthsSavedVsBaseline > 0
+                          ? `-${payoffComparison.snowball.monthsSavedVsBaseline} mies. (~${Math.round((payoffComparison.snowball.monthsSavedVsBaseline / 12) * 10) / 10} lat)`
+                          : "0 mies."}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Baseline */}
+                <div
+                  onClick={() => setSelectedPayoffStrategy("baseline")}
+                  className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+                    selectedPayoffStrategy === "baseline"
+                      ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
+                      : "bg-surface border-border hover:border-brand/40"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
+                        {payoffComparison.baseline.strategyBadge}
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-text-main mt-2 mb-1">
+                      {payoffComparison.baseline.strategyLabel}
+                    </h4>
+                    <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      {payoffComparison.baseline.strategyDescription}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-3 border-t border-border/50 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Wolność od długu:</span>
+                      <span className="font-bold text-text-main">{payoffComparison.baseline.debtFreeDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Łączny koszt odsetek:</span>
+                      <span className="font-bold text-text-muted">
+                        {formatMoney(payoffComparison.baseline.totalInterestPaid, currency)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-faint">Oszczędność:</span>
+                      <span className="font-medium text-text-muted">0 zł (brak nadpłat)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Selected Strategy Payoff Timeline & Roadmap */}
+              {(() => {
+                const activePlan = payoffComparison[selectedPayoffStrategy];
+                return (
+                  <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-text-main">
+                            Plan i kolejność spłaty: {activePlan.strategyLabel}
+                          </h4>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-subtle text-brand border border-brand/30">
+                            {activePlan.strategyBadge}
+                          </span>
+                        </div>
+                        <p className="text-xs text-text-muted mt-0.5">
+                          Harmonogram zamknięcia poszczególnych zobowiązań przy zadeklarowanym budżecie {formatMoney(activePlan.totalMonthlyCommitment, currency)} / mc.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 3 Summary KPIs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Data spłaty całego długu
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block">
+                          {activePlan.debtFreeDate}
+                        </span>
+                        <span className="text-[11px] text-text-muted">
+                          {activePlan.totalMonths} miesięcy do pełnej wolności
+                        </span>
+                      </div>
+
+                      <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Zaoszczędzone odsetki
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-brand tabular-nums block">
+                          +{formatMoney(activePlan.interestSavedVsBaseline, currency)}
+                        </span>
+                        <span className="text-[11px] text-text-muted">
+                          w porównaniu ze spłatą tylko minimalnych rat
+                        </span>
+                      </div>
+
+                      <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Skrócony czas spłaty
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-success tabular-nums block">
+                          {activePlan.monthsSavedVsBaseline > 0
+                            ? `-${activePlan.monthsSavedVsBaseline} mies.`
+                            : "0 mies."}
+                        </span>
+                        <span className="text-[11px] text-text-muted">
+                          {activePlan.monthsSavedVsBaseline > 0
+                            ? `o ${Math.round((activePlan.monthsSavedVsBaseline / 12) * 10) / 10} lat szybciej bez długu`
+                            : "standardowy harmonogram"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Step-by-Step Roadmap Queue */}
+                    <div className="space-y-3">
+                      <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
+                        Kolejność likwidacji kredytów ({activePlan.payoffQueue.length})
+                      </span>
+
+                      <div className="space-y-3">
+                        {activePlan.payoffQueue.map((item, idx) => (
+                          <div
+                            key={item.debtId}
+                            className="p-4 bg-surface-2/30 rounded-xl border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-brand text-text-inverse text-xs font-black flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-text-main">{item.debtName}</span>
+                                  <span className="text-[10px] text-text-muted">({item.institution})</span>
+                                </div>
+                                <div className="text-[11px] text-text-muted flex items-center gap-2 mt-0.5">
+                                  <span>Saldo początkowe: {formatMoney(item.initialBalance, currency)}</span>
+                                  <span>•</span>
+                                  <span className="font-bold text-brand tabular-nums">{item.interestRate.toFixed(2)}% APR</span>
+                                  <span>•</span>
+                                  <span>Rata: {formatMoney(item.monthlyPayment, currency)}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-border/50">
+                              <span className="text-xs font-black text-text-main block">
+                                Spłata: {item.payoffDate}
+                              </span>
+                              <span className="text-[10px] text-text-muted">
+                                ({item.payoffMonth}. miesiąc • odsetki: {formatMoney(item.totalInterestPaid, currency)})
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {activePlan.strategy !== "baseline" && activePlan.payoffQueue.length > 1 && (
+                        <div className="p-3 bg-brand-subtle/30 rounded-xl border border-brand/20 text-xs text-text-main leading-relaxed">
+                          💡 <strong>Efekt kaskadowy (Roll):</strong> Po spłaceniu każdego kredytu z listy, cała kwota jego dotychczasowej raty nie wraca do konsumpcji, lecz automatycznie zasila nadpłatę kolejnego zobowiązania, wykładniczo przyspieszając kolejne spłaty.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Disclaimer */}
+              <div className="text-xs text-text-muted flex items-start gap-2 bg-surface p-3.5 rounded-xl border border-border">
+                <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                <p>
+                  <strong>Zastrzeżenie:</strong> Symulacja zakłada stałość stóp procentowych, regularne dokonywanie minimalnych spłat oraz przeznaczanie zadeklarowanej nadpłaty w każdym miesiącu na priorytetowe zobowiązanie. Nie uwzględnia zaciągania nowego zadłużenia w trakcie trwania planu.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       )}
 
