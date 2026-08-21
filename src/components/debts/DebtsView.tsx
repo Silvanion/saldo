@@ -1689,10 +1689,11 @@ export function DebtsView({
 
             <form onSubmit={handleSaveScenarioSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1.5">
+                <label htmlFor="save-scenario-name-input" className="block text-xs font-bold text-text-muted mb-1.5">
                   Nazwa scenariusza
                 </label>
                 <input
+                  id="save-scenario-name-input"
                   type="text"
                   required
                   maxLength={50}
@@ -1793,10 +1794,11 @@ export function DebtsView({
 
             <form onSubmit={handleRenameSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1.5">
+                <label htmlFor="rename-scenario-name-input" className="block text-xs font-bold text-text-muted mb-1.5">
                   Nowa nazwa scenariusza
                 </label>
                 <input
+                  id="rename-scenario-name-input"
                   type="text"
                   required
                   maxLength={50}
@@ -1859,10 +1861,11 @@ export function DebtsView({
 
             <form onSubmit={handleDuplicateSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-text-muted mb-1.5">
+                <label htmlFor="duplicate-scenario-name-input" className="block text-xs font-bold text-text-muted mb-1.5">
                   Nazwa kopii scenariusza
                 </label>
                 <input
+                  id="duplicate-scenario-name-input"
                   type="text"
                   required
                   maxLength={50}
