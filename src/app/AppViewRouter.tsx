@@ -282,6 +282,7 @@ export function AppViewRouter({
             selectedDate={selectedDate}
             recurringRules={state?.recurringRules || activeProfile?.recurringRules || []}
             showToast={showToast}
+            onChangeView={onChangeView}
           />
         );
       case "settings":

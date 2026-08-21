@@ -54,6 +54,7 @@ interface PaletteItem {
   icon: React.ReactNode;
   badge?: string;
   shortcut?: string;
+  keywords?: string[];
   onSelect: () => void;
 }
 
@@ -99,6 +100,7 @@ export function CommandPaletteModal({
       subtitle: "Podsumowanie finansowe, przepływy i bilans",
       icon: <LayoutDashboard className="w-4 h-4 text-brand" />,
       badge: activeView === "dashboard" ? "Aktywny" : undefined,
+      keywords: ["start", "home", "ekran główny", "pulpit", "statystyki"],
       onSelect: () => setActiveView("dashboard")
     },
     {
@@ -108,6 +110,7 @@ export function CommandPaletteModal({
       subtitle: "Historia wydatków, przychodów i filtracja",
       icon: <Receipt className="w-4 h-4 text-brand" />,
       badge: activeView === "transactions" ? "Aktywny" : undefined,
+      keywords: ["wydatki", "przychody", "historia", "wpisy", "operacje", "lista"],
       onSelect: () => setActiveView("transactions")
     },
     {
@@ -117,6 +120,7 @@ export function CommandPaletteModal({
       subtitle: "Limity kategorii i ostrzeżenia wydatków",
       icon: <Wallet className="w-4 h-4 text-brand" />,
       badge: activeView === "budget" ? "Aktywny" : undefined,
+      keywords: ["limity", "kategorie", "planowanie", "koperty"],
       onSelect: () => setActiveView("budget")
     },
     {
@@ -126,6 +130,7 @@ export function CommandPaletteModal({
       subtitle: "Rachunki stałe, subskrypcje i terminy",
       icon: <Calendar className="w-4 h-4 text-brand" />,
       badge: activeView === "payments" ? "Aktywny" : undefined,
+      keywords: ["rachunki", "subskrypcje", "opłaty", "kalendarz", "terminy"],
       onSelect: () => setActiveView("payments")
     },
     {
@@ -135,15 +140,17 @@ export function CommandPaletteModal({
       subtitle: "Skarbonki, zbiórki i postępy oszczędzania",
       icon: <Target className="w-4 h-4 text-brand" />,
       badge: activeView === "goals" ? "Aktywny" : undefined,
+      keywords: ["skarbonki", "oszczędności", "inwestycje", "rezerwa", "cele"],
       onSelect: () => setActiveView("goals")
     },
     {
       id: "view-analysis",
       category: "views",
       title: "Analizy i raporty",
-      subtitle: "Trendy, wykresy i podsumowania miesięczne",
+      subtitle: "Trendy, wykresy, porównania i podsumowania miesięczne",
       icon: <BarChart3 className="w-4 h-4 text-brand" />,
       badge: activeView === "analysis" ? "Aktywny" : undefined,
+      keywords: ["statystyki", "trendy", "wykresy", "runway", "prognoza", "porównanie", "raport"],
       onSelect: () => setActiveView("analysis")
     },
     {
@@ -153,6 +160,7 @@ export function CommandPaletteModal({
       subtitle: "Konfiguracja profilu, Google Drive i bazy danych",
       icon: <Settings className="w-4 h-4 text-brand" />,
       badge: activeView === "settings" ? "Aktywny" : undefined,
+      keywords: ["profil", "dane", "baza", "drive", "kopia", "backup", "opcje"],
       onSelect: () => setActiveView("settings")
     },
     {
@@ -162,6 +170,7 @@ export function CommandPaletteModal({
       subtitle: "Przewodnik, skróty i instrukcje Ollama / AI",
       icon: <HelpCircle className="w-4 h-4 text-brand" />,
       badge: activeView === "help" ? "Aktywny" : undefined,
+      keywords: ["pomoc", "faq", "skróty", "instrukcja", "poradnik"],
       onSelect: () => setActiveView("help")
     }
   ], [activeView, setActiveView]);
@@ -176,6 +185,7 @@ export function CommandPaletteModal({
         subtitle: "Otwórz formularz nowej transakcji",
         icon: <PlusCircle className="w-4 h-4 text-brand" />,
         shortcut: "N",
+        keywords: ["nowa", "dodaj", "wydatek", "przychód", "wpis", "transakcja"],
         onSelect: () => onOpenTransactionModal()
       },
       {
@@ -184,6 +194,7 @@ export function CommandPaletteModal({
         title: "Dodaj rachunek lub płatność",
         subtitle: "Zaplanuj nadchodzący wydatek lub subskrypcję",
         icon: <Receipt className="w-4 h-4 text-brand" />,
+        keywords: ["rachunek", "opłata", "płatność", "termin", "subskrypcja"],
         onSelect: () => onOpenPaymentModal()
       },
       {
@@ -192,7 +203,35 @@ export function CommandPaletteModal({
         title: "Nowy cel oszczędnościowy",
         subtitle: "Utwórz nową skarbonkę z kwotą docelową",
         icon: <Target className="w-4 h-4 text-brand" />,
+        keywords: ["cel", "skarbonka", "oszczędzanie", "zbiórka"],
         onSelect: () => onOpenGoalModal()
+      },
+      {
+        id: "action-cashflow-forecast",
+        category: "actions",
+        title: "Prognoza płynności finansowej (30/60/90 dni)",
+        subtitle: "Przegląd nadchodzących przepływów i szacunek salda",
+        icon: <Sparkles className="w-4 h-4 text-brand" />,
+        keywords: ["forecast", "prognoza", "płynność", "przepływy", "horyzont", "gotówka"],
+        onSelect: () => setActiveView("analysis")
+      },
+      {
+        id: "action-debt-payoff",
+        category: "actions",
+        title: "Symulator spłaty zadłużenia (Kula śnieżna)",
+        subtitle: "Kalkulator przyspieszenia spłaty kredytów i kart",
+        icon: <BarChart3 className="w-4 h-4 text-brand" />,
+        keywords: ["kredyt", "dług", "zadłużenie", "kula śnieżna", "pożyczka", "snowball"],
+        onSelect: () => setActiveView("analysis")
+      },
+      {
+        id: "action-smart-rules",
+        category: "actions",
+        title: "Reguły kategoryzacji (Smart Rules)",
+        subtitle: "Automatyzacja i reguły przypisywania kategorii",
+        icon: <Sparkles className="w-4 h-4 text-brand" />,
+        keywords: ["reguły", "smart rules", "kategoryzacja", "automatyzacja", "filtry"],
+        onSelect: () => setActiveView("transactions")
       }
     ];
 
@@ -203,6 +242,7 @@ export function CommandPaletteModal({
         title: "Importuj wyciąg bankowy (CSV)",
         subtitle: "mBank, PKO, Revolut, Santander, Millennium, Pekao, Alior, BNP",
         icon: <FileSpreadsheet className="w-4 h-4 text-brand" />,
+        keywords: ["import", "csv", "wyciąg", "bank", "pobierz", "revolut", "mbank", "pko"],
         onSelect: () => onOpenImportCsvModal()
       });
     }
@@ -214,6 +254,7 @@ export function CommandPaletteModal({
         title: "Eksportuj kopię zapasową JSON",
         subtitle: "Pobierz czytelny plik z całą bazą danych",
         icon: <Download className="w-4 h-4 text-brand" />,
+        keywords: ["eksport", "kopia", "backup", "json", "pobierz", "zapisz"],
         onSelect: () => onExportData()
       });
     }
@@ -225,12 +266,13 @@ export function CommandPaletteModal({
         title: theme === "dark" ? "Przełącz na motyw jasny" : "Przełącz na motyw ciemny",
         subtitle: theme === "dark" ? "Aktywuj neutralny jasny profil kolorystyczny" : "Aktywuj grafitowy profil Dark Mode",
         icon: theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-400" />,
+        keywords: ["motyw", "ciemny", "jasny", "dark mode", "light mode", "kolory", "tryb"],
         onSelect: () => onToggleTheme()
       });
     }
 
     return items;
-  }, [onOpenTransactionModal, onOpenPaymentModal, onOpenGoalModal, onOpenImportCsvModal, onExportData, theme, onToggleTheme]);
+  }, [onOpenTransactionModal, onOpenPaymentModal, onOpenGoalModal, onOpenImportCsvModal, onExportData, theme, onToggleTheme, setActiveView]);
 
   // Build profile items
   const profileItems: PaletteItem[] = useMemo(() => {
@@ -284,7 +326,8 @@ export function CommandPaletteModal({
 
     const matchesQuery = (item: PaletteItem) =>
       item.title.toLowerCase().includes(q) ||
-      (item.subtitle && item.subtitle.toLowerCase().includes(q));
+      (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
+      (item.keywords && item.keywords.some((k) => k.toLowerCase().includes(q)));
 
     const matchedActions = actionItems.filter(matchesQuery);
     const matchedViews = viewItems.filter(matchesQuery);

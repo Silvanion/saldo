@@ -18,14 +18,22 @@ import {
   Zap,
   CheckCircle2,
   AlertTriangle,
-  Lightbulb
+  Lightbulb,
+  ArrowRight,
+  ArrowLeftRight,
+  X,
+  ExternalLink,
+  ChevronRight,
+  Eye,
+  Calendar
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 import {
   calculate503020,
   calculateRollingTrends,
   calculateEmergencySimulator,
-  calculateDebtPayoffSimulator
+  calculateDebtPayoffSimulator,
+  calculatePeriodComparison
 } from "../services/budgetCalculations";
 import { formatMoney } from "../utils/format";
 import { CashflowForecastSection } from "./analysis/CashflowForecastSection";
@@ -36,9 +44,10 @@ interface AnalysisViewProps {
   selectedDate: Date;
   recurringRules?: RecurringRule[];
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
+  onChangeView?: (view: string) => void;
 }
 
-export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -51,6 +60,12 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
 
   // Debt extra payment amount
   const [extraDebtPayment, setExtraDebtPayment] = useState<number>(300);
+
+  // Period comparison toggle
+  const [isComparisonOpen, setIsComparisonOpen] = useState(true);
+
+  // Drilldown state
+  const [drillDownCategory, setDrillDownCategory] = useState<string | null>(null);
 
   // Filter transactions for this month
   const thisMonthTransactions = useMemo(() => {
@@ -110,6 +125,17 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
   const debtSim = useMemo(() => {
     return calculateDebtPayoffSimulator(profile, selectedDate, extraDebtPayment);
   }, [profile, selectedDate, extraDebtPayment]);
+
+  const periodComparison = useMemo(() => {
+    return calculatePeriodComparison(profile.transactions, selectedDate);
+  }, [profile.transactions, selectedDate]);
+
+  const drillDownTransactions = useMemo(() => {
+    if (!drillDownCategory) return [];
+    if (drillDownCategory === "__ALL_EXPENSES__") return expenseTxs;
+    if (drillDownCategory === "__ALL_INCOMES__") return incomeTxs;
+    return thisMonthTransactions.filter((t) => t.category === drillDownCategory);
+  }, [drillDownCategory, thisMonthTransactions, expenseTxs, incomeTxs]);
 
   // Category expense breakdown
   const categorySummary = useMemo(() => {
@@ -762,49 +788,157 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
 
       {/* Analysis body: Monthly Digest (Left) & Category Structure (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Advice and alerts */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
-            <h3 className="text-xs sm:text-sm font-bold text-text-main uppercase tracking-wider">Miesięczny przegląd operacyjny</h3>
+          {/* Monthly Operational Review & Period Comparison */}
+          <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-text-main uppercase tracking-wider">Miesięczny przegląd operacyjny</h3>
+                <p className="text-xs text-text-muted">Porównanie z poprzednim okresem: <strong>{periodComparison.previousPeriodLabel}</strong></p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsComparisonOpen(!isComparisonOpen)}
+                className="text-xs font-bold text-brand hover:text-brand-hover flex items-center gap-1.5 self-start sm:self-auto py-1 px-2.5 rounded-lg hover:bg-surface-2 transition-colors border border-border/60"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5" />
+                <span>{isComparisonOpen ? "Zwiń porównanie" : "Pokaż porównanie MoM"}</span>
+              </button>
+            </div>
+
+            {/* Metric Cards with MoM Deltas */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 min-w-0">
-              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Przychody">Przychody</p>
+              {/* Income Card */}
+              <div
+                onClick={() => setDrillDownCategory("__ALL_INCOMES__")}
+                className="p-3 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl min-w-0 shadow-xs cursor-pointer group transition-all"
+                title="Kliknij, aby rozbić przychody na transakcje"
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold truncate">Przychody</p>
+                  <Eye className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
                 <p className="text-xs sm:text-sm font-black text-brand tabular-nums truncate" title={formatMoney(monthlyDigest.totalIncome, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.totalIncome, profile.currency || "PLN")}
                 </p>
+                {periodComparison.income.previous > 0 && (
+                  <div className="mt-1 flex items-center gap-1 text-[10px] font-bold tabular-nums">
+                    <span className={`px-1 py-0.2 rounded ${periodComparison.income.diffAmount >= 0 ? "bg-brand-subtle text-brand" : "bg-danger-subtle text-danger"}`}>
+                      {periodComparison.income.diffAmount >= 0 ? "+" : ""}{periodComparison.income.diffPercent}%
+                    </span>
+                    <span className="text-text-faint font-normal truncate">MoM</span>
+                  </div>
+                )}
               </div>
-              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Wydatki">Wydatki</p>
+
+              {/* Expense Card */}
+              <div
+                onClick={() => setDrillDownCategory("__ALL_EXPENSES__")}
+                className="p-3 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl min-w-0 shadow-xs cursor-pointer group transition-all"
+                title="Kliknij, aby rozbić wydatki na transakcje"
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold truncate">Wydatki</p>
+                  <Eye className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
                 <p className="text-xs sm:text-sm font-black text-danger tabular-nums truncate" title={formatMoney(monthlyDigest.totalExpenses, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.totalExpenses, profile.currency || "PLN")}
                 </p>
+                {periodComparison.expense.previous > 0 && (
+                  <div className="mt-1 flex items-center gap-1 text-[10px] font-bold tabular-nums">
+                    <span className={`px-1 py-0.2 rounded ${periodComparison.expense.diffAmount <= 0 ? "bg-brand-subtle text-brand" : "bg-danger-subtle text-danger"}`}>
+                      {periodComparison.expense.diffAmount > 0 ? "+" : ""}{periodComparison.expense.diffPercent}%
+                    </span>
+                    <span className="text-text-faint font-normal truncate">MoM</span>
+                  </div>
+                )}
               </div>
-              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
-                <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Bilans">Bilans</p>
+
+              {/* Balance Card */}
+              <div
+                onClick={() => setDrillDownCategory("__ALL_EXPENSES__")}
+                className="p-3 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl min-w-0 shadow-xs cursor-pointer group transition-all"
+                title="Kliknij, aby zobaczyć zestawienie operacji"
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold truncate">Bilans</p>
+                  <Eye className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
                 <p className={`text-xs sm:text-sm font-black tabular-nums truncate ${monthlyDigest.balance >= 0 ? "text-brand" : "text-danger"}`} title={formatMoney(monthlyDigest.balance, profile.currency || "PLN")}>
                   {formatMoney(monthlyDigest.balance, profile.currency || "PLN")}
                 </p>
+                <div className="mt-1 flex items-center gap-1 text-[10px] font-bold tabular-nums">
+                  <span className={`px-1 py-0.2 rounded ${periodComparison.netFlow.diffAmount >= 0 ? "bg-brand-subtle text-brand" : "bg-danger-subtle text-danger"}`}>
+                    {periodComparison.netFlow.diffAmount >= 0 ? "+" : ""}{formatMoney(periodComparison.netFlow.diffAmount, profile.currency || "PLN")}
+                  </span>
+                </div>
               </div>
-              <div className="p-2.5 sm:p-3 bg-surface-2 rounded-xl border border-border min-w-0 shadow-xs">
+
+              {/* Savings Card */}
+              <div className="p-3 bg-surface-2 border border-border rounded-xl min-w-0 shadow-xs">
                 <p className="text-[10px] sm:text-[11px] uppercase text-text-faint font-bold mb-1 truncate" title="Stopa oszczędności">Oszczędności</p>
                 <p className="text-xs sm:text-sm font-black text-text-main tabular-nums truncate" title={monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}>
                   {monthlyDigest.savingsRate !== null ? `${Math.round(monthlyDigest.savingsRate)}%` : "-"}
                 </p>
+                <p className="mt-1 text-[10px] text-text-muted truncate">
+                  {formatMoney(savings, profile.currency || "PLN")}
+                </p>
               </div>
             </div>
+
+            {/* Period Comparison Top Categories Breakdown */}
+            {isComparisonOpen && periodComparison.topCategories.length > 0 && (
+              <div className="bg-surface-2 p-3.5 rounded-xl border border-border text-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-text-main uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <ArrowLeftRight className="w-3.5 h-3.5 text-brand" /> Porównanie zmian w kategoriach ({periodComparison.previousPeriodLabel} &rarr; {periodComparison.currentPeriodLabel})
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  {periodComparison.topCategories.map((cat) => (
+                    <div
+                      key={cat.category}
+                      onClick={() => setDrillDownCategory(cat.category)}
+                      className="bg-surface p-2.5 rounded-lg border border-border/70 flex items-center justify-between gap-2 hover:border-brand/40 cursor-pointer transition-colors"
+                      title={`Kliknij, aby zobaczyć transakcje w kategorii ${cat.category}`}
+                    >
+                      <div className="min-w-0">
+                        <span className="font-bold text-text-main truncate block">{cat.category}</span>
+                        <span className="text-[10px] text-text-muted">
+                          {formatMoney(cat.previous, profile.currency || "PLN")} &rarr; <strong className="text-text-main">{formatMoney(cat.current, profile.currency || "PLN")}</strong>
+                        </span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-black border tabular-nums ${
+                          cat.diffAmount > 0
+                            ? "bg-danger-subtle text-danger border-danger/20"
+                            : cat.diffAmount < 0
+                            ? "bg-brand-subtle text-brand border-brand/20"
+                            : "bg-surface-2 text-text-muted border-border"
+                        }`}>
+                          {cat.diffAmount > 0 ? `+${formatMoney(cat.diffAmount, profile.currency || "PLN")}` : formatMoney(cat.diffAmount, profile.currency || "PLN")}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="p-3 sm:p-3.5 bg-surface-2 border border-border rounded-xl text-text-main text-xs sm:text-sm leading-relaxed shadow-xs">
               {monthlyDigest.summaryText}
             </div>
           </div>
 
+          {/* Actionable Insights */}
           <div className="space-y-3">
             <h3 className="text-xs sm:text-sm font-bold text-text-main uppercase tracking-wider">Wnioski i podpowiedzi</h3>
             <div className="space-y-2 sm:space-y-2.5">
               {insightsList.map((ins, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 sm:p-3.5 rounded-xl border flex items-start gap-2.5 sm:gap-3 transition min-w-0 shadow-xs ${
+                  className={`p-3 sm:p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition min-w-0 shadow-xs ${
                     ins.type === "success"
                       ? "bg-brand-subtle/50 border-brand/20 text-brand"
                       : ins.type === "warning"
@@ -812,30 +946,67 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                       : "bg-surface-2 border-border text-text-muted"
                   }`}
                 >
-                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border ${
-                    ins.type === "success"
-                      ? "bg-brand-subtle border-brand/30 text-brand"
-                      : ins.type === "warning"
-                      ? "bg-danger-subtle border-danger/30 text-danger"
-                      : "bg-surface border-border text-text-muted"
-                  }`}>
-                    {ins.type === "success" ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    ) : ins.type === "warning" ? (
-                      <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    ) : (
-                      <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className={`text-xs font-bold uppercase tracking-wide mb-0.5 truncate ${
+                  <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                       ins.type === "success"
-                        ? "text-brand"
+                        ? "bg-brand-subtle border-brand/30 text-brand"
                         : ins.type === "warning"
-                        ? "text-danger"
-                        : "text-text-main"
-                    }`} title={ins.title}>{ins.title}</h4>
-                    <p className="text-xs leading-relaxed text-text-muted">{ins.desc}</p>
+                        ? "bg-danger-subtle border-danger/30 text-danger"
+                        : "bg-surface border-border text-text-muted"
+                    }`}>
+                      {ins.type === "success" ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      ) : ins.type === "warning" ? (
+                        <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      ) : (
+                        <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className={`text-xs font-bold uppercase tracking-wide mb-0.5 truncate ${
+                        ins.type === "success"
+                          ? "text-brand"
+                          : ins.type === "warning"
+                          ? "text-danger"
+                          : "text-text-main"
+                      }`} title={ins.title}>{ins.title}</h4>
+                      <p className="text-xs leading-relaxed text-text-muted">{ins.desc}</p>
+                    </div>
+                  </div>
+
+                  {/* Action link */}
+                  <div className="shrink-0 self-end sm:self-center">
+                    {ins.title.includes("Największy wydatek") ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const topCat = categorySummary[0]?.name;
+                          if (topCat) setDrillDownCategory(topCat);
+                        }}
+                        className="text-xs font-bold text-brand hover:underline px-2.5 py-1 rounded-lg bg-surface border border-border/80 flex items-center gap-1 shadow-xs"
+                      >
+                        <span>Szczegóły</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : ins.title.includes("limity") ? (
+                      <button
+                        type="button"
+                        onClick={() => onChangeView ? onChangeView("budget") : undefined}
+                        className="text-xs font-bold text-danger hover:underline px-2.5 py-1 rounded-lg bg-surface border border-border/80 flex items-center gap-1 shadow-xs"
+                      >
+                        <span>Przejdź do budżetów</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : ins.title.includes("wydatków") || ins.title.includes("Deficyt") ? (
+                      <button
+                        type="button"
+                        onClick={() => setDrillDownCategory("__ALL_EXPENSES__")}
+                        className="text-xs font-bold text-text-main hover:underline px-2.5 py-1 rounded-lg bg-surface border border-border/80 flex items-center gap-1 shadow-xs"
+                      >
+                        <span>Rozbij wydatki</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -847,9 +1018,12 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
         <div className="bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-4 gap-4 min-w-0">
-              <h3 className="text-sm font-bold text-text-main truncate uppercase tracking-wider" title="Struktura wydatków">
-                Struktura wydatków
-              </h3>
+              <div>
+                <h3 className="text-sm font-bold text-text-main truncate uppercase tracking-wider" title="Struktura wydatków">
+                  Struktura wydatków
+                </h3>
+                <p className="text-[11px] text-text-muted">Kliknij kategorię, aby zobaczyć transakcje</p>
+              </div>
               <div className="relative shrink-0">
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -900,7 +1074,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                 )}
               </div>
             </div>
-            <div className="space-y-3.5 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar">
+            <div className="space-y-2.5 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar">
               {categorySummary.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-w-0">
                   <div className="w-9 h-9 rounded-xl bg-brand-subtle flex items-center justify-center mb-2 border border-brand/20 shadow-xs">
@@ -935,7 +1109,12 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                   }
 
                   return (
-                    <div key={cat.name} className="space-y-1.5">
+                    <div
+                      key={cat.name}
+                      onClick={() => setDrillDownCategory(cat.name)}
+                      className="space-y-1.5 p-2 rounded-xl hover:bg-surface-2/60 transition-colors cursor-pointer border border-transparent hover:border-border/60"
+                      title={`Kliknij, aby rozbić wydatki w kategorii ${cat.name}`}
+                    >
                       <div className="flex justify-between items-end text-xs gap-3 min-w-0">
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
                           <span className="text-text-main font-bold truncate block" title={cat.name}>
@@ -995,6 +1174,101 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           )}
         </div>
       </div>
+
+      {/* Drill-down Transactions Modal / Drawer */}
+      {drillDownCategory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+          onClick={() => setDrillDownCategory(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="drilldown-modal-title"
+        >
+          <div
+            className="bg-surface border border-border rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0 bg-surface-2">
+              <div>
+                <h3 id="drilldown-modal-title" className="text-sm font-bold text-text-main flex items-center gap-2">
+                  <span>Szczegóły operacji:</span>
+                  <span className="text-brand">
+                    {drillDownCategory === "__ALL_EXPENSES__"
+                      ? "Wszystkie wydatki"
+                      : drillDownCategory === "__ALL_INCOMES__"
+                      ? "Wszystkie przychody"
+                      : drillDownCategory}
+                  </span>
+                </h3>
+                <p className="text-xs text-text-muted">
+                  {monthName} {currentYear} • Liczba operacji: <strong>{drillDownTransactions.length}</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrillDownCategory(null)}
+                className="p-1.5 text-text-muted hover:text-text-main rounded-lg hover:bg-surface transition-colors"
+                aria-label="Zamknij"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-2 min-h-0">
+              {drillDownTransactions.length === 0 ? (
+                <div className="text-center py-8 text-xs text-text-muted">
+                  Brak operacji dla wybranej kategorii w tym miesiącu.
+                </div>
+              ) : (
+                drillDownTransactions.map((tx) => (
+                  <div
+                    key={tx.id}
+                    className="p-3 bg-surface-2 rounded-xl border border-border/70 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 font-bold text-text-main truncate">
+                        <span>{tx.categoryIcon || "💳"}</span>
+                        <span className="truncate">{tx.name}</span>
+                      </div>
+                      <div className="text-[11px] text-text-muted mt-0.5 flex items-center gap-2">
+                        <span>{tx.isoDate}</span>
+                        <span>•</span>
+                        <span className="truncate">{tx.account}</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className={`font-black tabular-nums ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
+                        {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || profile.currency || "PLN")}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="px-5 py-3 border-t border-border flex items-center justify-between gap-3 bg-surface-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setDrillDownCategory(null);
+                  if (onChangeView) onChangeView("transactions");
+                }}
+                className="text-xs font-bold text-brand hover:underline flex items-center gap-1"
+              >
+                <span>Przejdź do pełnej listy transakcji</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setDrillDownCategory(null)}
+                className="px-4 py-2 bg-surface border border-border hover:bg-surface-3 rounded-xl text-xs font-bold text-text-main transition-colors"
+              >
+                Zamknij
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

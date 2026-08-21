@@ -14,7 +14,8 @@ import {
   calculateNetWorth,
   calculateRollingTrends,
   calculateEmergencySimulator,
-  calculateDebtPayoffSimulator
+  calculateDebtPayoffSimulator,
+  calculatePeriodComparison
 } from "./services/budgetCalculations";
 import { Profile, RecurringRule, Transaction } from "./types";
 
@@ -914,6 +915,78 @@ describe("R6c - roundCurrency w budgetCalculations (precyzja float)", () => {
       expect(result.snowballQueue[0].amount).toBe(150);
       expect(result.snowballQueue[1].name).toBe("Czynsz zaległy");
       expect(result.snowballQueue[2].name).toBe("Karta Kredytowa (Limit kredytowy)");
+    });
+  });
+
+  describe("Period Comparison — Analytics v1", () => {
+    const selectedDate = new Date("2026-08-15T12:00:00Z");
+
+    it("correctly compares current vs previous month with deltas and directions", () => {
+      const txs: Transaction[] = [
+        // Previous month (July 2026)
+        { id: "t1", name: "Pensja Lipiec", amount: 6000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-07-05", currency: "PLN" },
+        { id: "t2", name: "Czynsz Lipiec", amount: 2000, type: "expense", category: "Dom", account: "Główne", isoDate: "2026-07-10", currency: "PLN" },
+        { id: "t3", name: "Jedzenie Lipiec", amount: 1500, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-07-12", currency: "PLN" },
+
+        // Current month (August 2026)
+        { id: "t4", name: "Pensja Sierpień", amount: 6500, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-05", currency: "PLN" },
+        { id: "t5", name: "Czynsz Sierpień", amount: 2000, type: "expense", category: "Dom", account: "Główne", isoDate: "2026-08-10", currency: "PLN" },
+        { id: "t6", name: "Jedzenie Sierpień", amount: 1800, type: "expense", category: "Żywność", account: "Główne", isoDate: "2026-08-12", currency: "PLN" },
+        { id: "t7", name: "Kino", amount: 200, type: "expense", category: "Rozrywka", account: "Główne", isoDate: "2026-08-14", currency: "PLN" },
+      ];
+
+      const res = calculatePeriodComparison(txs, selectedDate);
+
+      // Income: 6500 vs 6000 (+500, +8%)
+      expect(res.income.current).toBe(6500);
+      expect(res.income.previous).toBe(6000);
+      expect(res.income.diffAmount).toBe(500);
+      expect(res.income.diffPercent).toBe(8);
+      expect(res.income.direction).toBe("up");
+
+      // Expense: 4000 (2000+1800+200) vs 3500 (2000+1500) (+500, +14%)
+      expect(res.expense.current).toBe(4000);
+      expect(res.expense.previous).toBe(3500);
+      expect(res.expense.diffAmount).toBe(500);
+      expect(res.expense.diffPercent).toBe(14);
+      expect(res.expense.direction).toBe("up");
+
+      // NetFlow: (6500 - 4000 = 2500) vs (6000 - 3500 = 2500) (diff = 0)
+      expect(res.netFlow.current).toBe(2500);
+      expect(res.netFlow.previous).toBe(2500);
+      expect(res.netFlow.diffAmount).toBe(0);
+      expect(res.netFlow.direction).toBe("flat");
+
+      // Top categories
+      expect(res.topCategories.length).toBeGreaterThan(0);
+      const zyw = res.topCategories.find((c) => c.category === "Żywność");
+      expect(zyw?.current).toBe(1800);
+      expect(zyw?.previous).toBe(1500);
+      expect(zyw?.diffAmount).toBe(300);
+    });
+
+    it("handles empty and sparse historical data safely without NaN or crashes", () => {
+      const res = calculatePeriodComparison([], selectedDate);
+
+      expect(res.income.current).toBe(0);
+      expect(res.income.previous).toBe(0);
+      expect(res.income.diffAmount).toBe(0);
+      expect(res.income.diffPercent).toBe(0);
+      expect(res.income.direction).toBe("flat");
+      expect(res.topCategories).toEqual([]);
+    });
+
+    it("handles zero previous period safely", () => {
+      const txs: Transaction[] = [
+        { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wynagrodzenie", account: "Główne", isoDate: "2026-08-01", currency: "PLN" }
+      ];
+
+      const res = calculatePeriodComparison(txs, selectedDate);
+      expect(res.income.current).toBe(5000);
+      expect(res.income.previous).toBe(0);
+      expect(res.income.diffAmount).toBe(5000);
+      expect(res.income.diffPercent).toBe(100);
+      expect(res.income.direction).toBe("up");
     });
   });
 });

@@ -1,5 +1,5 @@
 import { Profile, RecurringRule, Transaction, Payment } from "../types";
-import { getLocalDateIso, addMonthsClamped, roundCurrency } from "../utils";
+import { getLocalDateIso, addMonthsClamped, roundCurrency, getMonthName } from "../utils";
 
 export interface SafeToSpendBreakdown {
   currentBalance: number;
@@ -896,5 +896,121 @@ export {
   type DebtItem,
   type DebtPayoffSummary as DebtPayoffSimulatorResult,
 } from "./debtPayoff";
+
+export interface PeriodComparisonItem {
+  current: number;
+  previous: number;
+  diffAmount: number;
+  diffPercent: number;
+  direction: "up" | "down" | "flat";
+}
+
+export interface PeriodComparisonResult {
+  currentPeriodLabel: string;
+  previousPeriodLabel: string;
+  income: PeriodComparisonItem;
+  expense: PeriodComparisonItem;
+  netFlow: PeriodComparisonItem;
+  topCategories: Array<{
+    category: string;
+    current: number;
+    previous: number;
+    diffAmount: number;
+    diffPercent: number;
+    direction: "up" | "down" | "flat";
+  }>;
+}
+
+export function calculatePeriodComparison(
+  transactions: Transaction[],
+  selectedDate: Date
+): PeriodComparisonResult {
+  const currentYear = selectedDate.getFullYear();
+  const currentMonthIdx = selectedDate.getMonth();
+
+  let prevMonthIdx = currentMonthIdx - 1;
+  let prevYear = currentYear;
+  if (prevMonthIdx < 0) {
+    prevMonthIdx = 11;
+    prevYear -= 1;
+  }
+
+  const getPeriodData = (year: number, month: number) => {
+    let income = 0;
+    let expense = 0;
+    const catExpenses: Record<string, number> = {};
+
+    for (const t of transactions || []) {
+      if (!t.isoDate || !Number.isFinite(Number(t.amount))) continue;
+      const d = new Date(`${t.isoDate}T12:00:00`);
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        const amt = Number(t.amount);
+        if (t.type === "income") {
+          income += amt;
+        } else if (t.type === "expense") {
+          expense += amt;
+          const cat = t.category || "Inne";
+          catExpenses[cat] = (catExpenses[cat] || 0) + amt;
+        }
+      }
+    }
+    return {
+      income: roundCurrency(income),
+      expense: roundCurrency(expense),
+      netFlow: roundCurrency(income - expense),
+      catExpenses
+    };
+  };
+
+  const current = getPeriodData(currentYear, currentMonthIdx);
+  const previous = getPeriodData(prevYear, prevMonthIdx);
+
+  const makeItem = (curr: number, prev: number): PeriodComparisonItem => {
+    const diffAmount = roundCurrency(curr - prev);
+    let diffPercent = 0;
+    if (prev > 0) {
+      diffPercent = Math.round((diffAmount / prev) * 100);
+    } else if (prev === 0 && curr > 0) {
+      diffPercent = 100;
+    }
+    const direction: "up" | "down" | "flat" = diffAmount > 0 ? "up" : diffAmount < 0 ? "down" : "flat";
+    return { current: curr, previous: prev, diffAmount, diffPercent, direction };
+  };
+
+  const allCats = new Set([...Object.keys(current.catExpenses), ...Object.keys(previous.catExpenses)]);
+  const topCategories: Array<{
+    category: string;
+    current: number;
+    previous: number;
+    diffAmount: number;
+    diffPercent: number;
+    direction: "up" | "down" | "flat";
+  }> = Array.from(allCats)
+    .map((cat) => {
+      const c = current.catExpenses[cat] || 0;
+      const p = previous.catExpenses[cat] || 0;
+      const diffAmount = roundCurrency(c - p);
+      let diffPercent = 0;
+      if (p > 0) {
+        diffPercent = Math.round((diffAmount / p) * 100);
+      } else if (p === 0 && c > 0) {
+        diffPercent = 100;
+      }
+      const direction: "up" | "down" | "flat" = diffAmount > 0 ? "up" : diffAmount < 0 ? "down" : "flat";
+      return { category: cat, current: roundCurrency(c), previous: roundCurrency(p), diffAmount, diffPercent, direction };
+    })
+    .filter((cat) => cat.current > 0 || cat.previous > 0)
+    .sort((a, b) => b.current - a.current)
+    .slice(0, 5);
+
+  return {
+    currentPeriodLabel: `${getMonthName(currentMonthIdx)} ${currentYear}`,
+    previousPeriodLabel: `${getMonthName(prevMonthIdx)} ${prevYear}`,
+    income: makeItem(current.income, previous.income),
+    expense: makeItem(current.expense, previous.expense),
+    netFlow: makeItem(current.netFlow, previous.netFlow),
+    topCategories
+  };
+}
 
 

@@ -111,4 +111,21 @@ describe("CommandPaletteModal", () => {
     fireEvent.keyDown(input, { key: "Escape" });
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
+
+  it("finds power actions via synonyms (e.g. 'kula śnieżna', 'forecast', 'reguły')", () => {
+    render(<CommandPaletteModal {...defaultProps} />);
+    const input = screen.getByPlaceholderText(/Wpisz polecenie/i);
+
+    // Search by synonym "kredyt" -> finds Debt Payoff Simulator
+    fireEvent.change(input, { target: { value: "kredyt" } });
+    expect(screen.getByText("Symulator spłaty zadłużenia (Kula śnieżna)")).toBeDefined();
+
+    // Search by synonym "forecast" -> finds Cashflow Forecast
+    fireEvent.change(input, { target: { value: "forecast" } });
+    expect(screen.getByText("Prognoza płynności finansowej (30/60/90 dni)")).toBeDefined();
+
+    // Search by synonym "smart rules" -> finds Smart Rules action
+    fireEvent.change(input, { target: { value: "smart rules" } });
+    expect(screen.getByText("Reguły kategoryzacji (Smart Rules)")).toBeDefined();
+  });
 });

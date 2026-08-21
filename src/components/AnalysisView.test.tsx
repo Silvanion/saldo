@@ -34,7 +34,7 @@ describe("AnalysisView (full polish)", () => {
         name: "Czynsz",
         amount: 2500,
         type: "expense",
-        category: "Dom",
+        category: "Dom i rachunki",
         isoDate: "2026-08-08",
         currency: "PLN",
         account: "Konto",
@@ -54,7 +54,7 @@ describe("AnalysisView (full polish)", () => {
         name: "Oszczędności",
         amount: 1000,
         type: "expense",
-        category: "Oszczędności",
+        category: "Inne",
         isoDate: "2026-08-15",
         currency: "PLN",
         account: "Konto",
@@ -63,7 +63,7 @@ describe("AnalysisView (full polish)", () => {
     payments: [],
     goals: [],
     budgets: {
-      Dom: 3000,
+      "Dom i rachunki": 3000,
       Rozrywka: 800,
     },
     investments: [],
@@ -91,7 +91,7 @@ describe("AnalysisView (full polish)", () => {
     expect(screen.getByText("Przychody")).toBeTruthy();
     expect(screen.getByText("Wydatki")).toBeTruthy();
     expect(screen.getByText("Bilans")).toBeTruthy();
-    expect(screen.getByText("Oszczędności")).toBeTruthy();
+    expect(screen.getAllByText("Oszczędności").length).toBeGreaterThan(0);
 
     expect(screen.getByText("Wnioski i podpowiedzi")).toBeTruthy();
     expect(screen.getByText(/Świetna stopa oszczędności!|Dobry kierunek oszczędzania/)).toBeTruthy();
@@ -201,6 +201,39 @@ describe("AnalysisView (full polish)", () => {
     const plus500Btn = screen.getByRole("button", { name: "+500" });
     fireEvent.click(plus500Btn);
     expect(plus500Btn.className).toContain("bg-brand");
+  });
+
+  it("renders Period Comparison in monthly operational review and toggles it", () => {
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} />);
+
+    expect(screen.getByText(/Porównanie z poprzednim okresem/)).toBeTruthy();
+    const toggleBtn = screen.getByRole("button", { name: /Zwiń porównanie|Pokaż porównanie MoM/i });
+    expect(toggleBtn).toBeTruthy();
+
+    fireEvent.click(toggleBtn);
+    expect(screen.getByRole("button", { name: /Pokaż porównanie MoM/i })).toBeTruthy();
+  });
+
+  it("opens drill-down modal when clicking category row and closes it", () => {
+    const onChangeView = vi.fn();
+    render(<AnalysisView profile={mockProfile} selectedDate={testDate} onChangeView={onChangeView} />);
+
+    // Click category "Dom i rachunki"
+    const domCategoryRow = screen.getByTitle(/Kliknij, aby rozbić wydatki w kategorii Dom i rachunki/i);
+    fireEvent.click(domCategoryRow);
+
+    // Modal dialog is shown
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByText("Szczegóły operacji:")).toBeTruthy();
+    expect(screen.getByText("Czynsz")).toBeTruthy();
+
+    // Clicking "Przejdź do pełnej listy transakcji" routes to transactions
+    const fullListBtn = screen.getByRole("button", { name: /Przejdź do pełnej listy transakcji/i });
+    fireEvent.click(fullListBtn);
+    expect(onChangeView).toHaveBeenCalledWith("transactions");
+
+    // Modal is closed
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 });
 

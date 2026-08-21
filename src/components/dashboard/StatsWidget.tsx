@@ -35,12 +35,19 @@ export const StatsWidget = memo(function StatsWidget({
     <div className="flex flex-col gap-4 w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="widget-content-stats-grid">
         {/* Income Card */}
-        <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
+        <div
+          onClick={() => onChangeView("transactions")}
+          className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:border-brand/40 hover:bg-surface-2 transition-all cursor-pointer group min-w-0"
+          title="Kliknij, aby przejść do listy transakcji"
+        >
           <div className="absolute inset-0 rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl shrink-0 border border-brand/20 shadow-xs">
+          <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl shrink-0 border border-brand/20 shadow-xs group-hover:scale-105 transition-transform">
             <TrendingUp className="w-4 h-4 text-brand" />
           </span>
-          <p className="text-xs font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10 truncate pr-10" title="Przychody">Przychody</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider relative z-10 truncate pr-10" title="Przychody">Przychody</p>
+            <ArrowRight className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
           <h2 className="text-2xl font-bold text-brand mb-1 relative z-10 truncate pr-10 tabular-nums" id="dash-income-total" title={formatMoney(totalIncome, currency)}>
             {formatMoney(totalIncome, currency)}
           </h2>
@@ -62,12 +69,19 @@ export const StatsWidget = memo(function StatsWidget({
         </div>
 
         {/* Expense Card */}
-        <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
+        <div
+          onClick={() => onChangeView("transactions")}
+          className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:border-danger/40 hover:bg-surface-2 transition-all cursor-pointer group min-w-0"
+          title="Kliknij, aby przejść do listy transakcji"
+        >
           <div className="absolute inset-0 rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-danger-subtle text-danger p-2 rounded-xl shrink-0 border border-danger/20 shadow-xs">
+          <span className="absolute top-4 right-4 bg-danger-subtle text-danger p-2 rounded-xl shrink-0 border border-danger/20 shadow-xs group-hover:scale-105 transition-transform">
             <TrendingDown className="w-4 h-4 text-danger" />
           </span>
-          <p className="text-xs font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10 truncate pr-10" title="Wydatki">Wydatki</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider relative z-10 truncate pr-10" title="Wydatki">Wydatki</p>
+            <ArrowRight className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
           <h2 className="text-2xl font-bold text-danger mb-1 relative z-10 truncate pr-10 tabular-nums" id="dash-expense-total" title={formatMoney(totalExpense, currency)}>
             {formatMoney(totalExpense, currency)}
           </h2>
@@ -91,12 +105,19 @@ export const StatsWidget = memo(function StatsWidget({
         </div>
 
         {/* Balance Card */}
-        <div className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:bg-surface transition group min-w-0">
+        <div
+          onClick={() => onChangeView("analysis")}
+          className="bg-surface border border-border rounded-2xl p-5 relative shadow-sm hover:border-brand/40 hover:bg-surface-2 transition-all cursor-pointer group min-w-0"
+          title="Kliknij, aby przejść do analizy"
+        >
           <div className="absolute inset-0 rounded-2xl pointer-events-none" />
-          <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl shrink-0 border border-brand/20 shadow-xs">
+          <span className="absolute top-4 right-4 bg-brand-subtle text-brand p-2 rounded-xl shrink-0 border border-brand/20 shadow-xs group-hover:scale-105 transition-transform">
             <Wallet className="w-4 h-4 text-brand" />
           </span>
-          <p className="text-xs font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10 truncate pr-10" title="Pozostaje (Bilans)">Pozostaje (Bilans)</p>
+          <div className="flex items-center gap-1 mb-1">
+            <p className="text-xs font-bold text-text-muted mb-1 uppercase tracking-wider relative z-10 truncate pr-10" title="Pozostaje (Bilans)">Pozostaje (Bilans)</p>
+            <ArrowRight className="w-3 h-3 text-text-faint opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
 
           <h2 className={`text-2xl font-bold mb-1 relative z-10 truncate pr-10 tabular-nums ${balance >= 0 ? "text-brand" : "text-danger"}`} id="dash-balance-total" title={formatMoney(balance, currency)}>
             {formatMoney(balance, currency)}
@@ -143,6 +164,14 @@ export const StatsWidget = memo(function StatsWidget({
               </p>
               <p className="text-xs text-text-faint mt-1 font-medium truncate" title="Wyliczane na bazie salda minus oczekujące opłaty cykliczne i rachunki.">Wyliczane na bazie salda minus oczekujące opłaty cykliczne i rachunki.</p>
             </div>
+            <button
+              onClick={() => onChangeView("analysis")}
+              className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+              title="Przejdź do analizy przepływów"
+            >
+              <span>Szczegóły</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-border relative z-10">
@@ -258,38 +287,28 @@ export const StatsWidget = memo(function StatsWidget({
                     </h3>
                     <span
                       className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider inline-flex items-center gap-1.5 ${
-                        runway.status === "healthy"
-                          ? "bg-brand-subtle text-brand border-brand/20"
+                        runway.status === "critical"
+                          ? "bg-danger-subtle text-danger border-danger/30"
                           : runway.status === "warning"
-                          ? "bg-warning-subtle text-warning border-warning/20"
-                          : runway.status === "infinite"
-                          ? "bg-brand-subtle text-brand border-brand/20"
-                          : "bg-danger-subtle text-danger border-danger/20"
+                          ? "bg-warning-subtle text-warning border-warning/30"
+                          : "bg-brand-subtle text-brand border-brand/20"
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        runway.status === "healthy" || runway.status === "infinite"
-                          ? "bg-brand"
-                          : runway.status === "warning"
-                          ? "bg-warning"
-                          : "bg-danger"
-                      }`} />
-                      <span>
-                        {runway.status === "healthy" && "Bezpieczna (≥6 mies.)"}
-                        {runway.status === "warning" && "Umiarkowana (3-6 mies.)"}
-                        {runway.status === "critical" && "Krytyczna (<3 mies.)"}
-                        {runway.status === "infinite" && "Nielimitowana"}
-                      </span>
+                      {runway.status === "critical" && "Ryzyko płynności"}
+                      {runway.status === "warning" && "Umiarkowana ochrona"}
+                      {runway.status === "healthy" && "Wysoka ochrona"}
+                      {runway.status === "infinite" && "Pełna niezależność"}
                     </span>
                   </div>
-                  <p className="text-xs text-text-muted font-medium truncate">
-                    Szacunek na ile miesięcy wystarczy środków przy średnich miesięcznych wydatkach
+                  <p className="text-xs text-text-muted font-medium truncate" title="Liczba miesięcy, na ile wystarczą Twoje rezerwy i oszczędności przy obecnym tempie wydatków.">
+                    Liczba miesięcy, na ile wystarczą Twoje rezerwy i oszczędności przy obecnym tempie wydatków.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => onChangeView("analysis")}
-                className="px-3 py-1.5 rounded-lg text-xs font-bold active:scale-[0.98] transition-all whitespace-nowrap shadow-xs border shrink-0 bg-surface-2 hover:bg-surface text-text-main border-border cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                title="Przejdź do symulatora poduszki"
               >
                 <span>Szczegóły płynności</span>
                 <ArrowRight className="w-3 h-3" />
