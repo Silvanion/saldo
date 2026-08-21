@@ -340,11 +340,19 @@ export interface ProcessCsvParams {
   currency?: SupportedCurrency;
 }
 
+export interface RejectedCsvRow {
+  rowIndex: number;
+  rawText: string;
+  reason: string;
+}
+
 export interface ProcessCsvResult {
   headers: string[];
   parsedRows: string[][];
   detectedSeparator: string;
   transactions: Transaction[];
+  detectedCurrencies: Record<SupportedCurrency, number>;
+  rejectedRows: RejectedCsvRow[];
   stats: {
     totalRows: number;
     validCount: number;
@@ -374,6 +382,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: [],
       detectedSeparator,
       transactions: [],
+      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      rejectedRows: [],
       stats: { totalRows: 0, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0 }
     };
   }
@@ -410,12 +420,22 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const rules = params.rules || [];
 
   const transactions: Transaction[] = [];
+  const rejectedRows: RejectedCsvRow[] = [];
+  const detectedCurrencies: Record<SupportedCurrency, number> = {
+    PLN: 0,
+    EUR: 0,
+    USD: 0,
+    GBP: 0
+  };
+
   let invalidAmountCount = 0;
   let invalidDateCount = 0;
   let skippedEmptyCount = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
+    const rowLineNum = headerIndex + 2 + i;
+    const rawLineSnippet = row.join(" | ");
 
     // Ignore comment or footer lines (e.g. mBank summary lines)
     if (row.length < 2 || row[0]?.startsWith("# ") || row[0]?.startsWith("Podsumowanie")) {
@@ -427,6 +447,11 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     const parsedAmount = parseCsvAmount(rawAmountStr);
     if (!parsedAmount) {
       invalidAmountCount++;
+      rejectedRows.push({
+        rowIndex: rowLineNum,
+        rawText: rawLineSnippet,
+        reason: `Nieprawidłowy format kwoty: "${rawAmountStr || "puste"}"`
+      });
       continue;
     }
 
@@ -434,6 +459,11 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     const isoDateStr = parseCsvDate(rawDateStr);
     if (!isoDateStr) {
       invalidDateCount++;
+      rejectedRows.push({
+        rowIndex: rowLineNum,
+        rawText: rawLineSnippet,
+        reason: `Nieprawidłowy format daty: "${rawDateStr || "puste"}"`
+      });
       continue;
     }
 
@@ -468,6 +498,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       }
     }
 
+    detectedCurrencies[rowCurrency] = (detectedCurrencies[rowCurrency] || 0) + 1;
+
     transactions.push({
       id: `tx-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`,
       name: rawName,
@@ -487,6 +519,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     parsedRows: rows,
     detectedSeparator,
     transactions,
+    detectedCurrencies,
+    rejectedRows,
     stats: {
       totalRows: rows.length,
       validCount: transactions.length,

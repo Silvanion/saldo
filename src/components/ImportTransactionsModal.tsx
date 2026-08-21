@@ -7,9 +7,24 @@ import { useApp } from "../app/providers/AppContext";
 import { createPortal } from "react-dom";
 import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
-import { Transaction } from "../types";
+import { SupportedCurrency, Transaction } from "../types";
 import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
-import { UploadCloud, FileText, Sparkles, Loader2, FileSpreadsheet, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import {
+  UploadCloud,
+  FileText,
+  Sparkles,
+  Loader2,
+  FileSpreadsheet,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  CheckSquare,
+  Square,
+  Globe,
+  Check
+} from "lucide-react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import { checkDuplicate } from "../services/duplicateDetector";
 import {
@@ -18,7 +33,8 @@ import {
   parseAndMapCsv,
   autoDetectBankColumns,
   cleanCsvBomAndEncoding,
-  detectCsvSeparator
+  detectCsvSeparator,
+  RejectedCsvRow
 } from "../services/parseCsv";
 
 interface ImportTransactionsModalProps {
@@ -63,6 +79,16 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [aiError, setAiError] = useState("");
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
+  const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
+  const [rejectedRows, setRejectedRows] = useState<RejectedCsvRow[]>([]);
+  const [detectedCurrencies, setDetectedCurrencies] = useState<Record<SupportedCurrency, number>>({
+    PLN: 0,
+    EUR: 0,
+    USD: 0,
+    GBP: 0
+  });
+  const [showRejectedDetails, setShowRejectedDetails] = useState(false);
+
   const [importStats, setImportStats] = useState({
     invalidAmount: 0,
     invalidDate: 0,
@@ -162,6 +188,33 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     });
 
     setMappedTransactions(result.transactions);
+    setRejectedRows(result.rejectedRows || []);
+    setDetectedCurrencies(result.detectedCurrencies || { PLN: 0, EUR: 0, USD: 0, GBP: 0 });
+
+    // Pre-select all non-duplicate transactions by default
+    const existing = activeProfile?.transactions || [];
+    const duplicateIds = new Set<string>();
+    for (const tx of result.transactions) {
+      const res = checkDuplicate(tx, existing);
+      if (res.isLikelyDuplicate) {
+        duplicateIds.add(tx.id);
+      }
+    }
+
+    const initialSelection = new Set<string>();
+    for (const tx of result.transactions) {
+      if (!duplicateIds.has(tx.id)) {
+        initialSelection.add(tx.id);
+      }
+    }
+    // If all were duplicates or 0 non-duplicates, default to select all so user can choose
+    if (initialSelection.size === 0 && result.transactions.length > 0) {
+      for (const tx of result.transactions) {
+        initialSelection.add(tx.id);
+      }
+    }
+    setSelectedTxIds(initialSelection);
+
     setImportStats({
       invalidAmount: result.stats.invalidAmountCount,
       invalidDate: result.stats.invalidDateCount,
@@ -187,10 +240,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         isoDate: t.isoDate || getLocalDateIso(),
         category: t.category || defaultCategory,
         categoryIcon: iconByCategory[t.category] || "✨",
-        account: t.account || defaultAccount
+        account: t.account || defaultAccount,
+        currency: activeProfile?.currency || "PLN"
       }));
 
       setMappedTransactions(processed);
+      setSelectedTxIds(new Set(processed.map((t) => t.id)));
+      setRejectedRows([]);
+      setDetectedCurrencies({ [activeProfile?.currency || "PLN"]: processed.length } as any);
       setStep(3);
     } catch (err: any) {
       setAiError(err.message || "Wystąpił problem podczas przetwarzania tekstu.");
@@ -199,12 +256,38 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     }
   };
 
-  const handleConfirmImport = (skipDuplicates = false) => {
-    if (onBeforeImport) onBeforeImport();
-    if (skipDuplicates) {
-      onImport(duplicateAnalysis.enriched.filter((item) => !item.warning).map((item) => item.tx));
+  const handleToggleSelectAll = () => {
+    if (selectedTxIds.size === mappedTransactions.length) {
+      setSelectedTxIds(new Set());
     } else {
-      onImport(mappedTransactions);
+      setSelectedTxIds(new Set(mappedTransactions.map((tx) => tx.id)));
+    }
+  };
+
+  const handleDeselectDuplicates = () => {
+    const nonDuplicates = duplicateAnalysis.enriched
+      .filter((item) => !item.warning)
+      .map((item) => item.tx.id);
+    setSelectedTxIds(new Set(nonDuplicates));
+  };
+
+  const handleToggleRow = (txId: string) => {
+    setSelectedTxIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(txId)) {
+        next.delete(txId);
+      } else {
+        next.add(txId);
+      }
+      return next;
+    });
+  };
+
+  const handleConfirmImport = () => {
+    if (onBeforeImport) onBeforeImport();
+    const toImport = mappedTransactions.filter((tx) => selectedTxIds.has(tx.id));
+    if (toImport.length > 0) {
+      onImport(toImport);
     }
     onClose();
   };
@@ -439,7 +522,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
                   <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
-                    {expenseCategories.concat(incomeCategories).map((c) => (
+                    {Array.from(new Set([...expenseCategories, ...incomeCategories])).map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -467,47 +550,151 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           )}
 
           {step === 3 && (
-            <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
-              {(importStats.invalidAmount > 0 || importStats.invalidDate > 0 || importStats.skippedEmpty > 0 || importStats.tooMany) && (
-                <div className="bg-danger-subtle px-4 py-3 rounded-xl border border-danger/20 flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="text-xs font-semibold text-danger">Podsumowanie problemów z parsowaniem pliku:</h4>
-                    <ul className="list-disc list-inside text-xs text-text-muted mt-1 space-y-0.5">
-                      {importStats.tooMany && <li>Osiągnięto limit 2000 transakcji. Pozostałe zostały zignorowane.</li>}
-                      {importStats.invalidAmount > 0 && <li>Odrzucono {importStats.invalidAmount} wierszy ze względu na nieprawidłową kwotę (NaN lub 0).</li>}
-                      {importStats.invalidDate > 0 && <li>Odrzucono {importStats.invalidDate} wierszy ze względu na nieprawidłowy/pusty format daty.</li>}
-                      {importStats.skippedEmpty > 0 && <li>Pominięto {importStats.skippedEmpty} pustych/komentarzowych wierszy.</li>}
-                    </ul>
+            <div className="space-y-4 flex flex-col flex-1 overflow-hidden min-h-0">
+              {/* 1. Pre-import Metrics Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
+                <div className="bg-surface border border-border p-3 rounded-xl flex flex-col justify-between">
+                  <span className="text-[11px] font-semibold text-text-muted">Do zaimportowania</span>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className="text-lg font-black text-brand">{selectedTxIds.size}</span>
+                    <span className="text-xs text-text-muted">/ {mappedTransactions.length}</span>
                   </div>
                 </div>
-              )}
 
-              <div className="bg-brand-subtle px-4 py-3 rounded-xl border border-brand/20 flex items-center justify-between">
-                <span className="text-xs font-semibold text-brand">
-                  Nowe transakcje gotowe do zaimportowania: <strong className="text-xl font-extrabold">{mappedTransactions.length}</strong>
-                </span>
-                <button onClick={() => setStep(tab === "csv" ? 2 : 1)} className="text-xs text-brand hover:text-brand-hover hover:underline font-bold transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring">
-                  Wróć i popraw
-                </button>
+                <div className={`border p-3 rounded-xl flex flex-col justify-between ${duplicateAnalysis.duplicateCount > 0 ? "bg-warning-subtle border-warning/30" : "bg-surface border-border"}`}>
+                  <span className="text-[11px] font-semibold text-text-muted">Duplikaty</span>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className={`text-lg font-black ${duplicateAnalysis.duplicateCount > 0 ? "text-warning" : "text-text-muted"}`}>
+                      {duplicateAnalysis.duplicateCount}
+                    </span>
+                    <span className="text-[10px] text-text-muted">w profilu</span>
+                  </div>
+                </div>
+
+                <div className={`border p-3 rounded-xl flex flex-col justify-between ${rejectedRows.length > 0 ? "bg-danger-subtle border-danger/30" : "bg-surface border-border"}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-text-muted">Odrzucone</span>
+                    {rejectedRows.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowRejectedDetails(!showRejectedDetails)}
+                        className="text-[10px] font-bold text-danger hover:underline flex items-center gap-0.5"
+                      >
+                        {showRejectedDetails ? "Ukryj" : "Szczegóły"}
+                        {showRejectedDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className={`text-lg font-black ${rejectedRows.length > 0 ? "text-danger" : "text-text-muted"}`}>
+                      {rejectedRows.length}
+                    </span>
+                    <span className="text-[10px] text-text-muted">błędnych</span>
+                  </div>
+                </div>
+
+                <div className="bg-surface border border-border p-3 rounded-xl flex flex-col justify-between">
+                  <span className="text-[11px] font-semibold text-text-muted flex items-center gap-1">
+                    <Globe className="w-3 h-3 text-text-muted" /> Waluty
+                  </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {(Object.entries(detectedCurrencies) as [SupportedCurrency, number][])
+                      .filter(([_, count]) => count > 0)
+                      .map(([curr, count]) => {
+                        const isMismatch = curr !== (activeProfile?.currency || "PLN");
+                        return (
+                          <span
+                            key={curr}
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
+                              isMismatch
+                                ? "bg-warning-subtle text-warning border-warning/30"
+                                : "bg-surface-2 text-text-main border-border"
+                            }`}
+                            title={isMismatch ? `Waluta inna niż waluta profilu (${activeProfile?.currency || "PLN"})` : "Waluta profilu"}
+                          >
+                            {curr}: {count}
+                          </span>
+                        );
+                      })}
+                  </div>
+                </div>
               </div>
 
-              {duplicateAnalysis.duplicateCount > 0 && (
-                <div className="bg-warning-subtle px-4 py-3 rounded-xl border border-warning/20 flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+              {/* Currency Mismatch Notice */}
+              {(Object.entries(detectedCurrencies) as [SupportedCurrency, number][]).some(([curr, count]) => count > 0 && curr !== (activeProfile?.currency || "PLN")) && (
+                <div className="bg-warning-subtle px-3.5 py-2.5 rounded-xl border border-warning/20 flex items-start gap-2 text-xs text-text-main shrink-0">
+                  <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-semibold text-warning">
-                      Wykryto potencjalne duplikaty: {duplicateAnalysis.duplicateCount}
-                    </h4>
-                    <p className="text-xs text-text-muted mt-0.5">Te transakcje istnieją już w profilu. Są podświetlone poniżej na żółto.</p>
+                    <p className="font-bold text-warning text-xs">Wykryto transakcje w innej walucie niż waluta profilu ({activeProfile?.currency || "PLN"})</p>
+                    <p className="text-[11px] text-text-muted mt-0.5">Kwoty zostaną zapisane w ich walutach źródłowych bez automatycznego przeliczania kursów FX.</p>
                   </div>
                 </div>
               )}
 
-              <div className="overflow-y-auto border border-border rounded-xl flex-1 max-h-[350px]">
+              {/* Rejection Details Drawer */}
+              {showRejectedDetails && rejectedRows.length > 0 && (
+                <div className="bg-danger-subtle p-3.5 rounded-xl border border-danger/20 text-xs shrink-0 max-h-40 overflow-y-auto custom-scrollbar">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-danger flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" /> Lista odrzuconych wierszy ({rejectedRows.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-1.5 font-mono text-[11px]">
+                    {rejectedRows.map((rej, i) => (
+                      <div key={i} className="bg-surface/80 p-2 rounded-lg border border-danger/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <span className="text-danger font-bold">Linia {rej.rowIndex}: {rej.reason}</span>
+                        <span className="text-text-muted truncate max-w-xs">{rej.rawText}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Selection Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2.5 shrink-0">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleToggleSelectAll}
+                    className="text-xs font-semibold text-text-muted hover:text-text-main px-2.5 py-1 rounded-lg hover:bg-surface-2 border border-border transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    id="btn-import-toggle-all"
+                  >
+                    {selectedTxIds.size === mappedTransactions.length ? <CheckSquare className="w-3.5 h-3.5 text-brand" /> : <Square className="w-3.5 h-3.5" />}
+                    {selectedTxIds.size === mappedTransactions.length ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
+                  </button>
+
+                  {duplicateAnalysis.duplicateCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleDeselectDuplicates}
+                      className="text-xs font-semibold text-warning hover:text-warning px-2.5 py-1 rounded-lg bg-warning-subtle hover:bg-warning-subtle/80 border border-warning/20 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="btn-import-deselect-duplicates"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" /> Odznacz duplikaty ({duplicateAnalysis.duplicateCount})
+                    </button>
+                  )}
+                </div>
+
+                <div className="text-xs text-text-muted font-medium">
+                  Zaznaczono: <strong className="text-text-main">{selectedTxIds.size}</strong> z {mappedTransactions.length}
+                </div>
+              </div>
+
+              {/* 3. Transaction Preview Table with Row Checkboxes */}
+              <div className="overflow-y-auto border border-border rounded-xl flex-1 max-h-[320px] custom-scrollbar min-h-0">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-surface border-b border-border font-bold text-text-muted sticky top-0 z-10">
+                      <th className="py-2.5 px-3 w-10 text-center">
+                        <input
+                          type="checkbox"
+                          id="chk-import-header-toggle"
+                          checked={selectedTxIds.size === mappedTransactions.length && mappedTransactions.length > 0}
+                          onChange={handleToggleSelectAll}
+                          aria-label="Zaznacz lub odznacz wszystkie transakcje"
+                          className="rounded border-border text-brand focus:ring-focus-ring cursor-pointer"
+                        />
+                      </th>
                       <th className="py-2.5 px-3">Opis</th>
                       <th className="py-2.5 px-3">Data</th>
                       <th className="py-2.5 px-3">Kategoria</th>
@@ -517,54 +704,96 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border bg-bg-base/95 backdrop-blur-2xl">
-                    {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => (
-                      <tr key={idx} className={`transition-colors ${warning ? "bg-warning-subtle hover:bg-warning-subtle/80" : "hover:bg-surface"}`}>
-                        <td className="py-2 px-3">
-                          <div className="font-bold text-text-main flex items-center gap-1.5 min-w-0">
-                            {warning && (
-                              <DelayedTooltip label={warning.reason}>
-                                <AlertTriangle className="w-3 h-3 text-warning shrink-0" />
-                              </DelayedTooltip>
-                            )}
-                            <span className="truncate block max-w-[150px] sm:max-w-xs" title={tx.name}>{tx.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
-                        <td className="py-2 px-3">
-                          <span className="inline-flex items-center gap-1 bg-surface-2 border border-border px-2 py-0.5 rounded-full text-xs">
-                            <span>{tx.categoryIcon}</span>
-                            {tx.category}
-                          </span>
-                        </td>
-                        <td className="py-2 px-3 text-text-muted">{tx.account}</td>
-                        <td className="py-2 px-3">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-surface-2 border border-border text-text-muted uppercase">
-                            {tx.currency || activeProfile?.currency || "PLN"}
-                          </span>
-                        </td>
-                        <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
-                          {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
-                        </td>
-                      </tr>
-                    ))}
+                    {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => {
+                      const isSelected = selectedTxIds.has(tx.id);
+                      return (
+                        <tr
+                          key={tx.id || idx}
+                          onClick={() => handleToggleRow(tx.id)}
+                          className={`transition-colors cursor-pointer select-none ${
+                            warning
+                              ? isSelected
+                                ? "bg-warning-subtle hover:bg-warning-subtle/80"
+                                : "bg-warning-subtle/40 opacity-70 hover:opacity-100"
+                              : isSelected
+                              ? "hover:bg-surface"
+                              : "opacity-60 hover:opacity-100 bg-surface-2/30"
+                          }`}
+                        >
+                          <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              id={`chk-import-row-${idx}`}
+                              checked={isSelected}
+                              onChange={() => handleToggleRow(tx.id)}
+                              aria-label={`Zaznacz transakcję ${tx.name}`}
+                              className="rounded border-border text-brand focus:ring-focus-ring cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <div className="font-bold text-text-main flex items-center gap-1.5 min-w-0">
+                              {warning && (
+                                <DelayedTooltip label={warning.reason}>
+                                  <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+                                </DelayedTooltip>
+                              )}
+                              <span className="truncate block max-w-[140px] sm:max-w-xs" title={tx.name}>
+                                {tx.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-2 px-3 text-text-muted whitespace-nowrap">{tx.isoDate}</td>
+                          <td className="py-2 px-3">
+                            <span className="inline-flex items-center gap-1 bg-surface-2 border border-border px-2 py-0.5 rounded-full text-xs">
+                              <span>{tx.categoryIcon}</span>
+                              {tx.category}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-text-muted">{tx.account}</td>
+                          <td className="py-2 px-3">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-surface-2 border border-border text-text-muted uppercase">
+                              {tx.currency || activeProfile?.currency || "PLN"}
+                            </span>
+                          </td>
+                          <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
+                            {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-              <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                {duplicateAnalysis.duplicateCount > 0 && (
-                  <button
-                    onClick={() => handleConfirmImport(true)}
-                    className="bg-surface border border-border text-text-main font-bold py-3 px-5 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all text-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
-                  >
-                    Pomiń duplikaty ({mappedTransactions.length - duplicateAnalysis.duplicateCount}) i importuj
-                  </button>
-                )}
+
+              {/* 4. Action Footer */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border shrink-0">
                 <button
-                  onClick={() => handleConfirmImport(false)}
-                  className="bg-brand text-text-inverse font-bold py-3 px-8 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  type="button"
+                  onClick={() => setStep(tab === "csv" ? 2 : 1)}
+                  className="text-xs font-semibold text-text-muted hover:text-text-main px-3 py-2 rounded-xl hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
-                  ✓ Zaimportuj wszystko ({mappedTransactions.length})
+                  &larr; Wróć i popraw
                 </button>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="bg-surface border border-border text-text-main font-bold py-2.5 px-4 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all text-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  >
+                    Anuluj
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-confirm-import"
+                    onClick={handleConfirmImport}
+                    disabled={selectedTxIds.size === 0}
+                    className="bg-brand text-text-inverse font-bold py-2.5 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Zaimportuj wybrane ({selectedTxIds.size})</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

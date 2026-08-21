@@ -272,4 +272,29 @@ Data transakcji;Data rozliczenia;Opis transakcji;Kwota transakcji;Waluta
     expect(parseCsvAmount("(150.00)")).toEqual({ amount: 150, isNegative: true });
     expect(parseCsvAmount("invalid")).toBeNull();
   });
+
+  it("12. reports detected currencies breakdown accurately", () => {
+    const result = parseAndMapCsv({
+      rawCsvText: REVOLUT_FIXTURE,
+      presetId: "revolut"
+    });
+
+    expect(result.detectedCurrencies).toEqual({
+      EUR: 1,
+      PLN: 1,
+      USD: 1,
+      GBP: 1
+    });
+  });
+
+  it("13. records rejected rows with line numbers and reasons", () => {
+    const result = parseAndMapCsv({
+      rawCsvText: GENERIC_BOM_FIXTURE,
+      presetId: "generic"
+    });
+
+    expect(result.rejectedRows.length).toBe(2);
+    expect(result.rejectedRows[0].reason).toContain("Nieprawidłowy format kwoty");
+    expect(result.rejectedRows[1].reason).toContain("Nieprawidłowy format daty");
+  });
 });
