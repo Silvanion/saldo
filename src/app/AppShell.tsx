@@ -530,6 +530,7 @@ export function AppShell({
               onOpenTransactionModal={(tx) => openModal("transaction", tx)}
               onOpenPaymentModal={() => openModal("payment")}
               onOpenGoalModal={() => openModal("goal")}
+              onOpenSmartRulesManager={() => openModal("smartRulesManager")}
               onExportData={handleExportData}
               theme={theme === "dark" ? "dark" : "light"}
               onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}

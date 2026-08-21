@@ -26,7 +26,8 @@ import {
   Trash2,
   Filter,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Settings
 } from "lucide-react";
 
 interface TransactionsViewProps {
@@ -37,6 +38,7 @@ interface TransactionsViewProps {
   onBeforeImport?: () => void;
   onApplySmartRulesBulk?: (selectedTxIds?: string[]) => { appliedCount: number };
   onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
+  onOpenSmartRulesManager?: () => void;
 }
 
 export function TransactionsView({
@@ -46,7 +48,8 @@ export function TransactionsView({
   onImportTransactions,
   onBeforeImport,
   onApplySmartRulesBulk,
-  onShowToast
+  onShowToast,
+  onOpenSmartRulesManager
 }: TransactionsViewProps) {
   const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
@@ -208,7 +211,19 @@ export function TransactionsView({
                   id="btn-smart-rules-preview"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Reguły ({smartRules.length})</span>
+                  <span>Zastosuj reguły</span>
+                </button>
+              )}
+              
+              {onOpenSmartRulesManager && (
+                <button
+                  onClick={() => onOpenSmartRulesManager()}
+                  className="text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  title="Zarządzaj regułami automatycznymi"
+                  id="btn-smart-rules-manager"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Zarządzaj regułami</span>
                 </button>
               )}
 

@@ -31,6 +31,7 @@ export type ModalType =
   | "aiChat"
   | "changelog"
   | "confirm"
+  | "smartRulesManager"
   | null;
 
 export type ModalState =
@@ -45,4 +46,5 @@ export type ModalState =
   | { type: "aiChat" }
   | { type: "changelog" }
   | { type: "confirm"; payload: ConfirmPayload }
+  | { type: "smartRulesManager" }
   | { type: null };

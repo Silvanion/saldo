@@ -82,6 +82,7 @@ export function AppContent() {
             onOpenGoalDepositModal={(g) => openModal("goalDeposit", g)}
             onOpenProfileModal={() => openModal("profile")}
             onOpenPinModal={() => openModal("pin")}
+            openModal={openModal}
           />
         ) : (
           <div className="flex items-center justify-center h-full">

@@ -19,6 +19,7 @@ const CalendarReminderModal = lazy(() => import("../components/CalendarReminderM
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
+const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
 
 export function ModalManager() {
   const {
@@ -33,7 +34,9 @@ export function ModalManager() {
     driveConflictInfo,
     resolveDriveConflict,
     closeDriveConflictModal,
-    showToast
+    showToast,
+    handleToggleSmartRule,
+    handleDeleteSmartRule
   } = useApp();
 
   const onSaveTransaction = (data: any) => {
@@ -139,6 +142,24 @@ export function ModalManager() {
               isOpen={true}
               onClose={closeModal}
               activeProfile={activeProfile}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "smartRulesManager" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować menedżera reguł">
+          <Suspense fallback={<ModalFallback />}>
+            <SmartRulesManagerModal
+              isOpen={true}
+              onClose={closeModal}
+              rules={activeProfile.smartRules || []}
+              onToggleRule={handleToggleSmartRule}
+              onDeleteRule={handleDeleteSmartRule}
+              getCategoryName={(id) => {
+                const icon = activeProfile.categories?.find(c => c.id === id)?.icon || "";
+                const name = activeProfile.categories?.find(c => c.id === id)?.name || id;
+                return icon ? `${icon} ${name}` : name;
+              }}
             />
           </Suspense>
         </ErrorBoundary>

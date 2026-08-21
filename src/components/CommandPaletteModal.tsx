@@ -40,6 +40,7 @@ export interface CommandPaletteModalProps {
   onOpenTransactionModal: (tx?: Transaction) => void;
   onOpenPaymentModal: () => void;
   onOpenGoalModal: () => void;
+  onOpenSmartRulesManager?: () => void;
   onOpenImportCsvModal?: () => void;
   onExportData?: () => void;
   theme?: "dark" | "light";
@@ -69,6 +70,7 @@ export function CommandPaletteModal({
   onOpenTransactionModal,
   onOpenPaymentModal,
   onOpenGoalModal,
+  onOpenSmartRulesManager,
   onOpenImportCsvModal,
   onExportData,
   theme = "dark",
@@ -230,8 +232,14 @@ export function CommandPaletteModal({
         title: "Reguły kategoryzacji (Smart Rules)",
         subtitle: "Automatyzacja i reguły przypisywania kategorii",
         icon: <Sparkles className="w-4 h-4 text-brand" />,
-        keywords: ["reguły", "smart rules", "kategoryzacja", "automatyzacja", "filtry"],
-        onSelect: () => setActiveView("transactions")
+        keywords: ["reguły", "smart rules", "kategoryzacja", "automatyzacja", "filtry", "menedżer"],
+        onSelect: () => {
+          if (onOpenSmartRulesManager) {
+            onOpenSmartRulesManager();
+          } else {
+            setActiveView("transactions");
+          }
+        }
       }
     ];
 

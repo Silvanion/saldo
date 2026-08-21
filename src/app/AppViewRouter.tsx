@@ -46,6 +46,7 @@ export function AppViewRouter({
   onOpenGoalDepositModal: (g: Goal) => void;
   onOpenProfileModal: () => void;
   onOpenPinModal: () => void;
+  openModal: (type: import("../uiTypes").ModalType, payload?: any) => void;
 }) {
   const {
     state, saveState,
@@ -241,6 +242,7 @@ export function AppViewRouter({
             onBeforeImport={makeUndoBackup}
             onApplySmartRulesBulk={handleApplySmartRulesBulk}
             onShowToast={showToast}
+            onOpenSmartRulesManager={() => openModal("smartRulesManager")}
           />
         );
       case "payments":

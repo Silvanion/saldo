@@ -6,7 +6,7 @@ export function useModalManager() {
 
   function openModal(type: "transaction", payload?: import("../types").Transaction): void;
   function openModal(type: "payment", payload?: import("../types").Payment): void;
-  function openModal(type: "goal" | "profile" | "pin" | "budget" | "aiChat" | "changelog"): void;
+  function openModal(type: "goal" | "profile" | "pin" | "budget" | "aiChat" | "changelog" | "smartRulesManager"): void;
   function openModal(type: "goalDeposit", payload: import("../types").Goal): void;
   function openModal(type: "calendarAi", payload?: import("../types").Payment): void;
   function openModal(type: "confirm", payload: import("../uiTypes").ConfirmPayload): void;
