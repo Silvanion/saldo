@@ -6,6 +6,7 @@ export type AppView =
   | "payments"
   | "budget"
   | "goals"
+  | "debts"
   | "analysis"
   | "settings"
   | "help";

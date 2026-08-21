@@ -19,6 +19,7 @@ import {
   X,
   RefreshCw,
   Sparkles,
+  Landmark,
   Wifi,
   WifiOff,
   ShieldCheck,
@@ -231,6 +232,20 @@ export function AppShell({
           >
             <LineChart className="w-4 h-4 shrink-0" />
             {"Analiza"}
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveView("debts");
+              setIsMobileMenuOpen(false);
+            }}
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "debts" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            }`}
+            id="nav-debts"
+          >
+            <Landmark className="w-4 h-4 shrink-0" />
+            {"Kredyty i Hipoteka"}
           </button>
         </nav>
 

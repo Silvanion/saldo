@@ -11,6 +11,7 @@ const TransactionsView = lazy(() => import("../components/TransactionsView").the
 const PaymentsView = lazy(() => import("../components/PaymentsView").then(m => ({ default: m.PaymentsView })));
 const BudgetView = lazy(() => import("../components/BudgetView").then(m => ({ default: m.BudgetView })));
 const GoalsView = lazy(() => import("../components/GoalsView").then(m => ({ default: m.GoalsView })));
+const DebtsView = lazy(() => import("../components/DebtsView").then(m => ({ default: m.DebtsView })));
 const AnalysisView = lazy(() => import("../components/AnalysisView").then(m => ({ default: m.AnalysisView })));
 const SettingsView = lazy(() => import("../components/SettingsView").then(m => ({ default: m.SettingsView })));
 const HelpView = lazy(() => import("../components/HelpView").then(m => ({ default: m.HelpView })));
@@ -278,6 +279,8 @@ export function AppViewRouter({
             onAddInvestment={onAddInvestment}
           />
         );
+      case "debts":
+        return <DebtsView showToast={showToast} />;
       case "analysis":
         return (
           <AnalysisView

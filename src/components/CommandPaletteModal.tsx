@@ -21,7 +21,8 @@ import {
   Tag,
   ArrowDownLeft,
   ArrowUpRight,
-  Sparkles
+  Sparkles,
+  Landmark
 } from "lucide-react";
 import { Profile, Transaction, SupportedCurrency } from "../types";
 import { AppView } from "../uiTypes";
@@ -144,6 +145,16 @@ export function CommandPaletteModal({
       badge: activeView === "goals" ? "Aktywny" : undefined,
       keywords: ["skarbonki", "oszczędności", "inwestycje", "rezerwa", "cele"],
       onSelect: () => setActiveView("goals")
+    },
+    {
+      id: "view-debts",
+      category: "views",
+      title: "Kredyty i Hipoteka",
+      subtitle: "Portfel zadłużenia, symulator nadpłat i refinansowanie",
+      icon: <Landmark className="w-4 h-4 text-brand" />,
+      badge: activeView === "debts" ? "Aktywny" : undefined,
+      keywords: ["kredyty", "hipoteka", "zadłużenie", "długi", "nadpłata", "refinansowanie", "pożyczki", "karty", "wibor", "raty"],
+      onSelect: () => setActiveView("debts")
     },
     {
       id: "view-analysis",
