@@ -189,3 +189,139 @@ export function convertLegacyRulesToSmartRules(legacyRules: TransactionRule[] = 
       createdAt: new Date().toISOString(),
     }));
 }
+
+export interface SmartRuleSuggestion {
+  keyword: string;
+  rule: Omit<SmartRule, "id" | "createdAt">;
+}
+
+export function extractSmartRuleKeyword(rawName: string): string {
+  if (!rawName || typeof rawName !== "string") return "";
+
+  // Strip leading/trailing noise, common merchant suffixes, transaction IDs, store numbers, *Trip, #123
+  const cleaned = rawName
+    .replace(/[*#]\s*\w+/g, " ")
+    .replace(/\b(sp\.?\s*z\s*o\.?o\.?|s\.a\.|\.pl|\.com|nr\s*\d+)\b/gi, " ")
+    .replace(/[#*_\-\/\\:;,.!?]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // If after cleaning it has fewer than 3 characters, return empty string
+  if (cleaned.length < 3) return "";
+
+  // If it's purely numbers, return empty string
+  if (/^\d+$/.test(cleaned)) return "";
+
+  // Filter out pure number tokens and single-character tokens
+  const tokens = cleaned
+    .split(" ")
+    .filter((t) => t.length >= 2 && !/^\d+$/.test(t));
+  if (tokens.length === 0) return "";
+
+  // Filter generic words like "zakupy", "platnosc", "przelew", "sklep", "stacja", "paliw" if a more specific token exists
+  const genericPrefixes = new Set(["zakupy", "platnosc", "przelew", "sklep", "stacja", "karta", "blik", "paliw", "paliwo"]);
+  const nonGenericTokens = tokens.filter((t) => !genericPrefixes.has(normalizeSmartRuleText(t)));
+
+  if (nonGenericTokens.length > 0) {
+    const candidate = nonGenericTokens.slice(0, 2).join(" ");
+    if (candidate.length >= 3) {
+      return candidate;
+    }
+  }
+
+  return tokens.slice(0, 2).join(" ");
+}
+
+export function isRuleCoveringTransaction(
+  tx: { name: string; account?: string; amount?: number },
+  category: string,
+  existingRules: SmartRule[] = [],
+  legacyRules: TransactionRule[] = []
+): boolean {
+  if (!tx || !tx.name || !category) return false;
+
+  // 1. Check if an active SmartRule already matches this transaction and assigns this category
+  const activeSmartRules = existingRules.filter((r) => r && r.enabled !== false && r.action && r.condition);
+  for (const rule of activeSmartRules) {
+    if (rule.action.categoryId === category && evaluateRuleCondition(tx as Transaction, rule.condition)) {
+      return true;
+    }
+  }
+
+  // 2. Check if legacy rules already cover it
+  const txNorm = normalizeSmartRuleText(tx.name);
+  for (const leg of legacyRules) {
+    if (leg && leg.category === category && leg.pattern) {
+      const patNorm = normalizeSmartRuleText(leg.pattern);
+      if (patNorm && txNorm.includes(patNorm)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function generateSmartRuleSuggestion(
+  params: {
+    name: string;
+    category: string;
+    initialCategory?: string;
+    isEditing?: boolean;
+  },
+  existingRules: SmartRule[] = [],
+  legacyRules: TransactionRule[] = []
+): SmartRuleSuggestion | null {
+  const { name, category, initialCategory, isEditing } = params;
+
+  if (!name || !category) return null;
+
+  // In edit mode: only suggest when category meaningfully changed
+  if (isEditing && initialCategory && initialCategory === category) {
+    return null;
+  }
+
+  const keyword = extractSmartRuleKeyword(name);
+  if (!keyword || keyword.length < 3) return null;
+
+  // Check if an existing rule already covers this transaction & category
+  if (isRuleCoveringTransaction({ name }, category, existingRules, legacyRules)) {
+    return null;
+  }
+
+  // Check if an existing rule has the exact same keyword condition and category
+  const keywordNorm = normalizeSmartRuleText(keyword);
+  const duplicateRule = existingRules.find(
+    (r) =>
+      r &&
+      r.enabled !== false &&
+      r.condition &&
+      r.condition.field === "name" &&
+      r.condition.operator === "contains" &&
+      normalizeSmartRuleText(r.condition.value) === keywordNorm &&
+      r.action?.categoryId === category
+  );
+  if (duplicateRule) return null;
+
+  const nextPriority =
+    existingRules.length > 0 ? Math.max(...existingRules.map((r) => Number(r.priority) || 1)) + 1 : 1;
+
+  return {
+    keyword,
+    rule: {
+      name: `Auto: ${keyword} → ${category}`,
+      enabled: true,
+      priority: nextPriority,
+      condition: {
+        field: "name",
+        operator: "contains",
+        value: keyword,
+      },
+      action: {
+        type: "setCategory",
+        categoryId: category,
+      },
+    },
+  };
+}
+

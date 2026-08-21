@@ -5,6 +5,8 @@ import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
 import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
 import { checkDuplicate } from "../services/duplicateDetector";
+import { Sparkles, X } from "lucide-react";
+import { generateSmartRuleSuggestion, SmartRuleSuggestion } from "../services/smartRules";
 
 export interface TransactionModalProps {
   isOpen: boolean;
@@ -21,15 +23,28 @@ export interface TransactionModalProps {
     isoDate: string;
     tags?: string[];
   }) => void;
+  onAddSmartRule?: (ruleData: Omit<import("../types").SmartRule, "id" | "createdAt">) => void;
+  onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
-export function TransactionModal({ isOpen, onClose, activeProfile, initialData, onSave }: TransactionModalProps) {
+export function TransactionModal({
+  isOpen,
+  onClose,
+  activeProfile,
+  initialData,
+  onSave,
+  onAddSmartRule,
+  onShowToast,
+}: TransactionModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
-  const { state } = useApp();
+  const appContext = useApp?.();
+  const state = appContext?.state;
+  const handleAddSmartRule = appContext?.handleAddSmartRule;
+  const showToast = appContext?.showToast;
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [categoryIcon, setCategoryIcon] = useState("🛒");
@@ -38,6 +53,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingSuggestion, setPendingSuggestion] = useState<SmartRuleSuggestion | null>(null);
   
   const [paidBy, setPaidBy] = useState<"me" | "partner" | "joint">("me");
   const [splitMode, setSplitMode] = useState<"none" | "equal">("equal");
@@ -56,6 +72,7 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
+      setPendingSuggestion(null);
       if (isEditing) {
         setType(initialData.type);
         setAmount(initialData.amount.toString());
@@ -145,18 +162,34 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
       payload.splitMode = splitMode;
     }
     onSave(payload);
-    onClose();
-    // Reset form
-    setAmount("");
-    setName("");
-    setType("expense");
-    setAccount("Konto główne");
-    setDate(getLocalDateIso());
-    setTags([]);
-    setTagInput("");
-    setPaidBy("me");
-    setSplitMode("equal");
-    setCurrency(activeProfile?.currency || "PLN");
+
+    const suggestion = generateSmartRuleSuggestion(
+      {
+        name,
+        category,
+        initialCategory: isEditing ? initialData?.category : undefined,
+        isEditing: !!isEditing,
+      },
+      activeProfile?.smartRules || state?.smartRules || [],
+      activeProfile?.transactionRules || state?.transactionRules || []
+    );
+
+    if (suggestion) {
+      setPendingSuggestion(suggestion);
+    } else {
+      onClose();
+      // Reset form
+      setAmount("");
+      setName("");
+      setType("expense");
+      setAccount("Konto główne");
+      setDate(getLocalDateIso());
+      setTags([]);
+      setTagInput("");
+      setPaidBy("me");
+      setSplitMode("equal");
+      setCurrency(activeProfile?.currency || "PLN");
+    }
   };
 
   const categories = type === "income" ? incomeCategories : expenseCategories;
@@ -167,6 +200,114 @@ export function TransactionModal({ isOpen, onClose, activeProfile, initialData, 
     "🔑", "💡", "🔌", "🚲", "✈️", "🩺", "💊", "🎮", "🍿", "🛍️",
     "💰", "💼", "🎁", "↩️", "📈", "💵", "💳", "📱", "🎓", "🧱"
   ];
+
+  if (pendingSuggestion) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
+        id="tx-rule-suggestion-backdrop"
+      >
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tx-rule-suggestion-title"
+          initial={{ opacity: 0, scale: 0.95, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 12 }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-xl flex flex-col overflow-hidden border border-border"
+          ref={modalRef}
+        >
+          {/* Header */}
+          <div className="p-6 pb-4 border-b border-border flex items-center justify-between bg-bg-base/95">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h2 id="tx-rule-suggestion-title" className="text-base font-bold text-text-main truncate">
+                  Utworzyć regułę dla podobnych wpisów?
+                </h2>
+                <p className="text-xs text-text-muted truncate">
+                  Transakcja została pomyślnie zapisana.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Zamknij podpowiedź"
+              className="text-text-muted hover:text-text-main p-2 rounded-full hover:bg-surface-offset transition cursor-pointer"
+              id="btn-close-smart-rule-suggestion"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="p-6 space-y-4 text-xs">
+            <p className="text-text-muted leading-relaxed">
+              Saldo może automatycznie podpowiadać kategorię dla podobnych transakcji w przyszłości:
+            </p>
+
+            <div className="p-4 bg-surface-2 border border-border rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase font-bold text-text-faint block mb-0.5">Słowo kluczowe</span>
+                <span className="font-bold text-text-main font-mono text-xs truncate block" id="suggested-rule-keyword">
+                  "{pendingSuggestion.keyword}"
+                </span>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-[10px] uppercase font-bold text-text-faint block mb-0.5">Kategoria</span>
+                <span className="inline-flex items-center gap-1 bg-brand-subtle text-brand px-2.5 py-1 rounded-lg border border-brand/20 font-bold text-xs">
+                  <span>{categoryIcon || "✨"}</span>
+                  <span>{category}</span>
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-text-faint italic">
+              Reguła będzie stosowana wyłącznie do nowych lub importowanych transakcji.
+            </p>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="p-4 sm:p-5 border-t border-border bg-surface-2 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl border border-border text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface active:bg-surface-3 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-dismiss-smart-rule-suggestion"
+            >
+              Nie teraz
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (onAddSmartRule) {
+                  onAddSmartRule(pendingSuggestion.rule);
+                } else if (handleAddSmartRule) {
+                  handleAddSmartRule(pendingSuggestion.rule);
+                }
+                const toastFn = onShowToast || showToast;
+                if (toastFn) {
+                  toastFn(`Utworzono regułę dla "${pendingSuggestion.keyword}"`, "success");
+                }
+                onClose();
+              }}
+              className="px-4 py-2.5 rounded-xl bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-accept-smart-rule-suggestion"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Utwórz regułę</span>
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

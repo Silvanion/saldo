@@ -6,6 +6,9 @@ import {
   applySmartRulesToTransactions,
   convertLegacyRulesToSmartRules,
   normalizeSmartRuleText,
+  extractSmartRuleKeyword,
+  isRuleCoveringTransaction,
+  generateSmartRuleSuggestion,
 } from "./smartRules";
 import { Transaction, SmartRule, TransactionRule } from "../types";
 
@@ -244,6 +247,100 @@ describe("smartRules service", () => {
       expect(converted[0].condition.operator).toBe("contains");
       expect(converted[0].condition.value).toBe("Uber");
       expect(converted[0].action.categoryId).toBe("Transport");
+    });
+  });
+
+  describe("extractSmartRuleKeyword", () => {
+    it("extracts meaningful merchant keywords and strips noise", () => {
+      expect(extractSmartRuleKeyword("  Zakupy Biedronka #124  ")).toBe("Biedronka");
+      expect(extractSmartRuleKeyword("ORLEN STACJA PALIW 4220")).toBe("ORLEN");
+      expect(extractSmartRuleKeyword("Uber *Trip")).toBe("Uber");
+      expect(extractSmartRuleKeyword("Netflix.com")).toBe("Netflix");
+      expect(extractSmartRuleKeyword("Żabka Express")).toBe("Żabka Express");
+    });
+
+    it("returns empty string for empty, short, or noise-only text", () => {
+      expect(extractSmartRuleKeyword("")).toBe("");
+      expect(extractSmartRuleKeyword("ab")).toBe("");
+      expect(extractSmartRuleKeyword("123456")).toBe("");
+      expect(extractSmartRuleKeyword("### ---")).toBe("");
+    });
+  });
+
+  describe("isRuleCoveringTransaction", () => {
+    it("returns true if an enabled smart rule already covers the transaction and category", () => {
+      const rule = createMockRule({
+        condition: { field: "name", operator: "contains", value: "biedronka" },
+        action: { type: "setCategory", categoryId: "Żywność" },
+      });
+
+      expect(isRuleCoveringTransaction({ name: "Biedronka Zakupy" }, "Żywność", [rule])).toBe(true);
+      expect(isRuleCoveringTransaction({ name: "Biedronka Zakupy" }, "Inne", [rule])).toBe(false);
+    });
+
+    it("returns true if a legacy rule already covers the transaction", () => {
+      const legacy: TransactionRule[] = [{ id: "l-1", pattern: "Orlen", category: "Transport" }];
+      expect(isRuleCoveringTransaction({ name: "Stacja Orlen Paliwo" }, "Transport", [], legacy)).toBe(true);
+      expect(isRuleCoveringTransaction({ name: "Stacja Orlen Paliwo" }, "Inne", [], legacy)).toBe(false);
+    });
+  });
+
+  describe("generateSmartRuleSuggestion", () => {
+    it("generates clean suggestion when creating a transaction with new category", () => {
+      const suggestion = generateSmartRuleSuggestion({
+        name: "Zakupy Biedronka",
+        category: "Żywność",
+        isEditing: false,
+      });
+
+      expect(suggestion).not.toBeNull();
+      expect(suggestion?.keyword).toBe("Biedronka");
+      expect(suggestion?.rule.name).toBe("Auto: Biedronka → Żywność");
+      expect(suggestion?.rule.condition.field).toBe("name");
+      expect(suggestion?.rule.condition.operator).toBe("contains");
+      expect(suggestion?.rule.condition.value).toBe("Biedronka");
+      expect(suggestion?.rule.action.categoryId).toBe("Żywność");
+    });
+
+    it("returns null in edit mode when category was not changed", () => {
+      const suggestion = generateSmartRuleSuggestion({
+        name: "Zakupy Biedronka",
+        category: "Żywność",
+        initialCategory: "Żywność",
+        isEditing: true,
+      });
+
+      expect(suggestion).toBeNull();
+    });
+
+    it("generates suggestion in edit mode when category was changed", () => {
+      const suggestion = generateSmartRuleSuggestion({
+        name: "Zakupy Biedronka",
+        category: "Żywność",
+        initialCategory: "Inne",
+        isEditing: true,
+      });
+
+      expect(suggestion).not.toBeNull();
+      expect(suggestion?.rule.action.categoryId).toBe("Żywność");
+    });
+
+    it("returns null if an equivalent rule already exists", () => {
+      const existingRule = createMockRule({
+        condition: { field: "name", operator: "contains", value: "Biedronka" },
+        action: { type: "setCategory", categoryId: "Żywność" },
+      });
+
+      const suggestion = generateSmartRuleSuggestion(
+        {
+          name: "Biedronka Zakupy",
+          category: "Żywność",
+          isEditing: false,
+        },
+        [existingRule]
+      );
+
+      expect(suggestion).toBeNull();
     });
   });
 });
