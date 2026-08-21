@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calculatePortfolioDebtKpis,
   calculateAmortizationSchedule,
+  calculateDebtAmortizationSchedule,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -888,6 +889,172 @@ describe("debtCalculations", () => {
         expect(withLumpSum.avalanche.totalMonths).toBeLessThan(base.avalanche.totalMonths);
         expect(withLumpSum.avalanche.totalInterestPaid).toBeLessThan(base.avalanche.totalInterestPaid);
       });
+    });
+  });
+
+  describe("calculateDebtAmortizationSchedule (Sprint 16)", () => {
+    it("calculates accurate amortization schedule and breakdown for a standard mortgage", () => {
+      const mortgage: DebtItem = {
+        id: "m1",
+        name: "Hipoteka",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 100000,
+        monthlyPayment: 1000,
+        interestRate: 6.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(mortgage);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.validationStatus).toBe("valid");
+      expect(result.initialBalance).toBe(100000);
+      expect(result.estimatedMonthlyPayment).toBe(1000);
+      expect(result.firstMonthInterest).toBe(500); // 100000 * 0.06 / 12 = 500
+      expect(result.firstMonthPrincipal).toBe(500);
+      expect(result.rows.length).toBeGreaterThan(0);
+
+      // Verify that final row balance reaches zero
+      const lastRow = result.rows[result.rows.length - 1];
+      expect(lastRow.balance).toBe(0);
+
+      // Total repayment should equal initial balance + total interest
+      expect(result.estimatedTotalRepayment).toBeCloseTo(result.initialBalance + result.estimatedTotalInterest, 1);
+    });
+
+    it("handles zero-interest BNPL debt correctly", () => {
+      const bnpl: DebtItem = {
+        id: "b1",
+        name: "Allegro Pay",
+        institution: "Allegro",
+        type: "bnpl",
+        currency: "PLN",
+        balance: 1200,
+        monthlyPayment: 200,
+        interestRate: 0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(bnpl);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.validationStatus).toBe("valid");
+      expect(result.estimatedMonths).toBe(6);
+      expect(result.estimatedTotalInterest).toBe(0);
+      expect(result.estimatedTotalRepayment).toBe(1200);
+      expect(result.firstMonthInterest).toBe(0);
+      expect(result.firstMonthPrincipal).toBe(200);
+    });
+
+    it("caps the final payment at remaining balance plus final interest without overpaying", () => {
+      const loan: DebtItem = {
+        id: "c1",
+        name: "Końcówka pożyczki",
+        institution: "Bank",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 350,
+        monthlyPayment: 200,
+        interestRate: 12.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(loan);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.rows.length).toBe(2);
+      expect(result.rows[1].balance).toBe(0);
+      expect(result.rows[1].principal).toBeLessThanOrEqual(200);
+    });
+
+    it("identifies non-amortizing loans where payment is less than or equal to monthly interest", () => {
+      const nonAmortizing: DebtItem = {
+        id: "na1",
+        name: "Zbyt niska rata",
+        institution: "Bank",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 100000,
+        monthlyPayment: 500, // Monthly interest at 12% is 1000 PLN
+        interestRate: 12.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(nonAmortizing);
+
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("non_amortizing");
+      expect(result.errorMessage).toContain("nie amortyzuje się");
+    });
+
+    it("rejects unsupported revolving debt types with clear explanatory message", () => {
+      const creditCard: DebtItem = {
+        id: "cc1",
+        name: "Karta Visa",
+        institution: "mBank",
+        type: "credit_card",
+        currency: "PLN",
+        balance: 5000,
+        monthlyPayment: 250,
+        interestRate: 18.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(creditCard);
+
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("unsupported_type");
+      expect(result.errorMessage).toContain("Karty kredytowe i limity odnawialne");
+    });
+
+    it("rejects closed debts", () => {
+      const closedDebt: DebtItem = {
+        id: "cl1",
+        name: "Spłacony kredyt",
+        institution: "Santander",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 0,
+        monthlyPayment: 0,
+        interestRate: 8.0,
+        status: "closed",
+        createdAt: "2024-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(closedDebt);
+
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("closed_debt");
+      expect(result.errorMessage).toContain("zamknięte");
+    });
+
+    it("handles null/undefined and invalid numeric inputs safely", () => {
+      expect(calculateDebtAmortizationSchedule(null).isEligible).toBe(false);
+      expect(calculateDebtAmortizationSchedule(undefined).isEligible).toBe(false);
+
+      const invalidDebt: DebtItem = {
+        id: "inv1",
+        name: "Błędne dane",
+        institution: "Bank",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: -500,
+        monthlyPayment: 0,
+        interestRate: -1,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtAmortizationSchedule(invalidDebt);
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("insufficient_data");
     });
   });
 });

@@ -19,7 +19,12 @@ import {
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { calculateAmortizationSchedule, calculateOverpayment, calculateRefinanceComparison } from "../../services/debtCalculations";
+import {
+  calculateAmortizationSchedule,
+  calculateDebtAmortizationSchedule,
+  calculateOverpayment,
+  calculateRefinanceComparison
+} from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -47,7 +52,7 @@ export function DebtDetailsModal({
   useFocusTrap(modalRef, isOpen, onClose);
 
   const [activeTab, setActiveTab] = useState<DebtDetailTab>(initialTab);
-  const [scheduleMode, setScheduleMode] = useState<"baseline" | "overpayment">("baseline");
+  const [showFullSchedule, setShowFullSchedule] = useState(false);
 
   React.useEffect(() => {
     if (isOpen && initialTab) {
@@ -55,12 +60,9 @@ export function DebtDetailsModal({
     }
   }, [isOpen, initialTab]);
 
-  const schedule = useMemo(() => {
-    if (!debt) return [];
-    const basePmt = debt.monthlyPayment || 0;
-    const pmt = scheduleMode === "overpayment" ? basePmt + 1000 : basePmt;
-    return calculateAmortizationSchedule(debt.balance, debt.interestRate, pmt, 24);
-  }, [debt, scheduleMode]);
+  const amortization = useMemo(() => {
+    return calculateDebtAmortizationSchedule(debt);
+  }, [debt]);
 
   const overpaymentQuickA = useMemo(() => {
     if (!debt) return null;
@@ -350,72 +352,141 @@ export function DebtDetailsModal({
             {/* TAB 2: SCHEDULE */}
             {activeTab === "schedule" && (
               <div className="space-y-4 animate-fade-in">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
-                  <div>
-                    <h3 className="text-sm font-bold text-text-main">Harmonogram spłat (Amortyzacja)</h3>
-                    <p className="text-xs text-text-muted">Projekcja raty i salda kapitału miesiąc po miesiącu</p>
+                {!amortization.isEligible ? (
+                  <div className="p-6 bg-surface-2/60 border border-border rounded-2xl text-center flex flex-col items-center justify-center space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center border border-border text-text-muted">
+                      <Info className="w-6 h-6" />
+                    </div>
+                    <div className="max-w-md space-y-1">
+                      <h4 className="text-sm font-bold text-text-main">
+                        Harmonogram niedostępny
+                      </h4>
+                      <p className="text-xs text-text-muted leading-relaxed">
+                        {amortization.errorMessage || "Brak wystarczających parametrów do wygenerowania harmonogramu spłat."}
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  <div className="space-y-5">
+                    {/* Header & Mode info */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
+                      <div>
+                        <h3 className="text-sm font-bold text-text-main">Harmonogram spłat i analiza kosztu</h3>
+                        <p className="text-xs text-text-muted">Szacunek na podstawie podanych danych — orientacyjny plan amortyzacji</p>
+                      </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setScheduleMode("baseline")}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                        scheduleMode === "baseline"
-                          ? "bg-brand text-text-inverse shadow-xs"
-                          : "bg-surface-2 text-text-muted hover:text-text-main border border-border"
-                      }`}
-                    >
-                      Plan bazowy
-                    </button>
-                    <button
-                      onClick={() => setScheduleMode("overpayment")}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                        scheduleMode === "overpayment"
-                          ? "bg-brand text-text-inverse shadow-xs"
-                          : "bg-surface-2 text-text-muted hover:text-text-main border border-border"
-                      }`}
-                    >
-                      Z nadpłatą (+1000 zł)
-                    </button>
+                      {amortization.rows.length > 24 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowFullSchedule(!showFullSchedule)}
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer bg-surface-2 hover:bg-surface-hover text-text-main border border-border shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                        >
+                          {showFullSchedule
+                            ? "Pokaż 24 miesiące"
+                            : `Pokaż pełny harmonogram (${amortization.rows.length} rat)`}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Summary KPI Strip */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Szacowana rata
+                        </span>
+                        <span className="text-sm font-black text-text-main tabular-nums">
+                          {formatMoney(amortization.estimatedMonthlyPayment, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Kapitał (1. rata)
+                        </span>
+                        <span className="text-sm font-black text-brand tabular-nums">
+                          {formatMoney(amortization.firstMonthPrincipal, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Odsetki (1. rata)
+                        </span>
+                        <span className="text-sm font-black text-danger tabular-nums">
+                          {formatMoney(amortization.firstMonthInterest, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Odsetki łącznie
+                        </span>
+                        <span className="text-sm font-black text-text-main tabular-nums">
+                          {formatMoney(amortization.estimatedTotalInterest, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Spłata końcowa
+                        </span>
+                        <span className="text-sm font-black text-text-main tabular-nums">
+                          {formatMoney(amortization.estimatedTotalRepayment, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/50 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Pozostały okres
+                        </span>
+                        <span className="text-sm font-black text-text-main tabular-nums">
+                          {amortization.estimatedMonths} mc.
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Schedule Table */}
+                    <div className="overflow-x-auto border border-border rounded-xl">
+                      <table className="w-full text-left text-xs" aria-label="Tabela harmonogramu spłat">
+                        <thead className="bg-surface-2 text-text-faint font-bold border-b border-border uppercase tracking-wider text-[10px]">
+                          <tr>
+                            <th className="py-2.5 px-3">Miesiąc</th>
+                            <th className="py-2.5 px-3 text-right">Rata</th>
+                            <th className="py-2.5 px-3 text-right">Kapitał</th>
+                            <th className="py-2.5 px-3 text-right">Odsetki</th>
+                            <th className="py-2.5 px-3 text-right">Pozostałe saldo</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/60 font-medium">
+                          {(showFullSchedule ? amortization.rows : amortization.rows.slice(0, 24)).map((row) => (
+                            <tr key={row.monthIndex} className="hover:bg-surface-hover transition-colors">
+                              <td className="py-2.5 px-3 font-bold text-text-main">Miesiąc {row.monthIndex}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
+                                {formatMoney(row.installment, currency)}
+                              </td>
+                              <td className="py-2.5 px-3 text-right text-brand font-bold tabular-nums">
+                                {formatMoney(row.principal, currency)}
+                              </td>
+                              <td className="py-2.5 px-3 text-right text-text-muted tabular-nums">
+                                {formatMoney(row.interest, currency)}
+                              </td>
+                              <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
+                                {formatMoney(row.balance, currency)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <p className="text-[11px] text-text-faint text-center leading-relaxed">
+                      {showFullSchedule
+                        ? `Wyświetlono pełny harmonogram (${amortization.rows.length} rat).`
+                        : `Wyświetlono pierwsze ${Math.min(24, amortization.rows.length)} z ${amortization.rows.length} rat.`}{" "}
+                      Szacunek na podstawie podanych danych — rzeczywiste wartości mogą różnić się od symulacji.
+                    </p>
                   </div>
-                </div>
-
-                <div className="overflow-x-auto border border-border rounded-xl">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-surface-2 text-text-faint font-bold border-b border-border uppercase tracking-wider text-[10px]">
-                      <tr>
-                        <th className="py-2.5 px-3">Miesiąc</th>
-                        <th className="py-2.5 px-3 text-right">Rata łączna</th>
-                        <th className="py-2.5 px-3 text-right">Kapitał</th>
-                        <th className="py-2.5 px-3 text-right">Odsetki</th>
-                        <th className="py-2.5 px-3 text-right">Saldo po racie</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60 font-medium">
-                      {schedule.map((row) => (
-                        <tr key={row.monthIndex} className="hover:bg-surface-hover transition-colors">
-                          <td className="py-2.5 px-3 font-bold text-text-main">Miesiąc {row.monthIndex}</td>
-                          <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
-                            {formatMoney(row.installment, currency)}
-                          </td>
-                          <td className="py-2.5 px-3 text-right text-brand font-bold tabular-nums">
-                            {formatMoney(row.principal, currency)}
-                          </td>
-                          <td className="py-2.5 px-3 text-right text-text-muted tabular-nums">
-                            {formatMoney(row.interest, currency)}
-                          </td>
-                          <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
-                            {formatMoney(row.balance, currency)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="text-[11px] text-text-faint text-center">
-                  Pokazano pierwsze 24 miesiące projekcji spłaty kapitału.
-                </p>
+                )}
               </div>
             )}
 

@@ -19,6 +19,20 @@ export interface AmortizationScheduleRow {
   balance: number;
 }
 
+export interface DebtAmortizationScheduleResult {
+  initialBalance: number;
+  estimatedMonthlyPayment: number;
+  estimatedTotalInterest: number;
+  estimatedTotalRepayment: number;
+  estimatedMonths: number;
+  firstMonthPrincipal: number;
+  firstMonthInterest: number;
+  rows: AmortizationScheduleRow[];
+  isEligible: boolean;
+  validationStatus: "valid" | "unsupported_type" | "closed_debt" | "insufficient_data" | "non_amortizing";
+  errorMessage?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -330,6 +344,117 @@ export function calculateAmortizationSchedule(
   }
 
   return rows;
+}
+
+/**
+ * Calculates complete pure deterministic amortization schedule and cost breakdown for a DebtItem (Sprint 16)
+ */
+export function calculateDebtAmortizationSchedule(
+  debt: DebtItem | null | undefined,
+  maxMonths = 360
+): DebtAmortizationScheduleResult {
+  const emptyResult: DebtAmortizationScheduleResult = {
+    initialBalance: 0,
+    estimatedMonthlyPayment: 0,
+    estimatedTotalInterest: 0,
+    estimatedTotalRepayment: 0,
+    estimatedMonths: 0,
+    firstMonthPrincipal: 0,
+    firstMonthInterest: 0,
+    rows: [],
+    isEligible: false,
+    validationStatus: "insufficient_data",
+    errorMessage: "Brak danych zobowiązania."
+  };
+
+  if (!debt) {
+    return emptyResult;
+  }
+
+  if (debt.status === "closed") {
+    return {
+      ...emptyResult,
+      validationStatus: "closed_debt",
+      errorMessage: "Zobowiązanie jest zamknięte (spłacone) — harmonogram nie jest aktywny."
+    };
+  }
+
+  if (debt.type === "credit_card" || debt.type === "revolving") {
+    return {
+      ...emptyResult,
+      validationStatus: "unsupported_type",
+      errorMessage: "Karty kredytowe i limity odnawialne charakteryzują się elastyczną spłatą — stały plan amortyzacji rat nie ma zastosowania."
+    };
+  }
+
+  const balance = Math.max(0, Number(debt.balance) || 0);
+  const monthlyPayment = Math.max(0, Number(debt.monthlyPayment) || 0);
+  const annualRatePct = Number(debt.interestRate);
+
+  if (balance <= 0 || monthlyPayment <= 0 || isNaN(annualRatePct) || annualRatePct < 0) {
+    return {
+      ...emptyResult,
+      initialBalance: balance,
+      estimatedMonthlyPayment: monthlyPayment,
+      validationStatus: "insufficient_data",
+      errorMessage: "Brak wystarczających parametrów (saldo > 0, rata > 0, oprocentowanie >= 0) do wygenerowania harmonogramu."
+    };
+  }
+
+  const monthlyRate = (annualRatePct / 100) / 12;
+  const firstMonthInterest = Math.round(balance * monthlyRate * 100) / 100;
+
+  if (monthlyRate > 0 && monthlyPayment <= firstMonthInterest) {
+    return {
+      ...emptyResult,
+      initialBalance: balance,
+      estimatedMonthlyPayment: monthlyPayment,
+      validationStatus: "non_amortizing",
+      errorMessage: "Miesięczna rata nie pokrywa bieżących odsetek — dług nie amortyzuje się."
+    };
+  }
+
+  let currentBalance = balance;
+  let totalInterest = 0;
+  let totalRepayment = 0;
+  const rows: AmortizationScheduleRow[] = [];
+
+  for (let m = 1; m <= maxMonths; m++) {
+    if (currentBalance <= 0.01) break;
+
+    const interest = Math.round((currentBalance * monthlyRate) * 100) / 100;
+    const principal = Math.min(currentBalance, Math.max(0, monthlyPayment - interest));
+    const installment = Math.round((principal + interest) * 100) / 100;
+
+    currentBalance = Math.max(0, Math.round((currentBalance - principal) * 100) / 100);
+    totalInterest += interest;
+    totalRepayment += installment;
+
+    rows.push({
+      monthIndex: m,
+      installment,
+      principal: Math.round(principal * 100) / 100,
+      interest,
+      balance: currentBalance
+    });
+
+    if (currentBalance <= 0.01) break;
+  }
+
+  const firstMonth = rows[0] || { principal: 0, interest: 0 };
+
+  return {
+    initialBalance: balance,
+    estimatedMonthlyPayment: monthlyPayment,
+    estimatedTotalInterest: Math.round(totalInterest * 100) / 100,
+    estimatedTotalRepayment: Math.round(totalRepayment * 100) / 100,
+    estimatedMonths: rows.length,
+    firstMonthPrincipal: firstMonth.principal,
+    firstMonthInterest: firstMonth.interest,
+    rows,
+    isEligible: true,
+    validationStatus: "valid"
+  };
 }
 
 /**
