@@ -3,6 +3,7 @@ import {
   calculatePortfolioDebtKpis,
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
+  calculateDebtOverpaymentScenario,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1055,6 +1056,115 @@ describe("debtCalculations", () => {
       const result = calculateDebtAmortizationSchedule(invalidDebt);
       expect(result.isEligible).toBe(false);
       expect(result.validationStatus).toBe("insufficient_data");
+    });
+  });
+
+  describe("calculateDebtOverpaymentScenario (Sprint 17)", () => {
+    const testMortgage: DebtItem = {
+      id: "m-test",
+      name: "Hipoteka Testowa",
+      institution: "PKO BP",
+      type: "mortgage",
+      currency: "PLN",
+      balance: 100000,
+      monthlyPayment: 1000,
+      interestRate: 6.0,
+      status: "active",
+      createdAt: "2026-01-01"
+    };
+
+    it("reduces total interest and shortens duration with monthly overpayment", () => {
+      const result = calculateDebtOverpaymentScenario(testMortgage, 500, 0);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.validationStatus).toBe("valid");
+      expect(result.simulatedMonths).toBeLessThan(result.baselineMonths);
+      expect(result.simulatedTotalInterest).toBeLessThan(result.baselineTotalInterest);
+      expect(result.interestSavings).toBeGreaterThan(0);
+      expect(result.monthsSaved).toBeGreaterThan(0);
+      expect(result.simulatedTotalRepayment).toBeLessThan(result.baselineTotalRepayment);
+    });
+
+    it("reduces total interest with one-time overpayment in month 1", () => {
+      const result = calculateDebtOverpaymentScenario(testMortgage, 0, 10000);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.validationStatus).toBe("valid");
+      expect(result.simulatedMonths).toBeLessThan(result.baselineMonths);
+      expect(result.simulatedTotalInterest).toBeLessThan(result.baselineTotalInterest);
+      expect(result.interestSavings).toBeGreaterThan(0);
+      expect(result.monthsSaved).toBeGreaterThan(0);
+    });
+
+    it("handles combined monthly and one-time overpayments accurately", () => {
+      const result = calculateDebtOverpaymentScenario(testMortgage, 300, 5000);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.simulatedMonths).toBeLessThan(result.baselineMonths);
+      expect(result.interestSavings).toBeGreaterThan(0);
+      expect(result.rows[0].installment).toBeCloseTo(1000 + 300 + 5000, 1);
+      expect(result.rows[1].installment).toBeCloseTo(1000 + 300, 1);
+    });
+
+    it("matches baseline when overpayments are zero", () => {
+      const result = calculateDebtOverpaymentScenario(testMortgage, 0, 0);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.simulatedMonths).toBe(result.baselineMonths);
+      expect(result.simulatedTotalInterest).toBe(result.baselineTotalInterest);
+      expect(result.interestSavings).toBe(0);
+      expect(result.monthsSaved).toBe(0);
+    });
+
+    it("sanitizes negative inputs to zero safely", () => {
+      const result = calculateDebtOverpaymentScenario(testMortgage, -500, -2000);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.monthlyOverpayment).toBe(0);
+      expect(result.oneTimeOverpayment).toBe(0);
+      expect(result.interestSavings).toBe(0);
+    });
+
+    it("rejects unsupported debt types like credit card", () => {
+      const creditCard: DebtItem = {
+        id: "cc-unsupported",
+        name: "Karta Kredytowa",
+        institution: "Bank",
+        type: "credit_card",
+        currency: "PLN",
+        balance: 5000,
+        monthlyPayment: 250,
+        interestRate: 18.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtOverpaymentScenario(creditCard, 500, 0);
+
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("unsupported_type");
+      expect(result.errorMessage).toContain("Karty kredytowe i limity odnawialne");
+    });
+
+    it("caps final installment without overpaying the remaining balance", () => {
+      const smallLoan: DebtItem = {
+        id: "sl-1",
+        name: "Mała pożyczka",
+        institution: "Bank",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 500,
+        monthlyPayment: 200,
+        interestRate: 10.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtOverpaymentScenario(smallLoan, 0, 1000); // 1000 PLN one-time pays off entire 500 PLN balance in month 1
+      expect(result.isEligible).toBe(true);
+      expect(result.simulatedMonths).toBe(1);
+      expect(result.rows[0].balance).toBe(0);
+      expect(result.rows[0].principal).toBe(500);
     });
   });
 });

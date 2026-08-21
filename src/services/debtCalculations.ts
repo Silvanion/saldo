@@ -33,6 +33,23 @@ export interface DebtAmortizationScheduleResult {
   errorMessage?: string;
 }
 
+export interface DebtOverpaymentScenarioResult {
+  baselineTotalInterest: number;
+  simulatedTotalInterest: number;
+  baselineMonths: number;
+  simulatedMonths: number;
+  interestSavings: number;
+  monthsSaved: number;
+  baselineTotalRepayment: number;
+  simulatedTotalRepayment: number;
+  monthlyOverpayment: number;
+  oneTimeOverpayment: number;
+  rows: AmortizationScheduleRow[];
+  isEligible: boolean;
+  validationStatus: "valid" | "unsupported_type" | "closed_debt" | "insufficient_data" | "non_amortizing";
+  errorMessage?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -451,6 +468,102 @@ export function calculateDebtAmortizationSchedule(
     estimatedMonths: rows.length,
     firstMonthPrincipal: firstMonth.principal,
     firstMonthInterest: firstMonth.interest,
+    rows,
+    isEligible: true,
+    validationStatus: "valid"
+  };
+}
+
+/**
+ * Calculates single debt overpayment impact scenario (Sprint 17)
+ */
+export function calculateDebtOverpaymentScenario(
+  debt: DebtItem | null | undefined,
+  monthlyOverpayment: number = 0,
+  oneTimeOverpayment: number = 0,
+  maxMonths: number = 360
+): DebtOverpaymentScenarioResult {
+  const baseAmortization = calculateDebtAmortizationSchedule(debt, maxMonths);
+
+  const cleanMonthlyOverpayment = Math.max(0, Number(monthlyOverpayment) || 0);
+  const cleanOneTimeOverpayment = Math.max(0, Number(oneTimeOverpayment) || 0);
+
+  const emptyResult: DebtOverpaymentScenarioResult = {
+    baselineTotalInterest: baseAmortization.estimatedTotalInterest,
+    simulatedTotalInterest: baseAmortization.estimatedTotalInterest,
+    baselineMonths: baseAmortization.estimatedMonths,
+    simulatedMonths: baseAmortization.estimatedMonths,
+    interestSavings: 0,
+    monthsSaved: 0,
+    baselineTotalRepayment: baseAmortization.estimatedTotalRepayment,
+    simulatedTotalRepayment: baseAmortization.estimatedTotalRepayment,
+    monthlyOverpayment: cleanMonthlyOverpayment,
+    oneTimeOverpayment: cleanOneTimeOverpayment,
+    rows: baseAmortization.rows,
+    isEligible: baseAmortization.isEligible,
+    validationStatus: baseAmortization.validationStatus,
+    errorMessage: baseAmortization.errorMessage
+  };
+
+  if (!baseAmortization.isEligible || !debt) {
+    return emptyResult;
+  }
+
+  if (cleanMonthlyOverpayment === 0 && cleanOneTimeOverpayment === 0) {
+    return emptyResult;
+  }
+
+  const balance = Math.max(0, Number(debt.balance) || 0);
+  const baseMonthlyPayment = Math.max(0, Number(debt.monthlyPayment) || 0);
+  const annualRatePct = Math.max(0, Number(debt.interestRate) || 0);
+  const monthlyRate = (annualRatePct / 100) / 12;
+
+  let currentBalance = balance;
+  let totalInterest = 0;
+  let totalRepayment = 0;
+  const rows: AmortizationScheduleRow[] = [];
+
+  for (let m = 1; m <= maxMonths; m++) {
+    if (currentBalance <= 0.01) break;
+
+    const interest = Math.round((currentBalance * monthlyRate) * 100) / 100;
+    const extra = m === 1 ? (cleanMonthlyOverpayment + cleanOneTimeOverpayment) : cleanMonthlyOverpayment;
+    const targetPayment = baseMonthlyPayment + extra;
+
+    const principal = Math.min(currentBalance, Math.max(0, targetPayment - interest));
+    const installment = Math.round((principal + interest) * 100) / 100;
+
+    currentBalance = Math.max(0, Math.round((currentBalance - principal) * 100) / 100);
+    totalInterest += interest;
+    totalRepayment += installment;
+
+    rows.push({
+      monthIndex: m,
+      installment,
+      principal: Math.round(principal * 100) / 100,
+      interest,
+      balance: currentBalance
+    });
+
+    if (currentBalance <= 0.01) break;
+  }
+
+  const simTotalInterest = Math.round(totalInterest * 100) / 100;
+  const simTotalRepayment = Math.round(totalRepayment * 100) / 100;
+  const interestSavings = Math.max(0, Math.round((baseAmortization.estimatedTotalInterest - simTotalInterest) * 100) / 100);
+  const monthsSaved = Math.max(0, baseAmortization.estimatedMonths - rows.length);
+
+  return {
+    baselineTotalInterest: baseAmortization.estimatedTotalInterest,
+    simulatedTotalInterest: simTotalInterest,
+    baselineMonths: baseAmortization.estimatedMonths,
+    simulatedMonths: rows.length,
+    interestSavings,
+    monthsSaved,
+    baselineTotalRepayment: baseAmortization.estimatedTotalRepayment,
+    simulatedTotalRepayment: simTotalRepayment,
+    monthlyOverpayment: cleanMonthlyOverpayment,
+    oneTimeOverpayment: cleanOneTimeOverpayment,
     rows,
     isEligible: true,
     validationStatus: "valid"

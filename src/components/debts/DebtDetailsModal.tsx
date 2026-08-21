@@ -15,13 +15,15 @@ import {
   ArrowRight,
   Info,
   CheckCircle2,
-  FileText
+  FileText,
+  RotateCcw
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
 import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
+  calculateDebtOverpaymentScenario,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -53,6 +55,9 @@ export function DebtDetailsModal({
 
   const [activeTab, setActiveTab] = useState<DebtDetailTab>(initialTab);
   const [showFullSchedule, setShowFullSchedule] = useState(false);
+  const [simMonthlyOverpayment, setSimMonthlyOverpayment] = useState<string>("");
+  const [simOneTimeOverpayment, setSimOneTimeOverpayment] = useState<string>("");
+  const [showFullOverpaymentSchedule, setShowFullOverpaymentSchedule] = useState<boolean>(false);
 
   React.useEffect(() => {
     if (isOpen && initialTab) {
@@ -63,6 +68,13 @@ export function DebtDetailsModal({
   const amortization = useMemo(() => {
     return calculateDebtAmortizationSchedule(debt);
   }, [debt]);
+
+  const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
+  const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
+
+  const overpaymentScenario = useMemo(() => {
+    return calculateDebtOverpaymentScenario(debt, numMonthlyOverpayment, numOneTimeOverpayment);
+  }, [debt, numMonthlyOverpayment, numOneTimeOverpayment]);
 
   const overpaymentQuickA = useMemo(() => {
     if (!debt) return null;
@@ -208,7 +220,7 @@ export function DebtDetailsModal({
               Harmonogram spłat
             </button>
 
-            {(debt.type === "mortgage" || debt.type === "cash_loan") && (
+            {(debt.type === "mortgage" || debt.type === "cash_loan" || debt.type === "bnpl" || debt.type === "other") && (
               <button
                 onClick={() => setActiveTab("overpayment")}
                 className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
@@ -217,7 +229,7 @@ export function DebtDetailsModal({
                     : "border-transparent text-text-muted hover:text-text-main"
                 }`}
               >
-                Nadpłata
+                Symulacja nadpłaty
               </button>
             )}
 
@@ -493,52 +505,259 @@ export function DebtDetailsModal({
             {/* TAB 3: OVERPAYMENT */}
             {activeTab === "overpayment" && (
               <div className="space-y-6 animate-fade-in">
-                <div className="bg-surface-2/60 border border-border p-5 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
-                  <div>
-                    <h3 className="text-sm font-bold text-text-main">Kalkulator nadpłat dla tego długu</h3>
-                    <p className="text-xs text-text-muted">
-                      Sprawdź ile zyskasz skracając czas spłaty lub obniżając miesięczną ratę.
+                {!overpaymentScenario.isEligible ? (
+                  <div className="p-6 bg-surface-2/60 border border-border rounded-2xl text-center flex flex-col items-center justify-center space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center border border-border text-text-muted">
+                      <Info className="w-6 h-6" />
+                    </div>
+                    <div className="max-w-md space-y-1">
+                      <h4 className="text-sm font-bold text-text-main">
+                        Symulacja nadpłaty niedostępna
+                      </h4>
+                      <p className="text-xs text-text-muted leading-relaxed">
+                        {overpaymentScenario.errorMessage || "Brak wystarczających parametrów do wygenerowania symulacji nadpłat."}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Header & Description */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
+                      <div>
+                        <h3 className="text-sm font-bold text-text-main">Symulacja wpływu nadpłaty</h3>
+                        <p className="text-xs text-text-muted">
+                          Orientacyjny wpływ nadpłaty miesięcznej lub jednorazowej na czas trwania umowy i całkowity koszt odsetek
+                        </p>
+                      </div>
+
+                      {(simMonthlyOverpayment || simOneTimeOverpayment) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSimMonthlyOverpayment("");
+                            setSimOneTimeOverpayment("");
+                            setShowFullOverpaymentSchedule(false);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 rounded-xl transition cursor-pointer self-start sm:self-auto"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Wyzeruj symulację</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Simulation Input Controls */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 sm:p-5 bg-surface-2/40 border border-border rounded-2xl">
+                      {/* Monthly Overpayment Input */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold text-text-main">
+                          Dodatkowa kwota miesięcznie ({currency})
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            step="50"
+                            placeholder="np. 300"
+                            value={simMonthlyOverpayment}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) {
+                                setSimMonthlyOverpayment(val);
+                              }
+                            }}
+                            className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            aria-label="Dodatkowa kwota miesięcznie"
+                          />
+                          <span className="absolute right-3 top-2 text-xs font-bold text-text-faint pointer-events-none">
+                            {currency}/mc
+                          </span>
+                        </div>
+                        {/* Quick Presets */}
+                        <div className="flex items-center gap-1.5 pt-0.5">
+                          {[200, 500, 1000].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => setSimMonthlyOverpayment(String(preset))}
+                              className="px-2 py-1 bg-surface hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+                            >
+                              +{preset} zł
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* One-Time Overpayment Input */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold text-text-main">
+                          Jednorazowa nadpłata w 1. miesiącu ({currency})
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            step="500"
+                            placeholder="np. 5000"
+                            value={simOneTimeOverpayment}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) {
+                                setSimOneTimeOverpayment(val);
+                              }
+                            }}
+                            className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            aria-label="Jednorazowa nadpłata w pierwszym miesiącu"
+                          />
+                          <span className="absolute right-3 top-2 text-xs font-bold text-text-faint pointer-events-none">
+                            {currency}
+                          </span>
+                        </div>
+                        {/* Quick Presets */}
+                        <div className="flex items-center gap-1.5 pt-0.5">
+                          {[2000, 5000, 10000].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => setSimOneTimeOverpayment(String(preset))}
+                              className="px-2 py-1 bg-surface hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+                            >
+                              +{formatMoney(preset, currency)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Comparison Summary KPIs */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      {/* 1. Okres spłaty */}
+                      <div className="p-4 rounded-2xl bg-surface border border-border flex flex-col justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                            Okres spłaty
+                          </span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black text-text-main tabular-nums">
+                              {overpaymentScenario.simulatedMonths} mc.
+                            </span>
+                            {overpaymentScenario.monthsSaved > 0 && (
+                              <span className="text-xs font-bold text-brand tabular-nums">
+                                (-{overpaymentScenario.monthsSaved} mc.)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-text-muted mt-2 pt-2 border-t border-border/60">
+                          Plan bazowy: <span className="font-bold text-text-main">{overpaymentScenario.baselineMonths} mc.</span>
+                          {overpaymentScenario.monthsSaved > 0 && (
+                            <span> • Skrócenie o ok. <strong>{Math.round((overpaymentScenario.monthsSaved / 12) * 10) / 10} lat</strong></span>
+                          )}
+                        </p>
+                      </div>
+
+                      {/* 2. Szacowane odsetki */}
+                      <div className="p-4 rounded-2xl bg-surface border border-border flex flex-col justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                            Szacowane odsetki łącznie
+                          </span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black text-text-main tabular-nums">
+                              {formatMoney(overpaymentScenario.simulatedTotalInterest, currency)}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-text-muted mt-2 pt-2 border-t border-border/60">
+                          {overpaymentScenario.interestSavings > 0 ? (
+                            <>
+                              Oszczędność: <strong className="text-brand tabular-nums">{formatMoney(overpaymentScenario.interestSavings, currency)}</strong>
+                            </>
+                          ) : (
+                            <>Plan bazowy: <span className="font-bold text-text-main">{formatMoney(overpaymentScenario.baselineTotalInterest, currency)}</span></>
+                          )}
+                        </p>
+                      </div>
+
+                      {/* 3. Całkowity szacowany koszt spłaty */}
+                      <div className="p-4 rounded-2xl bg-surface border border-border flex flex-col justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                            Szacowana całkowita spłata
+                          </span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black text-text-main tabular-nums">
+                              {formatMoney(overpaymentScenario.simulatedTotalRepayment, currency)}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-text-muted mt-2 pt-2 border-t border-border/60">
+                          Plan bazowy: <span className="font-bold text-text-main">{formatMoney(overpaymentScenario.baselineTotalRepayment, currency)}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Updated Amortization Schedule Preview */}
+                    {(numMonthlyOverpayment > 0 || numOneTimeOverpayment > 0) && (
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-text-faint">
+                            Zaktualizowany harmonogram spłaty po nadpłatach
+                          </h4>
+
+                          {overpaymentScenario.rows.length > 24 && (
+                            <button
+                              type="button"
+                              onClick={() => setShowFullOverpaymentSchedule(!showFullOverpaymentSchedule)}
+                              className="px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer bg-surface-2 hover:bg-surface-hover text-text-main border border-border focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            >
+                              {showFullOverpaymentSchedule
+                                ? "Pokaż 24 miesiące"
+                                : `Pokaż pełny harmonogram (${overpaymentScenario.rows.length} rat)`}
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="overflow-x-auto border border-border rounded-xl">
+                          <table className="w-full text-left text-xs" aria-label="Tabela zaktualizowanego harmonogramu po nadpłatach">
+                            <thead className="bg-surface-2 text-text-faint font-bold border-b border-border uppercase tracking-wider text-[10px]">
+                              <tr>
+                                <th className="py-2.5 px-3">Miesiąc</th>
+                                <th className="py-2.5 px-3 text-right">Rata z nadpłatą</th>
+                                <th className="py-2.5 px-3 text-right">Kapitał</th>
+                                <th className="py-2.5 px-3 text-right">Odsetki</th>
+                                <th className="py-2.5 px-3 text-right">Pozostałe saldo</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/60 font-medium">
+                              {(showFullOverpaymentSchedule ? overpaymentScenario.rows : overpaymentScenario.rows.slice(0, 24)).map((row) => (
+                                <tr key={row.monthIndex} className="hover:bg-surface-hover transition-colors">
+                                  <td className="py-2.5 px-3 font-bold text-text-main">Miesiąc {row.monthIndex}</td>
+                                  <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
+                                    {formatMoney(row.installment, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right text-brand font-bold tabular-nums">
+                                    {formatMoney(row.principal, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right text-text-muted tabular-nums">
+                                    {formatMoney(row.interest, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums">
+                                    {formatMoney(row.balance, currency)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[11px] text-text-faint text-center leading-relaxed">
+                      Szacunek na podstawie podanych danych — rzeczywiste wartości mogą różnić się od symulacji w zależności od terminów księgowania nadpłat w banku.
                     </p>
                   </div>
-                  {onOpenOverpaymentModal && (
-                    <button
-                      onClick={() => onOpenOverpaymentModal(debt)}
-                      className="px-4 py-2 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] transition cursor-pointer"
-                    >
-                      Otwórz pełny symulator
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {overpaymentQuickA && (
-                    <div className="p-4 bg-surface border border-border rounded-xl">
-                      <span className="text-xs font-bold text-text-faint uppercase block mb-1">
-                        Scenariusz A: Nadpłata 500 zł / mc
-                      </span>
-                      <span className="text-xl font-black text-brand block mb-1">
-                        -{overpaymentQuickA.savings.monthsSaved} mies. ({overpaymentQuickA.savings.yearsSaved} lat)
-                      </span>
-                      <p className="text-xs text-text-muted">
-                        Oszczędność odsetek: {formatMoney(overpaymentQuickA.savings.interestSaved, currency)}
-                      </p>
-                    </div>
-                  )}
-
-                  {overpaymentQuickB && (
-                    <div className="p-4 bg-surface border border-brand/30 rounded-xl">
-                      <span className="text-xs font-bold text-brand uppercase block mb-1">
-                        Scenariusz B: Nadpłata 1 000 zł / mc
-                      </span>
-                      <span className="text-xl font-black text-brand block mb-1">
-                        -{overpaymentQuickB.savings.monthsSaved} mies. ({overpaymentQuickB.savings.yearsSaved} lat)
-                      </span>
-                      <p className="text-xs text-text-muted">
-                        Oszczędność odsetek: {formatMoney(overpaymentQuickB.savings.interestSaved, currency)}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
             )}
 

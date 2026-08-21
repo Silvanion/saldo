@@ -1253,4 +1253,45 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Harmonogram niedostępny")).toBeTruthy();
     expect(screen.getByText(/Karty kredytowe i limity odnawialne charakteryzują się elastyczną spłatą/i)).toBeTruthy();
   });
+
+  it("Sprint 17: simulates overpayment impact with inputs, comparison summary, updated schedule, and reset", () => {
+    const mortgage = mockDebts[0];
+    render(<DebtDetailsModal isOpen={true} debt={mortgage} onClose={vi.fn()} />);
+
+    // Switch to Symulacja nadpłaty tab
+    const overpaymentTabBtn = screen.getByRole("button", { name: /Symulacja nadpłaty/i });
+    fireEvent.click(overpaymentTabBtn);
+
+    expect(screen.getByText("Symulacja wpływu nadpłaty")).toBeTruthy();
+    expect(screen.getByText("Dodatkowa kwota miesięcznie (PLN)")).toBeTruthy();
+    expect(screen.getByText("Jednorazowa nadpłata w 1. miesiącu (PLN)")).toBeTruthy();
+
+    // Enter monthly overpayment
+    const monthlyInput = screen.getByLabelText("Dodatkowa kwota miesięcznie");
+    fireEvent.change(monthlyInput, { target: { value: "500" } });
+
+    // Enter one-time overpayment
+    const oneTimeInput = screen.getByLabelText("Jednorazowa nadpłata w pierwszym miesiącu");
+    fireEvent.change(oneTimeInput, { target: { value: "5000" } });
+
+    // Comparison summary updates
+    expect(screen.getByText("Zaktualizowany harmonogram spłaty po nadpłatach")).toBeTruthy();
+    expect(screen.getByRole("table", { name: "Tabela zaktualizowanego harmonogramu po nadpłatach" })).toBeTruthy();
+
+    // Reset button
+    const resetBtn = screen.getByRole("button", { name: /Wyzeruj symulację/i });
+    fireEvent.click(resetBtn);
+
+    expect((monthlyInput as HTMLInputElement).value).toBe("");
+    expect((oneTimeInput as HTMLInputElement).value).toBe("");
+    expect(screen.queryByText("Zaktualizowany harmonogram spłaty po nadpłatach")).toBeNull();
+  });
+
+  it("Sprint 17: shows clear unsupported message in overpayment simulation for credit cards", () => {
+    const card = mockDebts[1];
+    render(<DebtDetailsModal isOpen={true} debt={card} onClose={vi.fn()} initialTab="overpayment" />);
+
+    expect(screen.getByText("Symulacja nadpłaty niedostępna")).toBeTruthy();
+    expect(screen.getByText(/Karty kredytowe i limity odnawialne charakteryzują się elastyczną spłatą/i)).toBeTruthy();
+  });
 });
