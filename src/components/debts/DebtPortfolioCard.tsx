@@ -48,10 +48,13 @@ export function DebtPortfolioCard({
         return <CreditCard className="w-5 h-5" />;
       case "cash_loan":
         return <Banknote className="w-5 h-5" />;
+      case "revolving":
+        return <RotateCcw className="w-5 h-5" />;
       case "bnpl":
         return <ShoppingBag className="w-5 h-5" />;
+      case "other":
       default:
-        return <Percent className="w-5 h-5" />;
+        return <Landmark className="w-5 h-5" />;
     }
   };
 
@@ -67,8 +70,9 @@ export function DebtPortfolioCard({
         return "Limit odnawialny";
       case "bnpl":
         return "Raty 0% / BNPL";
+      case "other":
       default:
-        return "Zobowiązanie";
+        return "Inne zobowiązanie";
     }
   };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
-import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info, ChevronLeft, ChevronRight, Landmark } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
 import { formatMoney } from "../utils/format";
@@ -50,6 +50,21 @@ export function DashboardView({
   
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
 
+  const activeDebts = useMemo(() => {
+    return (profile?.debts || []).filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
+  }, [profile?.debts]);
+
+  const debtSummary = useMemo(() => {
+    if (activeDebts.length === 0) return null;
+    const totalBalance = activeDebts.reduce((sum, d) => sum + (Number(d.balance) || 0), 0);
+    const totalMonthlyPayment = activeDebts.reduce((sum, d) => sum + (Number(d.monthlyPayment) || 0), 0);
+    return {
+      totalBalance,
+      totalMonthlyPayment,
+      activeCount: activeDebts.length
+    };
+  }, [activeDebts]);
+
   const DEFAULT_WIDGETS: Widget[] = [
     { id: "stats", name: "Podsumowanie finansowe i Runway", visible: true, icon: "📊" },
     { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "⏳" },
@@ -60,12 +75,14 @@ export function DashboardView({
   ];
 
   const [widgets, setWidgets] = useState<Widget[]>(() => {
-    const saved = localStorage.getItem("dashboard_widgets_v6");
-    if (saved) {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === DEFAULT_WIDGETS.length) {
-          return parsed;
+        const saved = localStorage.getItem("dashboard_widgets_v6");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length === DEFAULT_WIDGETS.length) {
+            return parsed;
+          }
         }
       } catch (e) {
         // Fallback
@@ -83,7 +100,13 @@ export function DashboardView({
 
   const saveWidgets = useCallback((newWidgets: Widget[]) => {
     setWidgets(newWidgets);
-    localStorage.setItem("dashboard_widgets_v6", JSON.stringify(newWidgets));
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem("dashboard_widgets_v6", JSON.stringify(newWidgets));
+      } catch (e) {
+        // Fallback
+      }
+    }
   }, []);
 
   const handleToggleVisibility = useCallback((id: string) => {
@@ -189,6 +212,44 @@ export function DashboardView({
         onDeleteSettlement={onDeleteSettlement}
         showToast={showToast}
       />
+
+      {/* SPRINT 15: DEBT PORTFOLIO DASHBOARD BRIDGE INSIGHT */}
+      {debtSummary && (
+        <div
+          id="dashboard-debt-bridge-card"
+          className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in mb-6"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20 shadow-2xs">
+              <Landmark className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-text-main">
+                  Portfel kredytów i zadłużenia
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
+                  {debtSummary.activeCount} {debtSummary.activeCount === 1 ? "aktywna umowa" : debtSummary.activeCount < 5 ? "aktywne umowy" : "aktywnych umów"}
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5 truncate">
+                Łączne aktywne saldo: <strong className="text-text-main font-bold tabular-nums">{formatMoney(debtSummary.totalBalance, profile.currency || "PLN")}</strong> • Raty miesięczne: <strong className="text-text-main font-bold tabular-nums">{formatMoney(debtSummary.totalMonthlyPayment, profile.currency || "PLN")}/mc</strong>
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onChangeView("debts")}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-hover border border-border text-xs font-bold text-text-main hover:text-brand transition cursor-pointer shadow-2xs shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring self-start sm:self-auto"
+            id="btn-dashboard-to-debts"
+            aria-label="Przejdź do pełnego widoku Kredyty i Hipoteka"
+          >
+            <span>Szczegóły i strategie</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {isEditMode && (
         <div className="bg-warning-subtle border border-warning/20 text-warning px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 ">

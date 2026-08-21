@@ -66,7 +66,7 @@ export interface DebtsViewProps {
 }
 
 type MainTab = "portfolio" | "scenarios" | "offers" | "knowledge";
-type FilterType = "all" | "active" | "closed" | DebtType;
+type FilterType = "all" | "mortgage" | "cash_loan" | "cards_and_limits" | "bnpl" | "other" | "closed";
 type SortOption = "apr" | "payment" | "cost" | "payoff_date" | "balance";
 
 export function DebtsView({
@@ -337,12 +337,18 @@ export function DebtsView({
   const filteredDebts = useMemo(() => {
     let list = [...debts];
 
-    if (selectedFilter === "active") {
-      list = list.filter((d) => d.status !== "closed");
-    } else if (selectedFilter === "closed") {
+    if (selectedFilter === "closed") {
       list = list.filter((d) => d.status === "closed");
-    } else if (selectedFilter !== "all") {
-      list = list.filter((d) => d.type === selectedFilter);
+    } else if (selectedFilter === "mortgage") {
+      list = list.filter((d) => d.type === "mortgage" && d.status !== "closed");
+    } else if (selectedFilter === "cash_loan") {
+      list = list.filter((d) => d.type === "cash_loan" && d.status !== "closed");
+    } else if (selectedFilter === "cards_and_limits") {
+      list = list.filter((d) => (d.type === "credit_card" || d.type === "revolving") && d.status !== "closed");
+    } else if (selectedFilter === "bnpl") {
+      list = list.filter((d) => d.type === "bnpl" && d.status !== "closed");
+    } else if (selectedFilter === "other") {
+      list = list.filter((d) => d.type === "other" && d.status !== "closed");
     }
 
     if (searchQuery.trim()) {
@@ -814,17 +820,6 @@ export function DebtsView({
               </button>
 
               <button
-                onClick={() => setSelectedFilter("active")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  selectedFilter === "active"
-                    ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
-                }`}
-              >
-                Aktywne ({kpiData.activeCount})
-              </button>
-
-              <button
                 onClick={() => setSelectedFilter("mortgage")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   selectedFilter === "mortgage"
@@ -832,18 +827,7 @@ export function DebtsView({
                     : "text-text-muted hover:text-text-main hover:bg-surface-2"
                 }`}
               >
-                Hipoteki
-              </button>
-
-              <button
-                onClick={() => setSelectedFilter("credit_card")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  selectedFilter === "credit_card"
-                    ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
-                }`}
-              >
-                Karty
+                Hipoteka ({debts.filter((d) => d.type === "mortgage" && d.status !== "closed").length})
               </button>
 
               <button
@@ -854,7 +838,18 @@ export function DebtsView({
                     : "text-text-muted hover:text-text-main hover:bg-surface-2"
                 }`}
               >
-                Gotówkowe
+                Kredyty gotówkowe ({debts.filter((d) => d.type === "cash_loan" && d.status !== "closed").length})
+              </button>
+
+              <button
+                onClick={() => setSelectedFilter("cards_and_limits")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedFilter === "cards_and_limits"
+                    ? "bg-brand-subtle text-brand border border-brand/20"
+                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                }`}
+              >
+                Karty i limity ({debts.filter((d) => (d.type === "credit_card" || d.type === "revolving") && d.status !== "closed").length})
               </button>
 
               <button
@@ -865,7 +860,18 @@ export function DebtsView({
                     : "text-text-muted hover:text-text-main hover:bg-surface-2"
                 }`}
               >
-                BNPL
+                Ratalne ({debts.filter((d) => d.type === "bnpl" && d.status !== "closed").length})
+              </button>
+
+              <button
+                onClick={() => setSelectedFilter("other")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedFilter === "other"
+                    ? "bg-brand-subtle text-brand border border-brand/20"
+                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                }`}
+              >
+                Inne ({debts.filter((d) => d.type === "other" && d.status !== "closed").length})
               </button>
 
               {kpiData.closedCount > 0 && (
@@ -903,26 +909,69 @@ export function DebtsView({
 
           {/* Cards Grid / Empty State */}
           {filteredDebts.length === 0 ? (
-            <div className="text-center py-12 px-6 bg-surface rounded-2xl border border-dashed border-border flex flex-col items-center justify-center">
-              <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
-                <Landmark className="w-7 h-7 text-brand" />
+            debts.length === 0 ? (
+              <div className="text-center py-12 px-6 bg-surface rounded-2xl border border-dashed border-border flex flex-col items-center justify-center space-y-4" id="debts-empty-state">
+                <div className="w-16 h-16 rounded-2xl bg-brand-subtle flex items-center justify-center border border-brand/20 shadow-xs text-brand">
+                  <Landmark className="w-8 h-8" />
+                </div>
+                <div className="max-w-md space-y-1.5">
+                  <h3 className="text-base sm:text-lg font-bold text-text-main">
+                    Zarządzaj całym portfelem zadłużenia w jednym miejscu
+                  </h3>
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    Dodaj swoje kredyty, karty i pożyczki, aby analizować łączne saldo, kontrolować miesięczne raty, symulować strategie spłaty i oszczędności na odsetkach.
+                  </p>
+                </div>
+
+                {/* Supported Category Badges Preview */}
+                <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                  {[
+                    "Kredyt hipoteczny",
+                    "Kredyt gotówkowy",
+                    "Karty i limity",
+                    "Raty 0% / BNPL",
+                    "Inne pożyczki"
+                  ].map((badge) => (
+                    <span
+                      key={badge}
+                      className="px-2.5 py-1 rounded-lg bg-surface-2 border border-border text-[11px] font-semibold text-text-muted"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleOpenAddModal}
+                  className="inline-flex items-center gap-2 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  id="btn-empty-add-debt"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Dodaj pierwsze zobowiązanie</span>
+                </button>
               </div>
-              <h3 className="text-base font-bold text-text-main">
-                {debts.length === 0 ? "Nie dodałeś jeszcze żadnych zobowiązań" : "Brak wyników dla wybranych filtrów"}
-              </h3>
-              <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
-                {debts.length === 0
-                  ? "Zarządzaj całym portfelem zadłużenia (hipoteki, pożyczki, karty kredytowe) w jednym miejscu. Śledź koszty, raty i licz oszczędności z nadpłat."
-                  : "Zmień kryteria filtrowania lub wyszukiwania, aby zobaczyć zobowiązania."}
-              </p>
-              <button
-                onClick={handleOpenAddModal}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Dodaj pierwsze zobowiązanie</span>
-              </button>
-            </div>
+            ) : (
+              <div className="text-center py-12 px-6 bg-surface rounded-2xl border border-dashed border-border flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center border border-border text-text-muted">
+                  <Landmark className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-text-main">
+                  Brak wyników dla wybranych filtrów
+                </h3>
+                <p className="text-xs text-text-muted max-w-md leading-relaxed">
+                  Zmień kryteria filtrowania lub wyszukiwania, aby zobaczyć zobowiązania.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedFilter("all");
+                    setSearchQuery("");
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
+                >
+                  <span>Wyczyść filtry</span>
+                </button>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-1 gap-4" id="debt-cards-list">
               {filteredDebts.map((debt) => (

@@ -5,6 +5,8 @@ import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
+import { DebtDetailsModal } from "./DebtDetailsModal";
+import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile } from "../../types";
 
 const mockDebts: DebtItem[] = [
@@ -45,15 +47,15 @@ const mockDebts: DebtItem[] = [
     currency: "PLN",
     balance: 0,
     monthlyPayment: 0,
-    interestRate: 9.5,
+    interestRate: 8.0,
     status: "closed",
-    createdAt: "2025-01-01"
+    createdAt: "2024-01-01"
   }
 ];
 
 const mockProfile: Profile = {
-  id: "prof-1",
-  name: "Główny",
+  id: "test-profile-1",
+  name: "Test User",
   kind: "personal",
   currency: "PLN",
   transactions: [],
@@ -73,7 +75,9 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     render(<DebtsView profile={emptyProfile} onAddDebt={onAddDebt} />);
 
-    expect(screen.getByText("Nie dodałeś jeszcze żadnych zobowiązań")).toBeTruthy();
+    expect(screen.getByText("Zarządzaj całym portfelem zadłużenia w jednym miejscu")).toBeTruthy();
+    expect(screen.getByText("Kredyt hipoteczny")).toBeTruthy();
+    expect(screen.getByText("Karty i limity")).toBeTruthy();
     expect(screen.getByText("Dodaj pierwsze zobowiązanie")).toBeTruthy();
 
     // KPIs show 0
@@ -140,8 +144,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
   it("filters by category chip and closed debts", () => {
     const { container } = render(<DebtsView profile={mockProfile} />);
 
-    // Filter by Hipoteki
-    const mortgageChip = screen.getByRole("button", { name: "Hipoteki" });
+    // Filter by Hipoteka
+    const mortgageChip = screen.getByRole("button", { name: /Hipoteka/i });
     fireEvent.click(mortgageChip);
 
     const cardsList = container.querySelector("#debt-cards-list") as HTMLElement;
@@ -1043,5 +1047,210 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     // Temporary what-if parameters reset upon explicit scenario load
     expect(screen.queryByText("Aktywna symulacja")).toBeNull();
+  });
+
+  it("Sprint 15: filters by all required category chips accurately", () => {
+    const portfolioProfile: Profile = {
+      ...mockProfile,
+      debts: [
+        {
+          id: "d-mort",
+          name: "Hipoteka Dom",
+          institution: "PKO BP",
+          type: "mortgage",
+          currency: "PLN",
+          balance: 300000,
+          monthlyPayment: 2200,
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "d-cash",
+          name: "Pożyczka Gotówkowa",
+          institution: "Alior",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 20000,
+          monthlyPayment: 600,
+          interestRate: 11.0,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "d-card",
+          name: "Karta Kredytowa",
+          institution: "Santander",
+          type: "credit_card",
+          currency: "PLN",
+          balance: 5000,
+          monthlyPayment: 250,
+          interestRate: 18.0,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "d-rev",
+          name: "Limit w ROR",
+          institution: "mBank",
+          type: "revolving",
+          currency: "PLN",
+          balance: 3000,
+          monthlyPayment: 150,
+          interestRate: 17.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "d-bnpl",
+          name: "Allegro Pay",
+          institution: "Allegro",
+          type: "bnpl",
+          currency: "PLN",
+          balance: 1200,
+          monthlyPayment: 200,
+          interestRate: 0,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "d-other",
+          name: "Pożyczka Rodzinna",
+          institution: "Prywatna",
+          type: "other",
+          currency: "PLN",
+          balance: 4000,
+          monthlyPayment: 400,
+          interestRate: 0,
+          status: "active",
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    const { container } = render(<DebtsView profile={portfolioProfile} />);
+    const cardsList = container.querySelector("#debt-cards-list") as HTMLElement;
+
+    // Filter: Karty i limity (matches both credit_card and revolving)
+    const cardsAndLimitsChip = screen.getByRole("button", { name: /Karty i limity \(2\)/i });
+    fireEvent.click(cardsAndLimitsChip);
+    expect(within(cardsList).getByText("Karta Kredytowa")).toBeTruthy();
+    expect(within(cardsList).getByText("Limit w ROR")).toBeTruthy();
+    expect(within(cardsList).queryByText("Hipoteka Dom")).toBeNull();
+
+    // Filter: Ratalne
+    const bnplChip = screen.getByRole("button", { name: /Ratalne \(1\)/i });
+    fireEvent.click(bnplChip);
+    expect(within(cardsList).getByText("Allegro Pay")).toBeTruthy();
+    expect(within(cardsList).queryByText("Karta Kredytowa")).toBeNull();
+
+    // Filter: Inne
+    const otherChip = screen.getByRole("button", { name: /Inne \(1\)/i });
+    fireEvent.click(otherChip);
+    expect(within(cardsList).getByText("Pożyczka Rodzinna")).toBeTruthy();
+  });
+
+  it("Sprint 15: renders DashboardView debt bridge insight when active debts exist and navigates to debts view", () => {
+    const onChangeView = vi.fn();
+    render(
+      <DashboardView
+        profile={mockProfile}
+        selectedDate={new Date(2026, 0, 1)}
+        onPrevMonth={vi.fn()}
+        onNextMonth={vi.fn()}
+        onTogglePaymentStatus={vi.fn()}
+        onOpenTxModal={vi.fn()}
+        onOpenBudgetModal={vi.fn()}
+        onOpenPaymentModal={vi.fn()}
+        onChangeView={onChangeView}
+        showToast={vi.fn()}
+      />
+    );
+
+    // Bridge card exists
+    expect(screen.getByText("Portfel kredytów i zadłużenia")).toBeTruthy();
+    expect(screen.getByText(/2 aktywne umowy/i)).toBeTruthy();
+
+    // Click navigation button
+    const toDebtsBtn = screen.getByRole("button", { name: /Przejdź do pełnego widoku Kredyty i Hipoteka/i });
+    fireEvent.click(toDebtsBtn);
+    expect(onChangeView).toHaveBeenCalledWith("debts");
+  });
+
+  it("Sprint 15: hides DashboardView debt bridge insight when no active debts exist", () => {
+    const emptyProfile: Profile = {
+      ...mockProfile,
+      debts: [
+        {
+          id: "d-closed",
+          name: "Stary kredyt",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 0,
+          monthlyPayment: 0,
+          interestRate: 5,
+          status: "closed",
+          createdAt: "2024-01-01"
+        }
+      ]
+    };
+
+    render(
+      <DashboardView
+        profile={emptyProfile}
+        selectedDate={new Date(2026, 0, 1)}
+        onPrevMonth={vi.fn()}
+        onNextMonth={vi.fn()}
+        onTogglePaymentStatus={vi.fn()}
+        onOpenTxModal={vi.fn()}
+        onOpenBudgetModal={vi.fn()}
+        onOpenPaymentModal={vi.fn()}
+        onChangeView={vi.fn()}
+        showToast={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText("Portfel kredytów i zadłużenia")).toBeNull();
+  });
+
+  it("Sprint 16: displays amortization schedule and cost breakdown in DebtDetailsModal for an eligible debt", () => {
+    const mortgage = mockDebts[0];
+    render(<DebtDetailsModal isOpen={true} debt={mortgage} onClose={vi.fn()} />);
+
+    // Click on Harmonogram spłat tab
+    const scheduleTabBtn = screen.getByRole("button", { name: /Harmonogram spłat/i });
+    fireEvent.click(scheduleTabBtn);
+
+    // Header & summary KPIs
+    expect(screen.getByText("Harmonogram spłat i analiza kosztu")).toBeTruthy();
+    expect(screen.getByText("Szacowana rata")).toBeTruthy();
+    expect(screen.getByText("Kapitał (1. rata)")).toBeTruthy();
+    expect(screen.getByText("Odsetki (1. rata)")).toBeTruthy();
+    expect(screen.getByText("Odsetki łącznie")).toBeTruthy();
+    expect(screen.getByText("Spłata końcowa")).toBeTruthy();
+    expect(screen.getByText("Pozostały okres")).toBeTruthy();
+
+    // Table elements
+    expect(screen.getByRole("table", { name: "Tabela harmonogramu spłat" })).toBeTruthy();
+    expect(screen.getByText("Miesiąc 1")).toBeTruthy();
+
+    // Toggle full schedule button
+    const fullScheduleBtn = screen.getByRole("button", { name: /Pokaż pełny harmonogram/i });
+    fireEvent.click(fullScheduleBtn);
+    expect(screen.getByRole("button", { name: /Pokaż 24 miesiące/i })).toBeTruthy();
+  });
+
+  it("Sprint 16: shows clear unsupported message in schedule tab for credit cards", () => {
+    const card = mockDebts[1];
+    render(<DebtDetailsModal isOpen={true} debt={card} onClose={vi.fn()} />);
+
+    // Go to schedule tab
+    const scheduleTabBtn = screen.getByRole("button", { name: /Harmonogram spłat/i });
+    fireEvent.click(scheduleTabBtn);
+
+    // Unsupported message
+    expect(screen.getByText("Harmonogram niedostępny")).toBeTruthy();
+    expect(screen.getByText(/Karty kredytowe i limity odnawialne charakteryzują się elastyczną spłatą/i)).toBeTruthy();
   });
 });
