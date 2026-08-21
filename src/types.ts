@@ -83,6 +83,30 @@ export interface TransactionRule {
   profileId?: string;
 }
 
+export type SmartRuleField = "name" | "description" | "account" | "amount";
+export type SmartRuleOperator = "contains" | "equals" | "startsWith" | "greaterThan" | "lessThan";
+
+export interface SmartRuleCondition {
+  field: SmartRuleField;
+  operator: SmartRuleOperator;
+  value: string;
+}
+
+export interface SmartRuleAction {
+  type: "setCategory" | "suggestCategory";
+  categoryId: string;
+}
+
+export interface SmartRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  priority: number; // niższa liczba = wyższy priorytet (1 > 2 > 3)
+  condition: SmartRuleCondition;
+  action: SmartRuleAction;
+  createdAt: string;
+}
+
 export interface BudgetAlert {
   id: string;
   type: "threshold_80" | "threshold_100" | "payment_due";
@@ -126,6 +150,7 @@ export interface Profile {
   budgets: Record<string, number>;
   recurringRules?: RecurringRule[];
   transactionRules?: TransactionRule[];
+  smartRules?: SmartRule[];
   settlements?: SettlementEntry[];
   currency: SupportedCurrency;
 }
@@ -139,6 +164,7 @@ export interface AppState {
   driveFileId?: string | null;
   recurringRules?: RecurringRule[];
   transactionRules?: TransactionRule[];
+  smartRules?: SmartRule[];
   aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
   localAiModel?: string;

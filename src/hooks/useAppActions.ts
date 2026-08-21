@@ -1,8 +1,9 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
-import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, BankAccount, SettlementEntry, SupportedCurrency } from "../types";
+import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
+import { applySmartRulesToTransactions } from "../services/smartRules";
 import { useTransactionActions } from "./actions/useTransactionActions";
 import { useDataSyncActions } from "./actions/useDataSyncActions";
 
@@ -153,6 +154,63 @@ export function useAppActions({
   const handleSaveRecurringRules = useCallback(
     (newRules: RecurringRule[]) => {
       updateActiveProfile(() => ({ recurringRules: newRules }));
+    },
+    [updateActiveProfile]
+  );
+
+  const handleSaveSmartRules = useCallback(
+    (newRules: SmartRule[]) => {
+      updateActiveProfile(() => ({ smartRules: newRules }));
+    },
+    [updateActiveProfile]
+  );
+
+  const handleAddSmartRule = useCallback(
+    (ruleData: Omit<SmartRule, "id" | "createdAt">) => {
+      const newRule: SmartRule = {
+        ...ruleData,
+        id: "rule-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        createdAt: new Date().toISOString()
+      };
+      updateActiveProfile((p) => ({
+        smartRules: [...(p.smartRules || []), newRule]
+      }));
+    },
+    [updateActiveProfile]
+  );
+
+  const handleDeleteSmartRule = useCallback(
+    (ruleId: string) => {
+      updateActiveProfile((p) => ({
+        smartRules: (p.smartRules || []).filter((r) => r.id !== ruleId)
+      }));
+    },
+    [updateActiveProfile]
+  );
+
+  const handleToggleSmartRule = useCallback(
+    (ruleId: string) => {
+      updateActiveProfile((p) => ({
+        smartRules: (p.smartRules || []).map((r) =>
+          r.id === ruleId ? { ...r, enabled: !r.enabled } : r
+        )
+      }));
+    },
+    [updateActiveProfile]
+  );
+
+  const handleApplySmartRulesBulk = useCallback(
+    (selectedTxIds?: string[]): { appliedCount: number } => {
+      let appliedCount = 0;
+      updateActiveProfile((p) => {
+        const rules = p.smartRules || [];
+        const result = applySmartRulesToTransactions(p.transactions || [], rules, selectedTxIds);
+        appliedCount = result.appliedCount;
+        return {
+          transactions: result.updatedTransactions
+        };
+      });
+      return { appliedCount };
     },
     [updateActiveProfile]
   );
@@ -332,6 +390,11 @@ export function useAppActions({
     handleSaveAccounts,
     handleSaveRecurringRules,
     handleSaveTransactionRules,
+    handleSaveSmartRules,
+    handleAddSmartRule,
+    handleDeleteSmartRule,
+    handleToggleSmartRule,
+    handleApplySmartRulesBulk,
     handleAddSettlement,
     handleDeleteSettlement,
     handleSelectProfile,

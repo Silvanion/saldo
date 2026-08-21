@@ -7,6 +7,8 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { ModalFallback } from "./ModalFallback";
 
 const ImportTransactionsModal = lazy(() => import("./ImportTransactionsModal").then(m => ({ default: m.ImportTransactionsModal })));
+import { SmartRulesPreviewModal } from "./modals/SmartRulesPreviewModal";
+import { convertLegacyRulesToSmartRules } from "../services/smartRules";
 import { TransactionsTagsAnalysis } from "./TransactionsTagsAnalysis";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -23,7 +25,8 @@ import {
   Pencil,
   Trash2,
   Filter,
-  RotateCcw
+  RotateCcw,
+  Sparkles
 } from "lucide-react";
 
 interface TransactionsViewProps {
@@ -32,6 +35,8 @@ interface TransactionsViewProps {
   onDeleteTransaction: (txId: string) => void;
   onImportTransactions: (newTransactions: Transaction[]) => void;
   onBeforeImport?: () => void;
+  onApplySmartRulesBulk?: (selectedTxIds?: string[]) => { appliedCount: number };
+  onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
 export function TransactionsView({
@@ -39,7 +44,9 @@ export function TransactionsView({
   onOpenTxModal,
   onDeleteTransaction,
   onImportTransactions,
-  onBeforeImport
+  onBeforeImport,
+  onApplySmartRulesBulk,
+  onShowToast
 }: TransactionsViewProps) {
   const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
@@ -52,6 +59,7 @@ export function TransactionsView({
   const [maxAmount, setMaxAmount] = useState("");
   
   const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+  const [isSmartRulesModalOpen, setIsSmartRulesModalOpen] = useState(false);
   const [itemsToShow, setItemsToShow] = useState(25);
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
   const deleteModalRef = useRef<HTMLDivElement>(null);
@@ -82,6 +90,13 @@ export function TransactionsView({
       )
     ).sort();
   }, [profile.transactions]);
+
+  const smartRules = useMemo(() => {
+    if (profile.smartRules && profile.smartRules.length > 0) {
+      return profile.smartRules;
+    }
+    return convertLegacyRulesToSmartRules(profile.transactionRules || []);
+  }, [profile.smartRules, profile.transactionRules]);
 
   const isAnyAdvancedFilterActive = Boolean(dateFrom || dateTo || minAmount || maxAmount || selectedTag);
 
@@ -184,6 +199,18 @@ export function TransactionsView({
                 <UploadCloud className="w-3.5 h-3.5" />
                 <span>Importuj CSV</span>
               </button>
+
+              {smartRules.length > 0 && onApplySmartRulesBulk && (
+                <button
+                  onClick={() => setIsSmartRulesModalOpen(true)}
+                  className="text-brand hover:text-brand-hover font-bold py-2 px-3 rounded-xl border border-brand/20 bg-brand-subtle hover:bg-brand-subtle/80 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  title="Sprawdź i zastosuj inteligentne reguły kategoryzacji"
+                  id="btn-smart-rules-preview"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Reguły ({smartRules.length})</span>
+                </button>
+              )}
 
               <button
                 onClick={() => onOpenTxModal()}
@@ -752,6 +779,29 @@ export function TransactionsView({
             />
           </Suspense>
         </ErrorBoundary>
+      )}
+
+      {isSmartRulesModalOpen && (
+        <SmartRulesPreviewModal
+          isOpen={isSmartRulesModalOpen}
+          onClose={() => setIsSmartRulesModalOpen(false)}
+          transactions={profile.transactions}
+          rules={smartRules}
+          currency={profile.currency}
+          onApply={(selectedTxIds) => {
+            if (onApplySmartRulesBulk) {
+              const { appliedCount } = onApplySmartRulesBulk(selectedTxIds);
+              if (onShowToast) {
+                onShowToast(
+                  appliedCount > 0
+                    ? `Zaktualizowano kategorie w ${appliedCount} ${appliedCount === 1 ? "transakcji" : "transakcjach"}`
+                    : "Brak zmian w kategoriach",
+                  "success"
+                );
+              }
+            }
+          }}
+        />
       )}
     </div>
   );

@@ -87,6 +87,7 @@ export function AppViewRouter({
     theme,
     handleThemeChange,
     handleUpdateProfile,
+    handleApplySmartRulesBulk,
     showToast
   } = useApp();
 
@@ -238,6 +239,8 @@ export function AppViewRouter({
             onDeleteTransaction={onDeleteTransaction}
             onImportTransactions={onImportTransactions}
             onBeforeImport={makeUndoBackup}
+            onApplySmartRulesBulk={handleApplySmartRulesBulk}
+            onShowToast={showToast}
           />
         );
       case "payments":

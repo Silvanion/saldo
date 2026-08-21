@@ -196,4 +196,61 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
     fireEvent.click(editMobBtn);
     expect(onOpenTxModal).toHaveBeenCalledWith(sharedTx);
   });
+
+  it("renders smart rules button when rules exist and opens preview modal", () => {
+    const profileWithRules: Profile = {
+      ...mockProfile,
+      transactions: [
+        {
+          id: "tx-1",
+          name: "Biedronka Zakupy",
+          amount: 50,
+          type: "expense",
+          category: "Inne",
+          account: "Konto Główne",
+          isoDate: "2026-08-15",
+          currency: "PLN",
+        },
+      ],
+      smartRules: [
+        {
+          id: "sr-1",
+          name: "Biedronka -> Jedzenie",
+          enabled: true,
+          priority: 1,
+          condition: { field: "name", operator: "contains", value: "Biedronka" },
+          action: { type: "setCategory", categoryId: "Jedzenie" },
+          createdAt: "2026-08-01T10:00:00Z",
+        },
+      ],
+    };
+
+    const onApplySmartRulesBulk = vi.fn().mockReturnValue({ appliedCount: 1 });
+    const onShowToast = vi.fn();
+
+    render(
+      <TransactionsView
+        profile={profileWithRules}
+        onOpenTxModal={vi.fn()}
+        onDeleteTransaction={vi.fn()}
+        onImportTransactions={vi.fn()}
+        onApplySmartRulesBulk={onApplySmartRulesBulk}
+        onShowToast={onShowToast}
+      />
+    );
+
+    const rulesBtn = screen.getByRole("button", { name: /Reguły \(1\)/i });
+    expect(rulesBtn).toBeTruthy();
+
+    fireEvent.click(rulesBtn);
+    expect(screen.getByText("Podgląd reguł automatyzacji")).toBeTruthy();
+    expect(screen.getByText("Dopasowano 1 transakcję")).toBeTruthy();
+
+    // Click apply
+    const applyBtn = screen.getByRole("button", { name: /Zastosuj zmiany/i });
+    fireEvent.click(applyBtn);
+
+    expect(onApplySmartRulesBulk).toHaveBeenCalledWith(["tx-1"]);
+    expect(onShowToast).toHaveBeenCalledWith("Zaktualizowano kategorie w 1 transakcji", "success");
+  });
 });
