@@ -83,12 +83,17 @@ export interface RefinanceOfferInput {
   newRate: number; // in percent e.g. 5.50
   closingCosts: number; // e.g. 4500
   newTermMonths: number; // e.g. 240
+  rateType?: "fixed" | "variable";
 }
 
 export interface RefinanceMultiOfferItem {
   offer: RefinanceOfferInput;
   result: RefinanceComparisonResult;
-  isBestOffer: boolean;
+  isValid: boolean;
+  validationError?: string;
+  isBestOffer: boolean; // highest net savings
+  isFastestBreakEven: boolean;
+  isHighestNetSavings: boolean;
   rank: number; // 1 = best
 }
 
@@ -101,9 +106,11 @@ export interface RefinanceMultiOfferComparisonResult {
   };
   offers: RefinanceMultiOfferItem[];
   bestOfferId: string | null;
+  fastestBreakEvenOfferId: string | null;
+  highestNetSavingsOfferId: string | null;
 }
 
-export type DebtPayoffStrategyType = "avalanche" | "snowball" | "baseline";
+export type DebtPayoffStrategyType = "avalanche" | "snowball" | "baseline" | "custom";
 
 export interface DebtPayoffQueueItem {
   debtId: string;
@@ -137,6 +144,7 @@ export interface PortfolioPayoffComparison {
   baseline: DebtPayoffStrategyResult;
   avalanche: DebtPayoffStrategyResult;
   snowball: DebtPayoffStrategyResult;
+  custom?: DebtPayoffStrategyResult;
   recommendedStrategy: DebtPayoffStrategyType;
 }
 
@@ -593,6 +601,18 @@ export function calculateRefinanceComparison(input: RefinanceInput): RefinanceCo
 }
 
 /**
+ * Check if a debt is eligible/supported for refinancing
+ */
+export function isSupportedRefinanceDebt(debt: DebtItem | null | undefined): boolean {
+  if (!debt) return false;
+  if (debt.status === "closed") return false;
+  if (debt.type !== "mortgage" && debt.type !== "cash_loan") return false;
+  if ((Number(debt.balance) || 0) <= 0) return false;
+  if ((Number(debt.interestRate) || 0) <= 0) return false;
+  return true;
+}
+
+/**
  * Pure calculation engine for Multi-Offer Refinance comparison (Sprint 3)
  */
 export function calculateMultiOfferRefinanceComparison(
@@ -626,57 +646,97 @@ export function calculateMultiOfferRefinanceComparison(
     return {
       current: currentInfo,
       offers: [],
-      bestOfferId: null
+      bestOfferId: null,
+      fastestBreakEvenOfferId: null,
+      highestNetSavingsOfferId: null
     };
   }
 
   const evaluatedOffers = offers.map((offer) => {
+    // Validate individual offer input
+    const isRateValid = typeof offer.newRate === "number" && !isNaN(offer.newRate) && offer.newRate > 0;
+    const isTermValid = typeof offer.newTermMonths === "number" && !isNaN(offer.newTermMonths) && offer.newTermMonths > 0;
+    const isCostValid = typeof offer.closingCosts === "number" && !isNaN(offer.closingCosts) && offer.closingCosts >= 0;
+
+    let isValid = true;
+    let validationError: string | undefined;
+
+    if (!isRateValid) {
+      isValid = false;
+      validationError = "Wprowadź poprawne oprocentowanie (większe od zera).";
+    } else if (!isTermValid) {
+      isValid = false;
+      validationError = "Wprowadź poprawny okres spłaty (w miesiącach).";
+    } else if (!isCostValid) {
+      isValid = false;
+      validationError = "Koszty wejścia nie mogą być ujemne.";
+    }
+
+    const safeRate = isRateValid ? offer.newRate : 0;
+    const safeTerm = isTermValid ? offer.newTermMonths : currentRemainingMonths;
+    const safeCosts = isCostValid ? offer.closingCosts : 0;
+
     const result = calculateRefinanceComparison({
       balance,
       currentRate,
       currentMonthlyPayment: currentMonthly,
       currentRemainingMonths,
-      newRate: offer.newRate,
-      newTermMonths: offer.newTermMonths,
-      closingCosts: offer.closingCosts
+      newRate: safeRate,
+      newTermMonths: safeTerm,
+      closingCosts: safeCosts
     });
+
     return {
       offer,
-      result
+      result,
+      isValid,
+      validationError
     };
   });
 
-  // Sort descending by netLifetimeSavings.
-  // Tie-breaker: shorter break-even, then lower monthly payment.
-  const sorted = [...evaluatedOffers].sort((a, b) => {
-    const netA = a.result.comparison.netLifetimeSavings;
-    const netB = b.result.comparison.netLifetimeSavings;
-    if (Math.abs(netA - netB) > 0.01) {
-      return netB - netA;
-    }
+  const validOffers = evaluatedOffers.filter((o) => o.isValid);
+
+  // 1. Highest Net Savings Offer
+  const profitableOffers = validOffers.filter((o) => o.result.comparison.netLifetimeSavings > 0);
+  const sortedBySavings = [...profitableOffers].sort((a, b) => b.result.comparison.netLifetimeSavings - a.result.comparison.netLifetimeSavings);
+  const highestNetSavingsOfferId = sortedBySavings[0]?.offer.id || null;
+
+  // 2. Fastest Break Even Offer
+  const breakEvenOffers = validOffers.filter(
+    (o) => o.result.comparison.breakEvenMonths !== null && o.result.comparison.netLifetimeSavings > 0
+  );
+  const sortedByBreakEven = [...breakEvenOffers].sort((a, b) => {
     const beA = a.result.comparison.breakEvenMonths ?? 9999;
     const beB = b.result.comparison.breakEvenMonths ?? 9999;
-    if (beA !== beB) {
-      return beA - beB;
-    }
-    return a.result.refinanced.monthlyPayment - b.result.refinanced.monthlyPayment;
+    if (beA !== beB) return beA - beB;
+    return b.result.comparison.netLifetimeSavings - a.result.comparison.netLifetimeSavings;
+  });
+  const fastestBreakEvenOfferId = sortedByBreakEven[0]?.offer.id || null;
+
+  // 3. Best overall offer (highest savings)
+  const bestOfferId = highestNetSavingsOfferId;
+
+  // 4. Ranking
+  const sortedAll = [...evaluatedOffers].sort((a, b) => {
+    if (a.isValid && !b.isValid) return -1;
+    if (!a.isValid && b.isValid) return 1;
+    return b.result.comparison.netLifetimeSavings - a.result.comparison.netLifetimeSavings;
   });
 
-  const topOffer = sorted[0];
-  const isTopBeneficial = Boolean(
-    topOffer &&
-    topOffer.result.comparison.netLifetimeSavings > 0 &&
-    topOffer.result.comparison.benefitStatus !== "not_beneficial"
-  );
-  const bestOfferId = isTopBeneficial && topOffer ? topOffer.offer.id : null;
-
   const rankedOffers: RefinanceMultiOfferItem[] = evaluatedOffers.map((item) => {
-    const rankIndex = sorted.findIndex((s) => s.offer.id === item.offer.id);
-    const isBest = item.offer.id === bestOfferId && isTopBeneficial;
+    const rankIndex = sortedAll.findIndex((s) => s.offer.id === item.offer.id);
+    const isHighest = item.isValid && item.offer.id === highestNetSavingsOfferId;
+    const isFastest = item.isValid && item.offer.id === fastestBreakEvenOfferId;
+    const isBest = isHighest;
+
     return {
       offer: item.offer,
       result: item.result,
+      isValid: item.isValid,
+      validationError: item.validationError,
       isBestOffer: isBest,
+      isFastestBreakEven: isFastest,
+      isHighestNetSavings: isHighest,
       rank: rankIndex + 1
     };
   });
@@ -684,8 +744,33 @@ export function calculateMultiOfferRefinanceComparison(
   return {
     current: currentInfo,
     offers: rankedOffers,
-    bestOfferId
+    bestOfferId,
+    fastestBreakEvenOfferId,
+    highestNetSavingsOfferId
   };
+}
+
+/**
+ * Pure calculation helper taking debt directly (Sprint 3 helper alias)
+ */
+export function calculateMultiOfferComparison(
+  debt: {
+    balance: number;
+    interestRate: number;
+    monthlyPayment: number;
+    remainingMonths?: number;
+  },
+  offers: RefinanceOfferInput[] = []
+): RefinanceMultiOfferComparisonResult {
+  return calculateMultiOfferRefinanceComparison(
+    {
+      balance: debt.balance,
+      currentRate: debt.interestRate,
+      currentMonthlyPayment: debt.monthlyPayment,
+      currentRemainingMonths: debt.remainingMonths
+    },
+    offers
+  );
 }
 
 /**
@@ -906,13 +991,46 @@ function formatPayoffMonthDate(startDateStr: string | undefined, monthOffset: nu
 }
 
 /**
- * Simulates a portfolio payoff strategy month-by-month (Sprint 4 Payoff Strategies)
+ * Helper to build and validate custom payoff order without mutations (Sprint 5)
+ */
+export function buildValidatedCustomOrder(activeDebts: DebtItem[] = [], customPayoffOrder?: string[]): string[] {
+  const activeIds = (activeDebts || [])
+    .filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0)
+    .map((d) => d.id);
+  const activeSet = new Set(activeIds);
+
+  const seen = new Set<string>();
+  const validOrder: string[] = [];
+
+  if (Array.isArray(customPayoffOrder)) {
+    for (const id of customPayoffOrder) {
+      if (typeof id === "string" && activeSet.has(id) && !seen.has(id)) {
+        seen.add(id);
+        validOrder.push(id);
+      }
+    }
+  }
+
+  // Append any active debts that were omitted in customPayoffOrder deterministically
+  for (const id of activeIds) {
+    if (!seen.has(id)) {
+      seen.add(id);
+      validOrder.push(id);
+    }
+  }
+
+  return validOrder;
+}
+
+/**
+ * Simulates a portfolio payoff strategy month-by-month (Sprint 4 & 5 Payoff Strategies)
  */
 function simulateSinglePayoffStrategy(
   activeDebts: DebtItem[],
   strategy: DebtPayoffStrategyType,
   extraPayment: number,
-  startDateStr?: string
+  startDateStr?: string,
+  customPayoffOrder?: string[]
 ): DebtPayoffStrategyResult {
   const strategyInfo = {
     avalanche: {
@@ -924,6 +1042,11 @@ function simulateSinglePayoffStrategy(
       label: "Metoda Kuli Śnieżnej (Snowball)",
       badge: "Najmniejsze saldo",
       description: "Behawioralna — likwidujesz najpierw najmniejsze salda, szybko zmniejszając liczbę czynnych kredytów."
+    },
+    custom: {
+      label: "Własna kolejność",
+      badge: "Kolejność własna",
+      description: "Elastyczna — spłacasz zobowiązania według ustalonej przez Ciebie kolejności priorytetów."
     },
     baseline: {
       label: "Status Quo (Tylko raty)",
@@ -948,6 +1071,9 @@ function simulateSinglePayoffStrategy(
       payoffQueue: []
     };
   }
+
+  const validatedCustomOrder = buildValidatedCustomOrder(activeDebts, customPayoffOrder);
+  const customOrderMap = new Map(validatedCustomOrder.map((id, index) => [id, index]));
 
   const baselineMonthlySum = activeDebts.reduce((sum, d) => sum + Math.max(0, Number(d.monthlyPayment) || 0), 0);
   const totalMonthlyCommitment = baselineMonthlySum + (strategy === "baseline" ? 0 : extraPayment);
@@ -1029,6 +1155,12 @@ function simulateSinglePayoffStrategy(
       } else if (strategy === "snowball") {
         // Lowest balance first; tie-breaker: higher APR
         stillActive.sort((a, b) => (a.balance !== b.balance ? a.balance - b.balance : b.rate - a.rate));
+      } else if (strategy === "custom") {
+        stillActive.sort((a, b) => {
+          const idxA = customOrderMap.get(a.id) ?? 9999;
+          const idxB = customOrderMap.get(b.id) ?? 9999;
+          return idxA - idxB;
+        });
       }
 
       for (const target of stillActive) {
@@ -1088,12 +1220,13 @@ function simulateSinglePayoffStrategy(
 }
 
 /**
- * Main Pure Calculation Engine for Debt Payoff Strategies (Sprint 4)
+ * Main Pure Calculation Engine for Debt Payoff Strategies (Sprint 4 & 5)
  */
 export function calculatePortfolioPayoffStrategies(
   debts: DebtItem[] = [],
   extraMonthlyPayment: number = 0,
-  startDateStr?: string
+  startDateStr?: string,
+  customPayoffOrder?: string[]
 ): PortfolioPayoffComparison {
   const activeDebts = debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
   const extraPayment = Math.max(0, Number(extraMonthlyPayment) || 0);
@@ -1111,9 +1244,12 @@ export function calculatePortfolioPayoffStrategies(
   snowball.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - snowball.totalInterestPaid);
   snowball.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - snowball.totalMonths);
 
-  // 4. Recommendation heuristic:
-  // If Avalanche saves noticeably more (> 200 zł) than Snowball, recommend Avalanche.
-  // Otherwise, if Snowball eliminates the first debt faster, recommend Snowball for psychological momentum.
+  // 4. Simulate Custom (Custom Payoff Order)
+  const custom = simulateSinglePayoffStrategy(activeDebts, "custom", extraPayment, startDateStr, customPayoffOrder);
+  custom.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - custom.totalInterestPaid);
+  custom.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - custom.totalMonths);
+
+  // 5. Recommendation heuristic:
   let recommendedStrategy: DebtPayoffStrategyType = "avalanche";
   if (avalanche.interestSavedVsBaseline >= snowball.interestSavedVsBaseline + 200) {
     recommendedStrategy = "avalanche";
@@ -1131,6 +1267,7 @@ export function calculatePortfolioPayoffStrategies(
     baseline,
     avalanche,
     snowball,
+    custom,
     recommendedStrategy
   };
 }

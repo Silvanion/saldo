@@ -4,6 +4,7 @@ import {
   calculatePortfolioDebtKpis,
   calculateDebtPortfolioAnalytics,
   calculatePortfolioPayoffStrategies,
+  buildValidatedCustomOrder,
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
 import { DebtPortfolioCard } from "./DebtPortfolioCard";
@@ -28,6 +29,8 @@ import {
   CheckCircle2,
   BookOpen,
   ArrowRight,
+  ArrowUp,
+  ArrowDown,
   Filter,
   ArrowUpDown,
   Search,
@@ -93,13 +96,44 @@ export function DebtsView({
     return calculateDebtPortfolioAnalytics(debts);
   }, [debts]);
 
-  // Sprint 4: Portfolio Payoff Strategy Simulator
+  // Sprint 4 & 5: Portfolio Payoff Strategy Simulator (including Custom Order)
   const [extraMonthlyPayoff, setExtraMonthlyPayoff] = useState<number>(500);
   const [selectedPayoffStrategy, setSelectedPayoffStrategy] = useState<DebtPayoffStrategyType>("avalanche");
+  const [customDebtOrder, setCustomDebtOrder] = useState<string[]>([]);
+
+  const activeDebts = useMemo(() => {
+    return debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
+  }, [debts]);
+
+  const validatedCustomOrder = useMemo(() => {
+    return buildValidatedCustomOrder(activeDebts, customDebtOrder);
+  }, [activeDebts, customDebtOrder]);
+
+  const handleMoveDebtUp = (debtId: string) => {
+    const current = [...validatedCustomOrder];
+    const idx = current.indexOf(debtId);
+    if (idx > 0) {
+      const temp = current[idx];
+      current[idx] = current[idx - 1];
+      current[idx - 1] = temp;
+      setCustomDebtOrder(current);
+    }
+  };
+
+  const handleMoveDebtDown = (debtId: string) => {
+    const current = [...validatedCustomOrder];
+    const idx = current.indexOf(debtId);
+    if (idx !== -1 && idx < current.length - 1) {
+      const temp = current[idx];
+      current[idx] = current[idx + 1];
+      current[idx + 1] = temp;
+      setCustomDebtOrder(current);
+    }
+  };
 
   const payoffComparison = useMemo(() => {
-    return calculatePortfolioPayoffStrategies(debts, extraMonthlyPayoff);
-  }, [debts, extraMonthlyPayoff]);
+    return calculatePortfolioPayoffStrategies(debts, extraMonthlyPayoff, undefined, validatedCustomOrder);
+  }, [debts, extraMonthlyPayoff, validatedCustomOrder]);
 
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
@@ -737,8 +771,8 @@ export function DebtsView({
                 </div>
               </div>
 
-              {/* 3 Strategy Comparison Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* 4 Strategy Comparison Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Avalanche */}
                 <div
                   onClick={() => setSelectedPayoffStrategy("avalanche")}
@@ -841,7 +875,55 @@ export function DebtsView({
                   </div>
                 </div>
 
-                {/* 3. Baseline */}
+                {/* 3. Custom */}
+                {payoffComparison.custom && (
+                  <div
+                    onClick={() => setSelectedPayoffStrategy("custom")}
+                    className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+                      selectedPayoffStrategy === "custom"
+                        ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
+                        : "bg-surface border-border hover:border-brand/40"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
+                          {payoffComparison.custom.strategyBadge}
+                        </span>
+                      </div>
+
+                      <h4 className="text-sm font-bold text-text-main mt-2 mb-1">
+                        {payoffComparison.custom.strategyLabel}
+                      </h4>
+                      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                        {payoffComparison.custom.strategyDescription}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-3 border-t border-border/50 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-text-faint">Wolność od długu:</span>
+                        <span className="font-bold text-text-main">{payoffComparison.custom.debtFreeDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-faint">Zaoszczędzone odsetki:</span>
+                        <span className="font-bold text-brand">
+                          +{formatMoney(payoffComparison.custom.interestSavedVsBaseline, currency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-faint">Zaoszczędzony czas:</span>
+                        <span className="font-bold text-success">
+                          {payoffComparison.custom.monthsSavedVsBaseline > 0
+                            ? `-${payoffComparison.custom.monthsSavedVsBaseline} mies. (~${Math.round((payoffComparison.custom.monthsSavedVsBaseline / 12) * 10) / 10} lat)`
+                            : "0 mies."}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Baseline */}
                 <div
                   onClick={() => setSelectedPayoffStrategy("baseline")}
                   className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
@@ -884,9 +966,117 @@ export function DebtsView({
                 </div>
               </div>
 
+              {/* Custom Order Reorder Panel */}
+              {selectedPayoffStrategy === "custom" && activeDebts.length > 0 && (
+                <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-text-main flex items-center gap-2">
+                        <span>Ustal kolejność spłaty</span>
+                        <span className="text-[11px] font-normal text-text-muted">
+                          (priorytetyzacja nadpłat)
+                        </span>
+                      </h4>
+                      <p className="text-xs text-text-muted mt-0.5">
+                        Ustaw kolejność, w jakiej nadwyżki finansowe będą likwidować poszczególne zobowiązania.
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold text-text-faint">
+                      Kolejność zobowiązań ({activeDebts.length})
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {validatedCustomOrder.map((id, index) => {
+                      const debtItem = activeDebts.find((d) => d.id === id);
+                      if (!debtItem) return null;
+                      const isFirst = index === 0;
+                      const isLast = index === validatedCustomOrder.length - 1;
+
+                      return (
+                        <div
+                          key={id}
+                          className="p-3.5 sm:p-4 bg-surface-2/40 border border-border/80 rounded-xl flex items-center justify-between gap-3 hover:border-border transition"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-7 h-7 rounded-lg bg-surface border border-border text-xs font-black text-text-main flex items-center justify-center shrink-0">
+                              {index + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-text-main truncate">
+                                  {debtItem.name}
+                                </span>
+                                <span className="text-[10px] text-text-muted shrink-0">
+                                  ({debtItem.institution})
+                                </span>
+                                {index === 0 && (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-subtle text-brand border border-brand/20 shrink-0">
+                                    Pierwszy cel spłaty
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[11px] text-text-muted flex items-center gap-2 mt-0.5">
+                                <span>Saldo: {formatMoney(debtItem.balance, currency)}</span>
+                                <span>•</span>
+                                <span className="font-bold text-brand tabular-nums">
+                                  {debtItem.interestRate.toFixed(2)}% APR
+                                </span>
+                                <span>•</span>
+                                <span>Rata: {formatMoney(debtItem.monthlyPayment, currency)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Move Up / Down Buttons */}
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveDebtUp(id)}
+                              disabled={isFirst}
+                              aria-label={`Przenieś ${debtItem.name} wyżej`}
+                              className={`p-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                                isFirst
+                                  ? "opacity-30 cursor-not-allowed border-border text-text-muted bg-surface-2"
+                                  : "bg-surface hover:bg-surface-hover border-border text-text-main"
+                              }`}
+                              title="Przenieś wyżej"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline text-[11px]">Przenieś wyżej</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveDebtDown(id)}
+                              disabled={isLast}
+                              aria-label={`Przenieś ${debtItem.name} niżej`}
+                              className={`p-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                                isLast
+                                  ? "opacity-30 cursor-not-allowed border-border text-text-muted bg-surface-2"
+                                  : "bg-surface hover:bg-surface-hover border-border text-text-main"
+                              }`}
+                              title="Przenieś niżej"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline text-[11px]">Przenieś niżej</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="text-[11px] text-text-muted bg-surface-2/60 p-3 rounded-xl border border-border/60">
+                    ℹ️ <strong>Wskazówka:</strong> Nadwyżka budżetowa (oraz raty ze spłaconych wcześniej kredytów) będzie w 100% kierowana na pierwsze aktywne zobowiązanie z powyższej listy, aż do jego całkowitego zamknięcia.
+                  </div>
+                </div>
+              )}
+
               {/* Selected Strategy Payoff Timeline & Roadmap */}
               {(() => {
-                const activePlan = payoffComparison[selectedPayoffStrategy];
+                const activePlan = (selectedPayoffStrategy === "custom" && payoffComparison.custom)
+                  ? payoffComparison.custom
+                  : payoffComparison[selectedPayoffStrategy] || payoffComparison.baseline;
                 return (
                   <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border space-y-6">
                     {/* Header */}

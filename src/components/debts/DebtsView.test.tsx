@@ -272,4 +272,34 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     expect(screen.getByText(/Plan i kolejność spłaty: Metoda Kuli Śnieżnej/i)).toBeTruthy();
   });
+
+  it("renders Custom strategy card and allows reordering debts via accessible Move Up / Move Down buttons", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy simulator tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Verify Custom strategy card exists
+    expect(screen.getByText("Własna kolejność")).toBeTruthy();
+
+    // Click Custom strategy card
+    const customCard = screen.getByText("Własna kolejność");
+    fireEvent.click(customCard);
+
+    // Verify Reorder panel is visible
+    expect(screen.getByText("Ustal kolejność spłaty")).toBeTruthy();
+    expect(screen.getByText(/Kolejność zobowiązań/i)).toBeTruthy();
+
+    // Check accessible buttons with aria-label
+    const moveDownBtn = screen.getByRole("button", { name: /Przenieś Kredyt hipoteczny niżej/i });
+    expect(moveDownBtn).toBeTruthy();
+
+    // Reorder debt
+    fireEvent.click(moveDownBtn);
+
+    // Verify roadmap and plan reflect Custom strategy
+    expect(screen.getByText(/Plan i kolejność spłaty: Własna kolejność/i)).toBeTruthy();
+    expect(screen.getByText("Pierwszy cel spłaty")).toBeTruthy();
+  });
 });
