@@ -223,21 +223,27 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.queryByText("Rozkład kapitału i miesięcznego obciążenia wg typu")).toBeNull();
   });
 
-  it("opens refinance comparison modal and simulates new rate", () => {
+  it("opens multi-offer refinance comparison modal and simulates offers", () => {
     render(<DebtsView profile={mockProfile} />);
 
     // Click Refinansowanie on mortgage card
     const refiBtn = screen.getByRole("button", { name: "Refinansowanie" });
     fireEvent.click(refiBtn);
 
-    expect(screen.getByText("Kalkulator opłacalności refinansowania")).toBeTruthy();
-    expect(screen.getByText("Wprowadź parametry nowej propozycji / oferty")).toBeTruthy();
-    expect(screen.getByText("Punkt zwrotu kosztów")).toBeTruthy();
+    expect(screen.getByText("Wieloofertowy kalkulator refinansowania")).toBeTruthy();
+    expect(screen.getByText("Zestawienie porównawcze ofert vs Obecny kredyt")).toBeTruthy();
 
-    // Change rate input
-    const rateInput = screen.getByPlaceholderText("5.85");
-    fireEvent.change(rateInput, { target: { value: "5.50" } });
+    // Check adding a third offer
+    const addOfferBtn = screen.getByRole("button", { name: /Dodaj ofertę/i });
+    fireEvent.click(addOfferBtn);
+    expect(screen.getAllByText(/Oferta C/i).length).toBeGreaterThanOrEqual(1);
 
-    expect(screen.getByText("5.50%")).toBeTruthy();
+    // Check presets
+    const lowerRateBtn = screen.getByRole("button", { name: "-1.5% stopa" });
+    fireEvent.click(lowerRateBtn);
+
+    // Verify matrix rows
+    expect(screen.getByText("Łączny zysk netto po kosztach")).toBeTruthy();
+    expect(screen.getByText("Czas zwrotu (Break-even)")).toBeTruthy();
   });
 });

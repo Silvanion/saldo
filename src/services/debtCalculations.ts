@@ -76,6 +76,33 @@ export interface RefinanceComparisonResult {
   };
 }
 
+export interface RefinanceOfferInput {
+  id: string;
+  name: string;
+  bankName?: string;
+  newRate: number; // in percent e.g. 5.50
+  closingCosts: number; // e.g. 4500
+  newTermMonths: number; // e.g. 240
+}
+
+export interface RefinanceMultiOfferItem {
+  offer: RefinanceOfferInput;
+  result: RefinanceComparisonResult;
+  isBestOffer: boolean;
+  rank: number; // 1 = best
+}
+
+export interface RefinanceMultiOfferComparisonResult {
+  current: {
+    monthlyPayment: number;
+    remainingMonths: number;
+    remainingTotalInterest: number;
+    remainingTotalCost: number;
+  };
+  offers: RefinanceMultiOfferItem[];
+  bestOfferId: string | null;
+}
+
 export interface DebtTypeMixItem {
   type: DebtType;
   typeLabel: string;
@@ -488,7 +515,7 @@ export function calculateRefinanceComparison(input: RefinanceInput): RefinanceCo
   if (balance <= 0) {
     benefitStatus = "not_beneficial";
     statusReason = "Brak salda zadłużenia do refinansowania.";
-  } else if (newRate >= currentRate && netLifetimeSavings <= 0) {
+  } else if (newRate >= currentRate) {
     benefitStatus = "not_beneficial";
     statusReason = `Nowe oprocentowanie (${newRate}%) jest wyższe lub równe obecnemu (${currentRate}%).`;
   } else if (netLifetimeSavings <= 0) {
@@ -525,6 +552,102 @@ export function calculateRefinanceComparison(input: RefinanceInput): RefinanceCo
       benefitStatus,
       statusReason
     }
+  };
+}
+
+/**
+ * Pure calculation engine for Multi-Offer Refinance comparison (Sprint 3)
+ */
+export function calculateMultiOfferRefinanceComparison(
+  baseInput: {
+    balance: number;
+    currentRate: number;
+    currentMonthlyPayment: number;
+    currentRemainingMonths?: number;
+  },
+  offers: RefinanceOfferInput[] = []
+): RefinanceMultiOfferComparisonResult {
+  const balance = Math.max(0, Number(baseInput.balance) || 0);
+  const currentRate = Math.max(0, Number(baseInput.currentRate) || 0);
+  const currentMonthly = Math.max(0, Number(baseInput.currentMonthlyPayment) || 0);
+
+  const baselineSchedule = calculateAmortizationSchedule(balance, currentRate, currentMonthly, 360);
+  const currentRemainingMonths = baseInput.currentRemainingMonths && baseInput.currentRemainingMonths > 0
+    ? baseInput.currentRemainingMonths
+    : (baselineSchedule.length || 240);
+  const currentTotalInterest = baselineSchedule.reduce((sum, r) => sum + r.interest, 0);
+  const currentTotalCost = balance + currentTotalInterest;
+
+  const currentInfo = {
+    monthlyPayment: currentMonthly,
+    remainingMonths: currentRemainingMonths,
+    remainingTotalInterest: Math.round(currentTotalInterest),
+    remainingTotalCost: Math.round(currentTotalCost)
+  };
+
+  if (!offers || offers.length === 0) {
+    return {
+      current: currentInfo,
+      offers: [],
+      bestOfferId: null
+    };
+  }
+
+  const evaluatedOffers = offers.map((offer) => {
+    const result = calculateRefinanceComparison({
+      balance,
+      currentRate,
+      currentMonthlyPayment: currentMonthly,
+      currentRemainingMonths,
+      newRate: offer.newRate,
+      newTermMonths: offer.newTermMonths,
+      closingCosts: offer.closingCosts
+    });
+    return {
+      offer,
+      result
+    };
+  });
+
+  // Sort descending by netLifetimeSavings.
+  // Tie-breaker: shorter break-even, then lower monthly payment.
+  const sorted = [...evaluatedOffers].sort((a, b) => {
+    const netA = a.result.comparison.netLifetimeSavings;
+    const netB = b.result.comparison.netLifetimeSavings;
+    if (Math.abs(netA - netB) > 0.01) {
+      return netB - netA;
+    }
+    const beA = a.result.comparison.breakEvenMonths ?? 9999;
+    const beB = b.result.comparison.breakEvenMonths ?? 9999;
+    if (beA !== beB) {
+      return beA - beB;
+    }
+    return a.result.refinanced.monthlyPayment - b.result.refinanced.monthlyPayment;
+  });
+
+  const topOffer = sorted[0];
+  const isTopBeneficial = Boolean(
+    topOffer &&
+    topOffer.result.comparison.netLifetimeSavings > 0 &&
+    topOffer.result.comparison.benefitStatus !== "not_beneficial"
+  );
+  const bestOfferId = isTopBeneficial && topOffer ? topOffer.offer.id : null;
+
+  const rankedOffers: RefinanceMultiOfferItem[] = evaluatedOffers.map((item) => {
+    const rankIndex = sorted.findIndex((s) => s.offer.id === item.offer.id);
+    const isBest = item.offer.id === bestOfferId && isTopBeneficial;
+    return {
+      offer: item.offer,
+      result: item.result,
+      isBestOffer: isBest,
+      rank: rankIndex + 1
+    };
+  });
+
+  return {
+    current: currentInfo,
+    offers: rankedOffers,
+    bestOfferId
   };
 }
 

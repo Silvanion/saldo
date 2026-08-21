@@ -4,7 +4,9 @@ import {
   calculateAmortizationSchedule,
   calculateOverpayment,
   calculateRefinanceComparison,
-  calculateDebtPortfolioAnalytics
+  calculateMultiOfferRefinanceComparison,
+  calculateDebtPortfolioAnalytics,
+  RefinanceOfferInput
 } from "./debtCalculations";
 import { DebtItem } from "../types";
 
@@ -185,6 +187,96 @@ describe("debtCalculations", () => {
 
       expect(result.comparison.breakEvenMonths).toBe(0);
       expect(result.comparison.netLifetimeSavings).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculateMultiOfferRefinanceComparison (Sprint 3 Multi-Offer Comparison)", () => {
+    const baseParams = {
+      balance: 400000,
+      currentRate: 7.2,
+      currentMonthlyPayment: 2900,
+      currentRemainingMonths: 240
+    };
+
+    it("handles empty offers array gracefully", () => {
+      const result = calculateMultiOfferRefinanceComparison(baseParams, []);
+      expect(result.current.monthlyPayment).toBe(2900);
+      expect(result.offers).toHaveLength(0);
+      expect(result.bestOfferId).toBeNull();
+    });
+
+    it("compares multiple offers, ranks them, and identifies the best offer", () => {
+      const offers: RefinanceOfferInput[] = [
+        {
+          id: "offer-1",
+          name: "Oferta A (PKO)",
+          bankName: "PKO BP",
+          newRate: 6.2,
+          closingCosts: 4000,
+          newTermMonths: 240
+        },
+        {
+          id: "offer-2",
+          name: "Oferta B (ING)",
+          bankName: "ING",
+          newRate: 5.6, // Much lower rate, best savings despite higher costs
+          closingCosts: 6000,
+          newTermMonths: 240
+        },
+        {
+          id: "offer-3",
+          name: "Oferta C (mBank)",
+          bankName: "mBank",
+          newRate: 7.5, // Worse rate than current
+          closingCosts: 3000,
+          newTermMonths: 240
+        }
+      ];
+
+      const result = calculateMultiOfferRefinanceComparison(baseParams, offers);
+
+      expect(result.offers).toHaveLength(3);
+      expect(result.bestOfferId).toBe("offer-2");
+
+      const bestOffer = result.offers.find((o) => o.offer.id === "offer-2");
+      expect(bestOffer).toBeDefined();
+      expect(bestOffer?.isBestOffer).toBe(true);
+      expect(bestOffer?.rank).toBe(1);
+      expect(bestOffer?.result.comparison.netLifetimeSavings).toBeGreaterThan(0);
+      expect(bestOffer?.result.comparison.benefitStatus).toBe("likely_beneficial");
+
+      const secondOffer = result.offers.find((o) => o.offer.id === "offer-1");
+      expect(secondOffer?.rank).toBe(2);
+      expect(secondOffer?.isBestOffer).toBe(false);
+
+      const worstOffer = result.offers.find((o) => o.offer.id === "offer-3");
+      expect(worstOffer?.rank).toBe(3);
+      expect(worstOffer?.isBestOffer).toBe(false);
+      expect(worstOffer?.result.comparison.benefitStatus).toBe("not_beneficial");
+    });
+
+    it("handles scenario where all offers are unprofitable", () => {
+      const unprofitableOffers: RefinanceOfferInput[] = [
+        {
+          id: "bad-1",
+          name: "Oferta zła 1",
+          newRate: 8.0,
+          closingCosts: 5000,
+          newTermMonths: 240
+        },
+        {
+          id: "bad-2",
+          name: "Oferta zła 2",
+          newRate: 7.8,
+          closingCosts: 8000,
+          newTermMonths: 240
+        }
+      ];
+
+      const result = calculateMultiOfferRefinanceComparison(baseParams, unprofitableOffers);
+      expect(result.offers).toHaveLength(2);
+      // none should be flagged as beneficial best offer
+      expect(result.offers.every((o) => o.isBestOffer === false)).toBe(true);
     });
   });
 

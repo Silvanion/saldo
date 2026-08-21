@@ -3,21 +3,28 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X,
-  ArrowRight,
+  Plus,
+  Trash2,
   TrendingDown,
   Scale,
   AlertCircle,
-  Building2,
-  HelpCircle,
   Sparkles,
   CheckCircle2,
   Clock,
   ShieldAlert,
-  Layers
+  Layers,
+  Award,
+  ArrowRight,
+  Calculator,
+  RefreshCw
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { calculateRefinanceComparison } from "../../services/debtCalculations";
+import {
+  calculateMultiOfferRefinanceComparison,
+  RefinanceOfferInput,
+  RefinanceBenefitStatus
+} from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -25,6 +32,14 @@ interface RefinanceComparisonModalProps {
   isOpen: boolean;
   onClose: () => void;
   debt: DebtItem | null;
+}
+
+interface OfferState {
+  id: string;
+  name: string;
+  newRate: string;
+  closingCosts: string;
+  newTermYears: string;
 }
 
 export function RefinanceComparisonModal({
@@ -36,48 +51,145 @@ export function RefinanceComparisonModal({
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
 
-  const [newRate, setNewRate] = useState("5.85");
-  const [closingCosts, setClosingCosts] = useState("4500");
-  const [newTermYears, setNewTermYears] = useState("20");
+  const [offers, setOffers] = useState<OfferState[]>([
+    {
+      id: "offer-1",
+      name: "Oferta A (np. Bank A)",
+      newRate: "5.85",
+      closingCosts: "4500",
+      newTermYears: "20"
+    },
+    {
+      id: "offer-2",
+      name: "Oferta B (np. Bank B)",
+      newRate: "5.45",
+      closingCosts: "6000",
+      newTermYears: "20"
+    }
+  ]);
+
+  const [activeOfferId, setActiveOfferId] = useState<string>("offer-1");
 
   useEffect(() => {
     if (isOpen && debt) {
-      const suggestedRate = Math.max(1, Math.round((debt.interestRate - 1.0) * 100) / 100);
-      setNewRate(String(suggestedRate));
+      const suggestedRateA = Math.max(1, Math.round((debt.interestRate - 0.8) * 100) / 100);
+      const suggestedRateB = Math.max(1, Math.round((debt.interestRate - 1.3) * 100) / 100);
       const years = debt.remainingMonths ? Math.round(debt.remainingMonths / 12) : 20;
-      setNewTermYears(String(Math.max(1, years)));
-      setClosingCosts("4500");
+      const initialTerm = String(Math.max(1, years));
+
+      setOffers([
+        {
+          id: "offer-1",
+          name: "Oferta A (np. stałe 5 lat)",
+          newRate: String(suggestedRateA),
+          closingCosts: "4500",
+          newTermYears: initialTerm
+        },
+        {
+          id: "offer-2",
+          name: "Oferta B (np. niższa marża)",
+          newRate: String(suggestedRateB),
+          closingCosts: "6500",
+          newTermYears: initialTerm
+        }
+      ]);
+      setActiveOfferId("offer-1");
     }
   }, [isOpen, debt]);
 
-  const parsedNewRate = Math.max(0, parseFloat(newRate.replace(",", ".")) || 0);
-  const parsedCosts = Math.max(0, parseFloat(closingCosts.replace(",", ".")) || 0);
-  const parsedTermYears = Math.max(1, parseFloat(newTermYears.replace(",", ".")) || 1);
-  const parsedTermMonths = Math.round(parsedTermYears * 12);
+  // Add offer (max 3)
+  const handleAddOffer = () => {
+    if (offers.length >= 3 || !debt) return;
+    const nextIndex = offers.length + 1;
+    const newId = `offer-${Date.now()}`;
+    const years = debt.remainingMonths ? Math.round(debt.remainingMonths / 12) : 20;
+    const suggestedRate = Math.max(1, Math.round((debt.interestRate - 1.0) * 100) / 100);
 
-  const comparison = useMemo(() => {
+    const newOffer: OfferState = {
+      id: newId,
+      name: `Oferta ${String.fromCharCode(64 + nextIndex)} (np. Bank ${String.fromCharCode(64 + nextIndex)})`,
+      newRate: String(suggestedRate),
+      closingCosts: "5000",
+      newTermYears: String(Math.max(1, years))
+    };
+
+    setOffers([...offers, newOffer]);
+    setActiveOfferId(newId);
+  };
+
+  // Remove offer (min 1)
+  const handleRemoveOffer = (idToRemove: string) => {
+    if (offers.length <= 1) return;
+    const updated = offers.filter((o) => o.id !== idToRemove);
+    setOffers(updated);
+    if (activeOfferId === idToRemove) {
+      setActiveOfferId(updated[0].id);
+    }
+  };
+
+  // Update field of an offer
+  const handleUpdateOffer = (id: string, field: keyof OfferState, value: string) => {
+    setOffers((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, [field]: value } : o))
+    );
+  };
+
+  // Quick preset apply to active offer
+  const applyPreset = (presetType: "lower_rate" | "zero_costs" | "shorter_term") => {
+    if (!debt) return;
+    const active = offers.find((o) => o.id === activeOfferId);
+    if (!active) return;
+
+    if (presetType === "lower_rate") {
+      const lower = Math.max(1, Math.round((debt.interestRate - 1.5) * 100) / 100);
+      handleUpdateOffer(active.id, "newRate", String(lower));
+    } else if (presetType === "zero_costs") {
+      handleUpdateOffer(active.id, "closingCosts", "0");
+    } else if (presetType === "shorter_term") {
+      const currentY = Math.max(2, parseFloat(active.newTermYears) || 20);
+      handleUpdateOffer(active.id, "newTermYears", String(Math.max(1, currentY - 5)));
+    }
+  };
+
+  // Perform multi-offer calculation
+  const multiComparison = useMemo(() => {
     if (!debt) return null;
 
-    return calculateRefinanceComparison({
-      balance: debt.balance,
-      currentRate: debt.interestRate,
-      currentMonthlyPayment: debt.monthlyPayment,
-      currentRemainingMonths: debt.remainingMonths,
-      newRate: parsedNewRate,
-      newTermMonths: parsedTermMonths,
-      closingCosts: parsedCosts
+    const offerInputs: RefinanceOfferInput[] = offers.map((o) => {
+      const parsedRate = Math.max(0, parseFloat(o.newRate.replace(",", ".")) || 0);
+      const parsedCosts = Math.max(0, parseFloat(o.closingCosts.replace(",", ".")) || 0);
+      const parsedYears = Math.max(1, parseFloat(o.newTermYears.replace(",", ".")) || 1);
+      const parsedMonths = Math.round(parsedYears * 12);
+
+      return {
+        id: o.id,
+        name: o.name.trim() || `Oferta (${o.id})`,
+        newRate: parsedRate,
+        closingCosts: parsedCosts,
+        newTermMonths: parsedMonths
+      };
     });
-  }, [debt, parsedNewRate, parsedTermMonths, parsedCosts]);
+
+    return calculateMultiOfferRefinanceComparison(
+      {
+        balance: debt.balance,
+        currentRate: debt.interestRate,
+        currentMonthlyPayment: debt.monthlyPayment,
+        currentRemainingMonths: debt.remainingMonths
+      },
+      offerInputs
+    );
+  }, [debt, offers]);
 
   if (!isOpen || !debt || typeof document === "undefined") return null;
 
   const currency = debt.currency || "PLN";
 
-  const getStatusBadge = (status: "likely_beneficial" | "marginal" | "not_beneficial") => {
+  const getStatusBadge = (status: RefinanceBenefitStatus) => {
     switch (status) {
       case "likely_beneficial":
         return {
-          label: "Prawdopodobnie korzystne (szacunek)",
+          label: "Prawdopodobnie korzystne",
           className: "bg-success-subtle text-success border-success/30",
           icon: <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
         };
@@ -97,7 +209,9 @@ export function RefinanceComparisonModal({
     }
   };
 
-  const statusBadge = comparison ? getStatusBadge(comparison.comparison.benefitStatus) : null;
+  const activeOffer = offers.find((o) => o.id === activeOfferId) || offers[0];
+  const activeOfferResult = multiComparison?.offers.find((o) => o.offer.id === activeOffer?.id);
+  const bestOfferItem = multiComparison?.offers.find((o) => o.isBestOffer);
 
   return createPortal(
     <AnimatePresence>
@@ -108,19 +222,19 @@ export function RefinanceComparisonModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface border border-border w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-surface border border-border w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
           role="dialog"
           aria-modal="true"
         >
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/30">
+          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/40">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
                 <Scale className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-text-main">
-                  Kalkulator opłacalności refinansowania
+                  Wieloofertowy kalkulator refinansowania
                 </h2>
                 <p className="text-xs text-text-muted">
                   {debt.name} ({debt.institution}) • Saldo: {formatMoney(debt.balance, currency)} • Obecne oprocentowanie: {debt.interestRate.toFixed(2)}%
@@ -138,226 +252,420 @@ export function RefinanceComparisonModal({
 
           {/* Body */}
           <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-6">
-            {/* Input controls for new offer */}
-            <div className="bg-surface-2/40 border border-border/80 rounded-2xl p-4 sm:p-5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-text-faint mb-3">
-                Wprowadź parametry nowej propozycji / oferty
-              </h3>
+            {/* Offer Selector & Management Bar */}
+            <div className="flex items-center justify-between gap-3 flex-wrap border-b border-border pb-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                {offers.map((off, idx) => {
+                  const evalItem = multiComparison?.offers.find((o) => o.offer.id === off.id);
+                  const isBest = evalItem?.isBestOffer;
+                  const isActive = activeOfferId === off.id;
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
-                    Nowe oprocentowanie (%)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      step="0.05"
-                      min="0"
-                      value={newRate}
-                      onChange={(e) => setNewRate(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
-                      placeholder="5.85"
-                    />
-                    <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
-                      %
-                    </span>
-                  </div>
-                </div>
+                  return (
+                    <button
+                      key={off.id}
+                      onClick={() => setActiveOfferId(off.id)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border cursor-pointer ${
+                        isActive
+                          ? "bg-brand text-text-inverse border-brand shadow-xs"
+                          : "bg-surface-2 text-text-muted hover:text-text-main border-border"
+                      }`}
+                    >
+                      <span>{off.name || `Oferta ${idx + 1}`}</span>
+                      {isBest && (
+                        <span
+                          className={`text-[10px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${
+                            isActive
+                              ? "bg-text-inverse/20 text-text-inverse"
+                              : "bg-brand-subtle text-brand border border-brand/30"
+                          }`}
+                        >
+                          <Award className="w-3 h-3" />
+                          TOP
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
 
-                <div>
-                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
-                    Koszty przejścia / opłaty
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      step="100"
-                      min="0"
-                      value={closingCosts}
-                      onChange={(e) => setClosingCosts(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
-                      placeholder="4500"
-                    />
-                    <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
-                      {currency}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-text-faint block mt-1">wycena, prowizja, opłaty sądowe</span>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
-                    Nowy okres spłaty (lata)
-                  </label>
-                  <input
-                    type="number"
-                    step="1"
-                    min="1"
-                    max="35"
-                    value={newTermYears}
-                    onChange={(e) => setNewTermYears(e.target.value)}
-                    className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
-                    placeholder="20"
-                  />
-                  <span className="text-[10px] text-text-faint block mt-1">{parsedTermMonths} miesięcy</span>
-                </div>
+                {offers.length < 3 && (
+                  <button
+                    onClick={handleAddOffer}
+                    className="px-3 py-2 rounded-xl text-xs font-bold text-brand bg-brand-subtle/50 hover:bg-brand-subtle border border-brand/30 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Dodaj ofertę ({offers.length}/3)</span>
+                  </button>
+                )}
               </div>
+
+              {offers.length > 1 && (
+                <button
+                  onClick={() => handleRemoveOffer(activeOfferId)}
+                  className="text-xs font-semibold text-danger hover:text-danger-hover flex items-center gap-1 p-1.5 rounded-lg hover:bg-danger-subtle/30 transition cursor-pointer"
+                  title="Usuń aktywną ofertę"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Usuń tę ofertę</span>
+                </button>
+              )}
             </div>
 
-            {/* Evaluation Status Banner */}
-            {statusBadge && comparison && (
-              <div className={`p-4 rounded-2xl border flex items-start gap-3 ${statusBadge.className}`}>
-                {statusBadge.icon}
+            {/* Active Offer Form */}
+            {activeOffer && (
+              <div className="bg-surface-2/40 border border-border/80 rounded-2xl p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                      Nazwa oferty / Banku
+                    </label>
+                    <input
+                      type="text"
+                      value={activeOffer.name}
+                      onChange={(e) => handleUpdateOffer(activeOffer.id, "name", e.target.value)}
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      placeholder="np. mBank promocyjna marża"
+                    />
+                  </div>
+
+                  {/* Presets */}
+                  <div className="flex items-center gap-1.5 flex-wrap self-end">
+                    <span className="text-[10px] text-text-faint font-bold uppercase mr-1">Szablony:</span>
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("lower_rate")}
+                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                    >
+                      -1.5% stopa
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("zero_costs")}
+                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                    >
+                      0 zł prowizji
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("shorter_term")}
+                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                    >
+                      -5 lat okres
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                      Nowe oprocentowanie (%)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0"
+                        value={activeOffer.newRate}
+                        onChange={(e) => handleUpdateOffer(activeOffer.id, "newRate", e.target.value)}
+                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                        placeholder="5.85"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
+                        %
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                      Koszty przejścia / opłaty
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="100"
+                        min="0"
+                        value={activeOffer.closingCosts}
+                        onChange={(e) => handleUpdateOffer(activeOffer.id, "closingCosts", e.target.value)}
+                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                        placeholder="4500"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
+                        {currency}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-text-faint block mt-1">wycena, prowizja, opłaty sądowe</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                      Nowy okres spłaty (lata)
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1"
+                      max="35"
+                      value={activeOffer.newTermYears}
+                      onChange={(e) => handleUpdateOffer(activeOffer.id, "newTermYears", e.target.value)}
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
+                      placeholder="20"
+                    />
+                    <span className="text-[10px] text-text-faint block mt-1">
+                      {Math.round((parseFloat(activeOffer.newTermYears) || 1) * 12)} miesięcy
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Best Offer Callout Banner */}
+            {bestOfferItem ? (
+              <div className="p-4 rounded-2xl bg-brand-subtle/40 border border-brand/30 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-brand text-text-inverse flex items-center justify-center shrink-0 mt-0.5">
+                  <Award className="w-4 h-4" />
+                </div>
                 <div className="text-xs">
-                  <span className="font-black uppercase tracking-wider block text-[11px] mb-0.5">
-                    {statusBadge.label}
-                  </span>
-                  <p className="font-medium opacity-90 leading-relaxed">
-                    {comparison.comparison.statusReason}
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-black uppercase tracking-wider text-[11px] text-brand">
+                      Najbardziej opłacalna oferta: {bestOfferItem.offer.name}
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.2 bg-brand text-text-inverse font-bold rounded">
+                      Ranga #1
+                    </span>
+                  </div>
+                  <p className="font-medium text-text-main leading-relaxed">
+                    Wybierając tę ofertę oszczędzasz szacunkowo{" "}
+                    <strong>{formatMoney(bestOfferItem.result.comparison.netLifetimeSavings, currency)} netto</strong>{" "}
+                    po odliczeniu kosztów wejścia. Zwrot opłat nastąpi po{" "}
+                    <strong>
+                      {bestOfferItem.result.comparison.breakEvenMonths !== null
+                        ? `${bestOfferItem.result.comparison.breakEvenMonths} miesiącach`
+                        : "dłuższym okresie"}
+                    </strong>
+                    .
                   </p>
                 </div>
               </div>
-            )}
-
-            {/* Comparison Columns: Current vs Refinanced */}
-            {comparison && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Column 1: Current */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-text-faint uppercase tracking-wider">
-                        Obecne warunki
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-2 text-text-muted">
-                        {debt.institution}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between py-1 border-b border-border/50">
-                        <span className="text-xs text-text-muted">Oprocentowanie:</span>
-                        <span className="font-bold text-text-main tabular-nums">{debt.interestRate.toFixed(2)}%</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-border/50">
-                        <span className="text-xs text-text-muted">Miesięczna rata:</span>
-                        <span className="font-bold text-text-main tabular-nums">{formatMoney(comparison.current.monthlyPayment, currency)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-border/50">
-                        <span className="text-xs text-text-muted">Pozostałe odsetki:</span>
-                        <span className="font-bold text-text-main tabular-nums">{formatMoney(comparison.current.remainingTotalInterest, currency)}</span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-xs text-text-muted">Całkowity koszt pozostały:</span>
-                        <span className="font-black text-text-main tabular-nums">{formatMoney(comparison.current.remainingTotalCost, currency)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Column 2: Proposed Refinance */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-brand-subtle/40 border border-brand/30 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Nowa propozycja
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                        Refinansowanie
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between py-1 border-b border-brand/20">
-                        <span className="text-xs text-text-muted">Nowa stawka:</span>
-                        <span className="font-bold text-brand tabular-nums">{parsedNewRate.toFixed(2)}%</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-brand/20">
-                        <span className="text-xs text-text-muted">Nowa rata:</span>
-                        <span className="font-bold text-brand tabular-nums">{formatMoney(comparison.refinanced.monthlyPayment, currency)}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-brand/20">
-                        <span className="text-xs text-text-muted">Nowe odsetki + koszty:</span>
-                        <span className="font-bold text-brand tabular-nums">
-                          {formatMoney(comparison.refinanced.totalInterest, currency)} + {formatMoney(comparison.refinanced.closingCosts, currency)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-xs text-text-muted">Nowy koszt całkowity:</span>
-                        <span className="font-black text-brand tabular-nums">{formatMoney(comparison.refinanced.totalCost, currency)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-surface-2 border border-border flex items-start gap-3 text-xs text-text-muted">
+                <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+                <p>
+                  Żadna z wprowadzonych ofert nie przynosi jednoznacznej korzyści finansowej netto po uwzględnieniu kosztów wejścia.
+                </p>
               </div>
             )}
 
-            {/* Key KPI Strip: Break-Even, 5Y Savings, Lifetime Gain */}
-            {comparison && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 bg-surface border border-border rounded-2xl">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                    Punkt zwrotu kosztów
-                  </span>
-                  <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block">
-                    {comparison.comparison.breakEvenMonths !== null
-                      ? `${comparison.comparison.breakEvenMonths} mies.`
-                      : "Brak zwrotu"}
-                  </span>
-                  <span className="text-[10px] text-text-muted">
-                    {comparison.comparison.breakEvenMonths !== null
-                      ? `~${Math.round((comparison.comparison.breakEvenMonths / 12) * 10) / 10} lat do odrobienia opłat`
-                      : "koszty przewyższają oszczędności"}
-                  </span>
+            {/* Side-by-Side Comparison Matrix Table */}
+            {multiComparison && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-faint flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-brand" />
+                    Zestawienie porównawcze ofert vs Obecny kredyt
+                  </h3>
                 </div>
 
-                <div className="p-3.5 bg-surface border border-border rounded-2xl">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                    Miesięczna różnica w racie
-                  </span>
-                  <span
-                    className={`text-lg sm:text-xl font-black tabular-nums block ${
-                      comparison.comparison.monthlyDifference > 0 ? "text-success" : "text-text-main"
-                    }`}
-                  >
-                    {comparison.comparison.monthlyDifference > 0 ? "-" : "+"}
-                    {formatMoney(Math.abs(comparison.comparison.monthlyDifference), currency)}
-                  </span>
-                  <span className="text-[10px] text-text-muted">
-                    {comparison.comparison.monthlyDifference > 0 ? "ulga w budżecie co miesiąc" : "wyższa rata przy krótszym okresie"}
-                  </span>
-                </div>
+                <div className="overflow-x-auto border border-border rounded-2xl bg-surface">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-border bg-surface-2/60 text-text-faint font-bold uppercase text-[10px] tracking-wider">
+                        <th className="py-3 px-4 w-1/4">Parametr / Metryka</th>
+                        <th className="py-3 px-3 text-right bg-surface-2/30">
+                          <div>Obecny kredyt</div>
+                          <div className="text-[9px] font-normal text-text-muted">{debt.institution}</div>
+                        </th>
+                        {multiComparison.offers.map((item) => (
+                          <th
+                            key={item.offer.id}
+                            className={`py-3 px-3 text-right ${
+                              item.isBestOffer
+                                ? "bg-brand-subtle/50 text-brand border-x border-brand/20 font-black"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-center justify-end gap-1">
+                              {item.isBestOffer && <Award className="w-3 h-3 text-brand" />}
+                              <span>{item.offer.name}</span>
+                            </div>
+                            <div className="text-[9px] font-normal text-text-muted">
+                              Ranga #{item.rank}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {/* Row 1: Interest Rate */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Oprocentowanie nominalne</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums bg-surface-2/20">
+                          {debt.interestRate.toFixed(2)}%
+                        </td>
+                        {multiComparison.offers.map((item) => (
+                          <td
+                            key={item.offer.id}
+                            className={`py-2.5 px-3 text-right font-bold tabular-nums ${
+                              item.isBestOffer ? "bg-brand-subtle/30 text-brand border-x border-brand/20 font-black" : "text-text-main"
+                            }`}
+                          >
+                            {item.offer.newRate.toFixed(2)}%
+                          </td>
+                        ))}
+                      </tr>
 
-                <div className="p-3.5 bg-surface border border-border rounded-2xl">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                    Zysk netto w całym okresie
-                  </span>
-                  <span
-                    className={`text-lg sm:text-xl font-black tabular-nums block ${
-                      comparison.comparison.netLifetimeSavings > 0 ? "text-brand" : "text-danger"
-                    }`}
-                  >
-                    {comparison.comparison.netLifetimeSavings > 0 ? "+" : ""}
-                    {formatMoney(comparison.comparison.netLifetimeSavings, currency)}
-                  </span>
-                  <span className="text-[10px] text-text-muted">po uwzględnieniu opłat wejściowych</span>
+                      {/* Row 2: Monthly Payment */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Miesięczna rata</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-text-main tabular-nums bg-surface-2/20">
+                          {formatMoney(multiComparison.current.monthlyPayment, currency)}
+                        </td>
+                        {multiComparison.offers.map((item) => (
+                          <td
+                            key={item.offer.id}
+                            className={`py-2.5 px-3 text-right font-bold tabular-nums ${
+                              item.isBestOffer ? "bg-brand-subtle/30 text-brand border-x border-brand/20 font-black" : "text-text-main"
+                            }`}
+                          >
+                            {formatMoney(item.result.refinanced.monthlyPayment, currency)}
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Row 3: Monthly Difference */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Różnica w racie co miesiąc</td>
+                        <td className="py-2.5 px-3 text-right text-text-muted bg-surface-2/20">—</td>
+                        {multiComparison.offers.map((item) => {
+                          const diff = item.result.comparison.monthlyDifference;
+                          return (
+                            <td
+                              key={item.offer.id}
+                              className={`py-2.5 px-3 text-right font-bold tabular-nums ${
+                                item.isBestOffer ? "bg-brand-subtle/30 border-x border-brand/20" : ""
+                              } ${diff > 0 ? "text-success" : "text-text-muted"}`}
+                            >
+                              {diff > 0 ? `-${formatMoney(diff, currency)}` : `+${formatMoney(Math.abs(diff), currency)}`}
+                            </td>
+                          );
+                        })}
+                      </tr>
+
+                      {/* Row 4: Closing Costs */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Koszty przejścia (opłaty)</td>
+                        <td className="py-2.5 px-3 text-right text-text-muted bg-surface-2/20">0 zł</td>
+                        {multiComparison.offers.map((item) => (
+                          <td
+                            key={item.offer.id}
+                            className={`py-2.5 px-3 text-right font-bold tabular-nums text-text-muted ${
+                              item.isBestOffer ? "bg-brand-subtle/30 border-x border-brand/20" : ""
+                            }`}
+                          >
+                            {formatMoney(item.result.refinanced.closingCosts, currency)}
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Row 5: Break-Even */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Czas zwrotu (Break-even)</td>
+                        <td className="py-2.5 px-3 text-right text-text-muted bg-surface-2/20">—</td>
+                        {multiComparison.offers.map((item) => {
+                          const be = item.result.comparison.breakEvenMonths;
+                          return (
+                            <td
+                              key={item.offer.id}
+                              className={`py-2.5 px-3 text-right font-black tabular-nums ${
+                                item.isBestOffer ? "bg-brand-subtle/30 text-brand border-x border-brand/20" : "text-text-main"
+                              }`}
+                            >
+                              {be !== null ? `${be} mies.` : "Brak zwrotu"}
+                            </td>
+                          );
+                        })}
+                      </tr>
+
+                      {/* Row 6: 5-Year Savings */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Szacunek oszczędności (5 lat)</td>
+                        <td className="py-2.5 px-3 text-right text-text-muted bg-surface-2/20">—</td>
+                        {multiComparison.offers.map((item) => {
+                          const s5 = item.result.comparison.fiveYearNetSavings;
+                          return (
+                            <td
+                              key={item.offer.id}
+                              className={`py-2.5 px-3 text-right font-bold tabular-nums ${
+                                item.isBestOffer ? "bg-brand-subtle/30 border-x border-brand/20" : ""
+                              } ${s5 > 0 ? "text-brand" : "text-text-muted"}`}
+                            >
+                              {s5 > 0 ? `+${formatMoney(s5, currency)}` : formatMoney(s5, currency)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+
+                      {/* Row 7: Net Lifetime Gain */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors bg-surface-2/20 font-bold">
+                        <td className="py-3 px-4 text-text-main">Łączny zysk netto po kosztach</td>
+                        <td className="py-3 px-3 text-right text-text-muted bg-surface-2/40">—</td>
+                        {multiComparison.offers.map((item) => {
+                          const net = item.result.comparison.netLifetimeSavings;
+                          return (
+                            <td
+                              key={item.offer.id}
+                              className={`py-3 px-3 text-right text-sm tabular-nums font-black ${
+                                item.isBestOffer
+                                  ? "bg-brand-subtle/60 text-brand border-x border-brand/30"
+                                  : net > 0
+                                  ? "text-brand"
+                                  : "text-danger"
+                              }`}
+                            >
+                              {net > 0 ? `+${formatMoney(net, currency)}` : formatMoney(net, currency)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+
+                      {/* Row 8: Status Badge */}
+                      <tr className="hover:bg-surface-hover/50 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-text-main">Ocena opłacalności</td>
+                        <td className="py-2.5 px-3 text-right text-text-muted bg-surface-2/20">Bazowy</td>
+                        {multiComparison.offers.map((item) => {
+                          const badge = getStatusBadge(item.result.comparison.benefitStatus);
+                          return (
+                            <td
+                              key={item.offer.id}
+                              className={`py-2.5 px-3 text-right ${
+                                item.isBestOffer ? "bg-brand-subtle/30 border-x border-brand/20" : ""
+                              }`}
+                            >
+                              <span
+                                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${badge.className}`}
+                              >
+                                {badge.label}
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
 
             {/* Disclaimer */}
-            <div className="text-xs text-text-muted flex items-start gap-2 bg-surface-2 p-3 rounded-xl border border-border">
+            <div className="text-xs text-text-muted flex items-start gap-2 bg-surface-2 p-3.5 rounded-xl border border-border">
               <ShieldAlert className="w-4 h-4 text-brand shrink-0 mt-0.5" />
               <p>
-                <strong>Zastrzeżenie:</strong> Obliczenia mają charakter orientacyjny i symulacyjny na podstawie formuły annuitetowej. Banki mogą stosować dodatkowe wymogi (np. ubezpieczenia pomostowe, prowizje za wcześniejszą spłatę starego kredytu).
+                <strong>Zastrzeżenie:</strong> Obliczenia mają charakter symulacyjny i orientacyjny. Ostateczna oferta bankowa zależy od indywidualnej zdolności kredytowej, wyceny nieruchomości, dodatkowych ubezpieczeń (na życie/pomostowych) oraz ewentualnych prowizji za wcześniejszą spłatę dotychczasowego kredytu.
               </p>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 bg-surface-2/20 shrink-0">
+          <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 bg-surface-2/30 shrink-0">
             <button
               onClick={onClose}
               className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer"
