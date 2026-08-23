@@ -96,6 +96,31 @@ export interface DebtPaymentBreakdown {
   paymentStatus: DebtPaymentStatus;
 }
 
+export interface DebtPaymentActivityItem {
+  transactionId: string;
+  debtId: string;
+  date: string;
+  paymentAmount: number;
+  interestAmount: number;
+  principalAmount: number;
+  openingBalance: number;
+  closingBalance: number;
+  paymentStatus: DebtPaymentStatus;
+  isFinalPayment: boolean;
+  transactionName?: string;
+}
+
+export interface DebtPaymentActivityResult {
+  debtId: string;
+  items: DebtPaymentActivityItem[];
+  totalPaid: number;
+  totalInterest: number;
+  totalPrincipal: number;
+  currentBalance: number;
+  isValid: boolean;
+  error?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -800,6 +825,115 @@ export function calculateDebtPaymentReversal(
 
   const principal = Math.round((cleanPayment - interestAmount) * 100) / 100;
   return Math.max(0, Math.round((currentBalance + principal) * 100) / 100);
+}
+
+/**
+ * Calculates read-only debt payment activity and reconstructed balance history for linked transactions (Sprint 22)
+ */
+export function calculateDebtPaymentActivity(
+  debt: Pick<DebtItem, "id" | "balance" | "interestRate" | "monthlyPayment"> | null | undefined,
+  transactions: import("../types").Transaction[] | null | undefined
+): DebtPaymentActivityResult {
+  if (!debt || !debt.id) {
+    return {
+      debtId: "",
+      items: [],
+      totalPaid: 0,
+      totalInterest: 0,
+      totalPrincipal: 0,
+      currentBalance: 0,
+      isValid: false,
+      error: "Brak danych długu"
+    };
+  }
+
+  const currentBal = Math.max(0, Number(debt.balance) || 0);
+  const rawList = Array.isArray(transactions) ? transactions : [];
+
+  // 1. Filter valid linked expense transactions (Sprint 21 rules)
+  const linked = rawList.filter((tx) => {
+    if (!tx || typeof tx !== "object") return false;
+    if (tx.debtId !== debt.id) return false;
+    if (tx.type !== "expense") return false;
+    const amt = Number(tx.amount);
+    return Number.isFinite(amt) && amt > 0;
+  });
+
+  if (linked.length === 0) {
+    return {
+      debtId: debt.id,
+      items: [],
+      totalPaid: 0,
+      totalInterest: 0,
+      totalPrincipal: 0,
+      currentBalance: Math.round(currentBal * 100) / 100,
+      isValid: true
+    };
+  }
+
+  // 2. Sort deterministically: primary by isoDate ascending, secondary by id
+  const sorted = [...linked].sort((a, b) => {
+    const dateComp = (a.isoDate || "").localeCompare(b.isoDate || "");
+    if (dateComp !== 0) return dateComp;
+    return (a.id || "").localeCompare(b.id || "");
+  });
+
+  // 3. Reconstruct opening balance before all payments by reversing backwards from currentBalance
+  let runningBal = currentBal;
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const tx = sorted[i];
+    const restored = calculateDebtPaymentReversal(
+      { balance: runningBal, interestRate: debt.interestRate },
+      Number(tx.amount)
+    );
+    runningBal = restored;
+  }
+  const initialOpening = runningBal;
+
+  // 4. Step forwards to calculate payment breakdown per transaction
+  let forwardOpening = initialOpening;
+  const items: DebtPaymentActivityItem[] = [];
+  let totalPaid = 0;
+  let totalInterest = 0;
+  let totalPrincipal = 0;
+
+  for (const tx of sorted) {
+    const amt = Math.round(Number(tx.amount) * 100) / 100;
+    const breakdown = calculateDebtPaymentBreakdown(
+      { balance: forwardOpening, interestRate: debt.interestRate, monthlyPayment: debt.monthlyPayment },
+      amt
+    );
+
+    items.push({
+      transactionId: tx.id,
+      debtId: debt.id,
+      date: tx.isoDate,
+      paymentAmount: breakdown.paymentAmount,
+      interestAmount: breakdown.interestAmount,
+      principalAmount: breakdown.principalAmount,
+      openingBalance: breakdown.openingBalance,
+      closingBalance: breakdown.closingBalance,
+      paymentStatus: breakdown.paymentStatus,
+      isFinalPayment: breakdown.isFinalPayment,
+      transactionName: tx.name
+    });
+
+    totalPaid = Math.round((totalPaid + breakdown.paymentAmount) * 100) / 100;
+    totalInterest = Math.round((totalInterest + breakdown.interestAmount) * 100) / 100;
+    totalPrincipal = Math.round((totalPrincipal + breakdown.principalAmount) * 100) / 100;
+
+    forwardOpening = breakdown.closingBalance;
+  }
+
+  return {
+    debtId: debt.id,
+    items,
+    totalPaid,
+    totalInterest,
+    totalPrincipal,
+    currentBalance: Math.round(currentBal * 100) / 100,
+    isValid: true
+  };
 }
 
 /**

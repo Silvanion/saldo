@@ -8,6 +8,7 @@ import {
   DebtOverpaymentVariantInput,
   calculateDebtPaymentBreakdown,
   calculateDebtPaymentReversal,
+  calculateDebtPaymentActivity,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1508,6 +1509,200 @@ describe("debtCalculations", () => {
       expect(calculateDebtPaymentReversal(currentDebt, 0)).toBe(5000);
       expect(calculateDebtPaymentReversal(currentDebt, -100)).toBe(5000);
       expect(calculateDebtPaymentReversal(null, 500)).toBe(0);
+    });
+  });
+
+  describe("calculateDebtPaymentActivity (Sprint 22)", () => {
+    const sampleDebt = {
+      id: "debt-123",
+      balance: 9100,
+      monthlyPayment: 500,
+      interestRate: 6.0 // 0.5% monthly
+    };
+
+    it("returns empty valid activity result when no linked transactions exist", () => {
+      const result = calculateDebtPaymentActivity(sampleDebt, []);
+      expect(result.isValid).toBe(true);
+      expect(result.items).toHaveLength(0);
+      expect(result.totalPaid).toBe(0);
+      expect(result.totalInterest).toBe(0);
+      expect(result.totalPrincipal).toBe(0);
+      expect(result.currentBalance).toBe(9100);
+    });
+
+    it("processes one linked transaction and calculates breakdown correctly", () => {
+      const transactions = [
+        {
+          id: "tx-1",
+          name: "Rata kredytu",
+          amount: 500,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-03-01",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        }
+      ];
+
+      // Current balance is 9550 after 500 PLN payment (which had 450 principal)
+      const debtAfterPayment = {
+        ...sampleDebt,
+        balance: 9550
+      };
+
+      const result = calculateDebtPaymentActivity(debtAfterPayment, transactions);
+
+      expect(result.isValid).toBe(true);
+      expect(result.items).toHaveLength(1);
+
+      const item = result.items[0];
+      expect(item.transactionId).toBe("tx-1");
+      expect(item.paymentAmount).toBe(500);
+      expect(item.interestAmount).toBe(50);
+      expect(item.principalAmount).toBe(450);
+      expect(item.openingBalance).toBe(10000);
+      expect(item.closingBalance).toBe(9550);
+      expect(item.paymentStatus).toBe("normal");
+      expect(item.isFinalPayment).toBe(false);
+
+      expect(result.totalPaid).toBe(500);
+      expect(result.totalInterest).toBe(50);
+      expect(result.totalPrincipal).toBe(450);
+      expect(result.currentBalance).toBe(9550);
+    });
+
+    it("sorts multiple transactions chronologically and reconstructs consecutive balances", () => {
+      // 2 payments:
+      // T1 (2026-01-15): 500 PLN -> 50 interest, 450 principal (opening: 10000, closing: 9550)
+      // T2 (2026-02-15): 500 PLN -> 47.75 interest, 452.25 principal (opening: 9550, closing: 9097.75)
+      // Current balance = 9097.75
+      const currentDebt = {
+        ...sampleDebt,
+        balance: 9097.75
+      };
+
+      // Pass in reverse/mixed order to verify deterministic sorting
+      const transactions = [
+        {
+          id: "tx-2",
+          name: "Rata luty",
+          amount: 500,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-02-15",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-1",
+          name: "Rata styczeń",
+          amount: 500,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-01-15",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        }
+      ];
+
+      const result = calculateDebtPaymentActivity(currentDebt, transactions);
+
+      expect(result.items).toHaveLength(2);
+      // Items should be chronologically ordered (T1 first, T2 second)
+      expect(result.items[0].transactionId).toBe("tx-1");
+      expect(result.items[0].date).toBe("2026-01-15");
+      expect(result.items[0].openingBalance).toBe(10000);
+      expect(result.items[0].closingBalance).toBe(9550);
+
+      expect(result.items[1].transactionId).toBe("tx-2");
+      expect(result.items[1].date).toBe("2026-02-15");
+      expect(result.items[1].openingBalance).toBe(9550);
+      expect(result.items[1].closingBalance).toBe(9097.75);
+
+      expect(result.totalPaid).toBe(1000);
+      expect(result.totalPrincipal).toBe(902.25);
+      expect(result.totalInterest).toBe(97.75);
+    });
+
+    it("filters out income transactions, unlinked transactions, and transactions for other debts", () => {
+      const mixedTransactions = [
+        {
+          id: "tx-valid",
+          name: "Właściwa spłata",
+          amount: 300,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-03-01",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-income",
+          name: "Zwrot",
+          amount: 100,
+          type: "income" as const,
+          category: "Inne",
+          account: "Konto",
+          isoDate: "2026-03-02",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-unlinked",
+          name: "Zakupy spożywcze",
+          amount: 150,
+          type: "expense" as const,
+          category: "Jedzenie",
+          account: "Konto",
+          isoDate: "2026-03-03",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-other-debt",
+          name: "Inny kredyt",
+          amount: 600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-03-04",
+          debtId: "debt-other",
+          currency: "PLN" as const
+        }
+      ];
+
+      const result = calculateDebtPaymentActivity(sampleDebt, mixedTransactions);
+
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].transactionId).toBe("tx-valid");
+    });
+
+    it("does not mutate the source debt or transaction array", () => {
+      const debt = { ...sampleDebt };
+      const txs = [
+        {
+          id: "tx-1",
+          name: "Rata",
+          amount: 500,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-03-01",
+          debtId: "debt-123",
+          currency: "PLN" as const
+        }
+      ];
+
+      const debtSnap = JSON.stringify(debt);
+      const txsSnap = JSON.stringify(txs);
+
+      calculateDebtPaymentActivity(debt, txs);
+
+      expect(JSON.stringify(debt)).toBe(debtSnap);
+      expect(JSON.stringify(txs)).toBe(txsSnap);
     });
   });
 });

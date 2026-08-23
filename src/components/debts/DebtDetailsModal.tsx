@@ -21,7 +21,7 @@ import {
   Trash2,
   Columns
 } from "lucide-react";
-import { DebtItem } from "../../types";
+import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
 import {
   calculateAmortizationSchedule,
@@ -29,18 +29,20 @@ import {
   calculateDebtOverpaymentScenario,
   calculateDebtOverpaymentVariants,
   DebtOverpaymentVariantInput,
+  calculateDebtPaymentActivity,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
-export type DebtDetailTab = "overview" | "schedule" | "overpayment" | "refinance" | "terms";
+export type DebtDetailTab = "overview" | "history" | "schedule" | "overpayment" | "refinance" | "terms";
 
 interface DebtDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   debt: DebtItem | null;
+  transactions?: Transaction[];
   initialTab?: DebtDetailTab;
   onOpenOverpaymentModal?: (debt: DebtItem) => void;
   onOpenRefinanceModal?: (debt: DebtItem) => void;
@@ -50,6 +52,7 @@ export function DebtDetailsModal({
   isOpen,
   onClose,
   debt,
+  transactions,
   initialTab = "overview",
   onOpenOverpaymentModal,
   onOpenRefinanceModal
@@ -80,6 +83,10 @@ export function DebtDetailsModal({
   const amortization = useMemo(() => {
     return calculateDebtAmortizationSchedule(debt);
   }, [debt]);
+
+  const activity = useMemo(() => {
+    return calculateDebtPaymentActivity(debt, transactions);
+  }, [debt, transactions]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -224,6 +231,22 @@ export function DebtDetailsModal({
               }`}
             >
               Przegląd
+            </button>
+
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "history"
+                  ? "border-brand text-brand"
+                  : "border-transparent text-text-muted hover:text-text-main"
+              }`}
+            >
+              <span>Historia płatności</span>
+              {activity.items.length > 0 && (
+                <span className="text-[10px] bg-brand-subtle text-brand px-1.5 py-0.5 rounded-full font-bold">
+                  {activity.items.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -373,6 +396,133 @@ export function DebtDetailsModal({
                   <div className="p-4 bg-surface-2 border border-border rounded-2xl text-xs text-text-muted">
                     <span className="font-bold text-text-main block mb-1">Notatki do umowy:</span>
                     <p>{debt.notes}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB: PAYMENT HISTORY */}
+            {activeTab === "history" && (
+              <div className="space-y-6 animate-fade-in">
+                {activity.items.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-3xl bg-surface-2/40 border border-border flex flex-col items-center justify-center max-w-lg mx-auto">
+                    <div className="w-12 h-12 rounded-2xl bg-surface-3 flex items-center justify-center text-text-muted mb-3">
+                      <Clock className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-sm font-bold text-text-main mb-1">
+                      Brak powiązanych płatności
+                    </h4>
+                    <p className="text-xs text-text-muted text-center max-w-sm mb-4 leading-relaxed">
+                      Płatności przypisane do tego długu pojawią się tutaj. Możesz powiązać transakcję z długiem podczas jej tworzenia lub edycji.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Liczba wpłat
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-text-main tabular-nums">
+                          {activity.items.length}
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Suma wpłat
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-text-main tabular-nums">
+                          {formatMoney(activity.totalPaid, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Spłacony kapitał
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                          {formatMoney(activity.totalPrincipal, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                          Część odsetkowa
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                          {formatMoney(activity.totalInterest, currency)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-text-muted flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 shrink-0 text-brand" />
+                      <span>Na podstawie transakcji powiązanych z tym długiem. Aktualne saldo: <strong>{formatMoney(debt.balance, currency)}</strong></span>
+                    </p>
+
+                    {/* Table of Payments */}
+                    <div className="border border-border rounded-2xl overflow-hidden bg-surface shadow-xs">
+                      <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="border-b border-border bg-surface-2/80 text-[10px] font-bold uppercase tracking-wider text-text-faint">
+                              <th className="py-3 px-3.5">Data</th>
+                              <th className="py-3 px-3.5">Opis</th>
+                              <th className="py-3 px-3.5 text-right">Kwota wpłaty</th>
+                              <th className="py-3 px-3.5 text-right">Kapitał</th>
+                              <th className="py-3 px-3.5 text-right">Odsetki</th>
+                              <th className="py-3 px-3.5 text-right">Saldo po wpłacie</th>
+                              <th className="py-3 px-3.5 text-center">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border font-medium text-text-main">
+                            {[...activity.items].reverse().map((item) => (
+                              <tr key={item.transactionId} className="hover:bg-surface-2/40 transition-colors">
+                                <td className="py-2.5 px-3.5 text-text-muted font-mono whitespace-nowrap">
+                                  {item.date}
+                                </td>
+                                <td className="py-2.5 px-3.5 max-w-[160px] sm:max-w-xs truncate font-semibold">
+                                  {item.transactionName || "Spłata długu"}
+                                </td>
+                                <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
+                                  {formatMoney(item.paymentAmount, currency)}
+                                </td>
+                                <td className="py-2.5 px-3.5 text-right font-bold text-emerald-600 dark:text-emerald-400 tabular-nums whitespace-nowrap">
+                                  {formatMoney(item.principalAmount, currency)}
+                                </td>
+                                <td className="py-2.5 px-3.5 text-right text-text-muted tabular-nums whitespace-nowrap">
+                                  {formatMoney(item.interestAmount, currency)}
+                                </td>
+                                <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
+                                  {formatMoney(item.closingBalance, currency)}
+                                </td>
+                                <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
+                                  {item.isFinalPayment || item.paymentStatus === "paid_off" ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Spłacono
+                                    </span>
+                                  ) : item.paymentStatus === "interest_only" ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                      Tylko odsetki
+                                    </span>
+                                  ) : item.paymentStatus === "insufficient_payment" ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                      Częściowa
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-3 text-text-muted border border-border">
+                                      Rata
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

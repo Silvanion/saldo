@@ -2093,6 +2093,7 @@ export function DebtsView({
         <DebtDetailsModal
           isOpen={true}
           debt={selectedDebtForDetails}
+          transactions={profile?.transactions}
           initialTab={initialDetailsTab}
           onClose={() => setSelectedDebtForDetails(null)}
           onOpenOverpaymentModal={(d) => {

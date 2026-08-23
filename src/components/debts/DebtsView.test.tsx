@@ -1337,4 +1337,94 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(singleSimBtn);
     expect(screen.getByText("Symulacja wpływu nadpłaty")).toBeTruthy();
   });
+
+  describe("DebtDetailsModal — Payment History and Activity (Sprint 22)", () => {
+    const mortgageDebt = mockDebts[0]; // balance: 350,000, 6.85% interest
+
+    it("renders empty state in history tab when no transactions are linked", () => {
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[]}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
+      expect(screen.getByText(/Płatności przypisane do tego długu pojawią się tutaj/i)).toBeTruthy();
+    });
+
+    it("renders payment activity and aggregate KPIs when linked transactions exist", () => {
+      const mockTransactions = [
+        {
+          id: "tx-1",
+          name: "Rata kredytu styczeń",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-01-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-2",
+          name: "Rata kredytu luty",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-unlinked",
+          name: "Zakupy spożywcze",
+          amount: 200,
+          type: "expense" as const,
+          category: "Jedzenie",
+          account: "Konto główne",
+          isoDate: "2026-02-16",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-other-debt",
+          name: "Spłata karty",
+          amount: 400,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-17",
+          debtId: "debt-2",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Verify aggregate KPIs
+      expect(screen.getByText("Liczba wpłat")).toBeTruthy();
+      expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+      expect(screen.getByText("Suma wpłat")).toBeTruthy();
+
+      // Verify transaction list rendered
+      expect(screen.getByText("Rata kredytu styczeń")).toBeTruthy();
+      expect(screen.getByText("Rata kredytu luty")).toBeTruthy();
+
+      // Unlinked and other debt transactions must not appear
+      expect(screen.queryByText("Zakupy spożywcze")).toBeNull();
+      expect(screen.queryByText("Spłata karty")).toBeNull();
+    });
+  });
 });
