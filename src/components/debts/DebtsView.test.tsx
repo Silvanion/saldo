@@ -4,7 +4,7 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
-import { DebtsView } from "./DebtsView";
+import { DebtsView, findPortfolioNearestMilestone, formatMonthCountPlural } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import {
@@ -3135,6 +3135,151 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
         const amountInput = screen.getByLabelText(/Kwota nadpłaty/i) as HTMLInputElement;
         expect(amountInput.value).toBe("1000");
+      });
+    });
+
+    describe("Sprint 45: Portfolio Nearest Milestone Hero Card v1", () => {
+      it("1. findPortfolioNearestMilestone returns null for empty or null list", () => {
+        expect(findPortfolioNearestMilestone([])).toBeNull();
+        expect(findPortfolioNearestMilestone(null)).toBeNull();
+        expect(findPortfolioNearestMilestone(undefined)).toBeNull();
+      });
+
+      it("2. findPortfolioNearestMilestone returns null when only closed or revolving debts exist", () => {
+        const debts: DebtItem[] = [
+          { id: "1", name: "Karta", institution: "B", type: "credit_card", currency: "PLN", creditLimit: 5000, balance: 1000, monthlyPayment: 100, interestRate: 15, status: "active", createdAt: "2026-01-01" },
+          { id: "2", name: "Stary", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 0, monthlyPayment: 100, interestRate: 5, status: "closed", createdAt: "2026-01-01" }
+        ];
+        expect(findPortfolioNearestMilestone(debts)).toBeNull();
+      });
+
+      it("3. findPortfolioNearestMilestone selects nearest candidate with smallest estimatedMonthCount", () => {
+        const debtFar: DebtItem = {
+          id: "d-far",
+          name: "Kredyt Samochodowy",
+          institution: "Bank A",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 100000,
+          balance: 95000, // 5% paid, remaining to 25% = 20000. Rata 1000 -> 20 mies.
+          monthlyPayment: 1000,
+          interestRate: 8,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const debtNear: DebtItem = {
+          id: "d-near",
+          name: "Kredyt Gotówkowy",
+          institution: "Bank B",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 10000,
+          balance: 7800, // 22% paid, remaining to 25% = 300. Rata 300 -> 1 mies.
+          monthlyPayment: 300,
+          interestRate: 6,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        const result = findPortfolioNearestMilestone([debtFar, debtNear]);
+        expect(result).not.toBeNull();
+        expect(result?.debt.id).toBe("d-near");
+        expect(result?.nextMilestone).toBe(25);
+        expect(result?.estimatedMonthCount).toBe(1);
+      });
+
+      it("4. findPortfolioNearestMilestone uses highest progress percentage as tie-breaker for equal months", () => {
+        const debtA: DebtItem = {
+          id: "d-a",
+          name: "Pożyczka A",
+          institution: "Bank A",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 10000,
+          balance: 8000, // 20% paid, remaining to 25% = 500. Rata 250 -> 2 mies.
+          monthlyPayment: 250,
+          interestRate: 8,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const debtB: DebtItem = {
+          id: "d-b",
+          name: "Pożyczka B",
+          institution: "Bank B",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 10000,
+          balance: 5500, // 45% paid, remaining to 50% = 500. Rata 250 -> 2 mies. (higher progress 45% > 20%)
+          monthlyPayment: 250,
+          interestRate: 6,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        const result = findPortfolioNearestMilestone([debtA, debtB]);
+        expect(result?.debt.id).toBe("d-b");
+        expect(result?.nextMilestone).toBe(50);
+      });
+
+      it("5. findPortfolioNearestMilestone does not mutate input array", () => {
+        const debts: DebtItem[] = [
+          { id: "1", name: "B", institution: "Bank", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" },
+          { id: "2", name: "A", institution: "Bank", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" }
+        ];
+        const copy = JSON.stringify(debts);
+        findPortfolioNearestMilestone(debts);
+        expect(JSON.stringify(debts)).toBe(copy);
+      });
+
+      it("6. formatMonthCountPlural formats Polish plural forms correctly", () => {
+        expect(formatMonthCountPlural(1)).toBe("za około 1 miesiąc");
+        expect(formatMonthCountPlural(2)).toBe("za około 2 miesiące");
+        expect(formatMonthCountPlural(4)).toBe("za około 4 miesiące");
+        expect(formatMonthCountPlural(5)).toBe("za około 5 miesięcy");
+        expect(formatMonthCountPlural(12)).toBe("za około 12 miesięcy");
+        expect(formatMonthCountPlural(22)).toBe("za około 22 miesiące");
+        expect(formatMonthCountPlural(25)).toBe("za około 25 miesięcy");
+      });
+
+      it("7. DebtsView renders hero card when eligible debt exists", () => {
+        const debt: DebtItem = {
+          id: "hero-debt-1",
+          name: "Kredyt Hipoteczny PKO",
+          institution: "PKO BP",
+          type: "mortgage",
+          currency: "PLN",
+          originalAmount: 500000,
+          balance: 380000, // 24% paid, remaining to 25% = 5000. Rata 5000 -> 1 mies.
+          monthlyPayment: 5000,
+          interestRate: 7.2,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [debt]
+        };
+
+        render(<DebtsView profile={profile} />);
+
+        const heroCard = document.getElementById("portfolio-nearest-milestone-card");
+        expect(heroCard).toBeTruthy();
+        expect(within(heroCard!).getByText("Najbliższy kamień milowy")).toBeTruthy();
+        expect(within(heroCard!).getByText("Kredyt Hipoteczny PKO")).toBeTruthy();
+        expect(within(heroCard!).getByText(/za około 1 miesiąc/i)).toBeTruthy();
+        expect(within(heroCard!).getByText("Cel: 25%")).toBeTruthy();
+      });
+
+      it("8. DebtsView hides hero card when no eligible debt exists", () => {
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [
+            { id: "c1", name: "Karta", institution: "Bank", type: "credit_card", currency: "PLN", creditLimit: 5000, balance: 1000, monthlyPayment: 100, interestRate: 15, status: "active", createdAt: "2026-01-01" }
+          ]
+        };
+
+        render(<DebtsView profile={profile} />);
+        expect(screen.queryByText("Najbliższy kamień milowy")).toBeNull();
       });
     });
   });

@@ -7,7 +7,13 @@ import {
   buildValidatedCustomOrder,
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
-import { DebtPortfolioCard, calculateDebtRepaymentProgress, getNewlyCrossedDebtMilestone } from "./DebtPortfolioCard";
+import {
+  DebtPortfolioCard,
+  calculateDebtRepaymentProgress,
+  getNewlyCrossedDebtMilestone,
+  calculateNextDebtMilestoneForecast,
+  formatMilestoneForecastDate
+} from "./DebtPortfolioCard";
 import {
   DebtDetailsModal,
   DebtDetailTab,
@@ -73,6 +79,68 @@ export interface DebtsViewProps {
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   onOpenTxModal?: (tx: Transaction) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
+}
+
+export interface PortfolioNearestMilestoneCandidate {
+  debt: DebtItem;
+  nextMilestone: number;
+  estimatedMonthCount: number;
+  estimatedDate: string;
+  repaidPercent: number;
+}
+
+export function findPortfolioNearestMilestone(
+  debts: DebtItem[] | undefined | null
+): PortfolioNearestMilestoneCandidate | null {
+  if (!debts || debts.length === 0) return null;
+
+  const candidates: PortfolioNearestMilestoneCandidate[] = [];
+
+  for (const debt of debts) {
+    if (!debt || debt.status === "closed") continue;
+    if (debt.type === "credit_card" || debt.type === "revolving") continue;
+
+    const progress = calculateDebtRepaymentProgress(debt);
+    if (!progress.hasUsableReferenceAmount || progress.isComplete) continue;
+
+    const forecast = calculateNextDebtMilestoneForecast(debt);
+    if (!forecast) continue;
+
+    candidates.push({
+      debt,
+      nextMilestone: forecast.nextMilestone,
+      estimatedMonthCount: forecast.estimatedMonthCount,
+      estimatedDate: forecast.estimatedDate,
+      repaidPercent: progress.repaidPercent
+    });
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => {
+    // 1. Smallest forecast distance (in months)
+    if (a.estimatedMonthCount !== b.estimatedMonthCount) {
+      return a.estimatedMonthCount - b.estimatedMonthCount;
+    }
+    // 2. Highest current progress percentage
+    if (b.repaidPercent !== a.repaidPercent) {
+      return b.repaidPercent - a.repaidPercent;
+    }
+    // 3. Deterministic debt identity/name
+    return a.debt.name.localeCompare(b.debt.name);
+  });
+
+  return candidates[0];
+}
+
+export function formatMonthCountPlural(months: number): string {
+  if (months === 1) return "za około 1 miesiąc";
+  const mod10 = months % 10;
+  const mod100 = months % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `za około ${months} miesiące`;
+  }
+  return `za około ${months} miesięcy`;
 }
 
 type MainTab = "portfolio" | "scenarios" | "offers" | "knowledge";
@@ -200,6 +268,11 @@ export function DebtsView({
       totalCurrent,
       paidPct
     };
+  }, [debts]);
+
+  // SPRINT 45: Portfolio Nearest Milestone Hero Card Candidate
+  const nearestMilestoneCandidate = useMemo(() => {
+    return findPortfolioNearestMilestone(debts);
   }, [debts]);
 
   // Sprint 4 & 5: Portfolio Payoff Strategy Simulator (including Custom Order)
@@ -735,6 +808,36 @@ export function DebtsView({
                 {kpiData.closedCount}
               </strong>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2AB. SPRINT 45: PORTFOLIO NEAREST MILESTONE HERO CARD */}
+      {nearestMilestoneCandidate && (
+        <div
+          className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          id="portfolio-nearest-milestone-card"
+        >
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+                Najbliższy kamień milowy
+              </span>
+              <h4 className="text-sm sm:text-base font-bold text-text-main truncate mt-0.5" title={nearestMilestoneCandidate.debt.name}>
+                {nearestMilestoneCandidate.debt.name}
+              </h4>
+              <p className="text-xs text-text-muted mt-0.5">
+                Osiągnie <strong className="text-text-main">{nearestMilestoneCandidate.nextMilestone}%</strong> spłaty {formatMonthCountPlural(nearestMilestoneCandidate.estimatedMonthCount)} (szac. {formatMilestoneForecastDate(nearestMilestoneCandidate.estimatedDate)})
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-brand-subtle text-brand border border-brand/20">
+              Cel: {nearestMilestoneCandidate.nextMilestone}%
+            </span>
           </div>
         </div>
       )}
