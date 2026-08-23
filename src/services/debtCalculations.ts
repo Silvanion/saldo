@@ -163,6 +163,34 @@ export interface DebtPaymentHistoryFilterOptions {
   order?: DebtPaymentHistoryOrder;
 }
 
+export interface DebtPaymentTrendPeriod {
+  periodKey: string;
+  label: string;
+  paymentCount: number;
+  totalPaid: number;
+  totalPrincipal: number;
+  totalInterest: number;
+  principalSharePct: number;
+  interestSharePct: number;
+  firstDate: string;
+  lastDate: string;
+}
+
+export interface DebtPaymentTrendSnapshot {
+  isValid: boolean;
+  hasData: boolean;
+  periods: DebtPaymentTrendPeriod[];
+  totalPaymentCount: number;
+  totalPaid: number;
+  totalPrincipal: number;
+  totalInterest: number;
+  periodCount: number;
+  firstPeriod?: string;
+  lastPeriod?: string;
+  historyCompleteness: "empty" | "partial" | "available";
+  error?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -1159,6 +1187,146 @@ export function filterDebtPaymentActivity(
   });
 
   return result;
+}
+
+const MONTH_NAMES_PL = [
+  "sty", "lut", "mar", "kwi", "maj", "cze",
+  "lip", "sie", "wrz", "paź", "lis", "gru"
+];
+
+function getPeriodLabel(periodKey: string): string {
+  const parts = periodKey.split("-");
+  if (parts.length >= 2) {
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return `${MONTH_NAMES_PL[monthIndex]} ${year}`;
+    }
+  }
+  return periodKey;
+}
+
+/**
+ * Pure helper for calculating read-only debt payment trend snapshot (Sprint 26)
+ */
+export function calculateDebtPaymentTrendSnapshot(
+  items: DebtPaymentActivityItem[] | null | undefined
+): DebtPaymentTrendSnapshot {
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return {
+      isValid: true,
+      hasData: false,
+      periods: [],
+      totalPaymentCount: 0,
+      totalPaid: 0,
+      totalPrincipal: 0,
+      totalInterest: 0,
+      periodCount: 0,
+      historyCompleteness: "empty"
+    };
+  }
+
+  let totalPaymentCount = 0;
+  let totalPaid = 0;
+  let totalPrincipal = 0;
+  let totalInterest = 0;
+  let hasPartialFields = false;
+
+  const periodsMap = new Map<
+    string,
+    {
+      paymentCount: number;
+      totalPaid: number;
+      totalPrincipal: number;
+      totalInterest: number;
+      dates: string[];
+    }
+  >();
+
+  for (const item of items) {
+    const paid = Number(item.paymentAmount) || 0;
+    const princ = Number(item.principalAmount) || 0;
+    const intr = Number(item.interestAmount) || 0;
+
+    totalPaid += paid;
+    totalPrincipal += princ;
+    totalInterest += intr;
+    totalPaymentCount++;
+
+    if (!item.date || !item.transactionId) {
+      hasPartialFields = true;
+    }
+
+    const dateStr = item.date || "";
+    // Extract period key YYYY-MM
+    const periodKey = dateStr.length >= 7 ? dateStr.substring(0, 7) : "unknown";
+    if (periodKey === "unknown") {
+      hasPartialFields = true;
+    }
+
+    const existing = periodsMap.get(periodKey) || {
+      paymentCount: 0,
+      totalPaid: 0,
+      totalPrincipal: 0,
+      totalInterest: 0,
+      dates: []
+    };
+
+    existing.paymentCount += 1;
+    existing.totalPaid += paid;
+    existing.totalPrincipal += princ;
+    existing.totalInterest += intr;
+    if (dateStr) {
+      existing.dates.push(dateStr);
+    }
+    periodsMap.set(periodKey, existing);
+  }
+
+  totalPaid = Math.round(totalPaid * 100) / 100;
+  totalPrincipal = Math.round(totalPrincipal * 100) / 100;
+  totalInterest = Math.round(totalInterest * 100) / 100;
+
+  // Sort periods chronologically
+  const sortedKeys = Array.from(periodsMap.keys()).sort((a, b) => a.localeCompare(b));
+
+  const periods: DebtPaymentTrendPeriod[] = sortedKeys.map((key) => {
+    const data = periodsMap.get(key)!;
+    const pPaid = Math.round(data.totalPaid * 100) / 100;
+    const pPrinc = Math.round(data.totalPrincipal * 100) / 100;
+    const pIntr = Math.round(data.totalInterest * 100) / 100;
+
+    const principalSharePct = pPaid > 0 ? Math.round((pPrinc / pPaid) * 1000) / 10 : 0;
+    const interestSharePct = pPaid > 0 ? Math.round((pIntr / pPaid) * 1000) / 10 : 0;
+
+    data.dates.sort((a, b) => a.localeCompare(b));
+
+    return {
+      periodKey: key,
+      label: getPeriodLabel(key),
+      paymentCount: data.paymentCount,
+      totalPaid: pPaid,
+      totalPrincipal: pPrinc,
+      totalInterest: pIntr,
+      principalSharePct,
+      interestSharePct,
+      firstDate: data.dates[0] || "",
+      lastDate: data.dates[data.dates.length - 1] || ""
+    };
+  });
+
+  return {
+    isValid: true,
+    hasData: periods.length > 0,
+    periods,
+    totalPaymentCount,
+    totalPaid,
+    totalPrincipal,
+    totalInterest,
+    periodCount: periods.length,
+    firstPeriod: periods[0]?.periodKey,
+    lastPeriod: periods[periods.length - 1]?.periodKey,
+    historyCompleteness: hasPartialFields ? "partial" : "available"
+  };
 }
 
 /**

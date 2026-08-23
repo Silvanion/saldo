@@ -11,6 +11,7 @@ import {
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
   calculateDebtPaymentInsightsFromItems,
+  calculateDebtPaymentTrendSnapshot,
   filterDebtPaymentActivity,
   calculateOverpayment,
   calculateRefinanceComparison,
@@ -2003,6 +2004,100 @@ describe("debtCalculations", () => {
       expect(res.interestSharePct).toBe(100.0);
       expect(res.hasPrincipalReduction).toBe(false);
       expect(res.latestPaymentCoveredInterestOnly).toBe(true);
+    });
+  });
+
+  describe("calculateDebtPaymentTrendSnapshot (Sprint 26)", () => {
+    const multiMonthItems = [
+      {
+        transactionId: "tx-1",
+        debtId: "debt-1",
+        date: "2026-01-10",
+        paymentAmount: 400,
+        principalAmount: 350,
+        interestAmount: 50,
+        openingBalance: 10000,
+        closingBalance: 9650,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Wpłata 1 styczeń"
+      },
+      {
+        transactionId: "tx-2",
+        debtId: "debt-1",
+        date: "2026-01-25",
+        paymentAmount: 200,
+        principalAmount: 200,
+        interestAmount: 0,
+        openingBalance: 9650,
+        closingBalance: 9450,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Nadpłata styczeń"
+      },
+      {
+        transactionId: "tx-3",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 400,
+        principalAmount: 360,
+        interestAmount: 40,
+        openingBalance: 9450,
+        closingBalance: 9090,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Wpłata luty"
+      }
+    ];
+
+    it("returns empty snapshot for null or empty items", () => {
+      const snap = calculateDebtPaymentTrendSnapshot(null);
+      expect(snap.isValid).toBe(true);
+      expect(snap.hasData).toBe(false);
+      expect(snap.periods).toHaveLength(0);
+      expect(snap.totalPaid).toBe(0);
+    });
+
+    it("aggregates multiple payments in the same month and across months deterministically", () => {
+      const snap = calculateDebtPaymentTrendSnapshot(multiMonthItems);
+
+      expect(snap.isValid).toBe(true);
+      expect(snap.hasData).toBe(true);
+      expect(snap.periodCount).toBe(2);
+      expect(snap.totalPaymentCount).toBe(3);
+      expect(snap.totalPaid).toBe(1000);
+      expect(snap.totalPrincipal).toBe(910);
+      expect(snap.totalInterest).toBe(90);
+
+      // Period 1: 2026-01 (sty 2026) -> 2 payments, 600 totalPaid, 550 principal, 50 interest
+      const p1 = snap.periods[0];
+      expect(p1.periodKey).toBe("2026-01");
+      expect(p1.label).toBe("sty 2026");
+      expect(p1.paymentCount).toBe(2);
+      expect(p1.totalPaid).toBe(600);
+      expect(p1.totalPrincipal).toBe(550);
+      expect(p1.totalInterest).toBe(50);
+      expect(p1.principalSharePct).toBe(91.7);
+      expect(p1.interestSharePct).toBe(8.3);
+      expect(p1.firstDate).toBe("2026-01-10");
+      expect(p1.lastDate).toBe("2026-01-25");
+
+      // Period 2: 2026-02 (lut 2026) -> 1 payment, 400 totalPaid, 360 principal, 40 interest
+      const p2 = snap.periods[1];
+      expect(p2.periodKey).toBe("2026-02");
+      expect(p2.label).toBe("lut 2026");
+      expect(p2.paymentCount).toBe(1);
+      expect(p2.totalPaid).toBe(400);
+      expect(p2.totalPrincipal).toBe(360);
+      expect(p2.totalInterest).toBe(40);
+      expect(p2.principalSharePct).toBe(90.0);
+      expect(p2.interestSharePct).toBe(10.0);
+    });
+
+    it("does not mutate the input array", () => {
+      const copy = JSON.stringify(multiMonthItems);
+      calculateDebtPaymentTrendSnapshot(multiMonthItems);
+      expect(JSON.stringify(multiMonthItems)).toBe(copy);
     });
   });
 });

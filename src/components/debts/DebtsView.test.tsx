@@ -1561,5 +1561,60 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("Podsumowanie całej zarejestrowanej historii")).toBeTruthy();
       expect(screen.getByText("Ostatnia wpłata")).toBeTruthy();
     });
+
+    it("renders trend snapshot with monthly periods and updates by scope (Sprint 26)", () => {
+      const mockTransactions = [
+        {
+          id: "tx-1",
+          name: "Rata styczeń",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-01-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-2",
+          name: "Rata luty",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Verify Trend Snapshot section
+      expect(screen.getByText("Rozkład zarejestrowanych płatności")).toBeTruthy();
+      expect(screen.getByText("Rozkład miesięczny całej zarejestrowanej historii")).toBeTruthy();
+      expect(screen.getByText("sty 2026")).toBeTruthy();
+      expect(screen.getByText("lut 2026")).toBeTruthy();
+
+      // Switch to filtered scope
+      const filteredScopeBtn = screen.getByRole("button", { name: "Widoczne po filtrach" });
+      fireEvent.click(filteredScopeBtn);
+
+      expect(screen.getByText("Rozkład miesięczny widocznych płatności")).toBeTruthy();
+
+      // Filter out all rows
+      const statusSelect = screen.getByLabelText("Status:");
+      fireEvent.change(statusSelect, { target: { value: "paid_off" } });
+
+      expect(screen.getByText("Brak widocznych płatności do przedstawienia na osi czasu.")).toBeTruthy();
+    });
   });
 });

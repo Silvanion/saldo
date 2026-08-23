@@ -32,6 +32,7 @@ import {
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
   calculateDebtPaymentInsightsFromItems,
+  calculateDebtPaymentTrendSnapshot,
   filterDebtPaymentActivity,
   DebtPaymentHistoryStatusFilter,
   DebtPaymentHistoryPrincipalFilter,
@@ -123,6 +124,11 @@ export function DebtDetailsModal({
   }, [filteredActivityItems]);
 
   const activeInsights = summaryScope === "all" ? fullPaymentInsights : filteredPaymentInsights;
+
+  const trendSnapshot = useMemo(() => {
+    const itemsForTrend = summaryScope === "all" ? activity.items : filteredActivityItems;
+    return calculateDebtPaymentTrendSnapshot(itemsForTrend);
+  }, [summaryScope, activity.items, filteredActivityItems]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -597,6 +603,92 @@ export function DebtDetailsModal({
                         </div>
                       </>
                     )}
+
+                    {/* SECTION: TREND SNAPSHOT */}
+                    {trendSnapshot.hasData ? (
+                      <div className="space-y-3 p-4 bg-surface-2/40 border border-border rounded-2xl">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-border">
+                          <div>
+                            <h4 className="text-xs font-bold text-text-main">
+                              Rozkład zarejestrowanych płatności
+                            </h4>
+                            <p className="text-[11px] text-text-muted">
+                              {summaryScope === "all"
+                                ? "Rozkład miesięczny całej zarejestrowanej historii"
+                                : "Rozkład miesięczny widocznych płatności"}
+                            </p>
+                          </div>
+                          <span className="text-[11px] font-medium text-text-muted">
+                            Okresy: {trendSnapshot.periodCount} ({trendSnapshot.periods[0]?.label} – {trendSnapshot.periods[trendSnapshot.periods.length - 1]?.label})
+                          </span>
+                        </div>
+
+                        {/* List of Periods */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                          {trendSnapshot.periods.map((period) => (
+                            <div
+                              key={period.periodKey}
+                              className="p-3 bg-surface border border-border rounded-xl space-y-2 shadow-xs"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-text-main">
+                                  {period.label}
+                                </span>
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-surface-3 text-text-muted border border-border">
+                                  {period.paymentCount === 1 ? "1 wpłata" : `${period.paymentCount} wpłaty`}
+                                </span>
+                              </div>
+
+                              <div className="text-sm font-black text-text-main tabular-nums">
+                                {formatMoney(period.totalPaid, currency)}
+                              </div>
+
+                              {/* Breakdown bars & values */}
+                              <div className="space-y-1">
+                                <div
+                                  className="h-1.5 w-full bg-surface-3 rounded-full overflow-hidden flex"
+                                  role="progressbar"
+                                  aria-label={`Rozkład wpłat w ${period.label}: kapitał ${period.principalSharePct}%, odsetki ${period.interestSharePct}%`}
+                                  aria-valuenow={period.principalSharePct}
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                >
+                                  <div
+                                    className="bg-emerald-500 h-full transition-all"
+                                    style={{ width: `${period.principalSharePct}%` }}
+                                  />
+                                  <div
+                                    className="bg-amber-500 h-full transition-all"
+                                    style={{ width: `${period.interestSharePct}%` }}
+                                  />
+                                </div>
+
+                                <div className="flex items-center justify-between text-[10px] text-text-muted tabular-nums">
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                                    Kapitał: {formatMoney(period.totalPrincipal, currency)} ({period.principalSharePct}%)
+                                  </span>
+                                  <span className="text-amber-600 dark:text-amber-400 font-bold">
+                                    Odsetki: {formatMoney(period.totalInterest, currency)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {trendSnapshot.historyCompleteness === "partial" && (
+                          <p className="text-[10px] text-text-faint italic">
+                            Trend opiera się na dostępnych datach zarejestrowanych płatności.
+                          </p>
+                        )}
+                      </div>
+                    ) : summaryScope === "filtered" ? (
+                      <div className="p-4 bg-surface-2/40 border border-border rounded-xl text-center">
+                        <p className="text-xs text-text-muted">
+                          Brak widocznych płatności do przedstawienia na osi czasu.
+                        </p>
+                      </div>
+                    ) : null}
 
                     {/* Timeline Filter Controls */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-2/60 border border-border rounded-xl">
