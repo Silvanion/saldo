@@ -22,10 +22,12 @@ import {
   Columns,
   Link2,
   Unlink,
-  Search
+  Search,
+  Download
 } from "lucide-react";
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
+import { downloadFile } from "../../utils/csv";
 import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
@@ -64,6 +66,7 @@ interface DebtDetailsModalProps {
   onOpenRefinanceModal?: (debt: DebtItem) => void;
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   onOpenTxModal?: (tx: Transaction) => void;
+  showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
 export function DebtDetailsModal({
@@ -75,7 +78,8 @@ export function DebtDetailsModal({
   onOpenOverpaymentModal,
   onOpenRefinanceModal,
   onUpdateTransaction,
-  onOpenTxModal
+  onOpenTxModal,
+  showToast
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
@@ -112,6 +116,118 @@ export function DebtDetailsModal({
     }
     return map;
   }, [transactions]);
+
+  // SPRINT 38: CSV & JSON Export of visible payment history timeline
+  const handleExportCsv = () => {
+    if (!debt || filteredActivityItems.length === 0) {
+      showToast?.("Brak danych historii spłat do eksportu.", "info");
+      return;
+    }
+
+    const headers = [
+      "Data",
+      "Nazwa transakcji",
+      "Kwota wpłaty",
+      "Kapitał",
+      "Odsetki",
+      "Saldo po wpłacie",
+      "Status",
+      "ID transakcji",
+      "Powiązanie transakcji"
+    ];
+
+    const escapeCsv = (val: any): string => {
+      const str = String(val ?? "");
+      if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    let csvContent = "\uFEFF";
+    csvContent += headers.map(escapeCsv).join(",") + "\n";
+
+    filteredActivityItems.forEach((item) => {
+      const statusLabel =
+        item.isFinalPayment || item.paymentStatus === "paid_off"
+          ? "Spłacono"
+          : item.paymentStatus === "interest_only"
+          ? "Tylko odsetki"
+          : item.paymentStatus === "insufficient_payment"
+          ? "Częściowa"
+          : "Rata";
+
+      const auditStatus = item.transactionId
+        ? transactionsMap.has(item.transactionId)
+          ? "linked"
+          : "missing"
+        : "none";
+
+      const row = [
+        item.date,
+        item.transactionName || "Spłata długu",
+        item.paymentAmount,
+        item.principalAmount,
+        item.interestAmount,
+        item.closingBalance,
+        statusLabel,
+        item.transactionId || "",
+        auditStatus
+      ];
+
+      csvContent += row.map(escapeCsv).join(",") + "\n";
+    });
+
+    const slug = (debt.name || "dlug").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "dlug";
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `historia-splat-${slug}-${dateStr}.csv`;
+
+    downloadFile(csvContent, filename, "text/csv;charset=utf-8;");
+    showToast?.("Wyeksportowano historię spłat do CSV.", "success");
+  };
+
+  const handleExportJson = () => {
+    if (!debt || filteredActivityItems.length === 0) {
+      showToast?.("Brak danych historii spłat do eksportu.", "info");
+      return;
+    }
+
+    const payload = {
+      debtName: debt.name,
+      debtId: debt.id,
+      exportedAt: new Date().toISOString(),
+      currency,
+      scope: "filtered-visible-history",
+      itemCount: filteredActivityItems.length,
+      items: filteredActivityItems.map((item) => {
+        const auditStatus = item.transactionId
+          ? transactionsMap.has(item.transactionId)
+            ? "linked"
+            : "missing"
+          : "none";
+
+        return {
+          date: item.date,
+          transactionName: item.transactionName || "Spłata długu",
+          paymentAmount: item.paymentAmount,
+          principalAmount: item.principalAmount,
+          interestAmount: item.interestAmount,
+          closingBalance: item.closingBalance,
+          status: item.paymentStatus || "normal",
+          transactionId: item.transactionId || null,
+          transactionAuditStatus: auditStatus
+        };
+      })
+    };
+
+    const jsonContent = JSON.stringify(payload, null, 2);
+    const slug = (debt.name || "dlug").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "dlug";
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `historia-splat-${slug}-${dateStr}.json`;
+
+    downloadFile(jsonContent, filename, "application/json;charset=utf-8;");
+    showToast?.("Wyeksportowano historię spłat do JSON.", "success");
+  };
 
   React.useEffect(() => {
     if (isOpen && initialTab) {
@@ -1012,6 +1128,33 @@ export function DebtDetailsModal({
                                 : `W wybranym okresie: ${periodActivityItems.length} płatności`)
                             : `Wyświetlane: ${filteredActivityItems.length} z ${periodActivityItems.length} płatności`}
                         </div>
+
+                        {filteredActivityItems.length > 0 && (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              id="btn-export-history-csv"
+                              onClick={handleExportCsv}
+                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                              aria-label="Eksport CSV"
+                              title="Eksportuj widoczną historię do CSV"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>CSV</span>
+                            </button>
+                            <button
+                              type="button"
+                              id="btn-export-history-json"
+                              onClick={handleExportJson}
+                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                              aria-label="Eksport JSON"
+                              title="Eksportuj widoczną historię do JSON"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>JSON</span>
+                            </button>
+                          </div>
+                        )}
 
                         {onUpdateTransaction && (
                           <button

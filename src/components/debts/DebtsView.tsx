@@ -2156,6 +2156,7 @@ export function DebtsView({
           onClose={() => setSelectedDebtForDetails(null)}
           onUpdateTransaction={onUpdateTransaction}
           onOpenTxModal={onOpenTxModal}
+          showToast={showToast}
           onOpenOverpaymentModal={(d) => {
             setSelectedDebtForDetails(null);
             setSelectedDebtForOverpayment(d);

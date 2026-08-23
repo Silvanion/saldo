@@ -8,6 +8,7 @@ import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile, Transaction } from "../../types";
+import * as csvUtils from "../../utils/csv";
 
 const mockDebts: DebtItem[] = [
   {
@@ -2099,6 +2100,125 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
       // Empty history when no transactions are linked
       expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
+    });
+
+    it("Sprint 38: exports filtered payment history to CSV with correct headers and filename", () => {
+      const downloadSpy = vi.spyOn(csvUtils, "downloadFile").mockImplementation(() => {});
+      const showToast = vi.fn();
+
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny PKO",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const linkedTx: Transaction = {
+        id: "tx-linked-1",
+        name: "Rata kredytu Maj 2026",
+        amount: 2600,
+        type: "expense",
+        category: "Rachunki",
+        account: "Konto głównne",
+        isoDate: "2026-05-15",
+        debtId: "debt-1",
+        currency: "PLN"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[linkedTx]}
+          onClose={vi.fn()}
+          showToast={showToast}
+          initialTab="history"
+        />
+      );
+
+      const csvBtn = screen.getByRole("button", { name: "Eksport CSV" });
+      expect(csvBtn).toBeTruthy();
+
+      fireEvent.click(csvBtn);
+
+      expect(downloadSpy).toHaveBeenCalledTimes(1);
+      const [content, filename, mimeType] = downloadSpy.mock.calls[0];
+      expect(filename).toMatch(/^historia-splat-kredyt-hipoteczny-pko-\d{4}-\d{2}-\d{2}\.csv$/);
+      expect(mimeType).toBe("text/csv;charset=utf-8;");
+      expect(content).toContain("Data,Nazwa transakcji,Kwota wpłaty,Kapitał,Odsetki,Saldo po wpłacie,Status,ID transakcji,Powiązanie transakcji");
+      expect(content).toContain("2026-05-15,Rata kredytu Maj 2026,2600");
+      expect(content).toContain("linked");
+      expect(showToast).toHaveBeenCalledWith("Wyeksportowano historię spłat do CSV.", "success");
+
+      downloadSpy.mockRestore();
+    });
+
+    it("Sprint 38: exports filtered payment history to JSON with envelope and audit-trail metadata", () => {
+      const downloadSpy = vi.spyOn(csvUtils, "downloadFile").mockImplementation(() => {});
+      const showToast = vi.fn();
+
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny PKO",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const linkedTx: Transaction = {
+        id: "tx-linked-1",
+        name: "Rata kredytu Maj 2026",
+        amount: 2600,
+        type: "expense",
+        category: "Rachunki",
+        account: "Konto głównne",
+        isoDate: "2026-05-15",
+        debtId: "debt-1",
+        currency: "PLN"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[linkedTx]}
+          onClose={vi.fn()}
+          showToast={showToast}
+          initialTab="history"
+        />
+      );
+
+      const jsonBtn = screen.getByRole("button", { name: "Eksport JSON" });
+      expect(jsonBtn).toBeTruthy();
+
+      fireEvent.click(jsonBtn);
+
+      expect(downloadSpy).toHaveBeenCalledTimes(1);
+      const [content, filename, mimeType] = downloadSpy.mock.calls[0];
+      expect(filename).toMatch(/^historia-splat-kredyt-hipoteczny-pko-\d{4}-\d{2}-\d{2}\.json$/);
+      expect(mimeType).toBe("application/json;charset=utf-8;");
+
+      const parsed = JSON.parse(content);
+      expect(parsed.debtName).toBe("Kredyt hipoteczny PKO");
+      expect(parsed.debtId).toBe("debt-1");
+      expect(parsed.scope).toBe("filtered-visible-history");
+      expect(parsed.items).toHaveLength(1);
+      expect(parsed.items[0].transactionAuditStatus).toBe("linked");
+      expect(parsed.items[0].transactionId).toBe("tx-linked-1");
+      expect(showToast).toHaveBeenCalledWith("Wyeksportowano historię spłat do JSON.", "success");
+
+      downloadSpy.mockRestore();
     });
   });
 });
