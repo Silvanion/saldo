@@ -33,7 +33,8 @@ import {
   DEBT_REPAYMENT_MILESTONES,
   calculateDebtRepaymentProgress,
   calculateNextDebtMilestoneForecast,
-  formatMilestoneForecastDate
+  formatMilestoneForecastDate,
+  calculateDebtMilestoneOverpaymentImpact
 } from "./DebtPortfolioCard";
 import {
   calculateAmortizationSchedule,
@@ -286,6 +287,7 @@ export function DebtDetailsModal({
   const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>(
     initialHistoryFilters?.order || "newest"
   );
+  const [hypotheticalOverpayment, setHypotheticalOverpayment] = useState<string>("");
 
   // SPRINT 39: Save history filter state to parent in-memory session store
   const onSaveHistoryFiltersRef = useRef(onSaveHistoryFilters);
@@ -699,6 +701,91 @@ export function DebtDetailsModal({
                           );
                         })}
                       </div>
+
+                      {/* SPRINT 43: Overpayment Impact Preview */}
+                      {forecast && (
+                        <div className="mt-4 pt-3 border-t border-border/50">
+                          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                            <span className="text-[11px] font-bold text-text-muted">
+                              Wpływ nadpłaty na kolejny próg ({forecast.nextMilestone}%):
+                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {[250, 500, 1000].map((preset) => (
+                                <button
+                                  key={preset}
+                                  type="button"
+                                  onClick={() => setHypotheticalOverpayment(String(preset))}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer border ${
+                                    hypotheticalOverpayment === String(preset)
+                                      ? "bg-brand text-white border-brand shadow-xs"
+                                      : "bg-surface-2/60 text-text-muted hover:text-text-main border-border/60 hover:border-brand/40"
+                                  }`}
+                                >
+                                  +{preset} {currency}
+                                </button>
+                              ))}
+                              <div className="relative inline-flex items-center">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  step="50"
+                                  placeholder="Własna kwota"
+                                  value={hypotheticalOverpayment}
+                                  onChange={(e) => setHypotheticalOverpayment(e.target.value)}
+                                  className="w-24 px-2 py-0.5 text-[10px] rounded border border-border/60 bg-surface-2/40 text-text-main placeholder:text-text-faint focus:outline-none focus:border-brand"
+                                  aria-label="Własna kwota hipotetycznej nadpłaty"
+                                />
+                                {hypotheticalOverpayment && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setHypotheticalOverpayment("")}
+                                    className="ml-1 text-[10px] text-text-faint hover:text-text-main cursor-pointer"
+                                    aria-label="Wyczyść kwotę nadpłaty"
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {(() => {
+                            const overpaymentVal = parseFloat(hypotheticalOverpayment);
+                            if (!overpaymentVal || overpaymentVal <= 0) return null;
+                            const impact = calculateDebtMilestoneOverpaymentImpact(debt, overpaymentVal);
+                            if (!impact) return null;
+
+                            if (impact.isImmediateCompletion) {
+                              return (
+                                <div className="text-[11px] font-medium text-success bg-success-subtle/50 px-2.5 py-1.5 rounded-lg border border-success/20">
+                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli całkowicie spłacić dług już teraz!
+                                </div>
+                              );
+                            }
+
+                            if (impact.isImmediateAchievement) {
+                              return (
+                                <div className="text-[11px] font-medium text-brand bg-brand-subtle/50 px-2.5 py-1.5 rounded-lg border border-brand/20">
+                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli osiągnąć próg <strong>{impact.nextMilestone}%</strong> od razu.
+                                </div>
+                              );
+                            }
+
+                            if (impact.monthsAccelerated > 0) {
+                              return (
+                                <div className="text-[11px] font-medium text-text-main bg-surface-2/60 px-2.5 py-1.5 rounded-lg border border-border/60">
+                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> przyspieszy próg <strong>{impact.nextMilestone}%</strong> o <strong>{impact.monthsAccelerated} mies.</strong> (szac. <strong>{formatMilestoneForecastDate(impact.adjustedEstimatedDate)}</strong> zamiast {formatMilestoneForecastDate(impact.baselineEstimatedDate)}).
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div className="text-[11px] font-medium text-text-faint bg-surface-2/40 px-2.5 py-1.5 rounded-lg border border-border/40">
+                                Ta nadpłata nie zmienia szacowanego terminu kolejnego progu.
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}

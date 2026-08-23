@@ -177,6 +177,91 @@ export function formatMilestoneForecastDate(isoYearMonth: string): string {
   }
 }
 
+export interface DebtMilestoneOverpaymentImpact {
+  nextMilestone: DebtRepaymentMilestone;
+  baselineEstimatedDate: string;
+  adjustedEstimatedDate: string;
+  baselineMonthCount: number;
+  adjustedMonthCount: number;
+  monthsAccelerated: number;
+  hypotheticalOverpayment: number;
+  isImmediateAchievement: boolean;
+  isImmediateCompletion: boolean;
+}
+
+export function calculateDebtMilestoneOverpaymentImpact(
+  debt: DebtItem | null | undefined,
+  hypotheticalOverpayment: number,
+  options?: {
+    now?: Date;
+    monthlyRepaymentSignalOverride?: number;
+  }
+): DebtMilestoneOverpaymentImpact | null {
+  if (!debt || debt.status === "closed") {
+    return null;
+  }
+
+  if (debt.type === "credit_card" || debt.type === "revolving") {
+    return null;
+  }
+
+  if (!Number.isFinite(hypotheticalOverpayment) || hypotheticalOverpayment <= 0) {
+    return null;
+  }
+
+  const baseline = calculateNextDebtMilestoneForecast(debt, options);
+  if (!baseline) {
+    return null;
+  }
+
+  const adjustedBalance = Math.max(0, debt.balance - hypotheticalOverpayment);
+  const adjustedDebt: DebtItem = { ...debt, balance: adjustedBalance };
+  const adjustedProgress = calculateDebtRepaymentProgress(adjustedDebt);
+
+  const targetMilestone = baseline.nextMilestone;
+  const targetRepaidAmount = adjustedProgress.referenceAmount * (targetMilestone / 100);
+  const remainingToTarget = Math.max(0, targetRepaidAmount - adjustedProgress.repaidAmount);
+
+  const baseDate = options?.now ? new Date(options.now) : new Date();
+  const currentYear = baseDate.getFullYear();
+  const currentMonth = baseDate.getMonth() + 1;
+  const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
+
+  if (remainingToTarget <= 0) {
+    const isImmediateCompletion = adjustedProgress.isComplete || adjustedBalance === 0;
+    return {
+      nextMilestone: targetMilestone,
+      baselineEstimatedDate: baseline.estimatedDate,
+      adjustedEstimatedDate: currentDateStr,
+      baselineMonthCount: baseline.estimatedMonthCount,
+      adjustedMonthCount: 0,
+      monthsAccelerated: baseline.estimatedMonthCount,
+      hypotheticalOverpayment,
+      isImmediateAchievement: true,
+      isImmediateCompletion
+    };
+  }
+
+  const adjustedMonthCount = Math.max(1, Math.ceil(remainingToTarget / baseline.monthlyRepaymentSignal));
+  const monthsAccelerated = Math.max(0, baseline.estimatedMonthCount - adjustedMonthCount);
+
+  const targetYear = baseDate.getFullYear() + Math.floor((baseDate.getMonth() + adjustedMonthCount) / 12);
+  const targetMonth = ((baseDate.getMonth() + adjustedMonthCount) % 12) + 1;
+  const adjustedEstimatedDate = `${targetYear}-${String(targetMonth).padStart(2, "0")}`;
+
+  return {
+    nextMilestone: targetMilestone,
+    baselineEstimatedDate: baseline.estimatedDate,
+    adjustedEstimatedDate,
+    baselineMonthCount: baseline.estimatedMonthCount,
+    adjustedMonthCount,
+    monthsAccelerated,
+    hypotheticalOverpayment,
+    isImmediateAchievement: false,
+    isImmediateCompletion: false
+  };
+}
+
 export interface DebtPortfolioCardProps {
   key?: React.Key;
   debt: DebtItem;

@@ -11,7 +11,8 @@ import {
   calculateDebtRepaymentProgress,
   getNewlyCrossedDebtMilestone,
   calculateNextDebtMilestoneForecast,
-  formatMilestoneForecastDate
+  formatMilestoneForecastDate,
+  calculateDebtMilestoneOverpaymentImpact
 } from "./DebtPortfolioCard";
 import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile, Transaction } from "../../types";
@@ -2873,6 +2874,164 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
         expect(screen.getByText(/Kolejny próg:/i)).toBeTruthy();
         expect(screen.getAllByText("25%").length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("Sprint 43: calculateDebtMilestoneOverpaymentImpact pure helper & UI preview", () => {
+      const fixedNow = new Date("2026-01-15T12:00:00Z");
+
+      it("1. Ineligible debt type (credit_card, revolving) -> returns null", () => {
+        const card: DebtItem = { id: "c1", name: "Card", institution: "B", type: "credit_card", currency: "PLN", creditLimit: 5000, balance: 2000, monthlyPayment: 100, interestRate: 15, status: "active", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(card, 500, { now: fixedNow })).toBeNull();
+      });
+
+      it("2. Closed debt -> returns null", () => {
+        const closed: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 500, monthlyPayment: 100, interestRate: 5, status: "closed", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(closed, 200, { now: fixedNow })).toBeNull();
+      });
+
+      it("3. Fully repaid debt -> returns null", () => {
+        const debt100: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 0, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(debt100, 200, { now: fixedNow })).toBeNull();
+      });
+
+      it("4. Zero overpayment -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(debt, 0, { now: fixedNow })).toBeNull();
+      });
+
+      it("5. Negative or invalid overpayment -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(debt, -50, { now: fixedNow })).toBeNull();
+        expect(calculateDebtMilestoneOverpaymentImpact(debt, NaN, { now: fixedNow })).toBeNull();
+      });
+
+      it("6. Baseline forecast unavailable (no monthly signal) -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 0, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateDebtMilestoneOverpaymentImpact(debt, 100, { now: fixedNow })).toBeNull();
+      });
+
+      it("7. Valid overpayment with month acceleration", () => {
+        // ref: 1000, balance: 820 (18% paid). Next = 25% (250). Remaining = 70. Monthly = 10. Baseline months = 7.
+        // Overpayment: 50. Adjusted balance: 770. Repaid: 230. Remaining: 20. Adjusted months: 2.
+        // Accelerated = 5 months.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const impact = calculateDebtMilestoneOverpaymentImpact(debt, 50, { now: fixedNow });
+        expect(impact).not.toBeNull();
+        expect(impact?.nextMilestone).toBe(25);
+        expect(impact?.baselineMonthCount).toBe(7);
+        expect(impact?.adjustedMonthCount).toBe(2);
+        expect(impact?.monthsAccelerated).toBe(5);
+        expect(impact?.isImmediateAchievement).toBe(false);
+      });
+
+      it("8. Valid overpayment with no date change (0 months accelerated)", () => {
+        // ref: 1000, balance: 820, remaining: 70, monthly: 100. Baseline months = 1.
+        // Overpayment: 10. Remaining: 60. Adjusted months = 1. Accelerated = 0.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const impact = calculateDebtMilestoneOverpaymentImpact(debt, 10, { now: fixedNow });
+        expect(impact?.monthsAccelerated).toBe(0);
+        expect(impact?.isImmediateAchievement).toBe(false);
+      });
+
+      it("9. Overpayment instantly reaches next milestone", () => {
+        // ref: 1000, balance: 820, remaining to 25%: 70. Overpayment: 100.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const impact = calculateDebtMilestoneOverpaymentImpact(debt, 100, { now: fixedNow });
+        expect(impact?.isImmediateAchievement).toBe(true);
+        expect(impact?.isImmediateCompletion).toBe(false);
+      });
+
+      it("10. Overpayment larger than balance -> complete repayment preview", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const impact = calculateDebtMilestoneOverpaymentImpact(debt, 1000, { now: fixedNow });
+        expect(impact?.isImmediateCompletion).toBe(true);
+        expect(impact?.isImmediateAchievement).toBe(true);
+      });
+
+      it("11. Deterministic result with injected now", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const impact = calculateDebtMilestoneOverpaymentImpact(debt, 50, { now: fixedNow });
+        expect(impact?.baselineEstimatedDate).toBe("2026-08");
+        expect(impact?.adjustedEstimatedDate).toBe("2026-03");
+      });
+
+      it("12. Input debt is not mutated", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const copy = JSON.stringify(debt);
+        calculateDebtMilestoneOverpaymentImpact(debt, 50, { now: fixedNow });
+        expect(JSON.stringify(debt)).toBe(copy);
+      });
+
+      it("13. DebtDetailsModal shows overpayment preview controls for eligible debt and reacts to preset click", () => {
+        const debt: DebtItem = {
+          id: "debt-details-op",
+          name: "Kredyt gotówkowy",
+          institution: "PKO BP",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 100000,
+          balance: 80000, // 20% paid, next = 25% (25000). Remaining to 25% = 5000.
+          monthlyPayment: 1000, // 5 months baseline
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        render(
+          <DebtDetailsModal
+            isOpen={true}
+            debt={debt}
+            onClose={vi.fn()}
+            initialTab="overview"
+          />
+        );
+
+        expect(screen.getByText(/Wpływ nadpłaty na kolejny próg/i)).toBeTruthy();
+        expect(screen.getByText("+500 PLN")).toBeTruthy();
+
+        // Click +500 PLN preset
+        fireEvent.click(screen.getByText("+500 PLN"));
+
+        // Remaining to 25% becomes 4500 -> ceil(4500/1000) = 5 months. (no date change)
+        expect(screen.getByText(/Ta nadpłata nie zmienia szacowanego terminu/i)).toBeTruthy();
+
+        // Click +1000 PLN preset
+        fireEvent.click(screen.getByText("+1000 PLN"));
+        // Remaining to 25% becomes 4000 -> ceil(4000/1000) = 4 months. Accelerated by 1 month!
+        expect(screen.getByText(/przyspieszy próg/i)).toBeTruthy();
+      });
+
+      it("14. DebtDetailsModal custom amount input updates preview and does not save/mutate", () => {
+        const debt: DebtItem = {
+          id: "debt-details-custom",
+          name: "Kredyt gotówkowy",
+          institution: "PKO BP",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 100000,
+          balance: 80000,
+          monthlyPayment: 1000,
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        render(
+          <DebtDetailsModal
+            isOpen={true}
+            debt={debt}
+            onClose={vi.fn()}
+            initialTab="overview"
+          />
+        );
+
+        const input = screen.getByLabelText("Własna kwota hipotetycznej nadpłaty");
+        fireEvent.change(input, { target: { value: "5000" } });
+
+        // Overpayment 5000 directly covers the remaining 5000 to reach 25%!
+        expect(screen.getByText(/pozwoli osiągnąć próg/i)).toBeTruthy();
+        expect(screen.getByText(/od razu/i)).toBeTruthy();
       });
     });
   });
