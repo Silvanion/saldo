@@ -10,6 +10,7 @@ import {
   calculateDebtPaymentReversal,
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
+  filterDebtPaymentActivity,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1838,6 +1839,98 @@ describe("debtCalculations", () => {
 
       const insights = calculateDebtPaymentInsights(partialActivity);
       expect(insights.historyCompleteness).toBe("partial");
+    });
+  });
+
+  describe("filterDebtPaymentActivity (Sprint 24)", () => {
+    const sampleItems = [
+      {
+        transactionId: "tx-1",
+        debtId: "debt-1",
+        date: "2026-01-15",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 10000,
+        closingBalance: 9550,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata 1"
+      },
+      {
+        transactionId: "tx-2",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 50,
+        principalAmount: 0,
+        interestAmount: 50,
+        openingBalance: 9550,
+        closingBalance: 9550,
+        paymentStatus: "interest_only" as const,
+        isFinalPayment: false,
+        transactionName: "Tylko odsetki"
+      },
+      {
+        transactionId: "tx-3",
+        debtId: "debt-1",
+        date: "2026-03-15",
+        paymentAmount: 9597.75,
+        principalAmount: 9550,
+        interestAmount: 47.75,
+        openingBalance: 9550,
+        closingBalance: 0,
+        paymentStatus: "paid_off" as const,
+        isFinalPayment: true,
+        transactionName: "Spłata całkowita"
+      }
+    ];
+
+    it("returns empty array for empty, null, or undefined input", () => {
+      expect(filterDebtPaymentActivity(null)).toEqual([]);
+      expect(filterDebtPaymentActivity(undefined)).toEqual([]);
+      expect(filterDebtPaymentActivity([])).toEqual([]);
+    });
+
+    it("returns all rows sorted newest-first by default", () => {
+      const result = filterDebtPaymentActivity(sampleItems);
+      expect(result).toHaveLength(3);
+      expect(result[0].transactionId).toBe("tx-3");
+      expect(result[1].transactionId).toBe("tx-2");
+      expect(result[2].transactionId).toBe("tx-1");
+    });
+
+    it("sorts oldest-first when order is set to 'oldest'", () => {
+      const result = filterDebtPaymentActivity(sampleItems, { order: "oldest" });
+      expect(result).toHaveLength(3);
+      expect(result[0].transactionId).toBe("tx-1");
+      expect(result[1].transactionId).toBe("tx-2");
+      expect(result[2].transactionId).toBe("tx-3");
+    });
+
+    it("filters rows by payment status accurately", () => {
+      const interestOnly = filterDebtPaymentActivity(sampleItems, { status: "interest_only" });
+      expect(interestOnly).toHaveLength(1);
+      expect(interestOnly[0].transactionId).toBe("tx-2");
+
+      const paidOff = filterDebtPaymentActivity(sampleItems, { status: "paid_off" });
+      expect(paidOff).toHaveLength(1);
+      expect(paidOff[0].transactionId).toBe("tx-3");
+    });
+
+    it("filters rows by principal presence (with_principal / without_principal)", () => {
+      const withPrincipal = filterDebtPaymentActivity(sampleItems, { principal: "with_principal" });
+      expect(withPrincipal).toHaveLength(2);
+      expect(withPrincipal.map((i) => i.transactionId)).toEqual(["tx-3", "tx-1"]);
+
+      const withoutPrincipal = filterDebtPaymentActivity(sampleItems, { principal: "without_principal" });
+      expect(withoutPrincipal).toHaveLength(1);
+      expect(withoutPrincipal[0].transactionId).toBe("tx-2");
+    });
+
+    it("does not mutate the source array or items", () => {
+      const snap = JSON.stringify(sampleItems);
+      filterDebtPaymentActivity(sampleItems, { status: "interest_only", order: "oldest" });
+      expect(JSON.stringify(sampleItems)).toBe(snap);
     });
   });
 });

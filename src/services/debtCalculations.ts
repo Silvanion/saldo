@@ -152,6 +152,16 @@ export interface DebtPaymentInsightsResult {
   error?: string;
 }
 
+export type DebtPaymentHistoryStatusFilter = "all" | DebtPaymentStatus;
+export type DebtPaymentHistoryPrincipalFilter = "all" | "with_principal" | "without_principal";
+export type DebtPaymentHistoryOrder = "newest" | "oldest";
+
+export interface DebtPaymentHistoryFilterOptions {
+  status?: DebtPaymentHistoryStatusFilter;
+  principal?: DebtPaymentHistoryPrincipalFilter;
+  order?: DebtPaymentHistoryOrder;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -1080,6 +1090,60 @@ export function calculateDebtPaymentInsights(
     latestPaymentCoveredInterestOnly,
     historyCompleteness: hasPartialFields ? "partial" : "available"
   };
+}
+
+/**
+ * Pure helper for filtering and ordering debt payment activity rows (Sprint 24)
+ */
+export function filterDebtPaymentActivity(
+  items: DebtPaymentActivityItem[] | null | undefined,
+  filters?: DebtPaymentHistoryFilterOptions
+): DebtPaymentActivityItem[] {
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return [];
+  }
+
+  const status = filters?.status || "all";
+  const principal = filters?.principal || "all";
+  const order = filters?.order || "newest";
+
+  const result = items.filter((item) => {
+    // Status filter
+    if (status !== "all") {
+      if (status === "paid_off") {
+        if (!item.isFinalPayment && item.paymentStatus !== "paid_off") {
+          return false;
+        }
+      } else if (item.paymentStatus !== status) {
+        return false;
+      }
+    }
+
+    // Principal filter
+    if (principal === "with_principal") {
+      if ((Number(item.principalAmount) || 0) <= 0) {
+        return false;
+      }
+    } else if (principal === "without_principal") {
+      if ((Number(item.principalAmount) || 0) > 0) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Sort deterministically
+  result.sort((a, b) => {
+    const dateComp = (a.date || "").localeCompare(b.date || "");
+    if (dateComp !== 0) {
+      return order === "oldest" ? dateComp : -dateComp;
+    }
+    const idComp = (a.transactionId || "").localeCompare(b.transactionId || "");
+    return order === "oldest" ? idComp : -idComp;
+  });
+
+  return result;
 }
 
 /**

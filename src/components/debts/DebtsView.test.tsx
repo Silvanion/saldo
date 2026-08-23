@@ -1431,5 +1431,66 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.queryByText("Zakupy spożywcze")).toBeNull();
       expect(screen.queryByText("Spłata karty")).toBeNull();
     });
+
+    it("filters visible timeline rows, updates count, and resets filters correctly (Sprint 24)", () => {
+      const mockTransactions = [
+        {
+          id: "tx-1",
+          name: "Rata normalna",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-01-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-2",
+          name: "Wpłata częściowa odsetek",
+          amount: 50,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Initial visible count
+      expect(screen.getByText("Wyświetlane: 2 płatności")).toBeTruthy();
+
+      // Filter by status to "paid_off" (which has 0 matches in this dataset)
+      const statusSelect = screen.getByLabelText("Status:");
+      fireEvent.change(statusSelect, { target: { value: "paid_off" } });
+
+      // Should show filtered empty state
+      expect(screen.getByText("Brak płatności spełniających wybrane filtry.")).toBeTruthy();
+      expect(screen.getByText("Wyświetlane: 0 z 2 płatności")).toBeTruthy();
+
+      // Global insights KPIs should remain unaffected (2 payments recorded)
+      expect(screen.getByText("Liczba wpłat")).toBeTruthy();
+      expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+
+      // Click reset filters button
+      const resetBtn = screen.getAllByRole("button", { name: "Wyczyść filtry" })[0];
+      fireEvent.click(resetBtn);
+
+      // Both items visible again
+      expect(screen.getByText("Wyświetlane: 2 płatności")).toBeTruthy();
+      expect(screen.getByText("Rata normalna")).toBeTruthy();
+      expect(screen.getByText("Wpłata częściowa odsetek")).toBeTruthy();
+    });
   });
 });

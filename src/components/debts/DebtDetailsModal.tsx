@@ -31,6 +31,10 @@ import {
   DebtOverpaymentVariantInput,
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
+  filterDebtPaymentActivity,
+  DebtPaymentHistoryStatusFilter,
+  DebtPaymentHistoryPrincipalFilter,
+  DebtPaymentHistoryOrder,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -92,6 +96,24 @@ export function DebtDetailsModal({
   const paymentInsights = useMemo(() => {
     return calculateDebtPaymentInsights(activity);
   }, [activity]);
+
+  const [historyStatusFilter, setHistoryStatusFilter] = useState<DebtPaymentHistoryStatusFilter>("all");
+  const [historyPrincipalFilter, setHistoryPrincipalFilter] = useState<DebtPaymentHistoryPrincipalFilter>("all");
+  const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>("newest");
+
+  const handleResetHistoryFilters = () => {
+    setHistoryStatusFilter("all");
+    setHistoryPrincipalFilter("all");
+    setHistoryOrder("newest");
+  };
+
+  const filteredActivityItems = useMemo(() => {
+    return filterDebtPaymentActivity(activity.items, {
+      status: historyStatusFilter,
+      principal: historyPrincipalFilter,
+      order: historyOrder
+    });
+  }, [activity.items, historyStatusFilter, historyPrincipalFilter, historyOrder]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -524,67 +546,157 @@ export function DebtDetailsModal({
                       </p>
                     </div>
 
-                    {/* Table of Payments */}
-                    <div className="border border-border rounded-2xl overflow-hidden bg-surface shadow-xs">
-                      <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="border-b border-border bg-surface-2/80 text-[10px] font-bold uppercase tracking-wider text-text-faint">
-                              <th className="py-3 px-3.5">Data</th>
-                              <th className="py-3 px-3.5">Opis</th>
-                              <th className="py-3 px-3.5 text-right">Kwota wpłaty</th>
-                              <th className="py-3 px-3.5 text-right">Kapitał</th>
-                              <th className="py-3 px-3.5 text-right">Odsetki</th>
-                              <th className="py-3 px-3.5 text-right">Saldo po wpłacie</th>
-                              <th className="py-3 px-3.5 text-center">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-border font-medium text-text-main">
-                            {[...activity.items].reverse().map((item) => (
-                              <tr key={item.transactionId} className="hover:bg-surface-2/40 transition-colors">
-                                <td className="py-2.5 px-3.5 text-text-muted font-mono whitespace-nowrap">
-                                  {item.date}
-                                </td>
-                                <td className="py-2.5 px-3.5 max-w-[160px] sm:max-w-xs truncate font-semibold">
-                                  {item.transactionName || "Spłata długu"}
-                                </td>
-                                <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
-                                  {formatMoney(item.paymentAmount, currency)}
-                                </td>
-                                <td className="py-2.5 px-3.5 text-right font-bold text-emerald-600 dark:text-emerald-400 tabular-nums whitespace-nowrap">
-                                  {formatMoney(item.principalAmount, currency)}
-                                </td>
-                                <td className="py-2.5 px-3.5 text-right text-text-muted tabular-nums whitespace-nowrap">
-                                  {formatMoney(item.interestAmount, currency)}
-                                </td>
-                                <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
-                                  {formatMoney(item.closingBalance, currency)}
-                                </td>
-                                <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
-                                  {item.isFinalPayment || item.paymentStatus === "paid_off" ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                      Spłacono
-                                    </span>
-                                  ) : item.paymentStatus === "interest_only" ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                                      Tylko odsetki
-                                    </span>
-                                  ) : item.paymentStatus === "insufficient_payment" ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                                      Częściowa
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-3 text-text-muted border border-border">
-                                      Rata
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                    {/* Timeline Filter Controls */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-2/60 border border-border rounded-xl">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Status Filter */}
+                        <div className="flex items-center gap-1.5">
+                          <label htmlFor="history-status-filter" className="text-[11px] font-bold text-text-muted">
+                            Status:
+                          </label>
+                          <select
+                            id="history-status-filter"
+                            value={historyStatusFilter}
+                            onChange={(e) => setHistoryStatusFilter(e.target.value as DebtPaymentHistoryStatusFilter)}
+                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus:ring-1 focus:ring-brand focus:border-brand cursor-pointer"
+                          >
+                            <option value="all">Wszystkie</option>
+                            <option value="normal">Rata</option>
+                            <option value="insufficient_payment">Częściowa</option>
+                            <option value="interest_only">Tylko odsetki</option>
+                            <option value="paid_off">Spłacono</option>
+                          </select>
+                        </div>
+
+                        {/* Principal Filter */}
+                        <div className="flex items-center gap-1.5">
+                          <label htmlFor="history-principal-filter" className="text-[11px] font-bold text-text-muted">
+                            Kapitał:
+                          </label>
+                          <select
+                            id="history-principal-filter"
+                            value={historyPrincipalFilter}
+                            onChange={(e) => setHistoryPrincipalFilter(e.target.value as DebtPaymentHistoryPrincipalFilter)}
+                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus:ring-1 focus:ring-brand focus:border-brand cursor-pointer"
+                          >
+                            <option value="all">Wszystkie</option>
+                            <option value="with_principal">Z kapitałem</option>
+                            <option value="without_principal">Bez kapitału</option>
+                          </select>
+                        </div>
+
+                        {/* Order Selector */}
+                        <div className="flex items-center gap-1.5">
+                          <label htmlFor="history-order-filter" className="text-[11px] font-bold text-text-muted">
+                            Kolejność:
+                          </label>
+                          <select
+                            id="history-order-filter"
+                            value={historyOrder}
+                            onChange={(e) => setHistoryOrder(e.target.value as DebtPaymentHistoryOrder)}
+                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus:ring-1 focus:ring-brand focus:border-brand cursor-pointer"
+                          >
+                            <option value="newest">Najnowsze</option>
+                            <option value="oldest">Najstarsze</option>
+                          </select>
+                        </div>
+
+                        {/* Reset Filter Button */}
+                        {(historyStatusFilter !== "all" || historyPrincipalFilter !== "all" || historyOrder !== "newest") && (
+                          <button
+                            type="button"
+                            onClick={handleResetHistoryFilters}
+                            className="text-xs font-bold text-brand hover:underline px-1.5 py-1 cursor-pointer"
+                          >
+                            Wyczyść filtry
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Count Indicator */}
+                      <div className="text-[11px] font-medium text-text-muted shrink-0">
+                        {filteredActivityItems.length === activity.items.length
+                          ? `Wyświetlane: ${activity.items.length} płatności`
+                          : `Wyświetlane: ${filteredActivityItems.length} z ${activity.items.length} płatności`}
                       </div>
                     </div>
+
+                    {/* Table of Payments or Filtered Empty State */}
+                    {filteredActivityItems.length === 0 ? (
+                      <div className="p-8 bg-surface-2/40 border border-border rounded-2xl text-center space-y-3">
+                        <p className="text-xs font-bold text-text-main">
+                          Brak płatności spełniających wybrane filtry.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleResetHistoryFilters}
+                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                          Wyczyść filtry
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border border-border rounded-2xl overflow-hidden bg-surface shadow-xs">
+                        <div className="overflow-x-auto custom-scrollbar">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="border-b border-border bg-surface-2/80 text-[10px] font-bold uppercase tracking-wider text-text-faint">
+                                <th className="py-3 px-3.5">Data</th>
+                                <th className="py-3 px-3.5">Opis</th>
+                                <th className="py-3 px-3.5 text-right">Kwota wpłaty</th>
+                                <th className="py-3 px-3.5 text-right">Kapitał</th>
+                                <th className="py-3 px-3.5 text-right">Odsetki</th>
+                                <th className="py-3 px-3.5 text-right">Saldo po wpłacie</th>
+                                <th className="py-3 px-3.5 text-center">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border font-medium text-text-main">
+                              {filteredActivityItems.map((item) => (
+                                <tr key={item.transactionId} className="hover:bg-surface-2/40 transition-colors">
+                                  <td className="py-2.5 px-3.5 text-text-muted font-mono whitespace-nowrap">
+                                    {item.date}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 max-w-[160px] sm:max-w-xs truncate font-semibold">
+                                    {item.transactionName || "Spłata długu"}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
+                                    {formatMoney(item.paymentAmount, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-right font-bold text-emerald-600 dark:text-emerald-400 tabular-nums whitespace-nowrap">
+                                    {formatMoney(item.principalAmount, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-right text-text-muted tabular-nums whitespace-nowrap">
+                                    {formatMoney(item.interestAmount, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-right font-bold tabular-nums whitespace-nowrap">
+                                    {formatMoney(item.closingBalance, currency)}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
+                                    {item.isFinalPayment || item.paymentStatus === "paid_off" ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        Spłacono
+                                      </span>
+                                    ) : item.paymentStatus === "interest_only" ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                        Tylko odsetki
+                                      </span>
+                                    ) : item.paymentStatus === "insufficient_payment" ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                        Częściowa
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-3 text-text-muted border border-border">
+                                        Rata
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
