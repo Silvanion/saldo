@@ -114,7 +114,22 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
       salt: profileObj.salt ? String(profileObj.salt) : undefined,
       encryptedPayload: profileObj.encryptedPayload ? String(profileObj.encryptedPayload) : undefined,
       accounts: Array.isArray(profileObj.accounts) ? profileObj.accounts : [],
-      transactions: Array.isArray(profileObj.transactions) ? profileObj.transactions.map((t: any) => ({ ...t, currency: t.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) })) : [],
+      transactions: Array.isArray(profileObj.transactions)
+        ? profileObj.transactions.map((t: any) => {
+            const txObj = (t && typeof t === "object" ? t : {}) as Record<string, unknown>;
+            const rawDebtId = typeof txObj.debtId === "string" ? txObj.debtId.trim() : undefined;
+            const cleanTx = {
+              ...t,
+              currency: t.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN"))
+            };
+            if (rawDebtId) {
+              cleanTx.debtId = rawDebtId;
+            } else {
+              delete cleanTx.debtId;
+            }
+            return cleanTx;
+          })
+        : [],
       payments: Array.isArray(profileObj.payments) ? profileObj.payments.map((p: any) => ({ ...p, currency: p.currency || (typeof profileObj.currency === "string" ? profileObj.currency : (data.currencyPreference ?? "PLN")) })) : [],
       goals: Array.isArray(profileObj.goals) ? profileObj.goals : [],
       investments: Array.isArray(profileObj.investments) ? profileObj.investments : [],

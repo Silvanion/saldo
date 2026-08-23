@@ -18,6 +18,7 @@ export interface Transaction {
   isRecurring?: boolean;
   recurringRuleId?: string;
   sourcePaymentId?: string;
+  debtId?: string;
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
   currency: SupportedCurrency;
