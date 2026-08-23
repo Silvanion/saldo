@@ -103,6 +103,80 @@ export function getNewlyCrossedDebtMilestone(
   return newlyCrossed[newlyCrossed.length - 1];
 }
 
+export interface DebtMilestoneForecast {
+  nextMilestone: DebtRepaymentMilestone;
+  estimatedDate: string;
+  estimatedMonthCount: number;
+  monthlyRepaymentSignal: number;
+  remainingAmountToMilestone: number;
+}
+
+export function calculateNextDebtMilestoneForecast(
+  debt: DebtItem | null | undefined,
+  options?: {
+    now?: Date;
+    monthlyRepaymentSignalOverride?: number;
+  }
+): DebtMilestoneForecast | null {
+  if (!debt || debt.status === "closed") {
+    return null;
+  }
+
+  if (debt.type === "credit_card" || debt.type === "revolving") {
+    return null;
+  }
+
+  const progress = calculateDebtRepaymentProgress(debt);
+  if (!progress.hasUsableReferenceAmount || progress.isComplete || !progress.nextMilestone) {
+    return null;
+  }
+
+  const monthlyRepaymentSignal =
+    options?.monthlyRepaymentSignalOverride !== undefined
+      ? options.monthlyRepaymentSignalOverride
+      : Number(debt.monthlyPayment) || 0;
+
+  if (monthlyRepaymentSignal <= 0 || !Number.isFinite(monthlyRepaymentSignal)) {
+    return null;
+  }
+
+  const nextMilestone = progress.nextMilestone;
+  const targetRepaidAmount = progress.referenceAmount * (nextMilestone / 100);
+  const remainingAmountToMilestone = Math.max(0, targetRepaidAmount - progress.repaidAmount);
+
+  if (remainingAmountToMilestone <= 0) {
+    return null;
+  }
+
+  const estimatedMonthCount = Math.max(1, Math.ceil(remainingAmountToMilestone / monthlyRepaymentSignal));
+  const baseDate = options?.now ? new Date(options.now) : new Date();
+
+  const targetYear = baseDate.getFullYear() + Math.floor((baseDate.getMonth() + estimatedMonthCount) / 12);
+  const targetMonth = ((baseDate.getMonth() + estimatedMonthCount) % 12) + 1;
+  const estimatedDate = `${targetYear}-${String(targetMonth).padStart(2, "0")}`;
+
+  return {
+    nextMilestone,
+    estimatedDate,
+    estimatedMonthCount,
+    monthlyRepaymentSignal,
+    remainingAmountToMilestone
+  };
+}
+
+export function formatMilestoneForecastDate(isoYearMonth: string): string {
+  try {
+    const [yearStr, monthStr] = isoYearMonth.split("-");
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    if (!year || !month) return isoYearMonth;
+    const date = new Date(year, month - 1, 1);
+    return new Intl.DateTimeFormat("pl-PL", { month: "short", year: "numeric" }).format(date);
+  } catch {
+    return isoYearMonth;
+  }
+}
+
 export interface DebtPortfolioCardProps {
   key?: React.Key;
   debt: DebtItem;
@@ -333,50 +407,60 @@ export function DebtPortfolioCard({
         </div>
 
         {/* Progress Bar (if originalAmount / creditLimit is defined) */}
-        {debt.originalAmount && debt.originalAmount > 0 && debt.type !== "credit_card" && debt.type !== "revolving" && (
-          <div
-            className="mt-3 mb-2"
-            aria-label={`Postęp spłaty długu: ${paidRatio}%. ${
-              repaymentProgress.isComplete
-                ? "Dług spłacony."
-                : repaymentProgress.currentMilestone
-                ? `Osiągnięto: ${repaymentProgress.currentMilestone}%. Następny kamień: ${repaymentProgress.nextMilestone}%.`
-                : `Następny kamień: ${repaymentProgress.nextMilestone}%.`
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-text-faint font-medium">Postęp spłaty kapitału</span>
-              <span className="font-bold text-text-main tabular-nums">{paidRatio}% spłacone</span>
+        {debt.originalAmount && debt.originalAmount > 0 && debt.type !== "credit_card" && debt.type !== "revolving" && (() => {
+          const forecast = calculateNextDebtMilestoneForecast(debt);
+          return (
+            <div
+              className="mt-3 mb-2"
+              aria-label={`Postęp spłaty długu: ${paidRatio}%. ${
+                repaymentProgress.isComplete
+                  ? "Dług spłacony."
+                  : repaymentProgress.currentMilestone
+                  ? `Osiągnięto: ${repaymentProgress.currentMilestone}%. Następny kamień: ${repaymentProgress.nextMilestone}%.`
+                  : `Następny kamień: ${repaymentProgress.nextMilestone}%.`
+              }${forecast ? ` Szacowane osiągnięcie progu ${forecast.nextMilestone}%: ${formatMilestoneForecastDate(forecast.estimatedDate)}.` : ""}`}
+            >
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-text-faint font-medium">Postęp spłaty kapitału</span>
+                <span className="font-bold text-text-main tabular-nums">{paidRatio}% spłacone</span>
+              </div>
+              <div className="w-full h-2 bg-surface-offset rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-brand rounded-full transition-all duration-500"
+                  style={{ width: `${paidRatio}%` }}
+                />
+              </div>
+              {/* SPRINT 40: Milestone Indicators */}
+              <div className="flex items-center justify-between mt-1.5" role="group" aria-label="Kamienie milowe spłaty">
+                {DEBT_REPAYMENT_MILESTONES.map((milestone) => {
+                  const isReached = repaymentProgress.reachedMilestones.includes(milestone);
+                  return (
+                    <span
+                      key={milestone}
+                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${
+                        isReached
+                          ? "bg-brand-subtle text-brand border-brand/20"
+                          : "bg-surface-2/40 text-text-faint border-border/40"
+                      }`}
+                      title={`Kamień milowy ${milestone}%: ${isReached ? "Osiągnięty" : "Do osiągnięcia"}`}
+                      aria-label={`Kamień milowy ${milestone}%: ${isReached ? "osiągnięty" : "nieosiągnięty"}`}
+                    >
+                      {isReached && <Check className="w-2.5 h-2.5" />}
+                      <span>{milestone}%</span>
+                    </span>
+                  );
+                })}
+              </div>
+              {/* SPRINT 42: Next Milestone Forecast */}
+              {forecast && (
+                <div className="mt-1.5 text-[10px] text-text-muted flex items-center justify-between">
+                  <span>Kolejny próg: <strong className="text-text-main">{forecast.nextMilestone}%</strong></span>
+                  <span className="font-medium text-text-faint">szac. {formatMilestoneForecastDate(forecast.estimatedDate)}</span>
+                </div>
+              )}
             </div>
-            <div className="w-full h-2 bg-surface-offset rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand rounded-full transition-all duration-500"
-                style={{ width: `${paidRatio}%` }}
-              />
-            </div>
-            {/* SPRINT 40: Milestone Indicators */}
-            <div className="flex items-center justify-between mt-1.5" role="group" aria-label="Kamienie milowe spłaty">
-              {DEBT_REPAYMENT_MILESTONES.map((milestone) => {
-                const isReached = repaymentProgress.reachedMilestones.includes(milestone);
-                return (
-                  <span
-                    key={milestone}
-                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${
-                      isReached
-                        ? "bg-brand-subtle text-brand border-brand/20"
-                        : "bg-surface-2/40 text-text-faint border-border/40"
-                    }`}
-                    title={`Kamień milowy ${milestone}%: ${isReached ? "Osiągnięty" : "Do osiągnięcia"}`}
-                    aria-label={`Kamień milowy ${milestone}%: ${isReached ? "osiągnięty" : "nieosiągnięty"}`}
-                  >
-                    {isReached && <Check className="w-2.5 h-2.5" />}
-                    <span>{milestone}%</span>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {(debt.type === "credit_card" || debt.type === "revolving") && debt.creditLimit && debt.creditLimit > 0 && (
           <div className="mt-3 mb-2">

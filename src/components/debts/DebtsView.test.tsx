@@ -6,7 +6,13 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
-import { DebtPortfolioCard, calculateDebtRepaymentProgress, getNewlyCrossedDebtMilestone } from "./DebtPortfolioCard";
+import {
+  DebtPortfolioCard,
+  calculateDebtRepaymentProgress,
+  getNewlyCrossedDebtMilestone,
+  calculateNextDebtMilestoneForecast,
+  formatMilestoneForecastDate
+} from "./DebtPortfolioCard";
 import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile, Transaction } from "../../types";
 import * as csvUtils from "../../utils/csv";
@@ -2704,6 +2710,169 @@ describe("DebtsView (Sprint 1 MVP)", () => {
         fireEvent.click(markPaidBtn);
 
         expect(showToast).toHaveBeenCalledWith("Dług spłacony — gratulacje!", "success");
+      });
+    });
+
+    describe("Sprint 42: calculateNextDebtMilestoneForecast pure helper & UI rendering", () => {
+      const fixedNow = new Date("2026-01-15T12:00:00Z");
+
+      it("1. No usable reference amount -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 0, balance: 0, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(debt, { now: fixedNow })).toBeNull();
+      });
+
+      it("2. Already fully paid / closed -> returns null", () => {
+        const debtClosed: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 0, monthlyPayment: 100, interestRate: 5, status: "closed", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(debtClosed, { now: fixedNow })).toBeNull();
+
+        const debt100: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 0, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(debt100, { now: fixedNow })).toBeNull();
+      });
+
+      it("3. Current 18%, monthly signal 100, next = 25%", () => {
+        // ref: 1000, balance: 820 (180 paid = 18%). Target 25% = 250. Remaining: 70. Months: ceil(70/100) = 1.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 820, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res).not.toBeNull();
+        expect(res?.nextMilestone).toBe(25);
+        expect(res?.estimatedMonthCount).toBe(1);
+        expect(res?.estimatedDate).toBe("2026-02");
+      });
+
+      it("4. Current exactly 25% -> returns next unreached milestone 50%", () => {
+        // ref: 1000, balance: 750 (25% paid). Target 50% = 500. Remaining: 250. Months: ceil(250/100) = 3.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 750, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.nextMilestone).toBe(50);
+        expect(res?.estimatedMonthCount).toBe(3);
+        expect(res?.estimatedDate).toBe("2026-04");
+      });
+
+      it("5. Current 52% -> returns next milestone 75%", () => {
+        // ref: 1000, balance: 480 (52% paid). Target 75% = 750. Remaining: 270. Months: ceil(270/100) = 3.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 480, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.nextMilestone).toBe(75);
+        expect(res?.estimatedMonthCount).toBe(3);
+      });
+
+      it("6. Current 80% -> returns next milestone 100%", () => {
+        // ref: 1000, balance: 200 (80% paid). Target 100% = 1000. Remaining: 200. Months: ceil(200/100) = 2.
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 200, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.nextMilestone).toBe(100);
+        expect(res?.estimatedMonthCount).toBe(2);
+        expect(res?.estimatedDate).toBe("2026-03");
+      });
+
+      it("7. Zero monthly repayment signal -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 0, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(debt, { now: fixedNow })).toBeNull();
+      });
+
+      it("8. Negative or invalid monthly signal -> returns null", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: -50, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(debt, { now: fixedNow })).toBeNull();
+      });
+
+      it("9. Remaining amount exactly divisible by monthly signal -> exact month count", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 950, monthlyPayment: 50, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        // 5% paid (50). Target 25% (250). Remaining 200. 200 / 50 = 4 months.
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.estimatedMonthCount).toBe(4);
+      });
+
+      it("10. Remaining amount not divisible -> uses ceil", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 950, monthlyPayment: 60, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        // Remaining 200. 200 / 60 = 3.33 -> ceil = 4 months.
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.estimatedMonthCount).toBe(4);
+      });
+
+      it("11. Tiny positive remainder -> minimum 1 month", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 751, monthlyPayment: 500, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        // Remaining to 25%: 1 zł. ceil(1/500) = 1 month.
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.estimatedMonthCount).toBe(1);
+      });
+
+      it("12. Ineligible credit card / revolving debt -> returns null", () => {
+        const cardDebt: DebtItem = { id: "c1", name: "Karta", institution: "B", type: "credit_card", currency: "PLN", creditLimit: 5000, balance: 2000, monthlyPayment: 200, interestRate: 15, status: "active", createdAt: "2026-01-01" };
+        expect(calculateNextDebtMilestoneForecast(cardDebt, { now: fixedNow })).toBeNull();
+      });
+
+      it("13. Deterministic date with injected now", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1200, balance: 1200, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        // Target 25% (300). Remaining 300. Months: 3. Jan 2026 + 3 = Apr 2026.
+        const res = calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(res?.estimatedDate).toBe("2026-04");
+      });
+
+      it("14. Input debt is not mutated", () => {
+        const debt: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 1000, balance: 800, monthlyPayment: 100, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const copy = JSON.stringify(debt);
+        calculateNextDebtMilestoneForecast(debt, { now: fixedNow });
+        expect(JSON.stringify(debt)).toBe(copy);
+      });
+
+      it("15. DebtPortfolioCard renders compact forecast line", () => {
+        const debt: DebtItem = {
+          id: "debt-card-fc",
+          name: "Pożyczka",
+          institution: "Santander",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 100000,
+          balance: 80000, // 20% paid, next = 25%
+          monthlyPayment: 2500,
+          interestRate: 8.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        render(
+          <DebtPortfolioCard
+            debt={debt}
+            onOpenDetails={vi.fn()}
+            onOpenOverpayment={vi.fn()}
+            onOpenRefinance={vi.fn()}
+            onToggleStatus={vi.fn()}
+            onEdit={vi.fn()}
+            onDelete={vi.fn()}
+          />
+        );
+
+        expect(screen.getByText(/Kolejny próg:/i)).toBeTruthy();
+        expect(screen.getAllByText("25%").length).toBeGreaterThan(0);
+        expect(screen.getByText(/szac\./i)).toBeTruthy();
+      });
+
+      it("16. DebtDetailsModal renders forecast in overview tab", () => {
+        const debt: DebtItem = {
+          id: "debt-details-fc",
+          name: "Kredyt gotówkowy",
+          institution: "PKO BP",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 50000,
+          balance: 40000, // 20% paid, next = 25%
+          monthlyPayment: 1000,
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        render(
+          <DebtDetailsModal
+            isOpen={true}
+            debt={debt}
+            onClose={vi.fn()}
+            initialTab="overview"
+          />
+        );
+
+        expect(screen.getByText(/Kolejny próg:/i)).toBeTruthy();
+        expect(screen.getAllByText("25%").length).toBeGreaterThan(0);
       });
     });
   });

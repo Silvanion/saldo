@@ -29,7 +29,12 @@ import {
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
 import { downloadFile } from "../../utils/csv";
-import { DEBT_REPAYMENT_MILESTONES, calculateDebtRepaymentProgress } from "./DebtPortfolioCard";
+import {
+  DEBT_REPAYMENT_MILESTONES,
+  calculateDebtRepaymentProgress,
+  calculateNextDebtMilestoneForecast,
+  formatMilestoneForecastDate
+} from "./DebtPortfolioCard";
 import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
@@ -631,10 +636,11 @@ export function DebtDetailsModal({
                   </div>
                 </div>
 
-                {/* SPRINT 40: Repayment Progress & Milestone Strip */}
+                {/* SPRINT 40 & 42: Repayment Progress & Milestone Strip with Forecast */}
                 {debt.originalAmount && debt.originalAmount > 0 && debt.type !== "credit_card" && debt.type !== "revolving" && (() => {
                   const repaymentProgress = calculateDebtRepaymentProgress(debt);
                   const paidRatio = repaymentProgress.repaidPercent;
+                  const forecast = calculateNextDebtMilestoneForecast(debt);
                   return (
                     <div
                       className="p-5 bg-surface border border-border rounded-2xl"
@@ -644,16 +650,20 @@ export function DebtDetailsModal({
                           : repaymentProgress.currentMilestone
                           ? `Osiągnięto: ${repaymentProgress.currentMilestone}%. Następny kamień: ${repaymentProgress.nextMilestone}%.`
                           : `Następny kamień: ${repaymentProgress.nextMilestone}%.`
-                      }`}
+                      }${forecast ? ` Szacowane osiągnięcie progu ${forecast.nextMilestone}%: ${formatMilestoneForecastDate(forecast.estimatedDate)}.` : ""}`}
                     >
-                      <div className="flex items-center justify-between text-xs font-bold mb-2">
+                      <div className="flex items-center justify-between text-xs font-bold mb-2 flex-wrap gap-2">
                         <span className="text-text-faint uppercase tracking-wider text-[11px]">
                           Postęp spłaty kapitału
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {repaymentProgress.isComplete ? (
                             <span className="text-[11px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
                               Dług spłacony
+                            </span>
+                          ) : forecast ? (
+                            <span className="text-[11px] font-medium text-text-muted">
+                              Kolejny próg: <strong className="text-text-main">{forecast.nextMilestone}%</strong> (szac. {formatMilestoneForecastDate(forecast.estimatedDate)})
                             </span>
                           ) : repaymentProgress.nextMilestone ? (
                             <span className="text-[11px] font-medium text-text-muted">
