@@ -9,15 +9,40 @@ import {
   Sparkles,
   RotateCcw
 } from "lucide-react";
+import { DebtPayoffStrategyType } from "../../services/debtCalculations";
 
-export function PayoffStrategiesKnowledgeCenter() {
+export interface PayoffStrategiesKnowledgeCenterProps {
+  selectedStrategy?: DebtPayoffStrategyType;
+}
+
+export function PayoffStrategiesKnowledgeCenter({
+  selectedStrategy
+}: PayoffStrategiesKnowledgeCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const getStrategyLabel = (strategy?: DebtPayoffStrategyType) => {
+    switch (strategy) {
+      case "avalanche":
+        return "Lawina (Avalanche)";
+      case "snowball":
+        return "Kula Śnieżna (Snowball)";
+      case "custom":
+        return "Własna kolejność (Custom)";
+      case "baseline":
+        return "Plan bazowy (Status Quo)";
+      default:
+        return null;
+    }
+  };
+
+  const activeStrategyLabel = getStrategyLabel(selectedStrategy);
 
   return (
     <div className="bg-surface rounded-2xl border border-border overflow-hidden transition-all shadow-2xs">
       {/* Trigger Button */}
       <button
         type="button"
+        id="btn-toggle-knowledge-center"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-controls="payoff-strategies-knowledge-content"
@@ -29,10 +54,10 @@ export function PayoffStrategiesKnowledgeCenter() {
           </div>
           <div>
             <h4 className="text-sm font-bold text-text-main">
-              Jak działają strategie spłaty zadłużenia?
+              Jak działają strategie spłaty?
             </h4>
             <p className="text-xs text-text-muted mt-0.5">
-              Przewodnik po różnicach matematycznych, psychologicznych i zasadach kolejności
+              Krótki opis sposobu porządkowania nadpłat w symulacji.
             </p>
           </div>
         </div>
@@ -49,61 +74,148 @@ export function PayoffStrategiesKnowledgeCenter() {
           id="payoff-strategies-knowledge-content"
           className="px-4 pb-5 sm:px-6 sm:pb-6 pt-1 border-t border-border/60 space-y-5 animate-fade-in text-xs text-text-muted leading-relaxed"
         >
-          <p className="pt-2 text-text-main font-medium">
-            W tym symulatorze każda strategia zakłada terminowe opłacanie minimalnych rat wszystkich czynnych zobowiązań, a zadeklarowana miesięczna nadwyżka jest w 100% kierowana na jedno zobowiązanie o najwyższym priorytecie. Po jego spłaceniu, cała uwolniona kwota przechodzi na kolejne (efekt kaskadowy).
-          </p>
+          {/* Selected Strategy Context Banner */}
+          {activeStrategyLabel && (
+            <div className="pt-2 p-3 rounded-xl bg-brand-subtle/20 border border-brand/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-text-main text-xs">
+                  Wybrana strategia: <strong className="text-brand font-black">{activeStrategyLabel}</strong>
+                </span>
+              </div>
+              <span className="text-[11px] text-text-muted">
+                Wyjaśnienie odpowiada aktualnie wybranej strategii.
+              </span>
+            </div>
+          )}
+
+          {/* Summary of trade-offs and mechanism */}
+          <div className="p-3 rounded-xl bg-surface-2/60 border border-border/80 text-text-main font-medium">
+            <p>
+              Avalanche porządkuje zobowiązania według oprocentowania, a Snowball według salda. Status Quo pozostaje punktem odniesienia. Wynik symulacji zależy od wprowadzonych danych, rat, oprocentowania i dodatkowego budżetu.
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 1. Avalanche */}
-            <div className="p-4 rounded-xl bg-surface-2/40 border border-border/80 space-y-2">
+            {/* 1. Status Quo */}
+            <div
+              data-selected={selectedStrategy === "baseline"}
+              className={`p-4 rounded-xl border space-y-2 transition-all ${
+                selectedStrategy === "baseline"
+                  ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
+                  : "bg-surface-2/40 border-border/80"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-surface border border-border text-text-muted flex items-center justify-center">
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </div>
+                  <h5 className="font-bold text-text-main text-xs">Status Quo (Plan bazowy)</h5>
+                </div>
+                {selectedStrategy === "baseline" ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                    Aktualnie wybrana
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                    Baza
+                  </span>
+                )}
+              </div>
+              <p>
+                <strong>Zasada:</strong> Punkt odniesienia oparty na bieżących założeniach spłaty.
+              </p>
+              <p>
+                <strong>Działanie:</strong> Nie dodaje dodatkowej kolejności kierowania nadpłat.
+              </p>
+              <p>
+                <strong>Zastosowanie:</strong> Służy jako baza do odczytania różnic między scenariuszami.
+              </p>
+            </div>
+
+            {/* 2. Avalanche */}
+            <div
+              data-selected={selectedStrategy === "avalanche"}
+              className={`p-4 rounded-xl border space-y-2 transition-all ${
+                selectedStrategy === "avalanche"
+                  ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
+                  : "bg-surface-2/40 border-border/80"
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
                     <Percent className="w-3.5 h-3.5" />
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Metoda Lawiny (Avalanche)</h5>
+                  <h5 className="font-bold text-text-main text-xs">Lawina (Avalanche)</h5>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                  Matematyczna
-                </span>
+                {selectedStrategy === "avalanche" ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                    Aktualnie wybrana
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                    Oprocentowanie
+                  </span>
+                )}
               </div>
               <p>
-                <strong>Zasada kolejności:</strong> Priorytet otrzymuje zobowiązanie o najwyższej rocznej stopie oprocentowania (APR), bez względu na wysokość salda.
+                <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem.
               </p>
               <p>
-                <strong>Aspekt matematyczny:</strong> Z reguły minimalizuje łączną kwotę zapłaconych odsetek w trakcie całego planu spłaty.
+                <strong>Koszt odsetek:</strong> Kolejność może ograniczać naliczane odsetki w modelu, ale wynik zależy od danych i założeń symulacji.
               </p>
               <p>
-                <strong>Aspekt psychologiczny:</strong> Bywa wybierana przez osoby kierujące się czystą optymalizacją kosztów finansowych, choć pierwszy sukces (całkowita likwidacja pojedynczej umowy) może wymagać dłuższego czasu, jeśli najdroższy kredyt ma wysokie saldo.
+                <strong>Charakter:</strong> To opis mechanizmu, a nie indywidualna rekomendacja.
               </p>
             </div>
 
-            {/* 2. Snowball */}
-            <div className="p-4 rounded-xl bg-surface-2/40 border border-border/80 space-y-2">
+            {/* 3. Snowball */}
+            <div
+              data-selected={selectedStrategy === "snowball"}
+              className={`p-4 rounded-xl border space-y-2 transition-all ${
+                selectedStrategy === "snowball"
+                  ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
+                  : "bg-surface-2/40 border-border/80"
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Metoda Kuli Śnieżnej (Snowball)</h5>
+                  <h5 className="font-bold text-text-main text-xs">Kula Śnieżna (Snowball)</h5>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                  Motywacyjna
-                </span>
+                {selectedStrategy === "snowball" ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                    Aktualnie wybrana
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                    Najmniejsze saldo
+                  </span>
+                )}
               </div>
               <p>
-                <strong>Zasada kolejności:</strong> Priorytet otrzymuje zobowiązanie o najmniejszym aktualnym saldzie zadłużenia, bez względu na oprocentowanie.
+                <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem.
               </p>
               <p>
-                <strong>Aspekt matematyczny:</strong> Może wiązać się z nieznacznie wyższym łącznym kosztem odsetek w porównaniu z Lawiną, jeśli najmniejsze kredyty mają niższe stopy niż pozostałe.
+                <strong>Kamienie milowe:</strong> Strategia pokazuje wcześniejsze zamykanie mniejszych zobowiązań w modelu.
               </p>
               <p>
-                <strong>Aspekt psychologiczny:</strong> Daje szybkie poczucie postępu poprzez szybkie zamykanie kolejnych umów, co pomaga w utrzymaniu dyscypliny finansowej i budowaniu nawyku spłaty.
+                <strong>Koszty:</strong> Nie oznacza automatycznie niższego kosztu odsetkowego.
               </p>
             </div>
 
-            {/* 3. Custom */}
-            <div className="p-4 rounded-xl bg-surface-2/40 border border-border/80 space-y-2">
+            {/* 4. Custom */}
+            <div
+              data-selected={selectedStrategy === "custom"}
+              className={`p-4 rounded-xl border space-y-2 transition-all ${
+                selectedStrategy === "custom"
+                  ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
+                  : "bg-surface-2/40 border-border/80"
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
@@ -111,42 +223,24 @@ export function PayoffStrategiesKnowledgeCenter() {
                   </div>
                   <h5 className="font-bold text-text-main text-xs">Własna kolejność (Custom)</h5>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                  Elastyczna
-                </span>
+                {selectedStrategy === "custom" ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                    Aktualnie wybrana
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                    Ręczna
+                  </span>
+                )}
               </div>
               <p>
-                <strong>Zasada kolejności:</strong> Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji.
+                <strong>Priorytet:</strong> Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji.
               </p>
               <p>
-                <strong>Aspekt matematyczny:</strong> Wynik (koszt odsetek i czas spłaty) zależy wprost od ustalonej sekwencji celów oraz przypisanych im parametrów kredytowych.
+                <strong>Kaskada:</strong> Cała nadpłata trafia na cel nr 1, a po jego spłacie uwolniona rata zasila kolejne pozycje.
               </p>
               <p>
-                <strong>Aspekt psychologiczny:</strong> Pozwala uwzględnić indywidualne uwarunkowania życiowe, np. chęć pozbycia się w pierwszej kolejności pożyczki prywatnej, karty kredytowej w nielubianym banku czy kredytu o zmiennej stopie.
-              </p>
-            </div>
-
-            {/* 4. Status Quo */}
-            <div className="p-4 rounded-xl bg-surface-2/40 border border-border/80 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-surface border border-border text-text-muted flex items-center justify-center">
-                    <RotateCcw className="w-3.5 h-3.5" />
-                  </div>
-                  <h5 className="font-bold text-text-main text-xs">Status Quo (Tylko raty)</h5>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                  Bazowa
-                </span>
-              </div>
-              <p>
-                <strong>Zasada kolejności:</strong> Brak dodatkowej nadpłaty. Każde zobowiązanie spłacane jest wyłącznie według minimalnego harmonogramu umownego.
-              </p>
-              <p>
-                <strong>Aspekt matematyczny:</strong> Stanowi punkt odniesienia (baseline). Wiąże się z najdłuższym okresem spłaty i najwyższym łącznym kosztem odsetkowym.
-              </p>
-              <p>
-                <strong>Aspekt psychologiczny:</strong> Nie wymaga wygospodarowywania dodatkowych środków w miesięcznym budżecie domowym.
+                <strong>Wynik:</strong> Koszt i czas spłaty wynikają wprost ze wskazanej kolejności celów.
               </p>
             </div>
           </div>
@@ -155,7 +249,7 @@ export function PayoffStrategiesKnowledgeCenter() {
           <div className="text-[11px] text-text-muted flex items-start gap-2.5 bg-surface-2 p-3.5 rounded-xl border border-border">
             <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
             <p>
-              <strong>Zastrzeżenie edukacyjne:</strong> Przedstawione opisy mają charakter informacyjny i objaśniający działanie symulatora. Wyniki obliczeń są orientacyjnymi symulacjami opartymi na formule annuitetowej i wprowadzonych danych. Prezentowane materiały nie stanowią zindywidualizowanej rekomendacji finansowej ani porady doradcy kredytowego.
+              <strong>Zastrzeżenie edukacyjne:</strong> To uproszczony opis strategii używanych w symulacji. Wyniki nie są poradą finansową i zależą od wprowadzonych danych oraz przyjętych założeń.
             </p>
           </div>
         </div>

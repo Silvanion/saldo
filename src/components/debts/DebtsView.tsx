@@ -1736,8 +1736,8 @@ export function DebtsView({
                 })()
               )}
 
-              {/* Sprint 8: Payoff Strategies Knowledge Center (Explainer Hub) */}
-              <PayoffStrategiesKnowledgeCenter />
+              {/* Sprint 8 / Sprint 31: Payoff Strategies Knowledge Center (Explainer Hub with Contextual Guidance) */}
+              <PayoffStrategiesKnowledgeCenter selectedStrategy={selectedPayoffStrategy} />
 
               {/* Custom Order Reorder Panel */}
               {selectedPayoffStrategy === "custom" && activeDebts.length > 0 && (

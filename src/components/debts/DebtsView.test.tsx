@@ -509,7 +509,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     // 1. Trigger button is rendered with aria-expanded="false"
     const knowledgeTrigger = screen.getByRole("button", {
-      name: /Jak działają strategie spłaty zadłużenia\?/i
+      name: /Jak działają strategie spłaty\?/i
     });
     expect(knowledgeTrigger).toBeTruthy();
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
@@ -522,15 +522,25 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(knowledgeTrigger);
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("true");
 
-    // 3. Verify all four strategies explanations are present
-    expect(screen.getAllByText("Metoda Lawiny (Avalanche)").length).toBeGreaterThanOrEqual(2);
+    // 3. Verify contextual guidance banner is present for default "avalanche"
+    expect(screen.getByText("Wybrana strategia:")).toBeTruthy();
+    expect(screen.getByText("Wyjaśnienie odpowiada aktualnie wybranej strategii.")).toBeTruthy();
+    expect(screen.getByText("Aktualnie wybrana")).toBeTruthy();
+
+    // 4. Verify trade-off summary is present
     expect(
-      screen.getByText(/Priorytet otrzymuje zobowiązanie o najwyższej rocznej stopie oprocentowania/i)
+      screen.getByText(/Avalanche porządkuje zobowiązania według oprocentowania, a Snowball według salda/i)
     ).toBeTruthy();
 
-    expect(screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)").length).toBeGreaterThanOrEqual(2);
+    // 5. Verify all strategies explanations are present
+    expect(screen.getAllByText("Lawina (Avalanche)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Priorytet otrzymuje zobowiązanie o najmniejszym aktualnym saldzie zadłużenia/i)
+      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem/i)
+    ).toBeTruthy();
+
+    expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem/i)
     ).toBeTruthy();
 
     expect(screen.getByText("Własna kolejność (Custom)")).toBeTruthy();
@@ -538,21 +548,48 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       screen.getByText(/Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji/i)
     ).toBeTruthy();
 
-    expect(screen.getAllByText("Status Quo (Tylko raty)").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Status Quo (Plan bazowy)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Każde zobowiązanie spłacane jest wyłącznie według minimalnego harmonogramu umownego/i)
+      screen.getByText(/Punkt odniesienia oparty na bieżących założeniach spłaty/i)
     ).toBeTruthy();
 
-    // 4. Verify educational disclaimer
+    // 6. Verify educational disclaimer
     expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
     expect(
-      screen.getByText(/Prezentowane materiały nie stanowią zindywidualizowanej rekomendacji finansowej/i)
+      screen.getByText(/To uproszczony opis strategii używanych w symulacji/i)
     ).toBeTruthy();
 
-    // 5. Click again to collapse
+    // 7. Click again to collapse
     fireEvent.click(knowledgeTrigger);
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByText(/Zastrzeżenie edukacyjne:/i)).toBeNull();
+  });
+
+  it("Sprint 31: dynamically updates contextual guidance in Knowledge Center when switching strategies", () => {
+    render(<DebtsView profile={mockProfile} />);
+
+    // Switch to Payoff Strategy tab
+    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+    fireEvent.click(strategyTopBtn);
+
+    // Open Knowledge Center
+    const knowledgeTrigger = screen.getByRole("button", {
+      name: /Jak działają strategie spłaty\?/i
+    });
+    fireEvent.click(knowledgeTrigger);
+
+    // Default strategy is avalanche
+    expect(screen.getAllByText("Lawina (Avalanche)").length).toBeGreaterThanOrEqual(1);
+    const avalancheCard = document.querySelector('[data-selected="true"]');
+    expect(avalancheCard?.textContent).toContain("Lawina (Avalanche)");
+
+    // Switch strategy to Snowball by clicking Snowball card
+    const snowballStrategyCards = screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)");
+    fireEvent.click(snowballStrategyCards[0]);
+
+    // Contextual highlight in Knowledge Center should now be Snowball
+    const selectedKnowledgeCard = document.querySelector('[data-selected="true"]');
+    expect(selectedKnowledgeCard?.textContent).toContain("Kula Śnieżna (Snowball)");
   });
 
   it("handles scenario comparison selection, enforces max 2 limit, and opens comparison modal", () => {
@@ -810,7 +847,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     // 4. Test Knowledge Center disclosure
     const knowledgeTrigger = screen.getByRole("button", {
-      name: /Jak działają strategie spłaty zadłużenia\?/i
+      name: /Jak działają strategie spłaty\?/i
     });
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(knowledgeTrigger);
