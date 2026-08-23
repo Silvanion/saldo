@@ -84,6 +84,18 @@ export interface DebtOverpaymentVariantsComparisonResult {
   errorMessage?: string;
 }
 
+export type DebtPaymentStatus = "normal" | "interest_only" | "insufficient_payment" | "paid_off";
+
+export interface DebtPaymentBreakdown {
+  openingBalance: number;
+  paymentAmount: number;
+  interestAmount: number;
+  principalAmount: number;
+  closingBalance: number;
+  isFinalPayment: boolean;
+  paymentStatus: DebtPaymentStatus;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -685,6 +697,76 @@ export function calculateDebtOverpaymentVariants(
     variants: results,
     isEligible: true,
     validationStatus: "valid"
+  };
+}
+
+/**
+ * Pure calculation logic for single debt payment breakdown into principal and interest (Sprint 20)
+ */
+export function calculateDebtPaymentBreakdown(
+  debt: Pick<DebtItem, "balance" | "monthlyPayment" | "interestRate"> | null | undefined,
+  paymentAmount?: number
+): DebtPaymentBreakdown {
+  const openingBalance = Math.max(0, Number(debt?.balance) || 0);
+  const annualRatePct = Math.max(0, Number(debt?.interestRate) || 0);
+  const defaultPayment = Math.max(0, Number(debt?.monthlyPayment) || 0);
+  const effectivePayment = paymentAmount !== undefined ? Math.max(0, Number(paymentAmount) || 0) : defaultPayment;
+
+  const cleanOpeningBalance = Math.round(openingBalance * 100) / 100;
+  const cleanPaymentAmount = Math.round(effectivePayment * 100) / 100;
+
+  if (cleanOpeningBalance <= 0) {
+    return {
+      openingBalance: 0,
+      paymentAmount: cleanPaymentAmount,
+      interestAmount: 0,
+      principalAmount: 0,
+      closingBalance: 0,
+      isFinalPayment: true,
+      paymentStatus: "paid_off"
+    };
+  }
+
+  const monthlyRate = (annualRatePct / 100) / 12;
+  const interestAmount = Math.round((cleanOpeningBalance * monthlyRate) * 100) / 100;
+
+  if (cleanPaymentAmount < interestAmount) {
+    return {
+      openingBalance: cleanOpeningBalance,
+      paymentAmount: cleanPaymentAmount,
+      interestAmount,
+      principalAmount: 0,
+      closingBalance: cleanOpeningBalance,
+      isFinalPayment: false,
+      paymentStatus: "insufficient_payment"
+    };
+  }
+
+  if (Math.abs(cleanPaymentAmount - interestAmount) < 0.005 && cleanPaymentAmount > 0) {
+    return {
+      openingBalance: cleanOpeningBalance,
+      paymentAmount: cleanPaymentAmount,
+      interestAmount,
+      principalAmount: 0,
+      closingBalance: cleanOpeningBalance,
+      isFinalPayment: false,
+      paymentStatus: "interest_only"
+    };
+  }
+
+  const rawPrincipal = cleanPaymentAmount - interestAmount;
+  const principalAmount = Math.min(cleanOpeningBalance, Math.round(rawPrincipal * 100) / 100);
+  const closingBalance = Math.max(0, Math.round((cleanOpeningBalance - principalAmount) * 100) / 100);
+  const isFinalPayment = closingBalance <= 0.001;
+
+  return {
+    openingBalance: cleanOpeningBalance,
+    paymentAmount: cleanPaymentAmount,
+    interestAmount,
+    principalAmount,
+    closingBalance,
+    isFinalPayment,
+    paymentStatus: isFinalPayment ? "paid_off" : "normal"
   };
 }
 

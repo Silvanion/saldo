@@ -6,6 +6,7 @@ import {
   calculateDebtOverpaymentScenario,
   calculateDebtOverpaymentVariants,
   DebtOverpaymentVariantInput,
+  calculateDebtPaymentBreakdown,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1311,6 +1312,156 @@ describe("debtCalculations", () => {
 
       expect(closedResult.isEligible).toBe(false);
       expect(closedResult.validationStatus).toBe("closed_debt");
+    });
+  });
+
+  describe("calculateDebtPaymentBreakdown (Sprint 20)", () => {
+    const standardDebt = {
+      balance: 10000,
+      monthlyPayment: 500,
+      interestRate: 6.0 // monthly rate = 0.5% (0.005) -> monthly interest on 10,000 = 50.00 PLN
+    };
+
+    it("correctly splits standard payment into principal and interest", () => {
+      const breakdown = calculateDebtPaymentBreakdown(standardDebt);
+
+      expect(breakdown.openingBalance).toBe(10000);
+      expect(breakdown.paymentAmount).toBe(500);
+      expect(breakdown.interestAmount).toBe(50);
+      expect(breakdown.principalAmount).toBe(450);
+      expect(breakdown.closingBalance).toBe(9550);
+      expect(breakdown.isFinalPayment).toBe(false);
+      expect(breakdown.paymentStatus).toBe("normal");
+    });
+
+    it("allows custom paymentAmount to override debt.monthlyPayment", () => {
+      const breakdown = calculateDebtPaymentBreakdown(standardDebt, 800);
+
+      expect(breakdown.openingBalance).toBe(10000);
+      expect(breakdown.paymentAmount).toBe(800);
+      expect(breakdown.interestAmount).toBe(50);
+      expect(breakdown.principalAmount).toBe(750);
+      expect(breakdown.closingBalance).toBe(9250);
+      expect(breakdown.isFinalPayment).toBe(false);
+      expect(breakdown.paymentStatus).toBe("normal");
+    });
+
+    it("handles zero interest rate (0% loan / BNPL)", () => {
+      const zeroInterestDebt = {
+        balance: 1200,
+        monthlyPayment: 200,
+        interestRate: 0
+      };
+
+      const breakdown = calculateDebtPaymentBreakdown(zeroInterestDebt);
+
+      expect(breakdown.openingBalance).toBe(1200);
+      expect(breakdown.interestAmount).toBe(0);
+      expect(breakdown.principalAmount).toBe(200);
+      expect(breakdown.closingBalance).toBe(1000);
+      expect(breakdown.isFinalPayment).toBe(false);
+      expect(breakdown.paymentStatus).toBe("normal");
+    });
+
+    it("handles insufficient payment when payment is lower than interest", () => {
+      const insufficientBreakdown = calculateDebtPaymentBreakdown(standardDebt, 30); // 30 < 50 interest
+
+      expect(insufficientBreakdown.openingBalance).toBe(10000);
+      expect(insufficientBreakdown.paymentAmount).toBe(30);
+      expect(insufficientBreakdown.interestAmount).toBe(50);
+      expect(insufficientBreakdown.principalAmount).toBe(0);
+      expect(insufficientBreakdown.closingBalance).toBe(10000);
+      expect(insufficientBreakdown.isFinalPayment).toBe(false);
+      expect(insufficientBreakdown.paymentStatus).toBe("insufficient_payment");
+    });
+
+    it("handles interest-only payment when payment exactly covers interest", () => {
+      const interestOnlyBreakdown = calculateDebtPaymentBreakdown(standardDebt, 50);
+
+      expect(interestOnlyBreakdown.openingBalance).toBe(10000);
+      expect(interestOnlyBreakdown.paymentAmount).toBe(50);
+      expect(interestOnlyBreakdown.interestAmount).toBe(50);
+      expect(interestOnlyBreakdown.principalAmount).toBe(0);
+      expect(interestOnlyBreakdown.closingBalance).toBe(10000);
+      expect(interestOnlyBreakdown.isFinalPayment).toBe(false);
+      expect(interestOnlyBreakdown.paymentStatus).toBe("interest_only");
+    });
+
+    it("handles final payoff when payment exceeds remaining balance + interest", () => {
+      const smallDebt = {
+        balance: 400,
+        monthlyPayment: 100,
+        interestRate: 12.0 // monthly interest = 4.00 PLN
+      };
+
+      // User pays 500 PLN, balance is only 400 PLN
+      const payoffBreakdown = calculateDebtPaymentBreakdown(smallDebt, 500);
+
+      expect(payoffBreakdown.openingBalance).toBe(400);
+      expect(payoffBreakdown.paymentAmount).toBe(500);
+      expect(payoffBreakdown.interestAmount).toBe(4);
+      expect(payoffBreakdown.principalAmount).toBe(400); // capped at opening balance
+      expect(payoffBreakdown.closingBalance).toBe(0);
+      expect(payoffBreakdown.isFinalPayment).toBe(true);
+      expect(payoffBreakdown.paymentStatus).toBe("paid_off");
+    });
+
+    it("handles zero opening balance gracefully", () => {
+      const zeroBalanceDebt = {
+        balance: 0,
+        monthlyPayment: 300,
+        interestRate: 8.0
+      };
+
+      const breakdown = calculateDebtPaymentBreakdown(zeroBalanceDebt);
+
+      expect(breakdown.openingBalance).toBe(0);
+      expect(breakdown.interestAmount).toBe(0);
+      expect(breakdown.principalAmount).toBe(0);
+      expect(breakdown.closingBalance).toBe(0);
+      expect(breakdown.isFinalPayment).toBe(true);
+      expect(breakdown.paymentStatus).toBe("paid_off");
+    });
+
+    it("handles null, undefined, negative numbers, and NaN without throwing", () => {
+      expect(() => calculateDebtPaymentBreakdown(null)).not.toThrow();
+      expect(() => calculateDebtPaymentBreakdown(undefined)).not.toThrow();
+
+      const invalidDebt = {
+        balance: -500,
+        monthlyPayment: -100,
+        interestRate: -5
+      };
+
+      const breakdown = calculateDebtPaymentBreakdown(invalidDebt, -50);
+      expect(breakdown.openingBalance).toBe(0);
+      expect(breakdown.paymentAmount).toBe(0);
+      expect(breakdown.interestAmount).toBe(0);
+      expect(breakdown.principalAmount).toBe(0);
+      expect(breakdown.closingBalance).toBe(0);
+      expect(breakdown.isFinalPayment).toBe(true);
+      expect(breakdown.paymentStatus).toBe("paid_off");
+
+      const nanBreakdown = calculateDebtPaymentBreakdown({
+        balance: NaN,
+        monthlyPayment: NaN,
+        interestRate: NaN
+      });
+      expect(nanBreakdown.openingBalance).toBe(0);
+      expect(nanBreakdown.closingBalance).toBe(0);
+    });
+
+    it("does not mutate the source debt object", () => {
+      const originalDebt = {
+        balance: 10000,
+        monthlyPayment: 500,
+        interestRate: 6.0
+      };
+      const snapshot = JSON.stringify(originalDebt);
+
+      calculateDebtPaymentBreakdown(originalDebt, 600);
+
+      expect(JSON.stringify(originalDebt)).toBe(snapshot);
     });
   });
 });
