@@ -7,20 +7,33 @@ import {
   Percent,
   Layers,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  ArrowRight,
+  CheckCircle2,
+  ThumbsUp
 } from "lucide-react";
 import { DebtPayoffStrategyType } from "../../services/debtCalculations";
 
 export interface PayoffStrategiesKnowledgeCenterProps {
+  /** Currently active strategy to highlight */
   selectedStrategy?: DebtPayoffStrategyType;
+  /** Optional model-recommended strategy to highlight */
+  recommendedStrategy?: DebtPayoffStrategyType | null;
+  /** Optional callback to select or apply a strategy in the simulator */
+  onSelectStrategy?: (strategy: DebtPayoffStrategyType) => void;
+  /** Whether the knowledge center is expanded by default (default: false) */
+  defaultOpen?: boolean;
 }
 
 export function PayoffStrategiesKnowledgeCenter({
-  selectedStrategy
+  selectedStrategy,
+  recommendedStrategy,
+  onSelectStrategy,
+  defaultOpen = false
 }: PayoffStrategiesKnowledgeCenterProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  const getStrategyLabel = (strategy?: DebtPayoffStrategyType) => {
+  const getStrategyLabel = (strategy?: DebtPayoffStrategyType | null) => {
     switch (strategy) {
       case "avalanche":
         return "Lawina (Avalanche)";
@@ -29,7 +42,7 @@ export function PayoffStrategiesKnowledgeCenter({
       case "custom":
         return "Własna kolejność (Custom)";
       case "baseline":
-        return "Plan bazowy (Status Quo)";
+        return "Status Quo (Plan bazowy)";
       default:
         return null;
     }
@@ -46,7 +59,7 @@ export function PayoffStrategiesKnowledgeCenter({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-controls="payoff-strategies-knowledge-content"
-        className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-surface-hover/50 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden"
+        className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-surface-hover/50 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden min-h-[44px]"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
@@ -76,7 +89,7 @@ export function PayoffStrategiesKnowledgeCenter({
         >
           {/* Selected Strategy Context Banner */}
           {activeStrategyLabel && (
-            <div className="pt-2 p-3 rounded-xl bg-brand-subtle/20 border border-brand/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <div className="pt-2 p-3 rounded-xl bg-brand-subtle/20 border border-brand/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-text-main text-xs">
                   Wybrana strategia: <strong className="text-brand font-black">{activeStrategyLabel}</strong>
@@ -89,7 +102,7 @@ export function PayoffStrategiesKnowledgeCenter({
           )}
 
           {/* Summary of trade-offs and mechanism */}
-          <div className="p-3 rounded-xl bg-surface-2/60 border border-border/80 text-text-main font-medium">
+          <div className="p-3.5 rounded-xl bg-surface-2/60 border border-border/80 text-text-main font-medium leading-relaxed">
             <p>
               Avalanche porządkuje zobowiązania według oprocentowania, a Snowball według salda. Status Quo pozostaje punktem odniesienia. Wynik symulacji zależy od wprowadzonych danych, rat, oprocentowania i dodatkowego budżetu.
             </p>
@@ -99,149 +112,289 @@ export function PayoffStrategiesKnowledgeCenter({
             {/* 1. Status Quo */}
             <div
               data-selected={selectedStrategy === "baseline"}
-              className={`p-4 rounded-xl border space-y-2 transition-all ${
+              className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all ${
                 selectedStrategy === "baseline"
                   ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
                   : "bg-surface-2/40 border-border/80"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-surface border border-border text-text-muted flex items-center justify-center">
-                    <RotateCcw className="w-3.5 h-3.5" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-surface border border-border text-text-muted flex items-center justify-center shrink-0">
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </div>
+                    <h5 className="font-bold text-text-main text-xs truncate">Status Quo (Plan bazowy)</h5>
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Status Quo (Plan bazowy)</h5>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {selectedStrategy === "baseline" ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                        Aktualnie wybrana
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                        Baza
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {selectedStrategy === "baseline" ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                    Aktualnie wybrana
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                    Baza
-                  </span>
-                )}
+
+                <p>
+                  <strong>Zasada:</strong> Punkt odniesienia oparty na bieżących założeniach spłaty.
+                </p>
+                <p>
+                  <strong>Działanie:</strong> Nie dodaje dodatkowej kolejności kierowania nadpłat.
+                </p>
+                <p>
+                  <strong>Zastosowanie:</strong> Służy jako baza do odczytania różnic między scenariuszami.
+                </p>
               </div>
-              <p>
-                <strong>Zasada:</strong> Punkt odniesienia oparty na bieżących założeniach spłaty.
-              </p>
-              <p>
-                <strong>Działanie:</strong> Nie dodaje dodatkowej kolejności kierowania nadpłat.
-              </p>
-              <p>
-                <strong>Zastosowanie:</strong> Służy jako baza do odczytania różnic między scenariuszami.
-              </p>
+
+              {onSelectStrategy && (
+                <div className="pt-2 border-t border-border/50">
+                  <button
+                    type="button"
+                    onClick={() => onSelectStrategy("baseline")}
+                    aria-pressed={selectedStrategy === "baseline"}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer ${
+                      selectedStrategy === "baseline"
+                        ? "bg-brand text-text-inverse shadow-xs"
+                        : "bg-surface border border-border hover:bg-surface-hover text-text-main"
+                    }`}
+                  >
+                    {selectedStrategy === "baseline" ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Aktywna strategia bazowa</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Wybierz plan bazowy</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 2. Avalanche */}
             <div
               data-selected={selectedStrategy === "avalanche"}
-              className={`p-4 rounded-xl border space-y-2 transition-all ${
+              className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all ${
                 selectedStrategy === "avalanche"
                   ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
                   : "bg-surface-2/40 border-border/80"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
-                    <Percent className="w-3.5 h-3.5" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
+                      <Percent className="w-3.5 h-3.5" />
+                    </div>
+                    <h5 className="font-bold text-text-main text-xs truncate">Lawina (Avalanche)</h5>
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Lawina (Avalanche)</h5>
+                  <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
+                    {recommendedStrategy === "avalanche" && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                        <ThumbsUp className="w-2.5 h-2.5" />
+                        <span>Sugerowana</span>
+                      </span>
+                    )}
+                    {selectedStrategy === "avalanche" ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                        Aktualnie wybrana
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                        Oprocentowanie
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {selectedStrategy === "avalanche" ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                    Aktualnie wybrana
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                    Oprocentowanie
-                  </span>
-                )}
+
+                <p>
+                  <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem.
+                </p>
+                <p>
+                  <strong>Koszt odsetek:</strong> Kolejność może ograniczać naliczane odsetki w modelu, ale wynik zależy od danych i założeń symulacji.
+                </p>
+                <p>
+                  <strong>Charakter:</strong> To opis mechanizmu, a nie indywidualna rekomendacja.
+                </p>
               </div>
-              <p>
-                <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem.
-              </p>
-              <p>
-                <strong>Koszt odsetek:</strong> Kolejność może ograniczać naliczane odsetki w modelu, ale wynik zależy od danych i założeń symulacji.
-              </p>
-              <p>
-                <strong>Charakter:</strong> To opis mechanizmu, a nie indywidualna rekomendacja.
-              </p>
+
+              {onSelectStrategy && (
+                <div className="pt-2 border-t border-border/50">
+                  <button
+                    type="button"
+                    onClick={() => onSelectStrategy("avalanche")}
+                    aria-pressed={selectedStrategy === "avalanche"}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer ${
+                      selectedStrategy === "avalanche"
+                        ? "bg-brand text-text-inverse shadow-xs"
+                        : "bg-surface border border-border hover:bg-surface-hover text-text-main"
+                    }`}
+                  >
+                    {selectedStrategy === "avalanche" ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Wybrana metoda Lawiny</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Wybierz metodę Lawiny</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 3. Snowball */}
             <div
               data-selected={selectedStrategy === "snowball"}
-              className={`p-4 rounded-xl border space-y-2 transition-all ${
+              className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all ${
                 selectedStrategy === "snowball"
                   ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
                   : "bg-surface-2/40 border-border/80"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <h5 className="font-bold text-text-main text-xs truncate">Kula Śnieżna (Snowball)</h5>
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Kula Śnieżna (Snowball)</h5>
+                  <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
+                    {recommendedStrategy === "snowball" && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                        <ThumbsUp className="w-2.5 h-2.5" />
+                        <span>Sugerowana</span>
+                      </span>
+                    )}
+                    {selectedStrategy === "snowball" ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                        Aktualnie wybrana
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                        Najmniejsze saldo
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {selectedStrategy === "snowball" ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                    Aktualnie wybrana
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                    Najmniejsze saldo
-                  </span>
-                )}
+
+                <p>
+                  <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem.
+                </p>
+                <p>
+                  <strong>Kamienie milowe:</strong> Strategia pokazuje wcześniejsze zamykanie mniejszych zobowiązań w modelu.
+                </p>
+                <p>
+                  <strong>Koszty:</strong> Nie oznacza automatycznie niższego kosztu odsetkowego.
+                </p>
               </div>
-              <p>
-                <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem.
-              </p>
-              <p>
-                <strong>Kamienie milowe:</strong> Strategia pokazuje wcześniejsze zamykanie mniejszych zobowiązań w modelu.
-              </p>
-              <p>
-                <strong>Koszty:</strong> Nie oznacza automatycznie niższego kosztu odsetkowego.
-              </p>
+
+              {onSelectStrategy && (
+                <div className="pt-2 border-t border-border/50">
+                  <button
+                    type="button"
+                    onClick={() => onSelectStrategy("snowball")}
+                    aria-pressed={selectedStrategy === "snowball"}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer ${
+                      selectedStrategy === "snowball"
+                        ? "bg-brand text-text-inverse shadow-xs"
+                        : "bg-surface border border-border hover:bg-surface-hover text-text-main"
+                    }`}
+                  >
+                    {selectedStrategy === "snowball" ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Wybrana Kula Śnieżna</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Wybierz Kulę Śnieżną</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 4. Custom */}
             <div
               data-selected={selectedStrategy === "custom"}
-              className={`p-4 rounded-xl border space-y-2 transition-all ${
+              className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all ${
                 selectedStrategy === "custom"
                   ? "bg-brand-subtle/15 border-brand/60 ring-1 ring-brand/30"
                   : "bg-surface-2/40 border-border/80"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center">
-                    <Layers className="w-3.5 h-3.5" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <h5 className="font-bold text-text-main text-xs truncate">Własna kolejność (Custom)</h5>
                   </div>
-                  <h5 className="font-bold text-text-main text-xs">Własna kolejność (Custom)</h5>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {selectedStrategy === "custom" ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                        Aktualnie wybrana
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                        Ręczna
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {selectedStrategy === "custom" ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                    Aktualnie wybrana
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
-                    Ręczna
-                  </span>
-                )}
+
+                <p>
+                  <strong>Priorytet:</strong> Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji.
+                </p>
+                <p>
+                  <strong>Kaskada:</strong> Cała nadpłata trafia na cel nr 1, a po jego spłacie uwolniona rata zasila kolejne pozycje.
+                </p>
+                <p>
+                  <strong>Wynik:</strong> Koszt i czas spłaty wynikają wprost ze wskazanej kolejności celów.
+                </p>
               </div>
-              <p>
-                <strong>Priorytet:</strong> Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji.
-              </p>
-              <p>
-                <strong>Kaskada:</strong> Cała nadpłata trafia na cel nr 1, a po jego spłacie uwolniona rata zasila kolejne pozycje.
-              </p>
-              <p>
-                <strong>Wynik:</strong> Koszt i czas spłaty wynikają wprost ze wskazanej kolejności celów.
-              </p>
+
+              {onSelectStrategy && (
+                <div className="pt-2 border-t border-border/50">
+                  <button
+                    type="button"
+                    onClick={() => onSelectStrategy("custom")}
+                    aria-pressed={selectedStrategy === "custom"}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer ${
+                      selectedStrategy === "custom"
+                        ? "bg-brand text-text-inverse shadow-xs"
+                        : "bg-surface border border-border hover:bg-surface-hover text-text-main"
+                    }`}
+                  >
+                    {selectedStrategy === "custom" ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Wybrana kolejność własna</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Wybierz kolejność własną</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

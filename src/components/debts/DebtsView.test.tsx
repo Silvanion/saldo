@@ -4230,7 +4230,29 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
           expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
         });
       });
+
+      describe("Sprint 61: Payoff Strategies Knowledge Center Integration", () => {
+        it("1. Renders PayoffStrategiesKnowledgeCenter in Knowledge tab and allows selecting strategy", () => {
+          render(<DebtsView profile={mockProfile} />);
+
+          // Switch to Knowledge tab
+          const knowledgeTabBtn = screen.getByRole("button", { name: /wiedza & benchmarki/i });
+          fireEvent.click(knowledgeTabBtn);
+
+          expect(screen.getByText("Jak działają strategie spłaty?")).toBeTruthy();
+          expect(screen.getAllByText("Lawina (Avalanche)").length).toBeGreaterThanOrEqual(1);
+          expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
+
+          // Click on "Wybierz Kulę Śnieżną" action in Knowledge Center
+          const selectSnowballBtn = screen.getByRole("button", { name: /Wybierz Kulę Śnieżną/i });
+          fireEvent.click(selectSnowballBtn);
+
+          // Should switch to Scenarios tab and have Snowball selected
+          expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
+        });
+      });
     });
   });
 });
+
 

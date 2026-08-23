@@ -30,6 +30,7 @@ import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
 import { DebtScenarioConfigSection } from "./DebtScenarioConfigSection";
 import { DebtStrategyResultsSection } from "./DebtStrategyResultsSection";
 import { DebtScenarioModalsOrchestrator } from "./DebtScenarioModalsOrchestrator";
+import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
 import { formatMoney } from "../../utils/format";
 import {
@@ -1352,6 +1353,16 @@ export function DebtsView({
       {/* 7. TAB CONTENT 4: KNOWLEDGE & BENCHMARKS */}
       {activeMainTab === "knowledge" && (
         <div className="space-y-6 animate-fade-in">
+          <PayoffStrategiesKnowledgeCenter
+            selectedStrategy={selectedPayoffStrategy}
+            recommendedStrategy={payoffComparison.recommendedStrategy}
+            defaultOpen={true}
+            onSelectStrategy={(strat) => {
+              setSelectedPayoffStrategy(strat);
+              setActiveMainTab("scenarios");
+            }}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {MOCK_KNOWLEDGE_ARTICLES.map((art) => (
               <div
