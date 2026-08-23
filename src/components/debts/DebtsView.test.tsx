@@ -1294,4 +1294,47 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText("Symulacja nadpłaty niedostępna")).toBeTruthy();
     expect(screen.getByText(/Karty kredytowe i limity odnawialne charakteryzują się elastyczną spłatą/i)).toBeTruthy();
   });
+
+  it("Sprint 18: allows comparing multiple overpayment variants with matrix, edits, add/remove, and reset", () => {
+    const mortgage = mockDebts[0];
+    render(<DebtDetailsModal isOpen={true} debt={mortgage} onClose={vi.fn()} initialTab="overpayment" />);
+
+    // Open variants comparison mode
+    const compareVariantsBtn = screen.getByRole("button", { name: /Porównaj warianty nadpłat/i });
+    fireEvent.click(compareVariantsBtn);
+
+    expect(screen.getByText("Porównanie wariantów nadpłat")).toBeTruthy();
+    expect(screen.getByRole("table", { name: "Tabela porównania wariantów nadpłat" })).toBeTruthy();
+    expect(screen.getByText("Wariant bazowy")).toBeTruthy();
+    expect(screen.getAllByText("Nadpłata miesięczna").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nadpłata jednorazowa").length).toBeGreaterThan(0);
+
+    // Edit variant 1 name and monthly overpayment
+    const nameInput = screen.getByLabelText("Nazwa wariantu 1");
+    fireEvent.change(nameInput, { target: { value: "Mój Plan A" } });
+    expect(screen.getAllByText("Mój Plan A").length).toBeGreaterThan(0);
+
+    const monthlyInput = screen.getByLabelText("Nadpłata miesięczna dla Mój Plan A");
+    fireEvent.change(monthlyInput, { target: { value: "800" } });
+
+    // Remove variant 2
+    const removeBtn = screen.getByRole("button", { name: /Usuń wariant Nadpłata jednorazowa/i });
+    fireEvent.click(removeBtn);
+
+    // Now add second variant back
+    const addSecondBtn = screen.getByRole("button", { name: /Dodaj drugi wariant/i });
+    fireEvent.click(addSecondBtn);
+
+    // Reset comparison variants
+    const resetVariantsBtn = screen.getByRole("button", { name: /Wyzeruj warianty/i });
+    fireEvent.click(resetVariantsBtn);
+
+    expect(screen.getAllByText("Nadpłata miesięczna").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nadpłata jednorazowa").length).toBeGreaterThan(0);
+
+    // Toggle back to single simulation
+    const singleSimBtn = screen.getByRole("button", { name: /Pojedyncza symulacja/i });
+    fireEvent.click(singleSimBtn);
+    expect(screen.getByText("Symulacja wpływu nadpłaty")).toBeTruthy();
+  });
 });

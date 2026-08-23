@@ -50,6 +50,40 @@ export interface DebtOverpaymentScenarioResult {
   errorMessage?: string;
 }
 
+export interface DebtOverpaymentVariantInput {
+  id: string;
+  name: string;
+  monthlyOverpayment: number;
+  oneTimeOverpayment: number;
+}
+
+export interface DebtOverpaymentVariantResult {
+  id: string;
+  name: string;
+  input: DebtOverpaymentVariantInput;
+  isValid: boolean;
+  error?: string;
+  scenario?: DebtOverpaymentScenarioResult;
+  metrics?: {
+    estimatedMonths: number;
+    monthsSaved: number;
+    estimatedTotalInterest: number;
+    interestSavings: number;
+    estimatedTotalRepayment: number;
+    repaymentDifference: number;
+    monthlyOverpayment: number;
+    oneTimeOverpayment: number;
+  };
+}
+
+export interface DebtOverpaymentVariantsComparisonResult {
+  baseline: DebtOverpaymentScenarioResult;
+  variants: DebtOverpaymentVariantResult[];
+  isEligible: boolean;
+  validationStatus: "valid" | "unsupported_type" | "closed_debt" | "insufficient_data" | "non_amortizing";
+  errorMessage?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -565,6 +599,90 @@ export function calculateDebtOverpaymentScenario(
     monthlyOverpayment: cleanMonthlyOverpayment,
     oneTimeOverpayment: cleanOneTimeOverpayment,
     rows,
+    isEligible: true,
+    validationStatus: "valid"
+  };
+}
+
+/**
+ * Calculates multiple overpayment variants comparison for a single eligible debt (Sprint 18)
+ */
+export function calculateDebtOverpaymentVariants(
+  debt: DebtItem | null | undefined,
+  variants: DebtOverpaymentVariantInput[],
+  maxMonths: number = 360
+): DebtOverpaymentVariantsComparisonResult {
+  const baseline = calculateDebtOverpaymentScenario(debt, 0, 0, maxMonths);
+
+  if (!baseline.isEligible || !debt) {
+    return {
+      baseline,
+      variants: [],
+      isEligible: false,
+      validationStatus: baseline.validationStatus,
+      errorMessage: baseline.errorMessage
+    };
+  }
+
+  const results: DebtOverpaymentVariantResult[] = variants.map((v, idx) => {
+    const id = v.id || `variant-${idx + 1}`;
+    const name = (v.name && v.name.trim()) ? v.name.trim() : `Wariant ${idx + 1}`;
+
+    const numMonthly = Number(v.monthlyOverpayment);
+    const numOneTime = Number(v.oneTimeOverpayment);
+
+    if (isNaN(numMonthly) || isNaN(numOneTime)) {
+      return {
+        id,
+        name,
+        input: { id, name, monthlyOverpayment: 0, oneTimeOverpayment: 0 },
+        isValid: false,
+        error: "Nieprawidłowe wartości kwotowe nadpłaty."
+      };
+    }
+
+    const monthly = Math.max(0, numMonthly);
+    const oneTime = Math.max(0, numOneTime);
+
+    const scenario = calculateDebtOverpaymentScenario(debt, monthly, oneTime, maxMonths);
+
+    if (!scenario.isEligible) {
+      return {
+        id,
+        name,
+        input: { id, name, monthlyOverpayment: monthly, oneTimeOverpayment: oneTime },
+        isValid: false,
+        error: scenario.errorMessage || "Błąd kalkulacji wariantu."
+      };
+    }
+
+    const repaymentDifference = Math.max(
+      0,
+      Math.round((baseline.baselineTotalRepayment - scenario.simulatedTotalRepayment) * 100) / 100
+    );
+
+    return {
+      id,
+      name,
+      input: { id, name, monthlyOverpayment: monthly, oneTimeOverpayment: oneTime },
+      isValid: true,
+      scenario,
+      metrics: {
+        estimatedMonths: scenario.simulatedMonths,
+        monthsSaved: scenario.monthsSaved,
+        estimatedTotalInterest: scenario.simulatedTotalInterest,
+        interestSavings: scenario.interestSavings,
+        estimatedTotalRepayment: scenario.simulatedTotalRepayment,
+        repaymentDifference,
+        monthlyOverpayment: monthly,
+        oneTimeOverpayment: oneTime
+      }
+    };
+  });
+
+  return {
+    baseline,
+    variants: results,
     isEligible: true,
     validationStatus: "valid"
   };

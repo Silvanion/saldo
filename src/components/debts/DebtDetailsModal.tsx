@@ -16,7 +16,10 @@ import {
   Info,
   CheckCircle2,
   FileText,
-  RotateCcw
+  RotateCcw,
+  Plus,
+  Trash2,
+  Columns
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
@@ -24,6 +27,8 @@ import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
   calculateDebtOverpaymentScenario,
+  calculateDebtOverpaymentVariants,
+  DebtOverpaymentVariantInput,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -59,6 +64,13 @@ export function DebtDetailsModal({
   const [simOneTimeOverpayment, setSimOneTimeOverpayment] = useState<string>("");
   const [showFullOverpaymentSchedule, setShowFullOverpaymentSchedule] = useState<boolean>(false);
 
+  // SPRINT 18: Overpayment variants comparison state
+  const [isComparingVariants, setIsComparingVariants] = useState<boolean>(false);
+  const [comparisonVariants, setComparisonVariants] = useState<DebtOverpaymentVariantInput[]>([
+    { id: "var-1", name: "Nadpłata miesięczna", monthlyOverpayment: 500, oneTimeOverpayment: 0 },
+    { id: "var-2", name: "Nadpłata jednorazowa", monthlyOverpayment: 0, oneTimeOverpayment: 10000 }
+  ]);
+
   React.useEffect(() => {
     if (isOpen && initialTab) {
       setActiveTab(initialTab);
@@ -75,6 +87,11 @@ export function DebtDetailsModal({
   const overpaymentScenario = useMemo(() => {
     return calculateDebtOverpaymentScenario(debt, numMonthlyOverpayment, numOneTimeOverpayment);
   }, [debt, numMonthlyOverpayment, numOneTimeOverpayment]);
+
+  const variantsComparison = useMemo(() => {
+    if (!isComparingVariants) return null;
+    return calculateDebtOverpaymentVariants(debt, comparisonVariants);
+  }, [debt, isComparingVariants, comparisonVariants]);
 
   const overpaymentQuickA = useMemo(() => {
     if (!debt) return null;
@@ -519,7 +536,295 @@ export function DebtDetailsModal({
                       </p>
                     </div>
                   </div>
+                ) : isComparingVariants && variantsComparison ? (
+                  /* SPRINT 18: OVERPAYMENT VARIANTS COMPARISON VIEW */
+                  <div className="space-y-6">
+                    {/* Header & Mode Switch */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
+                      <div>
+                        <h3 className="text-sm font-bold text-text-main">Porównanie wariantów nadpłat</h3>
+                        <p className="text-xs text-text-muted">
+                          Zestawienie wariantu bazowego z maksymalnie 2 niezależnymi wariantami nadpłat
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+                        {comparisonVariants.length < 2 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setComparisonVariants((prev) => [
+                                ...prev,
+                                {
+                                  id: `var-${Date.now()}`,
+                                  name: "Wariant 2",
+                                  monthlyOverpayment: 300,
+                                  oneTimeOverpayment: 5000
+                                }
+                              ]);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 rounded-xl transition cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Dodaj drugi wariant</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setComparisonVariants([
+                              { id: "var-1", name: "Nadpłata miesięczna", monthlyOverpayment: 500, oneTimeOverpayment: 0 },
+                              { id: "var-2", name: "Nadpłata jednorazowa", monthlyOverpayment: 0, oneTimeOverpayment: 10000 }
+                            ]);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-text-muted hover:text-text-main bg-surface-2 hover:bg-surface-hover border border-border rounded-xl transition cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Wyzeruj warianty</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsComparingVariants(false)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition cursor-pointer border bg-surface hover:bg-surface-2 text-text-main border-border"
+                        >
+                          <Columns className="w-3.5 h-3.5" />
+                          <span>Pojedyncza symulacja</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Variant Configuration Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {comparisonVariants.map((v, index) => (
+                        <div key={v.id} className="p-4 bg-surface-2/40 border border-border rounded-2xl space-y-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-subtle text-brand border border-brand/20 shrink-0">
+                                Wariant {index + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={v.name}
+                                onChange={(e) => {
+                                  const newName = e.target.value;
+                                  setComparisonVariants((prev) =>
+                                    prev.map((item) => (item.id === v.id ? { ...item, name: newName } : item))
+                                  );
+                                }}
+                                className="w-full bg-surface border border-border rounded-lg px-2.5 py-1 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                aria-label={`Nazwa wariantu ${index + 1}`}
+                                placeholder={`Wariant ${index + 1}`}
+                              />
+                            </div>
+
+                            {comparisonVariants.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setComparisonVariants((prev) => prev.filter((item) => item.id !== v.id));
+                                }}
+                                className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-lg transition cursor-pointer shrink-0"
+                                aria-label={`Usuń wariant ${v.name}`}
+                                title="Usuń ten wariant"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 pt-1">
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-semibold text-text-muted">
+                                Miesięcznie ({currency})
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="50"
+                                value={v.monthlyOverpayment || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const num = Math.max(0, parseFloat(val) || 0);
+                                  setComparisonVariants((prev) =>
+                                    prev.map((item) => (item.id === v.id ? { ...item, monthlyOverpayment: num } : item))
+                                  );
+                                }}
+                                className="w-full bg-surface border border-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                aria-label={`Nadpłata miesięczna dla ${v.name}`}
+                                placeholder="0"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-semibold text-text-muted">
+                                Jednorazowo (1. mc)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="500"
+                                value={v.oneTimeOverpayment || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const num = Math.max(0, parseFloat(val) || 0);
+                                  setComparisonVariants((prev) =>
+                                    prev.map((item) => (item.id === v.id ? { ...item, oneTimeOverpayment: num } : item))
+                                  );
+                                }}
+                                className="w-full bg-surface border border-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                aria-label={`Jednorazowa nadpłata dla ${v.name}`}
+                                placeholder="0"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Comparison Matrix Table */}
+                    <div className="overflow-x-auto border border-border rounded-2xl bg-surface">
+                      <table className="w-full text-left text-xs" aria-label="Tabela porównania wariantów nadpłat">
+                        <thead className="bg-surface-2 text-text-faint font-bold border-b border-border uppercase tracking-wider text-[10px]">
+                          <tr>
+                            <th className="py-3 px-4 min-w-[180px]">Parametr</th>
+                            <th className="py-3 px-4 min-w-[150px] bg-surface-2/60">
+                              <div className="flex items-center gap-1.5">
+                                <span>Wariant bazowy</span>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-surface border border-border text-text-muted">
+                                  Bez zmian
+                                </span>
+                              </div>
+                            </th>
+                            {variantsComparison.variants.map((v, index) => (
+                              <th key={v.id} className="py-3 px-4 min-w-[170px]">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="truncate">{v.name || `Wariant ${index + 1}`}</span>
+                                </div>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+
+                        <tbody className="divide-y divide-border/60 font-medium">
+                          {/* Row 1: Nadpłata miesięczna */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Nadpłata miesięczna</td>
+                            <td className="py-2.5 px-4 tabular-nums text-text-muted bg-surface-2/30">
+                              0 {currency}/mc
+                            </td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-text-main">
+                                {formatMoney(v.input.monthlyOverpayment, currency)}/mc
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 2: Nadpłata jednorazowa */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Nadpłata jednorazowa</td>
+                            <td className="py-2.5 px-4 tabular-nums text-text-muted bg-surface-2/30">
+                              0 {currency}
+                            </td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-text-main">
+                                {formatMoney(v.input.oneTimeOverpayment, currency)}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 3: Szacowany okres spłaty */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Szacowany okres spłaty</td>
+                            <td className="py-2.5 px-4 tabular-nums font-bold text-text-main bg-surface-2/30">
+                              {variantsComparison.baseline.baselineMonths} mc.
+                            </td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-text-main">
+                                {v.isValid && v.metrics ? `${v.metrics.estimatedMonths} mc.` : "—"}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 4: Skrócenie okresu względem bazowego */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Skrócenie okresu względem bazowego</td>
+                            <td className="py-2.5 px-4 text-text-muted bg-surface-2/30">—</td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-brand">
+                                {v.isValid && v.metrics && v.metrics.monthsSaved > 0
+                                  ? `-${v.metrics.monthsSaved} mc. (~${Math.round((v.metrics.monthsSaved / 12) * 10) / 10} lat)`
+                                  : "0 mc."}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 5: Szacowane odsetki łącznie */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Szacowane odsetki łącznie</td>
+                            <td className="py-2.5 px-4 tabular-nums font-bold text-text-main bg-surface-2/30">
+                              {formatMoney(variantsComparison.baseline.baselineTotalInterest, currency)}
+                            </td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-text-main">
+                                {v.isValid && v.metrics
+                                  ? formatMoney(v.metrics.estimatedTotalInterest, currency)
+                                  : "—"}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 6: Szacowana oszczędność odsetek */}
+                          <tr className="hover:bg-surface-hover transition-colors bg-brand-subtle/10">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Szacowana oszczędność odsetek</td>
+                            <td className="py-2.5 px-4 text-text-muted bg-surface-2/30">—</td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-black text-brand">
+                                {v.isValid && v.metrics && v.metrics.interestSavings > 0
+                                  ? formatMoney(v.metrics.interestSavings, currency)
+                                  : "0 zł"}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 7: Szacowana całkowita spłata */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Szacowana całkowita spłata</td>
+                            <td className="py-2.5 px-4 tabular-nums font-bold text-text-main bg-surface-2/30">
+                              {formatMoney(variantsComparison.baseline.baselineTotalRepayment, currency)}
+                            </td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-text-main">
+                                {v.isValid && v.metrics
+                                  ? formatMoney(v.metrics.estimatedTotalRepayment, currency)
+                                  : "—"}
+                              </td>
+                            ))}
+                          </tr>
+
+                          {/* Row 8: Różnica całkowitej spłaty */}
+                          <tr className="hover:bg-surface-hover transition-colors">
+                            <td className="py-2.5 px-4 font-bold text-text-main">Różnica całkowitej spłaty</td>
+                            <td className="py-2.5 px-4 text-text-muted bg-surface-2/30">—</td>
+                            {variantsComparison.variants.map((v) => (
+                              <td key={v.id} className="py-2.5 px-4 tabular-nums font-bold text-brand">
+                                {v.isValid && v.metrics && v.metrics.repaymentDifference > 0
+                                  ? `-${formatMoney(v.metrics.repaymentDifference, currency)}`
+                                  : "0 zł"}
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <p className="text-[11px] text-text-faint text-center leading-relaxed">
+                      Szacunek na podstawie podanych danych — orientacyjne porównanie wariantów nadpłat. Rzeczywiste wartości mogą różnić się w zależności od regulaminu i dat księgowania w banku.
+                    </p>
+                  </div>
                 ) : (
+                  /* SINGLE DEBT OVERPAYMENT SIMULATOR VIEW (Sprint 17) */
                   <div className="space-y-6">
                     {/* Header & Description */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
@@ -530,20 +835,31 @@ export function DebtDetailsModal({
                         </p>
                       </div>
 
-                      {(simMonthlyOverpayment || simOneTimeOverpayment) && (
+                      <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
                         <button
                           type="button"
-                          onClick={() => {
-                            setSimMonthlyOverpayment("");
-                            setSimOneTimeOverpayment("");
-                            setShowFullOverpaymentSchedule(false);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 rounded-xl transition cursor-pointer self-start sm:self-auto"
+                          onClick={() => setIsComparingVariants(true)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition cursor-pointer border bg-surface hover:bg-surface-2 text-text-main border-border shadow-2xs"
                         >
-                          <RotateCcw className="w-3.5 h-3.5" />
-                          <span>Wyzeruj symulację</span>
+                          <Columns className="w-3.5 h-3.5 text-brand" />
+                          <span>Porównaj warianty nadpłat</span>
                         </button>
-                      )}
+
+                        {(simMonthlyOverpayment || simOneTimeOverpayment) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSimMonthlyOverpayment("");
+                              setSimOneTimeOverpayment("");
+                              setShowFullOverpaymentSchedule(false);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 rounded-xl transition cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Wyzeruj symulację</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Simulation Input Controls */}

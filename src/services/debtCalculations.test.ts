@@ -4,6 +4,8 @@ import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
   calculateDebtOverpaymentScenario,
+  calculateDebtOverpaymentVariants,
+  DebtOverpaymentVariantInput,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1165,6 +1167,150 @@ describe("debtCalculations", () => {
       expect(result.simulatedMonths).toBe(1);
       expect(result.rows[0].balance).toBe(0);
       expect(result.rows[0].principal).toBe(500);
+    });
+  });
+
+  describe("calculateDebtOverpaymentVariants (Sprint 18)", () => {
+    const testMortgage: DebtItem = {
+      id: "m-test-18",
+      name: "Kredyt Mieszkaniowy",
+      institution: "mBank",
+      type: "mortgage",
+      currency: "PLN",
+      balance: 150000,
+      monthlyPayment: 1500,
+      interestRate: 6.5,
+      status: "active",
+      createdAt: "2026-01-01"
+    };
+
+    it("calculates baseline and multiple valid variants independently", () => {
+      const variants: DebtOverpaymentVariantInput[] = [
+        { id: "v1", name: "Wariant miesięczny", monthlyOverpayment: 500, oneTimeOverpayment: 0 },
+        { id: "v2", name: "Wariant jednorazowy", monthlyOverpayment: 0, oneTimeOverpayment: 10000 },
+        { id: "v3", name: "Wariant łączony", monthlyOverpayment: 300, oneTimeOverpayment: 5000 }
+      ];
+
+      const result = calculateDebtOverpaymentVariants(testMortgage, variants);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.validationStatus).toBe("valid");
+      expect(result.variants).toHaveLength(3);
+
+      // Verify variant 1
+      const resV1 = result.variants[0];
+      expect(resV1.isValid).toBe(true);
+      expect(resV1.name).toBe("Wariant miesięczny");
+      expect(resV1.metrics?.monthsSaved).toBeGreaterThan(0);
+      expect(resV1.metrics?.interestSavings).toBeGreaterThan(0);
+      expect(resV1.metrics?.monthsSaved).toBe(result.baseline.baselineMonths - (resV1.metrics?.estimatedMonths || 0));
+      expect(resV1.metrics?.interestSavings).toBeCloseTo(
+        result.baseline.baselineTotalInterest - (resV1.metrics?.estimatedTotalInterest || 0),
+        1
+      );
+
+      // Verify variant 2
+      const resV2 = result.variants[1];
+      expect(resV2.isValid).toBe(true);
+      expect(resV2.metrics?.interestSavings).toBeGreaterThan(0);
+
+      // Verify variant 3 (combined)
+      const resV3 = result.variants[2];
+      expect(resV3.isValid).toBe(true);
+      expect(resV3.metrics?.interestSavings).toBeGreaterThan(0);
+    });
+
+    it("matches baseline when variant has zero overpayments", () => {
+      const variants: DebtOverpaymentVariantInput[] = [
+        { id: "v-zero", name: "Brak nadpłaty", monthlyOverpayment: 0, oneTimeOverpayment: 0 }
+      ];
+
+      const result = calculateDebtOverpaymentVariants(testMortgage, variants);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.variants[0].isValid).toBe(true);
+      expect(result.variants[0].metrics?.estimatedMonths).toBe(result.baseline.baselineMonths);
+      expect(result.variants[0].metrics?.estimatedTotalInterest).toBe(result.baseline.baselineTotalInterest);
+      expect(result.variants[0].metrics?.monthsSaved).toBe(0);
+      expect(result.variants[0].metrics?.interestSavings).toBe(0);
+    });
+
+    it("isolates invalid variant without blocking valid variants", () => {
+      const variants: DebtOverpaymentVariantInput[] = [
+        { id: "v-valid", name: "Prawidłowy", monthlyOverpayment: 500, oneTimeOverpayment: 0 },
+        { id: "v-nan", name: "Błędny", monthlyOverpayment: NaN, oneTimeOverpayment: 0 }
+      ];
+
+      const result = calculateDebtOverpaymentVariants(testMortgage, variants);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.variants[0].isValid).toBe(true);
+      expect(result.variants[0].metrics?.interestSavings).toBeGreaterThan(0);
+
+      expect(result.variants[1].isValid).toBe(false);
+      expect(result.variants[1].error).toBeDefined();
+    });
+
+    it("normalizes negative values to zero safely", () => {
+      const variants: DebtOverpaymentVariantInput[] = [
+        { id: "v-neg", name: "Ujemne", monthlyOverpayment: -200, oneTimeOverpayment: -5000 }
+      ];
+
+      const result = calculateDebtOverpaymentVariants(testMortgage, variants);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.variants[0].isValid).toBe(true);
+      expect(result.variants[0].metrics?.monthlyOverpayment).toBe(0);
+      expect(result.variants[0].metrics?.oneTimeOverpayment).toBe(0);
+      expect(result.variants[0].metrics?.interestSavings).toBe(0);
+    });
+
+    it("handles missing/empty variant names and IDs safely", () => {
+      const variants: DebtOverpaymentVariantInput[] = [
+        { id: "", name: "   ", monthlyOverpayment: 400, oneTimeOverpayment: 0 }
+      ];
+
+      const result = calculateDebtOverpaymentVariants(testMortgage, variants);
+
+      expect(result.isEligible).toBe(true);
+      expect(result.variants[0].id).toBe("variant-1");
+      expect(result.variants[0].name).toBe("Wariant 1");
+      expect(result.variants[0].isValid).toBe(true);
+    });
+
+    it("returns ineligible result for unsupported debts like credit card and closed debts", () => {
+      const creditCard: DebtItem = {
+        id: "cc-test",
+        name: "Karta Kredytowa",
+        institution: "Bank",
+        type: "credit_card",
+        currency: "PLN",
+        balance: 4000,
+        monthlyPayment: 200,
+        interestRate: 18.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const result = calculateDebtOverpaymentVariants(creditCard, [
+        { id: "v1", name: "W1", monthlyOverpayment: 100, oneTimeOverpayment: 0 }
+      ]);
+
+      expect(result.isEligible).toBe(false);
+      expect(result.validationStatus).toBe("unsupported_type");
+      expect(result.errorMessage).toContain("Karty kredytowe i limity odnawialne");
+
+      const closedDebt: DebtItem = {
+        ...testMortgage,
+        status: "closed"
+      };
+
+      const closedResult = calculateDebtOverpaymentVariants(closedDebt, [
+        { id: "v1", name: "W1", monthlyOverpayment: 100, oneTimeOverpayment: 0 }
+      ]);
+
+      expect(closedResult.isEligible).toBe(false);
+      expect(closedResult.validationStatus).toBe("closed_debt");
     });
   });
 });
