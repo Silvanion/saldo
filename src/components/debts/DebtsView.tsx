@@ -8,7 +8,12 @@ import {
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
 import { DebtPortfolioCard } from "./DebtPortfolioCard";
-import { DebtDetailsModal, DebtDetailTab } from "./DebtDetailsModal";
+import {
+  DebtDetailsModal,
+  DebtDetailTab,
+  DebtPaymentHistorySessionFilters,
+  DEFAULT_DEBT_PAYMENT_HISTORY_FILTERS
+} from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
 import { DebtFormModal } from "./DebtFormModal";
@@ -102,6 +107,11 @@ export function DebtsView({
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
+
+  // SPRINT 39: Per-debt in-memory payment history filter preset / session persistence
+  const [historySessionFiltersByDebt, setHistorySessionFiltersByDebt] = useState<
+    Record<string, DebtPaymentHistorySessionFilters>
+  >({});
 
   // SPRINT 36: Deep-link context router to auto-open debt details
   useEffect(() => {
@@ -2149,10 +2159,22 @@ export function DebtsView({
       {/* MODAL 2: DEBT DETAILS */}
       {selectedDebtForDetails && (
         <DebtDetailsModal
+          key={selectedDebtForDetails.id}
           isOpen={true}
           debt={selectedDebtForDetails}
           transactions={profile?.transactions}
           initialTab={initialDetailsTab}
+          initialHistoryFilters={
+            selectedDebtForDetails
+              ? historySessionFiltersByDebt[selectedDebtForDetails.id] || DEFAULT_DEBT_PAYMENT_HISTORY_FILTERS
+              : DEFAULT_DEBT_PAYMENT_HISTORY_FILTERS
+          }
+          onSaveHistoryFilters={(debtId, filters) => {
+            setHistorySessionFiltersByDebt((prev) => ({
+              ...prev,
+              [debtId]: filters
+            }));
+          }}
           onClose={() => setSelectedDebtForDetails(null)}
           onUpdateTransaction={onUpdateTransaction}
           onOpenTxModal={onOpenTxModal}

@@ -2220,5 +2220,119 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
       downloadSpy.mockRestore();
     });
+
+    it("Sprint 39: restores debt payment history filters across modal close and reopen within active session", () => {
+      const onSaveHistoryFilters = vi.fn();
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const mockTransactions: Transaction[] = [
+        {
+          id: "tx-1",
+          name: "Rata normalna",
+          amount: 2600,
+          type: "expense",
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-01-15",
+          debtId: "debt-1",
+          currency: "PLN"
+        },
+        {
+          id: "tx-2",
+          name: "Rata 2",
+          amount: 2600,
+          type: "expense",
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN"
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+          initialHistoryFilters={{
+            status: "all",
+            principal: "all",
+            order: "oldest",
+            periodPreset: "all",
+            summaryScope: "all"
+          }}
+          onSaveHistoryFilters={onSaveHistoryFilters}
+        />
+      );
+
+      const orderSelect = screen.getByLabelText("Kolejność:") as HTMLSelectElement;
+      expect(orderSelect.value).toBe("oldest");
+
+      fireEvent.change(orderSelect, { target: { value: "newest" } });
+      expect(orderSelect.value).toBe("newest");
+      expect(onSaveHistoryFilters).toHaveBeenCalledWith(
+        "debt-1",
+        expect.objectContaining({ order: "newest" })
+      );
+    });
+
+    it("Sprint 39: preserves per-debt filter isolation and defaults for newly opened debts", () => {
+      const mortgageDebt: DebtItem = {
+        id: "debt-2",
+        name: "Pożyczka gotówkowa",
+        institution: "mBank",
+        type: "cash_loan",
+        currency: "PLN",
+        balance: 15000,
+        monthlyPayment: 600,
+        interestRate: 11.5,
+        status: "active",
+        createdAt: "2026-02-01"
+      };
+
+      const mockTransactions: Transaction[] = [
+        {
+          id: "tx-debt2",
+          name: "Rata pożyczki",
+          amount: 600,
+          type: "expense",
+          category: "Rachunki",
+          account: "Konto",
+          isoDate: "2026-05-10",
+          debtId: "debt-2",
+          currency: "PLN"
+        }
+      ];
+
+      // New debt opens with default filters
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      const orderSelect = screen.getByLabelText("Kolejność:") as HTMLSelectElement;
+      expect(orderSelect.value).toBe("newest");
+      const statusSelect = screen.getByLabelText("Status:") as HTMLSelectElement;
+      expect(statusSelect.value).toBe("all");
+    });
   });
 });

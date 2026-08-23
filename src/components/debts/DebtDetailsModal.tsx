@@ -56,16 +56,35 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 export type DebtDetailTab = "overview" | "history" | "schedule" | "overpayment" | "refinance" | "terms";
 
+export interface DebtPaymentHistorySessionFilters {
+  status: DebtPaymentHistoryStatusFilter;
+  principal: DebtPaymentHistoryPrincipalFilter;
+  order: DebtPaymentHistoryOrder;
+  periodPreset: DebtPaymentHistoryPeriodPreset;
+  summaryScope: DebtPaymentSummaryScope;
+}
+
+export const DEFAULT_DEBT_PAYMENT_HISTORY_FILTERS: DebtPaymentHistorySessionFilters = {
+  status: "all",
+  principal: "all",
+  order: "newest",
+  periodPreset: "all",
+  summaryScope: "all"
+};
+
 interface DebtDetailsModalProps {
+  key?: React.Key;
   isOpen: boolean;
   onClose: () => void;
   debt: DebtItem | null;
   transactions?: Transaction[];
   initialTab?: DebtDetailTab;
+  initialHistoryFilters?: DebtPaymentHistorySessionFilters;
   onOpenOverpaymentModal?: (debt: DebtItem) => void;
   onOpenRefinanceModal?: (debt: DebtItem) => void;
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   onOpenTxModal?: (tx: Transaction) => void;
+  onSaveHistoryFilters?: (debtId: string, filters: DebtPaymentHistorySessionFilters) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -75,10 +94,12 @@ export function DebtDetailsModal({
   debt,
   transactions,
   initialTab = "overview",
+  initialHistoryFilters,
   onOpenOverpaymentModal,
   onOpenRefinanceModal,
   onUpdateTransaction,
   onOpenTxModal,
+  onSaveHistoryFilters,
   showToast
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -243,11 +264,39 @@ export function DebtDetailsModal({
     return calculateDebtPaymentActivity(debt, transactions);
   }, [debt, transactions]);
 
-  const [summaryScope, setSummaryScope] = useState<DebtPaymentSummaryScope>("all");
-  const [historyPeriodPreset, setHistoryPeriodPreset] = useState<DebtPaymentHistoryPeriodPreset>("all");
-  const [historyStatusFilter, setHistoryStatusFilter] = useState<DebtPaymentHistoryStatusFilter>("all");
-  const [historyPrincipalFilter, setHistoryPrincipalFilter] = useState<DebtPaymentHistoryPrincipalFilter>("all");
-  const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>("newest");
+  const [summaryScope, setSummaryScope] = useState<DebtPaymentSummaryScope>(
+    initialHistoryFilters?.summaryScope || "all"
+  );
+  const [historyPeriodPreset, setHistoryPeriodPreset] = useState<DebtPaymentHistoryPeriodPreset>(
+    initialHistoryFilters?.periodPreset || "all"
+  );
+  const [historyStatusFilter, setHistoryStatusFilter] = useState<DebtPaymentHistoryStatusFilter>(
+    initialHistoryFilters?.status || "all"
+  );
+  const [historyPrincipalFilter, setHistoryPrincipalFilter] = useState<DebtPaymentHistoryPrincipalFilter>(
+    initialHistoryFilters?.principal || "all"
+  );
+  const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>(
+    initialHistoryFilters?.order || "newest"
+  );
+
+  // SPRINT 39: Save history filter state to parent in-memory session store
+  const onSaveHistoryFiltersRef = useRef(onSaveHistoryFilters);
+  React.useEffect(() => {
+    onSaveHistoryFiltersRef.current = onSaveHistoryFilters;
+  });
+
+  React.useEffect(() => {
+    if (debt?.id) {
+      onSaveHistoryFiltersRef.current?.(debt.id, {
+        status: historyStatusFilter,
+        principal: historyPrincipalFilter,
+        order: historyOrder,
+        periodPreset: historyPeriodPreset,
+        summaryScope
+      });
+    }
+  }, [debt?.id, historyStatusFilter, historyPrincipalFilter, historyOrder, historyPeriodPreset, summaryScope]);
 
   const handleResetHistoryFilters = () => {
     setHistoryStatusFilter("all");
