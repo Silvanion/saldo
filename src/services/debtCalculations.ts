@@ -197,6 +197,42 @@ export interface DebtPaymentTrendSnapshot {
   error?: string;
 }
 
+export interface DebtPaymentComparisonMetric {
+  currentValue: number;
+  previousValue: number;
+  delta: number;
+  deltaPct: number | null;
+  direction: "up" | "down" | "unchanged" | "not_available";
+}
+
+export interface DebtPaymentComparisonSnapshot {
+  available: boolean;
+  preset: DebtPaymentHistoryPeriodPreset;
+  currentPeriodLabel: string;
+  previousPeriodLabel: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  previousPeriodStart: string | null;
+  previousPeriodEnd: string | null;
+  currentPaymentCount: number;
+  previousPaymentCount: number;
+  currentTotalPaid: number;
+  previousTotalPaid: number;
+  currentTotalPrincipal: number;
+  previousTotalPrincipal: number;
+  currentTotalInterest: number;
+  previousTotalInterest: number;
+  paymentCount: DebtPaymentComparisonMetric;
+  totalPaid: DebtPaymentComparisonMetric;
+  totalPrincipal: DebtPaymentComparisonMetric;
+  totalInterest: DebtPaymentComparisonMetric;
+  currentPrincipalSharePct: number | null;
+  previousPrincipalSharePct: number | null;
+  principalShareDeltaPctPoints: number | null;
+  historyCompleteness: "empty" | "partial" | "available";
+  error?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -1388,6 +1424,208 @@ export function calculateDebtPaymentTrendSnapshot(
     firstPeriod: periods[0]?.periodKey,
     lastPeriod: periods[periods.length - 1]?.periodKey,
     historyCompleteness: hasPartialFields ? "partial" : "available"
+  };
+}
+
+function buildComparisonMetric(currentValue: number, previousValue: number): DebtPaymentComparisonMetric {
+  const cVal = Math.round(currentValue * 100) / 100;
+  const pVal = Math.round(previousValue * 100) / 100;
+  const delta = Math.round((cVal - pVal) * 100) / 100;
+
+  let deltaPct: number | null = null;
+  if (pVal > 0) {
+    deltaPct = Math.round(((cVal - pVal) / pVal) * 1000) / 10;
+  }
+
+  let direction: "up" | "down" | "unchanged" | "not_available" = "unchanged";
+  if (cVal > pVal) {
+    direction = "up";
+  } else if (cVal < pVal) {
+    direction = "down";
+  } else {
+    direction = "unchanged";
+  }
+
+  return {
+    currentValue: cVal,
+    previousValue: pVal,
+    delta,
+    deltaPct,
+    direction
+  };
+}
+
+function formatPeriodRangeLabel(startPeriodKey: string, endPeriodKey: string): string {
+  const startLabel = getPeriodLabel(startPeriodKey);
+  const endLabel = getPeriodLabel(endPeriodKey);
+  return `${startLabel} – ${endLabel}`;
+}
+
+/**
+ * Pure helper for comparing debt payment rolling period against immediately preceding period (Sprint 28)
+ */
+export function calculateDebtPaymentComparisonSnapshot(
+  items: DebtPaymentActivityItem[] | null | undefined,
+  preset: DebtPaymentHistoryPeriodPreset = "all",
+  referenceItems?: DebtPaymentActivityItem[] | null | undefined
+): DebtPaymentComparisonSnapshot {
+  const emptyResult: DebtPaymentComparisonSnapshot = {
+    available: false,
+    preset,
+    currentPeriodLabel: "",
+    previousPeriodLabel: "",
+    currentPeriodStart: null,
+    currentPeriodEnd: null,
+    previousPeriodStart: null,
+    previousPeriodEnd: null,
+    currentPaymentCount: 0,
+    previousPaymentCount: 0,
+    currentTotalPaid: 0,
+    previousTotalPaid: 0,
+    currentTotalPrincipal: 0,
+    previousTotalPrincipal: 0,
+    currentTotalInterest: 0,
+    previousTotalInterest: 0,
+    paymentCount: { currentValue: 0, previousValue: 0, delta: 0, deltaPct: null, direction: "not_available" },
+    totalPaid: { currentValue: 0, previousValue: 0, delta: 0, deltaPct: null, direction: "not_available" },
+    totalPrincipal: { currentValue: 0, previousValue: 0, delta: 0, deltaPct: null, direction: "not_available" },
+    totalInterest: { currentValue: 0, previousValue: 0, delta: 0, deltaPct: null, direction: "not_available" },
+    currentPrincipalSharePct: null,
+    previousPrincipalSharePct: null,
+    principalShareDeltaPctPoints: null,
+    historyCompleteness: "empty"
+  };
+
+  if (!items || !Array.isArray(items) || items.length === 0 || preset === "all") {
+    return emptyResult;
+  }
+
+  let monthCount = 0;
+  if (preset === "last_3_months") monthCount = 3;
+  else if (preset === "last_6_months") monthCount = 6;
+  else if (preset === "last_12_months") monthCount = 12;
+  else return emptyResult;
+
+  // Find reference date from referenceItems (complete activity) if provided, or from items
+  const sourceForReference = (referenceItems && referenceItems.length > 0) ? referenceItems : items;
+  let maxDate = "";
+  for (const item of sourceForReference) {
+    if (item.date && item.date.length >= 7) {
+      if (!maxDate || item.date.localeCompare(maxDate) > 0) {
+        maxDate = item.date;
+      }
+    }
+  }
+
+  if (!maxDate) {
+    return emptyResult;
+  }
+
+  const maxYear = parseInt(maxDate.substring(0, 4), 10);
+  const maxMonth = parseInt(maxDate.substring(5, 7), 10);
+
+  if (isNaN(maxYear) || isNaN(maxMonth) || maxMonth < 1 || maxMonth > 12) {
+    return emptyResult;
+  }
+
+  // Current window:
+  const curEndTotalMonths = maxYear * 12 + (maxMonth - 1);
+  const curStartTotalMonths = curEndTotalMonths - (monthCount - 1);
+
+  const curEndYear = maxYear;
+  const curEndMonth = maxMonth;
+  const curStartYear = Math.floor(curStartTotalMonths / 12);
+  const curStartMonth = (curStartTotalMonths % 12) + 1;
+
+  const currentPeriodStart = `${curStartYear}-${String(curStartMonth).padStart(2, "0")}`;
+  const currentPeriodEnd = `${curEndYear}-${String(curEndMonth).padStart(2, "0")}`;
+
+  // Previous window:
+  const prevEndTotalMonths = curStartTotalMonths - 1;
+  const prevStartTotalMonths = prevEndTotalMonths - (monthCount - 1);
+
+  const prevEndYear = Math.floor(prevEndTotalMonths / 12);
+  const prevEndMonth = (prevEndTotalMonths % 12) + 1;
+  const prevStartYear = Math.floor(prevStartTotalMonths / 12);
+  const prevStartMonth = (prevStartTotalMonths % 12) + 1;
+
+  const previousPeriodStart = `${prevStartYear}-${String(prevStartMonth).padStart(2, "0")}`;
+  const previousPeriodEnd = `${prevEndYear}-${String(prevEndMonth).padStart(2, "0")}`;
+
+  const currentPeriodLabel = formatPeriodRangeLabel(currentPeriodStart, currentPeriodEnd);
+  const previousPeriodLabel = formatPeriodRangeLabel(previousPeriodStart, previousPeriodEnd);
+
+  // Filter items for current and previous periods
+  let curCount = 0, curPaid = 0, curPrinc = 0, curIntr = 0;
+  let prevCount = 0, prevPaid = 0, prevPrinc = 0, prevIntr = 0;
+
+  for (const item of items) {
+    if (!item.date || item.date.length < 7) continue;
+    const itemPeriodKey = item.date.substring(0, 7);
+
+    const paid = Number(item.paymentAmount) || 0;
+    const princ = Number(item.principalAmount) || 0;
+    const intr = Number(item.interestAmount) || 0;
+
+    if (itemPeriodKey >= currentPeriodStart && itemPeriodKey <= currentPeriodEnd) {
+      curCount++;
+      curPaid += paid;
+      curPrinc += princ;
+      curIntr += intr;
+    } else if (itemPeriodKey >= previousPeriodStart && itemPeriodKey <= previousPeriodEnd) {
+      prevCount++;
+      prevPaid += paid;
+      prevPrinc += princ;
+      prevIntr += intr;
+    }
+  }
+
+  curPaid = Math.round(curPaid * 100) / 100;
+  curPrinc = Math.round(curPrinc * 100) / 100;
+  curIntr = Math.round(curIntr * 100) / 100;
+
+  prevPaid = Math.round(prevPaid * 100) / 100;
+  prevPrinc = Math.round(prevPrinc * 100) / 100;
+  prevIntr = Math.round(prevIntr * 100) / 100;
+
+  const curShare = curPaid > 0 ? Math.round((curPrinc / curPaid) * 1000) / 10 : null;
+  const prevShare = prevPaid > 0 ? Math.round((prevPrinc / prevPaid) * 1000) / 10 : null;
+  const shareDelta = (curShare !== null && prevShare !== null)
+    ? Math.round((curShare - prevShare) * 10) / 10
+    : null;
+
+  const completeness: "empty" | "partial" | "available" =
+    (curCount === 0 && prevCount === 0)
+      ? "empty"
+      : (curCount === 0 || prevCount === 0)
+        ? "partial"
+        : "available";
+
+  return {
+    available: true,
+    preset,
+    currentPeriodLabel,
+    previousPeriodLabel,
+    currentPeriodStart,
+    currentPeriodEnd,
+    previousPeriodStart,
+    previousPeriodEnd,
+    currentPaymentCount: curCount,
+    previousPaymentCount: prevCount,
+    currentTotalPaid: curPaid,
+    previousTotalPaid: prevPaid,
+    currentTotalPrincipal: curPrinc,
+    previousTotalPrincipal: prevPrinc,
+    currentTotalInterest: curIntr,
+    previousTotalInterest: prevIntr,
+    paymentCount: buildComparisonMetric(curCount, prevCount),
+    totalPaid: buildComparisonMetric(curPaid, prevPaid),
+    totalPrincipal: buildComparisonMetric(curPrinc, prevPrinc),
+    totalInterest: buildComparisonMetric(curIntr, prevIntr),
+    currentPrincipalSharePct: curShare,
+    previousPrincipalSharePct: prevShare,
+    principalShareDeltaPctPoints: shareDelta,
+    historyCompleteness: completeness
   };
 }
 

@@ -1683,5 +1683,67 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("Wyświetlane: 3 płatności")).toBeTruthy();
       expect(screen.getByText("Rata Październik 2025")).toBeTruthy();
     });
+
+    it("renders comparison badges and previous period deltas for rolling presets (Sprint 28)", () => {
+      const mockTransactions = [
+        // Previous 3-month window: 2025-11..2026-01
+        {
+          id: "tx-prev-1",
+          name: "Rata Listopad",
+          amount: 2500,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2025-11-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        // Current 3-month window: 2026-02..2026-04
+        {
+          id: "tx-cur-1",
+          name: "Rata Luty",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-cur-2",
+          name: "Rata Kwiecień",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-04-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // In "all" preset, informational note is rendered
+      expect(screen.getByText("Wybierz okres 3, 6 lub 12 miesięcy, aby zobaczyć porównanie z poprzednim okresem.")).toBeTruthy();
+
+      // Switch to "last_3_months"
+      const periodSelect = screen.getByLabelText("Okres:");
+      fireEvent.change(periodSelect, { target: { value: "last_3_months" } });
+
+      // Comparison section should be rendered with metrics
+      expect(screen.getByText("Porównanie z poprzednim okresem")).toBeTruthy();
+      expect(screen.getByText("Bieżący okres vs poprzednie okno o tej samej długości")).toBeTruthy();
+      expect(screen.getByText("2 vs 1")).toBeTruthy();
+    });
   });
 });

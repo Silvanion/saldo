@@ -33,6 +33,7 @@ import {
   calculateDebtPaymentInsights,
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
+  calculateDebtPaymentComparisonSnapshot,
   filterDebtPaymentActivity,
   filterDebtPaymentActivityByPeriod,
   DebtPaymentHistoryStatusFilter,
@@ -136,6 +137,22 @@ export function DebtDetailsModal({
     const itemsForTrend = summaryScope === "all" ? periodActivityItems : filteredActivityItems;
     return calculateDebtPaymentTrendSnapshot(itemsForTrend);
   }, [summaryScope, periodActivityItems, filteredActivityItems]);
+
+  const comparisonSnapshot = useMemo(() => {
+    let itemsForComparison = activity.items;
+    if (summaryScope === "filtered") {
+      itemsForComparison = filterDebtPaymentActivity(activity.items, {
+        status: historyStatusFilter,
+        principal: historyPrincipalFilter,
+        order: "oldest"
+      });
+    }
+    return calculateDebtPaymentComparisonSnapshot(
+      itemsForComparison,
+      historyPeriodPreset,
+      activity.items
+    );
+  }, [summaryScope, historyPeriodPreset, activity.items, historyStatusFilter, historyPrincipalFilter]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -704,6 +721,127 @@ export function DebtDetailsModal({
                         </p>
                       </div>
                     ) : null}
+
+                    {/* SECTION: PERIOD COMPARISON */}
+                    {historyPeriodPreset === "all" ? (
+                      <div className="p-3 bg-surface-2/30 border border-border/80 rounded-xl text-center">
+                        <p className="text-xs text-text-muted">
+                          Wybierz okres 3, 6 lub 12 miesięcy, aby zobaczyć porównanie z poprzednim okresem.
+                        </p>
+                      </div>
+                    ) : comparisonSnapshot.available ? (
+                      <div className="space-y-3 p-4 bg-surface-2/40 border border-border rounded-2xl">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-border">
+                          <div>
+                            <h4 className="text-xs font-bold text-text-main">
+                              Porównanie z poprzednim okresem
+                            </h4>
+                            <p className="text-[11px] text-text-muted">
+                              {summaryScope === "all"
+                                ? "Bieżący okres vs poprzednie okno o tej samej długości"
+                                : "Porównanie widocznych płatności w dwóch kolejnych okresach"}
+                            </p>
+                          </div>
+                          <span className="text-[11px] font-medium text-text-muted">
+                            {comparisonSnapshot.currentPeriodLabel} vs {comparisonSnapshot.previousPeriodLabel}
+                          </span>
+                        </div>
+
+                        {/* Comparison Metric Cards / Badges */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                          {/* Payment count */}
+                          <div className="p-3 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block">
+                              Liczba wpłat
+                            </span>
+                            <div className="text-sm font-black text-text-main tabular-nums">
+                              {comparisonSnapshot.currentPaymentCount} vs {comparisonSnapshot.previousPaymentCount}
+                            </div>
+                            <div className="text-[11px] font-semibold text-text-muted flex items-center gap-1">
+                              <span>
+                                różnica: {comparisonSnapshot.paymentCount.delta >= 0 ? `+${comparisonSnapshot.paymentCount.delta}` : comparisonSnapshot.paymentCount.delta}
+                              </span>
+                              {comparisonSnapshot.paymentCount.deltaPct !== null && (
+                                <span className="text-text-faint">
+                                  ({comparisonSnapshot.paymentCount.deltaPct >= 0 ? `+${comparisonSnapshot.paymentCount.deltaPct}` : comparisonSnapshot.paymentCount.deltaPct}%)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Total paid */}
+                          <div className="p-3 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block">
+                              Suma wpłat
+                            </span>
+                            <div className="text-sm font-black text-text-main tabular-nums">
+                              {formatMoney(comparisonSnapshot.currentTotalPaid, currency)}
+                            </div>
+                            <div className="text-[11px] font-semibold text-text-muted flex items-center gap-1">
+                              <span>
+                                vs {formatMoney(comparisonSnapshot.previousTotalPaid, currency)} · {comparisonSnapshot.totalPaid.delta >= 0 ? `+${formatMoney(comparisonSnapshot.totalPaid.delta, currency)}` : formatMoney(comparisonSnapshot.totalPaid.delta, currency)}
+                              </span>
+                              {comparisonSnapshot.totalPaid.deltaPct !== null && (
+                                <span className="text-text-faint">
+                                  ({comparisonSnapshot.totalPaid.deltaPct >= 0 ? `+${comparisonSnapshot.totalPaid.deltaPct}` : comparisonSnapshot.totalPaid.deltaPct}%)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Principal */}
+                          <div className="p-3 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block">
+                              Spłacony kapitał
+                            </span>
+                            <div className="text-sm font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                              {formatMoney(comparisonSnapshot.currentTotalPrincipal, currency)}
+                            </div>
+                            <div className="text-[11px] font-semibold text-text-muted flex items-center gap-1">
+                              <span>
+                                vs {formatMoney(comparisonSnapshot.previousTotalPrincipal, currency)} · {comparisonSnapshot.totalPrincipal.delta >= 0 ? `+${formatMoney(comparisonSnapshot.totalPrincipal.delta, currency)}` : formatMoney(comparisonSnapshot.totalPrincipal.delta, currency)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Interest & Principal share */}
+                          <div className="p-3 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block">
+                              Udział kapitału
+                            </span>
+                            <div className="text-sm font-black text-brand tabular-nums">
+                              {comparisonSnapshot.currentPrincipalSharePct !== null ? `${comparisonSnapshot.currentPrincipalSharePct}%` : "—"}
+                            </div>
+                            <div className="text-[11px] font-semibold text-text-muted">
+                              {comparisonSnapshot.previousPrincipalSharePct !== null ? (
+                                <span>
+                                  vs {comparisonSnapshot.previousPrincipalSharePct}% · różnica {comparisonSnapshot.principalShareDeltaPctPoints !== null && comparisonSnapshot.principalShareDeltaPctPoints >= 0 ? `+${comparisonSnapshot.principalShareDeltaPctPoints}` : comparisonSnapshot.principalShareDeltaPctPoints} pp
+                                </span>
+                              ) : (
+                                <span>Brak danych z poprzedniego okresu</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {comparisonSnapshot.previousPaymentCount === 0 && comparisonSnapshot.currentPaymentCount > 0 && (
+                          <p className="text-[10px] text-text-faint italic">
+                            Brak zarejestrowanych płatności w poprzednim okresie — zmiana procentowa niedostępna.
+                          </p>
+                        )}
+                        {comparisonSnapshot.historyCompleteness === "partial" && comparisonSnapshot.previousPaymentCount > 0 && (
+                          <p className="text-[10px] text-text-faint italic">
+                            Porównanie dotyczy wyłącznie zarejestrowanych płatności.
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-surface-2/40 border border-border rounded-xl text-center">
+                        <p className="text-xs text-text-muted">
+                          Brak widocznych płatności do porównania.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Timeline Filter Controls */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-2/60 border border-border rounded-xl">

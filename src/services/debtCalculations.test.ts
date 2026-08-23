@@ -12,6 +12,7 @@ import {
   calculateDebtPaymentInsights,
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
+  calculateDebtPaymentComparisonSnapshot,
   filterDebtPaymentActivity,
   filterDebtPaymentActivityByPeriod,
   calculateOverpayment,
@@ -2181,6 +2182,116 @@ describe("debtCalculations", () => {
       const copy = JSON.stringify(periodTestItems);
       filterDebtPaymentActivityByPeriod(periodTestItems, "last_3_months");
       expect(JSON.stringify(periodTestItems)).toBe(copy);
+    });
+  });
+
+  describe("calculateDebtPaymentComparisonSnapshot (Sprint 28)", () => {
+    const comparisonTestItems = [
+      // Previous 3-month window (2025-11, 2025-12, 2026-01):
+      {
+        transactionId: "tx-prev-1",
+        debtId: "debt-1",
+        date: "2025-11-15",
+        paymentAmount: 500,
+        principalAmount: 400,
+        interestAmount: 100,
+        openingBalance: 10000,
+        closingBalance: 9600,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Listopad"
+      },
+      {
+        transactionId: "tx-prev-2",
+        debtId: "debt-1",
+        date: "2025-12-15",
+        paymentAmount: 500,
+        principalAmount: 400,
+        interestAmount: 100,
+        openingBalance: 9600,
+        closingBalance: 9200,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Grudzień"
+      },
+      // Current 3-month window (2026-02, 2026-03, 2026-04):
+      {
+        transactionId: "tx-cur-1",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 600,
+        principalAmount: 510,
+        interestAmount: 90,
+        openingBalance: 9200,
+        closingBalance: 8690,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Luty"
+      },
+      {
+        transactionId: "tx-cur-2",
+        debtId: "debt-1",
+        date: "2026-04-15",
+        paymentAmount: 600,
+        principalAmount: 510,
+        interestAmount: 90,
+        openingBalance: 8690,
+        closingBalance: 8180,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Kwiecień"
+      }
+    ];
+
+    it("returns available=false when preset is 'all' or items empty", () => {
+      const snap = calculateDebtPaymentComparisonSnapshot(comparisonTestItems, "all");
+      expect(snap.available).toBe(false);
+
+      const emptySnap = calculateDebtPaymentComparisonSnapshot([], "last_3_months");
+      expect(emptySnap.available).toBe(false);
+    });
+
+    it("calculates comparison metrics and deltas accurately between current and previous windows", () => {
+      // Latest date is 2026-04.
+      // Current 3 months: 2026-02, 2026-03, 2026-04 (tx-cur-1, tx-cur-2 -> total 1200 paid, 1020 principal, 180 interest)
+      // Previous 3 months: 2025-11, 2025-12, 2026-01 (tx-prev-1, tx-prev-2 -> total 1000 paid, 800 principal, 200 interest)
+      const snap = calculateDebtPaymentComparisonSnapshot(comparisonTestItems, "last_3_months");
+
+      expect(snap.available).toBe(true);
+      expect(snap.currentPaymentCount).toBe(2);
+      expect(snap.previousPaymentCount).toBe(2);
+      expect(snap.paymentCount.delta).toBe(0);
+      expect(snap.paymentCount.deltaPct).toBe(0);
+      expect(snap.paymentCount.direction).toBe("unchanged");
+
+      expect(snap.currentTotalPaid).toBe(1200);
+      expect(snap.previousTotalPaid).toBe(1000);
+      expect(snap.totalPaid.delta).toBe(200);
+      expect(snap.totalPaid.deltaPct).toBe(20.0);
+      expect(snap.totalPaid.direction).toBe("up");
+
+      expect(snap.currentTotalPrincipal).toBe(1020);
+      expect(snap.previousTotalPrincipal).toBe(800);
+      expect(snap.totalPrincipal.delta).toBe(220);
+
+      // Principal shares: current = 1020/1200 = 85.0%, previous = 800/1000 = 80.0% -> +5.0 pp
+      expect(snap.currentPrincipalSharePct).toBe(85.0);
+      expect(snap.previousPrincipalSharePct).toBe(80.0);
+      expect(snap.principalShareDeltaPctPoints).toBe(5.0);
+    });
+
+    it("handles zero previous total gracefully with null deltaPct", () => {
+      // Only current items
+      const onlyCurrent = comparisonTestItems.slice(2);
+      const snap = calculateDebtPaymentComparisonSnapshot(onlyCurrent, "last_3_months");
+
+      expect(snap.available).toBe(true);
+      expect(snap.currentTotalPaid).toBe(1200);
+      expect(snap.previousTotalPaid).toBe(0);
+      expect(snap.totalPaid.delta).toBe(1200);
+      expect(snap.totalPaid.deltaPct).toBeNull();
+      expect(snap.previousPrincipalSharePct).toBeNull();
+      expect(snap.principalShareDeltaPctPoints).toBeNull();
     });
   });
 });
