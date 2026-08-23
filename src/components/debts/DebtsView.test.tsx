@@ -4251,8 +4251,57 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
           expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
         });
       });
+
+      describe("Sprint 63: Debt Scenario State Matrix & Recovery Flow Integration", () => {
+        it("1. Renders no_debts state in Scenarios tab when debts array is empty", () => {
+          const emptyProfile: Profile = {
+            ...mockProfile,
+            debts: []
+          };
+          render(<DebtsView profile={emptyProfile} />);
+
+          const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+          fireEvent.click(scenariosTabBtn);
+
+          expect(screen.getByText("Brak czynnych zobowiązań do symulacji spłaty")).toBeTruthy();
+          expect(screen.getAllByRole("button", { name: /Dodaj zobowiązanie/i }).length).toBeGreaterThanOrEqual(2);
+          expect(screen.getByRole("button", { name: /Zobacz jak działają strategie/i })).toBeTruthy();
+        });
+
+        it("2. Distinguishes all_paid state from no_debts when debts exist but all are closed", () => {
+          const closedProfile: Profile = {
+            ...mockProfile,
+            debts: [
+              {
+                id: "d-closed",
+                name: "Kredyt Zamknięty",
+                institution: "Bank X",
+                type: "cash_loan",
+                currency: "PLN",
+                balance: 0,
+                originalAmount: 5000,
+                monthlyPayment: 0,
+                interestRate: 10,
+                rateType: "fixed",
+                startDate: "2023-01-01",
+                endDate: "2024-01-01",
+                status: "closed",
+                createdAt: "2023-01-01T00:00:00.000Z"
+              }
+            ]
+          };
+          render(<DebtsView profile={closedProfile} />);
+
+          const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+          fireEvent.click(scenariosTabBtn);
+
+          expect(screen.getByText("Wszystkie zobowiązania zostały już spłacone")).toBeTruthy();
+          expect(screen.queryByText("Brak czynnych zobowiązań do symulacji spłaty")).toBeNull();
+        });
+      });
     });
   });
 });
+
 
 
