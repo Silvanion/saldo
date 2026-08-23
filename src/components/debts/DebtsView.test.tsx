@@ -6,7 +6,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
-import { DebtPortfolioCard, calculateDebtRepaymentProgress } from "./DebtPortfolioCard";
+import { DebtPortfolioCard, calculateDebtRepaymentProgress, getNewlyCrossedDebtMilestone } from "./DebtPortfolioCard";
 import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile, Transaction } from "../../types";
 import * as csvUtils from "../../utils/csv";
@@ -2607,6 +2607,103 @@ describe("DebtsView (Sprint 1 MVP)", () => {
         const res = calculateDebtRepaymentProgress(debtWithLimit);
         expect(res.referenceAmount).toBe(5000);
         expect(res.repaidPercent).toBe(50);
+      });
+    });
+
+    describe("Sprint 41: getNewlyCrossedDebtMilestone pure helper & toast integration", () => {
+      it("1. No crossing: previous 24%, current 24% -> null", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 76, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 76, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBeNull();
+      });
+
+      it("2. Cross 25%: previous 24%, current 25% -> 25", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 76, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 75, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBe(25);
+      });
+
+      it("3. Cross 50%: previous 49%, current 50% -> 50", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 51, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 50, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBe(50);
+      });
+
+      it("4. Cross 75%: previous 74%, current 75% -> 75", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 26, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 25, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBe(75);
+      });
+
+      it("5. Cross 100%: previous 99%, current 100% -> 100", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 1, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 0, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBe(100);
+      });
+
+      it("6. Multiple milestones: previous 24%, current 76% -> returns only 75", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 76, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 24, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBe(75);
+      });
+
+      it("7. Already reached: previous 50%, current 60% -> null", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 50, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 40, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBeNull();
+      });
+
+      it("8. Decrease: previous 60%, current 59% -> null", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 40, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 41, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBeNull();
+      });
+
+      it("9. Invalid/unusable reference amount -> null", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 0, balance: 0, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 0, balance: 0, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBeNull();
+      });
+
+      it("10. No false completion: previous 90%, current 99% -> null", () => {
+        const dPrev: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 10, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        const dCurr: DebtItem = { id: "1", name: "D", institution: "B", type: "cash_loan", currency: "PLN", originalAmount: 100, balance: 1, monthlyPayment: 10, interestRate: 5, status: "active", createdAt: "2026-01-01" };
+        expect(getNewlyCrossedDebtMilestone(calculateDebtRepaymentProgress(dPrev), calculateDebtRepaymentProgress(dCurr))).toBeNull();
+      });
+
+      it("11. DebtsView: emits success toast when debt toggle to closed reaches 100%", () => {
+        const showToast = vi.fn();
+        const testDebt: DebtItem = {
+          id: "debt-toast-1",
+          name: "Pożyczka",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 200,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [testDebt]
+        };
+
+        render(
+          <DebtsView
+            profile={profile}
+            onToggleDebtStatus={vi.fn()}
+            showToast={showToast}
+          />
+        );
+
+        // Click "Oznacz jako spłacone"
+        const markPaidBtn = screen.getByText("Oznacz jako spłacone");
+        fireEvent.click(markPaidBtn);
+
+        expect(showToast).toHaveBeenCalledWith("Dług spłacony — gratulacje!", "success");
       });
     });
   });

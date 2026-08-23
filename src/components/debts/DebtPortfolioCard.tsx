@@ -89,6 +89,20 @@ export function calculateDebtRepaymentProgress(debt: DebtItem | null | undefined
   };
 }
 
+export function getNewlyCrossedDebtMilestone(
+  previousProgress: DebtRepaymentProgress,
+  currentProgress: DebtRepaymentProgress
+): DebtRepaymentMilestone | null {
+  if (!previousProgress.hasUsableReferenceAmount || !currentProgress.hasUsableReferenceAmount) {
+    return null;
+  }
+  const newlyCrossed = currentProgress.reachedMilestones.filter(
+    (m) => !previousProgress.reachedMilestones.includes(m)
+  );
+  if (newlyCrossed.length === 0) return null;
+  return newlyCrossed[newlyCrossed.length - 1];
+}
+
 export interface DebtPortfolioCardProps {
   key?: React.Key;
   debt: DebtItem;

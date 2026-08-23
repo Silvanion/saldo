@@ -7,7 +7,7 @@ import {
   buildValidatedCustomOrder,
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
-import { DebtPortfolioCard } from "./DebtPortfolioCard";
+import { DebtPortfolioCard, calculateDebtRepaymentProgress, getNewlyCrossedDebtMilestone } from "./DebtPortfolioCard";
 import {
   DebtDetailsModal,
   DebtDetailTab,
@@ -426,9 +426,52 @@ export function DebtsView({
 
   const handleSaveForm = (data: Omit<DebtItem, "id" | "createdAt">) => {
     if (debtToEdit) {
+      const prevProgress = calculateDebtRepaymentProgress(debtToEdit);
+      const updatedDebt: DebtItem = { ...debtToEdit, ...data };
+      const newProgress = calculateDebtRepaymentProgress(updatedDebt);
+      const milestone = getNewlyCrossedDebtMilestone(prevProgress, newProgress);
+
       onUpdateDebt?.(debtToEdit.id, data);
+      setIsFormModalOpen(false);
+      setDebtToEdit(null);
+
+      if (milestone) {
+        if (milestone === 100) {
+          showToast?.("Dług spłacony — gratulacje!", "success");
+        } else {
+          showToast?.(`Osiągnięto ${milestone}% spłaty długu.`, "success");
+        }
+      }
     } else {
       onAddDebt?.(data);
+      setIsFormModalOpen(false);
+    }
+  };
+
+  const handleToggleDebtStatus = (debtId: string) => {
+    const debt = profile?.debts?.find((d) => d.id === debtId);
+    if (debt) {
+      const prevProgress = calculateDebtRepaymentProgress(debt);
+      const nextStatus = debt.status === "active" ? "closed" : "active";
+      const updatedDebt: DebtItem = {
+        ...debt,
+        status: nextStatus,
+        balance: nextStatus === "closed" ? 0 : debt.balance
+      };
+      const newProgress = calculateDebtRepaymentProgress(updatedDebt);
+      const milestone = getNewlyCrossedDebtMilestone(prevProgress, newProgress);
+
+      onToggleDebtStatus?.(debtId);
+
+      if (milestone) {
+        if (milestone === 100) {
+          showToast?.("Dług spłacony — gratulacje!", "success");
+        } else {
+          showToast?.(`Osiągnięto ${milestone}% spłaty długu.`, "success");
+        }
+      }
+    } else {
+      onToggleDebtStatus?.(debtId);
     }
   };
 
@@ -1018,7 +1061,7 @@ export function DebtsView({
                   onOpenRefinance={(d) => setSelectedDebtForRefinance(d)}
                   onEdit={handleOpenEditModal}
                   onDelete={(id) => onDeleteDebt?.(id)}
-                  onToggleStatus={(id) => onToggleDebtStatus?.(id)}
+                  onToggleStatus={handleToggleDebtStatus}
                 />
               ))}
             </div>
