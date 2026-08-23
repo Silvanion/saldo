@@ -1530,8 +1530,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       );
 
       // Default scope is full history
-      expect(screen.getByText("Cała historia")).toBeTruthy();
-      expect(screen.getByText("Widoczne po filtrach")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Cała historia" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Widoczne po filtrach" })).toBeTruthy();
       expect(screen.getByText("Podsumowanie całej zarejestrowanej historii")).toBeTruthy();
 
       // Filter by status to "normal" (1 match)
@@ -1615,6 +1615,73 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       fireEvent.change(statusSelect, { target: { value: "paid_off" } });
 
       expect(screen.getByText("Brak widocznych płatności do przedstawienia na osi czasu.")).toBeTruthy();
+    });
+
+    it("filters payment history and updates summary/trend by period preset (Sprint 27)", () => {
+      const mockTransactions = [
+        {
+          id: "tx-1",
+          name: "Rata Październik 2025",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2025-10-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-2",
+          name: "Rata Grudzień 2025",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2025-12-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-3",
+          name: "Rata Luty 2026",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Default is all history (3 payments)
+      expect(screen.getByText("Wyświetlane: 3 płatności")).toBeTruthy();
+      expect(screen.getByText("Podsumowanie całej zarejestrowanej historii")).toBeTruthy();
+
+      // Change period to "last_3_months" (covers 2025-12..2026-02 -> 2 payments: tx-2 and tx-3)
+      const periodSelect = screen.getByLabelText("Okres:");
+      fireEvent.change(periodSelect, { target: { value: "last_3_months" } });
+
+      expect(screen.getByText("Podsumowanie ostatnich 3 miesięcy")).toBeTruthy();
+      expect(screen.getByText("W wybranym okresie: 2 płatności")).toBeTruthy();
+      expect(screen.queryByText("Rata Październik 2025")).toBeNull();
+      expect(screen.getByText("Rata Grudzień 2025")).toBeTruthy();
+      expect(screen.getByText("Rata Luty 2026")).toBeTruthy();
+
+      // Switch back to "all"
+      fireEvent.change(periodSelect, { target: { value: "all" } });
+      expect(screen.getByText("Wyświetlane: 3 płatności")).toBeTruthy();
+      expect(screen.getByText("Rata Październik 2025")).toBeTruthy();
     });
   });
 });

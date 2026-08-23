@@ -156,11 +156,17 @@ export type DebtPaymentHistoryStatusFilter = "all" | DebtPaymentStatus;
 export type DebtPaymentHistoryPrincipalFilter = "all" | "with_principal" | "without_principal";
 export type DebtPaymentHistoryOrder = "newest" | "oldest";
 export type DebtPaymentSummaryScope = "all" | "filtered";
+export type DebtPaymentHistoryPeriodPreset =
+  | "all"
+  | "last_3_months"
+  | "last_6_months"
+  | "last_12_months";
 
 export interface DebtPaymentHistoryFilterOptions {
   status?: DebtPaymentHistoryStatusFilter;
   principal?: DebtPaymentHistoryPrincipalFilter;
   order?: DebtPaymentHistoryOrder;
+  period?: DebtPaymentHistoryPeriodPreset;
 }
 
 export interface DebtPaymentTrendPeriod {
@@ -1187,6 +1193,62 @@ export function filterDebtPaymentActivity(
   });
 
   return result;
+}
+
+/**
+ * Pure helper for filtering debt payment activity rows by period preset (Sprint 27)
+ */
+export function filterDebtPaymentActivityByPeriod(
+  items: DebtPaymentActivityItem[] | null | undefined,
+  preset: DebtPaymentHistoryPeriodPreset = "all"
+): DebtPaymentActivityItem[] {
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return [];
+  }
+
+  if (preset === "all") {
+    return [...items];
+  }
+
+  let monthCount = 0;
+  if (preset === "last_3_months") monthCount = 3;
+  else if (preset === "last_6_months") monthCount = 6;
+  else if (preset === "last_12_months") monthCount = 12;
+  else return [...items];
+
+  // Find latest valid date in the items
+  let maxDate = "";
+  for (const item of items) {
+    if (item.date && item.date.length >= 7) {
+      if (!maxDate || item.date.localeCompare(maxDate) > 0) {
+        maxDate = item.date;
+      }
+    }
+  }
+
+  if (!maxDate) {
+    return [...items];
+  }
+
+  const maxYear = parseInt(maxDate.substring(0, 4), 10);
+  const maxMonth = parseInt(maxDate.substring(5, 7), 10);
+
+  if (isNaN(maxYear) || isNaN(maxMonth) || maxMonth < 1 || maxMonth > 12) {
+    return [...items];
+  }
+
+  const endPeriodKey = `${maxYear}-${String(maxMonth).padStart(2, "0")}`;
+  const totalMonthsIndex = maxYear * 12 + (maxMonth - 1);
+  const startTotalMonthsIndex = totalMonthsIndex - (monthCount - 1);
+  const startYear = Math.floor(startTotalMonthsIndex / 12);
+  const startMonth = (startTotalMonthsIndex % 12) + 1;
+  const startPeriodKey = `${startYear}-${String(startMonth).padStart(2, "0")}`;
+
+  return items.filter((item) => {
+    if (!item.date || item.date.length < 7) return false;
+    const itemPeriodKey = item.date.substring(0, 7);
+    return itemPeriodKey >= startPeriodKey && itemPeriodKey <= endPeriodKey;
+  });
 }
 
 const MONTH_NAMES_PL = [

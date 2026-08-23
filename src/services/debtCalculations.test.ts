@@ -13,6 +13,7 @@ import {
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
   filterDebtPaymentActivity,
+  filterDebtPaymentActivityByPeriod,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -2098,6 +2099,88 @@ describe("debtCalculations", () => {
       const copy = JSON.stringify(multiMonthItems);
       calculateDebtPaymentTrendSnapshot(multiMonthItems);
       expect(JSON.stringify(multiMonthItems)).toBe(copy);
+    });
+  });
+
+  describe("filterDebtPaymentActivityByPeriod (Sprint 27)", () => {
+    const periodTestItems = [
+      {
+        transactionId: "tx-1",
+        debtId: "debt-1",
+        date: "2025-10-15",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 10000,
+        closingBalance: 9550,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Październik 2025"
+      },
+      {
+        transactionId: "tx-2",
+        debtId: "debt-1",
+        date: "2025-12-20",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 9550,
+        closingBalance: 9100,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Grudzień 2025"
+      },
+      {
+        transactionId: "tx-3",
+        debtId: "debt-1",
+        date: "2026-01-15",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 9100,
+        closingBalance: 8650,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Styczeń 2026"
+      },
+      {
+        transactionId: "tx-4",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 8650,
+        closingBalance: 8200,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Luty 2026"
+      }
+    ];
+
+    it("returns all items when preset is 'all' or empty input", () => {
+      expect(filterDebtPaymentActivityByPeriod([], "all")).toEqual([]);
+      expect(filterDebtPaymentActivityByPeriod(periodTestItems, "all")).toHaveLength(4);
+    });
+
+    it("filters to last 3 calendar months based on latest payment date (2026-02 -> 2025-12, 2026-01, 2026-02)", () => {
+      const res = filterDebtPaymentActivityByPeriod(periodTestItems, "last_3_months");
+      // 2026-02 is reference month. Window: 2025-12, 2026-01, 2026-02.
+      // tx-1 (2025-10) is excluded.
+      expect(res).toHaveLength(3);
+      expect(res.map((i) => i.transactionId)).toEqual(["tx-2", "tx-3", "tx-4"]);
+    });
+
+    it("filters to last 6 calendar months based on latest payment date (2026-02 -> 2025-09..2026-02)", () => {
+      const res = filterDebtPaymentActivityByPeriod(periodTestItems, "last_6_months");
+      // tx-1 is 2025-10, which is inside last 6 months (2025-09..2026-02)
+      expect(res).toHaveLength(4);
+    });
+
+    it("does not mutate the source array", () => {
+      const copy = JSON.stringify(periodTestItems);
+      filterDebtPaymentActivityByPeriod(periodTestItems, "last_3_months");
+      expect(JSON.stringify(periodTestItems)).toBe(copy);
     });
   });
 });

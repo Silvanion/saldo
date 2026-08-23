@@ -34,10 +34,12 @@ import {
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
   filterDebtPaymentActivity,
+  filterDebtPaymentActivityByPeriod,
   DebtPaymentHistoryStatusFilter,
   DebtPaymentHistoryPrincipalFilter,
   DebtPaymentHistoryOrder,
   DebtPaymentSummaryScope,
+  DebtPaymentHistoryPeriodPreset,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -97,6 +99,7 @@ export function DebtDetailsModal({
   }, [debt, transactions]);
 
   const [summaryScope, setSummaryScope] = useState<DebtPaymentSummaryScope>("all");
+  const [historyPeriodPreset, setHistoryPeriodPreset] = useState<DebtPaymentHistoryPeriodPreset>("all");
   const [historyStatusFilter, setHistoryStatusFilter] = useState<DebtPaymentHistoryStatusFilter>("all");
   const [historyPrincipalFilter, setHistoryPrincipalFilter] = useState<DebtPaymentHistoryPrincipalFilter>("all");
   const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>("newest");
@@ -107,17 +110,21 @@ export function DebtDetailsModal({
     setHistoryOrder("newest");
   };
 
+  const periodActivityItems = useMemo(() => {
+    return filterDebtPaymentActivityByPeriod(activity.items, historyPeriodPreset);
+  }, [activity.items, historyPeriodPreset]);
+
   const filteredActivityItems = useMemo(() => {
-    return filterDebtPaymentActivity(activity.items, {
+    return filterDebtPaymentActivity(periodActivityItems, {
       status: historyStatusFilter,
       principal: historyPrincipalFilter,
       order: historyOrder
     });
-  }, [activity.items, historyStatusFilter, historyPrincipalFilter, historyOrder]);
+  }, [periodActivityItems, historyStatusFilter, historyPrincipalFilter, historyOrder]);
 
   const fullPaymentInsights = useMemo(() => {
-    return calculateDebtPaymentInsights(activity);
-  }, [activity]);
+    return calculateDebtPaymentInsightsFromItems(periodActivityItems);
+  }, [periodActivityItems]);
 
   const filteredPaymentInsights = useMemo(() => {
     return calculateDebtPaymentInsightsFromItems(filteredActivityItems);
@@ -126,9 +133,9 @@ export function DebtDetailsModal({
   const activeInsights = summaryScope === "all" ? fullPaymentInsights : filteredPaymentInsights;
 
   const trendSnapshot = useMemo(() => {
-    const itemsForTrend = summaryScope === "all" ? activity.items : filteredActivityItems;
+    const itemsForTrend = summaryScope === "all" ? periodActivityItems : filteredActivityItems;
     return calculateDebtPaymentTrendSnapshot(itemsForTrend);
-  }, [summaryScope, activity.items, filteredActivityItems]);
+  }, [summaryScope, periodActivityItems, filteredActivityItems]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -466,8 +473,12 @@ export function DebtDetailsModal({
                         <h3 className="text-sm font-bold text-text-main">Podsumowanie płatności</h3>
                         <p className="text-xs text-text-muted">
                           {summaryScope === "all"
-                            ? "Podsumowanie całej zarejestrowanej historii"
-                            : "Podsumowanie widocznych płatności"}
+                            ? (historyPeriodPreset === "all"
+                                ? "Podsumowanie całej zarejestrowanej historii"
+                                : `Podsumowanie ostatnich ${historyPeriodPreset === "last_3_months" ? "3" : historyPeriodPreset === "last_6_months" ? "6" : "12"} miesięcy`)
+                            : (historyPeriodPreset === "all"
+                                ? "Podsumowanie widocznych płatności"
+                                : `Podsumowanie widocznych płatności z ostatnich ${historyPeriodPreset === "last_3_months" ? "3" : historyPeriodPreset === "last_6_months" ? "6" : "12"} miesięcy`)}
                         </p>
                       </div>
 
@@ -614,8 +625,12 @@ export function DebtDetailsModal({
                             </h4>
                             <p className="text-[11px] text-text-muted">
                               {summaryScope === "all"
-                                ? "Rozkład miesięczny całej zarejestrowanej historii"
-                                : "Rozkład miesięczny widocznych płatności"}
+                                ? (historyPeriodPreset === "all"
+                                    ? "Rozkład miesięczny całej zarejestrowanej historii"
+                                    : `Rozkład miesięczny (ostatnie ${historyPeriodPreset === "last_3_months" ? "3" : historyPeriodPreset === "last_6_months" ? "6" : "12"} miesiące)`)
+                                : (historyPeriodPreset === "all"
+                                    ? "Rozkład miesięczny widocznych płatności"
+                                    : `Rozkład miesięczny widocznych płatności (ostatnie ${historyPeriodPreset === "last_3_months" ? "3" : historyPeriodPreset === "last_6_months" ? "6" : "12"} miesiące)`)}
                             </p>
                           </div>
                           <span className="text-[11px] font-medium text-text-muted">
@@ -693,6 +708,24 @@ export function DebtDetailsModal({
                     {/* Timeline Filter Controls */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-2/60 border border-border rounded-xl">
                       <div className="flex flex-wrap items-center gap-2">
+                        {/* Period Preset Filter */}
+                        <div className="flex items-center gap-1.5">
+                          <label htmlFor="history-period-filter" className="text-[11px] font-bold text-text-muted">
+                            Okres:
+                          </label>
+                          <select
+                            id="history-period-filter"
+                            value={historyPeriodPreset}
+                            onChange={(e) => setHistoryPeriodPreset(e.target.value as DebtPaymentHistoryPeriodPreset)}
+                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus:ring-1 focus:ring-brand focus:border-brand cursor-pointer"
+                          >
+                            <option value="all">Cała historia</option>
+                            <option value="last_3_months">Ostatnie 3 miesiące</option>
+                            <option value="last_6_months">Ostatnie 6 miesięcy</option>
+                            <option value="last_12_months">Ostatnie 12 miesięcy</option>
+                          </select>
+                        </div>
+
                         {/* Status Filter */}
                         <div className="flex items-center gap-1.5">
                           <label htmlFor="history-status-filter" className="text-[11px] font-bold text-text-muted">
@@ -759,14 +792,29 @@ export function DebtDetailsModal({
 
                       {/* Count Indicator */}
                       <div className="text-[11px] font-medium text-text-muted shrink-0">
-                        {filteredActivityItems.length === activity.items.length
-                          ? `Wyświetlane: ${activity.items.length} płatności`
-                          : `Wyświetlane: ${filteredActivityItems.length} z ${activity.items.length} płatności`}
+                        {filteredActivityItems.length === periodActivityItems.length
+                          ? (historyPeriodPreset === "all"
+                              ? `Wyświetlane: ${periodActivityItems.length} płatności`
+                              : `W wybranym okresie: ${periodActivityItems.length} płatności`)
+                          : `Wyświetlane: ${filteredActivityItems.length} z ${periodActivityItems.length} płatności`}
                       </div>
                     </div>
 
-                    {/* Table of Payments or Filtered Empty State */}
-                    {filteredActivityItems.length === 0 ? (
+                    {/* Table of Payments or Filtered/Period Empty State */}
+                    {periodActivityItems.length === 0 ? (
+                      <div className="p-8 bg-surface-2/40 border border-border rounded-2xl text-center space-y-3">
+                        <p className="text-xs font-bold text-text-main">
+                          Brak zarejestrowanych płatności w wybranym okresie.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setHistoryPeriodPreset("all")}
+                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                          Pokaż całą historię
+                        </button>
+                      </div>
+                    ) : filteredActivityItems.length === 0 ? (
                       <div className="p-8 bg-surface-2/40 border border-border rounded-2xl text-center space-y-3">
                         <p className="text-xs font-bold text-text-main">
                           Brak płatności spełniających wybrane filtry.
