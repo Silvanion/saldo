@@ -57,7 +57,7 @@ export function PayoffStrategiesKnowledgeCenter({
               Jak działają strategie spłaty?
             </h4>
             <p className="text-xs text-text-muted mt-0.5">
-              Krótki opis sposobu porządkowania nadpłat w symulacji.
+              Krótki opis sposobu porządkowania nadpłat w symulacji oraz interpretacji wskaźników.
             </p>
           </div>
         </div>
@@ -245,11 +245,75 @@ export function PayoffStrategiesKnowledgeCenter({
             </div>
           </div>
 
+          {/* SECTION: METRIC EXPLANATIONS (Sprint 32) */}
+          <div className="space-y-3 pt-3 border-t border-border/60">
+            <div>
+              <h5 className="font-bold text-text-main text-xs">
+                Jak interpretować wyniki symulacji?
+              </h5>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                Krótki opis tego, co oznaczają wskaźniki widoczne w porównaniu strategii.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* 1. Data spłaty (Wolność od długu) */}
+              <div className="p-3 rounded-xl bg-surface-2/30 border border-border/80 space-y-1">
+                <span className="font-bold text-text-main text-xs block">
+                  Wolność od długu (data spłaty)
+                </span>
+                <p className="text-[11px] text-text-muted">
+                  Pokazuje przewidywany moment pełnej spłaty w modelu symulacji przy zachowaniu terminowych wpłat i stałej nadpłaty. Nie jest gwarancją rzeczywistego terminu.
+                </p>
+              </div>
+
+              {/* 2. Zaoszczędzone odsetki */}
+              <div className="p-3 rounded-xl bg-surface-2/30 border border-border/80 space-y-1">
+                <span className="font-bold text-text-main text-xs block">
+                  Zaoszczędzone odsetki
+                </span>
+                <p className="text-[11px] text-text-muted">
+                  Pokazuje modelową różnicę kosztu odsetek względem planu bazowego (Status Quo). To porównanie teoretyczne w ramach modelu, a nie obietnica oszczędności.
+                </p>
+              </div>
+
+              {/* 3. Zaoszczędzony czas */}
+              <div className="p-3 rounded-xl bg-surface-2/30 border border-border/80 space-y-1">
+                <span className="font-bold text-text-main text-xs block">
+                  Zaoszczędzony czas
+                </span>
+                <p className="text-[11px] text-text-muted">
+                  Pokazuje orientacyjne skrócenie czasu spłaty (w miesiącach i latach) względem planu bazowego (Status Quo).
+                </p>
+              </div>
+
+              {/* 4. Łączny koszt odsetek */}
+              <div className="p-3 rounded-xl bg-surface-2/30 border border-border/80 space-y-1">
+                <span className="font-bold text-text-main text-xs block">
+                  Łączny koszt odsetek
+                </span>
+                <p className="text-[11px] text-text-muted">
+                  Pokazuje całkowitą sumę odsetek naliczonych przez cały okres spłaty w danym scenariuszu. Wartość zależy od przyjętych założeń oprocentowania i rat.
+                </p>
+              </div>
+
+              {/* 5. Harmonogram i kolejność spłaty */}
+              <div className="p-3 rounded-xl bg-surface-2/30 border border-border/80 space-y-1 sm:col-span-2">
+                <span className="font-bold text-text-main text-xs block">
+                  Harmonogram i kolejność spłaty
+                </span>
+                <p className="text-[11px] text-text-muted">
+                  Wizualizuje modelową sekwencję zamykania kolejnych zobowiązań. Po spłaceniu długu uwolniona rata zasila kolejny cel, przyspieszając realizację całego planu.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Educational Disclaimer */}
           <div className="text-[11px] text-text-muted flex items-start gap-2.5 bg-surface-2 p-3.5 rounded-xl border border-border">
             <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
             <p>
-              <strong>Zastrzeżenie edukacyjne:</strong> To uproszczony opis strategii używanych w symulacji. Wyniki nie są poradą finansową i zależą od wprowadzonych danych oraz przyjętych założeń.
+              <strong>Zastrzeżenie edukacyjne:</strong> Wskaźniki pokazują wynik modelu na podstawie bieżących danych i przyjętych założeń. Nie stanowią porady finansowej ani gwarancji przyszłego wyniku.
             </p>
           </div>
         </div>

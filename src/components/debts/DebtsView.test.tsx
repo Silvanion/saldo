@@ -553,13 +553,24 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       screen.getByText(/Punkt odniesienia oparty na bieżących założeniach spłaty/i)
     ).toBeTruthy();
 
-    // 6. Verify educational disclaimer
-    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    // 6. Verify metric explanations section (Sprint 32)
+    expect(screen.getByText("Jak interpretować wyniki symulacji?")).toBeTruthy();
+    expect(screen.getByText("Wolność od długu (data spłaty)")).toBeTruthy();
+    expect(screen.getAllByText("Zaoszczędzone odsetki").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Zaoszczędzony czas").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Łączny koszt odsetek").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Harmonogram i kolejność spłaty")).toBeTruthy();
     expect(
-      screen.getByText(/To uproszczony opis strategii używanych w symulacji/i)
+      screen.getByText(/Pokazuje modelową różnicę kosztu odsetek względem planu bazowego \(Status Quo\)/i)
     ).toBeTruthy();
 
-    // 7. Click again to collapse
+    // 7. Verify educational disclaimer
+    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Wskaźniki pokazują wynik modelu na podstawie bieżących danych i przyjętych założeń/i)
+    ).toBeTruthy();
+
+    // 8. Click again to collapse
     fireEvent.click(knowledgeTrigger);
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByText(/Zastrzeżenie edukacyjne:/i)).toBeNull();
@@ -1783,6 +1794,69 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("2 vs 1")).toBeTruthy();
       expect(screen.getByText("Pokrycie danych:")).toBeTruthy();
       expect(screen.getByText("Dane porównawcze dostępne: zarejestrowane płatności występują w obu okresach.")).toBeTruthy();
+    });
+
+    it("Sprint 33: displays calm message when all debts are closed or have zero balance", () => {
+      const closedDebtsProfile: Profile = {
+        ...mockProfile,
+        debts: [
+          {
+            id: "debt-closed-1",
+            name: "Stary kredyt",
+            institution: "PKO BP",
+            type: "cash_loan",
+            currency: "PLN",
+            balance: 0,
+            originalAmount: 10000,
+            monthlyPayment: 0,
+            interestRate: 8,
+            status: "closed",
+            createdAt: "2024-01-01"
+          }
+        ]
+      };
+
+      render(<DebtsView profile={closedDebtsProfile} />);
+
+      // Switch to Payoff Strategy simulator tab
+      const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+      fireEvent.click(strategyTopBtn);
+
+      expect(screen.getByText("Wszystkie zobowiązania zostały już spłacone")).toBeTruthy();
+      expect(screen.getByText(/Brak pozostałej kwoty do zasymulowania/i)).toBeTruthy();
+    });
+
+    it("Sprint 33: displays zero extra-payment guidance and explicit baseline comparison state", () => {
+      render(<DebtsView profile={mockProfile} />);
+
+      // Switch to Payoff Strategy simulator tab
+      const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
+      fireEvent.click(strategyTopBtn);
+
+      // Reset extra monthly payoff to 0 zł
+      const resetBtn = screen.getByRole("button", { name: /Wyzeruj/i });
+      fireEvent.click(resetBtn);
+
+      // Zero extra-payment guidance is displayed
+      expect(screen.getByText(/Przy nadpłacie 0 zł symulacja nie dodaje dodatkowego budżetu do spłaty/i)).toBeTruthy();
+
+      // Switch to baseline strategy
+      const baselineCard = screen.getAllByText("Status Quo (Tylko raty)")[0];
+      fireEvent.click(baselineCard);
+
+      // In baseline, reference plan explanation is displayed
+      expect(screen.getByText(/Plan odniesienia \(Status Quo\) — punkt odniesienia bez dodatkowej nadpłaty/i)).toBeTruthy();
+
+      // Switch to Avalanche
+      const avalancheCard = screen.getAllByText("Metoda Lawiny (Avalanche)")[0];
+      fireEvent.click(avalancheCard);
+
+      // Add extra payment preset (+500 zł)
+      const plus500Btn = screen.getByRole("button", { name: /\+500/i });
+      fireEvent.click(plus500Btn);
+
+      // With +500 zł extra payment, savings are modeled with explicit disclaimer
+      expect(screen.getByText(/Modelowa różnica względem planu bazowego \(Status Quo\)/i)).toBeTruthy();
     });
   });
 });

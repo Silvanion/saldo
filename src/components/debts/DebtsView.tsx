@@ -994,25 +994,39 @@ export function DebtsView({
       {/* 5. TAB CONTENT 2: SCENARIOS & STRATEGIES (Sprint 4 Real Engine) */}
       {activeMainTab === "scenarios" && (
         <div className="space-y-6 animate-fade-in" id="payoff-strategies-container">
-          {debts.filter((d) => d.status !== "closed").length === 0 ? (
-            <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center">
-              <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
-                <GitCompare className="w-7 h-7 text-brand" />
+          {debts.filter((d) => d.status !== "closed" && d.balance > 0).length === 0 ? (
+            debts.length > 0 ? (
+              <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-border text-center flex flex-col items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
+                  <CheckCircle2 className="w-7 h-7 text-brand" />
+                </div>
+                <h3 className="text-base font-bold text-text-main">
+                  Wszystkie zobowiązania zostały już spłacone
+                </h3>
+                <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
+                  Brak pozostałej kwoty do zasymulowania. Według bieżących danych zobowiązania nie mają już aktywnego salda.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-text-main">
-                Brak czynnych zobowiązań do symulacji spłaty
-              </h3>
-              <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
-                Dodaj swoje kredyty w zakładce „Portfel kredytowy”, aby uruchomić symulator metody Lawiny (Avalanche) i Kuli Śnieżnej (Snowball).
-              </p>
-              <button
-                onClick={handleOpenAddModal}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Dodaj zobowiązanie</span>
-              </button>
-            </div>
+            ) : (
+              <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
+                  <GitCompare className="w-7 h-7 text-brand" />
+                </div>
+                <h3 className="text-base font-bold text-text-main">
+                  Brak czynnych zobowiązań do symulacji spłaty
+                </h3>
+                <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
+                  Dodaj zobowiązanie, aby porównać strategie spłaty. Po dodaniu danych będzie można wyświetlić modelową kolejność i terminy spłaty.
+                </p>
+                <button
+                  onClick={handleOpenAddModal}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Dodaj zobowiązanie</span>
+                </button>
+              </div>
+            )
           ) : (
             <>
               {/* Extra Payment Budget Config Panel */}
@@ -1089,6 +1103,14 @@ export function DebtsView({
                       ))}
                     </div>
                   </div>
+
+                  {extraMonthlyPayoff === 0 && (
+                    <div className="mt-3 p-3 bg-surface-2/60 border border-border/80 rounded-xl text-xs text-text-muted">
+                      <p>
+                        Przy nadpłacie 0 zł symulacja nie dodaje dodatkowego budżetu do spłaty. Wyniki strategii mogą być takie same lub bardzo zbliżone do planu bazowego.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* SPRINT 14: WHAT-IF PLANNING PANEL */}
@@ -1719,11 +1741,22 @@ export function DebtsView({
                         <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
                           <span className="text-[11px] text-text-faint block">Różnica względem wariantu bazowego:</span>
                           {currentRes.interestSavedVsBaseline > 0 ? (
-                            <strong className="text-sm font-bold text-brand tabular-nums">
-                              +{formatMoney(currentRes.interestSavedVsBaseline, currency)} oszczędności
-                            </strong>
+                            <div>
+                              <strong className="text-sm font-bold text-brand tabular-nums block">
+                                +{formatMoney(currentRes.interestSavedVsBaseline, currency)} oszczędności
+                              </strong>
+                              <span className="text-[10px] text-text-faint block">
+                                Modelowa różnica względem planu bazowego (Status Quo). Wynik symulacji zależny od przyjętych danych i założeń.
+                              </span>
+                            </div>
+                          ) : selectedPayoffStrategy === "baseline" ? (
+                            <span className="text-xs text-text-muted font-medium block">
+                              Plan odniesienia (Status Quo) — punkt odniesienia bez dodatkowej nadpłaty.
+                            </span>
                           ) : (
-                            <span className="text-xs text-text-muted font-medium">Wariant bazowy (Status Quo)</span>
+                            <span className="text-xs text-text-muted font-medium block">
+                              W tym scenariuszu model nie pokazuje różnicy względem planu bazowego. Wynik zależy od aktualnych danych, rat, oprocentowania i dodatkowego budżetu.
+                            </span>
                           )}
                         </div>
                       </div>
