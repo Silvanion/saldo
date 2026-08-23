@@ -16,6 +16,7 @@ import { DebtImportModal, parseDebtCsv, mapDebtType, parseDebtNumber } from "./D
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
+import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -3745,6 +3746,79 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         fireEvent.click(scenariosTabBtn);
 
         expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
+      });
+    });
+
+    describe("Sprint 53: Debt Scenarios Empty & Fallback States v1", () => {
+      it("1. DebtScenarioFallbackState renders no_debts state with primary action", () => {
+        const onAdd = vi.fn();
+        const onKnowledge = vi.fn();
+        render(
+          <DebtScenarioFallbackState
+            type="no_debts"
+            onAddDebt={onAdd}
+            onOpenKnowledgeCenter={onKnowledge}
+          />
+        );
+
+        expect(screen.getByText("Brak czynnych zobowiązań do symulacji spłaty")).toBeTruthy();
+        expect(screen.getByText(/Dodaj co najmniej jedno zobowiązanie/i)).toBeTruthy();
+
+        const addBtn = screen.getByRole("button", { name: /Dodaj zobowiązanie/i });
+        fireEvent.click(addBtn);
+        expect(onAdd).toHaveBeenCalledTimes(1);
+
+        const knowledgeBtn = screen.getByRole("button", { name: /Zobacz jak działają strategie/i });
+        fireEvent.click(knowledgeBtn);
+        expect(onKnowledge).toHaveBeenCalledTimes(1);
+      });
+
+      it("2. DebtScenarioFallbackState renders all_paid state", () => {
+        render(<DebtScenarioFallbackState type="all_paid" />);
+
+        expect(screen.getByText("Wszystkie zobowiązania zostały już spłacone")).toBeTruthy();
+        expect(screen.getByText(/Brak pozostałej kwoty do zasymulowania/i)).toBeTruthy();
+      });
+
+      it("3. DebtScenarioFallbackState renders custom_order_incomplete state with strategy switch buttons", () => {
+        const onSelect = vi.fn();
+        render(
+          <DebtScenarioFallbackState
+            type="custom_order_incomplete"
+            onSelectStrategy={onSelect}
+          />
+        );
+
+        expect(screen.getByText("Własna kolejność nie jest jeszcze gotowa do porównania")).toBeTruthy();
+        expect(screen.getByText(/Uzupełnij kolejność zobowiązań/i)).toBeTruthy();
+
+        const avalancheBtn = screen.getByRole("button", { name: /Wybierz Lawinę/i });
+        fireEvent.click(avalancheBtn);
+        expect(onSelect).toHaveBeenCalledWith("avalanche");
+
+        const snowballBtn = screen.getByRole("button", { name: /Wybierz Kulę Śnieżną/i });
+        fireEvent.click(snowballBtn);
+        expect(onSelect).toHaveBeenCalledWith("snowball");
+      });
+
+      it("4. DebtScenarioFallbackState renders calculation_unavailable state", () => {
+        render(<DebtScenarioFallbackState type="calculation_unavailable" />);
+
+        expect(screen.getByText("Prognoza chwilowo niedostępna")).toBeTruthy();
+        expect(screen.getByText(/Nie możemy teraz wiarygodnie wyliczyć tej prognozy/i)).toBeTruthy();
+      });
+
+      it("5. DebtsView renders empty scenario fallback when profile has 0 debts", () => {
+        const emptyProfile = { ...mockProfile, debts: [] };
+        render(<DebtsView profile={emptyProfile} />);
+
+        const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+        fireEvent.click(scenariosTabBtn);
+
+        expect(screen.getByText("Brak czynnych zobowiązań do symulacji spłaty")).toBeTruthy();
+        const emptyContainer = document.getElementById("debt-scenarios-empty-no-debts");
+        expect(emptyContainer).toBeTruthy();
+        expect(within(emptyContainer!).getByRole("button", { name: /Dodaj zobowiązanie/i })).toBeTruthy();
       });
     });
   });

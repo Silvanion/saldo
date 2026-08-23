@@ -27,6 +27,7 @@ import { DebtImportModal } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
+import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
 import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
@@ -1235,36 +1236,13 @@ export function DebtsView({
         <div className="space-y-6 animate-fade-in" id="payoff-strategies-container">
           {debts.filter((d) => d.status !== "closed" && d.balance > 0).length === 0 ? (
             debts.length > 0 ? (
-              <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-border text-center flex flex-col items-center justify-center">
-                <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
-                  <CheckCircle2 className="w-7 h-7 text-brand" />
-                </div>
-                <h3 className="text-base font-bold text-text-main">
-                  Wszystkie zobowiązania zostały już spłacone
-                </h3>
-                <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
-                  Brak pozostałej kwoty do zasymulowania. Według bieżących danych zobowiązania nie mają już aktywnego salda.
-                </p>
-              </div>
+              <DebtScenarioFallbackState type="all_paid" />
             ) : (
-              <div className="bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center">
-                <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3.5 border border-brand/20 shadow-xs">
-                  <GitCompare className="w-7 h-7 text-brand" />
-                </div>
-                <h3 className="text-base font-bold text-text-main">
-                  Brak czynnych zobowiązań do symulacji spłaty
-                </h3>
-                <p className="text-xs text-text-muted max-w-md mt-1.5 mb-5 leading-relaxed">
-                  Dodaj zobowiązanie, aby porównać strategie spłaty. Po dodaniu danych będzie można wyświetlić modelową kolejność i terminy spłaty.
-                </p>
-                <button
-                  onClick={handleOpenAddModal}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Dodaj zobowiązanie</span>
-                </button>
-              </div>
+              <DebtScenarioFallbackState
+                type="no_debts"
+                onAddDebt={handleOpenAddModal}
+                onOpenKnowledgeCenter={() => setActiveMainTab("knowledge")}
+              />
             )
           ) : (
             <>
@@ -1943,6 +1921,18 @@ export function DebtsView({
                       ? payoffComparison.custom
                       : payoffComparison.baseline;
 
+                  if (!currentRes) {
+                    if (selectedPayoffStrategy === "custom") {
+                      return (
+                        <DebtScenarioFallbackState
+                          type="custom_order_incomplete"
+                          onSelectStrategy={(strat) => setSelectedPayoffStrategy(strat)}
+                        />
+                      );
+                    }
+                    return <DebtScenarioFallbackState type="calculation_unavailable" />;
+                  }
+
                   return (
                     <div className="bg-surface-2/60 border border-brand/30 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3 animate-fade-in" id="debt-free-milestone-card">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-2.5">
@@ -2140,9 +2130,22 @@ export function DebtsView({
 
               {/* Selected Strategy Payoff Timeline & Roadmap */}
               {(() => {
-                const activePlan = (selectedPayoffStrategy === "custom" && payoffComparison.custom)
+                if (selectedPayoffStrategy === "custom" && !payoffComparison.custom) {
+                  return (
+                    <DebtScenarioFallbackState
+                      type="custom_order_incomplete"
+                      onSelectStrategy={(strat) => setSelectedPayoffStrategy(strat)}
+                    />
+                  );
+                }
+
+                const activePlan = selectedPayoffStrategy === "custom"
                   ? payoffComparison.custom
                   : payoffComparison[selectedPayoffStrategy] || payoffComparison.baseline;
+
+                if (!activePlan) {
+                  return <DebtScenarioFallbackState type="calculation_unavailable" />;
+                }
                 return (
                   <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border space-y-6">
                     {/* Header */}
