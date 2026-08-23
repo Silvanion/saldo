@@ -22,11 +22,13 @@ export function DebtScenarioFallbackState({
   actionLabel,
   onAction
 }: DebtScenarioFallbackStateProps) {
+  const containerAnimationClass = "motion-safe:animate-fade-in motion-reduce:animate-none";
+
   if (type === "no_debts") {
     return (
       <div
         id="debt-scenarios-empty-no-debts"
-        className="bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center space-y-3"
+        className={`bg-surface p-8 sm:p-12 rounded-2xl border border-dashed border-border text-center flex flex-col items-center justify-center space-y-3 ${containerAnimationClass}`}
       >
         <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center border border-brand/20 shadow-xs text-brand">
           <Compass className="w-7 h-7" />
@@ -68,7 +70,7 @@ export function DebtScenarioFallbackState({
     return (
       <div
         id="debt-scenarios-empty-all-paid"
-        className="bg-surface p-8 sm:p-12 rounded-2xl border border-border text-center flex flex-col items-center justify-center space-y-3"
+        className={`bg-surface p-8 sm:p-12 rounded-2xl border border-border text-center flex flex-col items-center justify-center space-y-3 ${containerAnimationClass}`}
       >
         <div className="w-14 h-14 rounded-2xl bg-brand-subtle flex items-center justify-center border border-brand/20 shadow-xs text-brand">
           <CheckCircle2 className="w-7 h-7 text-brand" />
@@ -88,7 +90,7 @@ export function DebtScenarioFallbackState({
     return (
       <div
         id="debt-scenarios-custom-order-fallback"
-        className="p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs animate-fade-in"
+        className={`p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs ${containerAnimationClass}`}
       >
         <div className="flex items-start gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 mt-0.5 border border-brand/20">
@@ -133,7 +135,7 @@ export function DebtScenarioFallbackState({
     return (
       <div
         id="debt-scenarios-calculation-unavailable"
-        className="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
+        className={`p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs ${containerAnimationClass}`}
       >
         <div className="flex items-start gap-3 min-w-0">
           <div className="w-7 h-7 rounded-xl bg-surface-2 text-text-muted flex items-center justify-center shrink-0 border border-border">
