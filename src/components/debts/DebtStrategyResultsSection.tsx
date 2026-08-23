@@ -9,7 +9,6 @@ import {
   PortfolioPayoffComparison
 } from "../../services/debtCalculations";
 import { DebtStrategySummaryCard } from "./DebtStrategySummaryCard";
-import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { DebtPayoffRoadmap } from "./DebtPayoffRoadmap";
 
 export interface DebtStrategyResultsSectionProps {
@@ -83,8 +82,6 @@ export function DebtStrategyResultsSection({
         />
       </div>
 
-      {/* Sprint 8 / Sprint 31: Payoff Strategies Knowledge Center (Explainer Hub with Contextual Guidance) */}
-      <PayoffStrategiesKnowledgeCenter selectedStrategy={selectedPayoffStrategy} />
 
       {/* Payoff Roadmap: Milestone Card, Custom Reorder Controls & Step-by-Step Queue */}
       <DebtPayoffRoadmap

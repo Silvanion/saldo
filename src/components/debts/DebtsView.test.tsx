@@ -17,9 +17,12 @@ import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
 import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
+import { DebtScenarioConfigSection } from "./DebtScenarioConfigSection";
 import { DebtStrategyResultsSection } from "./DebtStrategyResultsSection";
 import { DebtStrategySummaryCard } from "./DebtStrategySummaryCard";
 import { DebtPayoffRoadmap } from "./DebtPayoffRoadmap";
+import { DebtScenarioModals } from "./DebtScenarioModals";
+import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -524,11 +527,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
   });
 
   it("renders Payoff Strategies Knowledge Center, toggles disclosure, and presents all 4 methods", () => {
-    render(<DebtsView profile={mockProfile} />);
-
-    // Switch to Payoff Strategy simulator tab
-    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
-    fireEvent.click(strategyTopBtn);
+    render(<PayoffStrategiesKnowledgeCenter selectedStrategy="avalanche" />);
 
     // 1. Trigger button is rendered with aria-expanded="false"
     const knowledgeTrigger = screen.getByRole("button", {
@@ -600,11 +599,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
   });
 
   it("Sprint 31: dynamically updates contextual guidance in Knowledge Center when switching strategies", () => {
-    render(<DebtsView profile={mockProfile} />);
-
-    // Switch to Payoff Strategy tab
-    const strategyTopBtn = screen.getByRole("button", { name: /Porównaj strategie/i });
-    fireEvent.click(strategyTopBtn);
+    const { rerender } = render(<PayoffStrategiesKnowledgeCenter selectedStrategy="avalanche" />);
 
     // Open Knowledge Center
     const knowledgeTrigger = screen.getByRole("button", {
@@ -617,9 +612,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     const avalancheCard = document.querySelector('[data-selected="true"]');
     expect(avalancheCard?.textContent).toContain("Lawina (Avalanche)");
 
-    // Switch strategy to Snowball by clicking Snowball card
-    const snowballStrategyCards = screen.getAllByText("Metoda Kuli Śnieżnej (Snowball)");
-    fireEvent.click(snowballStrategyCards[0]);
+    // Rerender with Snowball strategy
+    rerender(<PayoffStrategiesKnowledgeCenter selectedStrategy="snowball" />);
 
     // Contextual highlight in Knowledge Center should now be Snowball
     const selectedKnowledgeCard = document.querySelector('[data-selected="true"]');
@@ -879,16 +873,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     });
     fireEvent.click(moveDownFirst);
 
-    // 4. Test Knowledge Center disclosure
-    const knowledgeTrigger = screen.getByRole("button", {
-      name: /Jak działają strategie spłaty\?/i
-    });
-    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
-    fireEvent.click(knowledgeTrigger);
-    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
-    fireEvent.click(knowledgeTrigger);
-    expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("false");
+    // 4. Test strategy guidance block presence
+    expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
 
     // 5. Test saving current Custom plan as scenario
     const saveBtn = screen.getByRole("button", { name: /Zapisz bieżący plan/i });
@@ -4086,7 +4072,165 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
             screen.getAllByText(/Własna kolejność nie jest jeszcze gotowa do porównania/i).length
           ).toBeGreaterThanOrEqual(1);
         });
+
+        it("7. DebtScenarioConfigSection renders budget input, presets, and triggers onChange", () => {
+          const onChangeExtra = vi.fn();
+          const onOpenSave = vi.fn();
+          render(
+            <DebtScenarioConfigSection
+              monthlyDebtService={1500}
+              extraMonthlyPayoff={500}
+              onExtraMonthlyPayoffChange={onChangeExtra}
+              currency="PLN"
+              selectedPayoffStrategy="avalanche"
+              oneTimeOverpayment={0}
+              onOneTimeOverpaymentChange={vi.fn()}
+              previewStrategy={null}
+              onPreviewStrategyChange={vi.fn()}
+              isWhatIfExpanded={false}
+              onToggleWhatIfExpanded={vi.fn()}
+              onResetWhatIf={vi.fn()}
+              whatIfImpact={null}
+              savedScenarios={[]}
+              savedScenarioPreviews={{}}
+              validSelectedScenarioIds={[]}
+              onToggleSelectScenario={vi.fn()}
+              onOpenCompareScenarios={vi.fn()}
+              onOpenSaveScenario={onOpenSave}
+              onLoadScenario={vi.fn()}
+              onOpenRenameScenario={vi.fn()}
+              onOpenDuplicateScenario={vi.fn()}
+            />
+          );
+
+          expect(screen.getByText("Symulator strategii spłaty całego portfela")).toBeTruthy();
+          expect(screen.getByText(/\+\s*1\s*000/)).toBeTruthy();
+
+          fireEvent.click(screen.getByText(/\+\s*1\s*000/));
+          expect(onChangeExtra).toHaveBeenCalledWith(1000);
+
+          fireEvent.click(screen.getByText("Zapisz bieżący plan"));
+          expect(onOpenSave).toHaveBeenCalled();
+        });
+
+        it("8. DebtScenarioModals renders Save, Rename, Duplicate modals and submits", () => {
+          const onSaveSubmit = vi.fn((e) => e.preventDefault());
+          const onCloseSave = vi.fn();
+          const { rerender } = render(
+            <DebtScenarioModals
+              currency="PLN"
+              isSaveScenarioModalOpen={true}
+              scenarioNameInput="Mój plan spłaty"
+              onScenarioNameChange={vi.fn()}
+              onSaveScenarioSubmit={onSaveSubmit}
+              onCloseSaveScenario={onCloseSave}
+              selectedPayoffStrategy="avalanche"
+              extraMonthlyPayoff={500}
+              validatedCustomOrder={[]}
+              isCompareScenariosModalOpen={false}
+              savedScenarios={[]}
+              validSelectedScenarioIds={[]}
+              activeDebts={mockDebts}
+              onLoadScenario={vi.fn()}
+              onCloseCompareScenarios={vi.fn()}
+              renameModalScenario={null}
+              renameScenarioInput=""
+              onRenameScenarioInputChange={vi.fn()}
+              onRenameSubmit={vi.fn()}
+              onCloseRenameScenario={vi.fn()}
+              duplicateModalScenario={null}
+              duplicateScenarioInput=""
+              onDuplicateScenarioInputChange={vi.fn()}
+              onDuplicateSubmit={vi.fn()}
+              onCloseDuplicateScenario={vi.fn()}
+            />
+          );
+
+          expect(screen.getByText("Zapisz scenariusz spłaty")).toBeTruthy();
+          expect(screen.getByDisplayValue("Mój plan spłaty")).toBeTruthy();
+
+          fireEvent.click(screen.getByText("Zapisz scenariusz"));
+          expect(onSaveSubmit).toHaveBeenCalled();
+
+          // Rerender with Rename modal
+          rerender(
+            <DebtScenarioModals
+              currency="PLN"
+              isSaveScenarioModalOpen={false}
+              scenarioNameInput=""
+              onScenarioNameChange={vi.fn()}
+              onSaveScenarioSubmit={vi.fn()}
+              onCloseSaveScenario={vi.fn()}
+              selectedPayoffStrategy="avalanche"
+              extraMonthlyPayoff={500}
+              validatedCustomOrder={[]}
+              isCompareScenariosModalOpen={false}
+              savedScenarios={[]}
+              validSelectedScenarioIds={[]}
+              activeDebts={mockDebts}
+              onLoadScenario={vi.fn()}
+              onCloseCompareScenarios={vi.fn()}
+              renameModalScenario={{
+                id: "sc-1",
+                name: "Stara nazwa",
+                strategy: "avalanche",
+                extraMonthlyPayment: 500,
+                createdAt: new Date().toISOString()
+              }}
+              renameScenarioInput="Nowa nazwa"
+              onRenameScenarioInputChange={vi.fn()}
+              onRenameSubmit={vi.fn((e) => e.preventDefault())}
+              onCloseRenameScenario={vi.fn()}
+              duplicateModalScenario={null}
+              duplicateScenarioInput=""
+              onDuplicateScenarioInputChange={vi.fn()}
+              onDuplicateSubmit={vi.fn()}
+              onCloseDuplicateScenario={vi.fn()}
+            />
+          );
+
+          expect(screen.getByText("Zmień nazwę scenariusza")).toBeTruthy();
+          expect(screen.getByDisplayValue("Nowa nazwa")).toBeTruthy();
+        });
+      });
+
+      describe("Sprint 58: Consolidate Payoff Strategy Guidance", () => {
+        it("1. Renders only single strategy guidance block in Scenarios tab without duplicated knowledge center accordion", () => {
+          render(<DebtsView profile={mockProfile} />);
+
+          // Switch to Scenarios tab
+          const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+          fireEvent.click(scenariosTabBtn);
+
+          // Canonical guidance card should exist
+          expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
+          expect(screen.getByText("Strategia Lawiny")).toBeTruthy();
+          expect(screen.getByText("Strategia Kuli Śnieżnej")).toBeTruthy();
+          expect(screen.getByText("Strategia Własna")).toBeTruthy();
+
+          // Old duplicated knowledge center accordion heading should not be rendered
+          expect(screen.queryByText("Jak działają strategie spłaty?")).toBeNull();
+          expect(screen.queryByText("Zwiń objaśnienie")).toBeNull();
+          expect(screen.queryByText("Rozwiń objaśnienie")).toBeNull();
+        });
+
+        it("2. Payoff strategy selection via DebtStrategyGuidanceCard updates active strategy correctly", () => {
+          render(<DebtsView profile={mockProfile} />);
+
+          const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+          fireEvent.click(scenariosTabBtn);
+
+          // Initially avalanche is selected
+          expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
+
+          // Click Snowball on guidance card
+          const snowballBtn = screen.getByRole("button", { name: /Wybierz Strategia Kuli Śnieżnej/i });
+          fireEvent.click(snowballBtn);
+
+          expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
+        });
       });
     });
   });
 });
+
