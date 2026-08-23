@@ -17,6 +17,9 @@ import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
 import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
+import { DebtStrategyResultsSection } from "./DebtStrategyResultsSection";
+import { DebtStrategySummaryCard } from "./DebtStrategySummaryCard";
+import { DebtPayoffRoadmap } from "./DebtPayoffRoadmap";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -3873,6 +3876,216 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
           screen.getByText(/Spłata nieosiągalna przy obecnych parametrach/i) ||
           screen.getByText(/Prognoza chwilowo niedostępna/i)
         ).toBeTruthy();
+      });
+
+      describe("Sprint 55: DebtsView Refactoring v1 (DebtStrategyResultsSection)", () => {
+        const mockPayoffComparison = {
+          baseline: {
+            strategy: "baseline" as const,
+            strategyLabel: "Status Quo",
+            strategyBadge: "Standard",
+            strategyDescription: "Spłata minimalnych wymaganych rat.",
+            extraMonthlyPayment: 0,
+            totalMonthlyCommitment: 2500,
+            totalMonths: 48,
+            debtFreeDate: "2030-01",
+            totalInterestPaid: 15000,
+            interestSavedVsBaseline: 0,
+            monthsSavedVsBaseline: 0,
+            payoffQueue: [
+              {
+                debtId: "d1",
+                debtName: "Kredyt 1",
+                institution: "Bank A",
+                type: "cash_loan" as const,
+                initialBalance: 10000,
+                interestRate: 10,
+                monthlyPayment: 500,
+                payoffMonth: 24,
+                payoffDate: "2028-01",
+                totalInterestPaid: 2000
+              }
+            ]
+          },
+          avalanche: {
+            strategy: "avalanche" as const,
+            strategyLabel: "Lawina",
+            strategyBadge: "Najtańsza",
+            strategyDescription: "Spłata od najwyższego oprocentowania.",
+            extraMonthlyPayment: 500,
+            totalMonthlyCommitment: 3000,
+            totalMonths: 36,
+            debtFreeDate: "2029-01",
+            totalInterestPaid: 10000,
+            interestSavedVsBaseline: 5000,
+            monthsSavedVsBaseline: 12,
+            payoffQueue: [
+              {
+                debtId: "d1",
+                debtName: "Kredyt 1",
+                institution: "Bank A",
+                type: "cash_loan" as const,
+                initialBalance: 10000,
+                interestRate: 10,
+                monthlyPayment: 500,
+                payoffMonth: 20,
+                payoffDate: "2027-09",
+                totalInterestPaid: 1500
+              }
+            ]
+          },
+          snowball: {
+            strategy: "snowball" as const,
+            strategyLabel: "Kula Śnieżna",
+            strategyBadge: "Najszybsza",
+            strategyDescription: "Spłata od najmniejszego salda.",
+            extraMonthlyPayment: 500,
+            totalMonthlyCommitment: 3000,
+            totalMonths: 38,
+            debtFreeDate: "2029-03",
+            totalInterestPaid: 11000,
+            interestSavedVsBaseline: 4000,
+            monthsSavedVsBaseline: 10,
+            payoffQueue: [
+              {
+                debtId: "d1",
+                debtName: "Kredyt 1",
+                institution: "Bank A",
+                type: "cash_loan" as const,
+                initialBalance: 10000,
+                interestRate: 10,
+                monthlyPayment: 500,
+                payoffMonth: 22,
+                payoffDate: "2027-11",
+                totalInterestPaid: 1700
+              }
+            ]
+          },
+          recommendedStrategy: "avalanche" as const
+        };
+
+        it("1. DebtStrategyResultsSection renders strategy cards and calls onSelectStrategy on click", () => {
+          const onSelect = vi.fn();
+          render(
+            <DebtStrategyResultsSection
+              payoffComparison={mockPayoffComparison}
+              selectedPayoffStrategy="avalanche"
+              onSelectStrategy={onSelect}
+              currency="PLN"
+              activeDebts={mockDebts}
+              validatedCustomOrder={["debt-1", "debt-2"]}
+            />
+          );
+
+          expect(screen.getAllByText("Lawina").length).toBeGreaterThanOrEqual(1);
+          expect(screen.getAllByText("Kula Śnieżna").length).toBeGreaterThanOrEqual(1);
+          expect(screen.getByText("Status Quo")).toBeTruthy();
+
+          const snowballCard = screen.getAllByText("Kula Śnieżna")[0].closest("div");
+          if (snowballCard) {
+            fireEvent.click(snowballCard);
+            expect(onSelect).toHaveBeenCalledWith("snowball");
+          }
+        });
+
+        it("2. DebtStrategyResultsSection renders milestone and roadmap for active plan", () => {
+          render(
+            <DebtStrategyResultsSection
+              payoffComparison={mockPayoffComparison}
+              selectedPayoffStrategy="avalanche"
+              onSelectStrategy={vi.fn()}
+              currency="PLN"
+              activeDebts={mockDebts}
+              validatedCustomOrder={["debt-1", "debt-2"]}
+            />
+          );
+
+          expect(screen.getByText("Kamień milowy spłaty zadłużenia")).toBeTruthy();
+          expect(screen.getByText(/Plan i kolejność spłaty: Lawina/i)).toBeTruthy();
+          expect(screen.getByText("Kredyt 1")).toBeTruthy();
+        });
+
+        it("3. DebtStrategySummaryCard renders badges, label, and responds to click", () => {
+          const onSelect = vi.fn();
+          render(
+            <DebtStrategySummaryCard
+              strategy="avalanche"
+              result={mockPayoffComparison.avalanche}
+              isSelected={true}
+              isRecommended={true}
+              currency="PLN"
+              onSelect={onSelect}
+            />
+          );
+
+          expect(screen.getByText("Najtańsza")).toBeTruthy();
+          expect(screen.getByText("Rekomendacja")).toBeTruthy();
+          expect(screen.getByText("Lawina")).toBeTruthy();
+          expect(screen.getByText(/5\s*000/)).toBeTruthy();
+
+          fireEvent.click(screen.getByText("Lawina"));
+          expect(onSelect).toHaveBeenCalledWith("avalanche");
+        });
+
+        it("4. DebtPayoffRoadmap renders milestone card, queue, and roll explanation", () => {
+          render(
+            <DebtPayoffRoadmap
+              activePlan={mockPayoffComparison.avalanche}
+              activeStrategy="avalanche"
+              currency="PLN"
+              activeDebts={mockDebts}
+              validatedCustomOrder={["debt-1", "debt-2"]}
+              onSelectStrategy={vi.fn()}
+            />
+          );
+
+          expect(screen.getByText("Kamień milowy spłaty zadłużenia")).toBeTruthy();
+          expect(screen.getAllByText("2029-01").length).toBeGreaterThanOrEqual(1);
+          expect(screen.getByText("36 mies.")).toBeTruthy();
+          expect(screen.getByText(/Plan i kolejność spłaty: Lawina/i)).toBeTruthy();
+          expect(screen.getByText("Kredyt 1")).toBeTruthy();
+        });
+
+        it("5. DebtPayoffRoadmap renders custom order controls and triggers move up/down", () => {
+          const onUp = vi.fn();
+          const onDown = vi.fn();
+          render(
+            <DebtPayoffRoadmap
+              activePlan={mockPayoffComparison.avalanche}
+              activeStrategy="custom"
+              currency="PLN"
+              activeDebts={mockDebts}
+              validatedCustomOrder={["debt-1", "debt-2"]}
+              onSelectStrategy={vi.fn()}
+              onMoveDebtUp={onUp}
+              onMoveDebtDown={onDown}
+            />
+          );
+
+          expect(screen.getByText("Ustal kolejność spłaty")).toBeTruthy();
+          expect(screen.getByText("Cel priorytetowy #1")).toBeTruthy();
+
+          const downBtn = screen.getAllByTitle("Przenieś niżej")[0];
+          fireEvent.click(downBtn);
+          expect(onDown).toHaveBeenCalledWith("debt-1");
+        });
+
+        it("6. DebtPayoffRoadmap renders fallback state when calculation is unavailable", () => {
+          render(
+            <DebtPayoffRoadmap
+              activePlan={null}
+              activeStrategy="custom"
+              currency="PLN"
+              activeDebts={mockDebts}
+              validatedCustomOrder={[]}
+              onSelectStrategy={vi.fn()}
+            />
+          );
+
+          expect(
+            screen.getAllByText(/Własna kolejność nie jest jeszcze gotowa do porównania/i).length
+          ).toBeGreaterThanOrEqual(1);
+        });
       });
     });
   });
