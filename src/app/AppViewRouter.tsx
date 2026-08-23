@@ -57,6 +57,7 @@ export function AppViewRouter({
     selectedDate, handlePrevMonth, handleNextMonth,
     handleTogglePaymentStatus,
     handleDeleteTransaction,
+    handleUpdateTransaction,
     handleImportTransactions,
     makeUndoBackup,
     handleDeletePayment,
@@ -295,6 +296,7 @@ export function AppViewRouter({
             onToggleDebtStatus={handleToggleDebtStatus}
             onSavePayoffScenario={handleSavePayoffScenario}
             onDeletePayoffScenario={handleDeletePayoffScenario}
+            onUpdateTransaction={handleUpdateTransaction}
             showToast={showToast}
           />
         );

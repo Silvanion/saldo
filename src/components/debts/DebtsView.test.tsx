@@ -7,7 +7,7 @@ import { render, screen, fireEvent, cleanup, within } from "@testing-library/rea
 import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { DashboardView } from "../DashboardView";
-import { DebtItem, Profile } from "../../types";
+import { DebtItem, Profile, Transaction } from "../../types";
 
 const mockDebts: DebtItem[] = [
   {
@@ -1857,6 +1857,122 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
       // With +500 zł extra payment, savings are modeled with explicit disclaimer
       expect(screen.getByText(/Modelowa różnica względem planu bazowego \(Status Quo\)/i)).toBeTruthy();
+    });
+
+    it("Sprint 34: renders linking status, allows picking candidate transaction, and confirms link", () => {
+      const onUpdateTransaction = vi.fn();
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const candidateTx: Transaction = {
+        id: "tx-unlinked-1",
+        name: "Przelew rata hipoteki",
+        amount: 2600,
+        type: "expense",
+        category: "Rachunki",
+        account: "Konto główne",
+        isoDate: "2026-05-15",
+        currency: "PLN"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[candidateTx]}
+          onClose={vi.fn()}
+          onUpdateTransaction={onUpdateTransaction}
+          initialTab="history"
+        />
+      );
+
+      // In empty state, button to link is visible
+      expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
+      const linkEmptyBtn = screen.getByRole("button", { name: /Połącz z istniejącą transakcją/i });
+      fireEvent.click(linkEmptyBtn);
+
+      // Modal is open
+      expect(screen.getByText("Wybierz zarejestrowaną transakcję z księgowości, aby powiązać ją z tym długiem.")).toBeTruthy();
+      expect(screen.getByText("Przelew rata hipoteki")).toBeTruthy();
+
+      // Click candidate transaction
+      fireEvent.click(screen.getByText("Przelew rata hipoteki"));
+
+      // Confirmation disclaimer is visible
+      expect(screen.getByText(/Powiązanie jest ręczne\. Nie zmieni kwoty transakcji, salda długu ani obliczeń spłaty\./i)).toBeTruthy();
+
+      // Confirm link
+      const confirmBtn = screen.getByRole("button", { name: /Połącz transakcję/i });
+      fireEvent.click(confirmBtn);
+
+      expect(onUpdateTransaction).toHaveBeenCalledTimes(1);
+      expect(onUpdateTransaction).toHaveBeenCalledWith("tx-unlinked-1", { debtId: "debt-1" });
+    });
+
+    it("Sprint 34: allows unlinking a linked transaction with confirmation", () => {
+      const onUpdateTransaction = vi.fn();
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const linkedTx: Transaction = {
+        id: "tx-linked-1",
+        name: "Rata Maj",
+        amount: 2600,
+        type: "expense",
+        category: "Rachunki",
+        account: "Konto główne",
+        isoDate: "2026-05-15",
+        debtId: "debt-1",
+        currency: "PLN"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[linkedTx]}
+          onClose={vi.fn()}
+          onUpdateTransaction={onUpdateTransaction}
+          initialTab="history"
+        />
+      );
+
+      // Table shows "Powiązana transakcja" badge
+      expect(screen.getByText("Powiązana transakcja")).toBeTruthy();
+
+      // Click unlink button
+      const unlinkBtn = screen.getByRole("button", { name: /Odłącz transakcję Rata Maj/i });
+      fireEvent.click(unlinkBtn);
+
+      // Confirmation modal is open
+      expect(screen.getByText(/Odłączyć tę transakcję od płatności długu\? Transakcja pozostanie w księgowości\./i)).toBeTruthy();
+
+      // Confirm unlink
+      const confirmUnlinkBtn = screen.getByRole("button", { name: "Odłącz" });
+      fireEvent.click(confirmUnlinkBtn);
+
+      expect(onUpdateTransaction).toHaveBeenCalledTimes(1);
+      expect(onUpdateTransaction).toHaveBeenCalledWith("tx-linked-1", { debtId: undefined });
     });
   });
 });

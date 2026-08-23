@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { DebtItem, DebtType, Profile, DebtPayoffScenario } from "../../types";
+import { DebtItem, DebtType, Profile, DebtPayoffScenario, Transaction } from "../../types";
 import {
   calculatePortfolioDebtKpis,
   calculateDebtPortfolioAnalytics,
@@ -62,6 +62,7 @@ export interface DebtsViewProps {
   onToggleDebtStatus?: (debtId: string) => void;
   onSavePayoffScenario?: (scenario: Omit<DebtPayoffScenario, "id" | "createdAt"> & { id?: string }) => void;
   onDeletePayoffScenario?: (scenarioId: string) => void;
+  onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -77,6 +78,7 @@ export function DebtsView({
   onToggleDebtStatus,
   onSavePayoffScenario,
   onDeletePayoffScenario,
+  onUpdateTransaction,
   showToast
 }: DebtsViewProps) {
   const [activeMainTab, setActiveMainTab] = useState<MainTab>("portfolio");
@@ -2129,6 +2131,7 @@ export function DebtsView({
           transactions={profile?.transactions}
           initialTab={initialDetailsTab}
           onClose={() => setSelectedDebtForDetails(null)}
+          onUpdateTransaction={onUpdateTransaction}
           onOpenOverpaymentModal={(d) => {
             setSelectedDebtForDetails(null);
             setSelectedDebtForOverpayment(d);

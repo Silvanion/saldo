@@ -19,7 +19,10 @@ import {
   RotateCcw,
   Plus,
   Trash2,
-  Columns
+  Columns,
+  Link2,
+  Unlink,
+  Search
 } from "lucide-react";
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
@@ -29,6 +32,7 @@ import {
   calculateDebtOverpaymentScenario,
   calculateDebtOverpaymentVariants,
   DebtOverpaymentVariantInput,
+  DebtPaymentActivityItem,
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
   calculateDebtPaymentInsightsFromItems,
@@ -58,6 +62,7 @@ interface DebtDetailsModalProps {
   initialTab?: DebtDetailTab;
   onOpenOverpaymentModal?: (debt: DebtItem) => void;
   onOpenRefinanceModal?: (debt: DebtItem) => void;
+  onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
 }
 
 export function DebtDetailsModal({
@@ -67,7 +72,8 @@ export function DebtDetailsModal({
   transactions,
   initialTab = "overview",
   onOpenOverpaymentModal,
-  onOpenRefinanceModal
+  onOpenRefinanceModal,
+  onUpdateTransaction
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
@@ -85,6 +91,12 @@ export function DebtDetailsModal({
     { id: "var-1", name: "Nadpłata miesięczna", monthlyOverpayment: 500, oneTimeOverpayment: 0 },
     { id: "var-2", name: "Nadpłata jednorazowa", monthlyOverpayment: 0, oneTimeOverpayment: 10000 }
   ]);
+
+  // SPRINT 34: Debt ↔ Transaction manual linking state
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [linkSearchQuery, setLinkSearchQuery] = useState("");
+  const [selectedTxToLink, setSelectedTxToLink] = useState<Transaction | null>(null);
+  const [txToUnlink, setTxToUnlink] = useState<DebtPaymentActivityItem | null>(null);
 
   React.useEffect(() => {
     if (isOpen && initialTab) {
@@ -496,8 +508,23 @@ export function DebtDetailsModal({
                       Brak powiązanych płatności
                     </h4>
                     <p className="text-xs text-text-muted text-center max-w-sm mb-4 leading-relaxed">
-                      Płatności przypisane do tego długu pojawią się tutaj. Możesz powiązać transakcję z długiem podczas jej tworzenia lub edycji.
+                      Brak powiązanej transakcji z tym długiem. Płatności przypisane do tego długu pojawią się tutaj. Możesz połączyć istniejącą transakcję z księgowości.
                     </p>
+                    {onUpdateTransaction && (
+                      <button
+                        type="button"
+                        id="btn-link-transaction-empty"
+                        onClick={() => {
+                          setSelectedTxToLink(null);
+                          setLinkSearchQuery("");
+                          setIsLinkModalOpen(true);
+                        }}
+                        className="px-4 py-2 bg-brand text-text-inverse rounded-xl font-bold text-xs hover:bg-brand-hover transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <Link2 className="w-3.5 h-3.5" />
+                        <span>Połącz z istniejącą transakcją</span>
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-5">
@@ -961,13 +988,31 @@ export function DebtDetailsModal({
                         )}
                       </div>
 
-                      {/* Count Indicator */}
-                      <div className="text-[11px] font-medium text-text-muted shrink-0">
-                        {filteredActivityItems.length === periodActivityItems.length
-                          ? (historyPeriodPreset === "all"
-                              ? `Wyświetlane: ${periodActivityItems.length} płatności`
-                              : `W wybranym okresie: ${periodActivityItems.length} płatności`)
-                          : `Wyświetlane: ${filteredActivityItems.length} z ${periodActivityItems.length} płatności`}
+                      {/* Action & Count Indicator */}
+                      <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
+                        <div className="text-[11px] font-medium text-text-muted shrink-0">
+                          {filteredActivityItems.length === periodActivityItems.length
+                            ? (historyPeriodPreset === "all"
+                                ? `Wyświetlane: ${periodActivityItems.length} płatności`
+                                : `W wybranym okresie: ${periodActivityItems.length} płatności`)
+                            : `Wyświetlane: ${filteredActivityItems.length} z ${periodActivityItems.length} płatności`}
+                        </div>
+
+                        {onUpdateTransaction && (
+                          <button
+                            type="button"
+                            id="btn-link-transaction"
+                            onClick={() => {
+                              setSelectedTxToLink(null);
+                              setLinkSearchQuery("");
+                              setIsLinkModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold rounded-xl bg-brand text-text-inverse hover:bg-brand-hover transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                          >
+                            <Link2 className="w-3.5 h-3.5" />
+                            <span>Połącz z istniejącą transakcją</span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -1011,6 +1056,7 @@ export function DebtDetailsModal({
                                 <th className="py-3 px-3.5 text-right">Odsetki</th>
                                 <th className="py-3 px-3.5 text-right">Saldo po wpłacie</th>
                                 <th className="py-3 px-3.5 text-center">Status</th>
+                                <th className="py-3 px-3.5 text-center">Powiązanie</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border font-medium text-text-main">
@@ -1052,6 +1098,25 @@ export function DebtDetailsModal({
                                         Rata
                                       </span>
                                     )}
+                                  </td>
+                                  <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
+                                    <div className="flex items-center justify-center gap-1.5">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-subtle text-brand border border-brand/20">
+                                        <Link2 className="w-3 h-3" />
+                                        <span>Powiązana transakcja</span>
+                                      </span>
+                                      {onUpdateTransaction && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setTxToUnlink(item)}
+                                          aria-label={`Odłącz transakcję ${item.transactionName || "płatność"}`}
+                                          title="Odłącz transakcję"
+                                          className="p-1 rounded-lg text-text-muted hover:text-rose-500 hover:bg-rose-500/10 transition cursor-pointer"
+                                        >
+                                          <Unlink className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
@@ -1885,6 +1950,240 @@ export function DebtDetailsModal({
             )}
           </div>
         </motion.div>
+
+        {/* SPRINT 34: LINK TRANSACTION MODAL */}
+        {isLinkModalOpen && (
+          <div
+            className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="link-tx-modal-title"
+          >
+            <div className="bg-surface rounded-2xl border border-border p-5 max-w-lg w-full space-y-4 shadow-xl animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center border border-brand/20">
+                    <Link2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 id="link-tx-modal-title" className="text-sm font-bold text-text-main">
+                      Połącz z istniejącą transakcją
+                    </h4>
+                    <p className="text-[11px] text-text-muted">
+                      Wybierz zarejestrowaną transakcję z księgowości, aby powiązać ją z tym długiem.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsLinkModalOpen(false)}
+                  className="p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                  aria-label="Zamknij"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="w-4 h-4 text-text-muted absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={linkSearchQuery}
+                  onChange={(e) => setLinkSearchQuery(e.target.value)}
+                  placeholder="Szukaj transakcji po nazwie, kategorii, koncie..."
+                  className="w-full bg-surface-2 border border-border rounded-xl pl-9 pr-3 py-2 text-xs font-medium text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                />
+              </div>
+
+              {/* Candidate List */}
+              <div className="max-h-56 overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
+                {(() => {
+                  const candidateTransactions = (transactions || [])
+                    .filter((tx) => {
+                      if (!tx || typeof tx !== "object") return false;
+                      if (tx.type !== "expense") return false;
+                      const amt = Number(tx.amount);
+                      if (!Number.isFinite(amt) || amt <= 0) return false;
+                      if (tx.debtId === debt.id) return false;
+                      if (linkSearchQuery.trim()) {
+                        const q = linkSearchQuery.toLowerCase();
+                        const matchName = (tx.name || "").toLowerCase().includes(q);
+                        const matchCat = (tx.category || "").toLowerCase().includes(q);
+                        const matchAccount = (tx.account || "").toLowerCase().includes(q);
+                        const matchAmt = String(tx.amount).includes(q);
+                        return matchName || matchCat || matchAccount || matchAmt;
+                      }
+                      return true;
+                    })
+                    .sort((a, b) => (b.isoDate || "").localeCompare(a.isoDate || ""));
+
+                  if (candidateTransactions.length === 0) {
+                    return (
+                      <div className="p-6 bg-surface-2/40 border border-border rounded-xl text-center">
+                        <p className="text-xs text-text-muted">
+                          {linkSearchQuery.trim()
+                            ? "Brak transakcji pasujących do wyszukiwania."
+                            : "Brak dostępnych transakcji do powiązania."}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return candidateTransactions.map((tx) => {
+                    const isSelected = selectedTxToLink?.id === tx.id;
+                    const isAlreadyLinked = Boolean(tx.debtId && tx.debtId !== debt.id);
+                    return (
+                      <button
+                        key={tx.id}
+                        type="button"
+                        onClick={() => setSelectedTxToLink(tx)}
+                        className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                          isSelected
+                            ? "bg-brand-subtle/20 border-brand ring-1 ring-brand/40"
+                            : "bg-surface-2/40 border-border/80 hover:bg-surface-2 hover:border-border"
+                        }`}
+                      >
+                        <div className="min-w-0 space-y-0.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-bold text-text-main truncate">
+                              {tx.name || "Transakcja"}
+                            </span>
+                            {isAlreadyLinked && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                Powiązana z inną płatnością
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-text-muted flex items-center gap-2">
+                            <span className="font-mono">{tx.isoDate}</span>
+                            <span>•</span>
+                            <span>{tx.category || "Kategoria"}</span>
+                            {tx.account && (
+                              <>
+                                <span>•</span>
+                                <span>{tx.account}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-xs sm:text-sm font-black text-text-main tabular-nums block">
+                            {formatMoney(tx.amount, currency)}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+
+              {/* Selected Transaction Confirmation & Disclaimer */}
+              {selectedTxToLink && (
+                <div className="p-3 bg-surface-2/60 border border-border rounded-xl space-y-1.5 text-xs text-text-muted">
+                  {selectedTxToLink.debtId && selectedTxToLink.debtId !== debt.id && (
+                    <p className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      <span>Ta transakcja jest już powiązana z inną płatnością.</span>
+                    </p>
+                  )}
+                  <p className="text-[11px] text-text-faint">
+                    Powiązanie jest ręczne. Nie zmieni kwoty transakcji, salda długu ani obliczeń spłaty.
+                  </p>
+                </div>
+              )}
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsLinkModalOpen(false)}
+                  className="px-3.5 py-2 text-xs font-bold text-text-muted hover:text-text-main rounded-xl hover:bg-surface-2 transition cursor-pointer"
+                >
+                  Anuluj
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedTxToLink}
+                  onClick={() => {
+                    if (selectedTxToLink && debt) {
+                      onUpdateTransaction?.(selectedTxToLink.id, { debtId: debt.id });
+                      setIsLinkModalOpen(false);
+                      setSelectedTxToLink(null);
+                    }
+                  }}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer ${
+                    selectedTxToLink
+                      ? "bg-brand text-text-inverse hover:bg-brand-hover"
+                      : "bg-surface-3 text-text-faint cursor-not-allowed border border-border"
+                  }`}
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  <span>Połącz transakcję</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SPRINT 34: UNLINK TRANSACTION CONFIRMATION MODAL */}
+        {txToUnlink && (
+          <div
+            className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="unlink-tx-modal-title"
+          >
+            <div className="bg-surface rounded-2xl border border-border p-5 max-w-md w-full space-y-4 shadow-xl animate-in fade-in zoom-in-95">
+              <div className="flex items-center gap-2 text-text-main">
+                <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-500/20">
+                  <Unlink className="w-4 h-4" />
+                </div>
+                <h4 id="unlink-tx-modal-title" className="text-sm font-bold">
+                  Odłącz transakcję
+                </h4>
+              </div>
+
+              <p className="text-xs text-text-muted leading-relaxed">
+                Odłączyć tę transakcję od płatności długu? Transakcja pozostanie w księgowości.
+              </p>
+
+              <div className="p-3 bg-surface-2/60 border border-border rounded-xl space-y-1 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-text-main">{txToUnlink.transactionName || "Spłata długu"}</span>
+                  <span className="font-black tabular-nums">{formatMoney(txToUnlink.paymentAmount, currency)}</span>
+                </div>
+                <div className="text-[11px] text-text-muted font-mono">{txToUnlink.date}</div>
+              </div>
+
+              <p className="text-[11px] text-text-faint">
+                To ręczne powiązanie — nie zmieni kwoty, salda ani obliczeń.
+              </p>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setTxToUnlink(null)}
+                  className="px-3.5 py-2 text-xs font-bold text-text-muted hover:text-text-main rounded-xl hover:bg-surface-2 transition cursor-pointer"
+                >
+                  Anuluj
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (txToUnlink) {
+                      onUpdateTransaction?.(txToUnlink.transactionId, { debtId: undefined });
+                      setTxToUnlink(null);
+                    }
+                  }}
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-600 text-text-inverse hover:bg-rose-700 transition-all shadow-xs cursor-pointer"
+                >
+                  Odłącz
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AnimatePresence>,
     document.body
