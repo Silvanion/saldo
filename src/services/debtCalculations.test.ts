@@ -13,6 +13,7 @@ import {
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
   calculateDebtPaymentComparisonSnapshot,
+  calculateDebtPaymentCoverageSnapshot,
   filterDebtPaymentActivity,
   filterDebtPaymentActivityByPeriod,
   calculateOverpayment,
@@ -2292,6 +2293,72 @@ describe("debtCalculations", () => {
       expect(snap.totalPaid.deltaPct).toBeNull();
       expect(snap.previousPrincipalSharePct).toBeNull();
       expect(snap.principalShareDeltaPctPoints).toBeNull();
+    });
+  });
+
+  describe("calculateDebtPaymentCoverageSnapshot (Sprint 29)", () => {
+    const coverageTestItems = [
+      // Previous 3-month window: 2025-11..2026-01
+      {
+        transactionId: "tx-prev-1",
+        debtId: "debt-1",
+        date: "2025-11-15",
+        paymentAmount: 500,
+        principalAmount: 400,
+        interestAmount: 100,
+        openingBalance: 10000,
+        closingBalance: 9600,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Listopad"
+      },
+      // Current 3-month window: 2026-02..2026-04
+      {
+        transactionId: "tx-cur-1",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 600,
+        principalAmount: 510,
+        interestAmount: 90,
+        openingBalance: 9600,
+        closingBalance: 9090,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata Luty"
+      }
+    ];
+
+    it("returns neutral result for 'all' preset", () => {
+      const cov = calculateDebtPaymentCoverageSnapshot(coverageTestItems, "all");
+      expect(cov.status).toBe("available");
+      expect(cov.note).toContain("Wybierz okres 3, 6 lub 12 miesięcy");
+    });
+
+    it("returns 'empty' when items is empty", () => {
+      const cov = calculateDebtPaymentCoverageSnapshot([], "last_3_months");
+      expect(cov.status).toBe("empty");
+      expect(cov.currentRegisteredPaymentCount).toBe(0);
+      expect(cov.previousRegisteredPaymentCount).toBe(0);
+    });
+
+    it("returns 'available' when both windows have registered payments", () => {
+      const cov = calculateDebtPaymentCoverageSnapshot(coverageTestItems, "last_3_months");
+      expect(cov.status).toBe("available");
+      expect(cov.currentHasPayments).toBe(true);
+      expect(cov.previousHasPayments).toBe(true);
+      expect(cov.currentRegisteredPaymentCount).toBe(1);
+      expect(cov.previousRegisteredPaymentCount).toBe(1);
+      expect(cov.note).toContain("Dane porównawcze dostępne");
+    });
+
+    it("returns 'partial' when one window has no registered payments", () => {
+      // Only current window has item
+      const onlyCurrent = [coverageTestItems[1]];
+      const cov = calculateDebtPaymentCoverageSnapshot(onlyCurrent, "last_3_months");
+      expect(cov.status).toBe("partial");
+      expect(cov.currentHasPayments).toBe(true);
+      expect(cov.previousHasPayments).toBe(false);
+      expect(cov.note).toContain("Dane częściowe");
     });
   });
 });

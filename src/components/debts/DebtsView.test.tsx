@@ -1734,7 +1734,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       );
 
       // In "all" preset, informational note is rendered
-      expect(screen.getByText("Wybierz okres 3, 6 lub 12 miesięcy, aby zobaczyć porównanie z poprzednim okresem.")).toBeTruthy();
+      expect(screen.getByText("Wybierz okres 3, 6 lub 12 miesięcy, aby ocenić dostępność danych porównawczych i zobaczyć porównanie z poprzednim okresem.")).toBeTruthy();
 
       // Switch to "last_3_months"
       const periodSelect = screen.getByLabelText("Okres:");
@@ -1744,6 +1744,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("Porównanie z poprzednim okresem")).toBeTruthy();
       expect(screen.getByText("Bieżący okres vs poprzednie okno o tej samej długości")).toBeTruthy();
       expect(screen.getByText("2 vs 1")).toBeTruthy();
+      expect(screen.getByText("Pokrycie danych:")).toBeTruthy();
+      expect(screen.getByText("Dane porównawcze dostępne: zarejestrowane płatności występują w obu okresach.")).toBeTruthy();
     });
   });
 });

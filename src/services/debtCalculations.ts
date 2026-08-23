@@ -233,6 +233,24 @@ export interface DebtPaymentComparisonSnapshot {
   error?: string;
 }
 
+export type DebtPaymentCoverageStatus = "empty" | "partial" | "available";
+
+export interface DebtPaymentCoverageSnapshot {
+  status: DebtPaymentCoverageStatus;
+  preset: DebtPaymentHistoryPeriodPreset;
+  currentPeriodLabel: string | null;
+  previousPeriodLabel: string | null;
+  currentRegisteredPaymentCount: number;
+  previousRegisteredPaymentCount: number;
+  currentRegisteredMonthCount: number;
+  previousRegisteredMonthCount: number;
+  currentExpectedMonthCount: number | null;
+  previousExpectedMonthCount: number | null;
+  currentHasPayments: boolean;
+  previousHasPayments: boolean;
+  note: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -1626,6 +1644,183 @@ export function calculateDebtPaymentComparisonSnapshot(
     previousPrincipalSharePct: prevShare,
     principalShareDeltaPctPoints: shareDelta,
     historyCompleteness: completeness
+  };
+}
+
+/**
+ * Pure helper for evaluating data coverage of debt payments in comparison windows (Sprint 29)
+ */
+export function calculateDebtPaymentCoverageSnapshot(
+  items: DebtPaymentActivityItem[] | null | undefined,
+  preset: DebtPaymentHistoryPeriodPreset = "all",
+  referenceItems?: DebtPaymentActivityItem[] | null | undefined
+): DebtPaymentCoverageSnapshot {
+  if (preset === "all") {
+    const hasItems = Array.isArray(items) && items.length > 0;
+    return {
+      status: hasItems ? "available" : "empty",
+      preset: "all",
+      currentPeriodLabel: null,
+      previousPeriodLabel: null,
+      currentRegisteredPaymentCount: hasItems ? items.length : 0,
+      previousRegisteredPaymentCount: 0,
+      currentRegisteredMonthCount: 0,
+      previousRegisteredMonthCount: 0,
+      currentExpectedMonthCount: null,
+      previousExpectedMonthCount: null,
+      currentHasPayments: hasItems,
+      previousHasPayments: false,
+      note: "Wybierz okres 3, 6 lub 12 miesięcy, aby ocenić dostępność danych porównawczych."
+    };
+  }
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return {
+      status: "empty",
+      preset,
+      currentPeriodLabel: null,
+      previousPeriodLabel: null,
+      currentRegisteredPaymentCount: 0,
+      previousRegisteredPaymentCount: 0,
+      currentRegisteredMonthCount: 0,
+      previousRegisteredMonthCount: 0,
+      currentExpectedMonthCount: preset === "last_3_months" ? 3 : preset === "last_6_months" ? 6 : 12,
+      previousExpectedMonthCount: preset === "last_3_months" ? 3 : preset === "last_6_months" ? 6 : 12,
+      currentHasPayments: false,
+      previousHasPayments: false,
+      note: "Brak zarejestrowanych płatności w analizowanym zakresie."
+    };
+  }
+
+  let monthCount = 0;
+  if (preset === "last_3_months") monthCount = 3;
+  else if (preset === "last_6_months") monthCount = 6;
+  else if (preset === "last_12_months") monthCount = 12;
+  else monthCount = 3;
+
+  const sourceForReference = (referenceItems && referenceItems.length > 0) ? referenceItems : items;
+  let maxDate = "";
+  for (const item of sourceForReference) {
+    if (item.date && item.date.length >= 7) {
+      if (!maxDate || item.date.localeCompare(maxDate) > 0) {
+        maxDate = item.date;
+      }
+    }
+  }
+
+  if (!maxDate) {
+    return {
+      status: "empty",
+      preset,
+      currentPeriodLabel: null,
+      previousPeriodLabel: null,
+      currentRegisteredPaymentCount: 0,
+      previousRegisteredPaymentCount: 0,
+      currentRegisteredMonthCount: 0,
+      previousRegisteredMonthCount: 0,
+      currentExpectedMonthCount: monthCount,
+      previousExpectedMonthCount: monthCount,
+      currentHasPayments: false,
+      previousHasPayments: false,
+      note: "Brak zarejestrowanych płatności w analizowanym zakresie."
+    };
+  }
+
+  const maxYear = parseInt(maxDate.substring(0, 4), 10);
+  const maxMonth = parseInt(maxDate.substring(5, 7), 10);
+
+  if (isNaN(maxYear) || isNaN(maxMonth) || maxMonth < 1 || maxMonth > 12) {
+    return {
+      status: "empty",
+      preset,
+      currentPeriodLabel: null,
+      previousPeriodLabel: null,
+      currentRegisteredPaymentCount: 0,
+      previousRegisteredPaymentCount: 0,
+      currentRegisteredMonthCount: 0,
+      previousRegisteredMonthCount: 0,
+      currentExpectedMonthCount: monthCount,
+      previousExpectedMonthCount: monthCount,
+      currentHasPayments: false,
+      previousHasPayments: false,
+      note: "Brak zarejestrowanych płatności w analizowanym zakresie."
+    };
+  }
+
+  const curEndTotalMonths = maxYear * 12 + (maxMonth - 1);
+  const curStartTotalMonths = curEndTotalMonths - (monthCount - 1);
+
+  const curEndYear = maxYear;
+  const curEndMonth = maxMonth;
+  const curStartYear = Math.floor(curStartTotalMonths / 12);
+  const curStartMonth = (curStartTotalMonths % 12) + 1;
+
+  const currentPeriodStart = `${curStartYear}-${String(curStartMonth).padStart(2, "0")}`;
+  const currentPeriodEnd = `${curEndYear}-${String(curEndMonth).padStart(2, "0")}`;
+
+  const prevEndTotalMonths = curStartTotalMonths - 1;
+  const prevStartTotalMonths = prevEndTotalMonths - (monthCount - 1);
+
+  const prevEndYear = Math.floor(prevEndTotalMonths / 12);
+  const prevEndMonth = (prevEndTotalMonths % 12) + 1;
+  const prevStartYear = Math.floor(prevStartTotalMonths / 12);
+  const prevStartMonth = (prevStartTotalMonths % 12) + 1;
+
+  const previousPeriodStart = `${prevStartYear}-${String(prevStartMonth).padStart(2, "0")}`;
+  const previousPeriodEnd = `${prevEndYear}-${String(prevEndMonth).padStart(2, "0")}`;
+
+  const currentPeriodLabel = formatPeriodRangeLabel(currentPeriodStart, currentPeriodEnd);
+  const previousPeriodLabel = formatPeriodRangeLabel(previousPeriodStart, previousPeriodEnd);
+
+  let curCount = 0;
+  let prevCount = 0;
+  const curMonths = new Set<string>();
+  const prevMonths = new Set<string>();
+
+  for (const item of items) {
+    if (!item.date || item.date.length < 7) continue;
+    const itemPeriodKey = item.date.substring(0, 7);
+
+    if (itemPeriodKey >= currentPeriodStart && itemPeriodKey <= currentPeriodEnd) {
+      curCount++;
+      curMonths.add(itemPeriodKey);
+    } else if (itemPeriodKey >= previousPeriodStart && itemPeriodKey <= previousPeriodEnd) {
+      prevCount++;
+      prevMonths.add(itemPeriodKey);
+    }
+  }
+
+  const currentHasPayments = curCount > 0;
+  const previousHasPayments = prevCount > 0;
+
+  let status: DebtPaymentCoverageStatus = "available";
+  let note = "";
+
+  if (!currentHasPayments && !previousHasPayments) {
+    status = "empty";
+    note = "Brak zarejestrowanych płatności w analizowanym zakresie.";
+  } else if (!currentHasPayments || !previousHasPayments) {
+    status = "partial";
+    note = "Dane częściowe: porównanie opiera się wyłącznie na zarejestrowanych płatnościach.";
+  } else {
+    status = "available";
+    note = "Dane porównawcze dostępne: zarejestrowane płatności występują w obu okresach.";
+  }
+
+  return {
+    status,
+    preset,
+    currentPeriodLabel,
+    previousPeriodLabel,
+    currentRegisteredPaymentCount: curCount,
+    previousRegisteredPaymentCount: prevCount,
+    currentRegisteredMonthCount: curMonths.size,
+    previousRegisteredMonthCount: prevMonths.size,
+    currentExpectedMonthCount: monthCount,
+    previousExpectedMonthCount: monthCount,
+    currentHasPayments,
+    previousHasPayments,
+    note
   };
 }
 

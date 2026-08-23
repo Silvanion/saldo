@@ -34,6 +34,7 @@ import {
   calculateDebtPaymentInsightsFromItems,
   calculateDebtPaymentTrendSnapshot,
   calculateDebtPaymentComparisonSnapshot,
+  calculateDebtPaymentCoverageSnapshot,
   filterDebtPaymentActivity,
   filterDebtPaymentActivityByPeriod,
   DebtPaymentHistoryStatusFilter,
@@ -149,6 +150,22 @@ export function DebtDetailsModal({
     }
     return calculateDebtPaymentComparisonSnapshot(
       itemsForComparison,
+      historyPeriodPreset,
+      activity.items
+    );
+  }, [summaryScope, historyPeriodPreset, activity.items, historyStatusFilter, historyPrincipalFilter]);
+
+  const coverageSnapshot = useMemo(() => {
+    let itemsForCoverage = activity.items;
+    if (summaryScope === "filtered") {
+      itemsForCoverage = filterDebtPaymentActivity(activity.items, {
+        status: historyStatusFilter,
+        principal: historyPrincipalFilter,
+        order: "oldest"
+      });
+    }
+    return calculateDebtPaymentCoverageSnapshot(
+      itemsForCoverage,
       historyPeriodPreset,
       activity.items
     );
@@ -724,9 +741,12 @@ export function DebtDetailsModal({
 
                     {/* SECTION: PERIOD COMPARISON */}
                     {historyPeriodPreset === "all" ? (
-                      <div className="p-3 bg-surface-2/30 border border-border/80 rounded-xl text-center">
+                      <div className="p-3 bg-surface-2/30 border border-border/80 rounded-xl text-center space-y-1">
+                        <p className="text-xs font-semibold text-text-main">
+                          Pokrycie danych porównawczych
+                        </p>
                         <p className="text-xs text-text-muted">
-                          Wybierz okres 3, 6 lub 12 miesięcy, aby zobaczyć porównanie z poprzednim okresem.
+                          Wybierz okres 3, 6 lub 12 miesięcy, aby ocenić dostępność danych porównawczych i zobaczyć porównanie z poprzednim okresem.
                         </p>
                       </div>
                     ) : comparisonSnapshot.available ? (
@@ -822,6 +842,19 @@ export function DebtDetailsModal({
                               )}
                             </div>
                           </div>
+                        </div>
+
+                        {/* Coverage Hint */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-surface rounded-xl border border-border text-xs text-text-muted">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-text-main">Pokrycie danych:</span>
+                            <span>{coverageSnapshot.note}</span>
+                          </div>
+                          {coverageSnapshot.status === "available" && (
+                            <span className="text-[11px] text-text-faint shrink-0">
+                              Bieżący: {coverageSnapshot.currentRegisteredPaymentCount} wpłat ({coverageSnapshot.currentRegisteredMonthCount}/{coverageSnapshot.currentExpectedMonthCount} mies.) · Poprzedni: {coverageSnapshot.previousRegisteredPaymentCount} wpłat ({coverageSnapshot.previousRegisteredMonthCount}/{coverageSnapshot.previousExpectedMonthCount} mies.)
+                            </span>
+                          )}
                         </div>
 
                         {comparisonSnapshot.previousPaymentCount === 0 && comparisonSnapshot.currentPaymentCount > 0 && (
