@@ -23,11 +23,13 @@ import {
   Link2,
   Unlink,
   Search,
-  Download
+  Download,
+  Check
 } from "lucide-react";
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
 import { downloadFile } from "../../utils/csv";
+import { DEBT_REPAYMENT_MILESTONES, calculateDebtRepaymentProgress } from "./DebtPortfolioCard";
 import {
   calculateAmortizationSchedule,
   calculateDebtAmortizationSchedule,
@@ -628,6 +630,68 @@ export function DebtDetailsModal({
                     </span>
                   </div>
                 </div>
+
+                {/* SPRINT 40: Repayment Progress & Milestone Strip */}
+                {debt.originalAmount && debt.originalAmount > 0 && debt.type !== "credit_card" && debt.type !== "revolving" && (() => {
+                  const repaymentProgress = calculateDebtRepaymentProgress(debt);
+                  const paidRatio = repaymentProgress.repaidPercent;
+                  return (
+                    <div
+                      className="p-5 bg-surface border border-border rounded-2xl"
+                      aria-label={`Postęp spłaty kapitału: ${paidRatio}%. ${
+                        repaymentProgress.isComplete
+                          ? "Dług spłacony."
+                          : repaymentProgress.currentMilestone
+                          ? `Osiągnięto: ${repaymentProgress.currentMilestone}%. Następny kamień: ${repaymentProgress.nextMilestone}%.`
+                          : `Następny kamień: ${repaymentProgress.nextMilestone}%.`
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold mb-2">
+                        <span className="text-text-faint uppercase tracking-wider text-[11px]">
+                          Postęp spłaty kapitału
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {repaymentProgress.isComplete ? (
+                            <span className="text-[11px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
+                              Dług spłacony
+                            </span>
+                          ) : repaymentProgress.nextMilestone ? (
+                            <span className="text-[11px] font-medium text-text-muted">
+                              Następny kamień: <strong className="text-text-main">{repaymentProgress.nextMilestone}%</strong>
+                            </span>
+                          ) : null}
+                          <span className="text-brand font-bold text-sm tabular-nums">{paidRatio}% spłacone</span>
+                        </div>
+                      </div>
+                      <div className="w-full h-2.5 bg-surface-offset rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand rounded-full transition-all duration-500"
+                          style={{ width: `${paidRatio}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-2.5" role="group" aria-label="Kamienie milowe spłaty">
+                        {DEBT_REPAYMENT_MILESTONES.map((milestone) => {
+                          const isReached = repaymentProgress.reachedMilestones.includes(milestone);
+                          return (
+                            <span
+                              key={milestone}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-bold transition-colors ${
+                                isReached
+                                  ? "bg-brand-subtle text-brand border-brand/20"
+                                  : "bg-surface-2/60 text-text-faint border-border/50"
+                              }`}
+                              title={`Kamień milowy ${milestone}%: ${isReached ? "Osiągnięty" : "Do osiągnięcia"}`}
+                              aria-label={`Kamień milowy ${milestone}%: ${isReached ? "osiągnięty" : "nieosiągnięty"}`}
+                            >
+                              {isReached && <Check className="w-3 h-3" />}
+                              <span>{milestone}%</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Capital vs Interest breakdown */}
                 {debt.monthlyPayment > 0 && debt.interestRate > 0 && (

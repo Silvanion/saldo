@@ -14,9 +14,80 @@ import {
   Trash2,
   CheckCircle2,
   RotateCcw,
-  Landmark
+  Landmark,
+  Check
 } from "lucide-react";
 import { DebtDetailTab } from "./DebtDetailsModal";
+
+export const DEBT_REPAYMENT_MILESTONES = [25, 50, 75, 100] as const;
+export type DebtRepaymentMilestone = (typeof DEBT_REPAYMENT_MILESTONES)[number];
+
+export interface DebtRepaymentProgress {
+  referenceAmount: number;
+  repaidAmount: number;
+  repaidPercent: number;
+  reachedMilestones: DebtRepaymentMilestone[];
+  currentMilestone: DebtRepaymentMilestone | null;
+  nextMilestone: DebtRepaymentMilestone | null;
+  isComplete: boolean;
+  hasUsableReferenceAmount: boolean;
+}
+
+export function calculateDebtRepaymentProgress(debt: DebtItem | null | undefined): DebtRepaymentProgress {
+  if (!debt) {
+    return {
+      referenceAmount: 0,
+      repaidAmount: 0,
+      repaidPercent: 0,
+      reachedMilestones: [],
+      currentMilestone: null,
+      nextMilestone: 25,
+      isComplete: false,
+      hasUsableReferenceAmount: false
+    };
+  }
+
+  const referenceAmount =
+    Number(debt.originalAmount) ||
+    Number(debt.creditLimit) ||
+    Number(debt.balance) ||
+    0;
+
+  if (referenceAmount <= 0) {
+    return {
+      referenceAmount: 0,
+      repaidAmount: 0,
+      repaidPercent: 0,
+      reachedMilestones: [],
+      currentMilestone: null,
+      nextMilestone: 25,
+      isComplete: false,
+      hasUsableReferenceAmount: false
+    };
+  }
+
+  const balance = Number(debt.balance) || 0;
+  const rawRepaid = referenceAmount - balance;
+  const rawPercent = (rawRepaid / referenceAmount) * 100;
+  const repaidPercent = Math.max(0, Math.min(100, Math.round(rawPercent)));
+  const repaidAmount = Math.max(0, Math.min(referenceAmount, rawRepaid));
+
+  const reachedMilestones = DEBT_REPAYMENT_MILESTONES.filter((m) => repaidPercent >= m);
+  const currentMilestone = reachedMilestones.length > 0 ? reachedMilestones[reachedMilestones.length - 1] : null;
+  const nextMilestone = DEBT_REPAYMENT_MILESTONES.find((m) => repaidPercent < m) || null;
+  const isComplete = repaidPercent >= 100;
+
+  return {
+    referenceAmount,
+    repaidAmount,
+    repaidPercent,
+    reachedMilestones,
+    currentMilestone,
+    nextMilestone,
+    isComplete,
+    hasUsableReferenceAmount: Boolean(debt.originalAmount && debt.originalAmount > 0)
+  };
+}
 
 export interface DebtPortfolioCardProps {
   key?: React.Key;
@@ -112,10 +183,8 @@ export function DebtPortfolioCard({
     }
   };
 
-  const paidRatio =
-    debt.originalAmount && debt.originalAmount > 0
-      ? Math.max(0, Math.min(100, Math.round(((debt.originalAmount - debt.balance) / debt.originalAmount) * 100)))
-      : 0;
+  const repaymentProgress = calculateDebtRepaymentProgress(debt);
+  const paidRatio = repaymentProgress.repaidPercent;
 
   return (
     <div
@@ -251,16 +320,46 @@ export function DebtPortfolioCard({
 
         {/* Progress Bar (if originalAmount / creditLimit is defined) */}
         {debt.originalAmount && debt.originalAmount > 0 && debt.type !== "credit_card" && debt.type !== "revolving" && (
-          <div className="mt-3 mb-2">
+          <div
+            className="mt-3 mb-2"
+            aria-label={`Postęp spłaty długu: ${paidRatio}%. ${
+              repaymentProgress.isComplete
+                ? "Dług spłacony."
+                : repaymentProgress.currentMilestone
+                ? `Osiągnięto: ${repaymentProgress.currentMilestone}%. Następny kamień: ${repaymentProgress.nextMilestone}%.`
+                : `Następny kamień: ${repaymentProgress.nextMilestone}%.`
+            }`}
+          >
             <div className="flex items-center justify-between text-xs mb-1">
               <span className="text-text-faint font-medium">Postęp spłaty kapitału</span>
-              <span className="font-bold text-text-main">{paidRatio}% spłacone</span>
+              <span className="font-bold text-text-main tabular-nums">{paidRatio}% spłacone</span>
             </div>
             <div className="w-full h-2 bg-surface-offset rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand rounded-full transition-all duration-500"
                 style={{ width: `${paidRatio}%` }}
               />
+            </div>
+            {/* SPRINT 40: Milestone Indicators */}
+            <div className="flex items-center justify-between mt-1.5" role="group" aria-label="Kamienie milowe spłaty">
+              {DEBT_REPAYMENT_MILESTONES.map((milestone) => {
+                const isReached = repaymentProgress.reachedMilestones.includes(milestone);
+                return (
+                  <span
+                    key={milestone}
+                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${
+                      isReached
+                        ? "bg-brand-subtle text-brand border-brand/20"
+                        : "bg-surface-2/40 text-text-faint border-border/40"
+                    }`}
+                    title={`Kamień milowy ${milestone}%: ${isReached ? "Osiągnięty" : "Do osiągnięcia"}`}
+                    aria-label={`Kamień milowy ${milestone}%: ${isReached ? "osiągnięty" : "nieosiągnięty"}`}
+                  >
+                    {isReached && <Check className="w-2.5 h-2.5" />}
+                    <span>{milestone}%</span>
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}

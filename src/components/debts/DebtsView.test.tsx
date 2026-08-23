@@ -6,6 +6,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
+import { DebtPortfolioCard, calculateDebtRepaymentProgress } from "./DebtPortfolioCard";
 import { DashboardView } from "../DashboardView";
 import { DebtItem, Profile, Transaction } from "../../types";
 import * as csvUtils from "../../utils/csv";
@@ -2333,6 +2334,280 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(orderSelect.value).toBe("newest");
       const statusSelect = screen.getByLabelText("Status:") as HTMLSelectElement;
       expect(statusSelect.value).toBe("all");
+    });
+
+    it("Sprint 40: renders debt repayment milestones on DebtPortfolioCard and highlights reached milestones", () => {
+      const halfPaidDebt: DebtItem = {
+        id: "debt-half",
+        name: "Kredyt samochodowy",
+        institution: "Santander",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 100000,
+        balance: 45000, // 55% paid -> 25% and 50% reached
+        monthlyPayment: 1500,
+        interestRate: 8.5,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      render(
+        <DebtPortfolioCard
+          debt={halfPaidDebt}
+          onOpenDetails={vi.fn()}
+          onOpenOverpayment={vi.fn()}
+          onOpenRefinance={vi.fn()}
+          onToggleStatus={vi.fn()}
+          onEdit={vi.fn()}
+          onDelete={vi.fn()}
+        />
+      );
+
+      expect(screen.getByText("55% spłacone")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 25%: osiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 50%: osiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 75%: nieosiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 100%: nieosiągnięty")).toBeTruthy();
+    });
+
+    it("Sprint 40: renders debt repayment progress and milestones in DebtDetailsModal overview", () => {
+      const threeQuarterDebt: DebtItem = {
+        id: "debt-3q",
+        name: "Pożyczka remontowa",
+        institution: "Alior",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 40000,
+        balance: 10000, // 75% paid
+        monthlyPayment: 800,
+        interestRate: 7.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={threeQuarterDebt}
+          onClose={vi.fn()}
+          initialTab="overview"
+        />
+      );
+
+      expect(screen.getByText("75% spłacone")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 25%: osiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 50%: osiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 75%: osiągnięty")).toBeTruthy();
+      expect(screen.getByLabelText("Kamień milowy 100%: nieosiągnięty")).toBeTruthy();
+    });
+    describe("Sprint 40: calculateDebtRepaymentProgress pure derivation & edge cases", () => {
+      it("1. Zero progress: reference 1000, balance 1000 -> 0%, no milestones reached, next 25%", () => {
+        const debt: DebtItem = {
+          id: "d1",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 1000,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(0);
+        expect(res.reachedMilestones).toEqual([]);
+        expect(res.currentMilestone).toBeNull();
+        expect(res.nextMilestone).toBe(25);
+        expect(res.isComplete).toBe(false);
+      });
+
+      it("2. Exactly 25%: reference 1000, balance 750 -> 25% reached, next 50%", () => {
+        const debt: DebtItem = {
+          id: "d2",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 750,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(25);
+        expect(res.reachedMilestones).toEqual([25]);
+        expect(res.currentMilestone).toBe(25);
+        expect(res.nextMilestone).toBe(50);
+        expect(res.isComplete).toBe(false);
+      });
+
+      it("3. Exactly 50%: reference 1000, balance 500 -> 25% and 50% reached, next 75%", () => {
+        const debt: DebtItem = {
+          id: "d3",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 500,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(50);
+        expect(res.reachedMilestones).toEqual([25, 50]);
+        expect(res.currentMilestone).toBe(50);
+        expect(res.nextMilestone).toBe(75);
+      });
+
+      it("4. Exactly 75%: reference 1000, balance 250 -> 25%, 50%, 75% reached, next 100%", () => {
+        const debt: DebtItem = {
+          id: "d4",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 250,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(75);
+        expect(res.reachedMilestones).toEqual([25, 50, 75]);
+        expect(res.currentMilestone).toBe(75);
+        expect(res.nextMilestone).toBe(100);
+      });
+
+      it("5. Exactly 100%: reference 1000, balance 0 -> all milestones reached, next is null, isComplete is true", () => {
+        const debt: DebtItem = {
+          id: "d5",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 0,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(100);
+        expect(res.reachedMilestones).toEqual([25, 50, 75, 100]);
+        expect(res.currentMilestone).toBe(100);
+        expect(res.nextMilestone).toBeNull();
+        expect(res.isComplete).toBe(true);
+      });
+
+      it("6. Between thresholds: 37% -> current milestone 25%, next 50%", () => {
+        const debt: DebtItem = {
+          id: "d6",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 630,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(37);
+        expect(res.currentMilestone).toBe(25);
+        expect(res.nextMilestone).toBe(50);
+      });
+
+      it("7. Above reference amount: balance 1200 > reference 1000 -> clamps to 0%", () => {
+        const debt: DebtItem = {
+          id: "d7",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: 1200,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(0);
+        expect(res.reachedMilestones).toEqual([]);
+      });
+
+      it("8. Negative balance: balance -100 -> clamps to 100%", () => {
+        const debt: DebtItem = {
+          id: "d8",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 1000,
+          balance: -100,
+          monthlyPayment: 100,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debt);
+        expect(res.repaidPercent).toBe(100);
+        expect(res.isComplete).toBe(true);
+      });
+
+      it("9. Zero or missing reference amount: safe neutral result without NaN or Infinity", () => {
+        const resNull = calculateDebtRepaymentProgress(null);
+        expect(resNull.repaidPercent).toBe(0);
+        expect(Number.isNaN(resNull.repaidPercent)).toBe(false);
+
+        const debtZero: DebtItem = {
+          id: "d0",
+          name: "Test",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 0,
+          balance: 0,
+          monthlyPayment: 0,
+          interestRate: 0,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const resZero = calculateDebtRepaymentProgress(debtZero);
+        expect(resZero.repaidPercent).toBe(0);
+        expect(resZero.hasUsableReferenceAmount).toBe(false);
+      });
+
+      it("10. Fallback reference amount: creditLimit vs balance", () => {
+        const debtWithLimit: DebtItem = {
+          id: "d-lim",
+          name: "Karta",
+          institution: "Bank",
+          type: "credit_card",
+          currency: "PLN",
+          creditLimit: 5000,
+          balance: 2500,
+          monthlyPayment: 100,
+          interestRate: 15,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const res = calculateDebtRepaymentProgress(debtWithLimit);
+        expect(res.referenceAmount).toBe(5000);
+        expect(res.repaidPercent).toBe(50);
+      });
     });
   });
 });
