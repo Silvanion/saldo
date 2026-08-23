@@ -3,10 +3,9 @@ import { DebtItem, DebtType, Profile, DebtPayoffScenario, Transaction } from "..
 import {
   calculatePortfolioDebtKpis,
   calculateDebtPortfolioAnalytics,
-  calculatePortfolioPayoffStrategies,
-  buildValidatedCustomOrder,
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
+import { useDebtStrategyAnalytics } from "../../hooks/useDebtStrategyAnalytics";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -334,13 +333,22 @@ export function DebtsView({
   const [previewStrategy, setPreviewStrategy] = useState<DebtPayoffStrategyType | null>(null);
   const [isWhatIfExpanded, setIsWhatIfExpanded] = useState<boolean>(false);
 
-  const activeDebts = useMemo(() => {
-    return debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
-  }, [debts]);
-
-  const validatedCustomOrder = useMemo(() => {
-    return buildValidatedCustomOrder(activeDebts, customDebtOrder);
-  }, [activeDebts, customDebtOrder]);
+  // Analytics derivation hook
+  const {
+    activeDebts,
+    validatedCustomOrder,
+    payoffComparison,
+    whatIfImpact,
+    savedScenarioPreviews
+  } = useDebtStrategyAnalytics({
+    debts,
+    selectedPayoffStrategy,
+    extraMonthlyPayoff,
+    customDebtOrder,
+    oneTimeOverpayment,
+    previewStrategy,
+    savedScenarios
+  });
 
   const handleMoveDebtUp = (debtId: string) => {
     const current = [...validatedCustomOrder];
@@ -471,85 +479,7 @@ export function DebtsView({
     setDuplicateScenarioInput("");
   };
 
-  const payoffComparison = useMemo(() => {
-    return calculatePortfolioPayoffStrategies(
-      debts,
-      extraMonthlyPayoff,
-      undefined,
-      validatedCustomOrder,
-      oneTimeOverpayment
-    );
-  }, [debts, extraMonthlyPayoff, validatedCustomOrder, oneTimeOverpayment]);
 
-  const basePayoffComparison = useMemo(() => {
-    return calculatePortfolioPayoffStrategies(
-      debts,
-      extraMonthlyPayoff,
-      undefined,
-      validatedCustomOrder,
-      0
-    );
-  }, [debts, extraMonthlyPayoff, validatedCustomOrder]);
-
-  const whatIfImpact = useMemo(() => {
-    if (oneTimeOverpayment <= 0 && !previewStrategy) return null;
-    const activeBaseRes =
-      selectedPayoffStrategy === "avalanche"
-        ? basePayoffComparison.avalanche
-        : selectedPayoffStrategy === "snowball"
-        ? basePayoffComparison.snowball
-        : selectedPayoffStrategy === "custom"
-        ? basePayoffComparison.custom
-        : basePayoffComparison.baseline;
-
-    const currentSimRes =
-      (previewStrategy || selectedPayoffStrategy) === "avalanche"
-        ? payoffComparison.avalanche
-        : (previewStrategy || selectedPayoffStrategy) === "snowball"
-        ? payoffComparison.snowball
-        : (previewStrategy || selectedPayoffStrategy) === "custom"
-        ? payoffComparison.custom
-        : payoffComparison.baseline;
-
-    if (!activeBaseRes || !currentSimRes) return null;
-
-    return {
-      durDiff: (activeBaseRes.totalMonths || 0) - (currentSimRes.totalMonths || 0),
-      intDiff: (activeBaseRes.totalInterestPaid || 0) - (currentSimRes.totalInterestPaid || 0),
-      debtFreeDate: currentSimRes.debtFreeDate || ""
-    };
-  }, [oneTimeOverpayment, previewStrategy, selectedPayoffStrategy, basePayoffComparison, payoffComparison]);
-
-  const savedScenarioPreviews = useMemo(() => {
-    const previews: Record<string, { debtFreeDate: string; totalInterestPaid: number }> = {};
-    savedScenarios.forEach((sc) => {
-      const scOrder =
-        sc.strategy === "custom"
-          ? buildValidatedCustomOrder(activeDebts, sc.customDebtOrder)
-          : undefined;
-      const scSim = calculatePortfolioPayoffStrategies(
-        activeDebts,
-        sc.extraMonthlyPayment || 0,
-        undefined,
-        scOrder
-      );
-      const scRes =
-        sc.strategy === "avalanche"
-          ? scSim.avalanche
-          : sc.strategy === "snowball"
-          ? scSim.snowball
-          : sc.strategy === "custom"
-          ? scSim.custom
-          : scSim.baseline;
-      if (scRes) {
-        previews[sc.id] = {
-          debtFreeDate: scRes.debtFreeDate,
-          totalInterestPaid: scRes.totalInterestPaid
-        };
-      }
-    });
-    return previews;
-  }, [savedScenarios, activeDebts]);
 
   // Filter and sort debts
   const filteredDebts = useMemo(() => {
