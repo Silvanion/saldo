@@ -2023,5 +2023,82 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
       expect(onClearInitialDebt).toHaveBeenCalledTimes(1);
     });
+
+    it("Sprint 37: renders source transaction audit trail indicator and opens transaction modal on click", () => {
+      const onOpenTxModal = vi.fn();
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const linkedTx: Transaction = {
+        id: "tx-linked-1",
+        name: "Rata kredytu Maj 2026",
+        amount: 2600,
+        type: "expense",
+        category: "Rachunki",
+        account: "Konto główne",
+        isoDate: "2026-05-15",
+        debtId: "debt-1",
+        currency: "PLN"
+      };
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[linkedTx]}
+          onClose={vi.fn()}
+          onOpenTxModal={onOpenTxModal}
+          initialTab="history"
+        />
+      );
+
+      // Audit trail button with accessible name
+      const inspectBtn = screen.getByRole("button", { name: /Zobacz szczegóły transakcji: Rata kredytu Maj 2026/i });
+      expect(inspectBtn).toBeTruthy();
+      expect(inspectBtn.getAttribute("title")).toBe("Źródło transakcji: Rata kredytu Maj 2026");
+
+      fireEvent.click(inspectBtn);
+      expect(onOpenTxModal).toHaveBeenCalledTimes(1);
+      expect(onOpenTxModal).toHaveBeenCalledWith(linkedTx);
+    });
+
+    it("Sprint 37: renders neutral fallback when source transaction is missing from dataset", () => {
+      const mortgageDebt: DebtItem = {
+        id: "debt-1",
+        name: "Kredyt hipoteczny",
+        institution: "PKO BP",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 350000,
+        monthlyPayment: 2600,
+        interestRate: 6.85,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      // Transaction list without the matching transaction object
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={[]}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Empty history when no transactions are linked
+      expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
+    });
   });
 });

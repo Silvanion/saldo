@@ -63,6 +63,7 @@ interface DebtDetailsModalProps {
   onOpenOverpaymentModal?: (debt: DebtItem) => void;
   onOpenRefinanceModal?: (debt: DebtItem) => void;
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
+  onOpenTxModal?: (tx: Transaction) => void;
 }
 
 export function DebtDetailsModal({
@@ -73,7 +74,8 @@ export function DebtDetailsModal({
   initialTab = "overview",
   onOpenOverpaymentModal,
   onOpenRefinanceModal,
-  onUpdateTransaction
+  onUpdateTransaction,
+  onOpenTxModal
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
@@ -97,6 +99,19 @@ export function DebtDetailsModal({
   const [linkSearchQuery, setLinkSearchQuery] = useState("");
   const [selectedTxToLink, setSelectedTxToLink] = useState<Transaction | null>(null);
   const [txToUnlink, setTxToUnlink] = useState<DebtPaymentActivityItem | null>(null);
+
+  // SPRINT 37: Lookup map for related transactions in payment audit trail
+  const transactionsMap = useMemo(() => {
+    const map = new Map<string, Transaction>();
+    if (transactions) {
+      for (const t of transactions) {
+        if (t && t.id) {
+          map.set(t.id, t);
+        }
+      }
+    }
+    return map;
+  }, [transactions]);
 
   React.useEffect(() => {
     if (isOpen && initialTab) {
@@ -1101,11 +1116,45 @@ export function DebtDetailsModal({
                                   </td>
                                   <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1.5">
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-subtle text-brand border border-brand/20">
-                                        <Link2 className="w-3 h-3" />
-                                        <span>Powiązana transakcja</span>
-                                      </span>
-                                      {onUpdateTransaction && (
+                                      {(() => {
+                                        if (!item.transactionId) {
+                                          return null;
+                                        }
+                                        const matchedTx = transactionsMap.get(item.transactionId);
+                                        if (matchedTx) {
+                                          return onOpenTxModal ? (
+                                            <button
+                                              type="button"
+                                              onClick={() => onOpenTxModal(matchedTx)}
+                                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle/80 hover:border-brand/40 active:scale-[0.98] transition-all cursor-pointer"
+                                              aria-label={matchedTx.name ? `Zobacz szczegóły transakcji: ${matchedTx.name}` : "Zobacz szczegóły transakcji"}
+                                              title={`Źródło transakcji: ${matchedTx.name || item.transactionName || "Transakcja"}`}
+                                            >
+                                              <Link2 className="w-3 h-3" />
+                                              <span>Powiązana transakcja</span>
+                                            </button>
+                                          ) : (
+                                            <span
+                                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-subtle text-brand border border-brand/20"
+                                              title={`Źródło transakcji: ${matchedTx.name || item.transactionName || "Transakcja"}`}
+                                            >
+                                              <Link2 className="w-3 h-3" />
+                                              <span>Powiązana transakcja</span>
+                                            </span>
+                                          );
+                                        }
+                                        return (
+                                          <span
+                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-2 text-text-muted border border-border"
+                                            title="Powiązana transakcja niedostępna"
+                                          >
+                                            <Link2 className="w-3 h-3 text-text-faint" />
+                                            <span>Powiązana transakcja niedostępna</span>
+                                          </span>
+                                        );
+                                      })()}
+
+                                      {onUpdateTransaction && item.transactionId && (
                                         <button
                                           type="button"
                                           onClick={() => setTxToUnlink(item)}

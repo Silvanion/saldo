@@ -314,6 +314,7 @@ export function AppViewRouter({
             onSavePayoffScenario={handleSavePayoffScenario}
             onDeletePayoffScenario={handleDeletePayoffScenario}
             onUpdateTransaction={handleUpdateTransaction}
+            onOpenTxModal={onOpenTxModal}
             showToast={showToast}
           />
         );

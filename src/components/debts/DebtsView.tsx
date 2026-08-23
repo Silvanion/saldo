@@ -66,6 +66,7 @@ export interface DebtsViewProps {
   onSavePayoffScenario?: (scenario: Omit<DebtPayoffScenario, "id" | "createdAt"> & { id?: string }) => void;
   onDeletePayoffScenario?: (scenarioId: string) => void;
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
+  onOpenTxModal?: (tx: Transaction) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -85,6 +86,7 @@ export function DebtsView({
   onSavePayoffScenario,
   onDeletePayoffScenario,
   onUpdateTransaction,
+  onOpenTxModal,
   showToast
 }: DebtsViewProps) {
   const [activeMainTab, setActiveMainTab] = useState<MainTab>("portfolio");
@@ -2153,6 +2155,7 @@ export function DebtsView({
           initialTab={initialDetailsTab}
           onClose={() => setSelectedDebtForDetails(null)}
           onUpdateTransaction={onUpdateTransaction}
+          onOpenTxModal={onOpenTxModal}
           onOpenOverpaymentModal={(d) => {
             setSelectedDebtForDetails(null);
             setSelectedDebtForOverpayment(d);
