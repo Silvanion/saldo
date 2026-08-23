@@ -26,6 +26,7 @@ import { DebtFormModal } from "./DebtFormModal";
 import { DebtImportModal } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
+import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
 import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
@@ -1727,6 +1728,12 @@ export function DebtsView({
               <DebtStrategyGuidanceCard
                 selectedStrategy={selectedPayoffStrategy}
                 onSelectStrategy={(strat) => setSelectedPayoffStrategy(strat)}
+              />
+
+              {/* Strategy Context Hint */}
+              <DebtStrategyContextHint
+                selectedStrategy={selectedPayoffStrategy}
+                onOpenKnowledgeCenter={() => setActiveMainTab("knowledge")}
               />
 
               {/* 4 Strategy Comparison Cards */}

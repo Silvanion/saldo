@@ -15,6 +15,7 @@ import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { DebtImportModal, parseDebtCsv, mapDebtType, parseDebtNumber } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
+import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -3697,6 +3698,53 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
         expect(screen.getByText("Strategia Lawiny")).toBeTruthy();
         expect(screen.getByText("Strategia Kuli Śnieżnej")).toBeTruthy();
+      });
+    });
+
+    describe("Sprint 52: Debt Strategy Context Hint v1", () => {
+      it("1. DebtStrategyContextHint renders active strategy and trade-off for Avalanche", () => {
+        render(<DebtStrategyContextHint selectedStrategy="avalanche" />);
+
+        expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
+        expect(screen.getByText(/Najniższy łączny koszt odsetek/i)).toBeTruthy();
+        expect(screen.getByText(/sprawdź Kulę Śnieżną/i)).toBeTruthy();
+      });
+
+      it("2. DebtStrategyContextHint renders active strategy and trade-off for Snowball", () => {
+        render(<DebtStrategyContextHint selectedStrategy="snowball" />);
+
+        expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
+        expect(screen.getByText(/Szybkie zamykanie najmniejszych długów/i)).toBeTruthy();
+      });
+
+      it("3. DebtStrategyContextHint renders active strategy and trade-off for Custom", () => {
+        render(<DebtStrategyContextHint selectedStrategy="custom" />);
+
+        expect(screen.getByText(/Aktywny wybór: Własna kolejność/i)).toBeTruthy();
+        expect(screen.getByText(/Pełna kontrola nad kolejnością spłat/i)).toBeTruthy();
+      });
+
+      it("4. DebtStrategyContextHint calls onOpenKnowledgeCenter when button is clicked", () => {
+        const onOpen = vi.fn();
+        render(
+          <DebtStrategyContextHint
+            selectedStrategy="avalanche"
+            onOpenKnowledgeCenter={onOpen}
+          />
+        );
+
+        const btn = screen.getByRole("button", { name: /Otwórz centrum wiedzy/i });
+        fireEvent.click(btn);
+        expect(onOpen).toHaveBeenCalled();
+      });
+
+      it("5. DebtsView renders strategy context hint inside Scenarios tab", () => {
+        render(<DebtsView profile={mockProfile} />);
+
+        const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+        fireEvent.click(scenariosTabBtn);
+
+        expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
       });
     });
   });
