@@ -30,6 +30,7 @@ import {
   calculateDebtOverpaymentVariants,
   DebtOverpaymentVariantInput,
   calculateDebtPaymentActivity,
+  calculateDebtPaymentInsights,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -87,6 +88,10 @@ export function DebtDetailsModal({
   const activity = useMemo(() => {
     return calculateDebtPaymentActivity(debt, transactions);
   }, [debt, transactions]);
+
+  const paymentInsights = useMemo(() => {
+    return calculateDebtPaymentInsights(activity);
+  }, [activity]);
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -417,50 +422,107 @@ export function DebtDetailsModal({
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                          Liczba wpłat
-                        </span>
-                        <span className="text-base sm:text-lg font-black text-text-main tabular-nums">
-                          {activity.items.length}
-                        </span>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                          Suma wpłat
-                        </span>
-                        <span className="text-base sm:text-lg font-black text-text-main tabular-nums">
-                          {formatMoney(activity.totalPaid, currency)}
-                        </span>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                          Spłacony kapitał
-                        </span>
-                        <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                          {formatMoney(activity.totalPrincipal, currency)}
-                        </span>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-1">
-                          Część odsetkowa
-                        </span>
-                        <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 tabular-nums">
-                          {formatMoney(activity.totalInterest, currency)}
-                        </span>
+                  <div className="space-y-5">
+                    {/* Header with Title */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
+                      <div>
+                        <h3 className="text-sm font-bold text-text-main">Podsumowanie płatności</h3>
+                        <p className="text-xs text-text-muted">Analiza zarejestrowanych transakcji powiązanych z tym długiem</p>
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-text-muted flex items-center gap-1.5">
-                      <Info className="w-3.5 h-3.5 shrink-0 text-brand" />
-                      <span>Na podstawie transakcji powiązanych z tym długiem. Aktualne saldo: <strong>{formatMoney(debt.balance, currency)}</strong></span>
-                    </p>
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Liczba wpłat
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                          {paymentInsights.paymentCount}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Suma wpłat
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                          {formatMoney(paymentInsights.totalPaid, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Średnia wpłata
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                          {formatMoney(paymentInsights.averagePayment, currency)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Spłacony kapitał
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                          {formatMoney(paymentInsights.totalPrincipal, currency)}
+                        </span>
+                        <span className="text-[10px] text-text-muted block mt-0.5">
+                          {paymentInsights.principalSharePct}% sumy wpłat
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Część odsetkowa
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                          {formatMoney(paymentInsights.totalInterest, currency)}
+                        </span>
+                        <span className="text-[10px] text-text-muted block mt-0.5">
+                          {paymentInsights.interestSharePct}% sumy wpłat
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                          Ostatnia wpłata
+                        </span>
+                        <span className="text-sm sm:text-base font-black text-brand tabular-nums">
+                          {paymentInsights.latestPayment ? formatMoney(paymentInsights.latestPayment.paymentAmount, currency) : "—"}
+                        </span>
+                        {paymentInsights.latestPayment && (
+                          <span className="text-[10px] text-text-muted block mt-0.5 font-mono">
+                            {paymentInsights.latestPayment.date}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Factual Insights Callouts */}
+                    <div className="p-3.5 bg-surface-2/40 border border-border rounded-xl space-y-1.5 text-xs text-text-muted">
+                      {paymentInsights.hasPrincipalReduction && (
+                        <p className="flex items-center gap-1.5 text-text-main font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span>W zarejestrowanej historii część kapitałowa wynosi <strong>{paymentInsights.principalSharePct}%</strong> wpłat ({paymentInsights.principalReductionCount} z {paymentInsights.paymentCount} płatności pomniejszyło kapitał).</span>
+                        </p>
+                      )}
+                      {paymentInsights.latestPaymentCoveredInterestOnly && (
+                        <p className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+                          <Info className="w-3.5 h-3.5 shrink-0" />
+                          <span>Ostatnia zarejestrowana płatność pokryła wyłącznie odsetki.</span>
+                        </p>
+                      )}
+                      {paymentInsights.historyCompleteness === "partial" && (
+                        <p className="text-[11px] text-text-faint italic">
+                          Podsumowanie jest oparte na dostępnych transakcjach powiązanych z tym długiem. Niektóre dane historyczne mogą być niepełne.
+                        </p>
+                      )}
+                      <p className="text-[11px] text-text-faint flex items-center gap-1">
+                        <Info className="w-3 h-3 text-text-muted shrink-0" />
+                        <span>Analiza dotyczy zarejestrowanych transakcji powiązanych z tym długiem. Bieżące saldo pochodzi z danych długu: <strong>{formatMoney(debt.balance, currency)}</strong>.</span>
+                      </p>
+                    </div>
 
                     {/* Table of Payments */}
                     <div className="border border-border rounded-2xl overflow-hidden bg-surface shadow-xs">

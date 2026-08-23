@@ -121,6 +121,37 @@ export interface DebtPaymentActivityResult {
   error?: string;
 }
 
+export interface DebtPaymentInsightsResult {
+  isValid: boolean;
+  hasData: boolean;
+  paymentCount: number;
+  totalPaid: number;
+  totalPrincipal: number;
+  totalInterest: number;
+  averagePayment: number;
+  averagePrincipal: number;
+  averageInterest: number;
+  principalSharePct: number;
+  interestSharePct: number;
+  latestPayment?: {
+    transactionId: string;
+    date: string;
+    paymentAmount: number;
+    principalAmount: number;
+    interestAmount: number;
+    paymentStatus: DebtPaymentStatus;
+    isFinalPayment: boolean;
+    transactionName?: string;
+  };
+  principalReductionCount: number;
+  interestOnlyPaymentCount: number;
+  paymentsWithoutPrincipalCount: number;
+  hasPrincipalReduction: boolean;
+  latestPaymentCoveredInterestOnly: boolean;
+  historyCompleteness: "empty" | "partial" | "available";
+  error?: string;
+}
+
 export interface OverpaymentSimulationResult {
   baseline: {
     months: number;
@@ -933,6 +964,121 @@ export function calculateDebtPaymentActivity(
     totalPrincipal,
     currentBalance: Math.round(currentBal * 100) / 100,
     isValid: true
+  };
+}
+
+/**
+ * Pure helper for calculating read-only debt payment insights from activity result (Sprint 23)
+ */
+export function calculateDebtPaymentInsights(
+  activityResult: DebtPaymentActivityResult | null | undefined
+): DebtPaymentInsightsResult {
+  if (!activityResult || !Array.isArray(activityResult.items) || activityResult.items.length === 0) {
+    return {
+      isValid: true,
+      hasData: false,
+      paymentCount: 0,
+      totalPaid: 0,
+      totalPrincipal: 0,
+      totalInterest: 0,
+      averagePayment: 0,
+      averagePrincipal: 0,
+      averageInterest: 0,
+      principalSharePct: 0,
+      interestSharePct: 0,
+      principalReductionCount: 0,
+      interestOnlyPaymentCount: 0,
+      paymentsWithoutPrincipalCount: 0,
+      hasPrincipalReduction: false,
+      latestPaymentCoveredInterestOnly: false,
+      historyCompleteness: "empty"
+    };
+  }
+
+  const items = activityResult.items;
+  const paymentCount = items.length;
+
+  let totalPaid = 0;
+  let totalPrincipal = 0;
+  let totalInterest = 0;
+  let principalReductionCount = 0;
+  let interestOnlyPaymentCount = 0;
+  let paymentsWithoutPrincipalCount = 0;
+  let hasPartialFields = false;
+
+  for (const item of items) {
+    const paid = Number(item.paymentAmount) || 0;
+    const princ = Number(item.principalAmount) || 0;
+    const intr = Number(item.interestAmount) || 0;
+
+    totalPaid += paid;
+    totalPrincipal += princ;
+    totalInterest += intr;
+
+    if (princ > 0) {
+      principalReductionCount++;
+    } else {
+      paymentsWithoutPrincipalCount++;
+    }
+
+    if (item.paymentStatus === "interest_only") {
+      interestOnlyPaymentCount++;
+    }
+
+    if (!item.date || !item.transactionId) {
+      hasPartialFields = true;
+    }
+  }
+
+  totalPaid = Math.round(totalPaid * 100) / 100;
+  totalPrincipal = Math.round(totalPrincipal * 100) / 100;
+  totalInterest = Math.round(totalInterest * 100) / 100;
+
+  const averagePayment = paymentCount > 0 ? Math.round((totalPaid / paymentCount) * 100) / 100 : 0;
+  const averagePrincipal = paymentCount > 0 ? Math.round((totalPrincipal / paymentCount) * 100) / 100 : 0;
+  const averageInterest = paymentCount > 0 ? Math.round((totalInterest / paymentCount) * 100) / 100 : 0;
+
+  const principalSharePct = totalPaid > 0 ? Math.round((totalPrincipal / totalPaid) * 1000) / 10 : 0;
+  const interestSharePct = totalPaid > 0 ? Math.round((totalInterest / totalPaid) * 1000) / 10 : 0;
+
+  // The latest payment item is the last one in chronological items array
+  const latestItem = items[items.length - 1];
+  const latestPayment = latestItem
+    ? {
+        transactionId: latestItem.transactionId,
+        date: latestItem.date,
+        paymentAmount: latestItem.paymentAmount,
+        principalAmount: latestItem.principalAmount,
+        interestAmount: latestItem.interestAmount,
+        paymentStatus: latestItem.paymentStatus,
+        isFinalPayment: latestItem.isFinalPayment,
+        transactionName: latestItem.transactionName
+      }
+    : undefined;
+
+  const latestPaymentCoveredInterestOnly = latestItem
+    ? latestItem.paymentStatus === "interest_only"
+    : false;
+
+  return {
+    isValid: true,
+    hasData: true,
+    paymentCount,
+    totalPaid,
+    totalPrincipal,
+    totalInterest,
+    averagePayment,
+    averagePrincipal,
+    averageInterest,
+    principalSharePct,
+    interestSharePct,
+    latestPayment,
+    principalReductionCount,
+    interestOnlyPaymentCount,
+    paymentsWithoutPrincipalCount,
+    hasPrincipalReduction: principalReductionCount > 0,
+    latestPaymentCoveredInterestOnly,
+    historyCompleteness: hasPartialFields ? "partial" : "available"
   };
 }
 

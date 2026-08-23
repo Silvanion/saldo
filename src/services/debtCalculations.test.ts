@@ -9,6 +9,7 @@ import {
   calculateDebtPaymentBreakdown,
   calculateDebtPaymentReversal,
   calculateDebtPaymentActivity,
+  calculateDebtPaymentInsights,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1703,6 +1704,140 @@ describe("debtCalculations", () => {
 
       expect(JSON.stringify(debt)).toBe(debtSnap);
       expect(JSON.stringify(txs)).toBe(txsSnap);
+    });
+  });
+
+  describe("calculateDebtPaymentInsights (Sprint 23)", () => {
+    it("returns empty state when activityResult is null, undefined or empty", () => {
+      const emptyResult = calculateDebtPaymentInsights(null);
+      expect(emptyResult.isValid).toBe(true);
+      expect(emptyResult.hasData).toBe(false);
+      expect(emptyResult.paymentCount).toBe(0);
+      expect(emptyResult.totalPaid).toBe(0);
+      expect(emptyResult.averagePayment).toBe(0);
+      expect(emptyResult.historyCompleteness).toBe("empty");
+      expect(emptyResult.hasPrincipalReduction).toBe(false);
+    });
+
+    it("calculates accurate metrics for multiple payments", () => {
+      const activityResult = {
+        debtId: "debt-1",
+        currentBalance: 9000,
+        totalPaid: 1000,
+        totalPrincipal: 900,
+        totalInterest: 100,
+        isValid: true,
+        items: [
+          {
+            transactionId: "tx-1",
+            debtId: "debt-1",
+            date: "2026-01-15",
+            paymentAmount: 500,
+            principalAmount: 445,
+            interestAmount: 55,
+            openingBalance: 9900,
+            closingBalance: 9455,
+            paymentStatus: "normal" as const,
+            isFinalPayment: false,
+            transactionName: "Rata 1"
+          },
+          {
+            transactionId: "tx-2",
+            debtId: "debt-1",
+            date: "2026-02-15",
+            paymentAmount: 500,
+            principalAmount: 455,
+            interestAmount: 45,
+            openingBalance: 9455,
+            closingBalance: 9000,
+            paymentStatus: "normal" as const,
+            isFinalPayment: false,
+            transactionName: "Rata 2"
+          }
+        ]
+      };
+
+      const insights = calculateDebtPaymentInsights(activityResult);
+
+      expect(insights.isValid).toBe(true);
+      expect(insights.hasData).toBe(true);
+      expect(insights.paymentCount).toBe(2);
+      expect(insights.totalPaid).toBe(1000);
+      expect(insights.totalPrincipal).toBe(900);
+      expect(insights.totalInterest).toBe(100);
+      expect(insights.averagePayment).toBe(500);
+      expect(insights.averagePrincipal).toBe(450);
+      expect(insights.averageInterest).toBe(50);
+      expect(insights.principalSharePct).toBe(90.0);
+      expect(insights.interestSharePct).toBe(10.0);
+      expect(insights.principalReductionCount).toBe(2);
+      expect(insights.hasPrincipalReduction).toBe(true);
+      expect(insights.latestPayment?.transactionId).toBe("tx-2");
+      expect(insights.latestPayment?.date).toBe("2026-02-15");
+      expect(insights.latestPaymentCoveredInterestOnly).toBe(false);
+      expect(insights.historyCompleteness).toBe("available");
+    });
+
+    it("identifies interest-only and insufficient payment states accurately", () => {
+      const activityResult = {
+        debtId: "debt-1",
+        currentBalance: 10000,
+        totalPaid: 50,
+        totalPrincipal: 0,
+        totalInterest: 50,
+        isValid: true,
+        items: [
+          {
+            transactionId: "tx-1",
+            debtId: "debt-1",
+            date: "2026-01-15",
+            paymentAmount: 50,
+            principalAmount: 0,
+            interestAmount: 50,
+            openingBalance: 10000,
+            closingBalance: 10000,
+            paymentStatus: "interest_only" as const,
+            isFinalPayment: false
+          }
+        ]
+      };
+
+      const insights = calculateDebtPaymentInsights(activityResult);
+
+      expect(insights.hasData).toBe(true);
+      expect(insights.principalReductionCount).toBe(0);
+      expect(insights.hasPrincipalReduction).toBe(false);
+      expect(insights.interestOnlyPaymentCount).toBe(1);
+      expect(insights.paymentsWithoutPrincipalCount).toBe(1);
+      expect(insights.latestPaymentCoveredInterestOnly).toBe(true);
+    });
+
+    it("marks historyCompleteness as partial when items have missing date or id", () => {
+      const partialActivity = {
+        debtId: "debt-1",
+        currentBalance: 5000,
+        totalPaid: 200,
+        totalPrincipal: 150,
+        totalInterest: 50,
+        isValid: true,
+        items: [
+          {
+            transactionId: "",
+            debtId: "debt-1",
+            date: "",
+            paymentAmount: 200,
+            principalAmount: 150,
+            interestAmount: 50,
+            openingBalance: 5150,
+            closingBalance: 5000,
+            paymentStatus: "normal" as const,
+            isFinalPayment: false
+          }
+        ]
+      };
+
+      const insights = calculateDebtPaymentInsights(partialActivity);
+      expect(insights.historyCompleteness).toBe("partial");
     });
   });
 });

@@ -1413,10 +1413,15 @@ describe("DebtsView (Sprint 1 MVP)", () => {
         />
       );
 
-      // Verify aggregate KPIs
+      // Verify aggregate KPIs and Insights
+      expect(screen.getByText("Podsumowanie płatności")).toBeTruthy();
       expect(screen.getByText("Liczba wpłat")).toBeTruthy();
       expect(screen.getAllByText("2").length).toBeGreaterThan(0);
       expect(screen.getByText("Suma wpłat")).toBeTruthy();
+      expect(screen.getByText("Średnia wpłata")).toBeTruthy();
+      expect(screen.getByText("Spłacony kapitał")).toBeTruthy();
+      expect(screen.getByText("Część odsetkowa")).toBeTruthy();
+      expect(screen.getByText("Ostatnia wpłata")).toBeTruthy();
 
       // Verify transaction list rendered
       expect(screen.getByText("Rata kredytu styczeń")).toBeTruthy();
