@@ -31,10 +31,12 @@ import {
   DebtOverpaymentVariantInput,
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
+  calculateDebtPaymentInsightsFromItems,
   filterDebtPaymentActivity,
   DebtPaymentHistoryStatusFilter,
   DebtPaymentHistoryPrincipalFilter,
   DebtPaymentHistoryOrder,
+  DebtPaymentSummaryScope,
   calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
@@ -93,10 +95,7 @@ export function DebtDetailsModal({
     return calculateDebtPaymentActivity(debt, transactions);
   }, [debt, transactions]);
 
-  const paymentInsights = useMemo(() => {
-    return calculateDebtPaymentInsights(activity);
-  }, [activity]);
-
+  const [summaryScope, setSummaryScope] = useState<DebtPaymentSummaryScope>("all");
   const [historyStatusFilter, setHistoryStatusFilter] = useState<DebtPaymentHistoryStatusFilter>("all");
   const [historyPrincipalFilter, setHistoryPrincipalFilter] = useState<DebtPaymentHistoryPrincipalFilter>("all");
   const [historyOrder, setHistoryOrder] = useState<DebtPaymentHistoryOrder>("newest");
@@ -114,6 +113,16 @@ export function DebtDetailsModal({
       order: historyOrder
     });
   }, [activity.items, historyStatusFilter, historyPrincipalFilter, historyOrder]);
+
+  const fullPaymentInsights = useMemo(() => {
+    return calculateDebtPaymentInsights(activity);
+  }, [activity]);
+
+  const filteredPaymentInsights = useMemo(() => {
+    return calculateDebtPaymentInsightsFromItems(filteredActivityItems);
+  }, [filteredActivityItems]);
+
+  const activeInsights = summaryScope === "all" ? fullPaymentInsights : filteredPaymentInsights;
 
   const numMonthlyOverpayment = Math.max(0, parseFloat(simMonthlyOverpayment) || 0);
   const numOneTimeOverpayment = Math.max(0, parseFloat(simOneTimeOverpayment) || 0);
@@ -445,106 +454,149 @@ export function DebtDetailsModal({
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    {/* Header with Title */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
+                    {/* Header with Title & Scope Toggle */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
                       <div>
                         <h3 className="text-sm font-bold text-text-main">Podsumowanie płatności</h3>
-                        <p className="text-xs text-text-muted">Analiza zarejestrowanych transakcji powiązanych z tym długiem</p>
+                        <p className="text-xs text-text-muted">
+                          {summaryScope === "all"
+                            ? "Podsumowanie całej zarejestrowanej historii"
+                            : "Podsumowanie widocznych płatności"}
+                        </p>
+                      </div>
+
+                      {/* Scope Toggle Control */}
+                      <div className="inline-flex p-0.5 rounded-xl bg-surface-2 border border-border shrink-0 text-xs font-bold" role="group" aria-label="Zakres podsumowania">
+                        <button
+                          type="button"
+                          onClick={() => setSummaryScope("all")}
+                          className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                            summaryScope === "all"
+                              ? "bg-surface shadow-xs text-brand font-bold"
+                              : "text-text-muted hover:text-text-main"
+                          }`}
+                        >
+                          Cała historia
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSummaryScope("filtered")}
+                          className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                            summaryScope === "filtered"
+                              ? "bg-surface shadow-xs text-brand font-bold"
+                              : "text-text-muted hover:text-text-main"
+                          }`}
+                        >
+                          Widoczne po filtrach
+                        </button>
                       </div>
                     </div>
 
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Liczba wpłat
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
-                          {paymentInsights.paymentCount}
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Suma wpłat
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
-                          {formatMoney(paymentInsights.totalPaid, currency)}
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Średnia wpłata
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
-                          {formatMoney(paymentInsights.averagePayment, currency)}
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Spłacony kapitał
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                          {formatMoney(paymentInsights.totalPrincipal, currency)}
-                        </span>
-                        <span className="text-[10px] text-text-muted block mt-0.5">
-                          {paymentInsights.principalSharePct}% sumy wpłat
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Część odsetkowa
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums">
-                          {formatMoney(paymentInsights.totalInterest, currency)}
-                        </span>
-                        <span className="text-[10px] text-text-muted block mt-0.5">
-                          {paymentInsights.interestSharePct}% sumy wpłat
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
-                          Ostatnia wpłata
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-brand tabular-nums">
-                          {paymentInsights.latestPayment ? formatMoney(paymentInsights.latestPayment.paymentAmount, currency) : "—"}
-                        </span>
-                        {paymentInsights.latestPayment && (
-                          <span className="text-[10px] text-text-muted block mt-0.5 font-mono">
-                            {paymentInsights.latestPayment.date}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Factual Insights Callouts */}
-                    <div className="p-3.5 bg-surface-2/40 border border-border rounded-xl space-y-1.5 text-xs text-text-muted">
-                      {paymentInsights.hasPrincipalReduction && (
-                        <p className="flex items-center gap-1.5 text-text-main font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          <span>W zarejestrowanej historii część kapitałowa wynosi <strong>{paymentInsights.principalSharePct}%</strong> wpłat ({paymentInsights.principalReductionCount} z {paymentInsights.paymentCount} płatności pomniejszyło kapitał).</span>
+                    {/* Summary Cards or Empty Scoped Summary */}
+                    {summaryScope === "filtered" && !activeInsights.hasData ? (
+                      <div className="p-6 bg-surface-2/40 border border-border rounded-2xl text-center space-y-2">
+                        <p className="text-xs font-bold text-text-main">
+                          Brak widocznych płatności do podsumowania.
                         </p>
-                      )}
-                      {paymentInsights.latestPaymentCoveredInterestOnly && (
-                        <p className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
-                          <Info className="w-3.5 h-3.5 shrink-0" />
-                          <span>Ostatnia zarejestrowana płatność pokryła wyłącznie odsetki.</span>
+                        <p className="text-[11px] text-text-muted">
+                          Zmień lub wyczyść filtry, aby zobaczyć podsumowanie widocznych wpłat.
                         </p>
-                      )}
-                      {paymentInsights.historyCompleteness === "partial" && (
-                        <p className="text-[11px] text-text-faint italic">
-                          Podsumowanie jest oparte na dostępnych transakcjach powiązanych z tym długiem. Niektóre dane historyczne mogą być niepełne.
-                        </p>
-                      )}
-                      <p className="text-[11px] text-text-faint flex items-center gap-1">
-                        <Info className="w-3 h-3 text-text-muted shrink-0" />
-                        <span>Analiza dotyczy zarejestrowanych transakcji powiązanych z tym długiem. Bieżące saldo pochodzi z danych długu: <strong>{formatMoney(debt.balance, currency)}</strong>.</span>
-                      </p>
-                    </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              Liczba wpłat
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                              {activeInsights.paymentCount}
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              Suma wpłat
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                              {formatMoney(activeInsights.totalPaid, currency)}
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              Średnia wpłata
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
+                              {formatMoney(activeInsights.averagePayment, currency)}
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              Spłacony kapitał
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                              {formatMoney(activeInsights.totalPrincipal, currency)}
+                            </span>
+                            <span className="text-[10px] text-text-muted block mt-0.5">
+                              {activeInsights.principalSharePct}% sumy wpłat
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              Część odsetkowa
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                              {formatMoney(activeInsights.totalInterest, currency)}
+                            </span>
+                            <span className="text-[10px] text-text-muted block mt-0.5">
+                              {activeInsights.interestSharePct}% sumy wpłat
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-surface-2/60 border border-border">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block mb-0.5">
+                              {summaryScope === "all" ? "Ostatnia wpłata" : "Najnowsza widoczna wpłata"}
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-brand tabular-nums">
+                              {activeInsights.latestPayment ? formatMoney(activeInsights.latestPayment.paymentAmount, currency) : "—"}
+                            </span>
+                            {activeInsights.latestPayment && (
+                              <span className="text-[10px] text-text-muted block mt-0.5 font-mono">
+                                {activeInsights.latestPayment.date}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Factual Insights Callouts */}
+                        <div className="p-3.5 bg-surface-2/40 border border-border rounded-xl space-y-1.5 text-xs text-text-muted">
+                          {activeInsights.hasPrincipalReduction && (
+                            <p className="flex items-center gap-1.5 text-text-main font-medium">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                              <span>W {summaryScope === "all" ? "zarejestrowanej historii" : "widocznych płatnościach"} część kapitałowa wynosi <strong>{activeInsights.principalSharePct}%</strong> wpłat ({activeInsights.principalReductionCount} z {activeInsights.paymentCount} płatności pomniejszyło kapitał).</span>
+                            </p>
+                          )}
+                          {activeInsights.latestPaymentCoveredInterestOnly && (
+                            <p className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+                              <Info className="w-3.5 h-3.5 shrink-0" />
+                              <span>{summaryScope === "all" ? "Ostatnia zarejestrowana płatność" : "Najnowsza widoczna płatność"} pokryła wyłącznie odsetki.</span>
+                            </p>
+                          )}
+                          {activeInsights.historyCompleteness === "partial" && (
+                            <p className="text-[11px] text-text-faint italic">
+                              Podsumowanie jest oparte na dostępnych transakcjach powiązanych z tym długiem. Niektóre dane historyczne mogą być niepełne.
+                            </p>
+                          )}
+                          <p className="text-[11px] text-text-faint flex items-center gap-1">
+                            <Info className="w-3 h-3 text-text-muted shrink-0" />
+                            <span>Analiza dotyczy {summaryScope === "all" ? "zarejestrowanych transakcji" : "aktualnie widocznych transakcji"} powiązanych z tym długiem. Bieżące saldo pochodzi z danych długu: <strong>{formatMoney(debt.balance, currency)}</strong>.</span>
+                          </p>
+                        </div>
+                      </>
+                    )}
 
                     {/* Timeline Filter Controls */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-2/60 border border-border rounded-xl">

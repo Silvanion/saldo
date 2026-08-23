@@ -10,6 +10,7 @@ import {
   calculateDebtPaymentReversal,
   calculateDebtPaymentActivity,
   calculateDebtPaymentInsights,
+  calculateDebtPaymentInsightsFromItems,
   filterDebtPaymentActivity,
   calculateOverpayment,
   calculateRefinanceComparison,
@@ -1931,6 +1932,77 @@ describe("debtCalculations", () => {
       const snap = JSON.stringify(sampleItems);
       filterDebtPaymentActivity(sampleItems, { status: "interest_only", order: "oldest" });
       expect(JSON.stringify(sampleItems)).toBe(snap);
+    });
+  });
+
+  describe("calculateDebtPaymentInsightsFromItems (Sprint 25)", () => {
+    const items = [
+      {
+        transactionId: "tx-1",
+        debtId: "debt-1",
+        date: "2026-01-15",
+        paymentAmount: 500,
+        principalAmount: 450,
+        interestAmount: 50,
+        openingBalance: 10000,
+        closingBalance: 9550,
+        paymentStatus: "normal" as const,
+        isFinalPayment: false,
+        transactionName: "Rata 1"
+      },
+      {
+        transactionId: "tx-2",
+        debtId: "debt-1",
+        date: "2026-02-15",
+        paymentAmount: 50,
+        principalAmount: 0,
+        interestAmount: 50,
+        openingBalance: 9550,
+        closingBalance: 9550,
+        paymentStatus: "interest_only" as const,
+        isFinalPayment: false,
+        transactionName: "Tylko odsetki"
+      }
+    ];
+
+    it("returns empty result for null or empty items array", () => {
+      const res = calculateDebtPaymentInsightsFromItems([]);
+      expect(res.isValid).toBe(true);
+      expect(res.hasData).toBe(false);
+      expect(res.paymentCount).toBe(0);
+      expect(res.totalPaid).toBe(0);
+    });
+
+    it("accurately calculates metrics for a subset of items", () => {
+      // Filtered subset with only tx-1
+      const subset = [items[0]];
+      const res = calculateDebtPaymentInsightsFromItems(subset);
+
+      expect(res.hasData).toBe(true);
+      expect(res.paymentCount).toBe(1);
+      expect(res.totalPaid).toBe(500);
+      expect(res.totalPrincipal).toBe(450);
+      expect(res.totalInterest).toBe(50);
+      expect(res.principalSharePct).toBe(90.0);
+      expect(res.interestSharePct).toBe(10.0);
+      expect(res.latestPayment?.transactionId).toBe("tx-1");
+      expect(res.latestPaymentCoveredInterestOnly).toBe(false);
+    });
+
+    it("accurately detects interest-only subset", () => {
+      // Filtered subset with only tx-2
+      const subset = [items[1]];
+      const res = calculateDebtPaymentInsightsFromItems(subset);
+
+      expect(res.hasData).toBe(true);
+      expect(res.paymentCount).toBe(1);
+      expect(res.totalPaid).toBe(50);
+      expect(res.totalPrincipal).toBe(0);
+      expect(res.totalInterest).toBe(50);
+      expect(res.principalSharePct).toBe(0);
+      expect(res.interestSharePct).toBe(100.0);
+      expect(res.hasPrincipalReduction).toBe(false);
+      expect(res.latestPaymentCoveredInterestOnly).toBe(true);
     });
   });
 });

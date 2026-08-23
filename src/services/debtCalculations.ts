@@ -155,6 +155,7 @@ export interface DebtPaymentInsightsResult {
 export type DebtPaymentHistoryStatusFilter = "all" | DebtPaymentStatus;
 export type DebtPaymentHistoryPrincipalFilter = "all" | "with_principal" | "without_principal";
 export type DebtPaymentHistoryOrder = "newest" | "oldest";
+export type DebtPaymentSummaryScope = "all" | "filtered";
 
 export interface DebtPaymentHistoryFilterOptions {
   status?: DebtPaymentHistoryStatusFilter;
@@ -978,12 +979,12 @@ export function calculateDebtPaymentActivity(
 }
 
 /**
- * Pure helper for calculating read-only debt payment insights from activity result (Sprint 23)
+ * Pure helper for calculating read-only debt payment insights from an items array (Sprint 25)
  */
-export function calculateDebtPaymentInsights(
-  activityResult: DebtPaymentActivityResult | null | undefined
+export function calculateDebtPaymentInsightsFromItems(
+  items: DebtPaymentActivityItem[] | null | undefined
 ): DebtPaymentInsightsResult {
-  if (!activityResult || !Array.isArray(activityResult.items) || activityResult.items.length === 0) {
+  if (!items || !Array.isArray(items) || items.length === 0) {
     return {
       isValid: true,
       hasData: false,
@@ -1005,7 +1006,6 @@ export function calculateDebtPaymentInsights(
     };
   }
 
-  const items = activityResult.items;
   const paymentCount = items.length;
 
   let totalPaid = 0;
@@ -1051,8 +1051,14 @@ export function calculateDebtPaymentInsights(
   const principalSharePct = totalPaid > 0 ? Math.round((totalPrincipal / totalPaid) * 1000) / 10 : 0;
   const interestSharePct = totalPaid > 0 ? Math.round((totalInterest / totalPaid) * 1000) / 10 : 0;
 
-  // The latest payment item is the last one in chronological items array
-  const latestItem = items[items.length - 1];
+  // Find latest payment deterministically by sorting chronologically
+  const sortedChronologically = [...items].sort((a, b) => {
+    const dateComp = (a.date || "").localeCompare(b.date || "");
+    if (dateComp !== 0) return dateComp;
+    return (a.transactionId || "").localeCompare(b.transactionId || "");
+  });
+  const latestItem = sortedChronologically[sortedChronologically.length - 1];
+
   const latestPayment = latestItem
     ? {
         transactionId: latestItem.transactionId,
@@ -1090,6 +1096,15 @@ export function calculateDebtPaymentInsights(
     latestPaymentCoveredInterestOnly,
     historyCompleteness: hasPartialFields ? "partial" : "available"
   };
+}
+
+/**
+ * Pure helper for calculating read-only debt payment insights from activity result (Sprint 23)
+ */
+export function calculateDebtPaymentInsights(
+  activityResult: DebtPaymentActivityResult | null | undefined
+): DebtPaymentInsightsResult {
+  return calculateDebtPaymentInsightsFromItems(activityResult?.items);
 }
 
 /**

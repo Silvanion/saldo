@@ -1492,5 +1492,74 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(screen.getByText("Rata normalna")).toBeTruthy();
       expect(screen.getByText("Wpłata częściowa odsetek")).toBeTruthy();
     });
+
+    it("switches summary scope between full history and filtered subset (Sprint 25)", () => {
+      const mockTransactions = [
+        {
+          id: "tx-1",
+          name: "Rata normalna",
+          amount: 2600,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-01-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        },
+        {
+          id: "tx-2",
+          name: "Wpłata odsetkowa",
+          amount: 50,
+          type: "expense" as const,
+          category: "Rachunki",
+          account: "Konto główne",
+          isoDate: "2026-02-15",
+          debtId: "debt-1",
+          currency: "PLN" as const
+        }
+      ];
+
+      render(
+        <DebtDetailsModal
+          isOpen={true}
+          debt={mortgageDebt}
+          transactions={mockTransactions}
+          onClose={vi.fn()}
+          initialTab="history"
+        />
+      );
+
+      // Default scope is full history
+      expect(screen.getByText("Cała historia")).toBeTruthy();
+      expect(screen.getByText("Widoczne po filtrach")).toBeTruthy();
+      expect(screen.getByText("Podsumowanie całej zarejestrowanej historii")).toBeTruthy();
+
+      // Filter by status to "normal" (1 match)
+      const statusSelect = screen.getByLabelText("Status:");
+      fireEvent.change(statusSelect, { target: { value: "normal" } });
+
+      // In full scope, summary still displays 2 payments
+      expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+
+      // Switch scope to "Widoczne po filtrach"
+      const filteredScopeBtn = screen.getByRole("button", { name: "Widoczne po filtrach" });
+      fireEvent.click(filteredScopeBtn);
+
+      expect(screen.getByText("Podsumowanie widocznych płatności")).toBeTruthy();
+      expect(screen.getByText("Najnowsza widoczna wpłata")).toBeTruthy();
+
+      // Filter to status with 0 matches ("paid_off")
+      fireEvent.change(statusSelect, { target: { value: "paid_off" } });
+
+      // Summary in filtered scope shows empty subset state
+      expect(screen.getByText("Brak widocznych płatności do podsumowania.")).toBeTruthy();
+
+      // Switch back to full history scope
+      const fullScopeBtn = screen.getByRole("button", { name: "Cała historia" });
+      fireEvent.click(fullScopeBtn);
+
+      expect(screen.getByText("Podsumowanie całej zarejestrowanej historii")).toBeTruthy();
+      expect(screen.getByText("Ostatnia wpłata")).toBeTruthy();
+    });
   });
 });
