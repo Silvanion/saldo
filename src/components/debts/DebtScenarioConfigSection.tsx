@@ -344,12 +344,13 @@ export function DebtScenarioConfigSection({
             </span>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+<div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
             <button
               type="button"
               id="btn-compare-scenarios"
               onClick={onOpenCompareScenarios}
               disabled={savedScenarios.length < 2 || validSelectedScenarioIds.length < 2}
+              aria-disabled={savedScenarios.length < 2 || validSelectedScenarioIds.length < 2}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-surface text-text-main text-xs font-bold hover:bg-surface-hover hover:border-brand/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
               aria-label={`Porównaj scenariusze (wybrano ${validSelectedScenarioIds.length} z 2)`}
               title={
@@ -363,6 +364,13 @@ export function DebtScenarioConfigSection({
               <GitCompare className="w-3.5 h-3.5 text-brand" />
               <span>Porównaj scenariusze ({validSelectedScenarioIds.length} / 2)</span>
             </button>
+            {(savedScenarios.length < 2 || validSelectedScenarioIds.length < 2) && (
+              <p className="text-xs text-text-muted mt-1">
+                {savedScenarios.length < 2
+                  ? "Zapisz przynajmniej dwa scenariusze, aby móc je porównać."
+                  : "Wybierz dwa scenariusze do porównania."}
+              </p>
+            )}
 
             <button
               type="button"
@@ -402,19 +410,23 @@ export function DebtScenarioConfigSection({
                   }`}
                 >
                   <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={!isSelected && validSelectedScenarioIds.length >= 2}
-                      onChange={() => onToggleSelectScenario(sc.id)}
-                      aria-label={`Wybierz scenariusz ${sc.name} do porównania`}
-                      className="w-4 h-4 rounded border-border text-brand focus:ring-brand accent-brand cursor-pointer shrink-0 disabled:opacity-30 disabled:cursor-not-allowed mt-0.5"
-                      title={
-                        !isSelected && validSelectedScenarioIds.length >= 2
-                          ? "Możesz wybrać maksymalnie 2 scenariusze"
-                          : undefined
-                      }
-                    />
+                    <label className="flex items-center gap-2">
+                       <input
+                         type="checkbox"
+                         checked={isSelected}
+                         disabled={!isSelected && validSelectedScenarioIds.length >= 2}
+                         onChange={() => onToggleSelectScenario(sc.id)}
+                         aria-label={`Wybierz scenariusz ${sc.name} do porównania`}
+                         className="w-5 h-5 rounded border-border text-brand focus:ring-brand accent-brand cursor-pointer shrink-0 disabled:opacity-30 disabled:cursor-not-allowed mt-0.5"
+                         title={
+                           !isSelected && validSelectedScenarioIds.length >= 2
+                             ? "Możesz wybrać maksymalnie 2 scenariusze"
+                             : undefined
+                         }
+                       />
+                       {/* Visually hidden text for screen readers */}
+                        <span className="sr-only" aria-label={sc.name} aria-hidden="true"></span>
+                     </label>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 mb-0.5">
