@@ -12,6 +12,9 @@ import {
 } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
+import { DebtImportModal, parseDebtCsv, mapDebtType, parseDebtNumber } from "./DebtImportModal";
+import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
+import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -3434,6 +3437,266 @@ describe("DebtsView (Sprint 1 MVP)", () => {
         const idxCard = cardTitles.indexOf("C Karta Kredytowa");
         expect(idxNear).toBeLessThan(idxFar);
         expect(idxFar).toBeLessThan(idxCard);
+      });
+    });
+
+    describe("Sprint 48: Debt CSV Import Modal MVP", () => {
+      it("1. parseDebtNumber parses Polish currency strings, spaces, and commas", () => {
+        expect(parseDebtNumber("350 000,50 zł")).toBe(350000.5);
+        expect(parseDebtNumber("12 500 PLN")).toBe(12500);
+        expect(parseDebtNumber("0")).toBe(0);
+        expect(parseDebtNumber("")).toBeUndefined();
+        expect(parseDebtNumber("invalid")).toBeUndefined();
+      });
+
+      it("2. mapDebtType correctly normalizes friendly Polish names and fallbacks", () => {
+        expect(mapDebtType("Kredyt hipoteczny").type).toBe("mortgage");
+        expect(mapDebtType("Gotówkowy").type).toBe("cash_loan");
+        expect(mapDebtType("Karta kredytowa").type).toBe("credit_card");
+        expect(mapDebtType("Limit odnawialny").type).toBe("revolving");
+        expect(mapDebtType("Raty 0% / PayPo").type).toBe("bnpl");
+        expect(mapDebtType("Inne").type).toBe("other");
+        expect(mapDebtType("Nieznany").type).toBe("other");
+        expect(mapDebtType("Nieznany").isMappedFallback).toBe(true);
+      });
+
+      it("3. parseDebtCsv parses standard CSV text into valid debt items", () => {
+        const csv = `Nazwa,Bank,Typ,Saldo,Rata,Oprocentowanie
+Kredyt Mieszkaniowy,PKO BP,Hipoteka,380000,2900,6.85
+Karta Visa,mBank,Karta,5000,250,18.5`;
+
+        const result = parseDebtCsv(csv);
+        expect(result.totalParsed).toBe(2);
+        expect(result.validCount).toBe(2);
+        expect(result.invalidCount).toBe(0);
+
+        const row1 = result.rows[0];
+        expect(row1.status).toBe("valid");
+        expect(row1.data?.name).toBe("Kredyt Mieszkaniowy");
+        expect(row1.data?.institution).toBe("PKO BP");
+        expect(row1.data?.type).toBe("mortgage");
+        expect(row1.data?.balance).toBe(380000);
+        expect(row1.data?.monthlyPayment).toBe(2900);
+        expect(row1.data?.interestRate).toBe(6.85);
+      });
+
+      it("4. parseDebtCsv handles semicolon separator and quoted cells", () => {
+        const csv = `Nazwa;Bank;Typ;Saldo;Rata;Oprocentowanie
+"Kredyt, remontowy";"Alior Bank";Gotówkowy;25000;850;9.2`;
+
+        const result = parseDebtCsv(csv);
+        expect(result.totalParsed).toBe(1);
+        expect(result.validCount).toBe(1);
+        expect(result.rows[0].data?.name).toBe("Kredyt, remontowy");
+        expect(result.rows[0].data?.institution).toBe("Alior Bank");
+        expect(result.rows[0].data?.balance).toBe(25000);
+      });
+
+      it("5. parseDebtCsv flags invalid rows when name is missing or balance is invalid", () => {
+        const csv = `Nazwa,Bank,Typ,Saldo,Rata,Oprocentowanie
+,PKO BP,Hipoteka,100000,1000,5
+Kredyt Gotówkowy,mBank,Gotówkowy,invalid_balance,500,8
+Karta,Santander,Karta,-500,50,10`;
+
+        const result = parseDebtCsv(csv);
+        expect(result.totalParsed).toBe(3);
+        expect(result.invalidCount).toBe(3);
+        expect(result.importableCount).toBe(0);
+        expect(result.rows[0].errors[0]).toContain("Brak nazwy");
+        expect(result.rows[1].errors[0]).toContain("salda");
+        expect(result.rows[2].errors[0]).toContain("salda");
+      });
+
+      it("6. parseDebtCsv creates warning when bank is missing or type is unknown", () => {
+        const csv = `Nazwa,Bank,Typ,Saldo,Rata,Oprocentowanie
+Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
+
+        const result = parseDebtCsv(csv);
+        expect(result.totalParsed).toBe(1);
+        expect(result.warningCount).toBe(1);
+        expect(result.importableCount).toBe(1);
+        expect(result.rows[0].data?.institution).toBe("Własna");
+        expect(result.rows[0].data?.type).toBe("other");
+        expect(result.rows[0].warnings.length).toBeGreaterThan(0);
+      });
+
+      it("7. DebtsView opens DebtImportModal when clicking import button", () => {
+        render(<DebtsView profile={mockProfile} />);
+
+        const importBtn = screen.getByRole("button", { name: /importuj/i });
+        expect(importBtn).toBeTruthy();
+
+        fireEvent.click(importBtn);
+
+        expect(screen.getByText("Import zobowiązań z pliku CSV")).toBeTruthy();
+        expect(screen.getByText(/Kliknij, aby wybrać plik CSV/i)).toBeTruthy();
+      });
+
+      it("8. DebtImportModal closes on Cancel button click", () => {
+        const onClose = vi.fn();
+        render(
+          <DebtImportModal
+            isOpen={true}
+            onClose={onClose}
+            onImport={vi.fn()}
+          />
+        );
+
+        const cancelBtn = screen.getByText("Anuluj");
+        fireEvent.click(cancelBtn);
+        expect(onClose).toHaveBeenCalled();
+      });
+    });
+
+    describe("Sprint 49: New Offer / New Scenario Entry Flow v1", () => {
+      it("1. DebtScenarioChooserModal renders both Offer and Scenario options", () => {
+        render(
+          <DebtScenarioChooserModal
+            isOpen={true}
+            onClose={vi.fn()}
+            onSelectOffer={vi.fn()}
+            onSelectScenario={vi.fn()}
+          />
+        );
+
+        expect(screen.getByText("Wybierz rodzaj analizy")).toBeTruthy();
+        expect(screen.getByText("Nowa oferta / Refinansowanie")).toBeTruthy();
+        expect(screen.getByText("Scenariusz spłaty portfela")).toBeTruthy();
+      });
+
+      it("2. DebtScenarioChooserModal calls onSelectOffer when selecting offer option", () => {
+        const onSelectOffer = vi.fn();
+        const onClose = vi.fn();
+
+        render(
+          <DebtScenarioChooserModal
+            isOpen={true}
+            onClose={onClose}
+            onSelectOffer={onSelectOffer}
+            onSelectScenario={vi.fn()}
+          />
+        );
+
+        const offerBtn = screen.getByRole("button", { name: /Nowa oferta refinansowania/i });
+        fireEvent.click(offerBtn);
+
+        expect(onSelectOffer).toHaveBeenCalled();
+        expect(onClose).toHaveBeenCalled();
+      });
+
+      it("3. DebtScenarioChooserModal calls onSelectScenario when selecting scenario option", () => {
+        const onSelectScenario = vi.fn();
+        const onClose = vi.fn();
+
+        render(
+          <DebtScenarioChooserModal
+            isOpen={true}
+            onClose={onClose}
+            onSelectOffer={vi.fn()}
+            onSelectScenario={onSelectScenario}
+          />
+        );
+
+        const scenarioBtn = screen.getByRole("button", { name: /Nowy scenariusz spłaty/i });
+        fireEvent.click(scenarioBtn);
+
+        expect(onSelectScenario).toHaveBeenCalled();
+        expect(onClose).toHaveBeenCalled();
+      });
+
+      it("4. DebtsView opens DebtScenarioChooserModal when clicking header scenario button", () => {
+        render(<DebtsView profile={mockProfile} />);
+
+        const addScenarioBtn = screen.getByText(/Nowa oferta \/ scenariusz/i);
+        fireEvent.click(addScenarioBtn);
+
+        expect(screen.getByText("Wybierz rodzaj analizy")).toBeTruthy();
+        expect(screen.getByText("Nowa oferta / Refinansowanie")).toBeTruthy();
+        expect(screen.getByText("Scenariusz spłaty portfela")).toBeTruthy();
+      });
+    });
+
+    describe("Sprint 50: Debts Entry Flows Acceptance & Polish v1", () => {
+      it("1. DebtImportModal does not render when isOpen is false", () => {
+        const { container } = render(
+          <DebtImportModal
+            isOpen={false}
+            onClose={vi.fn()}
+            onImport={vi.fn()}
+          />
+        );
+        expect(container.innerHTML).toBe("");
+      });
+
+      it("2. DebtScenarioChooserModal does not render when isOpen is false", () => {
+        const { container } = render(
+          <DebtScenarioChooserModal
+            isOpen={false}
+            onClose={vi.fn()}
+            onSelectOffer={vi.fn()}
+            onSelectScenario={vi.fn()}
+          />
+        );
+        expect(container.innerHTML).toBe("");
+      });
+
+      it("3. All top header action buttons in DebtsView coexist without conflicts", () => {
+        render(<DebtsView profile={mockProfile} />);
+
+        const addDebtBtn = screen.getByRole("button", { name: /dodaj zobowiązanie/i });
+        const scenarioBtn = screen.getByRole("button", { name: /nowa oferta \/ scenariusz/i });
+        const importBtn = screen.getByRole("button", { name: /importuj/i });
+
+        expect(addDebtBtn).toBeTruthy();
+        expect(scenarioBtn).toBeTruthy();
+        expect(importBtn).toBeTruthy();
+      });
+    });
+
+    describe("Sprint 51: Debt Strategy Guidance Layer v1", () => {
+      it("1. DebtStrategyGuidanceCard renders explanations for Avalanche, Snowball, and Custom", () => {
+        render(<DebtStrategyGuidanceCard selectedStrategy="avalanche" />);
+
+        expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
+        expect(screen.getByText("Strategia Lawiny")).toBeTruthy();
+        expect(screen.getByText(/Najwyższe oprocentowanie/i)).toBeTruthy();
+        expect(screen.getByText(/Maksymalizacja oszczędności/i)).toBeTruthy();
+
+        expect(screen.getByText("Strategia Kuli Śnieżnej")).toBeTruthy();
+        expect(screen.getByText(/Najmniejsze saldo/i)).toBeTruthy();
+        expect(screen.getByText(/Szybkie sukcesy psychologiczne/i)).toBeTruthy();
+
+        expect(screen.getByText("Strategia Własna")).toBeTruthy();
+        expect(screen.getByText(/Kolejność spłaty ustalana indywidualnie/i)).toBeTruthy();
+      });
+
+      it("2. DebtStrategyGuidanceCard highlights active strategy and calls onSelectStrategy on click", () => {
+        const onSelectStrategy = vi.fn();
+        render(
+          <DebtStrategyGuidanceCard
+            selectedStrategy="snowball"
+            onSelectStrategy={onSelectStrategy}
+          />
+        );
+
+        expect(screen.getByText("Aktywny wariant")).toBeTruthy();
+
+        const avalancheCard = screen.getByRole("button", { name: /Wybierz Strategia Lawiny/i });
+        fireEvent.click(avalancheCard);
+
+        expect(onSelectStrategy).toHaveBeenCalledWith("avalanche");
+      });
+
+      it("3. DebtsView renders strategy guidance block inside Scenarios tab", () => {
+        render(<DebtsView profile={mockProfile} />);
+
+        // Switch to Scenarios tab
+        const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+        fireEvent.click(scenariosTabBtn);
+
+        expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
+        expect(screen.getByText("Strategia Lawiny")).toBeTruthy();
+        expect(screen.getByText("Strategia Kuli Śnieżnej")).toBeTruthy();
       });
     });
   });

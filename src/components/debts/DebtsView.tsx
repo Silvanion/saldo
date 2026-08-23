@@ -23,6 +23,9 @@ import {
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
 import { DebtFormModal } from "./DebtFormModal";
+import { DebtImportModal } from "./DebtImportModal";
+import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
+import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
 import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
@@ -215,6 +218,8 @@ export function DebtsView({
 
   // Modals state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isChooserModalOpen, setIsChooserModalOpen] = useState(false);
   const [debtToEdit, setDebtToEdit] = useState<DebtItem | null>(null);
   const [selectedDebtForDetails, setSelectedDebtForDetails] = useState<DebtItem | null>(null);
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
@@ -607,9 +612,9 @@ export function DebtsView({
     if (actionName === "strategies") {
       setActiveMainTab("scenarios");
     } else if (actionName === "offers") {
-      setActiveMainTab("offers");
+      setIsChooserModalOpen(true);
     } else if (actionName === "import") {
-      showToast?.("Import zadłużenia z BIK/CSV będzie dostępny w kolejnym sprincie.", "info");
+      setIsImportModalOpen(true);
     }
   };
 
@@ -1718,6 +1723,12 @@ export function DebtsView({
                 </div>
               </div>
 
+              {/* Strategy Guidance Card */}
+              <DebtStrategyGuidanceCard
+                selectedStrategy={selectedPayoffStrategy}
+                onSelectStrategy={(strat) => setSelectedPayoffStrategy(strat)}
+              />
+
               {/* 4 Strategy Comparison Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Avalanche */}
@@ -2669,6 +2680,37 @@ export function DebtsView({
             </form>
           </div>
         </div>
+      )}
+
+      {/* MODAL 9: CSV DEBT IMPORT */}
+      {isImportModalOpen && (
+        <DebtImportModal
+          isOpen={true}
+          onClose={() => setIsImportModalOpen(false)}
+          currency={currency}
+          showToast={showToast}
+          onImport={(newDebts) => {
+            newDebts.forEach((debt) => onAddDebt?.(debt));
+          }}
+        />
+      )}
+
+      {/* MODAL 10: SCENARIO / OFFER ENTRY CHOOSER */}
+      {isChooserModalOpen && (
+        <DebtScenarioChooserModal
+          isOpen={true}
+          onClose={() => setIsChooserModalOpen(false)}
+          onSelectOffer={() => {
+            setActiveMainTab("offers");
+            const candidate = analytics.refinanceCandidates[0]?.debt || debts.find(d => d.type === "mortgage") || debts[0];
+            if (candidate) {
+              setSelectedDebtForRefinance(candidate);
+            }
+          }}
+          onSelectScenario={() => {
+            setActiveMainTab("scenarios");
+          }}
+        />
       )}
     </div>
   );
