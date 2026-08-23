@@ -4,7 +4,12 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
-import { DebtsView, findPortfolioNearestMilestone, formatMonthCountPlural } from "./DebtsView";
+import {
+  DebtsView,
+  findPortfolioNearestMilestone,
+  formatMonthCountPlural,
+  sortDebtsByNearestMilestone
+} from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import {
@@ -3280,6 +3285,155 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
         render(<DebtsView profile={profile} />);
         expect(screen.queryByText("Najbliższy kamień milowy")).toBeNull();
+      });
+    });
+
+    describe("Sprint 46: Debt Portfolio Milestone Quick Sort & Filter v1", () => {
+      const debtNear: DebtItem = {
+        id: "d-near",
+        name: "A Kredyt Gotówkowy",
+        institution: "Bank A",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 10000,
+        balance: 7800, // 22% paid, remaining to 25% = 300. Rata 300 -> 1 mies.
+        monthlyPayment: 300,
+        interestRate: 6,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const debtFar: DebtItem = {
+        id: "d-far",
+        name: "B Kredyt Samochodowy",
+        institution: "Bank B",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 100000,
+        balance: 95000, // 5% paid, remaining to 25% = 20000. Rata 1000 -> 20 mies.
+        monthlyPayment: 1000,
+        interestRate: 8,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const debtCard: DebtItem = {
+        id: "d-card",
+        name: "C Karta Kredytowa",
+        institution: "Bank C",
+        type: "credit_card",
+        currency: "PLN",
+        creditLimit: 5000,
+        balance: 2000,
+        monthlyPayment: 100,
+        interestRate: 18,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const debtNoPayment: DebtItem = {
+        id: "d-nopay",
+        name: "D Pożyczka Bez Raty",
+        institution: "Bank D",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 5000,
+        balance: 4000,
+        monthlyPayment: 0,
+        interestRate: 5,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      it("1. sortDebtsByNearestMilestone returns empty array for empty input and does not mutate", () => {
+        expect(sortDebtsByNearestMilestone([])).toEqual([]);
+        const original = [debtFar, debtNear];
+        const copy = JSON.stringify(original);
+        sortDebtsByNearestMilestone(original);
+        expect(JSON.stringify(original)).toBe(copy);
+      });
+
+      it("2. sortDebtsByNearestMilestone places forecastable debts first in ascending month count", () => {
+        const result = sortDebtsByNearestMilestone([debtFar, debtCard, debtNear, debtNoPayment]);
+        expect(result.map((d) => d.id)).toEqual(["d-near", "d-far", "d-card", "d-nopay"]);
+      });
+
+      it("3. sortDebtsByNearestMilestone resolves equal months using highest progress percentage", () => {
+        const debtA: DebtItem = {
+          id: "d-a",
+          name: "Pożyczka A (20% paid)",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 10000,
+          balance: 8000, // 20% paid, remaining 500 -> 2 mies.
+          monthlyPayment: 250,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+        const debtB: DebtItem = {
+          id: "d-b",
+          name: "Pożyczka B (45% paid)",
+          institution: "Bank",
+          type: "cash_loan",
+          currency: "PLN",
+          originalAmount: 10000,
+          balance: 5500, // 45% paid, remaining 500 -> 2 mies.
+          monthlyPayment: 250,
+          interestRate: 5,
+          status: "active",
+          createdAt: "2026-01-01"
+        };
+
+        const result = sortDebtsByNearestMilestone([debtA, debtB]);
+        expect(result.map((d) => d.id)).toEqual(["d-b", "d-a"]);
+      });
+
+      it("4. DebtsView renders new sort option in select dropdown", () => {
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [debtFar, debtNear]
+        };
+
+        render(<DebtsView profile={profile} />);
+
+        const select = screen.getByLabelText(/Sortuj zobowiązania/i) as HTMLSelectElement;
+        expect(select).toBeTruthy();
+
+        const option = screen.getByRole("option", { name: "Najbliżej kolejnego kamienia milowego" });
+        expect(option).toBeTruthy();
+      });
+
+      it("5. Selecting nearest_milestone reorders visible debt cards", () => {
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [debtFar, debtNear, debtCard]
+        };
+
+        render(<DebtsView profile={profile} />);
+
+        // Initial default sort is "apr": debtCard (18%) > debtFar (8%) > debtNear (6%)
+        const select = screen.getByLabelText(/Sortuj zobowiązania/i) as HTMLSelectElement;
+        expect(select.value).toBe("apr");
+
+        // Change sort to "nearest_milestone"
+        fireEvent.change(select, { target: { value: "nearest_milestone" } });
+        expect(select.value).toBe("nearest_milestone");
+
+        // Check rendered order of card titles
+        const cards = screen.getAllByRole("heading", { level: 3 });
+        const cardTitles = cards.map((c) => c.textContent);
+        expect(cardTitles).toContain("A Kredyt Gotówkowy");
+        expect(cardTitles).toContain("B Kredyt Samochodowy");
+        expect(cardTitles).toContain("C Karta Kredytowa");
+
+        // Verify A Kredyt Gotówkowy comes before B Kredyt Samochodowy and C Karta Kredytowa
+        const idxNear = cardTitles.indexOf("A Kredyt Gotówkowy");
+        const idxFar = cardTitles.indexOf("B Kredyt Samochodowy");
+        const idxCard = cardTitles.indexOf("C Karta Kredytowa");
+        expect(idxNear).toBeLessThan(idxFar);
+        expect(idxFar).toBeLessThan(idxCard);
       });
     });
   });

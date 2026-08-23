@@ -143,9 +143,54 @@ export function formatMonthCountPlural(months: number): string {
   return `za około ${months} miesięcy`;
 }
 
+export function sortDebtsByNearestMilestone(debts: DebtItem[]): DebtItem[] {
+  if (!debts || debts.length === 0) return [];
+  const items = [...debts];
+
+  const decorated = items.map((debt, index) => {
+    const isClosed = debt.status === "closed";
+    const isRevolving = debt.type === "credit_card" || debt.type === "revolving";
+    const progress = calculateDebtRepaymentProgress(debt);
+    const isEligible = !isClosed && !isRevolving && progress.hasUsableReferenceAmount && !progress.isComplete;
+    const forecast = isEligible ? calculateNextDebtMilestoneForecast(debt) : null;
+
+    return {
+      debt,
+      index,
+      hasValidForecast: forecast !== null,
+      estimatedMonthCount: forecast?.estimatedMonthCount ?? null,
+      repaidPercent: progress.repaidPercent
+    };
+  });
+
+  decorated.sort((a, b) => {
+    // 1. Forecastable eligible debts come first
+    if (a.hasValidForecast && !b.hasValidForecast) return -1;
+    if (!a.hasValidForecast && b.hasValidForecast) return 1;
+
+    // 2. Both forecastable
+    if (a.hasValidForecast && b.hasValidForecast) {
+      if (a.estimatedMonthCount !== b.estimatedMonthCount) {
+        return (a.estimatedMonthCount ?? 0) - (b.estimatedMonthCount ?? 0);
+      }
+      if (b.repaidPercent !== a.repaidPercent) {
+        return b.repaidPercent - a.repaidPercent;
+      }
+      const nameCompare = a.debt.name.localeCompare(b.debt.name);
+      if (nameCompare !== 0) return nameCompare;
+      return a.debt.id.localeCompare(b.debt.id);
+    }
+
+    // 3. Neither forecastable -> preserve original relative order
+    return a.index - b.index;
+  });
+
+  return decorated.map((d) => d.debt);
+}
+
 type MainTab = "portfolio" | "scenarios" | "offers" | "knowledge";
 type FilterType = "all" | "mortgage" | "cash_loan" | "cards_and_limits" | "bnpl" | "other" | "closed";
-type SortOption = "apr" | "payment" | "cost" | "payoff_date" | "balance";
+export type SortOption = "apr" | "payment" | "cost" | "payoff_date" | "balance" | "nearest_milestone";
 
 export function DebtsView({
   profile,
@@ -467,6 +512,10 @@ export function DebtsView({
           d.name.toLowerCase().includes(q) ||
           d.institution.toLowerCase().includes(q)
       );
+    }
+
+    if (sortBy === "nearest_milestone") {
+      return sortDebtsByNearestMilestone(list);
     }
 
     list.sort((a, b) => {
@@ -1079,9 +1128,11 @@ export function DebtsView({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
+                aria-label="Sortuj zobowiązania"
                 className="bg-surface-2 border border-border text-xs font-bold text-text-main rounded-xl px-2.5 py-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
               >
                 <option value="apr">Najwyższy APR / Koszt</option>
+                <option value="nearest_milestone">Najbliżej kolejnego kamienia milowego</option>
                 <option value="payment">Wysokość raty</option>
                 <option value="balance">Wielkość salda</option>
                 <option value="payoff_date">Termin spłaty</option>
