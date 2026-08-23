@@ -88,7 +88,7 @@ interface DebtDetailsModalProps {
   transactions?: Transaction[];
   initialTab?: DebtDetailTab;
   initialHistoryFilters?: DebtPaymentHistorySessionFilters;
-  onOpenOverpaymentModal?: (debt: DebtItem) => void;
+  onOpenOverpaymentModal?: (debt: DebtItem, initialAmount?: number) => void;
   onOpenRefinanceModal?: (debt: DebtItem) => void;
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   onOpenTxModal?: (tx: Transaction) => void;
@@ -754,33 +754,40 @@ export function DebtDetailsModal({
                             const impact = calculateDebtMilestoneOverpaymentImpact(debt, overpaymentVal);
                             if (!impact) return null;
 
-                            if (impact.isImmediateCompletion) {
-                              return (
-                                <div className="text-[11px] font-medium text-success bg-success-subtle/50 px-2.5 py-1.5 rounded-lg border border-success/20">
-                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli całkowicie spłacić dług już teraz!
-                                </div>
-                              );
-                            }
-
-                            if (impact.isImmediateAchievement) {
-                              return (
-                                <div className="text-[11px] font-medium text-brand bg-brand-subtle/50 px-2.5 py-1.5 rounded-lg border border-brand/20">
-                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli osiągnąć próg <strong>{impact.nextMilestone}%</strong> od razu.
-                                </div>
-                              );
-                            }
-
-                            if (impact.monthsAccelerated > 0) {
-                              return (
-                                <div className="text-[11px] font-medium text-text-main bg-surface-2/60 px-2.5 py-1.5 rounded-lg border border-border/60">
-                                  Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> przyspieszy próg <strong>{impact.nextMilestone}%</strong> o <strong>{impact.monthsAccelerated} mies.</strong> (szac. <strong>{formatMilestoneForecastDate(impact.adjustedEstimatedDate)}</strong> zamiast {formatMilestoneForecastDate(impact.baselineEstimatedDate)}).
-                                </div>
-                              );
-                            }
-
                             return (
-                              <div className="text-[11px] font-medium text-text-faint bg-surface-2/40 px-2.5 py-1.5 rounded-lg border border-border/40">
-                                Ta nadpłata nie zmienia szacowanego terminu kolejnego progu.
+                              <div className="space-y-2 mt-2">
+                                {impact.isImmediateCompletion ? (
+                                  <div className="text-[11px] font-medium text-success bg-success-subtle/50 px-2.5 py-1.5 rounded-lg border border-success/20">
+                                    Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli całkowicie spłacić dług już teraz!
+                                  </div>
+                                ) : impact.isImmediateAchievement ? (
+                                  <div className="text-[11px] font-medium text-brand bg-brand-subtle/50 px-2.5 py-1.5 rounded-lg border border-brand/20">
+                                    Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli osiągnąć próg <strong>{impact.nextMilestone}%</strong> od razu.
+                                  </div>
+                                ) : impact.monthsAccelerated > 0 ? (
+                                  <div className="text-[11px] font-medium text-text-main bg-surface-2/60 px-2.5 py-1.5 rounded-lg border border-border/60">
+                                    Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> przyspieszy próg <strong>{impact.nextMilestone}%</strong> o <strong>{impact.monthsAccelerated} mies.</strong> (szac. <strong>{formatMilestoneForecastDate(impact.adjustedEstimatedDate)}</strong> zamiast {formatMilestoneForecastDate(impact.baselineEstimatedDate)}).
+                                  </div>
+                                ) : (
+                                  <div className="text-[11px] font-medium text-text-faint bg-surface-2/40 px-2.5 py-1.5 rounded-lg border border-border/40">
+                                    Ta nadpłata nie zmienia szacowanego terminu kolejnego progu.
+                                  </div>
+                                )}
+
+                                <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
+                                  <span className="text-[10px] text-text-faint">
+                                    Przejdź do pełnej symulacji tej nadpłaty:
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => onOpenOverpaymentModal?.(debt, overpaymentVal)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand text-white hover:bg-brand-hover transition cursor-pointer shadow-xs"
+                                    aria-label={`Otwórz pełny symulator nadpłaty dla kwoty ${overpaymentVal} ${currency}`}
+                                  >
+                                    <span>Otwórz pełny symulator</span>
+                                    <ArrowRight className="w-3 h-3" />
+                                  </button>
+                                </div>
                               </div>
                             );
                           })()}

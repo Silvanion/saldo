@@ -106,6 +106,7 @@ export function DebtsView({
   const [selectedDebtForDetails, setSelectedDebtForDetails] = useState<DebtItem | null>(null);
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
+  const [overpaymentInitialAmount, setOverpaymentInitialAmount] = useState<number | undefined>(undefined);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
 
   // SPRINT 39: Per-debt in-memory payment history filter preset / session persistence
@@ -2222,8 +2223,9 @@ export function DebtsView({
           onUpdateTransaction={onUpdateTransaction}
           onOpenTxModal={onOpenTxModal}
           showToast={showToast}
-          onOpenOverpaymentModal={(d) => {
+          onOpenOverpaymentModal={(d, amount) => {
             setSelectedDebtForDetails(null);
+            setOverpaymentInitialAmount(amount);
             setSelectedDebtForOverpayment(d);
           }}
           onOpenRefinanceModal={(d) => {
@@ -2238,7 +2240,11 @@ export function DebtsView({
         <OverpaymentSimulatorModal
           isOpen={true}
           debt={selectedDebtForOverpayment}
-          onClose={() => setSelectedDebtForOverpayment(null)}
+          initialAmount={overpaymentInitialAmount}
+          onClose={() => {
+            setSelectedDebtForOverpayment(null);
+            setOverpaymentInitialAmount(undefined);
+          }}
         />
       )}
 

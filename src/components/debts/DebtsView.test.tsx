@@ -6,6 +6,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { DebtsView } from "./DebtsView";
 import { DebtDetailsModal } from "./DebtDetailsModal";
+import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -3032,6 +3033,108 @@ describe("DebtsView (Sprint 1 MVP)", () => {
         // Overpayment 5000 directly covers the remaining 5000 to reach 25%!
         expect(screen.getByText(/pozwoli osiągnąć próg/i)).toBeTruthy();
         expect(screen.getByText(/od razu/i)).toBeTruthy();
+      });
+    });
+
+    describe("Sprint 44: Debt Milestone Overpayment Direct Action Link v1", () => {
+      const sampleDebt: DebtItem = {
+        id: "debt-sprint44",
+        name: "Kredyt gotówkowy",
+        institution: "PKO BP",
+        type: "cash_loan",
+        currency: "PLN",
+        originalAmount: 100000,
+        balance: 80000, // 20% paid, next = 25% (25000). Remaining to 25% = 5000.
+        monthlyPayment: 1000,
+        interestRate: 6.5,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      it("1. OverpaymentSimulatorModal accepts initialAmount and pre-fills the amount input", () => {
+        render(
+          <OverpaymentSimulatorModal
+            isOpen={true}
+            debt={sampleDebt}
+            initialAmount={750}
+            onClose={vi.fn()}
+          />
+        );
+
+        const input = screen.getByLabelText(/Kwota nadpłaty/i) as HTMLInputElement;
+        expect(input.value).toBe("750");
+      });
+
+      it("2. OverpaymentSimulatorModal defaults to 1000 when no initialAmount is provided", () => {
+        render(
+          <OverpaymentSimulatorModal
+            isOpen={true}
+            debt={sampleDebt}
+            onClose={vi.fn()}
+          />
+        );
+
+        const input = screen.getByLabelText(/Kwota nadpłaty/i) as HTMLInputElement;
+        expect(input.value).toBe("1000");
+      });
+
+      it("3. DebtDetailsModal shows direct action button when overpayment amount is selected", () => {
+        const onOpenOverpaymentModal = vi.fn();
+
+        render(
+          <DebtDetailsModal
+            isOpen={true}
+            debt={sampleDebt}
+            onClose={vi.fn()}
+            onOpenOverpaymentModal={onOpenOverpaymentModal}
+            initialTab="overview"
+          />
+        );
+
+        // Initially no action button before selecting/entering amount
+        expect(screen.queryByText("Otwórz pełny symulator")).toBeNull();
+
+        // Click preset +500 PLN
+        fireEvent.click(screen.getByText("+500 PLN"));
+
+        const openSimulatorBtn = screen.getByText("Otwórz pełny symulator");
+        expect(openSimulatorBtn).toBeTruthy();
+
+        // Click action button
+        fireEvent.click(openSimulatorBtn);
+        expect(onOpenOverpaymentModal).toHaveBeenCalledWith(sampleDebt, 500);
+      });
+
+      it("4. Full handoff flow in DebtsView: clicking action transitions to OverpaymentSimulatorModal with prefilled amount", () => {
+        const profile: Profile = {
+          ...mockProfile,
+          debts: [sampleDebt]
+        };
+
+        render(
+          <DebtsView
+            profile={profile}
+          />
+        );
+
+        // 1. Open DebtDetailsModal via "Szczegóły"
+        const detailsBtn = screen.getByText("Szczegóły");
+        fireEvent.click(detailsBtn);
+
+        // 2. Select +1000 PLN preset in the overview tab
+        const preset1000Btn = screen.getByText("+1000 PLN");
+        fireEvent.click(preset1000Btn);
+
+        // 3. Click "Otwórz pełny symulator"
+        const openSimulatorBtn = screen.getByText("Otwórz pełny symulator");
+        fireEvent.click(openSimulatorBtn);
+
+        // 4. Details modal is closed and OverpaymentSimulatorModal is open with amount 1000
+        const simulatorHeading = screen.getByText("Symulator nadpłaty zobowiązania");
+        expect(simulatorHeading).toBeTruthy();
+
+        const amountInput = screen.getByLabelText(/Kwota nadpłaty/i) as HTMLInputElement;
+        expect(amountInput.value).toBe("1000");
       });
     });
   });

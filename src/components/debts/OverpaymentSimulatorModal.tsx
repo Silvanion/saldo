@@ -8,24 +8,39 @@ import { calculateOverpayment } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
-interface OverpaymentSimulatorModalProps {
+export interface OverpaymentSimulatorModalProps {
   isOpen: boolean;
   onClose: () => void;
   debt: DebtItem | null;
+  initialAmount?: number;
+  initialFrequency?: "monthly" | "one_time" | "yearly";
 }
 
 export function OverpaymentSimulatorModal({
   isOpen,
   onClose,
-  debt
+  debt,
+  initialAmount,
+  initialFrequency
 }: OverpaymentSimulatorModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
 
-  const [amount, setAmount] = useState("1000");
-  const [frequency, setFrequency] = useState<"monthly" | "one_time" | "yearly">("monthly");
+  const [amount, setAmount] = useState(() => (initialAmount !== undefined ? String(initialAmount) : "1000"));
+  const [frequency, setFrequency] = useState<"monthly" | "one_time" | "yearly">(() => initialFrequency || "monthly");
   const [targetStrategy, setTargetStrategy] = useState<"reduce_term" | "reduce_payment">("reduce_term");
+
+  React.useEffect(() => {
+    if (isOpen) {
+      if (initialAmount !== undefined) {
+        setAmount(String(initialAmount));
+      }
+      if (initialFrequency) {
+        setFrequency(initialFrequency);
+      }
+    }
+  }, [isOpen, initialAmount, initialFrequency]);
 
   const parsedAmount = Math.max(0, parseFloat(amount.replace(",", ".")) || 0);
 
@@ -92,11 +107,12 @@ export function OverpaymentSimulatorModal({
             {/* Input Controls */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                <label htmlFor="overpayment-amount-input" className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
                   Kwota nadpłaty
                 </label>
                 <div className="relative">
                   <input
+                    id="overpayment-amount-input"
                     type="number"
                     min="0"
                     step="50"
