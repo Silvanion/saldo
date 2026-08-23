@@ -1,6 +1,6 @@
 import { Settings, Wallet, Lock, ArrowRight, Plus } from "lucide-react";
 import { useApp } from "./providers/AppContext";
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Payment, Goal } from "../types";
 import { AppView } from "../uiTypes";
@@ -108,6 +108,16 @@ export function AppViewRouter({
   const onDeleteTransaction = handleDeleteTransaction;
   const onImportTransactions = handleImportTransactions;
   const onDeletePayment = handleDeletePayment;
+
+  // SPRINT 36: Debt deep-link state
+  const [targetDebtId, setTargetDebtId] = useState<string | undefined>(undefined);
+  const [targetDebtTab, setTargetDebtTab] = useState<import("../components/debts/DebtDetailsModal").DebtDetailTab | undefined>(undefined);
+
+  const handleNavigateToDebts = (debtId?: string, initialTab?: import("../components/debts/DebtDetailsModal").DebtDetailTab) => {
+    setTargetDebtId(debtId);
+    setTargetDebtTab(initialTab);
+    setActiveView("debts");
+  };
   const onAddInvestment = handleAddInvestment;
   const onDeleteGoal = handleDeleteGoal;
   const profiles = state.profiles;
@@ -252,6 +262,7 @@ export function AppViewRouter({
             onApplySmartRulesBulk={handleApplySmartRulesBulk}
             onShowToast={showToast}
             onOpenSmartRulesManager={() => openModal("smartRulesManager")}
+            onNavigateToDebts={handleNavigateToDebts}
           />
         );
       case "payments":
@@ -290,6 +301,12 @@ export function AppViewRouter({
         return (
           <DebtsView
             profile={activeProfile || undefined}
+            initialDebtId={targetDebtId}
+            initialDebtTab={targetDebtTab}
+            onClearInitialDebt={() => {
+              setTargetDebtId(undefined);
+              setTargetDebtTab(undefined);
+            }}
             onAddDebt={handleAddDebt}
             onUpdateDebt={handleUpdateDebt}
             onDeleteDebt={handleDeleteDebt}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Profile, Transaction } from "../types";
+import { Profile, Transaction, DebtItem } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
 
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -27,7 +27,8 @@ import {
   Filter,
   RotateCcw,
   Sparkles,
-  Settings
+  Settings,
+  Link2
 } from "lucide-react";
 
 interface TransactionsViewProps {
@@ -39,6 +40,7 @@ interface TransactionsViewProps {
   onApplySmartRulesBulk?: (selectedTxIds?: string[]) => { appliedCount: number };
   onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
   onOpenSmartRulesManager?: () => void;
+  onNavigateToDebts?: (debtId?: string) => void;
 }
 
 export function TransactionsView({
@@ -49,7 +51,8 @@ export function TransactionsView({
   onBeforeImport,
   onApplySmartRulesBulk,
   onShowToast,
-  onOpenSmartRulesManager
+  onOpenSmartRulesManager,
+  onNavigateToDebts
 }: TransactionsViewProps) {
   const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
@@ -68,6 +71,17 @@ export function TransactionsView({
   const deleteModalRef = useRef<HTMLDivElement>(null);
   useScrollLock(!!transactionToDelete);
   useFocusTrap(deleteModalRef, !!transactionToDelete, () => setTransactionToDelete(null));
+
+  // SPRINT 35: Lookup map for debt metadata resolution
+  const debtsMap = useMemo(() => {
+    const map = new Map<string, DebtItem>();
+    if (profile?.debts) {
+      for (const d of profile.debts) {
+        map.set(d.id, d);
+      }
+    }
+    return map;
+  }, [profile?.debts]);
 
   // Debounce search term to prevent keyboard delay
   useEffect(() => {
@@ -523,6 +537,49 @@ export function TransactionsView({
                             ))}
                           </div>
                         )}
+
+                        {/* SPRINT 35: Linked debt indicator in desktop row */}
+                        {tx.debtId && (
+                          <div className="mt-1 pl-7 flex items-center">
+                            {(() => {
+                              const debt = debtsMap.get(tx.debtId);
+                              if (debt) {
+                                return onNavigateToDebts ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onNavigateToDebts(debt.id);
+                                    }}
+                                    className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle/80 hover:border-brand/40 active:scale-[0.98] transition-all cursor-pointer truncate max-w-[200px]"
+                                    aria-label={`Zobacz szczegóły długu ${debt.name}`}
+                                    title={`Powiązano z długiem: ${debt.name}`}
+                                  >
+                                    <Link2 className="w-2.5 h-2.5 shrink-0" />
+                                    <span className="truncate">Powiązany dług: {debt.name}</span>
+                                  </button>
+                                ) : (
+                                  <span
+                                    className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand border border-brand/20 shrink-0 truncate max-w-[200px]"
+                                    title={`Powiązano z długiem: ${debt.name}`}
+                                  >
+                                    <Link2 className="w-2.5 h-2.5 shrink-0" />
+                                    <span className="truncate">Powiązany dług: {debt.name}</span>
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-surface-2 text-text-muted border border-border shrink-0"
+                                  title="Powiązany dług niedostępny"
+                                >
+                                  <Link2 className="w-2.5 h-2.5 shrink-0" />
+                                  <span>Powiązany dług niedostępny</span>
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 px-3 text-xs text-text-faint whitespace-nowrap">{formatDate(tx.isoDate)}</td>
                       <td className="py-3 px-3 text-xs text-text-muted max-w-[130px]">
@@ -629,6 +686,46 @@ export function TransactionsView({
                       <span className="bg-surface border border-border px-2 py-0.5 rounded-md text-[10px] text-text-faint truncate max-w-[110px]" title={tx.account}>
                         {tx.account}
                       </span>
+                      {/* SPRINT 35: Linked debt indicator in mobile card */}
+                      {tx.debtId && (
+                        (() => {
+                          const debt = debtsMap.get(tx.debtId);
+                          if (debt) {
+                            return onNavigateToDebts ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onNavigateToDebts(debt.id);
+                                }}
+                                className="bg-brand-subtle text-brand border border-brand/20 px-2 py-0.5 rounded-md text-[10px] font-bold truncate max-w-[160px] inline-flex items-center gap-1 hover:bg-brand-subtle/80 active:scale-[0.98] transition-all cursor-pointer"
+                                aria-label={`Zobacz szczegóły długu ${debt.name}`}
+                                title={`Powiązano z długiem: ${debt.name}`}
+                              >
+                                <Link2 className="w-2.5 h-2.5 shrink-0" />
+                                <span className="truncate">Powiązany dług: {debt.name}</span>
+                              </button>
+                            ) : (
+                              <span
+                                className="bg-brand-subtle text-brand border border-brand/20 px-2 py-0.5 rounded-md text-[10px] font-bold truncate max-w-[160px] inline-flex items-center gap-1"
+                                title={`Powiązano z długiem: ${debt.name}`}
+                              >
+                                <Link2 className="w-2.5 h-2.5 shrink-0" />
+                                <span className="truncate">Powiązany dług: {debt.name}</span>
+                              </span>
+                            );
+                          }
+                          return (
+                            <span
+                              className="bg-surface border border-border px-2 py-0.5 rounded-md text-[10px] text-text-muted font-medium truncate max-w-[160px] inline-flex items-center gap-1"
+                              title="Powiązany dług niedostępny"
+                            >
+                              <Link2 className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">Powiązany dług niedostępny</span>
+                            </span>
+                          );
+                        })()
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-1.5 shrink-0">

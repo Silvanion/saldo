@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { DebtItem, DebtType, Profile, DebtPayoffScenario, Transaction } from "../../types";
 import {
   calculatePortfolioDebtKpis,
@@ -56,6 +56,9 @@ import {
 
 export interface DebtsViewProps {
   profile?: Profile;
+  initialDebtId?: string;
+  initialDebtTab?: DebtDetailTab;
+  onClearInitialDebt?: () => void;
   onAddDebt?: (debt: Omit<DebtItem, "id" | "createdAt">) => void;
   onUpdateDebt?: (debtId: string, updates: Partial<DebtItem>) => void;
   onDeleteDebt?: (debtId: string) => void;
@@ -72,6 +75,9 @@ type SortOption = "apr" | "payment" | "cost" | "payoff_date" | "balance";
 
 export function DebtsView({
   profile,
+  initialDebtId,
+  initialDebtTab,
+  onClearInitialDebt,
   onAddDebt,
   onUpdateDebt,
   onDeleteDebt,
@@ -94,6 +100,21 @@ export function DebtsView({
   const [initialDetailsTab, setInitialDetailsTab] = useState<DebtDetailTab>("overview");
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
+
+  // SPRINT 36: Deep-link context router to auto-open debt details
+  useEffect(() => {
+    if (!initialDebtId || !profile?.debts) return;
+    const targetDebt = profile.debts.find((d) => d.id === initialDebtId);
+    if (targetDebt) {
+      setSelectedDebtForDetails(targetDebt);
+      if (initialDebtTab) {
+        setInitialDetailsTab(initialDebtTab);
+      }
+    } else if (showToast) {
+      showToast("Nie znaleziono powiązanego zobowiązania.", "info");
+    }
+    onClearInitialDebt?.();
+  }, [initialDebtId, initialDebtTab, profile?.debts, onClearInitialDebt, showToast]);
 
   // Sprint 7 & 9: Saved Payoff Scenarios & Comparison state
   const savedScenarios = useMemo(() => {

@@ -253,4 +253,114 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
     expect(onApplySmartRulesBulk).toHaveBeenCalledWith(["tx-1"]);
     expect(onShowToast).toHaveBeenCalledWith("Zaktualizowano kategorie w 1 transakcji", "success");
   });
+
+  describe("Sprint 35 — Reverse Debt Link Indicator", () => {
+    const profileWithDebts: Profile = {
+      ...mockProfile,
+      debts: [
+        {
+          id: "debt-1",
+          name: "Kredyt hipoteczny PKO",
+          institution: "PKO BP",
+          type: "mortgage",
+          currency: "PLN",
+          balance: 320000,
+          originalAmount: 350000,
+          monthlyPayment: 2400,
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        }
+      ],
+      transactions: [
+        {
+          id: "tx-unlinked",
+          name: "Zakupy spożywcze",
+          amount: 150,
+          type: "expense",
+          category: "Jedzenie",
+          account: "Konto Główne",
+          isoDate: "2026-08-10",
+          currency: "PLN"
+        },
+        {
+          id: "tx-linked",
+          name: "Rata kredytu sierpień",
+          amount: 2400,
+          type: "expense",
+          category: "Rachunki",
+          account: "Konto Główne",
+          isoDate: "2026-08-12",
+          debtId: "debt-1",
+          currency: "PLN"
+        },
+        {
+          id: "tx-stale-debt",
+          name: "Stara rata pożyczki",
+          amount: 500,
+          type: "expense",
+          category: "Rachunki",
+          account: "Konto Główne",
+          isoDate: "2026-08-14",
+          debtId: "debt-nonexistent",
+          currency: "PLN"
+        }
+      ]
+    };
+
+    it("preserves unlinked transaction rendering without debt indicator", () => {
+      render(
+        <TransactionsView
+          profile={profileWithDebts}
+          onOpenTxModal={vi.fn()}
+          onDeleteTransaction={vi.fn()}
+          onImportTransactions={vi.fn()}
+        />
+      );
+
+      // Unlinked transaction exists
+      expect(screen.getAllByText("Zakupy spożywcze").length).toBeGreaterThan(0);
+      // No indicator for unlinked transaction
+      expect(screen.queryByText(/Powiązany dług: Zakupy spożywcze/i)).toBeNull();
+    });
+
+    it("displays linked debt name and navigates when clicked", () => {
+      const onNavigateToDebts = vi.fn();
+      render(
+        <TransactionsView
+          profile={profileWithDebts}
+          onOpenTxModal={vi.fn()}
+          onDeleteTransaction={vi.fn()}
+          onImportTransactions={vi.fn()}
+          onNavigateToDebts={onNavigateToDebts}
+        />
+      );
+
+      // Linked debt indicator is displayed
+      const debtLabels = screen.getAllByText(/Powiązany dług: Kredyt hipoteczny PKO/i);
+      expect(debtLabels.length).toBeGreaterThan(0);
+
+      // Accessible navigation button
+      const navButtons = screen.getAllByRole("button", { name: /Zobacz szczegóły długu Kredyt hipoteczny PKO/i });
+      expect(navButtons.length).toBeGreaterThan(0);
+
+      fireEvent.click(navButtons[0]);
+      expect(onNavigateToDebts).toHaveBeenCalledWith("debt-1");
+    });
+
+    it("displays neutral fallback for orphaned debtId without throwing errors or mutating data", () => {
+      render(
+        <TransactionsView
+          profile={profileWithDebts}
+          onOpenTxModal={vi.fn()}
+          onDeleteTransaction={vi.fn()}
+          onImportTransactions={vi.fn()}
+        />
+      );
+
+      // Stale debt indicator fallback
+      const fallbacks = screen.getAllByText("Powiązany dług niedostępny");
+      expect(fallbacks.length).toBeGreaterThan(0);
+    });
+  });
 });

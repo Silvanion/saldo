@@ -1974,5 +1974,54 @@ describe("DebtsView (Sprint 1 MVP)", () => {
       expect(onUpdateTransaction).toHaveBeenCalledTimes(1);
       expect(onUpdateTransaction).toHaveBeenCalledWith("tx-linked-1", { debtId: undefined });
     });
+
+    it("Sprint 36: auto-opens debt details modal when initialDebtId is provided and calls onClearInitialDebt", () => {
+      const onClearInitialDebt = vi.fn();
+      render(
+        <DebtsView
+          profile={mockProfile}
+          initialDebtId="debt-1"
+          onClearInitialDebt={onClearInitialDebt}
+        />
+      );
+
+      // Modal title for debt-1 should be rendered (both in list and modal)
+      expect(screen.getAllByText("Kredyt hipoteczny").length).toBeGreaterThanOrEqual(2);
+      expect(screen.getByText("Przelicz nadpłatę")).toBeTruthy();
+      expect(onClearInitialDebt).toHaveBeenCalledTimes(1);
+    });
+
+    it("Sprint 36: shows informational toast and does not open modal when initialDebtId is unknown", () => {
+      const onClearInitialDebt = vi.fn();
+      const showToast = vi.fn();
+      render(
+        <DebtsView
+          profile={mockProfile}
+          initialDebtId="debt-nonexistent"
+          onClearInitialDebt={onClearInitialDebt}
+          showToast={showToast}
+        />
+      );
+
+      expect(showToast).toHaveBeenCalledWith("Nie znaleziono powiązanego zobowiązania.", "info");
+      expect(onClearInitialDebt).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText("Przelicz nadpłatę")).toBeNull();
+    });
+
+    it("Sprint 36: opens requested initialDebtTab when provided via deep-link", () => {
+      const onClearInitialDebt = vi.fn();
+      render(
+        <DebtsView
+          profile={mockProfile}
+          initialDebtId="debt-1"
+          initialDebtTab="history"
+          onClearInitialDebt={onClearInitialDebt}
+        />
+      );
+
+      // Details modal is open with history tab active
+      expect(screen.getByText("Brak powiązanych płatności")).toBeTruthy();
+      expect(onClearInitialDebt).toHaveBeenCalledTimes(1);
+    });
   });
 });
