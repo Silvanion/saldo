@@ -3821,5 +3821,59 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         expect(within(emptyContainer!).getByRole("button", { name: /Dodaj zobowiązanie/i })).toBeTruthy();
       });
     });
+
+    describe("Sprint 54: Calculation Error Handling v1", () => {
+      it("1. DebtScenarioFallbackState renders custom title, message, and action button", () => {
+        const onCustomAction = vi.fn();
+        render(
+          <DebtScenarioFallbackState
+            type="calculation_unavailable"
+            title="Niestandardowy błąd kalkulacji"
+            message="Szczegółowy opis braku danych."
+            actionLabel="Napraw parametry"
+            onAction={onCustomAction}
+          />
+        );
+
+        expect(screen.getByText("Niestandardowy błąd kalkulacji")).toBeTruthy();
+        expect(screen.getByText("Szczegółowy opis braku danych.")).toBeTruthy();
+
+        const actionBtn = screen.getByRole("button", { name: /Napraw parametry/i });
+        fireEvent.click(actionBtn);
+        expect(onCustomAction).toHaveBeenCalledTimes(1);
+      });
+
+      it("2. DebtsView handles unpayable debt without crashing and renders fallback message", () => {
+        const unpayableDebt: DebtItem = {
+          id: "debt-unpayable",
+          name: "Kredyt z zerową ratą",
+          type: "cash_loan" as const,
+          balance: 50000,
+          originalAmount: 50000,
+          monthlyPayment: 0,
+          interestRate: 25,
+          institution: "Bank",
+          status: "active" as const,
+          currency: "PLN",
+          createdAt: "2026-01-01"
+        };
+
+        const testProfile = {
+          ...mockProfile,
+          debts: [unpayableDebt]
+        };
+
+        render(<DebtsView profile={testProfile} />);
+
+        const scenariosTabBtn = screen.getByRole("button", { name: /scenariusze/i });
+        fireEvent.click(scenariosTabBtn);
+
+        // Should render defensive message without crashing
+        expect(
+          screen.getByText(/Spłata nieosiągalna przy obecnych parametrach/i) ||
+          screen.getByText(/Prognoza chwilowo niedostępna/i)
+        ).toBeTruthy();
+      });
+    });
   });
 });

@@ -1921,12 +1921,21 @@ export function DebtsView({
                       ? payoffComparison.custom
                       : payoffComparison.baseline;
 
-                  if (!currentRes) {
-                    if (selectedPayoffStrategy === "custom") {
+                  if (!currentRes || currentRes.debtFreeDate === "Nigdy" || !currentRes.debtFreeDate || currentRes.totalMonths >= 600) {
+                    if (selectedPayoffStrategy === "custom" && !payoffComparison.custom) {
                       return (
                         <DebtScenarioFallbackState
                           type="custom_order_incomplete"
                           onSelectStrategy={(strat) => setSelectedPayoffStrategy(strat)}
+                        />
+                      );
+                    }
+                    if (currentRes?.debtFreeDate === "Nigdy" || (currentRes && currentRes.totalMonths >= 600)) {
+                      return (
+                        <DebtScenarioFallbackState
+                          type="calculation_unavailable"
+                          title="Spłata nieosiągalna przy obecnych parametrach"
+                          message="Miesięczna kwota spłaty nie wystarcza na pokrycie naliczanych odsetek. Zwiększ miesięczną wpłatę, aby zamknąć zadłużenie."
                         />
                       );
                     }
@@ -2143,7 +2152,16 @@ export function DebtsView({
                   ? payoffComparison.custom
                   : payoffComparison[selectedPayoffStrategy] || payoffComparison.baseline;
 
-                if (!activePlan) {
+                if (!activePlan || activePlan.debtFreeDate === "Nigdy" || activePlan.totalMonths >= 600 || !activePlan.payoffQueue || activePlan.payoffQueue.length === 0) {
+                  if (activePlan?.debtFreeDate === "Nigdy" || (activePlan && activePlan.totalMonths >= 600)) {
+                    return (
+                      <DebtScenarioFallbackState
+                        type="calculation_unavailable"
+                        title="Brak możliwości wygenerowania harmonogramu"
+                        message="Zadeklarowane wpłaty nie pokrywają odsetek. Zwiększ wpłatę miesięczną, aby wyliczyć etapy spłaty."
+                      />
+                    );
+                  }
                   return <DebtScenarioFallbackState type="calculation_unavailable" />;
                 }
                 return (

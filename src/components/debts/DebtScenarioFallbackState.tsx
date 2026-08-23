@@ -3,16 +3,24 @@ import { AlertCircle, Plus, RefreshCw, Compass, ArrowRight, CheckCircle2 } from 
 
 export interface DebtScenarioFallbackStateProps {
   type: "no_debts" | "all_paid" | "custom_order_incomplete" | "calculation_unavailable";
+  title?: string;
+  message?: string;
   onAddDebt?: () => void;
   onSelectStrategy?: (strategy: "avalanche" | "snowball") => void;
   onOpenKnowledgeCenter?: () => void;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export function DebtScenarioFallbackState({
   type,
+  title,
+  message,
   onAddDebt,
   onSelectStrategy,
-  onOpenKnowledgeCenter
+  onOpenKnowledgeCenter,
+  actionLabel,
+  onAction
 }: DebtScenarioFallbackStateProps) {
   if (type === "no_debts") {
     return (
@@ -24,10 +32,11 @@ export function DebtScenarioFallbackState({
           <Compass className="w-7 h-7" />
         </div>
         <h3 className="text-base font-bold text-text-main">
-          Brak czynnych zobowiązań do symulacji spłaty
+          {title || "Brak czynnych zobowiązań do symulacji spłaty"}
         </h3>
-        <p className="text-xs text-text-muted max-w-md leading-relaxed">
-          Dodaj co najmniej jedno zobowiązanie, aby zobaczyć możliwe strategie spłaty. Po wprowadzeniu danych moduł obliczy optymalne harmonogramy i potencjalne oszczędności.
+        <p className="text-sm text-text-muted max-w-md leading-relaxed">
+          {message ||
+            "Dodaj co najmniej jedno zobowiązanie, aby zobaczyć możliwe strategie spłaty. Po wprowadzeniu danych moduł obliczy optymalne harmonogramy i potencjalne oszczędności."}
         </p>
         <div className="pt-2 flex items-center gap-2 flex-wrap justify-center">
           {onAddDebt && (
@@ -65,10 +74,11 @@ export function DebtScenarioFallbackState({
           <CheckCircle2 className="w-7 h-7 text-brand" />
         </div>
         <h3 className="text-base font-bold text-text-main">
-          Wszystkie zobowiązania zostały już spłacone
+          {title || "Wszystkie zobowiązania zostały już spłacone"}
         </h3>
-        <p className="text-xs text-text-muted max-w-md leading-relaxed">
-          Brak pozostałej kwoty do zasymulowania. Według bieżących danych zobowiązania w Twoim portfelu nie mają już aktywnego salda.
+        <p className="text-sm text-text-muted max-w-md leading-relaxed">
+          {message ||
+            "Brak pozostałej kwoty do zasymulowania. Według bieżących danych zobowiązania w Twoim portfelu nie mają już aktywnego salda."}
         </p>
       </div>
     );
@@ -86,10 +96,11 @@ export function DebtScenarioFallbackState({
           </div>
           <div className="space-y-1">
             <h4 className="font-bold text-text-main text-sm">
-              Własna kolejność nie jest jeszcze gotowa do porównania
+              {title || "Własna kolejność nie jest jeszcze gotowa do porównania"}
             </h4>
-            <p className="text-text-muted leading-relaxed">
-              Uzupełnij kolejność zobowiązań na liście poniżej albo wybierz Lawinę lub Kulę Śnieżną.
+            <p className="text-sm text-text-muted leading-relaxed">
+              {message ||
+                "Uzupełnij kolejność zobowiązań na liście poniżej albo wybierz Lawinę lub Kulę Śnieżną."}
             </p>
           </div>
         </div>
@@ -122,19 +133,32 @@ export function DebtScenarioFallbackState({
     return (
       <div
         id="debt-scenarios-calculation-unavailable"
-        className="p-4 rounded-xl bg-surface border border-border flex items-start gap-3 text-xs shadow-2xs"
+        className="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
       >
-        <div className="w-6 h-6 rounded-lg bg-surface-2 text-text-muted flex items-center justify-center shrink-0 border border-border">
-          <RefreshCw className="w-3.5 h-3.5" />
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-7 h-7 rounded-xl bg-surface-2 text-text-muted flex items-center justify-center shrink-0 border border-border">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </div>
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-text-main text-xs sm:text-sm">
+              {title || "Prognoza chwilowo niedostępna"}
+            </h4>
+            <p className="text-sm text-text-muted leading-relaxed">
+              {message ||
+                "Nie możemy teraz wiarygodnie wyliczyć tej prognozy na podstawie aktualnych danych."}
+            </p>
+          </div>
         </div>
-        <div className="space-y-0.5">
-          <strong className="font-semibold text-text-main">
-            Prognoza chwilowo niedostępna
-          </strong>
-          <p className="text-text-muted">
-            Nie możemy teraz wiarygodnie wyliczyć tej prognozy na podstawie aktualnych danych.
-          </p>
-        </div>
+
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="px-3 py-2 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0 self-start sm:self-auto"
+          >
+            {actionLabel}
+          </button>
+        )}
       </div>
     );
   }
