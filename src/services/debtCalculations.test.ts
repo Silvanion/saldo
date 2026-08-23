@@ -7,6 +7,7 @@ import {
   calculateDebtOverpaymentVariants,
   DebtOverpaymentVariantInput,
   calculateDebtPaymentBreakdown,
+  calculateDebtPaymentReversal,
   calculateOverpayment,
   calculateRefinanceComparison,
   calculateMultiOfferRefinanceComparison,
@@ -1462,6 +1463,51 @@ describe("debtCalculations", () => {
       calculateDebtPaymentBreakdown(originalDebt, 600);
 
       expect(JSON.stringify(originalDebt)).toBe(snapshot);
+    });
+  });
+
+  describe("calculateDebtPaymentReversal (Sprint 21)", () => {
+    it("correctly reverses standard payment and restores original balance", () => {
+      // Original balance was 10,000, payment 500, 6% interest -> interest was 50, principal 450 -> current balance 9,550
+      const currentDebt = {
+        balance: 9550,
+        interestRate: 6.0
+      };
+
+      const restored = calculateDebtPaymentReversal(currentDebt, 500);
+      expect(restored).toBe(10000);
+    });
+
+    it("correctly reverses 0% interest loan payment", () => {
+      const currentDebt = {
+        balance: 1000,
+        interestRate: 0
+      };
+
+      const restored = calculateDebtPaymentReversal(currentDebt, 200);
+      expect(restored).toBe(1200);
+    });
+
+    it("does not increase balance if payment was insufficient (principal was 0)", () => {
+      const currentDebt = {
+        balance: 10000,
+        interestRate: 6.0 // monthly interest is 50 PLN
+      };
+
+      // When 30 PLN was paid (< 50 interest), principal paid was 0, balance remained 10,000
+      const restored = calculateDebtPaymentReversal(currentDebt, 30);
+      expect(restored).toBe(10000);
+    });
+
+    it("handles zero payment or negative numbers gracefully", () => {
+      const currentDebt = {
+        balance: 5000,
+        interestRate: 5.0
+      };
+
+      expect(calculateDebtPaymentReversal(currentDebt, 0)).toBe(5000);
+      expect(calculateDebtPaymentReversal(currentDebt, -100)).toBe(5000);
+      expect(calculateDebtPaymentReversal(null, 500)).toBe(0);
     });
   });
 });

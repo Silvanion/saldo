@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Profile, Transaction, Payment } from "../../types";
 import { autoCategorizeTransaction, getLocalDateIso } from "../../utils";
+import { calculateDebtPaymentBreakdown, calculateDebtPaymentReversal } from "../../services/debtCalculations";
 
 interface UseTransactionActionsProps {
   activeProfile: Profile | null;
@@ -27,6 +28,8 @@ export function useTransactionActions({
       paidBy?: "me" | "partner" | "joint";
       splitMode?: "none" | "equal";
       currency?: import("../../types").SupportedCurrency;
+      debtId?: string;
+      tags?: string[];
     }) => {
       if (!activeProfile) return;
 
@@ -41,7 +44,29 @@ export function useTransactionActions({
         currency: data.currency || activeProfile.currency || "PLN"
       };
 
-      updateActiveProfile((p) => ({ transactions: [newTx, ...p.transactions] }));
+      updateActiveProfile((p) => {
+        const patch: Partial<Profile> = {
+          transactions: [newTx, ...p.transactions]
+        };
+
+        if (newTx.debtId && newTx.type === "expense" && newTx.amount > 0 && Array.isArray(p.debts)) {
+          const debt = p.debts.find((d) => d.id === newTx.debtId);
+          if (debt && debt.status !== "closed") {
+            const breakdown = calculateDebtPaymentBreakdown(debt, newTx.amount);
+            patch.debts = p.debts.map((d) =>
+              d.id === debt.id
+                ? {
+                    ...d,
+                    balance: breakdown.closingBalance,
+                    updatedAt: new Date().toISOString()
+                  }
+                : d
+            );
+          }
+        }
+
+        return patch;
+      });
     },
     [activeProfile, updateActiveProfile]
   );
@@ -53,7 +78,7 @@ export function useTransactionActions({
         if (index === -1) return {};
 
         const existing = p.transactions[index];
-        const updated = { ...existing, ...data };
+        const updated: Transaction = { ...existing, ...data };
 
         // Keep technical fields intact
         updated.id = existing.id;
@@ -64,7 +89,41 @@ export function useTransactionActions({
         const newTransactions = [...p.transactions];
         newTransactions[index] = updated;
 
-        return { transactions: newTransactions };
+        const patch: Partial<Profile> = { transactions: newTransactions };
+
+        if (Array.isArray(p.debts) && p.debts.length > 0) {
+          let debts = [...p.debts];
+
+          // 1. Reverse previous debt impact if old transaction was linked expense
+          if (existing.debtId && existing.type === "expense" && existing.amount > 0) {
+            const oldDebt = debts.find((d) => d.id === existing.debtId);
+            if (oldDebt) {
+              const restoredBalance = calculateDebtPaymentReversal(oldDebt, existing.amount);
+              debts = debts.map((d) =>
+                d.id === oldDebt.id
+                  ? { ...d, balance: restoredBalance, updatedAt: new Date().toISOString() }
+                  : d
+              );
+            }
+          }
+
+          // 2. Apply new debt impact if updated transaction is linked expense
+          if (updated.debtId && updated.type === "expense" && updated.amount > 0) {
+            const newDebt = debts.find((d) => d.id === updated.debtId);
+            if (newDebt && newDebt.status !== "closed") {
+              const breakdown = calculateDebtPaymentBreakdown(newDebt, updated.amount);
+              debts = debts.map((d) =>
+                d.id === newDebt.id
+                  ? { ...d, balance: breakdown.closingBalance, updatedAt: new Date().toISOString() }
+                  : d
+              );
+            }
+          }
+
+          patch.debts = debts;
+        }
+
+        return patch;
       });
     },
     [updateActiveProfile]
@@ -110,7 +169,32 @@ export function useTransactionActions({
 
   const handleDeleteTransaction = useCallback(
     (txId: string) => {
-      updateActiveProfile((p) => ({ transactions: p.transactions.filter((t) => t.id !== txId) }));
+      updateActiveProfile((p) => {
+        const existingTx = p.transactions.find((t) => t.id === txId);
+        const patch: Partial<Profile> = {
+          transactions: p.transactions.filter((t) => t.id !== txId)
+        };
+
+        if (
+          existingTx &&
+          existingTx.debtId &&
+          existingTx.type === "expense" &&
+          existingTx.amount > 0 &&
+          Array.isArray(p.debts)
+        ) {
+          const debt = p.debts.find((d) => d.id === existingTx.debtId);
+          if (debt) {
+            const restoredBalance = calculateDebtPaymentReversal(debt, existingTx.amount);
+            patch.debts = p.debts.map((d) =>
+              d.id === debt.id
+                ? { ...d, balance: restoredBalance, updatedAt: new Date().toISOString() }
+                : d
+            );
+          }
+        }
+
+        return patch;
+      });
     },
     [updateActiveProfile]
   );

@@ -279,4 +279,90 @@ describe("TransactionModal — Smart Rule Suggestion Flow (Sprint 2)", () => {
     expect(screen.getByText("Utworzyć regułę dla podobnych wpisów?")).toBeTruthy();
     expect(screen.getByText(/"Orlen"/i)).toBeTruthy();
   });
+
+  describe("TransactionModal — Debt Selector (Sprint 21)", () => {
+    const profileWithDebts: Profile = {
+      ...mockProfile,
+      debts: [
+        {
+          id: "debt-hipo",
+          name: "Kredyt mieszkaniowy",
+          institution: "PKO BP",
+          type: "mortgage",
+          currency: "PLN",
+          balance: 250000,
+          monthlyPayment: 2200,
+          interestRate: 6.5,
+          status: "active",
+          createdAt: "2026-01-01"
+        },
+        {
+          id: "debt-closed",
+          name: "Stary kredyt",
+          institution: "Santander",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 0,
+          monthlyPayment: 500,
+          interestRate: 8,
+          status: "closed",
+          createdAt: "2026-01-01"
+        }
+      ]
+    };
+
+    it("renders optional debt selector for expense type with active debts", () => {
+      const onSave = vi.fn();
+      const onClose = vi.fn();
+
+      render(
+        <TransactionModal
+          isOpen={true}
+          onClose={onClose}
+          activeProfile={profileWithDebts}
+          onSave={onSave}
+        />
+      );
+
+      const debtSelect = screen.getByLabelText("Powiąż z długiem") as HTMLSelectElement;
+      expect(debtSelect).toBeTruthy();
+      expect(debtSelect.value).toBe("");
+
+      // Should only list open debts
+      expect(screen.getByText(/Kredyt mieszkaniowy/i)).toBeTruthy();
+      expect(screen.queryByText(/Stary kredyt/i)).toBeNull();
+    });
+
+    it("saves debtId when user selects a debt", () => {
+      const onSave = vi.fn();
+      const onClose = vi.fn();
+
+      render(
+        <TransactionModal
+          isOpen={true}
+          onClose={onClose}
+          activeProfile={profileWithDebts}
+          onSave={onSave}
+        />
+      );
+
+      fireEvent.change(screen.getByLabelText("Kwota"), { target: { value: "2200" } });
+      fireEvent.change(screen.getByLabelText("Opis transakcji"), { target: { value: "Rata hipoteki" } });
+      
+      const debtSelect = screen.getByLabelText("Powiąż z długiem");
+      fireEvent.change(debtSelect, { target: { value: "debt-hipo" } });
+
+      expect(screen.getByText("Powiązano z długiem")).toBeTruthy();
+
+      fireEvent.click(screen.getByRole("button", { name: /Dodaj transakcję|Zapisz zmiany/i }));
+
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Rata hipoteki",
+          amount: 2200,
+          debtId: "debt-hipo"
+        })
+      );
+    });
+  });
 });

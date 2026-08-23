@@ -771,6 +771,38 @@ export function calculateDebtPaymentBreakdown(
 }
 
 /**
+ * Calculates restored debt balance when reversing a previously applied debt payment (Sprint 21)
+ */
+export function calculateDebtPaymentReversal(
+  debt: Pick<DebtItem, "balance" | "interestRate"> | null | undefined,
+  paymentAmount: number
+): number {
+  if (!debt) return 0;
+  const currentBalance = Math.max(0, Number(debt.balance) || 0);
+  const annualRatePct = Math.max(0, Number(debt.interestRate) || 0);
+  const cleanPayment = Math.max(0, Number(paymentAmount) || 0);
+
+  if (cleanPayment <= 0) {
+    return Math.round(currentBalance * 100) / 100;
+  }
+
+  if (annualRatePct <= 0) {
+    return Math.round((currentBalance + cleanPayment) * 100) / 100;
+  }
+
+  const monthlyRate = (annualRatePct / 100) / 12;
+  const estOpening = (currentBalance + cleanPayment) / (1 + monthlyRate);
+  const interestAmount = Math.round((estOpening * monthlyRate) * 100) / 100;
+
+  if (cleanPayment <= interestAmount) {
+    return Math.round(currentBalance * 100) / 100;
+  }
+
+  const principal = Math.round((cleanPayment - interestAmount) * 100) / 100;
+  return Math.max(0, Math.round((currentBalance + principal) * 100) / 100);
+}
+
+/**
  * Simulates overpayment scenarios (shorten term vs reduce payment)
  */
 export function calculateOverpayment({

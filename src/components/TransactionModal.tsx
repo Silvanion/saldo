@@ -22,6 +22,10 @@ export interface TransactionModalProps {
     type: "income" | "expense";
     isoDate: string;
     tags?: string[];
+    debtId?: string;
+    paidBy?: "me" | "partner" | "joint";
+    splitMode?: "none" | "equal";
+    currency?: import("../types").SupportedCurrency;
   }) => void;
   onAddSmartRule?: (ruleData: Omit<import("../types").SmartRule, "id" | "createdAt">) => void;
   onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
@@ -52,6 +56,7 @@ export function TransactionModal({
   const [date, setDate] = useState(getLocalDateIso());
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [debtId, setDebtId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingSuggestion, setPendingSuggestion] = useState<SmartRuleSuggestion | null>(null);
   
@@ -82,6 +87,7 @@ export function TransactionModal({
         setAccount(initialData.account);
         setDate(initialData.isoDate);
         setTags(initialData.tags || []);
+        setDebtId(initialData.debtId || "");
         if (activeProfile?.kind === "shared" && "paidBy" in initialData) {
           setPaidBy(initialData.paidBy as "me" | "partner" | "joint" || "me");
           setSplitMode(initialData.splitMode as "none" | "equal" || "equal");
@@ -95,6 +101,7 @@ export function TransactionModal({
         setAccount("Konto główne");
         setDate(getLocalDateIso());
         setTags([]);
+        setDebtId("");
         setPaidBy("me");
         setSplitMode("equal");
         setCurrency(activeProfile?.currency || "PLN");
@@ -157,6 +164,9 @@ export function TransactionModal({
     if (isNaN(numAmt) || numAmt <= 0) return;
     setIsSubmitting(true);
     const payload: any = { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags, currency };
+    if (debtId && type === "expense") {
+      payload.debtId = debtId;
+    }
     if (activeProfile?.kind === "shared") {
       payload.paidBy = paidBy;
       payload.splitMode = splitMode;
@@ -555,6 +565,36 @@ export function TransactionModal({
               </div>
             </div>
           </div>
+
+          {/* Opcjonalne powiązanie z długiem */}
+          {activeProfile?.debts && activeProfile.debts.some((d: any) => d.status !== "closed") && type === "expense" && (
+            <div className="space-y-1.5 pt-3 border-t border-border">
+              <label htmlFor="select-transaction-debt" className="block text-xs font-semibold text-text-main">
+                Powiąż z długiem
+              </label>
+              <select
+                id="select-transaction-debt"
+                aria-label="Powiąż z długiem"
+                value={debtId}
+                onChange={(e) => setDebtId(e.target.value)}
+                className="w-full rounded-xl border border-border p-2 text-xs font-medium text-text-main bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+              >
+                <option value="">Brak powiązania (standardowy wydatek)</option>
+                {activeProfile.debts
+                  .filter((d: any) => d.status !== "closed")
+                  .map((d: any) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name} ({d.institution || "Dług"}) — Saldo: {d.balance} {d.currency || "PLN"}
+                    </option>
+                  ))}
+              </select>
+              {debtId && (
+                <p className="text-[11px] text-brand font-medium" id="tx-linked-debt-badge">
+                  Powiązano z długiem
+                </p>
+              )}
+            </div>
+          )}
 
           {activeProfile?.kind === "shared" && (
             <div className="border-t border-border pt-3">
