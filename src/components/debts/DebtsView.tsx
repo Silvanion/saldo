@@ -26,6 +26,7 @@ import { DebtImportModal } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
+import { DebtStrategyDecisionSummary } from "./DebtStrategyDecisionSummary";
 import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
 import { DebtScenarioConfigSection } from "./DebtScenarioConfigSection";
 import { DebtStrategyResultsSection } from "./DebtStrategyResultsSection";
@@ -340,7 +341,8 @@ export function DebtsView({
     validatedCustomOrder,
     payoffComparison,
     whatIfImpact,
-    savedScenarioPreviews
+    savedScenarioPreviews,
+    selectedPayoffResult
   } = useDebtStrategyAnalytics({
     debts,
     selectedPayoffStrategy,
@@ -1274,6 +1276,13 @@ export function DebtsView({
               <DebtStrategyContextHint
                 selectedStrategy={selectedPayoffStrategy}
                 onOpenKnowledgeCenter={() => setActiveMainTab("knowledge")}
+              />
+
+              {/* Strategy Decision Summary (Sprint 71) */}
+              <DebtStrategyDecisionSummary
+                selectedStrategy={selectedPayoffStrategy}
+                payoffResult={selectedPayoffResult}
+                currency={currency}
               />
 
               {/* Reset Custom Order Action */}
