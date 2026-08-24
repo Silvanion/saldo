@@ -24,7 +24,8 @@ import {
   Unlink,
   Search,
   Download,
-  Check
+  Check,
+  Pencil
 } from "lucide-react";
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
@@ -145,6 +146,14 @@ export function DebtDetailsModal({
     }
     return map;
   }, [transactions]);
+
+  // SPRINT 77: Read-only linked transaction history
+  const linkedTransactions = useMemo(() => {
+    if (!transactions || !debt) return [];
+    return transactions
+      .filter((t) => t.debtId === debt.id)
+      .sort((a, b) => new Date(b.isoDate).getTime() - new Date(a.isoDate).getTime());
+  }, [transactions, debt]);
 
   // SPRINT 38: CSV & JSON Export of visible payment history timeline
   const handleExportCsv = () => {
@@ -842,6 +851,66 @@ export function DebtDetailsModal({
                     <p>{debt.notes}</p>
                   </div>
                 )}
+
+                {/* SPRINT 77: Linked Transactions History */}
+                <div className="p-5 bg-surface border border-border rounded-2xl">
+                  <h4 className="text-sm font-bold text-text-main mb-1">
+                    Powiązane transakcje
+                  </h4>
+                  <p className="text-xs text-text-muted mb-4">
+                    To historia transakcji ręcznie powiązanych z tym zobowiązaniem. Nie aktualizuje automatycznie jego salda ani harmonogramu spłaty.
+                  </p>
+                  
+                  {linkedTransactions.length === 0 ? (
+                    <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
+                      <p className="text-xs text-text-main font-medium">Brak transakcji powiązanych z tym zobowiązaniem.</p>
+                      <p className="text-[11px] text-text-muted mt-1">
+                        Możesz powiązać wydatek z tym długiem podczas dodawania lub edycji transakcji.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {linkedTransactions.map((tx) => (
+                        <div key={tx.id} className="flex items-center justify-between p-3 bg-surface-2 border border-border rounded-xl hover:bg-surface-hover transition-colors">
+                          <div className="min-w-0 flex-1 pr-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-text-main truncate">
+                                {tx.name || "Transakcja bez opisu"}
+                              </span>
+                              {tx.category && (
+                                <span className="text-[10px] bg-surface border border-border px-1.5 py-0.5 rounded-md text-text-muted truncate">
+                                  {tx.category}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-text-faint">
+                              {tx.isoDate}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="text-right">
+                              <span className="text-sm font-bold text-text-main tabular-nums block">
+                                {formatMoney(tx.amount, tx.currency || debt.currency || "PLN")}
+                              </span>
+                            </div>
+                            
+                            {onOpenTxModal && (
+                              <button
+                                onClick={() => onOpenTxModal(tx)}
+                                className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer"
+                                aria-label={`Edytuj transakcję ${tx.name || "bez opisu"}`}
+                                title="Edytuj transakcję"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
