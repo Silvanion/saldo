@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { DebtItem, DebtPayoffScenario, SupportedCurrency } from "../../types";
 import { formatMoney } from "../../utils/format";
 import {
@@ -37,6 +37,20 @@ export function PayoffScenarioComparisonModal({
   onLoadScenario
 }: PayoffScenarioComparisonModalProps) {
   if (!isOpen) return null;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   const getStrategyBadge = (strategy: string) => {
     switch (strategy) {
@@ -129,7 +143,7 @@ export function PayoffScenarioComparisonModal({
             </div>
             <div>
               <h3 id="scenario-comparison-modal-title" className="text-base font-bold text-text-main">
-                Porównanie zapisanych konfiguracji
+                Porównanie scenariuszy spłaty
               </h3>
               <p className="text-xs text-text-muted mt-0.5">
                 Zestawienie parametrów wybranych scenariuszy spłaty
@@ -170,9 +184,9 @@ export function PayoffScenarioComparisonModal({
         )}
 
         {/* Comparison Columns (1 or 2 scenarios) */}
-        {simulatedScenarios.length === 0 ? (
+        {simulatedScenarios.length < 2 ? (
           <p className="text-xs text-text-muted text-center py-6">
-            Brak wybranego scenariusza
+            Aby porównać, wybierz dokładnie dwa scenariusze.
           </p>
         ) : (
           <div className={`grid grid-cols-1 ${simulatedScenarios.length > 1 ? "sm:grid-cols-2" : ""} gap-4`}>

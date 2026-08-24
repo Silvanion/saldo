@@ -682,7 +682,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(compareBtn);
 
     // Verify modal content
-    expect(screen.getByText("Porównanie zapisanych konfiguracji")).toBeTruthy();
+    expect(screen.getByText("Porównanie scenariuszy spłaty")).toBeTruthy();
     expect(screen.getByText("Zestawienie parametrów wybranych scenariuszy spłaty")).toBeTruthy();
     expect(screen.getByText(/To zestawienie pokazuje parametry zapisanych scenariuszy/i)).toBeTruthy();
 
