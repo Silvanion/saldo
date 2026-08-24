@@ -351,6 +351,44 @@ export function DebtPayoffRoadmap({
           </div>
         </div>
 
+        {/* Next Milestone (Sprint 72) */}
+        {activePlan.payoffQueue.length > 0 && (
+          <div className="bg-brand-subtle/20 border border-brand/20 rounded-xl p-4 sm:p-5 space-y-3">
+            <h5 className="text-xs font-bold uppercase tracking-wider text-brand flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Następny kamień milowy
+            </h5>
+            <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+              <div>
+                <p className="text-sm sm:text-base font-bold text-text-main">
+                  Spłata: {activePlan.payoffQueue[0].debtName}
+                </p>
+                <p className="text-xs text-text-muted mt-1">
+                  Pozycja nr 1 w symulacji. Szacowana data spłaty: <strong className="text-text-main">{activePlan.payoffQueue[0].payoffDate}</strong> ({activePlan.payoffQueue[0].payoffMonth}. miesiąc)
+                </p>
+              </div>
+              <div className="lg:max-w-[280px] shrink-0 text-xs text-text-muted bg-surface p-3 rounded-lg border border-border/50 leading-relaxed">
+                {activePlan.strategy !== "baseline" && activePlan.payoffQueue.length > 1 ? (
+                  <span>
+                    Po spłacie tego zobowiązania nadpłata może przejść na kolejny cel: <strong>{activePlan.payoffQueue[1].debtName}</strong>. Kolejność wynika z założeń tej symulacji.
+                  </span>
+                ) : activePlan.strategy === "baseline" && activePlan.payoffQueue.length > 1 ? (
+                  <span>
+                    Plan odniesienia. Po spłacie nie występuje efekt kaskadowy przeniesienia uwalnianej raty na kolejne zobowiązania.
+                  </span>
+                ) : (
+                  <span>
+                    To Twoje jedyne lub ostatnie zobowiązanie w symulacji. Po jego spłacie stajesz się wolny od długów.
+                  </span>
+                )}
+              </div>
+            </div>
+            <p className="text-[10px] text-text-faint pt-2 border-t border-brand/10 leading-relaxed">
+              To orientacyjna kolejność wynikająca z bieżących danych i założeń symulacji. Rzeczywisty przebieg może się zmienić, jeśli zmienią się wpłaty, saldo lub warunki zobowiązania.
+            </p>
+          </div>
+        )}
+
         {/* Step-by-Step Roadmap Queue */}
         <div className="space-y-3">
           <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
@@ -364,13 +402,22 @@ export function DebtPayoffRoadmap({
                 className="p-4 bg-surface-2/30 rounded-xl border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-brand text-text-inverse text-xs font-black flex items-center justify-center shrink-0">
+                  <div
+                    className={`w-8 h-8 rounded-full text-xs font-black flex items-center justify-center shrink-0 ${
+                      idx === 0 ? "bg-brand text-text-inverse shadow-2xs" : "bg-surface-2 text-text-muted border border-border"
+                    }`}
+                  >
                     {idx + 1}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-text-main">{item.debtName}</span>
                       <span className="text-[10px] text-text-muted">({item.institution})</span>
+                      {idx === 0 && (
+                        <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20">
+                          Obecny cel
+                        </span>
+                      )}
                     </div>
                     <div className="text-[11px] text-text-muted flex items-center gap-2 mt-0.5">
                       <span>Saldo początkowe: {formatMoney(item.initialBalance, currency)}</span>
