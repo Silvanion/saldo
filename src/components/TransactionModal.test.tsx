@@ -349,10 +349,10 @@ describe("TransactionModal — Smart Rule Suggestion Flow (Sprint 2)", () => {
       fireEvent.change(screen.getByLabelText("Kwota"), { target: { value: "2200" } });
       fireEvent.change(screen.getByLabelText("Opis transakcji"), { target: { value: "Rata hipoteki" } });
       
-      const debtSelect = screen.getByLabelText("Powiąż z długiem");
+      const debtSelect = screen.getByLabelText("Powiązany kredyt lub dług");
       fireEvent.change(debtSelect, { target: { value: "debt-hipo" } });
 
-      expect(screen.getByText("Powiązano z długiem")).toBeTruthy();
+      expect(screen.getByText(/To powiązanie porządkuje/i)).toBeTruthy();
 
       fireEvent.click(screen.getByRole("button", { name: /Dodaj transakcję|Zapisz zmiany/i }));
 

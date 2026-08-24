@@ -321,7 +321,7 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
       // Unlinked transaction exists
       expect(screen.getAllByText("Zakupy spożywcze").length).toBeGreaterThan(0);
       // No indicator for unlinked transaction
-      expect(screen.queryByText(/Powiązany dług: Zakupy spożywcze/i)).toBeNull();
+      expect(screen.queryByText(/Powiązany kredyt lub dług: Zakupy spożywcze/i)).toBeNull();
     });
 
     it("displays linked debt name and navigates when clicked", () => {
@@ -337,7 +337,7 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
       );
 
       // Linked debt indicator is displayed
-      const debtLabels = screen.getAllByText(/Powiązany dług: Kredyt hipoteczny PKO/i);
+      const debtLabels = screen.getAllByText(/Powiązany kredyt lub dług: Kredyt hipoteczny PKO/i);
       expect(debtLabels.length).toBeGreaterThan(0);
 
       // Accessible navigation button
@@ -359,7 +359,7 @@ describe("TransactionsView (Filter controls, Empty states & Tag Ribbon)", () => 
       );
 
       // Stale debt indicator fallback
-      const fallbacks = screen.getAllByText("Powiązany dług niedostępny");
+      const fallbacks = screen.getAllByText("Powiązany dług nie jest już dostępny.");
       expect(fallbacks.length).toBeGreaterThan(0);
     });
   });

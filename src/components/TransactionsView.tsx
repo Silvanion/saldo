@@ -556,7 +556,7 @@ export function TransactionsView({
                                     title={`Powiązano z długiem: ${debt.name}`}
                                   >
                                     <Link2 className="w-2.5 h-2.5 shrink-0" />
-                                    <span className="truncate">Powiązany dług: {debt.name}</span>
+                                    <span className="truncate">Powiązany kredyt lub dług: {debt.name}</span>
                                   </button>
                                 ) : (
                                   <span
@@ -564,7 +564,7 @@ export function TransactionsView({
                                     title={`Powiązano z długiem: ${debt.name}`}
                                   >
                                     <Link2 className="w-2.5 h-2.5 shrink-0" />
-                                    <span className="truncate">Powiązany dług: {debt.name}</span>
+                                    <span className="truncate">Powiązany kredyt lub dług: {debt.name}</span>
                                   </span>
                                 );
                               }
@@ -574,7 +574,7 @@ export function TransactionsView({
                                   title="Powiązany dług niedostępny"
                                 >
                                   <Link2 className="w-2.5 h-2.5 shrink-0" />
-                                  <span>Powiązany dług niedostępny</span>
+                                  <span>Powiązany dług nie jest już dostępny.</span>
                                 </span>
                               );
                             })()}
@@ -703,7 +703,7 @@ export function TransactionsView({
                                 title={`Powiązano z długiem: ${debt.name}`}
                               >
                                 <Link2 className="w-2.5 h-2.5 shrink-0" />
-                                <span className="truncate">Powiązany dług: {debt.name}</span>
+                                <span className="truncate">Powiązany kredyt lub dług: {debt.name}</span>
                               </button>
                             ) : (
                               <span
@@ -711,7 +711,7 @@ export function TransactionsView({
                                 title={`Powiązano z długiem: ${debt.name}`}
                               >
                                 <Link2 className="w-2.5 h-2.5 shrink-0" />
-                                <span className="truncate">Powiązany dług: {debt.name}</span>
+                                <span className="truncate">Powiązany kredyt lub dług: {debt.name}</span>
                               </span>
                             );
                           }
@@ -721,7 +721,7 @@ export function TransactionsView({
                               title="Powiązany dług niedostępny"
                             >
                               <Link2 className="w-2.5 h-2.5 shrink-0" />
-                              <span className="truncate">Powiązany dług niedostępny</span>
+                              <span className="truncate">Powiązany dług nie jest już dostępny.</span>
                             </span>
                           );
                         })()

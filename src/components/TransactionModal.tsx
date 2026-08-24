@@ -570,7 +570,7 @@ export function TransactionModal({
           {activeProfile?.debts && activeProfile.debts.some((d: any) => d.status !== "closed") && type === "expense" && (
             <div className="space-y-1.5 pt-3 border-t border-border">
               <label htmlFor="select-transaction-debt" className="block text-xs font-semibold text-text-main">
-                Powiąż z długiem
+                Powiązany kredyt lub dług
               </label>
               <select
                 id="select-transaction-debt"
@@ -579,7 +579,7 @@ export function TransactionModal({
                 onChange={(e) => setDebtId(e.target.value)}
                 className="w-full rounded-xl border border-border p-2 text-xs font-medium text-text-main bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
               >
-                <option value="">Brak powiązania (standardowy wydatek)</option>
+                <option value="">Brak powiązania</option>
                 {activeProfile.debts
                   .filter((d: any) => d.status !== "closed")
                   .map((d: any) => (
@@ -589,8 +589,8 @@ export function TransactionModal({
                   ))}
               </select>
               {debtId && (
-                <p className="text-[11px] text-brand font-medium" id="tx-linked-debt-badge">
-                  Powiązano z długiem
+                <p className="text-[10px] text-text-muted mt-1 leading-relaxed" id="tx-linked-debt-badge">
+                  To powiązanie porządkuje historię płatności, ale nie zmienia automatycznie salda zobowiązania.
                 </p>
               )}
             </div>
