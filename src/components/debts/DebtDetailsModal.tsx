@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { DebtItem, Transaction } from "../../types";
 import { formatMoney } from "../../utils/format";
+import { formatDate } from "../../utils/date";
 import { downloadFile } from "../../utils/csv";
 import {
   DEBT_REPAYMENT_MILESTONES,
@@ -883,15 +884,15 @@ export function DebtDetailsModal({
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-text-faint">
-                              {tx.isoDate}
+                            <div className="text-[11px] text-text-faint" title={tx.isoDate}>
+                              {formatDate(tx.isoDate)}
                             </div>
                           </div>
                           
                           <div className="flex items-center gap-3 shrink-0">
                             <div className="text-right">
-                              <span className="text-sm font-bold text-text-main tabular-nums block">
-                                {formatMoney(tx.amount, tx.currency || debt.currency || "PLN")}
+                              <span className={`text-sm font-bold tabular-nums block ${tx.type === "income" ? "text-brand" : "text-text-main"}`}>
+                                {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || debt.currency || "PLN")}
                               </span>
                             </div>
                             
