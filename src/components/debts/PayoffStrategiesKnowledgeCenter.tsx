@@ -104,7 +104,7 @@ export function PayoffStrategiesKnowledgeCenter({
           {/* Summary of trade-offs and mechanism */}
           <div className="p-3.5 rounded-xl bg-surface-2/60 border border-border/80 text-text-main font-medium leading-relaxed">
             <p>
-              Avalanche porządkuje zobowiązania według oprocentowania, a Snowball według salda. Status Quo pozostaje punktem odniesienia. Wynik symulacji zależy od wprowadzonych danych, rat, oprocentowania i dodatkowego budżetu.
+              Każda strategia odpowiada na inny priorytet. Wynik zależy od danych i założeń symulacji, dlatego warto porównać kilka wariantów zamiast zakładać, że jeden wariant sprawdzi się najlepiej w każdej sytuacji.
             </p>
           </div>
 
@@ -140,13 +140,13 @@ export function PayoffStrategiesKnowledgeCenter({
                 </div>
 
                 <p>
-                  <strong>Zasada:</strong> Punkt odniesienia oparty na bieżących założeniach spłaty.
+                  <strong>Zasada:</strong> Jest to scenariusz odniesienia oparty na bieżących minimalnych ratach.
                 </p>
                 <p>
-                  <strong>Działanie:</strong> Nie dodaje dodatkowej kolejności kierowania nadpłat.
+                  <strong>Działanie:</strong> Nie wprowadza kaskady (efektu kuli śnieżnej). Raty z zamkniętych celów nie przyspieszają kolejnych spłat.
                 </p>
                 <p>
-                  <strong>Zastosowanie:</strong> Służy jako baza do odczytania różnic między scenariuszami.
+                  <strong>Zastosowanie:</strong> Użyteczny jako baza do porównania i odczytania modelowych różnic.
                 </p>
               </div>
 
@@ -215,13 +215,13 @@ export function PayoffStrategiesKnowledgeCenter({
                 </div>
 
                 <p>
-                  <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem.
+                  <strong>Zasada:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem.
                 </p>
                 <p>
-                  <strong>Koszt odsetek:</strong> Kolejność może ograniczać naliczane odsetki w modelu, ale wynik zależy od danych i założeń symulacji.
+                  <strong>Koszty:</strong> Może ograniczać całkowity koszt odsetek w modelu, zależnie od sald, stóp, minimalnych rat i budżetu nadpłaty.
                 </p>
                 <p>
-                  <strong>Charakter:</strong> To opis mechanizmu, a nie indywidualna rekomendacja.
+                  <strong>Psychologia:</strong> Może opóźnić moment zamknięcia pierwszego zobowiązania (brak szybkich, małych sukcesów).
                 </p>
               </div>
 
@@ -290,13 +290,13 @@ export function PayoffStrategiesKnowledgeCenter({
                 </div>
 
                 <p>
-                  <strong>Priorytet:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem.
+                  <strong>Zasada:</strong> Nadpłata jest kierowana najpierw na zobowiązanie z najmniejszym saldem.
                 </p>
                 <p>
-                  <strong>Kamienie milowe:</strong> Strategia pokazuje wcześniejsze zamykanie mniejszych zobowiązań w modelu.
+                  <strong>Psychologia:</strong> Ułatwia osiągnięcie wczesnych kamieni milowych i może działać motywująco (szybkie uwalnianie rat).
                 </p>
                 <p>
-                  <strong>Koszty:</strong> Nie oznacza automatycznie niższego kosztu odsetkowego.
+                  <strong>Koszty:</strong> Przy określonych założeniach, może skutkować wyższym szacowanym kosztem odsetek niż alternatywy.
                 </p>
               </div>
 
@@ -359,13 +359,13 @@ export function PayoffStrategiesKnowledgeCenter({
                 </div>
 
                 <p>
-                  <strong>Priorytet:</strong> Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji.
+                  <strong>Zasada:</strong> Symulacja podąża za listą priorytetów zdefiniowaną ręcznie przez użytkownika (po normalizacji).
                 </p>
                 <p>
-                  <strong>Kaskada:</strong> Cała nadpłata trafia na cel nr 1, a po jego spłacie uwolniona rata zasila kolejne pozycje.
+                  <strong>Elastyczność:</strong> Pozwala na odzwierciedlenie osobistych preferencji lub ograniczeń życiowych, których inne modele nie widzą.
                 </p>
                 <p>
-                  <strong>Wynik:</strong> Koszt i czas spłaty wynikają wprost ze wskazanej kolejności celów.
+                  <strong>Wynik:</strong> Ustalona kolejność decyduje o przebiegu kaskady, ale nie jest automatycznie optymalna matematycznie.
                 </p>
               </div>
 
