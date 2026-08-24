@@ -859,7 +859,7 @@ export function DebtDetailsModal({
                     Powiązane transakcje {linkedTransactions.length > 0 && `(${linkedTransactions.length})`}
                   </h4>
                   <p className="text-xs text-text-muted mb-4">
-                    To historia transakcji ręcznie powiązanych z tym zobowiązaniem. Nie aktualizuje automatycznie jego salda ani harmonogramu spłaty.
+                    To podsumowanie dotyczy wyłącznie transakcji ręcznie powiązanych z tym zobowiązaniem. Nie przedstawia aktualnego salda ani podziału na kapitał i odsetki.
                   </p>
                   
                   {linkedTransactions.length === 0 ? (
@@ -870,6 +870,56 @@ export function DebtDetailsModal({
                       </p>
                     </div>
                   ) : (
+                    <>
+                      {(() => {
+                        const linkedSummaryByCurrency = linkedTransactions.reduce((acc, tx) => {
+                          const curr = tx.currency || debt.currency || "PLN";
+                          if (!acc[curr]) acc[curr] = 0;
+                          acc[curr] += (tx.type === "income" ? tx.amount : -tx.amount);
+                          return acc;
+                        }, {} as Record<string, number>);
+
+                        const validDates = linkedTransactions
+                          .map(tx => tx.isoDate)
+                          .filter(d => {
+                            if (!d) return false;
+                            const date = new Date(d);
+                            return !isNaN(date.getTime());
+                          })
+                          .sort();
+
+                        return (
+                          <dl className="mb-4 grid grid-cols-2 gap-2">
+                            <div className="p-3 bg-surface-2 rounded-xl border border-border flex flex-col justify-center">
+                              <dt className="text-[10px] uppercase font-bold tracking-wider text-text-muted mb-0.5">Łącznie transakcji</dt>
+                              <dd className="text-sm font-bold text-text-main tabular-nums m-0">{linkedTransactions.length}</dd>
+                            </div>
+                            <div className="p-3 bg-surface-2 rounded-xl border border-border flex flex-col justify-center">
+                              <dt className="text-[10px] uppercase font-bold tracking-wider text-text-muted mb-0.5">Suma kwot transakcji</dt>
+                              <dd className="text-sm font-bold tabular-nums m-0 flex flex-col gap-0.5">
+                                {Object.entries(linkedSummaryByCurrency).map(([curr, amountValue]) => {
+                                  const amount = amountValue as number;
+                                  return (
+                                    <span key={curr} className={amount > 0 ? "text-brand" : "text-text-main"}>
+                                      {amount > 0 ? "+" : amount < 0 ? "-" : ""}{formatMoney(Math.abs(amount), curr)}
+                                    </span>
+                                  );
+                                })}
+                              </dd>
+                            </div>
+                            <div className="p-3 bg-surface-2 rounded-xl border border-border col-span-2 flex flex-col justify-center">
+                              <dt className="text-[10px] uppercase font-bold tracking-wider text-text-muted mb-0.5">Zakres dat</dt>
+                              <dd className="text-sm font-bold text-text-main m-0">
+                                {validDates.length > 0 
+                                  ? (validDates[0] === validDates[validDates.length - 1] 
+                                      ? formatDate(validDates[0]) 
+                                      : `${formatDate(validDates[0])} — ${formatDate(validDates[validDates.length - 1])}`)
+                                  : "Brak danych"}
+                              </dd>
+                            </div>
+                          </dl>
+                        );
+                      })()}
                     <div className="space-y-2">
                       {linkedTransactions.map((tx) => (
                         <div key={tx.id} className="flex items-center justify-between p-3 bg-surface-2 border border-border rounded-xl hover:bg-surface-hover transition-colors">
@@ -910,6 +960,7 @@ export function DebtDetailsModal({
                         </div>
                       ))}
                     </div>
+                    </>
                   )}
                 </div>
               </div>

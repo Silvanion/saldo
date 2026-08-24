@@ -139,4 +139,26 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     fireEvent.click(editBtn);
     expect(onOpenTxModal).toHaveBeenCalledWith(tx1);
   });
+
+  it("renders the transaction summary block with correct values", () => {
+    render(
+      <DebtDetailsModal 
+        isOpen={true} 
+        onClose={vi.fn()} 
+        debt={mockDebt} 
+        transactions={[tx1, tx2]} // Both are expense (-2500) so sum is -5000 
+      />
+    );
+    
+    // Check summary block labels
+    expect(screen.getAllByText("Łącznie transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Suma kwot transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Zakres dat").length).toBeGreaterThan(0);
+
+    // Check count value in summary
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    
+    // Check that there is no "Brak danych"
+    expect(screen.queryByText("Brak danych")).toBeNull();
+  });
 });
