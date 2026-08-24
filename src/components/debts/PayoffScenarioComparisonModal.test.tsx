@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import React from "react";
 import { render, screen, fireEvent, within, cleanup } from "@testing-library/react";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
 import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { DebtPayoffScenario, DebtItem } from "../../types";
 
@@ -37,6 +37,14 @@ const mockScenarios: DebtPayoffScenario[] = [
     createdAt: "2026-01-02"
   }
 ];
+
+beforeAll(() => {
+  // Mock getClientRects for JSDOM so useFocusTrap's isVisible check works
+  Object.defineProperty(HTMLElement.prototype, 'getClientRects', {
+    configurable: true,
+    value: () => [{ width: 10, height: 10, top: 0, left: 0 }]
+  });
+});
 
 describe("PayoffScenarioComparisonModal", () => {
   afterEach(() => {

@@ -8,6 +8,7 @@ import {
 import { formatMoney } from "../../utils/format";
 import { PayoffScenarioComparisonModal } from "./PayoffScenarioComparisonModal";
 import { DebtPayoffStrategyType } from "./DebtScenarioConfigSection";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 export interface DebtScenarioModalsProps {
   currency: SupportedCurrency;
@@ -72,12 +73,21 @@ export function DebtScenarioModals({
   onDuplicateSubmit,
   onCloseDuplicateScenario
 }: DebtScenarioModalsProps) {
+  const saveModalRef = React.useRef<HTMLDivElement>(null);
+  const renameModalRef = React.useRef<HTMLDivElement>(null);
+  const duplicateModalRef = React.useRef<HTMLDivElement>(null);
+
+  useFocusTrap(saveModalRef, isSaveScenarioModalOpen, onCloseSaveScenario);
+  useFocusTrap(renameModalRef, !!renameModalScenario, onCloseRenameScenario);
+  useFocusTrap(duplicateModalRef, !!duplicateModalScenario, onCloseDuplicateScenario);
+
   return (
     <>
       {/* MODAL 5: SAVE SCENARIO */}
       {isSaveScenarioModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div
+            ref={saveModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
             aria-modal="true"
@@ -183,6 +193,7 @@ export function DebtScenarioModals({
       {renameModalScenario && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div
+            ref={renameModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
             aria-modal="true"
@@ -250,6 +261,7 @@ export function DebtScenarioModals({
       {duplicateModalScenario && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div
+            ref={duplicateModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
             aria-modal="true"

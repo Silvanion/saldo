@@ -5,6 +5,7 @@ import {
   calculatePortfolioPayoffStrategies,
   buildValidatedCustomOrder
 } from "../../services/debtCalculations";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import {
   X,
   GitCompare,
@@ -36,27 +37,8 @@ export function PayoffScenarioComparisonModal({
   currency,
   onLoadScenario
 }: PayoffScenarioComparisonModalProps) {
-  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      const timeout = setTimeout(() => {
-        if (closeButtonRef.current) {
-          closeButtonRef.current.focus();
-        }
-      }, 0);
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown);
-        clearTimeout(timeout);
-      };
-    }
-  }, [isOpen, onClose]);
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen, onClose);
 
   const getStrategyBadge = (strategy: string) => {
     switch (strategy) {
@@ -144,6 +126,7 @@ export function PayoffScenarioComparisonModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div
+        ref={modalRef}
         className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-3xl shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
         role="dialog"
         aria-modal="true"
@@ -165,7 +148,6 @@ export function PayoffScenarioComparisonModal({
             </div>
           </div>
           <button
-            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
