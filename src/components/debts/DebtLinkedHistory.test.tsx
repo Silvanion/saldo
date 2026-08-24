@@ -92,6 +92,7 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
       />
     );
     
+    expect(screen.getAllByText("Powiązane transakcje (2)").length).toBeGreaterThan(0);
     expect(screen.getByText("Rata majowa")).toBeTruthy();
     expect(screen.getByText("Rata czerwcowa")).toBeTruthy();
     expect(screen.queryByText("Paliwo")).toBeNull();
@@ -134,7 +135,7 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
       />
     );
     
-    const editBtn = screen.getByRole("button", { name: "Edytuj transakcję Rata majowa" });
+    const editBtn = screen.getByRole("button", { name: "Edytuj transakcję Rata majowa — 2026-05-10" });
     fireEvent.click(editBtn);
     expect(onOpenTxModal).toHaveBeenCalledWith(tx1);
   });

@@ -855,7 +855,7 @@ export function DebtDetailsModal({
                 {/* SPRINT 77: Linked Transactions History */}
                 <div className="p-5 bg-surface border border-border rounded-2xl">
                   <h4 className="text-sm font-bold text-text-main mb-1">
-                    Powiązane transakcje
+                    Powiązane transakcje {linkedTransactions.length > 0 && `(${linkedTransactions.length})`}
                   </h4>
                   <p className="text-xs text-text-muted mb-4">
                     To historia transakcji ręcznie powiązanych z tym zobowiązaniem. Nie aktualizuje automatycznie jego salda ani harmonogramu spłaty.
@@ -899,7 +899,7 @@ export function DebtDetailsModal({
                               <button
                                 onClick={() => onOpenTxModal(tx)}
                                 className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer"
-                                aria-label={`Edytuj transakcję ${tx.name || "bez opisu"}`}
+                                aria-label={`Edytuj transakcję ${tx.name || "bez opisu"} — ${tx.isoDate}`}
                                 title="Edytuj transakcję"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
