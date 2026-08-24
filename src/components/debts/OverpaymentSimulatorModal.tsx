@@ -76,6 +76,7 @@ export function OverpaymentSimulatorModal({
           className="bg-surface border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="overpayment-modal-title"
         >
           {/* Header */}
           <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/30">
@@ -84,7 +85,7 @@ export function OverpaymentSimulatorModal({
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-text-main">
+                <h2 id="overpayment-modal-title" className="text-base sm:text-lg font-bold text-text-main">
                   Symulator nadpłaty zobowiązania
                 </h2>
                 <p className="text-xs text-text-muted">

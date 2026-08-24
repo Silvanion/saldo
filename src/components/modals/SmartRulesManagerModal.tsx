@@ -72,6 +72,7 @@ export function SmartRulesManagerModal({
           className="bg-surface border border-border w-full max-w-3xl rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="smart-rules-manager-title"
         >
           {/* Header */}
           <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0">
@@ -80,7 +81,7 @@ export function SmartRulesManagerModal({
                 <Settings2 className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-text-main">
+                <h2 id="smart-rules-manager-title" className="text-base sm:text-lg font-bold text-text-main">
                   Zarządzaj inteligentnymi regułami
                 </h2>
                 <p className="text-xs text-text-muted">
@@ -193,12 +194,17 @@ export function SmartRulesManagerModal({
               transition={{ duration: 0.15 }}
               className="absolute inset-0 flex items-center justify-center z-50 p-4 bg-black/40 backdrop-blur-xs"
             >
-              <div className="bg-surface p-6 rounded-3xl max-w-sm w-full border border-border shadow-xl">
+              <div
+                className="bg-surface p-6 rounded-3xl max-w-sm w-full border border-border shadow-xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="smart-rules-delete-title"
+              >
                 <div className="flex items-center gap-3 mb-4 text-status-expense">
                   <div className="w-10 h-10 rounded-full bg-status-expense/10 flex items-center justify-center shrink-0">
                     <AlertCircle className="w-5 h-5" />
                   </div>
-                  <h3 className="text-lg font-bold text-text-main">Usuń regułę</h3>
+                  <h3 id="smart-rules-delete-title" className="text-lg font-bold text-text-main">Usuń regułę</h3>
                 </div>
                 <p className="text-text-muted text-sm mb-6">
                   Czy na pewno chcesz usunąć tę regułę? Transakcje już nią przypisane nie zmienią się. Tej akcji nie można cofnąć.

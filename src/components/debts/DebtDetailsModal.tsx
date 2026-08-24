@@ -467,6 +467,7 @@ export function DebtDetailsModal({
           className="bg-surface border border-border w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="debt-details-modal-title"
         >
           {/* Top Header */}
           <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/40">
@@ -476,7 +477,7 @@ export function DebtDetailsModal({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg sm:text-xl font-bold text-text-main truncate">
+                  <h2 id="debt-details-modal-title" className="text-lg sm:text-xl font-bold text-text-main truncate">
                     {debt.name}
                   </h2>
                   <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-brand-subtle text-brand border border-brand/20">

@@ -225,6 +225,7 @@ export function RefinanceComparisonModal({
           className="bg-surface border border-border w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="refinance-modal-title"
         >
           {/* Header */}
           <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/40">
@@ -233,7 +234,7 @@ export function RefinanceComparisonModal({
                 <Scale className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-text-main">
+                <h2 id="refinance-modal-title" className="text-base sm:text-lg font-bold text-text-main">
                   Wieloofertowy kalkulator refinansowania
                 </h2>
                 <p className="text-xs text-text-muted">
