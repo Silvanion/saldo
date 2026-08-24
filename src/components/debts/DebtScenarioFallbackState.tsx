@@ -73,7 +73,7 @@ export function DebtScenarioFallbackState({
         </h3>
         <p className="text-sm text-text-muted max-w-md leading-relaxed">
           {message ||
-            "Dodaj co najmniej jedno zobowiązanie, aby zobaczyć możliwe strategie spłaty. Po wprowadzeniu danych moduł obliczy optymalne harmonogramy i potencjalne oszczędności."}
+            "Dodaj co najmniej jedno zobowiązanie, aby zobaczyć symulację spłaty."}
         </p>
         <div className="pt-2 flex items-center gap-2 flex-wrap justify-center">
           {onAddDebt && (
@@ -151,7 +151,7 @@ export function DebtScenarioFallbackState({
             </h4>
             <p className="text-sm text-text-muted leading-relaxed">
               {message ||
-                "Uzupełnij kolejność zobowiązań na liście poniżej albo wybierz Lawinę lub Kulę Śnieżną."}
+                "Uzupełnij kolejność wszystkich zobowiązań, aby uruchomić pełną symulację Custom."}
             </p>
           </div>
         </div>

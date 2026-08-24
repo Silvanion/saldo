@@ -126,7 +126,7 @@ export function DebtPayoffRoadmap({
               </span>
             ) : (
               <span className="text-xs text-text-muted font-medium block">
-                W tym scenariuszu model nie pokazuje różnicy względem planu bazowego. Wynik zależy od aktualnych danych, rat, oprocentowania i dodatkowego budżetu.
+                Przy dodatkowym budżecie 0 zł symulacja nie zakłada dodatkowego przyspieszenia spłaty.
               </span>
             )}
           </div>
@@ -378,7 +378,7 @@ export function DebtPayoffRoadmap({
                   </span>
                 ) : (
                   <span>
-                    To Twoje jedyne lub ostatnie zobowiązanie w symulacji. Po jego spłacie stajesz się wolny od długów.
+                    To jedyne zobowiązanie w tej symulacji. Po jego spłacie nie ma kolejnego celu w kolejce.
                   </span>
                 )}
               </div>

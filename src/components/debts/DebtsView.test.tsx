@@ -3779,7 +3779,7 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         );
 
         expect(screen.getByText("Własna kolejność nie jest jeszcze gotowa do porównania")).toBeTruthy();
-        expect(screen.getByText(/Uzupełnij kolejność zobowiązań/i)).toBeTruthy();
+        expect(screen.getByText(/Uzupełnij kolejność wszystkich zobowiązań/i)).toBeTruthy();
 
         const avalancheBtn = screen.getByRole("button", { name: /Wybierz Lawinę/i });
         fireEvent.click(avalancheBtn);
