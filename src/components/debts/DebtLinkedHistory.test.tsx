@@ -146,7 +146,7 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
         isOpen={true} 
         onClose={vi.fn()} 
         debt={mockDebt} 
-        transactions={[tx1, tx2]} // Both are expense (-2500) so sum is -5000 
+        transactions={[tx1, tx2]} // Both are clean
       />
     );
     
@@ -159,6 +159,32 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     expect(screen.getAllByText("2").length).toBeGreaterThan(0);
     
     // Check that there is no "Brak danych"
-    expect(screen.queryByText("Brak danych")).toBeNull();
+    expect(screen.queryAllByText("Brak danych").length).toBe(0);
+  });
+
+  it("renders data quality notice when transactions have incomplete data", () => {
+    const txMissingDesc = { ...tx1, id: "tx-missing-desc", name: "" };
+    const txMissingDate = { ...tx2, id: "tx-missing-date", isoDate: "" };
+    const txInvalidDate = { ...tx2, id: "tx-invalid-date", isoDate: "invalid-date" };
+    const txMissingCurr = { ...tx1, id: "tx-missing-curr", currency: undefined };
+
+    render(
+      <DebtDetailsModal 
+        isOpen={true} 
+        onClose={vi.fn()} 
+        debt={mockDebt} 
+        transactions={[txMissingDesc, txMissingDate, txInvalidDate, txMissingCurr]} 
+      />
+    );
+
+    // Notice should be visible
+    expect(screen.getAllByText("Jakość danych historii").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Niektóre powiązane transakcje mają niepełne dane. Historia obejmuje wyłącznie transakcje ręcznie powiązane z tym zobowiązaniem.").length).toBeGreaterThan(0);
+    
+    // Check specific conditions
+    expect(screen.getAllByText("Brak opisu transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Brak daty transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nieprawidłowa data transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Użyto waluty zobowiązania jako wartości domyślnej").length).toBeGreaterThan(0);
   });
 });

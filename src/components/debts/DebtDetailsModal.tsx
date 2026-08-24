@@ -888,8 +888,60 @@ export function DebtDetailsModal({
                           })
                           .sort();
 
+                        const qualityIssues = new Set<string>();
+                        let transactionsWithIssuesCount = 0;
+                        
+                        linkedTransactions.forEach(tx => {
+                          let hasIssue = false;
+                          
+                          if (!tx.name) {
+                            hasIssue = true;
+                            qualityIssues.add("Brak opisu transakcji");
+                          }
+                          
+                          if (!tx.isoDate) {
+                            hasIssue = true;
+                            qualityIssues.add("Brak daty transakcji");
+                          } else if (isNaN(new Date(tx.isoDate).getTime())) {
+                            hasIssue = true;
+                            qualityIssues.add("Nieprawidłowa data transakcji");
+                          }
+                          
+                          if (!tx.currency) {
+                            hasIssue = true;
+                            qualityIssues.add("Użyto waluty zobowiązania jako wartości domyślnej");
+                          }
+                          
+                          if (hasIssue) {
+                            transactionsWithIssuesCount++;
+                          }
+                        });
+
+                        const issuesList = Array.from(qualityIssues);
+                        const hasQualityIssues = transactionsWithIssuesCount > 0;
+
                         return (
-                          <dl className="mb-4 grid grid-cols-2 gap-2">
+                          <>
+                            {hasQualityIssues && (
+                              <div className="mb-4 p-3 bg-surface-offset border border-border rounded-xl text-xs text-text-main">
+                                <div className="flex items-center gap-1.5 font-bold mb-1">
+                                  <Info className="w-4 h-4 text-text-muted" />
+                                  <span>Jakość danych historii</span>
+                                </div>
+                                <p className="text-text-muted mb-2">
+                                  Niektóre powiązane transakcje mają niepełne dane. Historia obejmuje wyłącznie transakcje ręcznie powiązane z tym zobowiązaniem.
+                                </p>
+                                <ul className="list-disc pl-5 mb-2 text-text-muted space-y-0.5">
+                                  {issuesList.map((issue, idx) => (
+                                    <li key={idx}>{issue}</li>
+                                  ))}
+                                </ul>
+                                <p className="text-text-muted text-[11px]">
+                                  Sprawdź szczegóły transakcji, jeśli chcesz uzupełnić brakujące informacje.
+                                </p>
+                              </div>
+                            )}
+                            <dl className="mb-4 grid grid-cols-2 gap-2">
                             <div className="p-3 bg-surface-2 rounded-xl border border-border flex flex-col justify-center">
                               <dt className="text-[10px] uppercase font-bold tracking-wider text-text-muted mb-0.5">Łącznie transakcji</dt>
                               <dd className="text-sm font-bold text-text-main tabular-nums m-0">{linkedTransactions.length}</dd>
@@ -917,7 +969,8 @@ export function DebtDetailsModal({
                                   : "Brak danych"}
                               </dd>
                             </div>
-                          </dl>
+                            </dl>
+                          </>
                         );
                       })()}
                     <div className="space-y-2">
