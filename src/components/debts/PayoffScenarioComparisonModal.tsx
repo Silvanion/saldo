@@ -36,7 +36,7 @@ export function PayoffScenarioComparisonModal({
   currency,
   onLoadScenario
 }: PayoffScenarioComparisonModalProps) {
-  if (!isOpen) return null;
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -46,10 +46,16 @@ export function PayoffScenarioComparisonModal({
     };
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
+      const timeout = setTimeout(() => {
+        if (closeButtonRef.current) {
+          closeButtonRef.current.focus();
+        }
+      }, 0);
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+        clearTimeout(timeout);
+      };
     }
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
   }, [isOpen, onClose]);
 
   const getStrategyBadge = (strategy: string) => {
@@ -71,6 +77,12 @@ export function PayoffScenarioComparisonModal({
         sc.strategy === "custom"
           ? buildValidatedCustomOrder(activeDebts, sc.customDebtOrder)
           : undefined;
+      if (!isOpen) {
+        return {
+          scenario: sc,
+          result: undefined
+        };
+      }
       const comparison = calculatePortfolioPayoffStrategies(
         activeDebts,
         sc.extraMonthlyPayment || 0,
@@ -127,6 +139,8 @@ export function PayoffScenarioComparisonModal({
     };
   }, [simulatedScenarios, currency]);
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div
@@ -151,6 +165,7 @@ export function PayoffScenarioComparisonModal({
             </div>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"

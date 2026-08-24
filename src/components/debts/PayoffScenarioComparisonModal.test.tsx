@@ -152,4 +152,41 @@ describe("PayoffScenarioComparisonModal", () => {
     expect(textContent).not.toMatch(/\bNaN\b/);
     expect(textContent).not.toMatch(/\bundefined\b/);
   });
+
+  it("places initial focus on the close button when opened", async () => {
+    vi.useFakeTimers();
+    render(
+      <PayoffScenarioComparisonModal
+        isOpen={true}
+        onClose={vi.fn()}
+        scenarios={mockScenarios}
+        activeDebts={mockActiveDebts}
+        currency="PLN"
+      />
+    );
+    
+    // Run the setTimeout
+    vi.runAllTimers();
+    
+    const closeButtons = screen.getAllByRole("button", { name: /zamknij/i });
+    expect(document.activeElement).toBe(closeButtons[0]);
+    vi.useRealTimers();
+  });
+
+  it("cleans up the Escape listener on unmount", () => {
+    const onCloseMock = vi.fn();
+    const { unmount } = render(
+      <PayoffScenarioComparisonModal
+        isOpen={true}
+        onClose={onCloseMock}
+        scenarios={mockScenarios}
+        activeDebts={mockActiveDebts}
+        currency="PLN"
+      />
+    );
+
+    unmount();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onCloseMock).not.toHaveBeenCalled();
+  });
 });
