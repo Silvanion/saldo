@@ -16,13 +16,13 @@ export function DebtStrategyContextHint({
       case "avalanche":
         return {
           strategyName: "Metoda Lawiny (Avalanche)",
-          tradeOff: "Najniższy całkowity koszt odsetek, ale wymaga cierpliwości – pierwsza zamknięta rata może pojawić się najpóźniej.",
-          decisionNote: "Zoptymalizowana matematycznie. Wyniki to szacunki zależące od utrzymania wpłat."
+          tradeOff: "Priorytetyzuje redukcję odsetek, ale wymaga cierpliwości – pierwsza zamknięta rata może pojawić się najpóźniej.",
+          decisionNote: "Skupiona na kosztach. Wyniki to szacunki zależące od utrzymania wpłat."
         };
       case "snowball":
         return {
           strategyName: "Metoda Kuli Śnieżnej (Snowball)",
-          tradeOff: "Szybkie uwalnianie pierwszych rat i wzrost motywacji, co odbywa się kosztem wyższych łącznych odsetek.",
+          tradeOff: "Szybkie uwalnianie pierwszych rat i wzrost motywacji, co zwykle wiąże się z wyższym szacowanym kosztem odsetek.",
           decisionNote: "Priorytetyzuje najmniejsze salda. Symulacja zakłada niezmienność stóp procentowych."
         };
       case "custom":

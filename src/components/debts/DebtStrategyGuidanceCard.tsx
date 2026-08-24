@@ -18,8 +18,8 @@ export function DebtStrategyGuidanceCard({
       nameEn: "Avalanche",
       icon: TrendingDown,
       rule: "Najwyższe oprocentowanie (APR) w pierwszej kolejności",
-      bestFor: "Maksymalizacja oszczędności na odsetkach i najniższy łączny koszt kredytów",
-      highlight: "Optymalna matematycznie"
+      bestFor: "Kierowanie nadpłat na najdroższe długi, co zwykle ogranicza koszty",
+      highlight: "Priorytet kosztów"
     },
     {
       id: "snowball" as const,

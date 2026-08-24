@@ -551,7 +551,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     // 4. Verify trade-off summary is present
     expect(
-      screen.getByText(/Avalanche porządkuje zobowiązania według oprocentowania, a Snowball według salda/i)
+      screen.getByText(/Każda strategia odpowiada na inny priorytet/i)
     ).toBeTruthy();
 
     // 5. Verify all strategies explanations are present
@@ -562,17 +562,17 @@ describe("DebtsView (Sprint 1 MVP)", () => {
 
     expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najniższym saldem/i)
+      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najmniejszym saldem/i)
     ).toBeTruthy();
 
     expect(screen.getByText("Własna kolejność (Custom)")).toBeTruthy();
     expect(
-      screen.getByText(/Kolejność spłaty ustalana jest ręcznie przez użytkownika w panelu priorytetyzacji/i)
+      screen.getByText(/Symulacja podąża za listą priorytetów zdefiniowaną ręcznie przez użytkownika/i)
     ).toBeTruthy();
 
     expect(screen.getAllByText("Status Quo (Plan bazowy)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Punkt odniesienia oparty na bieżących założeniach spłaty/i)
+      screen.getByText(/Jest to scenariusz odniesienia oparty na bieżących minimalnych ratach/i)
     ).toBeTruthy();
 
     // 6. Verify metric explanations section (Sprint 32)
@@ -3651,7 +3651,7 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         expect(screen.getByText("Przewodnik po strategiach spłaty")).toBeTruthy();
         expect(screen.getByText("Strategia Lawiny")).toBeTruthy();
         expect(screen.getByText(/Najwyższe oprocentowanie/i)).toBeTruthy();
-        expect(screen.getByText(/Maksymalizacja oszczędności/i)).toBeTruthy();
+        expect(screen.getByText(/Kierowanie nadpłat/i)).toBeTruthy();
 
         expect(screen.getByText("Strategia Kuli Śnieżnej")).toBeTruthy();
         expect(screen.getByText(/Najmniejsze saldo/i)).toBeTruthy();
@@ -3696,8 +3696,8 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         render(<DebtStrategyContextHint selectedStrategy="avalanche" />);
 
         expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
-        expect(screen.getByText(/Najniższy całkowity koszt odsetek/i)).toBeTruthy();
-        expect(screen.getByText(/Zoptymalizowana matematycznie/i)).toBeTruthy();
+        expect(screen.getByText(/Priorytetyzuje redukcję odsetek/i)).toBeTruthy();
+        expect(screen.getByText(/Skupiona na kosztach/i)).toBeTruthy();
       });
 
       it("2. DebtStrategyContextHint renders active strategy and trade-off for Snowball", () => {

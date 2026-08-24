@@ -31,7 +31,7 @@ describe("PayoffStrategiesKnowledgeCenter", () => {
 
     // Specific strategy rules are explained
     expect(screen.getByText(/najwyższym oprocentowaniem/i)).toBeTruthy();
-    expect(screen.getByText(/najniższym saldem/i)).toBeTruthy();
+    expect(screen.getByText(/najmniejszym saldem/i)).toBeTruthy();
     expect(screen.getByText(/ręcznie przez użytkownika/i)).toBeTruthy();
   });
 
