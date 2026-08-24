@@ -1276,6 +1276,21 @@ export function DebtsView({
                 onOpenKnowledgeCenter={() => setActiveMainTab("knowledge")}
               />
 
+              {/* Reset Custom Order Action */}
+              {selectedPayoffStrategy === "custom" && customDebtOrder.length > 0 && (
+                <div className="flex justify-end pt-2 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomDebtOrder([])}
+                    aria-label="Resetuj kolejność spłaty do domyślnej"
+                    className="text-xs font-bold text-text-muted hover:text-text-main flex items-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring rounded-lg px-3 py-2 bg-surface hover:bg-surface-hover border border-transparent hover:border-border cursor-pointer shadow-none active:scale-95"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Resetuj kolejność</span>
+                  </button>
+                </div>
+              )}
+
               {/* Payoff Strategy Results: Comparison Cards, Milestone Card, Knowledge Center, Custom Reorder & Roadmap */}
               <DebtStrategyResultsSection
                 payoffComparison={payoffComparison}
@@ -1513,3 +1528,4 @@ export function DebtsView({
     </div>
   );
 }
+export default DebtsView;

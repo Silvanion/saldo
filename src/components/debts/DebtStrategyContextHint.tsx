@@ -16,27 +16,27 @@ export function DebtStrategyContextHint({
       case "avalanche":
         return {
           strategyName: "Metoda Lawiny (Avalanche)",
-          tradeOff: "Najniższy łączny koszt odsetek i optymalny matematycznie plan spłaty.",
-          decisionNote: "Jeśli zależy Ci na szybszych sukcesach psychologicznych i redukcji liczby rat, sprawdź Kulę Śnieżną."
+          tradeOff: "Najniższy całkowity koszt odsetek, ale wymaga cierpliwości – pierwsza zamknięta rata może pojawić się najpóźniej.",
+          decisionNote: "Zoptymalizowana matematycznie. Wyniki to szacunki zależące od utrzymania wpłat."
         };
       case "snowball":
         return {
           strategyName: "Metoda Kuli Śnieżnej (Snowball)",
-          tradeOff: "Szybkie zamykanie najmniejszych długów i wysoka motywacja kosztem nieco wyższych łącznych odsetek.",
-          decisionNote: "Jeśli Twoim priorytetem jest zaoszczędzenie jak największej kwoty na odsetkach, przełącz na Lawinę."
+          tradeOff: "Szybkie uwalnianie pierwszych rat i wzrost motywacji, co odbywa się kosztem wyższych łącznych odsetek.",
+          decisionNote: "Priorytetyzuje najmniejsze salda. Symulacja zakłada niezmienność stóp procentowych."
         };
       case "custom":
         return {
           strategyName: "Własna kolejność (Custom)",
-          tradeOff: "Pełna kontrola nad kolejnością spłat według Twoich osobistych priorytetów.",
-          decisionNote: "Porównaj ten wariant z Lawiną, aby sprawdzić koszt wybranej kolejności."
+          tradeOff: "Kolejność w pełni podyktowana Twoją konfiguracją, niezależnie od wielkości salda czy odsetek.",
+          decisionNote: "Ta symulacja odzwierciedla wyłącznie przyjętą przez Ciebie kolejność. Porównaj wynik ze statusem Quo."
         };
       case "baseline":
       default:
         return {
           strategyName: "Plan bazowy (Status Quo)",
-          tradeOff: "Spłata wyłącznie minimalnych rat bez mechanizmu kaskadowego.",
-          decisionNote: "Wybierz Lawinę lub Kulę Śnieżną, aby przyspieszyć spłatę i zaoszczędzić na odsetkach."
+          tradeOff: "Opłacanie wyłącznie rat wymaganych przez banki, bez kaskadowego nadpłacania kolejnych zobowiązań.",
+          decisionNote: "Twój punkt odniesienia. Pokazuje orientacyjny przebieg spłaty przy braku jakiejkolwiek nadpłaty."
         };
     }
   };

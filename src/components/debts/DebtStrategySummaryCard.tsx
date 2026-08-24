@@ -72,22 +72,22 @@ export function DebtStrategySummaryCard({
             </div>
             <div className="flex justify-between">
               <span className="text-text-faint">Oszczędność:</span>
-              <span className="font-medium text-text-muted">0 zł (brak nadpłat)</span>
+              <span className="font-medium text-text-muted">Punkt odniesienia</span>
             </div>
           </>
         ) : (
           <>
-            <div className="flex justify-between">
-              <span className="text-text-faint">Zaoszczędzone odsetki:</span>
+            <div className="flex justify-between items-center">
+              <span className="text-text-faint" title="Porównanie względem scenariusza bazowego">Odsetki vs Status Quo:</span>
               <span className="font-bold text-brand">
                 +{formatMoney(result.interestSavedVsBaseline, currency)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-text-faint">Zaoszczędzony czas:</span>
+            <div className="flex justify-between items-center">
+              <span className="text-text-faint" title="Porównanie względem scenariusza bazowego">Czas vs Status Quo:</span>
               <span className="font-bold text-success">
                 {result.monthsSavedVsBaseline > 0
-                  ? `-${result.monthsSavedVsBaseline} mies. (~${Math.round((result.monthsSavedVsBaseline / 12) * 10) / 10} lat)`
+                  ? `-${result.monthsSavedVsBaseline} mies.`
                   : "0 mies."}
               </span>
             </div>

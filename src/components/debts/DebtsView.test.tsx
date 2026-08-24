@@ -3696,22 +3696,22 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
         render(<DebtStrategyContextHint selectedStrategy="avalanche" />);
 
         expect(screen.getByText(/Aktywny wybór: Metoda Lawiny/i)).toBeTruthy();
-        expect(screen.getByText(/Najniższy łączny koszt odsetek/i)).toBeTruthy();
-        expect(screen.getByText(/sprawdź Kulę Śnieżną/i)).toBeTruthy();
+        expect(screen.getByText(/Najniższy całkowity koszt odsetek/i)).toBeTruthy();
+        expect(screen.getByText(/Zoptymalizowana matematycznie/i)).toBeTruthy();
       });
 
       it("2. DebtStrategyContextHint renders active strategy and trade-off for Snowball", () => {
         render(<DebtStrategyContextHint selectedStrategy="snowball" />);
 
         expect(screen.getByText(/Aktywny wybór: Metoda Kuli Śnieżnej/i)).toBeTruthy();
-        expect(screen.getByText(/Szybkie zamykanie najmniejszych długów/i)).toBeTruthy();
+        expect(screen.getByText(/Szybkie uwalnianie pierwszych rat/i)).toBeTruthy();
       });
 
       it("3. DebtStrategyContextHint renders active strategy and trade-off for Custom", () => {
         render(<DebtStrategyContextHint selectedStrategy="custom" />);
 
         expect(screen.getByText(/Aktywny wybór: Własna kolejność/i)).toBeTruthy();
-        expect(screen.getByText(/Pełna kontrola nad kolejnością spłat/i)).toBeTruthy();
+        expect(screen.getByText(/Kolejność w pełni podyktowana Twoją konfiguracją/i)).toBeTruthy();
       });
 
       it("4. DebtStrategyContextHint calls onOpenKnowledgeCenter when button is clicked", () => {
