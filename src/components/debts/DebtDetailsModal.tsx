@@ -1002,13 +1002,19 @@ export function DebtDetailsModal({
                         return (
                           <div key={tx.id} className={`flex flex-col p-3 rounded-xl border transition-colors ${hasRowIssue ? "bg-surface-offset border-border/80" : "bg-surface-2 border-border hover:bg-surface-hover"}`}>
                             <div className="flex items-center justify-between">
-                              <div className="min-w-0 flex-1 pr-4">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-xs font-bold text-text-main truncate">
+                              <div className="min-w-0 flex-1 pr-3 sm:pr-4">
+                                <div className="flex items-start gap-2 mb-1">
+                                  <span 
+                                    className="text-xs font-bold text-text-main line-clamp-2 break-words"
+                                    title={tx.name || "Transakcja bez opisu"}
+                                  >
                                     {tx.name || "Transakcja bez opisu"}
                                   </span>
                                   {tx.category && (
-                                    <span className="text-[10px] bg-surface border border-border px-1.5 py-0.5 rounded-md text-text-muted truncate">
+                                    <span 
+                                      className="text-[10px] bg-surface border border-border px-1.5 py-0.5 rounded-md text-text-muted truncate shrink-0 max-w-[100px] sm:max-w-[140px] mt-0.5"
+                                      title={tx.category}
+                                    >
                                       {tx.category}
                                     </span>
                                   )}
@@ -1028,7 +1034,7 @@ export function DebtDetailsModal({
                                 {onOpenTxModal && (
                                   <button
                                     onClick={() => onOpenTxModal(tx)}
-                                    className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer"
+                                    className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer shrink-0"
                                     aria-label={`Edytuj transakcję ${tx.name || "bez opisu"} — ${tx.isoDate}`}
                                     title="Edytuj transakcję"
                                   >
@@ -1038,11 +1044,11 @@ export function DebtDetailsModal({
                               </div>
                             </div>
                             {hasRowIssue && (
-                              <div id={`review-issue-${tx.id}`} className="mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted flex items-start gap-1.5">
-                                <span className="font-bold shrink-0 text-text-main bg-surface-2 px-1.5 py-0.5 rounded border border-border/50">
+                              <div className="mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-2">
+                                <span className="font-bold w-fit shrink-0 text-text-main bg-surface-2 px-1.5 py-0.5 rounded border border-border/50">
                                   Do sprawdzenia
                                 </span>
-                                <span className="leading-relaxed">
+                                <span className="leading-relaxed break-words">
                                   {rowIssues.join(", ")}
                                 </span>
                               </div>
