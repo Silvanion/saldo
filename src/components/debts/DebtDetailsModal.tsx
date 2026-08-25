@@ -895,6 +895,7 @@ export function DebtDetailsModal({
 
                         const qualityIssues = new Set<string>();
                         let transactionsWithIssuesCount = 0;
+                        let firstAffectedTxId: string | null = null;
                         
                         linkedTransactions.forEach(tx => {
                           let hasIssue = false;
@@ -918,6 +919,9 @@ export function DebtDetailsModal({
                           }
                           
                           if (hasIssue) {
+                            if (transactionsWithIssuesCount === 0) {
+                              firstAffectedTxId = tx.id;
+                            }
                             transactionsWithIssuesCount++;
                           }
                         });
@@ -941,6 +945,9 @@ export function DebtDetailsModal({
                                     <li key={idx}>{issue}</li>
                                   ))}
                                 </ul>
+                                <div className="mb-2 font-bold text-text-main">
+                                  Liczba transakcji wymagających sprawdzenia: {transactionsWithIssuesCount}
+                                </div>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                   <button
                                     type="button"
@@ -952,8 +959,23 @@ export function DebtDetailsModal({
                                   >
                                     Sprawdź transakcje
                                   </button>
+                                  {firstAffectedTxId && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const firstIssue = document.getElementById(`review-row-${firstAffectedTxId}`);
+                                        if (firstIssue) {
+                                          firstIssue.focus();
+                                          firstIssue.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }
+                                      }}
+                                      className="px-3 py-1.5 bg-surface-2 hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-main transition-colors w-fit shrink-0 cursor-pointer"
+                                    >
+                                      Przejdź do pierwszej
+                                    </button>
+                                  )}
                                   <p className="text-text-muted text-[11px]">
-                                    Możesz przejrzeć powiązane rekordy i uzupełnić ich dane ręcznie.
+                                    Sprawdź szczegóły transakcji, jeśli chcesz uzupełnić brakujące informacje.
                                   </p>
                                 </div>
                               </div>
@@ -1000,7 +1022,12 @@ export function DebtDetailsModal({
                         const hasRowIssue = rowIssues.length > 0;
                         
                         return (
-                          <div key={tx.id} className={`flex flex-col p-3 rounded-xl border transition-colors ${hasRowIssue ? "bg-surface-offset border-border/80" : "bg-surface-2 border-border hover:bg-surface-hover"}`}>
+                          <div 
+                            key={tx.id} 
+                            id={hasRowIssue ? `review-row-${tx.id}` : undefined}
+                            tabIndex={hasRowIssue ? -1 : undefined}
+                            className={`flex flex-col p-3 rounded-xl border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-transparent ${hasRowIssue ? "bg-surface-offset border-border/80" : "bg-surface-2 border-border hover:bg-surface-hover"}`}
+                          >
                             <div className="flex items-center justify-between">
                               <div className="min-w-0 flex-1 pr-3 sm:pr-4">
                                 <div className="flex items-start gap-2 mb-1">

@@ -183,7 +183,7 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     // Notice should be visible
     expect(screen.getAllByText("Jakość danych historii").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Niektóre powiązane transakcje mają niepełne dane. Historia obejmuje wyłącznie transakcje ręcznie powiązane z tym zobowiązaniem.").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Możesz przejrzeć powiązane rekordy i uzupełnić ich dane ręcznie.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Sprawdź szczegóły transakcji, jeśli chcesz uzupełnić brakujące informacje.").length).toBeGreaterThan(0);
 
     // Review action button should be visible
     expect(screen.getAllByText("Sprawdź transakcje").length).toBeGreaterThan(0);
@@ -262,5 +262,28 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     // Check that both issues are present
     expect(screen.getAllByText("Brak opisu transakcji").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Brak daty transakcji").length).toBeGreaterThan(0);
+  });
+
+  it("renders review navigation and focuses first affected row", () => {
+    const txMissingDate = { ...tx1, id: "tx-missing-date", isoDate: "" };
+    render(
+      <DebtDetailsModal isOpen={true} onClose={vi.fn()} debt={mockDebt} transactions={[txMissingDate, tx2]} />
+    );
+    
+    // Check count
+    expect(screen.getByText("Liczba transakcji wymagających sprawdzenia: 1")).toBeTruthy();
+    
+    // Check navigation button exists
+    const navBtn = screen.getByText("Przejdź do pierwszej");
+    expect(navBtn).toBeTruthy();
+    
+    // Test behavior
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    fireEvent.click(navBtn);
+    
+    const firstRow = document.getElementById(`review-row-tx-missing-date`);
+    expect(firstRow).toBeTruthy();
+    expect(firstRow?.tabIndex).toBe(-1);
+    expect(document.activeElement).toBe(firstRow);
   });
 });
