@@ -1,7 +1,7 @@
 /* @vitest-environment jsdom */
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { DebtDetailsModal } from "./DebtDetailsModal";
 import { DebtItem, Transaction } from "../../types";
 
@@ -67,6 +67,9 @@ const txNoDescription: Transaction = {
 };
 
 describe("Sprint 77: Debt-Linked Transaction History", () => {
+  afterEach(() => {
+    cleanup();
+  });
   it("renders empty state when no transactions are linked", () => {
     render(
       <DebtDetailsModal 
@@ -180,11 +183,84 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     // Notice should be visible
     expect(screen.getAllByText("Jakość danych historii").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Niektóre powiązane transakcje mają niepełne dane. Historia obejmuje wyłącznie transakcje ręcznie powiązane z tym zobowiązaniem.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Możesz przejrzeć powiązane rekordy i uzupełnić ich dane ręcznie.").length).toBeGreaterThan(0);
+
+    // Review action button should be visible
+    expect(screen.getAllByText("Sprawdź transakcje").length).toBeGreaterThan(0);
     
     // Check specific conditions
     expect(screen.getAllByText("Brak opisu transakcji").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Brak daty transakcji").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Nieprawidłowa data transakcji").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Użyto waluty zobowiązania jako wartości domyślnej").length).toBeGreaterThan(0);
+  });
+  it("focuses the linked history list when review action is clicked", () => {
+    const txMissingDesc = { ...tx1, id: "tx-missing-desc", name: "" };
+    
+    render(
+      <DebtDetailsModal 
+        isOpen={true} 
+        onClose={vi.fn()} 
+        debt={mockDebt} 
+        transactions={[txMissingDesc]} 
+      />
+    );
+
+    const reviewBtns = screen.getAllByRole("button", { name: "Sprawdź transakcje" });
+    const reviewBtn = reviewBtns[reviewBtns.length - 1]; // get the latest rendered one
+    
+    // Mock scrollIntoView (jsdom doesn't implement it)
+    const scrollIntoViewMock = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
+
+    fireEvent.click(reviewBtn);
+
+    const headings = screen.getAllByText(/Powiązane transakcje/);
+    const heading = headings[headings.length - 1];
+    expect(document.activeElement).toBe(heading);
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+  });
+
+  it("renders row-level review state for missing description", () => {
+    const txMissingDesc = { ...tx1, id: "tx-missing-desc", name: "" };
+    render(
+      <DebtDetailsModal isOpen={true} onClose={vi.fn()} debt={mockDebt} transactions={[txMissingDesc, tx2]} />
+    );
+    // tx2 should not have a warning
+    expect(screen.queryByText("Do sprawdzenia")).toBeTruthy();
+    expect(screen.getAllByText("Brak opisu transakcji").length).toBeGreaterThan(0); // once in summary, once in row
+  });
+
+  it("renders row-level review state for missing or invalid date", () => {
+    const txMissingDate = { ...tx1, id: "tx-missing-date", isoDate: "" };
+    const txInvalidDate = { ...tx2, id: "tx-invalid-date", isoDate: "invalid-date" };
+    render(
+      <DebtDetailsModal isOpen={true} onClose={vi.fn()} debt={mockDebt} transactions={[txMissingDate, txInvalidDate]} />
+    );
+    expect(screen.getAllByText("Do sprawdzenia").length).toBe(2);
+    expect(screen.getAllByText("Brak daty transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nieprawidłowa data transakcji").length).toBeGreaterThan(0);
+  });
+
+  it("renders row-level review state for missing currency", () => {
+    const txMissingCurr = { ...tx1, id: "tx-missing-curr", currency: undefined };
+    render(
+      <DebtDetailsModal isOpen={true} onClose={vi.fn()} debt={mockDebt} transactions={[txMissingCurr]} />
+    );
+    expect(screen.getAllByText("Do sprawdzenia").length).toBe(1);
+    expect(screen.getAllByText("Użyto waluty zobowiązania jako wartości domyślnej").length).toBeGreaterThan(0);
+  });
+
+  it("aggregates multiple issues on a single row without repeating the 'Do sprawdzenia' label", () => {
+    const txMultiIssue = { ...tx1, id: "tx-multi", name: "", isoDate: "" };
+    render(
+      <DebtDetailsModal isOpen={true} onClose={vi.fn()} debt={mockDebt} transactions={[txMultiIssue]} />
+    );
+    // Only 1 'Do sprawdzenia' for the row
+    expect(screen.getAllByText("Do sprawdzenia").length).toBe(1);
+    
+    // Check that both issues are present
+    expect(screen.getAllByText("Brak opisu transakcji").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Brak daty transakcji").length).toBeGreaterThan(0);
   });
 });

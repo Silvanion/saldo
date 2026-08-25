@@ -113,6 +113,7 @@ export function DebtDetailsModal({
   showToast
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const linkedHistoryListRef = useRef<HTMLHeadingElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
 
@@ -855,7 +856,11 @@ export function DebtDetailsModal({
 
                 {/* SPRINT 77: Linked Transactions History */}
                 <div className="p-5 bg-surface border border-border rounded-2xl">
-                  <h4 className="text-sm font-bold text-text-main mb-1">
+                  <h4 
+                    className="text-sm font-bold text-text-main mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:rounded"
+                    tabIndex={-1}
+                    ref={linkedHistoryListRef}
+                  >
                     Powiązane transakcje {linkedTransactions.length > 0 && `(${linkedTransactions.length})`}
                   </h4>
                   <p className="text-xs text-text-muted mb-4">
@@ -931,14 +936,26 @@ export function DebtDetailsModal({
                                 <p className="text-text-muted mb-2">
                                   Niektóre powiązane transakcje mają niepełne dane. Historia obejmuje wyłącznie transakcje ręcznie powiązane z tym zobowiązaniem.
                                 </p>
-                                <ul className="list-disc pl-5 mb-2 text-text-muted space-y-0.5">
+                                <ul className="list-disc pl-5 mb-3 text-text-muted space-y-0.5">
                                   {issuesList.map((issue, idx) => (
                                     <li key={idx}>{issue}</li>
                                   ))}
                                 </ul>
-                                <p className="text-text-muted text-[11px]">
-                                  Sprawdź szczegóły transakcji, jeśli chcesz uzupełnić brakujące informacje.
-                                </p>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      linkedHistoryListRef.current?.focus();
+                                      linkedHistoryListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }}
+                                    className="px-3 py-1.5 bg-surface-2 hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-main transition-colors w-fit shrink-0 cursor-pointer"
+                                  >
+                                    Sprawdź transakcje
+                                  </button>
+                                  <p className="text-text-muted text-[11px]">
+                                    Możesz przejrzeć powiązane rekordy i uzupełnić ich dane ręcznie.
+                                  </p>
+                                </div>
                               </div>
                             )}
                             <dl className="mb-4 grid grid-cols-2 gap-2">
@@ -974,44 +991,65 @@ export function DebtDetailsModal({
                         );
                       })()}
                     <div className="space-y-2">
-                      {linkedTransactions.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between p-3 bg-surface-2 border border-border rounded-xl hover:bg-surface-hover transition-colors">
-                          <div className="min-w-0 flex-1 pr-4">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-bold text-text-main truncate">
-                                {tx.name || "Transakcja bez opisu"}
-                              </span>
-                              {tx.category && (
-                                <span className="text-[10px] bg-surface border border-border px-1.5 py-0.5 rounded-md text-text-muted truncate">
-                                  {tx.category}
+                      {linkedTransactions.map((tx) => {
+                        const rowIssues: string[] = [];
+                        if (!tx.name) rowIssues.push("Brak opisu transakcji");
+                        if (!tx.isoDate) rowIssues.push("Brak daty transakcji");
+                        else if (isNaN(new Date(tx.isoDate).getTime())) rowIssues.push("Nieprawidłowa data transakcji");
+                        if (!tx.currency) rowIssues.push("Użyto waluty zobowiązania jako wartości domyślnej");
+                        const hasRowIssue = rowIssues.length > 0;
+                        
+                        return (
+                          <div key={tx.id} className={`flex flex-col p-3 rounded-xl border transition-colors ${hasRowIssue ? "bg-surface-offset border-border/80" : "bg-surface-2 border-border hover:bg-surface-hover"}`}>
+                            <div className="flex items-center justify-between">
+                              <div className="min-w-0 flex-1 pr-4">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-bold text-text-main truncate">
+                                    {tx.name || "Transakcja bez opisu"}
+                                  </span>
+                                  {tx.category && (
+                                    <span className="text-[10px] bg-surface border border-border px-1.5 py-0.5 rounded-md text-text-muted truncate">
+                                      {tx.category}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] text-text-faint" title={tx.isoDate}>
+                                  {formatDate(tx.isoDate)}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="text-right">
+                                  <span className={`text-sm font-bold tabular-nums block ${tx.type === "income" ? "text-brand" : "text-text-main"}`}>
+                                    {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || debt.currency || "PLN")}
+                                  </span>
+                                </div>
+                                
+                                {onOpenTxModal && (
+                                  <button
+                                    onClick={() => onOpenTxModal(tx)}
+                                    className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer"
+                                    aria-label={`Edytuj transakcję ${tx.name || "bez opisu"} — ${tx.isoDate}`}
+                                    title="Edytuj transakcję"
+                                  >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            {hasRowIssue && (
+                              <div id={`review-issue-${tx.id}`} className="mt-2 pt-2 border-t border-border/50 text-[10px] text-text-muted flex items-start gap-1.5">
+                                <span className="font-bold shrink-0 text-text-main bg-surface-2 px-1.5 py-0.5 rounded border border-border/50">
+                                  Do sprawdzenia
                                 </span>
-                              )}
-                            </div>
-                            <div className="text-[11px] text-text-faint" title={tx.isoDate}>
-                              {formatDate(tx.isoDate)}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-3 shrink-0">
-                            <div className="text-right">
-                              <span className={`text-sm font-bold tabular-nums block ${tx.type === "income" ? "text-brand" : "text-text-main"}`}>
-                                {tx.type === "income" ? "+" : "-"}{formatMoney(tx.amount, tx.currency || debt.currency || "PLN")}
-                              </span>
-                            </div>
-                            
-                            {onOpenTxModal && (
-                              <button
-                                onClick={() => onOpenTxModal(tx)}
-                                className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-lg transition-colors border border-transparent hover:border-border cursor-pointer"
-                                aria-label={`Edytuj transakcję ${tx.name || "bez opisu"} — ${tx.isoDate}`}
-                                title="Edytuj transakcję"
-                              >
-                                <Pencil className="w-3.5 h-3.5" />
-                              </button>
+                                <span className="leading-relaxed">
+                                  {rowIssues.join(", ")}
+                                </span>
+                              </div>
                             )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                     </>
                   )}
