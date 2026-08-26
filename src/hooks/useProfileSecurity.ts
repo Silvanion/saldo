@@ -69,8 +69,12 @@ export function useProfileSecurity({
           activeKeys[activeProfile.id] = key;
           
           const updatedProfiles = state.profiles.map(p => p.id === activeProfile.id ? decrypted : p);
-          
-          saveState({ ...state, profiles: updatedProfiles }, true);
+
+          // Await tak samo jak w handleSetProfilePin: caller (onUnlock) czeka na ten
+          // Promise zanim zamknie UnlockModal, więc bez await szybki reload zaraz po
+          // odblokowaniu mógł trafić na IndexedDB, które wciąż miało wersję zaszyfrowaną
+          // (pusty transactions) — profil znów wyglądałby na zablokowany mimo poprawnego PIN-u.
+          await saveState({ ...state, profiles: updatedProfiles }, true);
           unlockProfile(activeProfile.id);
           // Reset brute-force counters on success
           setFailedAttempts(0);
@@ -110,7 +114,12 @@ export function useProfileSecurity({
           }
           return p;
         });
-        saveState({ ...state, profiles: updatedProfiles });
+        // Musi być await: onSavePin (ModalManager) czeka na tę funkcję i dopiero potem
+        // zamyka modal. Bez await modal zamykał się (i pozwalał np. na reload strony)
+        // zanim zaszyfrowany zapis faktycznie trafił do IndexedDB — szybki reload po
+        // ustawieniu PIN-u cicho "cofał" ochronę, bo IndexedDB wciąż miało stary,
+        // sprzed-PIN-owy stan.
+        await saveState({ ...state, profiles: updatedProfiles });
         unlockProfile(activeProfile.id);
       } else {
         delete activeKeys[activeProfile.id];
@@ -121,7 +130,7 @@ export function useProfileSecurity({
           }
           return p;
         });
-        saveState({ ...state, profiles: updatedProfiles });
+        await saveState({ ...state, profiles: updatedProfiles });
       }
     },
     [activeProfile, state, saveState, unlockProfile]

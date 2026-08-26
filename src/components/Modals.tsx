@@ -334,7 +334,7 @@ export * from "./ProfileModal";
 interface PinModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (pin: string) => void;
+  onSave: (pin: string) => void | Promise<void>;
   onExportData?: () => void;
 }
 
@@ -344,21 +344,28 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
   useFocusTrap(modalRef, isOpen, onClose);
   const [pin, setPin] = useState("");
   const [hasAcceptedWarning, setHasAcceptedWarning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setPin("");
       setHasAcceptedWarning(false);
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!hasAcceptedWarning) return;
     if (!/^\d{4,8}$/.test(pin)) return;
-    onSave(pin);
+    setIsSubmitting(true);
+    // Musi czekać na zaszyfrowany zapis PRZED zamknięciem modala — inaczej użytkownik
+    // widzi "sukces" (modal znika) i może np. odświeżyć stronę, zanim PIN faktycznie
+    // trafi do IndexedDB, co po cichu cofa właśnie ustawioną ochronę.
+    await onSave(pin);
     onClose();
     setPin("");
     setHasAcceptedWarning(false);
@@ -455,11 +462,11 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
           <button
             type="submit"
             form="pin-modal-form"
-            disabled={!hasAcceptedWarning || !/^\d{4,8}$/.test(pin)}
+            disabled={isSubmitting || !hasAcceptedWarning || !/^\d{4,8}$/.test(pin)}
             className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-pin-submit"
           >
-            Zapisz PIN
+            {isSubmitting ? "Zapisywanie..." : "Zapisz PIN"}
           </button>
         </div>
       </motion.div>
