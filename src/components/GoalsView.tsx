@@ -199,7 +199,7 @@ export function GoalsView({
           <h2 className="text-xl font-bold text-text-main truncate" title="Inwestycje długoterminowe">
             Inwestycje długoterminowe
           </h2>
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-surface text-text-muted px-2 py-0.5 rounded-full border border-border shrink-0 truncate max-w-[130px]" title="Moduł informacyjny">
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-surface text-text-muted px-2 py-0.5 rounded-full border border-border shrink-0 whitespace-nowrap">
             Moduł informacyjny
           </span>
         </div>

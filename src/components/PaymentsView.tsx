@@ -250,7 +250,7 @@ export function PaymentsView({
           }`}
         >
           <div className="flex items-center justify-between text-xs font-bold text-danger mb-1">
-            <span className="flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5" /> Zaległe</span>
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-md bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0"><AlertCircle className="w-3 h-3" /></span> Zaległe</span>
             <span className="bg-danger/10 px-2 py-0.5 rounded-full">{horizonSummary.overdue.count}</span>
           </div>
           <div className="text-base sm:text-lg font-black text-danger truncate" title={formatMoney(horizonSummary.overdue.total, profile.currency || "PLN")}>
@@ -269,7 +269,7 @@ export function PaymentsView({
           }`}
         >
           <div className="flex items-center justify-between text-xs font-bold text-warning mb-1">
-            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Na dzisiaj</span>
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-md bg-warning/10 border border-warning/20 flex items-center justify-center shrink-0"><Clock className="w-3 h-3" /></span> Na dzisiaj</span>
             <span className="bg-warning/10 px-2 py-0.5 rounded-full">{horizonSummary.today.count}</span>
           </div>
           <div className="text-base sm:text-lg font-black text-warning truncate" title={formatMoney(horizonSummary.today.total, profile.currency || "PLN")}>
@@ -288,7 +288,7 @@ export function PaymentsView({
           }`}
         >
           <div className="flex items-center justify-between text-xs font-bold text-brand mb-1">
-            <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> Najbliższe 7 dni</span>
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-md bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0"><CalendarDays className="w-3 h-3" /></span> Najbliższe 7 dni</span>
             <span className="bg-brand/10 px-2 py-0.5 rounded-full">{horizonSummary.week.count}</span>
           </div>
           <div className="text-base sm:text-lg font-black text-brand truncate" title={formatMoney(horizonSummary.week.total, profile.currency || "PLN")}>
@@ -307,7 +307,7 @@ export function PaymentsView({
           }`}
         >
           <div className="flex items-center justify-between text-xs font-bold text-text-muted mb-1">
-            <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Najbliższe 30 dni</span>
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-md bg-surface-2 border border-border flex items-center justify-center shrink-0"><Calendar className="w-3 h-3" /></span> Najbliższe 30 dni</span>
             <span className="bg-surface-2 px-2 py-0.5 rounded-full">{horizonSummary.month.count}</span>
           </div>
           <div className="text-base sm:text-lg font-black text-text-main truncate" title={formatMoney(horizonSummary.month.total, profile.currency || "PLN")}>

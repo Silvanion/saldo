@@ -80,7 +80,7 @@ export function HelpView() {
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-300">
+    <div className="w-full space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-300 min-w-0">
       {/* Header Banner */}
       <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 text-text-main relative overflow-hidden shadow-sm">
         <div className="relative z-10 space-y-4">
