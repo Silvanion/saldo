@@ -4,7 +4,7 @@ import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
 import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info, ChevronLeft, ChevronRight, Landmark } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
-import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget } from "./dashboard";
+import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget, FinancialHealthBridgeCard } from "./dashboard";
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -211,6 +211,13 @@ export function DashboardView({
         onAddSettlement={onAddSettlement}
         onDeleteSettlement={onDeleteSettlement}
         showToast={showToast}
+      />
+
+      <FinancialHealthBridgeCard
+        profile={profile}
+        recurringRules={recurringRules}
+        selectedDate={selectedDate}
+        onChangeView={onChangeView}
       />
 
       {/* SPRINT 15: DEBT PORTFOLIO DASHBOARD BRIDGE INSIGHT */}
