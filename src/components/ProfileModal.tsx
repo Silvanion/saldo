@@ -174,7 +174,7 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
 
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-xs text-text-main leading-relaxed">
-              <strong>Wskazówka rodzinna:</strong> Wspólny profil jest zsynchronizowany na serwerze w czasie rzeczywistym. Każdy członek rodziny wchodzący na ten sam link ma dostęp do tych samych danych.
+              <strong>Jak to działa:</strong> Profil wspólny pozostaje w Twoim koncie — to Ty nim zarządzasz. Służy do oznaczania, kto zapłacił za co (Ty / Partner / Wspólnie) i automatycznego wyliczania salda rozliczeń między Wami. Partner nie loguje się osobno i nie ma własnego dostępu do aplikacji — jeśli chcecie razem edytować dane z osobnych urządzeń, musicie korzystać z tego samego konta logowania.
             </p>
           </div>
 

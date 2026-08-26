@@ -56,11 +56,46 @@ export function AppShell({
     setApiError,
     isDemoMode,
     setIsDemoMode,
-    openModal
+    openModal,
+    googleUser,
+    disconnectGoogle,
+    showToast
   } = useApp();
 
   const [showDemoBanner, setShowDemoBanner] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Zamknij menu profilu po kliknięciu poza nim lub klawiszem Escape
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsProfileMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isProfileMenuOpen]);
+
+  const handleLogoutClick = async () => {
+    setIsProfileMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    try {
+      await disconnectGoogle();
+      showToast("Wylogowano z konta Google na tym urządzeniu.", "success");
+    } catch (err: any) {
+      showToast(err?.message || "Błąd podczas wylogowywania.", "error");
+    }
+  };
 
   // Global keyboard shortcut listener for Command Palette (Cmd+K / Ctrl+K / "/")
   useEffect(() => {
@@ -291,26 +326,59 @@ export function AppShell({
           </button>
 
           {activeProfile && (
-            <button
-              onClick={() => {
-                handleSwitchProfile();
-                setIsMobileMenuOpen(false);
-              }}
-              className="flex items-center gap-3 w-full px-3 py-2 bg-surface/30 border border-border rounded-2xl hover:bg-surface-2 hover:border-brand/30 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring group"
-              id="btn-switch-profile"
-              title="Przełącz profil"
-            >
-              <span className="w-8 h-8 rounded-full bg-surface-offset text-text-main text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
-                {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
-              </span>
-              <div className="min-w-0 flex-1 text-left">
-                <p className="text-xs font-black text-text-main truncate" id="profile-tag-name" title={activeProfile.name}>{activeProfile.name}</p>
-                <span className="text-xs text-text-muted block truncate" title={activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}>
-                  {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
+            <div className="relative" ref={profileMenuRef}>
+              {isProfileMenuOpen && (
+                <div
+                  className="absolute bottom-full left-0 right-0 mb-2 bg-surface border border-border rounded-2xl shadow-lg overflow-hidden py-1.5 z-10"
+                  role="menu"
+                  id="profile-account-menu"
+                >
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      handleSwitchProfile();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    role="menuitem"
+                    className="flex items-center gap-2.5 w-full px-3.5 py-2.5 text-xs font-bold text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    id="btn-switch-profile"
+                  >
+                    <ArrowLeftRight className="w-3.5 h-3.5 text-brand shrink-0" />
+                    Przełącz profil
+                  </button>
+                  {googleUser && (
+                    <button
+                      onClick={handleLogoutClick}
+                      role="menuitem"
+                      className="flex items-center gap-2.5 w-full px-3.5 py-2.5 text-xs font-bold text-danger hover:bg-danger-subtle transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="btn-header-logout"
+                    >
+                      <LogOut className="w-3.5 h-3.5 shrink-0" />
+                      Wyloguj z konta Google
+                    </button>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                className="flex items-center gap-3 w-full px-3 py-2 bg-surface/30 border border-border rounded-2xl hover:bg-surface-2 hover:border-brand/30 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring group"
+                id="btn-profile-menu-trigger"
+                title="Menu konta"
+                aria-haspopup="menu"
+                aria-expanded={isProfileMenuOpen}
+              >
+                <span className="w-8 h-8 rounded-full bg-surface-offset text-text-main text-sm font-black flex items-center justify-center select-none shadow-inner shrink-0">
+                  {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
                 </span>
-              </div>
-              <ArrowLeftRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-xs font-black text-text-main truncate" id="profile-tag-name" title={activeProfile.name}>{activeProfile.name}</p>
+                  <span className="text-xs text-text-muted block truncate" title={activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}>
+                    {activeProfile.kind === "shared" ? `👪 Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "👤 Budżet osobisty"}
+                  </span>
+                </div>
+                <ArrowLeftRight className="w-3.5 h-3.5 text-text-muted group-hover:text-brand shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            </div>
           )}
         </div>
       </aside>
