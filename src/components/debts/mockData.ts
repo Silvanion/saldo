@@ -78,7 +78,7 @@ export const MOCK_DEBTS: MockDebtItem[] = [
     remainingMonths: 304,
     remainingInterest: 161200,
     ltv: 71,
-    nextPaymentDate: "27 sierpnia 2026",
+    nextPaymentDate: "2026-08-27",
     badges: [
       { label: "Stała stopa do 03.2028", tone: "brand" },
       { label: "Refi candidate", tone: "warning" },
@@ -103,7 +103,7 @@ export const MOCK_DEBTS: MockDebtItem[] = [
     remainingMonths: 24,
     remainingInterest: 4300,
     gracePeriodDays: 54,
-    nextPaymentDate: "5 września 2026",
+    nextPaymentDate: "2026-09-05",
     badges: [
       { label: "Najdroższy dług (18.9%)", tone: "danger" },
       { label: "Priorytet spłaty", tone: "danger" }
@@ -125,7 +125,7 @@ export const MOCK_DEBTS: MockDebtItem[] = [
     endDate: "11.2027",
     remainingMonths: 16,
     remainingInterest: 2150,
-    nextPaymentDate: "15 września 2026",
+    nextPaymentDate: "2026-09-15",
     badges: [
       { label: "Stała rata", tone: "neutral" },
       { label: "Średni koszt", tone: "warning" }
@@ -147,7 +147,7 @@ export const MOCK_DEBTS: MockDebtItem[] = [
     endDate: "12.2026",
     remainingMonths: 4,
     remainingInterest: 0,
-    nextPaymentDate: "10 września 2026",
+    nextPaymentDate: "2026-09-10",
     badges: [
       { label: "0% RRSO", tone: "neutral" },
       { label: "Koniec za 4 mies.", tone: "neutral" }

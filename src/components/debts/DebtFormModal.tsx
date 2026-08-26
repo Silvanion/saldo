@@ -363,6 +363,18 @@ export function DebtFormModal({
                   className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                  Termin najbliższej spłaty
+                </label>
+                <input
+                  type="date"
+                  value={nextPaymentDate}
+                  onChange={(e) => setNextPaymentDate(e.target.value)}
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                />
+              </div>
             </div>
 
             {/* Type-Specific Extra Fields */}
@@ -421,31 +433,17 @@ export function DebtFormModal({
                 <h4 className="text-xs font-bold uppercase tracking-wider text-text-faint">
                   Parametry karty / limitu
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
-                      Przyznany limit całkowity
-                    </label>
-                    <input
-                      type="number"
-                      value={creditLimit}
-                      onChange={(e) => setCreditLimit(e.target.value)}
-                      placeholder="np. 15000"
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
-                      Termin najbliższej spłaty
-                    </label>
-                    <input
-                      type="text"
-                      value={nextPaymentDate}
-                      onChange={(e) => setNextPaymentDate(e.target.value)}
-                      placeholder="np. 5 września"
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                    Przyznany limit całkowity
+                  </label>
+                  <input
+                    type="number"
+                    value={creditLimit}
+                    onChange={(e) => setCreditLimit(e.target.value)}
+                    placeholder="np. 15000"
+                    className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
+                  />
                 </div>
               </div>
             )}

@@ -2572,7 +2572,7 @@ export function DebtDetailsModal({
                     <span className="text-text-faint font-bold block uppercase tracking-wider text-[10px]">
                       Najbliższa płatność
                     </span>
-                    <span className="font-bold text-text-main">{debt.nextPaymentDate || "Bieżący miesiąc"}</span>
+                    <span className="font-bold text-text-main">{debt.nextPaymentDate ? formatDate(debt.nextPaymentDate) : "Bieżący miesiąc"}</span>
                   </div>
 
                   <div className="p-3 bg-surface-2/60 rounded-xl border border-border">

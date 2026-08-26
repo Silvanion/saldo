@@ -1,4 +1,5 @@
 import { DebtItem, DebtType } from "../types";
+import { formatDate } from "../utils/date";
 
 export interface PortfolioDebtKpis {
   totalBalance: number;
@@ -452,6 +453,7 @@ export function calculatePortfolioDebtKpis(debts: DebtItem[] = []): PortfolioDeb
   let highestApr = -1;
 
   let nearestPayment: { name: string; date: string; amount: number } | null = null;
+  let nearestPaymentTime = Infinity;
 
   for (const debt of activeDebts) {
     const bal = Math.max(0, Number(debt.balance) || 0);
@@ -471,13 +473,18 @@ export function calculatePortfolioDebtKpis(debts: DebtItem[] = []): PortfolioDeb
       };
     }
 
-    // Nearest payment candidate
-    if (debt.nextPaymentDate && !nearestPayment) {
-      nearestPayment = {
-        name: debt.name || "Zobowiązanie",
-        date: debt.nextPaymentDate,
-        amount: pmt
-      };
+    // Nearest payment candidate — spośród wszystkich zadłużeń z ustawioną datą wybieramy
+    // chronologicznie najbliższą, a nie pierwszą napotkaną w kolejności iteracji.
+    if (debt.nextPaymentDate) {
+      const candidateTime = new Date(debt.nextPaymentDate).getTime();
+      if (!Number.isNaN(candidateTime) && candidateTime < nearestPaymentTime) {
+        nearestPaymentTime = candidateTime;
+        nearestPayment = {
+          name: debt.name || "Zobowiązanie",
+          date: formatDate(debt.nextPaymentDate),
+          amount: pmt
+        };
+      }
     }
 
     // Estimate remaining interest for this debt

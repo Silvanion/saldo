@@ -92,6 +92,76 @@ describe("debtCalculations", () => {
       // Weighted rate: (300000 * 7 + 10000 * 19) / 310000 = (2100000 + 190000) / 310000 = 2290000 / 310000 = ~7.39%
       expect(kpis.weightedInterestRate).toBeCloseTo(7.39, 1);
     });
+
+    it("picks the chronologically nearest nextPaymentDate, not the first debt in the list", () => {
+      // Regresja: pętla wcześniej brała PIERWSZY dług z ustawioną datą (nextPaymentDate && !nearestPayment),
+      // ignorując kolejność chronologiczną. Tu celowo najbliższa data jest na ostatniej pozycji w tablicy.
+      const mockDebts: DebtItem[] = [
+        {
+          id: "1",
+          name: "Kredyt gotówkowy",
+          institution: "Santander",
+          type: "cash_loan",
+          currency: "PLN",
+          balance: 5000,
+          monthlyPayment: 500,
+          interestRate: 10.0,
+          status: "active",
+          createdAt: "2026-01-01",
+          nextPaymentDate: "2026-12-01"
+        },
+        {
+          id: "2",
+          name: "Karta Visa",
+          institution: "mBank",
+          type: "credit_card",
+          currency: "PLN",
+          balance: 2000,
+          monthlyPayment: 200,
+          interestRate: 19.0,
+          status: "active",
+          createdAt: "2026-01-01",
+          nextPaymentDate: "2026-10-15"
+        },
+        {
+          id: "3",
+          name: "Hipoteka",
+          institution: "PKO",
+          type: "mortgage",
+          currency: "PLN",
+          balance: 300000,
+          monthlyPayment: 2500,
+          interestRate: 7.0,
+          status: "active",
+          createdAt: "2026-01-01",
+          nextPaymentDate: "2026-09-05"
+        }
+      ];
+
+      const kpis = calculatePortfolioDebtKpis(mockDebts);
+      expect(kpis.nearestPayment?.name).toBe("Hipoteka");
+      expect(kpis.nearestPayment?.amount).toBe(2500);
+    });
+
+    it("falls back to 'Bieżący miesiąc' when no debt has a nextPaymentDate", () => {
+      const mockDebts: DebtItem[] = [
+        {
+          id: "1",
+          name: "Karta Visa",
+          institution: "mBank",
+          type: "credit_card",
+          currency: "PLN",
+          balance: 2000,
+          monthlyPayment: 200,
+          interestRate: 19.0,
+          status: "active",
+          createdAt: "2026-01-01"
+        }
+      ];
+
+      const kpis = calculatePortfolioDebtKpis(mockDebts);
+      expect(kpis.nearestPayment?.date).toBe("Bieżący miesiąc");
+    });
   });
 
   describe("calculateAmortizationSchedule", () => {
