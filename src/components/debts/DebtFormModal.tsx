@@ -293,6 +293,26 @@ export function DebtFormModal({
 
               <div>
                 <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                  Pierwotna kwota zobowiązania
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={originalAmount}
+                    onChange={(e) => setOriginalAmount(e.target.value)}
+                    placeholder="np. 350000"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                  />
+                  <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
+                    {currency}
+                  </span>
+                </div>
+                <p className="text-[11px] text-text-faint mt-1">Do wyliczenia paska postępu spłaty. Zostaw puste, jeśli nie znasz.</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
                   Miesięczna rata / spłata *
                 </label>
                 <div className="relative">
