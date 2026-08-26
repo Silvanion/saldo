@@ -73,28 +73,55 @@ async function categorizeWithOllama(model: string, descriptors: string[], batchS
     process.stdout.write(`  Ollama: partia ${b + 1}/${batches.length} (${batch.length} pozycji)...\n`);
 
     const numbered = batch.map((d, i) => `${i}: ${d}`).join("\n");
+    // Format klucz->wartość indeksowany po numerze opisu, nie pozycyjna tablica: przy dłuższych
+    // partiach model czasem gubi lub scala jeden element w tablicy, co psuje wyrównanie WSZYSTKICH
+    // kolejnych pozycji. Z kluczami da się wykryć i policzyć jako błąd tylko brakujący indeks,
+    // zamiast odrzucać całą partię.
     const prompt = `Skategoryzuj każdy opis transakcji bankowej do JEDNEJ z dozwolonych kategorii.
 Dozwolone kategorie (użyj DOKŁADNIE tej pisowni): ${ALLOWED_CATEGORIES.join(", ")}
 
 Opisy indeksowane od 0:
 ${numbered}
 
-Zwróć JSON w formacie {"categories": ["kategoria dla 0", "kategoria dla 1", ...]}.
-Tablica musi mieć dokładnie ${batch.length} elementów, w tej samej kolejności co opisy.`;
+Zwróć JSON w formacie {"0": "kategoria dla opisu 0", "1": "kategoria dla opisu 1", ...}
+z DOKŁADNIE ${batch.length} kluczami — po jednym dla każdego indeksu od 0 do ${batch.length - 1}.`;
 
-    try {
-      const raw = await callOllama({ model, prompt, format: "json", temperature: 0 });
-      const parsed = extractJson(raw);
-      // Model bywa niekonsekwentny w kształcie odpowiedzi mimo instrukcji — akceptujemy
-      // zarówno {"categories": [...]}, jak i gołą tablicę.
-      const list: unknown = Array.isArray(parsed) ? parsed : parsed?.categories;
-      if (!Array.isArray(list) || list.length !== batch.length) {
-        throw new Error(`Model zwrócił ${Array.isArray(list) ? list.length : typeof list} elementów, oczekiwano ${batch.length}`);
+    let parsed: any = null;
+    let lastError: string | null = null;
+
+    // Jedna próba ponowna z lekko podniesioną temperaturą — obserwowany niedeterminizm
+    // przy temperature:0 (ta sama próbka raz dała poprawny wynik, raz pusty obiekt).
+    for (let attempt = 0; attempt < 2 && parsed === null; attempt++) {
+      try {
+        const raw = await callOllama({ model, prompt, format: "json", temperature: attempt === 0 ? 0 : 0.2 });
+        const candidate = extractJson(raw);
+        if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+          throw new Error(`Odpowiedź nie jest obiektem JSON (otrzymano: ${Array.isArray(candidate) ? "tablicę" : typeof candidate})`);
+        }
+        parsed = candidate;
+      } catch (e: any) {
+        lastError = e.message;
       }
-      batch.forEach((d, i) => results.set(d, String(list[i]).trim()));
-    } catch (e: any) {
-      console.error(`  ⚠ Partia ${b + 1} nie powiodła się: ${e.message}. Oznaczam jako błąd.`);
+    }
+
+    if (parsed === null) {
+      console.error(`  ⚠ Partia ${b + 1}: brak poprawnej odpowiedzi po 2 próbach (${lastError}). Cała partia liczona jako błąd.`);
       batch.forEach((d) => results.set(d, "__ERROR__"));
+      continue;
+    }
+
+    let missing = 0;
+    batch.forEach((d, i) => {
+      const val = parsed[String(i)];
+      if (typeof val === "string" && val.trim()) {
+        results.set(d, val.trim());
+      } else {
+        results.set(d, "__ERROR__");
+        missing++;
+      }
+    });
+    if (missing > 0) {
+      console.error(`  ⚠ Partia ${b + 1}: brakuje ${missing}/${batch.length} odpowiedzi (reszta partii policzona normalnie).`);
     }
   }
 
