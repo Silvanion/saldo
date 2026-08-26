@@ -7,8 +7,8 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { Profile, Transaction } from "../types";
 
-let mockAppState = {
-  aiMode: "none" as const,
+let mockAppState: { aiMode: "none" | "local" } = {
+  aiMode: "none",
 };
 
 let mockActiveProfile: Profile = {
@@ -163,5 +163,92 @@ invalid_date;100;Błędna data;PLN
 
     expect(onImport).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+vi.mock("../services/localAi", () => ({
+  resolveLocalAiConfig: vi.fn(() => ({ endpoint: "http://localhost:11434/api/generate", model: "qwen2.5:7b" })),
+  extractTransactionsWithLocalAi: vi.fn(),
+  categorizeDescriptionsWithLocalAi: vi.fn()
+}));
+
+import { extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
+
+describe("ImportTransactionsModal — lokalne AI (aiMode: local)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+    mockAppState.aiMode = "none";
+  });
+
+  it("przycisk 'Spróbuj z lokalnym AI' pojawia się tylko gdy lokalne AI jest włączone", () => {
+    mockAppState.aiMode = "none";
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
+    expect(screen.queryByRole("button", { name: /Spróbuj z lokalnym AI/i })).toBeNull();
+
+    cleanup();
+    mockAppState.aiMode = "local";
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
+    expect(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i })).toBeTruthy();
+  });
+
+  it("ekstrakcja przez AI: wiersz z niespójną kwotą jest oznaczony i domyślnie odznaczony", async () => {
+    mockAppState.aiMode = "local";
+    vi.mocked(extractTransactionsWithLocalAi).mockResolvedValue([
+      { name: "Wynagrodzenie", amount: 720, type: "income", isoDate: "2026-08-01", category: "Wynagrodzenie", categoryIcon: "💰", amountConsistent: false },
+      { name: "Biedronka", amount: 89.9, type: "expense", isoDate: "2026-08-03", category: "Inne", categoryIcon: "✨", amountConsistent: true }
+    ]);
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Wklej historię transakcji z banku/i), {
+      target: { value: "dowolny tekst wyciągu" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i }));
+
+    await screen.findByTitle("Wynagrodzenie");
+    expect(screen.getByTitle("Biedronka")).toBeTruthy();
+
+    // Do zaimportowania: tylko spójny wiersz (1), niespójny odznaczony domyślnie.
+    expect(screen.getByRole("button", { name: /Zaimportuj wybrane \(1\)/i })).toBeTruthy();
+  });
+
+  it("brak rozpoznanych transakcji przez AI pokazuje komunikat błędu", async () => {
+    mockAppState.aiMode = "local";
+    vi.mocked(extractTransactionsWithLocalAi).mockResolvedValue([]);
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Wklej historię transakcji z banku/i), {
+      target: { value: "tekst bez transakcji" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i }));
+
+    await screen.findByText(/nie rozpoznało żadnej transakcji/i);
+  });
+
+  it("przycisk sugestii kategorii pojawia się tylko gdy są wiersze 'Inne', i aktualizuje kategorię", async () => {
+    mockAppState.aiMode = "local";
+    vi.mocked(categorizeDescriptionsWithLocalAi).mockResolvedValue(new Map([["Tajemniczy Sklep", "Żywność"]]));
+
+    const SAMPLE_CSV = `
+Data;Kwota;Tytuł;Waluta
+2026-07-25;-30,00;Tajemniczy Sklep;PLN
+`.trim();
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
+      target: { value: SAMPLE_CSV }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
+
+    const suggestBtn = screen.getByRole("button", { name: /Zasugeruj kategorie \(AI\)/i });
+    fireEvent.click(suggestBtn);
+
+    await screen.findByText("Żywność");
+    expect(categorizeDescriptionsWithLocalAi).toHaveBeenCalledWith(["Tajemniczy Sklep"], expect.any(Object));
   });
 });

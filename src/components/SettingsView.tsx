@@ -5,6 +5,13 @@ import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, Support
 import { formatMoney } from "../utils/format";
 import { isFirebaseConfigured, changePassword, changeEmail, logout, deleteOwnAccount } from "../firebase";
 import {
+  DEFAULT_LOCAL_AI_ENDPOINT,
+  DEFAULT_LOCAL_AI_MODEL,
+  resolveLocalAiConfig,
+  checkLocalAiHealth,
+  isLocalAiLikelyUnsupported
+} from "../services/localAi";
+import {
   Cloud,
   CloudUpload,
   CloudDownload,
@@ -621,6 +628,7 @@ export function SettingsView({
   const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
+  const [isTestingLocalAi, setIsTestingLocalAi] = useState(false);
 
   // Cloud account deletion states
   const [showCloudDeleteModal, setShowCloudDeleteModal] = useState(false);
@@ -1363,6 +1371,118 @@ export function SettingsView({
       {/* SECTION: AUTOMATED CATEGORY RULES */}
       {(settingsTab === "all" || settingsTab === "automation") && (
       <TransactionRulesManager transactionRules={transactionRules} onSaveTransactionRules={onSaveTransactionRules} />
+      )}
+
+      {/* SECTION: LOCAL AI (Ollama) */}
+      {(settingsTab === "all" || settingsTab === "automation") && (
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-local-ai-card">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <h3 className="text-xl font-black text-text-main tracking-tight truncate flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-brand shrink-0" />
+              Lokalne AI (Ollama)
+            </h3>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={state.aiMode === "local"}
+              onClick={() =>
+                saveState({
+                  ...state,
+                  aiMode: state.aiMode === "local" ? "none" : "local",
+                  localAiEndpoint: state.localAiEndpoint || DEFAULT_LOCAL_AI_ENDPOINT,
+                  localAiModel: state.localAiModel || DEFAULT_LOCAL_AI_MODEL
+                })
+              }
+              className={`relative w-11 h-6 rounded-full transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                state.aiMode === "local" ? "bg-brand" : "bg-surface-2 border border-border"
+              }`}
+              id="toggle-local-ai"
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                  state.aiMode === "local" ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+          <p className="text-xs text-text-muted mb-4 leading-relaxed">
+            Sugestie kategorii dla nierozpoznanych transakcji i rozpoznawanie wklejonego tekstu wyciągu przez model
+            uruchomiony na Twoim komputerze (Ollama). Nic nie opuszcza urządzenia — przeglądarka łączy się
+            bezpośrednio z <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">localhost</code>.
+            Wynik zawsze trafia do podglądu przed importem — nic nie zapisuje się automatycznie.
+          </p>
+
+          {isLocalAiLikelyUnsupported() && (
+            <div className="mb-4 p-3.5 bg-warning-subtle border border-warning/20 rounded-xl flex items-start gap-2.5 text-xs">
+              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+              <p className="text-text-main">
+                Safari blokuje połączenia do <code className="bg-surface px-1 py-0.5 rounded border border-border">localhost</code> ze
+                stron HTTPS (znany błąd WebKit). Użyj Chrome lub Firefox, aby korzystać z lokalnego AI w tej aplikacji.
+              </p>
+            </div>
+          )}
+
+          {state.aiMode === "local" && (
+            <div className="p-4 bg-brand-subtle border border-brand/20 rounded-xl space-y-3 animate-fade-in">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-main" htmlFor="input-local-ai-endpoint">
+                    Endpoint
+                  </label>
+                  <input
+                    id="input-local-ai-endpoint"
+                    type="text"
+                    value={state.localAiEndpoint || DEFAULT_LOCAL_AI_ENDPOINT}
+                    onChange={(e) => saveState({ ...state, localAiEndpoint: e.target.value })}
+                    placeholder={DEFAULT_LOCAL_AI_ENDPOINT}
+                    className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main font-mono focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-main" htmlFor="input-local-ai-model">
+                    Model
+                  </label>
+                  <input
+                    id="input-local-ai-model"
+                    type="text"
+                    value={state.localAiModel || DEFAULT_LOCAL_AI_MODEL}
+                    onChange={(e) => saveState({ ...state, localAiModel: e.target.value })}
+                    placeholder={DEFAULT_LOCAL_AI_MODEL}
+                    className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main font-mono focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                disabled={isTestingLocalAi}
+                onClick={async () => {
+                  setIsTestingLocalAi(true);
+                  try {
+                    const result = await checkLocalAiHealth(resolveLocalAiConfig(state));
+                    if (result.ok) {
+                      showToast("Połączenie udane! Lokalny model odpowiada prawidłowo.", "success");
+                    } else {
+                      showToast(result.reason || "Nie udało się połączyć z lokalnym AI.", "error");
+                    }
+                  } finally {
+                    setIsTestingLocalAi(false);
+                  }
+                }}
+                className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
+                id="btn-test-local-ai"
+              >
+                {isTestingLocalAi ? "Testowanie..." : "Testuj połączenie"}
+              </button>
+
+              <p className="text-xs text-text-muted leading-relaxed">
+                Wymaga zainstalowanej i uruchomionej <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium">Ollama</a> z
+                pobranym modelem: <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">ollama pull {state.localAiModel || DEFAULT_LOCAL_AI_MODEL}</code>.
+                Ze względów bezpieczeństwa dozwolone są wyłącznie adresy lokalne.
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}

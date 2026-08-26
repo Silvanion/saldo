@@ -3,6 +3,7 @@ import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { parseStatementText } from "../services/localParsers";
+import { resolveLocalAiConfig, extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
 import { useApp } from "../app/providers/AppContext";
 import { createPortal } from "react-dom";
 import React, { useState, useRef } from "react";
@@ -22,7 +23,9 @@ import {
   CheckSquare,
   Square,
   Globe,
-  Check
+  Check,
+  Cpu,
+  Sparkles
 } from "lucide-react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import { checkDuplicate } from "../services/duplicateDetector";
@@ -47,7 +50,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
-  const { activeProfile } = useApp();
+  const { activeProfile, state } = useApp();
+  const isLocalAiEnabled = state.aiMode === "local";
   const [tab, setTab] = useState<"csv" | "text">("csv");
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Input, 2: Mapping, 3: Preview
 
@@ -75,6 +79,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [pastedText, setPastedText] = useState("");
   const [isTextProcessing, setIsTextProcessing] = useState(false);
   const [textError, setTextError] = useState("");
+
+  // Lokalne AI: alternatywna ekstrakcja tekstu + sugestie kategorii w podglądzie
+  const [isAiExtracting, setIsAiExtracting] = useState(false);
+  const [isAiCategorizing, setIsAiCategorizing] = useState(false);
+  const [aiInconsistentIds, setAiInconsistentIds] = useState<Set<string>>(new Set());
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
@@ -104,6 +113,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     });
     return { enriched, duplicateCount };
   }, [mappedTransactions, activeProfile]);
+
+  const uncategorizedCount = React.useMemo(
+    () => mappedTransactions.filter((t) => t.category === "Inne").length,
+    [mappedTransactions]
+  );
 
   if (!isOpen) return null;
 
@@ -186,6 +200,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     });
 
     setMappedTransactions(result.transactions);
+    setAiInconsistentIds(new Set());
     setRejectedRows(result.rejectedRows || []);
     setDetectedCurrencies(result.detectedCurrencies || { PLN: 0, EUR: 0, USD: 0, GBP: 0 });
 
@@ -255,12 +270,94 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       setMappedTransactions(processed);
       setSelectedTxIds(new Set(processed.map((t) => t.id)));
       setRejectedRows([]);
+      setAiInconsistentIds(new Set());
       setDetectedCurrencies({ [activeProfile?.currency || "PLN"]: processed.length } as any);
       setStep(3);
     } catch (err: any) {
       setTextError(err.message || "Wystąpił problem podczas przetwarzania tekstu.");
     } finally {
       setIsTextProcessing(false);
+    }
+  };
+
+  // --- Wklejony tekst wyciągu przez lokalne AI (alternatywa, gdy reguły nic nie znajdą) ---
+  const handleAiTextProcess = async () => {
+    if (!pastedText.trim()) return;
+    setIsAiExtracting(true);
+    setTextError("");
+    try {
+      const config = resolveLocalAiConfig(state);
+      const rows = await extractTransactionsWithLocalAi(pastedText, config);
+
+      if (rows.length === 0) {
+        setTextError("Lokalne AI nie rozpoznało żadnej transakcji w tym tekście.");
+        return;
+      }
+
+      const inconsistent = new Set<string>();
+      const processed: Transaction[] = rows.map((r, idx) => {
+        const id = `tx-ai-${Date.now()}-${idx}`;
+        if (!r.amountConsistent) inconsistent.add(id);
+        return {
+          id,
+          name: r.name,
+          amount: r.amount,
+          type: r.type,
+          isoDate: r.isoDate || getLocalDateIso(),
+          category: r.category,
+          categoryIcon: r.categoryIcon,
+          account: defaultAccount,
+          currency: activeProfile?.currency || "PLN"
+        };
+      });
+
+      setMappedTransactions(processed);
+      // Wiersze z kwotą niepotwierdzoną w tekście źródłowym nie są zaznaczone domyślnie —
+      // wymagają świadomej decyzji użytkownika, tak jak wykryte duplikaty. Jeśli wszystkie
+      // wiersze budzą wątpliwość, zaznacz wszystko — użytkownik i tak musi przejrzeć podgląd.
+      const consistentIds = processed.filter((t) => !inconsistent.has(t.id)).map((t) => t.id);
+      setSelectedTxIds(new Set(consistentIds.length > 0 ? consistentIds : processed.map((t) => t.id)));
+      setRejectedRows([]);
+      setAiInconsistentIds(inconsistent);
+      setDetectedCurrencies({ [activeProfile?.currency || "PLN"]: processed.length } as any);
+      setStep(3);
+    } catch (err: any) {
+      setTextError(err.message || "Wystąpił problem podczas rozpoznawania tekstu przez lokalne AI.");
+    } finally {
+      setIsAiExtracting(false);
+    }
+  };
+
+  // --- Sugestie kategorii dla nierozpoznanych ("Inne") wierszy w podglądzie ---
+  const handleSuggestCategories = async () => {
+    const toCategorize = mappedTransactions.filter((t) => t.category === "Inne");
+    if (toCategorize.length === 0) return;
+
+    setIsAiCategorizing(true);
+    try {
+      const config = resolveLocalAiConfig(state);
+      const suggestions = await categorizeDescriptionsWithLocalAi(
+        toCategorize.map((t) => t.name),
+        config
+      );
+
+      if (suggestions.size === 0) {
+        setTextError("Lokalne AI nie zwróciło żadnych sugestii kategorii.");
+        return;
+      }
+
+      setMappedTransactions((prev) =>
+        prev.map((t) => {
+          if (t.category !== "Inne") return t;
+          const suggested = suggestions.get(t.name);
+          if (!suggested) return t;
+          return { ...t, category: suggested, categoryIcon: iconByCategory[suggested] || t.categoryIcon };
+        })
+      );
+    } catch (err: any) {
+      setTextError(err.message || "Wystąpił problem podczas sugerowania kategorii.");
+    } finally {
+      setIsAiCategorizing(false);
     }
   };
 
@@ -372,14 +469,27 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 className="w-full h-48 p-4 border border-border rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-focus-ring resize-none transition-colors"
               ></textarea>
               {textError && <p className="text-danger text-xs font-semibold">{textError}</p>}
-              <button
-                onClick={handleTextProcess}
-                disabled={isTextProcessing || !pastedText.trim()}
-                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
-              >
-                {isTextProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileText className="w-5 h-5" />}
-                {isTextProcessing ? "Przetwarzanie..." : "Rozpoznaj transakcje"}
-              </button>
+              <div className={isLocalAiEnabled ? "grid grid-cols-1 sm:grid-cols-2 gap-2" : ""}>
+                <button
+                  onClick={handleTextProcess}
+                  disabled={isTextProcessing || isAiExtracting || !pastedText.trim()}
+                  className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                >
+                  {isTextProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileText className="w-5 h-5" />}
+                  {isTextProcessing ? "Przetwarzanie..." : "Rozpoznaj transakcje"}
+                </button>
+                {isLocalAiEnabled && (
+                  <button
+                    onClick={handleAiTextProcess}
+                    disabled={isTextProcessing || isAiExtracting || !pastedText.trim()}
+                    title="Przydatne dla tekstu, którego reguły nie rozpoznają, np. skopiowanego z maila lub PDF-a"
+                    className="w-full bg-surface border border-border text-text-main font-bold py-3 px-6 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  >
+                    {isAiExtracting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cpu className="w-5 h-5" />}
+                    {isAiExtracting ? "Analizowanie..." : "Spróbuj z lokalnym AI"}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -682,6 +792,19 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       <AlertTriangle className="w-3.5 h-3.5" /> Odznacz duplikaty ({duplicateAnalysis.duplicateCount})
                     </button>
                   )}
+
+                  {isLocalAiEnabled && uncategorizedCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleSuggestCategories}
+                      disabled={isAiCategorizing}
+                      className="text-xs font-semibold text-brand hover:text-brand px-2.5 py-1 rounded-lg bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="btn-import-suggest-categories"
+                    >
+                      {isAiCategorizing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      {isAiCategorizing ? "Sugerowanie..." : `Zasugeruj kategorie (AI) — ${uncategorizedCount}`}
+                    </button>
+                  )}
                 </div>
 
                 <div className="text-xs text-text-muted font-medium">
@@ -715,12 +838,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   <tbody className="divide-y divide-border bg-bg-base/95 backdrop-blur-2xl">
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => {
                       const isSelected = selectedTxIds.has(tx.id);
+                      const isAmountInconsistent = aiInconsistentIds.has(tx.id);
                       return (
                         <tr
                           key={tx.id || idx}
                           onClick={() => handleToggleRow(tx.id)}
                           className={`transition-colors cursor-pointer select-none ${
-                            warning
+                            warning || isAmountInconsistent
                               ? isSelected
                                 ? "bg-warning-subtle hover:bg-warning-subtle/80"
                                 : "bg-warning-subtle/40 opacity-70 hover:opacity-100"
@@ -765,7 +889,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                             </span>
                           </td>
                           <td className={`py-2 px-3 text-right font-bold ${tx.type === "income" ? "text-brand" : "text-danger"}`}>
-                            {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
+                            <span className="inline-flex items-center gap-1.5 justify-end">
+                              {isAmountInconsistent && (
+                                <DelayedTooltip label="Kwota nie występuje w tekście źródłowym — sprawdź ją przed importem">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+                                </DelayedTooltip>
+                              )}
+                              {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
+                            </span>
                           </td>
                         </tr>
                       );
