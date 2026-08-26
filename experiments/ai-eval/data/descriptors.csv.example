@@ -1,0 +1,8 @@
+descriptor,expected_category
+# Skopiuj ten plik jako descriptors.csv (bez .example) i tam wklej prawdziwe dane —
+# descriptors.csv jest w .gitignore i nigdy nie trafi do repozytorium.
+# Kategorie dozwolone w aplikacji: Żywność, Dom i rachunki, Transport, Zdrowie, Rozrywka,
+# Kredyt konsumencki, Raty, Kredyt hipoteczny, Spłata karty kredytowej, Wynagrodzenie,
+# Premia, Działalność, Zwrot, Inne
+PAYU*ALLEGRO 12345 WARSZAWA PL,Inne
+ZABKA Z7841 K.1 WARSZAWA PL,Żywność

@@ -15,3 +15,9 @@ patch_*.cjs
 design-system/
 test-results/
 playwright-report/
+
+# experiments/ai-eval — skrypty są śledzone, prawdziwe dane finansowe wklejone
+# lokalnie do ewaluacji (deskryptory bankowe, treść maili) nigdy nie trafiają do repo
+experiments/ai-eval/data/descriptors.csv
+experiments/ai-eval/data/unstructured-samples/*.txt
+experiments/ai-eval/data/*-report.md
