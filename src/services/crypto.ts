@@ -9,6 +9,40 @@ const getCrypto = (): Crypto => {
   return globalThis.crypto;
 };
 
+// Kodowanie w kawałkach po 32KB — String.fromCharCode(...bytes) na całym dużym
+// Uint8Array naraz wywala "Maximum call stack size exceeded" (spread na argumenty).
+const BASE64_CHUNK_SIZE = 0x8000;
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += BASE64_CHUNK_SIZE) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + BASE64_CHUNK_SIZE));
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+// encryptedPayload sprzed tej zmiany zapisywał iv/data jako Array.from(Uint8Array) —
+// zwykłą tablicę liczb w JSON, ~3.5x większą niż base64. Nowe payloady używają base64;
+// stare wciąż muszą się dekodować, więc rozpoznajemy format po typie wartości.
+function decodeIvOrData(value: unknown): Uint8Array {
+  if (typeof value === "string") {
+    return base64ToBytes(value);
+  }
+  if (Array.isArray(value)) {
+    return new Uint8Array(value);
+  }
+  throw new Error("Nieprawidłowy format zaszyfrowanych danych.");
+}
+
 export function generateRandomSalt(): string {
   const arr = new Uint8Array(16);
   getCrypto().getRandomValues(arr);
@@ -68,8 +102,8 @@ export async function encryptProfile(profile: Profile, key: CryptoKey): Promise<
   const ciphertext = await cryptoObj.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
   
   const encryptedPayload = JSON.stringify({
-    iv: Array.from(iv),
-    data: Array.from(new Uint8Array(ciphertext))
+    iv: bytesToBase64(iv),
+    data: bytesToBase64(new Uint8Array(ciphertext))
   });
 
   return {
@@ -95,8 +129,8 @@ export async function decryptProfile(profile: Profile, key: CryptoKey): Promise<
   try {
     const cryptoObj = getCrypto();
     const parsed = JSON.parse(profile.encryptedPayload);
-    const iv = new Uint8Array(parsed.iv);
-    const data = new Uint8Array(parsed.data);
+    const iv = decodeIvOrData(parsed.iv);
+    const data = decodeIvOrData(parsed.data);
     const decrypted = await cryptoObj.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
     const decoded = new TextDecoder().decode(decrypted);
     const plaintext = JSON.parse(decoded);
