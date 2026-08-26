@@ -6,6 +6,7 @@ import {
   DebtPayoffStrategyType
 } from "../../services/debtCalculations";
 import { useDebtStrategyAnalytics } from "../../hooks/useDebtStrategyAnalytics";
+import { StatCard } from "../ui/StatCard";
 import {
   DebtPortfolioCard,
   calculateDebtRepaymentProgress,
@@ -672,131 +673,85 @@ export function DebtsView({
 
       {/* 2. PORTFOLIO KPI AREA (8 Real Indicators) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" id="portfolio-kpis-grid">
-        {/* KPI 1: Łączne saldo */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
-            Łączne saldo
-          </span>
-          <div className="my-1">
-            <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(kpiData.totalBalance, currency)}
-            </span>
-          </div>
-          <span className="text-[11px] text-text-muted">
-            {kpiData.activeCount} {kpiData.activeCount === 1 ? "aktywne dług" : "aktywne długi"}
-            {kpiData.closedCount > 0 ? ` (${kpiData.closedCount} spłaconych)` : ""}
-          </span>
-        </div>
+        <StatCard
+          icon={<Landmark className="w-3.5 h-3.5" />}
+          label="Łączne saldo"
+          value={formatMoney(kpiData.totalBalance, currency)}
+          caption={`${kpiData.activeCount} ${kpiData.activeCount === 1 ? "aktywne dług" : "aktywne długi"}${kpiData.closedCount > 0 ? ` (${kpiData.closedCount} spłaconych)` : ""}`}
+        />
 
-        {/* KPI 2: Miesięczna obsługa */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
-            Miesięczna obsługa
-          </span>
-          <div className="my-1">
-            <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(kpiData.monthlyDebtService, currency)}
-            </span>
-          </div>
-          <span className="text-[11px] text-text-muted">suma bieżących rat i spłat</span>
-        </div>
+        <StatCard
+          icon={<Clock className="w-3.5 h-3.5" />}
+          label="Miesięczna obsługa"
+          value={formatMoney(kpiData.monthlyDebtService, currency)}
+          caption="suma bieżących rat i spłat"
+        />
 
-        {/* KPI 3: Pozostałe odsetki */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
-            Pozostałe odsetki
-          </span>
-          <div className="my-1">
-            <span className="text-xl sm:text-2xl font-black text-text-main tabular-nums">
-              {formatMoney(kpiData.remainingInterest, currency)}
-            </span>
-          </div>
-          <span className="text-[11px] text-danger font-medium">szacowany koszt obsługi</span>
-        </div>
+        <StatCard
+          icon={<TrendingDown className="w-3.5 h-3.5" />}
+          tone="danger"
+          label="Pozostałe odsetki"
+          value={formatMoney(kpiData.remainingInterest, currency)}
+          caption="szacowany koszt obsługi"
+        />
 
-        {/* KPI 4: Śr. koszt długu */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
-            Śr. koszt długu (WACD)
-          </span>
-          <div className="my-1">
-            <span className="text-xl sm:text-2xl font-black text-brand tabular-nums">
-              {kpiData.weightedInterestRate.toFixed(1)}%
-            </span>
-          </div>
-          <span className="text-[11px] text-text-muted">średnia ważona kapitałem</span>
-        </div>
+        <StatCard
+          icon={<Percent className="w-3.5 h-3.5" />}
+          tone="brand"
+          label="Śr. koszt długu (WACD)"
+          value={`${kpiData.weightedInterestRate.toFixed(1)}%`}
+          valueClassName="text-brand"
+          caption="średnia ważona kapitałem"
+        />
 
-        {/* KPI 5: Najdroższy dług */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-danger flex items-center gap-1">
-            <Flame className="w-3.5 h-3.5" />
-            Najdroższy dług
-          </span>
-          <div className="my-1">
-            <span
-              className="text-sm sm:text-base font-bold text-text-main truncate block"
-              title={kpiData.mostExpensiveDebt?.name || "Brak"}
-            >
-              {kpiData.mostExpensiveDebt?.name || "Brak aktywnych"}
+        <StatCard
+          icon={<Flame className="w-3.5 h-3.5" />}
+          tone="danger"
+          label="Najdroższy dług"
+          value={kpiData.mostExpensiveDebt?.name || "Brak aktywnych"}
+          valueTitle={kpiData.mostExpensiveDebt?.name || "Brak"}
+          valueClassName="text-sm sm:text-base font-bold"
+          caption={
+            <span className="font-black text-danger">
+              {kpiData.mostExpensiveDebt ? `APR ${kpiData.mostExpensiveDebt.apr.toFixed(1)}%` : "0.0%"}
             </span>
-          </div>
-          <span className="text-xs font-black text-danger tabular-nums">
-            {kpiData.mostExpensiveDebt ? `APR ${kpiData.mostExpensiveDebt.apr.toFixed(1)}%` : "0.0%"}
-          </span>
-        </div>
+          }
+        />
 
-        {/* KPI 6: Najbliższa płatność */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
-            Najbliższa płatność
-          </span>
-          <div className="my-1">
-            <span
-              className="text-sm sm:text-base font-bold text-text-main truncate block"
-              title={kpiData.nearestPayment?.name || "Brak"}
-            >
-              {kpiData.nearestPayment?.name || "Brak"}
-            </span>
-          </div>
-          <span className="text-xs text-text-muted font-bold">
-            {kpiData.nearestPayment
+        <StatCard
+          icon={<Clock className="w-3.5 h-3.5" />}
+          label="Najbliższa płatność"
+          value={kpiData.nearestPayment?.name || "Brak"}
+          valueTitle={kpiData.nearestPayment?.name || "Brak"}
+          valueClassName="text-sm sm:text-base font-bold"
+          caption={
+            kpiData.nearestPayment
               ? `${kpiData.nearestPayment.date} (${formatMoney(kpiData.nearestPayment.amount, currency)})`
-              : "Brak terminów"}
-          </span>
-        </div>
+              : "Brak terminów"
+          }
+        />
 
-        {/* KPI 7: Refi alert */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-brand flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            Refi alert
-          </span>
-          <div className="my-1">
-            <span className="text-sm sm:text-base font-bold text-text-main truncate block">
-              {analytics.refinanceCandidates.length > 0 ? "Warto sprawdzić oferty" : "Warunki stabilne"}
-            </span>
-          </div>
-          <span className="text-[11px] text-text-muted">
-            {analytics.refinanceCandidates.length > 0
+        <StatCard
+          icon={<Sparkles className="w-3.5 h-3.5" />}
+          tone="brand"
+          label="Refi alert"
+          value={analytics.refinanceCandidates.length > 0 ? "Warto sprawdzić oferty" : "Warunki stabilne"}
+          valueClassName="text-sm sm:text-base font-bold"
+          caption={
+            analytics.refinanceCandidates.length > 0
               ? `${analytics.refinanceCandidates.length} kandydatów do weryfikacji`
-              : "brak pilnych zmian"}
-          </span>
-        </div>
+              : "brak pilnych zmian"
+          }
+        />
 
-        {/* KPI 8: Potencjał nadpłaty */}
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-brand flex items-center gap-1">
-            <Zap className="w-3.5 h-3.5" />
-            Potencjał nadpłaty
-          </span>
-          <div className="my-1">
-            <span className="text-sm sm:text-base font-bold text-brand truncate block">
-              {kpiData.totalBalance > 50000 ? "Oszczędność do kilkudziesięciu tys. zł" : "Szybka spłata możliwa"}
-            </span>
-          </div>
-          <span className="text-[11px] text-text-muted">sprawdź w symulatorze</span>
-        </div>
+        <StatCard
+          icon={<Zap className="w-3.5 h-3.5" />}
+          tone="brand"
+          label="Potencjał nadpłaty"
+          value={kpiData.totalBalance > 50000 ? "Oszczędność do kilkudziesięciu tys. zł" : "Szybka spłata możliwa"}
+          valueClassName="text-sm sm:text-base font-bold text-brand"
+          caption="sprawdź w symulatorze"
+        />
       </div>
 
       {/* 2AA. SPRINT 13: PAYOFF PROGRESS SUMMARY */}
