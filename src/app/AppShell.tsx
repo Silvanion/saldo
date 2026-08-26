@@ -32,12 +32,10 @@ import {
 
 export function AppShell({
   children,
-  onQuickAdd,
-  onOpenAiChatModal
+  onQuickAdd
 }: {
   children: React.ReactNode;
   onQuickAdd: () => void;
-  onOpenAiChatModal?: () => void;
 }) {
   const {
     state,
@@ -56,8 +54,6 @@ export function AppShell({
     toggleSecurityInfo,
     apiError,
     setApiError,
-    aiMode,
-    canUseAiChat,
     isDemoMode,
     setIsDemoMode,
     openModal
@@ -516,19 +512,6 @@ export function AppShell({
           {children}
         </div>
       </main>
-
-      {/* Floating Action Button for AI Chat */}
-      {onOpenAiChatModal && canUseAiChat && activeProfile && !isProfileLocked && (
-        <button
-          onClick={onOpenAiChatModal}
-          className="fixed bottom-6 right-6 z-40 bg-brand text-text-inverse p-4 rounded-full shadow-lg hover:bg-brand-hover active:scale-[0.98] hover:scale-105 transition-all focus-visible:ring-4 focus-visible:ring-focus-ring group cursor-pointer"
-          title="Porozmawiaj z Asystentem AI"
-          aria-label="Porozmawiaj z Asystentem AI"
-        >
-          <Sparkles className="w-6 h-6 animate-pulse" />
-          <span className="absolute -top-10 right-0 bg-surface-offset text-text-main text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asystent AI</span>
-        </button>
-      )}
 
       {/* Command Palette Modal */}
       {isCommandPaletteOpen && (

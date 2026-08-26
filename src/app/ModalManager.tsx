@@ -16,7 +16,6 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { ModalFallback } from "../components/ModalFallback";
 
 const CalendarReminderModal = lazy(() => import("../components/CalendarReminderModal").then(m => ({ default: m.CalendarReminderModal })));
-const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
 const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
@@ -30,7 +29,6 @@ export function ModalManager() {
     calendarToken,
     connectGoogle,
     invalidateCalendarToken,
-    canUseAiChat,
     driveConflictInfo,
     resolveDriveConflict,
     closeDriveConflictModal,
@@ -136,17 +134,6 @@ export function ModalManager() {
         </ErrorBoundary>
       )}
 
-      {modalState.type === "aiChat" && canUseAiChat && (
-        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować asystenta AI">
-          <Suspense fallback={<ModalFallback />}>
-            <AiChatModal
-              isOpen={true}
-              onClose={closeModal}
-              activeProfile={activeProfile}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
       {modalState.type === "smartRulesManager" && activeProfile && (
         <ErrorBoundary onReset={closeModal} title="Nie udało się załadować menedżera reguł">
           <Suspense fallback={<ModalFallback />}>

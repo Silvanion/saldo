@@ -70,7 +70,6 @@ export function AppContent() {
 
       <AppShell
         onQuickAdd={() => openModal("transaction")}
-        onOpenAiChatModal={() => openModal("aiChat")}
       >
         {!isProfileLocked ? (
           <AppViewRouter

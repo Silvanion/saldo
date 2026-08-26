@@ -162,7 +162,8 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
 
   // Ustawienia aplikacji przechowywane na poziomie AppState — bez tego znikały przy
   // każdym przeładowaniu (migracja przepisuje stan od zera).
-  if (data.aiMode === "none" || data.aiMode === "local" || data.aiMode === "cloud") {
+  // "cloud" nie jest już obsługiwane — stare zapisane wartości ciszej wracają do "none".
+  if (data.aiMode === "none" || data.aiMode === "local") {
     migrated.aiMode = data.aiMode;
   }
   if (typeof data.localAiEndpoint === "string") {

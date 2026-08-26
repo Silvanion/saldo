@@ -2,7 +2,6 @@ import { auth } from "../firebase";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { Camera, Loader2, Lock, AlertTriangle, Download } from "lucide-react";
-import { callAiApi, getAiConfig } from "../services/aiClient";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
