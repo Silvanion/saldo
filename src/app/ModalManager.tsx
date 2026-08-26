@@ -40,7 +40,8 @@ export function ModalManager() {
   } = useApp();
 
   const onSaveTransaction = (data: any) => {
-    if (modalState.type === "transaction" && modalState.payload) {
+    // Brak "id" w payloadzie = nowy wpis wypełniony wstępnie, nie edycja.
+    if (modalState.type === "transaction" && modalState.payload?.id) {
       handleUpdateTransaction(modalState.payload.id, data);
     } else {
       handleAddTransaction(data);
@@ -49,7 +50,7 @@ export function ModalManager() {
   };
 
   const onSavePayment = (data: any) => {
-    if (modalState.type === "payment" && modalState.payload) {
+    if (modalState.type === "payment" && modalState.payload?.id) {
       handleUpdatePayment(modalState.payload.id, data);
     } else {
       handleAddPayment(data);

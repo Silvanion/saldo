@@ -4,11 +4,11 @@ import { ModalState, ModalType } from "../uiTypes";
 export function useModalManager() {
   const [modalState, setModalState] = useState<ModalState>({ type: null });
 
-  function openModal(type: "transaction", payload?: import("../types").Transaction): void;
-  function openModal(type: "payment", payload?: import("../types").Payment): void;
+  function openModal(type: "transaction", payload?: import("../types").Transaction | Partial<import("../types").Transaction>): void;
+  function openModal(type: "payment", payload?: import("../types").Payment | Partial<import("../types").Payment>): void;
   function openModal(type: "goal" | "profile" | "pin" | "budget" | "aiChat" | "changelog" | "smartRulesManager"): void;
   function openModal(type: "goalDeposit", payload: import("../types").Goal): void;
-  function openModal(type: "calendarAi", payload?: import("../types").Payment): void;
+  function openModal(type: "calendarAi", payload?: import("../types").Payment | Partial<import("../types").Payment>): void;
   function openModal(type: "confirm", payload: import("../uiTypes").ConfirmPayload): void;
   function openModal(type: ModalType, payload?: any) {
     if (type === "goalDeposit") {

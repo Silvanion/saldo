@@ -72,20 +72,27 @@ export function TransactionModal({
     }
   }, [type]);
 
-  const isEditing = initialData && typeof initialData === "object" && "amount" in initialData && "name" in initialData;
+  // Edycją jest wyłącznie wpis z identyfikatorem; payload bez "id" tylko wypełnia formularz.
+  const isEditing = !!(initialData && typeof initialData === "object" && initialData.id);
+  const hasPrefill = !!(initialData && typeof initialData === "object" && !("nativeEvent" in initialData));
 
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
       setPendingSuggestion(null);
-      if (isEditing) {
-        setType(initialData.type);
-        setAmount(initialData.amount.toString());
-        setName(initialData.name);
-        setCategory(initialData.category);
+      if (hasPrefill) {
+        // Payload może być częściowy (wypełnienie wstępne), więc każde pole ma wartość zapasową.
+        setType(initialData.type === "income" ? "income" : "expense");
+        setAmount(
+          typeof initialData.amount === "number" && Number.isFinite(initialData.amount) && initialData.amount > 0
+            ? String(initialData.amount)
+            : ""
+        );
+        setName(initialData.name || "");
+        if (initialData.category) setCategory(initialData.category);
         setCategoryIcon(initialData.categoryIcon || "✨");
-        setAccount(initialData.account);
-        setDate(initialData.isoDate);
+        setAccount(initialData.account || "Konto główne");
+        setDate(initialData.isoDate || getLocalDateIso());
         setTags(initialData.tags || []);
         setDebtId(initialData.debtId || "");
         if (activeProfile?.kind === "shared" && "paidBy" in initialData) {
@@ -110,7 +117,7 @@ export function TransactionModal({
   }, [isOpen, initialData, activeProfile]);
 
   useEffect(() => {
-    if (isEditing && initialData.category) return; // Do not override if editing
+    if (hasPrefill && initialData.category) return; // Nie nadpisuj kategorii z payloadu
     const defaultCats = type === "income" ? incomeCategories : expenseCategories;
     const initialCat = defaultCats[0];
     setCategory(initialCat);

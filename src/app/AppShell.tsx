@@ -543,7 +543,8 @@ export function AppShell({
               setActiveView={setActiveView}
               onSelectProfile={(id) => handleSelectProfile(id)}
               onOpenTransactionModal={(tx) => openModal("transaction", tx)}
-              onOpenPaymentModal={() => openModal("payment")}
+              onOpenPaymentModal={(prefill) => openModal("payment", prefill)}
+              onOpenCalendarReminder={(prefill) => openModal("calendarAi", prefill)}
               onOpenGoalModal={() => openModal("goal")}
               onOpenSmartRulesManager={() => openModal("smartRulesManager")}
               onExportData={handleExportData}

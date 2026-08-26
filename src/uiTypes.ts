@@ -36,14 +36,15 @@ export type ModalType =
   | null;
 
 export type ModalState =
-  | { type: "transaction"; payload?: Transaction }
-  | { type: "payment"; payload?: Payment }
+  // payload z "id" oznacza edycję; payload bez "id" to wypełnienie wstępne nowego wpisu.
+  | { type: "transaction"; payload?: Transaction | Partial<Transaction> }
+  | { type: "payment"; payload?: Payment | Partial<Payment> }
   | { type: "goal" }
   | { type: "goalDeposit"; payload: Goal }
   | { type: "profile" }
   | { type: "pin" }
   | { type: "budget" }
-  | { type: "calendarAi"; payload?: Payment }
+  | { type: "calendarAi"; payload?: Payment | Partial<Payment> }
   | { type: "aiChat" }
   | { type: "changelog" }
   | { type: "confirm"; payload: ConfirmPayload }

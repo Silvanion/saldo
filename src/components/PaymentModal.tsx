@@ -31,10 +31,15 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
-      if (initialData && typeof initialData === "object" && !("nativeEvent" in initialData) && "amount" in initialData) {
-        setName(initialData.name);
-        setAmount(initialData.amount.toString());
-        setDueDate(initialData.dueDate);
+      if (initialData && typeof initialData === "object" && !("nativeEvent" in initialData)) {
+        // Payload może być częściowy (wypełnienie wstępne), więc każde pole ma wartość zapasową.
+        setName(initialData.name || "");
+        setAmount(
+          typeof initialData.amount === "number" && Number.isFinite(initialData.amount) && initialData.amount > 0
+            ? String(initialData.amount)
+            : ""
+        );
+        setDueDate(initialData.dueDate || getLocalDateIso());
         if (initialData.paidBy) setPaidBy(initialData.paidBy);
         if (initialData.splitMode) setSplitMode(initialData.splitMode);
       } else {
@@ -93,11 +98,11 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
           >
             <X className="w-5 h-5" />
           </button>
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title={initialData ? "Edycja Płatności" : "Nowa Płatność"}>
-            {initialData ? "Edycja Płatności" : "Nowa Płatność"}
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title={initialData?.id ? "Edycja Płatności" : "Nowa Płatność"}>
+            {initialData?.id ? "Edycja Płatności" : "Nowa Płatność"}
           </p>
-          <h2 id="payment-modal-title" className="text-xl sm:text-2xl font-bold text-text-main min-w-0 truncate" title={initialData ? "Edytuj rachunek" : "Dodaj rachunek"}>
-            {initialData ? "Edytuj rachunek" : "Dodaj rachunek"}
+          <h2 id="payment-modal-title" className="text-xl sm:text-2xl font-bold text-text-main min-w-0 truncate" title={initialData?.id ? "Edytuj rachunek" : "Dodaj rachunek"}>
+            {initialData?.id ? "Edytuj rachunek" : "Dodaj rachunek"}
           </h2>
         </div>
         
@@ -214,8 +219,8 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               className="flex-1 bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all font-bold py-2.5 px-4 rounded-xl shadow-sm text-xs flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
               id="btn-payment-submit"
             >
-              <span className="truncate" title={isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}>
-                {isSubmitting ? "Zapisywanie..." : initialData ? "Zapisz zmiany" : "Dodaj płatność"}
+              <span className="truncate" title={isSubmitting ? "Zapisywanie..." : initialData?.id ? "Zapisz zmiany" : "Dodaj płatność"}>
+                {isSubmitting ? "Zapisywanie..." : initialData?.id ? "Zapisz zmiany" : "Dodaj płatność"}
               </span>
             </button>
           </div>

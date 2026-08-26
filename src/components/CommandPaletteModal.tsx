@@ -22,11 +22,14 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Sparkles,
-  Landmark
+  Landmark,
+  Zap
 } from "lucide-react";
-import { Profile, Transaction, SupportedCurrency } from "../types";
+import { Payment, Profile, Transaction, SupportedCurrency } from "../types";
 import { AppView } from "../uiTypes";
 import { formatMoney } from "../utils/format";
+import { formatDate, getLocalDateIso } from "../utils/date";
+import { parseQuickEntry } from "../services/localParsers";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 
@@ -39,7 +42,8 @@ export interface CommandPaletteModalProps {
   setActiveView: (view: AppView) => void;
   onSelectProfile: (profileId: string) => void;
   onOpenTransactionModal: (tx?: Transaction) => void;
-  onOpenPaymentModal: () => void;
+  onOpenPaymentModal: (prefill?: Partial<Payment>) => void;
+  onOpenCalendarReminder?: (prefill: Partial<Payment>) => void;
   onOpenGoalModal: () => void;
   onOpenSmartRulesManager?: () => void;
   onOpenImportCsvModal?: () => void;
@@ -70,6 +74,7 @@ export function CommandPaletteModal({
   onSelectProfile,
   onOpenTransactionModal,
   onOpenPaymentModal,
+  onOpenCalendarReminder,
   onOpenGoalModal,
   onOpenSmartRulesManager,
   onOpenImportCsvModal,
@@ -336,6 +341,38 @@ export function CommandPaletteModal({
       });
   }, [query, activeProfile, onOpenTransactionModal]);
 
+  // Szybkie dodawanie: zdanie w rodzaju "prąd 340 zł za 3 dni" zamienione na gotowy wpis.
+  const quickEntryItem: PaletteItem | null = useMemo(() => {
+    const entry = parseQuickEntry(query, getLocalDateIso(), activeProfile?.transactionRules || []);
+    if (!entry) return null;
+
+    const currency = activeProfile?.currency || "PLN";
+    const isEvent = entry.kind === "event";
+
+    return {
+      id: "quick-entry",
+      category: "actions",
+      title: isEvent ? `Przypomnienie: ${entry.name}` : `Dodaj rachunek: ${entry.name}`,
+      subtitle: isEvent
+        ? `Termin ${formatDate(entry.isoDate)}`
+        : `${formatMoney(entry.amount, currency as SupportedCurrency)} • termin ${formatDate(entry.isoDate)} • ${entry.category}`,
+      icon: <Zap className="w-4 h-4 text-brand" />,
+      badge: "Szybki wpis",
+      onSelect: () => {
+        if (isEvent) {
+          onOpenCalendarReminder?.({ name: entry.name, amount: entry.amount, dueDate: entry.isoDate });
+          return;
+        }
+        onOpenPaymentModal({
+          name: entry.name,
+          amount: entry.amount,
+          dueDate: entry.isoDate,
+          status: "Do opłacenia"
+        });
+      }
+    };
+  }, [query, activeProfile, onOpenPaymentModal, onOpenCalendarReminder]);
+
   // Combined and filtered items
   const filteredItems = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -352,8 +389,15 @@ export function CommandPaletteModal({
     const matchedViews = viewItems.filter(matchesQuery);
     const matchedProfiles = profileItems.filter(matchesQuery);
 
-    return [...matchedActions, ...transactionItems, ...matchedViews, ...matchedProfiles];
-  }, [query, actionItems, viewItems, profileItems, transactionItems]);
+    // Szybki wpis na czele — to najczęstsza intencja przy wpisaniu kwoty.
+    return [
+      ...(quickEntryItem ? [quickEntryItem] : []),
+      ...matchedActions,
+      ...transactionItems,
+      ...matchedViews,
+      ...matchedProfiles
+    ];
+  }, [query, actionItems, viewItems, profileItems, transactionItems, quickEntryItem]);
 
   // Clamp selection index
   useEffect(() => {
