@@ -651,3 +651,102 @@ describe("saveState — Firestore size limit handling", () => {
   });
 });
 
+
+describe("saveState — payload chmurowy i zablokowany profil", () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    localStorage.clear();
+    vi.restoreAllMocks();
+    vi.useFakeTimers();
+    cryptoModule.clearActiveKeys();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  function renderBudgetHookWithUser() {
+    const result: { current: ReturnType<typeof useBudgetState> | null } = { current: null };
+    function TestComponent() {
+      result.current = useBudgetState({ uid: "user123", email: "test@example.com" } as any);
+      return null;
+    }
+    act(() => {
+      root.render(createElement(TestComponent));
+    });
+    return result as { current: ReturnType<typeof useBudgetState> };
+  }
+
+  const plainProfile = {
+    id: "p1", name: "Normal", kind: "personal", transactions: [], payments: [],
+    goals: [], investments: [], currency: "PLN", budgets: {}
+  };
+
+  it("do chmury trafiają tylko klucze z whitelisty (autoLockMinutes tak, śmieci nie)", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+    mockedSetDoc.mockResolvedValueOnce(undefined as any);
+
+    const hookRef = renderBudgetHookWithUser();
+
+    await act(async () => {
+      await hookRef.current!.saveState({
+        profiles: [plainProfile],
+        autoLockMinutes: 15,
+        polePodrzucone: "z importu"
+      } as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    expect(mockedSetDoc).toHaveBeenCalled();
+    const uploaded = mockedSetDoc.mock.calls[0][1] as Record<string, unknown>;
+
+    // Regresja: autoLockMinutes był poza hasOnly([...]) i zabijał synchronizację.
+    expect(uploaded.autoLockMinutes).toBe(15);
+    expect(uploaded).not.toHaveProperty("polePodrzucone");
+    expect(hookRef.current!.apiError).toBeNull();
+  });
+
+  it("zablokowany profil z PIN: zapis lokalny działa, chmura pomijana, użytkownik dostaje komunikat", async () => {
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
+    const mockedSetDoc = vi.mocked(setDoc);
+    mockedSetDoc.mockClear();
+    const localSaveSpy = vi.spyOn(localDb, "saveState").mockResolvedValue(undefined);
+
+    const hookRef = renderBudgetHookWithUser();
+
+    const lockedState = {
+      profiles: [{
+        ...plainProfile,
+        pinHash: "hash", salt: "sol",
+        debts: [{
+          id: "d1", name: "Kredyt", institution: "PKO BP", type: "mortgage", currency: "PLN",
+          balance: 487350.55, monthlyPayment: 3210, interestRate: 7.35,
+          status: "active", createdAt: "2024-01-01T00:00:00.000Z"
+        }]
+      }]
+    };
+
+    await act(async () => {
+      await hookRef.current!.saveState(lockedState as any);
+      await vi.advanceTimersByTimeAsync(600);
+    });
+
+    // Edycja nie może wyparować — musi wylądować na urządzeniu...
+    expect(localSaveSpy).toHaveBeenCalled();
+    expect(hookRef.current!.state.profiles[0].debts?.[0].institution).toBe("PKO BP");
+    // ...ale nie może wyjść jawnym tekstem do chmury.
+    expect(mockedSetDoc).not.toHaveBeenCalled();
+    expect(hookRef.current!.apiError).toContain("Odblokuj profil");
+  });
+});

@@ -84,6 +84,68 @@ function findTargetProfile(
   return null;
 }
 
+// Klucze najwyższego poziomu AppState dopuszczone do zapisu w chmurze.
+// UWAGA: każda zmiana tej listy wymaga aktualizacji hasOnly([...]) w firestore.rules,
+// inaczej Firestore odrzuci CAŁY zapis błędem permission-denied.
+export const SYNCABLE_STATE_KEYS = [
+  "profiles",
+  "schemaVersion",
+  "updatedAt",
+  "activeProfileId",
+  "driveFileId",
+  "recurringRules",
+  "transactionRules",
+  "smartRules",
+  "debts",
+  "debtPayoffScenarios",
+  "aiMode",
+  "localAiEndpoint",
+  "localAiModel",
+  "autoLockMinutes",
+  "lastModifiedBy"
+] as const;
+
+/**
+ * Zwraca payload zawierający wyłącznie klucze dozwolone przez firestore.rules.
+ * Chroni synchronizację przed nieznanymi polami (np. z zaimportowanej kopii JSON).
+ */
+export function pickSyncableState(state: AppState): Partial<AppState> {
+  const source = state as unknown as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const key of SYNCABLE_STATE_KEYS) {
+    if (source[key] !== undefined) out[key] = source[key];
+  }
+  return out as Partial<AppState>;
+}
+
+/**
+ * Świeży stan początkowy z jednym pustym profilem.
+ */
+export function createEmptyState(lastModifiedBy = "użytkownik"): AppState {
+  const emptyProfile: Profile = {
+    id: crypto.randomUUID(),
+    name: "Mój profil",
+    kind: "personal",
+    transactions: [],
+    payments: [],
+    goals: [],
+    investments: [],
+    currency: "PLN",
+    budgets: {}
+  };
+
+  return {
+    profiles: [emptyProfile],
+    activeProfileId: emptyProfile.id,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    updatedAt: new Date().toISOString(),
+    lastModifiedBy,
+    driveFileId: null,
+    recurringRules: [],
+    transactionRules: []
+  };
+}
+
 export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkownik"): AppState {
   const data = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
 
@@ -97,6 +159,21 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
     recurringRules: Array.isArray(data.recurringRules) ? data.recurringRules : [],
     transactionRules: Array.isArray(data.transactionRules) ? data.transactionRules : []
   };
+
+  // Ustawienia aplikacji przechowywane na poziomie AppState — bez tego znikały przy
+  // każdym przeładowaniu (migracja przepisuje stan od zera).
+  if (data.aiMode === "none" || data.aiMode === "local" || data.aiMode === "cloud") {
+    migrated.aiMode = data.aiMode;
+  }
+  if (typeof data.localAiEndpoint === "string") {
+    migrated.localAiEndpoint = data.localAiEndpoint;
+  }
+  if (typeof data.localAiModel === "string") {
+    migrated.localAiModel = data.localAiModel;
+  }
+  if (typeof data.autoLockMinutes === "number" && Number.isFinite(data.autoLockMinutes)) {
+    migrated.autoLockMinutes = data.autoLockMinutes;
+  }
 
   // Ensure each profile is fully typed with all arrays initialized
   migrated.profiles = migrated.profiles.map((p: unknown) => {

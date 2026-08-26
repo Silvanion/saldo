@@ -12,11 +12,13 @@ service cloud.firestore {
       allow create, update: if request.auth != null 
                    && request.auth.uid == userId
                    && request.resource.data.keys().hasAll(['profiles', 'schemaVersion', 'updatedAt'])
-                   // Allowed keys to prevent arbitrary data injection
+                   // Allowed keys to prevent arbitrary data injection.
+                   // MUSI odpowiadać SYNCABLE_STATE_KEYS w src/utils/stateMigration.ts
                    && request.resource.data.keys().hasOnly([
                      'profiles', 'schemaVersion', 'updatedAt', 'activeProfileId', 'driveFileId',
-                     'recurringRules', 'transactionRules', 'aiMode', 'localAiEndpoint',
-                     'lastModifiedBy'
+                     'recurringRules', 'transactionRules', 'smartRules', 'debts',
+                     'debtPayoffScenarios', 'aiMode', 'localAiEndpoint', 'localAiModel',
+                     'autoLockMinutes', 'lastModifiedBy'
                    ])
                    && request.resource.data.schemaVersion is number
                    && request.resource.data.updatedAt is string
@@ -26,7 +28,14 @@ service cloud.firestore {
                    && (!('driveFileId' in request.resource.data) || request.resource.data.driveFileId == null || (request.resource.data.driveFileId is string && request.resource.data.driveFileId.size() <= 256))
                    && (!('lastModifiedBy' in request.resource.data) || (request.resource.data.lastModifiedBy is string && request.resource.data.lastModifiedBy.size() <= 320))
                    && (!('recurringRules' in request.resource.data) || (request.resource.data.recurringRules is list && request.resource.data.recurringRules.size() <= 100))
-                   && (!('transactionRules' in request.resource.data) || (request.resource.data.transactionRules is list && request.resource.data.transactionRules.size() <= 100));
+                   && (!('transactionRules' in request.resource.data) || (request.resource.data.transactionRules is list && request.resource.data.transactionRules.size() <= 100))
+                   && (!('smartRules' in request.resource.data) || (request.resource.data.smartRules is list && request.resource.data.smartRules.size() <= 100))
+                   && (!('debts' in request.resource.data) || (request.resource.data.debts is list && request.resource.data.debts.size() <= 100))
+                   && (!('debtPayoffScenarios' in request.resource.data) || (request.resource.data.debtPayoffScenarios is list && request.resource.data.debtPayoffScenarios.size() <= 50))
+                   && (!('aiMode' in request.resource.data) || (request.resource.data.aiMode is string && request.resource.data.aiMode.size() <= 16))
+                   && (!('localAiEndpoint' in request.resource.data) || (request.resource.data.localAiEndpoint is string && request.resource.data.localAiEndpoint.size() <= 512))
+                   && (!('localAiModel' in request.resource.data) || (request.resource.data.localAiModel is string && request.resource.data.localAiModel.size() <= 128))
+                   && (!('autoLockMinutes' in request.resource.data) || (request.resource.data.autoLockMinutes is number && request.resource.data.autoLockMinutes >= 0 && request.resource.data.autoLockMinutes <= 1440));
     }
   }
 }

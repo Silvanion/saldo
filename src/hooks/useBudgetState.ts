@@ -7,7 +7,7 @@ import { db } from "../firebase";
 import { decryptProfile, activeKeys, prepareStateForRemoteSave, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
 import * as localDb from "../services/localDb";
 import { getLocalDateIso } from "../utils";
-import { validateAndMigrateState, CURRENT_SCHEMA_VERSION } from "../utils/stateMigration";
+import { validateAndMigrateState, CURRENT_SCHEMA_VERSION, pickSyncableState, createEmptyState } from "../utils/stateMigration";
 
 
 
@@ -104,12 +104,22 @@ export function useBudgetState(googleUser: User | null) {
     const timestamp = new Date().toISOString();
     const userEmail = googleUser?.email || "lokalny";
 
-    const preparedState = await prepareStateForRemoteSave({
+    const stampedState: AppState = {
       ...newState,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       updatedAt: timestamp,
       lastModifiedBy: userEmail
-    });
+    };
+
+    // Profil chroniony PIN-em, który jest zablokowany, nie da się zaszyfrować do wysyłki.
+    // Zmiana i tak musi trafić na urządzenie — inaczej użytkownik traci edycję bez ostrzeżenia.
+    let preparedState = stampedState;
+    let lockedProfileError: string | null = null;
+    try {
+      preparedState = await prepareStateForRemoteSave(stampedState);
+    } catch (err: any) {
+      lockedProfileError = err?.message || "Odblokuj profil zabezpieczony PIN, aby zsynchronizować dane z chmurą.";
+    }
 
     const cleanState = JSON.parse(JSON.stringify(preparedState));
 
@@ -131,11 +141,19 @@ export function useBudgetState(googleUser: User | null) {
       }
     }
 
+    // Zablokowany profil: dane zostają na urządzeniu, do chmury nie wypuszczamy ich jawnym tekstem.
+    if (lockedProfileError) {
+      setApiError(lockedProfileError);
+      return;
+    }
+
     if (localOnly) return;
 
     if (googleUser) {
-      latestSaveDataRef.current = cleanState;
-      
+      // Do chmury wysyłamy wyłącznie klucze dozwolone przez firestore.rules — nieznane pole
+      // (np. z zaimportowanej kopii JSON) unieważniłoby hasOnly([...]) i zablokowało cały zapis.
+      latestSaveDataRef.current = pickSyncableState(cleanState);
+
       if (uploadTimeoutRef.current) {
         clearTimeout(uploadTimeoutRef.current);
       }
@@ -161,6 +179,10 @@ export function useBudgetState(googleUser: User | null) {
           } catch (err: any) {
             console.error("Firestore write failed:", err);
             const msg = String(err?.message || "").toLowerCase();
+            if (String(err?.code || "").includes("permission-denied")) {
+              setApiError("Chmura odrzuciła zapis (reguły bezpieczeństwa). Zmiany zapisano lokalnie na urządzeniu.");
+              return;
+            }
             const isSizeError = msg.includes("size") || msg.includes("1 mib") || msg.includes("maximum") || msg.includes("too large");
             if (isSizeError) {
               setApiError("Nie udało się zapisać danych w chmurze, bo dokument przekroczył limit rozmiaru. Zmiany pozostają lokalnie. Rozważ archiwizację starszych transakcji.");
@@ -235,28 +257,7 @@ export function useBudgetState(googleUser: User | null) {
             void saveState(cached);
           } catch (_) {}
         } else {
-          const emptyProfile: Profile = {
-            id: crypto.randomUUID(),
-            name: "Mój profil",
-            kind: "personal" as const,
-            transactions: [],
-            payments: [],
-            goals: [],
-            investments: [],
-            currency: "PLN",
-            budgets: {}
-          };
-          const emptyState: AppState = {
-            profiles: [emptyProfile],
-            activeProfileId: emptyProfile.id,
-            schemaVersion: CURRENT_SCHEMA_VERSION,
-            updatedAt: new Date().toISOString(),
-            lastModifiedBy: googleUser.email || "użytkownik",
-            driveFileId: null,
-            recurringRules: [],
-            transactionRules: []
-          };
-          void saveState(emptyState);
+          void saveState(createEmptyState(googleUser.email || "użytkownik"));
         }
       }
     }, (error) => {
