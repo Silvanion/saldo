@@ -50,7 +50,7 @@ export const helpCategories = [
   "Cele i Inwestycje",
   "Profile i PIN",
   "Kopia i Chmura",
-  "Lokalne AI"
+  "Automatyzacja lokalna"
 ];
 
 export interface QuickSummaryCardData {
@@ -438,24 +438,24 @@ export const helpSectionsData: HelpSectionData[] = [
   },
   {
     id: "ai",
-    cat: "Lokalne AI",
-    title: "Tryby pracy AI (None, Lokalne Ollama, Gemini)",
+    cat: "Automatyzacja lokalna",
+    title: "Jak działa rozpoznawanie tekstu i szybkie dodawanie",
     icon: <Sparkles className="w-5 h-5" />,
-    keywords: ["ai", "sztuczna inteligencja", "ollama", "lokalne", "gemini", "modele", "prywatność", "none"],
+    keywords: ["parser", "automatyzacja", "lokalne", "prywatność", "szybki wpis", "wklej tekst", "wyciąg"],
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Saldo wspiera elastyczne tryby sztucznej inteligencji dopasowane do Twoich wymagań odnośnie prywatności:
+          Saldo rozpoznaje kwoty, daty i kategorie w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych:
         </p>
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
           <li>
-            <strong>Tryb podstawowy (None) – 100% Darmowy &amp; Domyślny:</strong><br />
-            Pełna funkcjonalność aplikacji bez użycia modeli AI. Wykorzystuje ultra-szybkie algorytmy deterministyczne do parsowania tekstów, automatyzacji kategorii i importu CSV. Brak połączeń sieciowych.
+            <strong>Wklej tekst wyciągu:</strong><br />
+            W imporcie transakcji możesz wkleić historię skopiowaną z banku — separator, daty i znak kwoty są wykrywane automatycznie, a kategorie przypisywane na podstawie nazwy transakcji.
           </li>
           <li>
-            <strong>Lokalne AI (local / Ollama) – Pełna prywatność Power-Usera:</strong><br />
-            Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-surface px-1 py-0.5 rounded border border-border">http://localhost:11434</code>).
+            <strong>Szybki wpis w palecie poleceń (⌘K):</strong><br />
+            Zdanie w rodzaju „prąd 340 zł za 3 dni” zamienia się w gotowy rachunek — bez otwierania osobnego formularza.
           </li>
         </ul>
       </div>

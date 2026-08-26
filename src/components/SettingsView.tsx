@@ -714,7 +714,7 @@ export function SettingsView({
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Motyw i AI</span>
+                <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Motyw</span>
               </button>
               <button
                 onClick={() => setSettingsTab("backup")}
@@ -1105,161 +1105,6 @@ export function SettingsView({
             </div>
           </button>
         </div>
-      </div>
-      )}
-
-
-
-      {/* SECTION: AI PROVIDER SETTINGS */}
-      {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-ai-provider-card">
-        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konfiguracja silnika AI</h3>
-        <p className="text-xs text-text-muted mb-5 leading-relaxed">
-          Wybierz dostawcę inteligencji dla kategoryzacji transakcji, analizy wyciągów oraz asystenta finansowego. Możesz wyłączyć AI, użyć lokalnego modelu (Ollama) lub bezpiecznej chmury.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4" id="ai-mode-selectors-grid">
-          {/* None AI Option */}
-          <button
-            type="button"
-            onClick={() => saveState({ ...state, aiMode: "none" })}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              (state.aiMode || "none") === "none"
-                ? "bg-brand-subtle border-brand/20 ring-1 ring-brand/20"
-                : "bg-surface border-border hover:bg-surface-2 hover:border-brand/20"
-            }`}
-            id="btn-set-ai-mode-none"
-          >
-            <div className={`p-2 rounded-xl ${(state.aiMode || "none") === "none" ? "bg-brand-subtle text-brand" : "bg-surface-2 text-text-muted"}`}>
-              <Monitor className="w-5 h-5" />
-            </div>
-            <div>
-              <strong className="block text-sm text-text-main">Brak AI</strong>
-              <span className="text-xs text-text-muted mt-0.5 block font-medium">Standardowe reguły</span>
-            </div>
-          </button>
-
-          {/* Local AI Option */}
-          <button
-            type="button"
-            onClick={() => saveState({ ...state, aiMode: "local", localAiEndpoint: state.localAiEndpoint || "http://localhost:11434/api/generate" })}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              state.aiMode === "local"
-                ? "bg-brand-subtle border-brand/20 ring-1 ring-brand/20"
-                : "bg-surface border-border hover:bg-surface-2 hover:border-brand/20"
-            }`}
-            id="btn-set-ai-mode-local"
-          >
-            <div className={`p-2 rounded-xl ${state.aiMode === "local" ? "bg-brand-subtle text-brand" : "bg-surface-2 text-text-muted"}`}>
-              <Cpu className="w-5 h-5" />
-            </div>
-            <div>
-              <strong className="block text-sm text-text-main">Lokalne AI</strong>
-              <span className="text-xs text-text-muted mt-0.5 block font-medium">Ollama / Serwer lokalny</span>
-            </div>
-          </button>
-
-          {/* Cloud AI Option (Disabled for now to prevent costs) */}
-          <button
-            type="button"
-            disabled={true}
-            className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition cursor-not-allowed opacity-60 bg-surface border-border`}
-            id="btn-set-ai-mode-cloud"
-          >
-            <div className={`p-2 rounded-xl bg-surface-2 text-text-muted`}>
-              <Cloud className="w-5 h-5" />
-            </div>
-            <div>
-              <strong className="block text-sm text-text-muted line-through">Chmura AI (Gemini)</strong>
-              <span className="text-xs text-danger font-bold mt-1 block uppercase tracking-wider bg-danger-subtle px-2.5 py-1 rounded-full inline-block border border-danger/20">Dostępne w przyszłości</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Local AI Endpoint Configuration when Local mode selected */}
-        {state.aiMode === "local" && (
-          <div className="p-4 bg-brand-subtle border border-brand/20 rounded-xl space-y-3 animate-fade-in">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-text-main">Lokalny punkt końcowy (Endpoint):</label>
-              <button
-                type="button"
-                onClick={() => saveState({ ...state, localAiEndpoint: "http://localhost:11434/api/generate" })}
-                className="text-xs font-extrabold text-brand hover:underline cursor-pointer active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-              >
-                Przywróć domyślny Ollama (11434)
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={state.localAiEndpoint || "http://localhost:11434/api/generate"}
-                onChange={(e) => saveState({ ...state, localAiEndpoint: e.target.value })}
-                placeholder="http://localhost:11434/api/generate"
-                className="flex-1 bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
-                id="input-local-ai-endpoint"
-              />
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const res = await fetch("/api/ai/health", {
-                      headers: {
-                        "x-ai-mode": "local",
-                        "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate"
-                      }
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                      showToast("Połączenie udane! Lokalny serwer AI odpowiada prawidłowo.", "success");
-                    } else {
-                      showToast("Błąd połączenia: " + (data.message || data.error || "Serwer lokalny niedostępny."), "error");
-                    }
-                  } catch (err: any) {
-                    showToast("Błąd sieciowy: Nie udało się połączyć z backendem.", "error");
-                  }
-                }}
-                className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
-                id="btn-test-local-ai"
-              >
-                Testuj połączenie
-              </button>
-            </div>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Ze względów bezpieczeństwa zezwalane są wyłącznie połączenia z adresem lokalnym (np. <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">http://localhost:11434/api/generate</code> lub <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">127.0.0.1</code>).
-            </p>
-            
-            <details className="group border border-border rounded-xl bg-surface overflow-hidden">
-              <summary className="p-3 text-xs font-bold text-text-main cursor-pointer hover:bg-surface-2 flex justify-between items-center list-none select-none focus-visible:ring-2 focus-visible:ring-focus-ring">
-                Jak uruchomić lokalne AI na swoim komputerze?
-                <span className="group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <div className="p-4 border-t border-divider text-xs text-text-muted space-y-4">
-                <p>Aby korzystać z modelu bezpłatnie i z zachowaniem pełnej prywatności (dane nie opuszczają Twojego komputera), zainstaluj silnik <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium hover:text-brand">Ollama</a>.</p>
-                
-                <div className="space-y-2">
-                  <h4 className="font-bold text-text-main text-sm flex items-center gap-1.5">🍎 macOS</h4>
-                  <ol className="list-decimal pl-5 space-y-1">
-                    <li>Pobierz instalator dla macOS ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium hover:text-brand">ollama.com</a>.</li>
-                    <li>Po instalacji otwórz <strong>Terminal</strong> i uruchom model (np. llama3): <br/><code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded inline-block mt-1 text-text-main">ollama run llama3</code></li>
-                  </ol>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-bold text-text-main text-sm flex items-center gap-1.5">🪟 Windows</h4>
-                  <ol className="list-decimal pl-5 space-y-1">
-                    <li>Pobierz instalator Windows ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium hover:text-brand">ollama.com</a>.</li>
-                    <li>Aby aplikacja Saldo mogła połączyć się z modelem, musisz zezwolić na reguły <strong>CORS</strong>. W tym celu otwórz <strong>Wiersz polecenia (cmd)</strong> lub PowerShell i wpisz poniższe komendy jedna po drugiej:</li>
-                  </ol>
-                  <div className="bg-surface-2 border border-border text-text-main p-2.5 rounded-xl font-mono text-xs leading-relaxed mx-2">
-                    set OLLAMA_ORIGINS="*"<br/>
-                    ollama run llama3
-                  </div>
-                  <p className="pl-1 italic text-xs">Pozostaw otwarte okno terminala podczas korzystania z aplikacji.</p>
-                </div>
-              </div>
-            </details>
-          </div>
-        )}
       </div>
       )}
 
@@ -1755,43 +1600,6 @@ export function SettingsView({
               </div>
             </div>
 
-            {/* AI State */}
-            <div className="bg-surface rounded-xl p-4 border border-border/30">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-text-muted shrink-0" />
-                <div className="w-full">
-                  <h4 className="text-sm font-bold text-text-main flex justify-between items-center">
-                    Asystent AI
-                    {state.aiMode === "cloud" && (
-                      <button
-                        onClick={() => saveState({ ...state, aiMode: "none" })}
-                        className="text-xs font-bold text-danger hover:underline active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      >
-                        Wyłącz w chmurze
-                      </button>
-                    )}
-                  </h4>
-                  <div className="mt-1">
-                    {state.aiMode === "cloud" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-surface text-text-muted">
-                        AI w chmurze
-                      </span>
-                    ) : state.aiMode === "local" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-subtle text-brand">
-                        AI Lokalne
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-surface-2 text-text-muted">
-                        Brak AI
-                      </span>
-                    )}
-                    <p className="text-xs text-text-muted mt-2 leading-relaxed">
-                      {state.aiMode === "cloud" ? "Zależnie od funkcji, wybrane anonimowe dane mogą być wysyłane do API LLM w celu analizy." : "Żadne dane nie opuszczają tego urządzenia dla celów sztucznej inteligencji."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Integrations & Security */}
