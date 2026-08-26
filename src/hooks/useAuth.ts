@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { User } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { googleSignInBasic, requestGoogleDriveAccess, requestGoogleCalendarAccess, logout, initAuth, getGoogleToken } from "../firebase";
 import { clearActiveKeys } from "../services/crypto";
 

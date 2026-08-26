@@ -1,4 +1,3 @@
-import { auth } from "../firebase";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { Camera, Loader2, Lock, AlertTriangle, Download } from "lucide-react";

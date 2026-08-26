@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import { formatMoney } from "../utils/format";

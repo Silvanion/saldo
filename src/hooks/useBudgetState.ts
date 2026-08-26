@@ -1,7 +1,6 @@
-import { auth } from "../firebase";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { User } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import type { User } from "firebase/auth";
+import type { DocumentData, DocumentReference, Unsubscribe } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
 import { decryptProfile, activeKeys, prepareStateForRemoteSave, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
@@ -174,6 +173,7 @@ export function useBudgetState(googleUser: User | null) {
               setApiError("Dane zbliżają się do limitu chmury. Rozważ archiwizację starszych transakcji, aby uniknąć problemów z synchronizacją.");
             }
 
+            const { doc, setDoc } = await import("firebase/firestore");
             const docRef = doc(db, "users", googleUser.uid);
             await setDoc(docRef, dataToUpload, { merge: false });
           } catch (err: any) {
@@ -214,59 +214,72 @@ export function useBudgetState(googleUser: User | null) {
     setIsSyncing(true);
     setApiError(null);
 
-    const docRef = doc(db, "users", googleUser.uid);
     let isFirstSnapshot = true;
+    let cancelled = false;
+    let unsubscribe: Unsubscribe | null = null;
 
-    const unsubscribe = onSnapshot(docRef, async (docSnap) => {
-      setIsSyncing(false);
-      if (docSnap.exists()) {
-        const incoming = validateAndMigrateState(docSnap.data(), googleUser.email || "chmura");
-        
-        const incomingTime = new Date(incoming.updatedAt || 0).getTime();
-        const localTime = new Date(localUpdatedAtRef.current).getTime();
-        
-        if (isFirstSnapshot || incomingTime > localTime) {
-          isFirstSnapshot = false;
-          const rawIncoming = JSON.parse(JSON.stringify(incoming));
-          const decryptedProfiles = await Promise.all(incoming.profiles.map(async (p: Profile) => {
-            if (p.encryptedPayload && activeKeys[p.id]) {
-              try {
-                return await decryptProfile(p, activeKeys[p.id]);
-              } catch (err) {
-                console.error("Failed decrypting profile:", p.id, err);
-                setApiError("Nie udało się odszyfrować danych profilu z chmury. Sprawdź poprawność kodu PIN.");
-                return p;
+    (async () => {
+      // firebase/firestore ładowany dopiero tutaj — ten efekt biegnie tylko dla
+      // zalogowanych użytkowników z aktywną synchronizacją w chmurze.
+      const { doc, onSnapshot } = await import("firebase/firestore");
+      if (cancelled) return;
+
+      const docRef: DocumentReference<DocumentData> = doc(db, "users", googleUser.uid);
+
+      unsubscribe = onSnapshot(docRef, async (docSnap) => {
+        setIsSyncing(false);
+        if (docSnap.exists()) {
+          const incoming = validateAndMigrateState(docSnap.data(), googleUser.email || "chmura");
+
+          const incomingTime = new Date(incoming.updatedAt || 0).getTime();
+          const localTime = new Date(localUpdatedAtRef.current).getTime();
+
+          if (isFirstSnapshot || incomingTime > localTime) {
+            isFirstSnapshot = false;
+            const rawIncoming = JSON.parse(JSON.stringify(incoming));
+            const decryptedProfiles = await Promise.all(incoming.profiles.map(async (p: Profile) => {
+              if (p.encryptedPayload && activeKeys[p.id]) {
+                try {
+                  return await decryptProfile(p, activeKeys[p.id]);
+                } catch (err) {
+                  console.error("Failed decrypting profile:", p.id, err);
+                  setApiError("Nie udało się odszyfrować danych profilu z chmury. Sprawdź poprawność kodu PIN.");
+                  return p;
+                }
               }
-            }
-            return p;
-          }));
-          incoming.profiles = decryptedProfiles;
+              return p;
+            }));
+            incoming.profiles = decryptedProfiles;
 
-          setState(incoming);
-          localDb.saveState(rawIncoming).catch((err) => {
-            if (err?.message?.includes("QUOTA_EXCEEDED")) {
-              setApiError("Przekroczono limit pamięci urządzenia (QuotaExceeded).");
-            }
-          });
-          localUpdatedAtRef.current = incoming.updatedAt || new Date().toISOString();
-        }
-      } else {
-        const cached = await localDb.loadState();
-        if (cached) {
-          try {
-            void saveState(cached);
-          } catch (_) {}
+            setState(incoming);
+            localDb.saveState(rawIncoming).catch((err) => {
+              if (err?.message?.includes("QUOTA_EXCEEDED")) {
+                setApiError("Przekroczono limit pamięci urządzenia (QuotaExceeded).");
+              }
+            });
+            localUpdatedAtRef.current = incoming.updatedAt || new Date().toISOString();
+          }
         } else {
-          void saveState(createEmptyState(googleUser.email || "użytkownik"));
+          const cached = await localDb.loadState();
+          if (cached) {
+            try {
+              void saveState(cached);
+            } catch (_) {}
+          } else {
+            void saveState(createEmptyState(googleUser.email || "użytkownik"));
+          }
         }
-      }
-    }, (error) => {
-      console.error("Firestore onSnapshot error:", error);
-      setApiError("Błąd odczytu chmury. Praca w trybie lokalnym.");
-      setIsSyncing(false);
-    });
+      }, (error) => {
+        console.error("Firestore onSnapshot error:", error);
+        setApiError("Błąd odczytu chmury. Praca w trybie lokalnym.");
+        setIsSyncing(false);
+      });
+    })();
 
-    return () => unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [googleUser, fetchState, saveState]);
 
   return {

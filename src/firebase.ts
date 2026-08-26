@@ -1,6 +1,6 @@
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, User, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, EmailAuthProvider, reauthenticateWithCredential, updatePassword, verifyBeforeUpdateEmail, deleteUser, Auth, setPersistence, browserSessionPersistence } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, Firestore } from "firebase/firestore";
+import type { FirebaseApp } from "firebase/app";
+import type { Auth, User } from "firebase/auth";
+import type { Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -12,45 +12,73 @@ const isValidApiKey = Boolean(
   apiKey.length > 10
 );
 
+// Firebase (auth + firestore) to ~680KB, które wcześniej ładowało się dla KAŻDEGO
+// użytkownika, nawet pracujących wyłącznie offline/lokalnie. Moduły SDK są teraz
+// importowane dynamicznie i inicjalizowane raz, przy pierwszym realnym użyciu
+// (próba logowania, sprawdzenie sesji przy starcie itd.) — nie przy starcie apki.
 let app: FirebaseApp | null = null;
-let authInstance: Auth | any = null;
-let dbInstance: Firestore | any = null;
-let isFirebaseConfigured = false;
-
-if (isValidApiKey) {
-  try {
-    const firebaseConfig = {
-      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-      appId: import.meta.env.VITE_FIREBASE_APP_ID
-    };
-
-    app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
-    authInstance = getAuth(app);
-    dbInstance = getFirestore(app);
-    isFirebaseConfigured = true;
-  } catch (error) {
-    console.warn("Nie udało się zainicjalizować modułu Firebase:", error);
-    isFirebaseConfigured = false;
+// export let (nie export const): live binding — po zakończeniu leniwej inicjalizacji
+// przypisanie "auth = ..." / "db = ..." poniżej jest widoczne u importujących modułów,
+// bo w ES modules eksportowane "let" to żywe referencje, nie jednorazowe kopie.
+export let auth: Auth | any = {
+  currentUser: null,
+  onAuthStateChanged: (_authObj: any, callback: any) => {
+    callback(null);
+    return () => {};
   }
-}
+};
+export let db: Firestore | any = null;
 
-if (!authInstance) {
-  authInstance = {
-    currentUser: null,
-    onAuthStateChanged: (_authObj: any, callback: any) => {
-      callback(null);
-      return () => {};
-    }
-  };
-}
+export const isFirebaseConfigured = isValidApiKey;
 
-export const auth = authInstance;
-export const db = dbInstance;
-export { isFirebaseConfigured };
+let authMod: typeof import("firebase/auth") | null = null;
+let firestoreMod: typeof import("firebase/firestore") | null = null;
+let initPromise: Promise<boolean> | null = null;
+
+async function ensureFirebaseReady(): Promise<boolean> {
+  if (!isValidApiKey) return false;
+  if (authMod && firestoreMod) return true;
+  if (!initPromise) {
+    initPromise = (async () => {
+      try {
+        const [{ initializeApp, getApps }, loadedAuthMod, loadedFirestoreMod] = await Promise.all([
+          import("firebase/app"),
+          import("firebase/auth"),
+          import("firebase/firestore")
+        ]);
+
+        const firebaseConfig = {
+          apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+          authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+          projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+          storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+          appId: import.meta.env.VITE_FIREBASE_APP_ID
+        };
+
+        app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
+        auth = loadedAuthMod.getAuth(app);
+        db = loadedFirestoreMod.getFirestore(app);
+        authMod = loadedAuthMod;
+        firestoreMod = loadedFirestoreMod;
+
+        try {
+          await loadedAuthMod.setPersistence(auth, loadedAuthMod.browserSessionPersistence);
+        } catch (error) {
+          console.warn("Nie udało się ustawić sesyjnej persystencji Firebase Auth:", error);
+        }
+
+        return true;
+      } catch (error) {
+        console.warn("Nie udało się zainicjalizować modułu Firebase:", error);
+        authMod = null;
+        firestoreMod = null;
+        return false;
+      }
+    })();
+  }
+  return initPromise;
+}
 
 enum OperationType {
   CREATE = 'create',
@@ -96,22 +124,12 @@ const isSessionPersistenceMigrated = () =>
 
 let cachedUser: User | null = null;
 
-export const authPersistenceReady: Promise<void> =
-  authInstance?.app
-    ? setPersistence(authInstance, browserSessionPersistence).catch((error) => {
-        console.warn(
-          "Nie udało się ustawić sesyjnej persystencji Firebase Auth:",
-          error
-        );
-      })
-    : Promise.resolve();
-
 // Initialize Auth State Listener
 export const initAuth = (
   onAuthSuccess?: (user: User, token: string | null) => void,
   onAuthFailure?: () => void
 ) => {
-  if (!isFirebaseConfigured || !auth?.app) {
+  if (!isValidApiKey) {
     onAuthFailure?.();
     return () => {};
   }
@@ -119,25 +137,29 @@ export const initAuth = (
   let cancelled = false;
   let unsubscribe: (() => void) | null = null;
 
-  authPersistenceReady.then(() => {
+  ensureFirebaseReady().then((ready) => {
     if (cancelled) return;
+    if (!ready || !authMod) {
+      onAuthFailure?.();
+      return;
+    }
 
     if (typeof window !== "undefined") {
-      getRedirectResult(auth).catch(() => {
+      authMod.getRedirectResult(auth).catch(() => {
         // Ignoruj brak wyniku redirectu
       });
     }
 
     if (cancelled) return;
 
-    unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+    unsubscribe = authMod.onAuthStateChanged(auth, async (user: User | null) => {
       if (cancelled) return;
 
       const migrated = isSessionPersistenceMigrated();
 
       if (user && !migrated) {
         try {
-          await signOut(auth);
+          await authMod!.signOut(auth);
         } catch (err) {
           console.warn("Nie udało się wykonać jednorazowej migracji persystencji sesji:", err);
         } finally {
@@ -197,22 +219,23 @@ export const requestGoogleCalendarAccess = async (): Promise<{ user: User; acces
 };
 
 const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Promise<{ user: User; accessToken: string } | null> => {
-  if (!isFirebaseConfigured || !auth?.app) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod) {
     throw new Error("Logowanie Firebase jest niedostępne (brak poprawnego VITE_FIREBASE_API_KEY).");
   }
   try {
     isSigningIn = true;
-    const provider = new GoogleAuthProvider();
+    const provider = new authMod.GoogleAuthProvider();
     const customParams: Record<string, string> = { include_granted_scopes: "true" };
     if (!tokens[kind] && scopes.length > 0) {
       customParams.prompt = "consent";
     }
     provider.setCustomParameters(customParams);
     scopes.forEach(scope => provider.addScope(scope));
-    
+
     let result;
     try {
-      result = await signInWithPopup(auth, provider);
+      result = await authMod.signInWithPopup(auth, provider);
     } catch (popupError: any) {
       const code = popupError?.code || "";
       const msg = (popupError?.message || "").toLowerCase();
@@ -230,14 +253,14 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
 
       if (isPopupBlocked) {
         console.warn("Okno popup zablokowane przez przeglądarkę / adblock. Przełączanie na signInWithRedirect...", popupError);
-        await signInWithRedirect(auth, provider);
+        await authMod.signInWithRedirect(auth, provider);
         return null;
       }
 
       throw popupError;
     }
 
-    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const credential = authMod.GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken && scopes.length > 0) {
       throw new Error("Nie udało się pobrać tokenu dostępu Google z usługi Firebase Auth.");
     }
@@ -269,38 +292,43 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
 
 // Email/Password Auth
 export const registerWithEmail = async (email: string, pass: string) => {
-  if (!isFirebaseConfigured || !auth?.app) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod) {
     throw new Error("Rejestracja jest niedostępna (brak połączenia z Firebase).");
   }
-  return createUserWithEmailAndPassword(auth, email, pass);
+  return authMod.createUserWithEmailAndPassword(auth, email, pass);
 };
 
 export const loginWithEmail = async (email: string, pass: string) => {
-  if (!isFirebaseConfigured || !auth?.app) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod) {
     throw new Error("Logowanie jest niedostępne (brak połączenia z Firebase).");
   }
-  return signInWithEmailAndPassword(auth, email, pass);
+  return authMod.signInWithEmailAndPassword(auth, email, pass);
 };
 
 // Reset hasła — wysyłka linku na podany email
 export const resetPassword = async (email: string) => {
-  if (!isFirebaseConfigured || !auth?.app) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod) {
     throw new Error("Reset hasła jest niedostępny (brak połączenia z Firebase).");
   }
-  return sendPasswordResetEmail(auth, email);
+  return authMod.sendPasswordResetEmail(auth, email);
 };
 
 // Weryfikacja email — wysyłka linku weryfikacyjnego do zalogowanego użytkownika
 export const verifyEmail = async () => {
-  if (!auth?.currentUser) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod || !auth?.currentUser) {
     throw new Error("Brak zalogowanego użytkownika do weryfikacji.");
   }
-  return sendEmailVerification(auth.currentUser);
+  return authMod.sendEmailVerification(auth.currentUser);
 };
 
 // Zmiana hasła po uwierzytelnieniu
 export const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
-  if (!isFirebaseConfigured || !auth?.currentUser) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod || !auth?.currentUser) {
     throw new Error("Brak zalogowanego użytkownika lub połączenia z Firebase.");
   }
   if (!auth.currentUser.email) {
@@ -308,9 +336,9 @@ export const changePassword = async (currentPassword: string, newPassword: strin
   }
 
   try {
-    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
-    await reauthenticateWithCredential(auth.currentUser, credential);
-    await updatePassword(auth.currentUser, newPassword);
+    const credential = authMod.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await authMod.reauthenticateWithCredential(auth.currentUser, credential);
+    await authMod.updatePassword(auth.currentUser, newPassword);
   } catch (error: any) {
     const code = error?.code || "";
     if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
@@ -330,7 +358,8 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
 // Zmiana emaila po uwierzytelnieniu
 export const changeEmail = async (currentPassword: string, newEmail: string): Promise<void> => {
-  if (!isFirebaseConfigured || !auth?.currentUser) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod || !auth?.currentUser) {
     throw new Error("Brak zalogowanego użytkownika lub połączenia z Firebase.");
   }
   if (!auth.currentUser.email) {
@@ -338,9 +367,9 @@ export const changeEmail = async (currentPassword: string, newEmail: string): Pr
   }
 
   try {
-    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
-    await reauthenticateWithCredential(auth.currentUser, credential);
-    await verifyBeforeUpdateEmail(auth.currentUser, newEmail);
+    const credential = authMod.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await authMod.reauthenticateWithCredential(auth.currentUser, credential);
+    await authMod.verifyBeforeUpdateEmail(auth.currentUser, newEmail);
   } catch (error: any) {
     const code = error?.code || "";
     if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
@@ -362,7 +391,8 @@ export const changeEmail = async (currentPassword: string, newEmail: string): Pr
 
 // Trwałe usunięcie konta i danych w chmurze (RODO / GDPR)
 export const deleteOwnAccount = async (currentPassword?: string): Promise<void> => {
-  if (!isFirebaseConfigured || !auth?.currentUser) {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !authMod || !firestoreMod || !auth?.currentUser) {
     throw new Error("Brak zalogowanego użytkownika lub połączenia z Firebase.");
   }
 
@@ -378,8 +408,8 @@ export const deleteOwnAccount = async (currentPassword?: string): Promise<void> 
       throw new Error("Konto nie posiada przypisanego adresu email.");
     }
     try {
-      const credential = EmailAuthProvider.credential(user.email, currentPassword);
-      await reauthenticateWithCredential(user, credential);
+      const credential = authMod.EmailAuthProvider.credential(user.email, currentPassword);
+      await authMod.reauthenticateWithCredential(user, credential);
     } catch (error: any) {
       const code = error?.code || "";
       if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
@@ -402,8 +432,8 @@ export const deleteOwnAccount = async (currentPassword?: string): Promise<void> 
   let firestoreDeleted = false;
   if (db) {
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      await deleteDoc(userDocRef);
+      const userDocRef = firestoreMod.doc(db, "users", user.uid);
+      await firestoreMod.deleteDoc(userDocRef);
       firestoreDeleted = true;
     } catch (error: any) {
       const code = error?.code || "";
@@ -417,7 +447,7 @@ export const deleteOwnAccount = async (currentPassword?: string): Promise<void> 
 
   // 3. Krok 2 usuwania: Usunięcie konta Firebase Auth
   try {
-    await deleteUser(user);
+    await authMod.deleteUser(user);
   } catch (error: any) {
     console.error("Firebase Auth user deletion failed:", error);
     const code = error?.code || "";
@@ -453,8 +483,8 @@ export const getCurrentUser = (): User | null => {
 // Log out and clear cached token
 export const logout = async () => {
   try {
-    if (isFirebaseConfigured && auth?.app) {
-      await signOut(auth);
+    if (authMod && auth?.app) {
+      await authMod.signOut(auth);
     }
     tokens = { basic: null, drive: null, calendar: null };
     cachedUser = null;
@@ -466,7 +496,9 @@ export const logout = async () => {
 };
 
 export const saveUserStateToFirestore = async (uid: string, state: AppState): Promise<void> => {
-  if (!uid || !isFirebaseConfigured || !db) return;
+  if (!uid) return;
+  const ready = await ensureFirebaseReady();
+  if (!ready || !firestoreMod || !db) return;
   const path = `users/${uid}`;
 
   const payloadToSave = {
@@ -478,14 +510,14 @@ export const saveUserStateToFirestore = async (uid: string, state: AppState): Pr
     const payloadString = JSON.stringify(payloadToSave);
     // Use TextEncoder to get actual byte length (handles multi-byte characters)
     const payloadSizeBytes = new TextEncoder().encode(payloadString).length;
-    
+
     // 950KB safe threshold to prevent Firestore 1MB hard limit crash
     if (payloadSizeBytes > 950 * 1024) {
       throw new Error("CLOUD_LIMIT_EXCEEDED: Rozmiar danych przekracza bezpieczny limit chmury (1MB). Wyczyść starą historię lub zapisz kopię zapasową lokalnie.");
     }
 
-    const userDocRef = doc(db, "users", uid);
-    await setDoc(userDocRef, payloadToSave, { merge: true });
+    const userDocRef = firestoreMod.doc(db, "users", uid);
+    await firestoreMod.setDoc(userDocRef, payloadToSave, { merge: true });
     console.log("State successfully saved to Firestore for user:", uid);
   } catch (error) {
     if (error instanceof Error && error.message.startsWith("CLOUD_LIMIT_EXCEEDED")) {
@@ -497,11 +529,13 @@ export const saveUserStateToFirestore = async (uid: string, state: AppState): Pr
 };
 
 export const loadUserStateFromFirestore = async (uid: string): Promise<AppState | null> => {
-  if (!uid || !isFirebaseConfigured || !db) return null;
+  if (!uid) return null;
+  const ready = await ensureFirebaseReady();
+  if (!ready || !firestoreMod || !db) return null;
   const path = `users/${uid}`;
   try {
-    const userDocRef = doc(db, "users", uid);
-    const docSnap = await getDoc(userDocRef);
+    const userDocRef = firestoreMod.doc(db, "users", uid);
+    const docSnap = await firestoreMod.getDoc(userDocRef);
     if (docSnap.exists()) {
       console.log("State successfully loaded from Firestore for user:", uid);
       return docSnap.data() as AppState;
