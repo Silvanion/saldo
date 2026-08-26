@@ -2,7 +2,12 @@
  * Rozstrzyga, czy lokalne AI kategoryzuje lepiej niż reguły.
  *
  * Użycie:
- *   npx tsx experiments/ai-eval/categorization-eval.ts [model] [--batch=20]
+ *   npx tsx experiments/ai-eval/categorization-eval.ts [model] [--batch=20] [--schema]
+ *
+ * --schema wymusza wynik przez JSON Schema z enumem dozwolonych kategorii (structured
+ * outputs) zamiast prosić o nie w tekście promptu. Uruchom oba warianty i porównaj
+ * data/categorization-report.md między przebiegami — enum gwarantuje wartość z listy,
+ * ale nie gwarantuje trafnego wyboru w niejednoznacznych przypadkach.
  *
  * Wymaga:
  *   - uruchomionej Ollamy (ollama serve)
@@ -18,7 +23,9 @@ import { callOllama, extractJson, checkOllamaAvailable } from "./lib/ollama";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = join(HERE, "data/descriptors.csv");
 const DATA_EXAMPLE_PATH = join(HERE, "data/descriptors.csv.example");
-const REPORT_PATH = join(HERE, "data/categorization-report.md");
+function reportPath(useSchema: boolean): string {
+  return join(HERE, `data/categorization-report${useSchema ? "-schema" : ""}.md`);
+}
 
 const ALLOWED_CATEGORIES = [
   "Żywność", "Dom i rachunki", "Transport", "Zdrowie", "Rozrywka",
@@ -64,7 +71,12 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
-async function categorizeWithOllama(model: string, descriptors: string[], batchSize: number): Promise<Map<string, string>> {
+async function categorizeWithOllama(
+  model: string,
+  descriptors: string[],
+  batchSize: number,
+  useSchema: boolean
+): Promise<Map<string, string>> {
   const results = new Map<string, string>();
   const batches = chunk(descriptors, batchSize);
 
@@ -78,13 +90,23 @@ async function categorizeWithOllama(model: string, descriptors: string[], batchS
     // kolejnych pozycji. Z kluczami da się wykryć i policzyć jako błąd tylko brakujący indeks,
     // zamiast odrzucać całą partię.
     const prompt = `Skategoryzuj każdy opis transakcji bankowej do JEDNEJ z dozwolonych kategorii.
-Dozwolone kategorie (użyj DOKŁADNIE tej pisowni): ${ALLOWED_CATEGORIES.join(", ")}
+${useSchema ? "" : `Dozwolone kategorie (użyj DOKŁADNIE tej pisowni): ${ALLOWED_CATEGORIES.join(", ")}\n`}
+Jeśli opis nie pasuje jednoznacznie do żadnej konkretnej kategorii (np. ogólny sklep
+internetowy, wypłata gotówki, przelew bez jasnego tytułu), wybierz "Inne" zamiast zgadywać.
 
 Opisy indeksowane od 0:
 ${numbered}
+${useSchema ? "" : `\nZwróć JSON w formacie {"0": "kategoria dla opisu 0", "1": "kategoria dla opisu 1", ...}\nz DOKŁADNIE ${batch.length} kluczami — po jednym dla każdego indeksu od 0 do ${batch.length - 1}.`}`;
 
-Zwróć JSON w formacie {"0": "kategoria dla opisu 0", "1": "kategoria dla opisu 1", ...}
-z DOKŁADNIE ${batch.length} kluczami — po jednym dla każdego indeksu od 0 do ${batch.length - 1}.`;
+    // Structured outputs: enum wymusza wartość z listy, ale NIE wymusza trafnego wyboru —
+    // patrz ostrzeżenie w komentarzu na górze pliku.
+    const schema = useSchema
+      ? {
+          type: "object",
+          properties: Object.fromEntries(batch.map((_, i) => [String(i), { type: "string", enum: ALLOWED_CATEGORIES }])),
+          required: batch.map((_, i) => String(i))
+        }
+      : undefined;
 
     let parsed: any = null;
     let lastError: string | null = null;
@@ -93,7 +115,7 @@ z DOKŁADNIE ${batch.length} kluczami — po jednym dla każdego indeksu od 0 do
     // przy temperature:0 (ta sama próbka raz dała poprawny wynik, raz pusty obiekt).
     for (let attempt = 0; attempt < 2 && parsed === null; attempt++) {
       try {
-        const raw = await callOllama({ model, prompt, format: "json", temperature: attempt === 0 ? 0 : 0.2 });
+        const raw = await callOllama({ model, prompt, format: schema ?? "json", temperature: attempt === 0 ? 0 : 0.2 });
         const candidate = extractJson(raw);
         if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
           throw new Error(`Odpowiedź nie jest obiektem JSON (otrzymano: ${Array.isArray(candidate) ? "tablicę" : typeof candidate})`);
@@ -133,8 +155,9 @@ async function main() {
   const model = args.find((a) => !a.startsWith("--")) || "qwen2.5:7b";
   const batchArg = args.find((a) => a.startsWith("--batch="));
   const batchSize = batchArg ? parseInt(batchArg.split("=")[1], 10) : 20;
+  const useSchema = args.includes("--schema");
 
-  console.log(`Model: ${model} | rozmiar partii: ${batchSize}\n`);
+  console.log(`Model: ${model} | rozmiar partii: ${batchSize} | tryb: ${useSchema ? "JSON Schema (enum wymuszony)" : "tekst w promptcie"}\n`);
 
   const rows = parseCsv(DATA_PATH);
   if (rows.length === 0) {
@@ -161,7 +184,7 @@ async function main() {
 
   // --- Wariant 2: model lokalny ---
   console.log("Odpytuję Ollama...");
-  const ollamaMap = await categorizeWithOllama(model, rows.map((r) => r.descriptor), batchSize);
+  const ollamaMap = await categorizeWithOllama(model, rows.map((r) => r.descriptor), batchSize, useSchema);
   const ollamaResults = rows.map((r) => ({ ...r, got: ollamaMap.get(r.descriptor) || "__MISSING__" }));
   const ollamaCorrect = ollamaResults.filter((r) => r.got === r.expected).length;
   const ollamaErrors = ollamaResults.filter((r) => r.got === "__ERROR__" || r.got === "__MISSING__").length;
@@ -172,7 +195,7 @@ async function main() {
 
   console.log("\n===== WYNIK =====");
   console.log(`Reguły aplikacji (zimny start, 0 reguł użytkownika): ${ruleCorrect}/${rows.length} (${ruleAcc}%)`);
-  console.log(`${model}: ${ollamaCorrect}/${rows.length} (${ollamaAcc}%)${ollamaErrors ? ` — ${ollamaErrors} błędów odpowiedzi modelu` : ""}`);
+  console.log(`${model} [${useSchema ? "schema" : "tekst"}]: ${ollamaCorrect}/${rows.length} (${ollamaAcc}%)${ollamaErrors ? ` — ${ollamaErrors} błędów odpowiedzi modelu` : ""}`);
 
   const mismatches = rows.map((r, i) => ({
     descriptor: r.descriptor,
@@ -197,8 +220,9 @@ async function main() {
     "|---|---|---|---|",
     ...mismatches.map((m) => `| ${m.descriptor.replace(/\|/g, "\\|")} | ${m.expected} | ${m.rules} | ${m.ollama} |`)
   ];
-  writeFileSync(REPORT_PATH, reportLines.join("\n"));
-  console.log(`\nSzczegółowy raport: ${REPORT_PATH}`);
+  const outPath = reportPath(useSchema);
+  writeFileSync(outPath, reportLines.join("\n"));
+  console.log(`\nSzczegółowy raport: ${outPath}`);
 
   const delta = Number(ollamaAcc) - Number(ruleAcc);
   console.log(`\nRóżnica: ${delta > 0 ? "+" : ""}${delta.toFixed(1)} pkt proc. na korzyść ${delta >= 0 ? "modelu" : "reguł"}.`);

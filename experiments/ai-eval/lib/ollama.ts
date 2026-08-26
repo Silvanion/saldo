@@ -6,7 +6,8 @@
 export interface OllamaCallOptions {
   model: string;
   prompt: string;
-  format?: "json";
+  /** "json" wymusza poprawny JSON bez narzucania kształtu; obiekt to pełny JSON Schema (structured outputs). */
+  format?: "json" | Record<string, unknown>;
   temperature?: number;
   timeoutMs?: number;
   endpoint?: string;

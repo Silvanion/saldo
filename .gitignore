@@ -20,4 +20,4 @@ playwright-report/
 # lokalnie do ewaluacji (deskryptory bankowe, treść maili) nigdy nie trafiają do repo
 experiments/ai-eval/data/descriptors.csv
 experiments/ai-eval/data/unstructured-samples/*.txt
-experiments/ai-eval/data/*-report.md
+experiments/ai-eval/data/*report*.md
