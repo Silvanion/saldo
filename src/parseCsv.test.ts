@@ -5,7 +5,8 @@ import {
   detectCsvSeparator,
   parseCsvDate,
   parseCsvAmount,
-  BANK_PRESETS
+  BANK_PRESETS,
+  MAX_IMPORT_ROWS
 } from "./services/parseCsv";
 import { TransactionRule } from "./types";
 
@@ -296,5 +297,35 @@ Data transakcji;Data rozliczenia;Opis transakcji;Kwota transakcji;Waluta
     expect(result.rejectedRows.length).toBe(2);
     expect(result.rejectedRows[0].reason).toContain("Nieprawidłowy format kwoty");
     expect(result.rejectedRows[1].reason).toContain("Nieprawidłowy format daty");
+  });
+
+  it("14. odrzuca kwotę przepełnioną do Infinity zamiast przepuścić ją jako poprawną", () => {
+    // isNaN(Infinity) === false — notacja wykładnicza z arkusza ("1E+300") wcześniej
+    // przechodziła walidację jako "poprawna" kwota transakcji.
+    expect(parseCsvAmount("1E+300")).toBeNull();
+    expect(parseCsvAmount("-1E+300")).toBeNull();
+    expect(parseCsvAmount("9".repeat(400))).toBeNull();
+  });
+
+  it("15. przycina import do MAX_IMPORT_ROWS i raportuje truncatedCount zamiast po cichu gubić resztę", () => {
+    const header = "Data;Kwota;Tytuł";
+    const rowCount = MAX_IMPORT_ROWS + 250;
+    const rows = Array.from({ length: rowCount }, (_, i) => `2026-08-01;-10,00;Transakcja ${i}`);
+    const bigCsv = [header, ...rows].join("\n");
+
+    const result = parseAndMapCsv({ rawCsvText: bigCsv, presetId: "generic" });
+
+    expect(result.transactions.length).toBe(MAX_IMPORT_ROWS);
+    expect(result.stats.truncatedCount).toBe(250);
+    expect(result.stats.totalRows).toBe(MAX_IMPORT_ROWS);
+  });
+
+  it("16. nie zgłasza obcięcia, gdy liczba wierszy mieści się w limicie", () => {
+    const result = parseAndMapCsv({
+      rawCsvText: MBANK_FIXTURE,
+      presetId: "mbank"
+    });
+
+    expect(result.stats.truncatedCount).toBe(0);
   });
 });

@@ -6,6 +6,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { Profile, Transaction } from "../types";
+import { MAX_IMPORT_ROWS } from "../services/parseCsv";
 
 let mockAppState: { aiMode: "none" | "local" } = {
   aiMode: "none",
@@ -163,6 +164,36 @@ invalid_date;100;Błędna data;PLN
 
     expect(onImport).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it("4. plik z liczbą wierszy powyżej limitu pokazuje ostrzeżenie o obcięciu importu", () => {
+    const header = "Data;Kwota;Tytuł";
+    const rowCount = MAX_IMPORT_ROWS + 100;
+    const rows = Array.from({ length: rowCount }, (_, i) => `2026-07-01;-10,00;Transakcja ${i}`);
+    const bigCsv = [header, ...rows].join("\n");
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
+      target: { value: bigCsv }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
+
+    expect(screen.getByText(/Plik zawierał więcej wierszy niż limit/i)).toBeTruthy();
+    expect(screen.getByText("100")).toBeTruthy();
+  });
+
+  it("5. plik w granicach limitu nie pokazuje ostrzeżenia o obcięciu", () => {
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
+      target: { value: SAMPLE_CSV }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
+
+    expect(screen.queryByText(/Plik zawierał więcej wierszy niż limit/i)).toBeNull();
   });
 });
 

@@ -28,7 +28,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
-import { checkDuplicate } from "../services/duplicateDetector";
+import { checkDuplicate, DuplicateCheckResult } from "../services/duplicateDetector";
 import {
   BANK_PRESETS,
   BankPreset,
@@ -100,19 +100,45 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     invalidAmount: 0,
     invalidDate: 0,
     skippedEmpty: 0,
-    tooMany: false
+    tooMany: false,
+    truncated: 0
   });
 
+  // Wynik jednego przebiegu checkDuplicate per transakcja, ustawiany razem z
+  // mappedTransactions (patrz scanForDuplicates niżej). Trzymanie tego w stanie zamiast
+  // przeliczania w useMemo na podstawie mappedTransactions+activeProfile eliminuje
+  // podwójne skanowanie O(n * liczba_istniejących_transakcji) — dawniej ten sam
+  // checkDuplicate biegł raz w handlerze (do zaznaczenia domyślnego) i drugi raz tutaj
+  // (do wyświetlenia ostrzeżeń), za każdym razem gdy zmieniały się mappedTransactions.
+  const [duplicateWarningsByTxId, setDuplicateWarningsByTxId] = useState<Record<string, DuplicateCheckResult>>({});
+
   const duplicateAnalysis = React.useMemo(() => {
-    const existing = activeProfile?.transactions || [];
     let duplicateCount = 0;
     const enriched = mappedTransactions.map((tx) => {
-      const res = checkDuplicate(tx, existing);
-      if (res.isLikelyDuplicate) duplicateCount++;
-      return { tx, warning: res.isLikelyDuplicate ? res : null };
+      const warning = duplicateWarningsByTxId[tx.id] || null;
+      if (warning) duplicateCount++;
+      return { tx, warning };
     });
     return { enriched, duplicateCount };
-  }, [mappedTransactions, activeProfile]);
+  }, [mappedTransactions, duplicateWarningsByTxId]);
+
+  // Jedyne miejsce, w którym faktycznie biegnie checkDuplicate dla nowego zestawu
+  // transakcji z importu. Zwraca zarówno mapę ostrzeżeń (do stanu/UI), jak i zbiór id
+  // transakcji NIE będących duplikatami (do domyślnego zaznaczenia) — bez powtórnego skanu.
+  const scanForDuplicates = (transactions: Transaction[]) => {
+    const existing = activeProfile?.transactions || [];
+    const warningsMap: Record<string, DuplicateCheckResult> = {};
+    const nonDuplicateIds = new Set<string>();
+    for (const tx of transactions) {
+      const res = checkDuplicate(tx, existing);
+      if (res.isLikelyDuplicate) {
+        warningsMap[tx.id] = res;
+      } else {
+        nonDuplicateIds.add(tx.id);
+      }
+    }
+    return { warningsMap, nonDuplicateIds };
+  };
 
   const uncategorizedCount = React.useMemo(
     () => mappedTransactions.filter((t) => t.category === "Inne").length,
@@ -204,35 +230,22 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     setRejectedRows(result.rejectedRows || []);
     setDetectedCurrencies(result.detectedCurrencies || { PLN: 0, EUR: 0, USD: 0, GBP: 0 });
 
-    // Pre-select all non-duplicate transactions by default
-    const existing = activeProfile?.transactions || [];
-    const duplicateIds = new Set<string>();
-    for (const tx of result.transactions) {
-      const res = checkDuplicate(tx, existing);
-      if (res.isLikelyDuplicate) {
-        duplicateIds.add(tx.id);
-      }
-    }
+    // Pre-select all non-duplicate transactions by default (jeden skan, patrz scanForDuplicates)
+    const { warningsMap, nonDuplicateIds } = scanForDuplicates(result.transactions);
+    setDuplicateWarningsByTxId(warningsMap);
 
-    const initialSelection = new Set<string>();
-    for (const tx of result.transactions) {
-      if (!duplicateIds.has(tx.id)) {
-        initialSelection.add(tx.id);
-      }
-    }
     // If all were duplicates or 0 non-duplicates, default to select all so user can choose
-    if (initialSelection.size === 0 && result.transactions.length > 0) {
-      for (const tx of result.transactions) {
-        initialSelection.add(tx.id);
-      }
-    }
+    const initialSelection = nonDuplicateIds.size > 0
+      ? nonDuplicateIds
+      : new Set(result.transactions.map((tx) => tx.id));
     setSelectedTxIds(initialSelection);
 
     setImportStats({
       invalidAmount: result.stats.invalidAmountCount,
       invalidDate: result.stats.invalidDateCount,
       skippedEmpty: result.stats.skippedEmptyCount,
-      tooMany: result.transactions.length >= 2000
+      tooMany: result.stats.truncatedCount > 0,
+      truncated: result.stats.truncatedCount
     });
     setStep(3);
   };
@@ -268,6 +281,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       }));
 
       setMappedTransactions(processed);
+      setDuplicateWarningsByTxId(scanForDuplicates(processed).warningsMap);
       setSelectedTxIds(new Set(processed.map((t) => t.id)));
       setRejectedRows([]);
       setAiInconsistentIds(new Set());
@@ -312,6 +326,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       });
 
       setMappedTransactions(processed);
+      setDuplicateWarningsByTxId(scanForDuplicates(processed).warningsMap);
       // Wiersze z kwotą niepotwierdzoną w tekście źródłowym nie są zaznaczone domyślnie —
       // wymagają świadomej decyzji użytkownika, tak jak wykryte duplikaty. Jeśli wszystkie
       // wiersze budzą wątpliwość, zaznacz wszystko — użytkownik i tak musi przejrzeć podgląd.
@@ -670,6 +685,19 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
 
           {step === 3 && (
             <div className="space-y-4 flex flex-col flex-1 overflow-hidden min-h-0">
+              {/* Truncation notice — plik miał więcej wierszy niż limit importu na raz */}
+              {importStats.truncated > 0 && (
+                <p className="text-xs text-warning bg-warning-subtle border border-warning/30 p-2.5 rounded-xl flex items-start gap-2 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    Plik zawierał więcej wierszy niż limit jednorazowego importu — wczytano pierwsze{" "}
+                    <strong>{mappedTransactions.length}</strong>, pominięto{" "}
+                    <strong>{importStats.truncated}</strong> kolejnych. Podziel wyciąg na mniejsze części i
+                    zaimportuj resztę osobno.
+                  </span>
+                </p>
+              )}
+
               {/* 1. Pre-import Metrics Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
                 <div className="bg-surface border border-border p-3 rounded-xl flex flex-col justify-between">

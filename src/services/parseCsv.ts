@@ -154,6 +154,12 @@ export function parseCsvAmount(rawAmount: string): { amount: number; isNegative:
 
   if (!cleaned) return null;
 
+  // Notacja wykładnicza (np. "1E+300") musi być odrzucona PRZED usunięciem liter niżej —
+  // [^\d.-] wycina samo "E"/"+", więc "1E+300" cicho zmieniało się w błędne "1300"
+  // zamiast zostać odrzucone jako nieprawidłowa kwota. Arkusze potrafią eksportować duże
+  // liczby właśnie w tej notacji, więc to nie jest tylko teoretyczny przypadek.
+  if (/\d[eE][-+]?\d/.test(cleaned)) return null;
+
   let isNegative = false;
   if (cleaned.startsWith("-") || cleaned.includes("-") || (cleaned.startsWith("(") && cleaned.endsWith(")"))) {
     isNegative = true;
@@ -163,7 +169,9 @@ export function parseCsvAmount(rawAmount: string): { amount: number; isNegative:
   cleaned = cleaned.replace(/,/g, ".").replace(/[^\d.-]/g, "");
 
   const val = parseFloat(cleaned);
-  if (isNaN(val) || val === 0) {
+  // Number.isFinite, nie isNaN: isNaN(Infinity) === false, więc arkusze eksportujące
+  // bardzo długie ciągi cyfr (bez notacji wykładniczej) też mogą przepełnić się do Infinity.
+  if (!Number.isFinite(val) || val === 0) {
     return null;
   }
 
@@ -359,8 +367,15 @@ export interface ProcessCsvResult {
     invalidAmountCount: number;
     invalidDateCount: number;
     skippedEmptyCount: number;
+    truncatedCount: number;
   };
 }
+
+// Powyżej tego progu przetwarzanie w jednym renderze (podgląd + wykrywanie duplikatów
+// O(n*m) względem istniejących transakcji) zaczyna zauważalnie dławić UI. Zamiast ciszej
+// przycinać dane bez śladu, liczba odrzuconych wierszy trafia do stats.truncatedCount,
+// żeby UI mógł to pokazać użytkownikowi.
+export const MAX_IMPORT_ROWS = 2000;
 
 export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const cleanedText = cleanCsvBomAndEncoding(params.rawCsvText);
@@ -384,7 +399,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       transactions: [],
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
-      stats: { totalRows: 0, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0 }
+      stats: { totalRows: 0, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount: 0 }
     };
   }
 
@@ -399,7 +414,9 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   }
 
   const headers = rawData[headerIndex] || [];
-  const rows = rawData.slice(headerIndex + 1).filter((r) => r.length >= 2);
+  const allDataRows = rawData.slice(headerIndex + 1).filter((r) => r.length >= 2);
+  const rows = allDataRows.slice(0, MAX_IMPORT_ROWS);
+  const truncatedCount = allDataRows.length - rows.length;
 
   const autoCols = autoDetectBankColumns(headers, params.presetId);
   const nameCol = params.mapName || autoCols.mapName;
@@ -526,7 +543,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       validCount: transactions.length,
       invalidAmountCount,
       invalidDateCount,
-      skippedEmptyCount
+      skippedEmptyCount,
+      truncatedCount
     }
   };
 }
