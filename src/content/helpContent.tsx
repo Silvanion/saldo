@@ -25,7 +25,8 @@ import {
   Cpu,
   RefreshCw,
   Sliders,
-  CheckCircle
+  CheckCircle,
+  Landmark
 } from "lucide-react";
 
 import {
@@ -34,7 +35,9 @@ import {
   MockAnalysisVisual,
   MockCurrencyVisual,
   MockSettlementVisual,
-  MockCommandPaletteVisual
+  MockCommandPaletteVisual,
+  MockDebtsVisual,
+  MockLocalAiVisual
 } from "../components/help/HelpVisuals";
 
 export const helpCategories = [
@@ -43,6 +46,7 @@ export const helpCategories = [
   "Paleta komend (⌘K)",
   "Pulpit i Wskaźniki",
   "Analizy i Symulatory",
+  "Kredyty i Hipoteka",
   "Wielowalutowość & NBP",
   "Transakcje i Banki CSV",
   "Rachunki i Timeline",
@@ -262,6 +266,57 @@ export const helpSectionsData: HelpSectionData[] = [
     )
   },
   {
+    id: "debts",
+    cat: "Kredyty i Hipoteka",
+    title: "Kredyty i Hipoteka — Portfel zadłużenia, strategie spłaty i refinansowanie",
+    icon: <Landmark className="w-5 h-5 text-brand" />,
+    badge: "Nowy moduł",
+    keywords: ["kredyt", "hipoteka", "dług", "zadłużenie", "rata", "lawina", "avalanche", "kula śnieżna", "snowball", "nadpłata", "refinansowanie", "wacd", "karta kredytowa", "bnpl", "limit odnawialny"],
+    defaultOpen: true,
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Moduł <strong className="text-text-main">Kredyty i Hipoteka</strong> gromadzi wszystkie Twoje zobowiązania (hipotekę, kredyty gotówkowe, karty kredytowe, limity odnawialne, raty 0%/BNPL oraz inne długi) w jednym portfelu i pokazuje realny koszt ich obsługi:
+        </p>
+
+        <MockScreenShot title="Portfel zobowiązań — KPI i strategie spłaty" badge="Kredyty i Hipoteka">
+          <MockDebtsVisual />
+        </MockScreenShot>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-text-main block">📊 Wskaźniki portfela</span>
+            <p className="text-text-muted">Łączne saldo, miesięczna obsługa, pozostałe odsetki oraz średni ważony koszt długu (WACD) — jednym rzutem oka widzisz, ile realnie kosztuje Cię zadłużenie.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-text-main block">⚖️ Lawina vs. Kula Śnieżna</span>
+            <p className="text-text-muted">Porównaj obie strategie spłaty side-by-side — Lawina minimalizuje sumę odsetek, Kula Śnieżna daje szybsze psychologiczne zwycięstwa. Aplikacja rekomenduje strategię dopasowaną do Twojego portfela.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-brand block">💰 Symulator nadpłaty</span>
+            <p className="text-text-muted">Sprawdź, o ile miesięcy skróci się spłata i ile odsetek zaoszczędzisz przy jednorazowej, miesięcznej lub rocznej nadpłacie wybranego zobowiązania.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-text-main block">🏦 Porównanie refinansowania</span>
+            <p className="text-text-muted">Zestaw do 3 ofert refinansowania jednocześnie (nowe oprocentowanie, koszty przejścia, nowy okres) i zobacz, która realnie się opłaca po uwzględnieniu wszystkich kosztów.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-text-main block">🔗 Powiązane transakcje</span>
+            <p className="text-text-muted">Rata spłacona z Księgi Transakcji może zostać powiązana z konkretnym zobowiązaniem — historia płatności i postęp spłaty aktualizują się automatycznie.</p>
+          </div>
+          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+            <span className="font-bold text-text-main block">📥 Import z wyciągu / BIK</span>
+            <p className="text-text-muted">Zaimportuj dane zobowiązania z pliku CSV zamiast wpisywać wszystko ręcznie — z tą samą walidacją i ochroną przed błędnymi wartościami co w imporcie transakcji.</p>
+          </div>
+        </div>
+
+        <p className="text-xs text-text-muted leading-relaxed">
+          Moduł znajdziesz w menu głównym pod pozycją <strong className="text-text-main">Kredyty i Hipoteka</strong>, w czterech zakładkach: <em>Portfel zobowiązań</em>, <em>Scenariusze &amp; Strategie</em>, <em>Oferty &amp; Refinansowanie</em> oraz <em>Wiedza &amp; Benchmarki</em>.
+        </p>
+      </div>
+    )
+  },
+  {
     id: "multicurrency",
     cat: "Wielowalutowość & NBP",
     title: "Obsługa Walut Obcych i Kursy Średnie NBP",
@@ -439,13 +494,14 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "ai",
     cat: "Automatyzacja lokalna",
-    title: "Jak działa rozpoznawanie tekstu i szybkie dodawanie",
+    title: "Jak działa rozpoznawanie tekstu, szybkie dodawanie i opcjonalne lokalne AI",
     icon: <Sparkles className="w-5 h-5" />,
-    keywords: ["parser", "automatyzacja", "lokalne", "prywatność", "szybki wpis", "wklej tekst", "wyciąg"],
+    badge: "Zero danych w chmurze",
+    keywords: ["parser", "automatyzacja", "lokalne", "prywatność", "szybki wpis", "wklej tekst", "wyciąg", "ollama", "ai", "sztuczna inteligencja", "kategoryzacja"],
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Saldo rozpoznaje kwoty, daty i kategorie w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych:
+          Podstawowe rozpoznawanie kwot, dat i kategorii działa w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych. Zewnętrzne, chmurowe AI zostało z aplikacji <strong className="text-text-main">całkowicie usunięte</strong>: żadne dane finansowe nigdy nie trafiają na serwery firm trzecich.
         </p>
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
@@ -458,6 +514,27 @@ export const helpSectionsData: HelpSectionData[] = [
             Zdanie w rodzaju „prąd 340 zł za 3 dni” zamienia się w gotowy rachunek — bez otwierania osobnego formularza.
           </li>
         </ul>
+
+        <div className="pt-1">
+          <h5 className="font-bold text-text-main text-xs sm:text-sm flex items-center gap-2 mb-2">
+            <Cpu className="w-4 h-4 text-brand" />
+            Lokalne AI (Ollama) — opcjonalne wsparcie dla trudniejszych przypadków
+          </h5>
+          <p className="text-xs text-text-muted leading-relaxed mb-3">
+            Gdy wbudowany parser nie poradzi sobie z nietypowym formatem wyciągu, możesz włączyć w Ustawieniach dodatkową warstwę rozpoznawania opartą o model językowy uruchomiony lokalnie na Twoim komputerze przez <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium">Ollama</a>. Przeglądarka łączy się bezpośrednio z <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">localhost</code> — nic nie opuszcza urządzenia.
+          </p>
+
+          <MockScreenShot title="Lokalne AI — sugestia kategorii z wyciągu" badge="Ollama · Offline">
+            <MockLocalAiVisual />
+          </MockScreenShot>
+
+          <ul className="list-disc pl-5 space-y-2 text-xs mt-3">
+            <li><strong>Sugestie kategorii:</strong> dla transakcji, których nie rozpoznały Twoje reguły, model zaproponuje kategorię na podstawie opisu.</li>
+            <li><strong>Odczyt wklejonego tekstu:</strong> gdy deterministyczny parser nie wyodrębni poprawnie kwot lub dat z nietypowego formatu wyciągu, lokalne AI spróbuje je odczytać.</li>
+            <li><strong>Zawsze do akceptacji:</strong> każda sugestia trafia do podglądu przed importem — nic nie zapisuje się automatycznie bez Twojej zgody.</li>
+            <li><strong>Wyłączone domyślnie:</strong> włączasz to ręcznie w Ustawieniach → Automatyzacja, w każdej chwili możesz wyłączyć.</li>
+          </ul>
+        </div>
       </div>
     )
   }
@@ -512,5 +589,21 @@ export const faqData: FaqEntry[] = [
   {
     question: "Co się stanie, gdy zapomnę kodu PIN?",
     answer: "Kod PIN zabezpiecza dostęp do wybranego profilu. Możesz zresetować zapomniany PIN w Ustawieniach lub przywrócić niezabezpieczoną kopię zapasową z pliku JSON lub Google Drive."
+  },
+  {
+    question: "Czym różni się strategia Lawina od Kuli Śnieżnej przy spłacie długów?",
+    answer: "Lawina (Avalanche) spłaca najpierw zobowiązanie z najwyższym oprocentowaniem, co minimalizuje sumę zapłaconych odsetek. Kula Śnieżna (Snowball) spłaca najpierw najmniejsze saldo, dając szybsze psychologiczne zwycięstwa i szybciej uwalniając miesięczną ratę na kolejne zobowiązania. Moduł Kredyty i Hipoteka pozwala porównać obie strategie side-by-side dla Twojego portfela."
+  },
+  {
+    question: "Jak działa symulator nadpłaty kredytu lub hipoteki?",
+    answer: "W szczegółach zobowiązania możesz wskazać kwotę nadpłaty (jednorazową, miesięczną lub roczną) i strategię (skrócenie okresu spłaty lub zmniejszenie raty). Symulator natychmiast pokazuje realne porównanie: nową ratę, nowy czas spłaty i sumę zaoszczędzonych odsetek."
+  },
+  {
+    question: "Czy lokalne AI (Ollama) wysyła moje dane finansowe do internetu?",
+    answer: "Nie. Lokalne AI to opcjonalna funkcja wymagająca zainstalowanej aplikacji Ollama na Twoim komputerze — model językowy działa wyłącznie lokalnie, a przeglądarka łączy się bezpośrednio z localhost. Żadne dane nie są wysyłane na żaden serwer, także nie do twórców Saldo. Funkcja jest domyślnie wyłączona i włączasz ją ręcznie w Ustawieniach."
+  },
+  {
+    question: "Czy transakcja spłaty raty może zostać automatycznie powiązana z kredytem?",
+    answer: "Tak. W module Kredyty i Hipoteka możesz połączyć istniejącą transakcję wydatku z konkretnym zobowiązaniem. Historia powiązanych płatności, postęp spłaty i kamienie milowe aktualizują się automatycznie na podstawie tych powiązań."
   }
 ];

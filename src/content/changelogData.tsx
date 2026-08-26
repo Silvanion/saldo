@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone, TrendingUp, BookOpen, Sliders, Globe } from "lucide-react";
+import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone, TrendingUp, BookOpen, Sliders, Globe, Landmark } from "lucide-react";
 
 export interface ChangelogEntry {
   version: string;
@@ -10,6 +10,21 @@ export interface ChangelogEntry {
 }
 
 export const changelogData: ChangelogEntry[] = [
+  {
+    version: "v1.2.0",
+    date: "Sierpień 2026",
+    title: "Kredyty i Hipoteka, Lokalne AI (Ollama) i Wzmocniona Jakość Danych",
+    icon: <Landmark className="w-5 h-5 text-brand" />,
+    features: [
+      "[Kredyty i Hipoteka — nowy moduł] Portfel wszystkich zobowiązań (hipoteka, kredyty gotówkowe, karty kredytowe, limity odnawialne, raty 0%/BNPL) z wskaźnikami łącznego salda, miesięcznej obsługi, pozostałych odsetek i średniego ważonego kosztu długu (WACD).",
+      "[Strategie Spłaty: Lawina vs. Kula Śnieżna] Porównanie side-by-side strategii Avalanche (najwyższe oprocentowanie najpierw) i Snowball (najmniejsze saldo najpierw) z rekomendacją dopasowaną do portfela.",
+      "[Symulator Nadpłaty i Refinansowania] Sprawdź wpływ jednorazowej, miesięcznej lub rocznej nadpłaty na czas spłaty i sumę odsetek oraz porównaj do 3 ofert refinansowania jednocześnie.",
+      "[Powiązane Transakcje] Rata spłacona z Księgi Transakcji może zostać połączona z konkretnym zobowiązaniem — historia płatności i postęp spłaty aktualizują się automatycznie.",
+      "[Lokalne AI (Ollama), w pełni opcjonalne] Dodatkowa warstwa rozpoznawania tekstu wyciągów i sugestii kategorii oparta o model językowy uruchomiony lokalnie na Twoim komputerze — żadne dane nie opuszczają urządzenia. Zewnętrzne, chmurowe AI zostało z aplikacji całkowicie usunięte.",
+      "[Karta Kondycji Finansowej na Pulpicie] Kompaktowy skrót wyniku zdrowia finansowego bezpośrednio na ekranie głównym, z odnośnikiem do pełnej analizy.",
+      "[Wzmocniona Jakość i Bezpieczeństwo Danych] Ujednolicona walidacja kwot odrzucająca błędne/nieskończone wartości we wszystkich formularzach i imporcie CSV, limit wierszy importu z czytelnym ostrzeżeniem zamiast cichego obcinania danych, wydajniejsze (mniejsze) szyfrowane kopie lokalne oraz naprawa rzadkiego przypadku utraty ochrony kodem PIN przy błyskawicznym odświeżeniu strony."
+    ]
+  },
   {
     version: "v1.1.0",
     date: "Sierpień 2026",
