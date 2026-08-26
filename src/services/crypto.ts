@@ -56,9 +56,12 @@ export async function encryptProfile(profile: Profile, key: CryptoKey): Promise<
     recurringRules: profile.recurringRules || [],
     transactionRules: profile.transactionRules || [],
     settlements: profile.settlements || [],
-    accounts: profile.accounts || []
+    accounts: profile.accounts || [],
+    smartRules: profile.smartRules || [],
+    debts: profile.debts || [],
+    debtPayoffScenarios: profile.debtPayoffScenarios || []
   };
-  
+
   const cryptoObj = getCrypto();
   const iv = cryptoObj.getRandomValues(new Uint8Array(12));
   const encoded = new TextEncoder().encode(JSON.stringify(dataToEncrypt));
@@ -80,7 +83,10 @@ export async function encryptProfile(profile: Profile, key: CryptoKey): Promise<
     recurringRules: [],
     transactionRules: [],
     settlements: [],
-    accounts: []
+    accounts: [],
+    smartRules: [],
+    debts: [],
+    debtPayoffScenarios: []
   };
 }
 
@@ -105,7 +111,11 @@ export async function decryptProfile(profile: Profile, key: CryptoKey): Promise<
       recurringRules: plaintext.recurringRules || [],
       transactionRules: plaintext.transactionRules || [],
       settlements: plaintext.settlements || [],
-      accounts: plaintext.accounts || []
+      accounts: plaintext.accounts || [],
+      // Payloady sprzed dodania tych pól ich nie zawierają — zachowaj to, co jest w profilu.
+      smartRules: plaintext.smartRules || profile.smartRules || [],
+      debts: plaintext.debts || profile.debts || [],
+      debtPayoffScenarios: plaintext.debtPayoffScenarios || profile.debtPayoffScenarios || []
     };
   } catch (err) {
     console.error("Failed to decrypt profile:", profile.id, err);
@@ -132,7 +142,10 @@ export async function prepareStateForRemoteSave(state: AppState): Promise<AppSta
         (profile.recurringRules && profile.recurringRules.length > 0) ||
         (profile.transactionRules && profile.transactionRules.length > 0) ||
         (profile.settlements && profile.settlements.length > 0) ||
-        (profile.accounts && profile.accounts.length > 0);
+        (profile.accounts && profile.accounts.length > 0) ||
+        (profile.smartRules && profile.smartRules.length > 0) ||
+        (profile.debts && profile.debts.length > 0) ||
+        (profile.debtPayoffScenarios && profile.debtPayoffScenarios.length > 0);
 
       if (profile.encryptedPayload && !hasSensitiveData) {
         return profile;
