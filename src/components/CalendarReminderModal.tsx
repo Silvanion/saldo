@@ -2,8 +2,7 @@
 import { getLocalDateIso } from "../utils";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { callAiApi, getAiConfig } from "../services/aiClient";
-import { useApp } from "../app/providers/AppContext";
+import { buildCalendarReminder } from "../services/localParsers";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
@@ -32,7 +31,6 @@ export function CalendarReminderModal({
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
 
-  const { state, canUseAiChat } = useApp();
   
   // Suggested event fields
   const [summary, setSummary] = useState("");
@@ -42,7 +40,6 @@ export function CalendarReminderModal({
   const [reminders, setReminders] = useState<number[]>([1440, 120]); // default: 1 day, 2 hours
 
   // Status & loading
-  const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -74,40 +71,18 @@ export function CalendarReminderModal({
 
   if (!isOpen || !payment) return null;
 
-  const fetchEventSuggestion = async (p: Payment) => {
-    setIsLoadingSuggestion(true);
+  // Treść przypomnienia powstaje lokalnie — natychmiast, offline i bez limitów zapytań.
+  const fetchEventSuggestion = (p: Payment) => {
     setErrorMsg(null);
     setSuccessMsg(null);
-    try {
-      if (!canUseAiChat) {
-        setSummary(`💸 Płatność: ${p.name} (${p.amount} ${(p.currency || state?.currencyPreference || "PLN")})`);
-        setDescription(`Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${p.name}\nKwota: ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}\nTermin: ${p.dueDate}\n\n[Wygenerowano z aplikacji Saldo]`);
-        setEventDate(p.dueDate || getLocalDateIso());
-        setEventTime("10:00");
-        setIsLoadingSuggestion(false);
-        return;
-      }
-      const aiConfig = getAiConfig(state);
-      const data = await callAiApi("suggest-event", { payment: p, currentDate: getLocalDateIso() }, aiConfig);
-      
-      setSummary(data.summary || `Płatność: ${p.name}`);
-      setDescription(data.description || `Termin płatności za ${p.name} na kwotę ${p.amount} zł.`);
-      setEventDate(p.dueDate || getLocalDateIso());
-      setEventTime(data.suggestedTime?.slice(0, 5) || "10:00");
-      if (Array.isArray(data.reminders)) {
-        setReminders(data.reminders.slice(0, 5));
-      }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg(err instanceof Error ? err.message : "Błąd generowania sugestii AI.");
-      // Fallback details
-      setSummary(`Przypomnienie: ${p.name} - ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}`);
-      setDescription(`Ureguluj płatność ${p.name} na kwotę ${p.amount} ${(p.currency || state?.currencyPreference || "PLN")}.`);
-      setEventDate(p.dueDate || getLocalDateIso());
-      setEventTime("10:00");
-    } finally {
-      setIsLoadingSuggestion(false);
-    }
+
+    const draft = buildCalendarReminder(p, getLocalDateIso());
+
+    setSummary(draft.summary);
+    setDescription(draft.description);
+    setEventDate(p.dueDate || getLocalDateIso());
+    setEventTime(draft.suggestedTime.slice(0, 5));
+    setReminders(draft.reminders);
   };
 
   const calculateEndTime = (timeStr: string): string => {
@@ -287,14 +262,7 @@ export function CalendarReminderModal({
           ) : (
             <div className="space-y-6">
               
-              {isLoadingSuggestion && (
-                <div className="flex flex-col items-center justify-center p-8 space-y-3 bg-bg-base/95 backdrop-blur-2xl rounded-2xl border border-border/60 shadow-sm">
-                  <Loader2 className="w-6 h-6 text-text-muted animate-spin" />
-                  <p className="text-sm font-medium text-text-muted">Przygotowuję szczegóły z AI...</p>
-                </div>
-              )}
-
-              {!isLoadingSuggestion && (
+              {(
                 <div className="space-y-4 p-5 bg-bg-base/95 backdrop-blur-2xl border border-border rounded-2xl shadow-sm animate-fade-in relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-brand"></div>
                   <div className="flex items-center gap-2 mb-2">
@@ -317,7 +285,7 @@ export function CalendarReminderModal({
 
                   {/* Event Description */}
                   <div>
-                    <label className="block text-xs font-medium text-text-muted mb-1.5">Opis {canUseAiChat ? "(Wygenerowany przez AI)" : ""}</label>
+                    <label className="block text-xs font-medium text-text-muted mb-1.5">Opis</label>
                     <textarea
                       required
                       rows={4}
@@ -410,7 +378,7 @@ export function CalendarReminderModal({
         </div>
 
         {/* Bottom Actions - extracted to footer */}
-        {(calendarToken && !calendarScopeMissing && !isLoadingSuggestion) && (
+        {(calendarToken && !calendarScopeMissing) && (
           <div className="shrink-0 flex items-center gap-3 p-6 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl">
             <button
               type="button"

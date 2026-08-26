@@ -2,7 +2,7 @@
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { callAiApi, getAiConfig } from "../services/aiClient";
+import { parseStatementText } from "../services/localParsers";
 import { useApp } from "../app/providers/AppContext";
 import { createPortal } from "react-dom";
 import React, { useState, useRef } from "react";
@@ -12,7 +12,6 @@ import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } 
 import {
   UploadCloud,
   FileText,
-  Sparkles,
   Loader2,
   FileSpreadsheet,
   AlertTriangle,
@@ -48,9 +47,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
-  const { state, activeProfile } = useApp();
-  const isAiAvailable = state.aiMode !== "none";
-  const [tab, setTab] = useState<"csv" | "ai">("csv");
+  const { activeProfile } = useApp();
+  const [tab, setTab] = useState<"csv" | "text">("csv");
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Input, 2: Mapping, 3: Preview
 
   // CSV State
@@ -73,10 +71,10 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [defaultAccount, setDefaultAccount] = useState("Konto główne");
   const [typeStrategy, setTypeStrategy] = useState<"auto" | "expense" | "income">("auto");
 
-  // AI State
-  const [aiText, setAiText] = useState("");
-  const [isAiProcessing, setIsAiProcessing] = useState(false);
-  const [aiError, setAiError] = useState("");
+  // Stan zakładki "wklej tekst wyciągu"
+  const [pastedText, setPastedText] = useState("");
+  const [isTextProcessing, setIsTextProcessing] = useState(false);
+  const [textError, setTextError] = useState("");
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
@@ -224,22 +222,32 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     setStep(3);
   };
 
-  // --- AI Handlers ---
-  const handleAiProcess = async () => {
-    if (!aiText.trim()) return;
-    setIsAiProcessing(true);
-    setAiError("");
+  // --- Wklejony tekst wyciągu (parser lokalny, bez sieci) ---
+  const handleTextProcess = () => {
+    if (!pastedText.trim()) return;
+    setIsTextProcessing(true);
+    setTextError("");
     try {
-      const data = await callAiApi("parse-statement", { text: aiText, currentDate: getLocalDateIso() }, getAiConfig(state));
+      const parsed = parseStatementText(
+        pastedText,
+        getLocalDateIso(),
+        activeProfile?.transactionRules || [],
+        defaultAccount
+      );
 
-      const processed: Transaction[] = (data.transactions || []).map((t: any) => ({
-        id: "tx-ai-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        name: t.name || "Nieznana transakcja",
-        amount: t.amount || 0,
-        type: t.type === "income" ? "income" : "expense",
-        isoDate: t.isoDate || getLocalDateIso(),
+      if (parsed.length === 0) {
+        setTextError("Nie rozpoznano żadnej transakcji. Sprawdź, czy każdy wiersz zawiera opis i kwotę.");
+        return;
+      }
+
+      const processed: Transaction[] = parsed.map((t, idx) => ({
+        id: `tx-txt-${Date.now()}-${idx}`,
+        name: t.name,
+        amount: t.amount,
+        type: t.type,
+        isoDate: t.isoDate,
         category: t.category || defaultCategory,
-        categoryIcon: iconByCategory[t.category] || "✨",
+        categoryIcon: t.categoryIcon || iconByCategory[t.category] || "✨",
         account: t.account || defaultAccount,
         currency: activeProfile?.currency || "PLN"
       }));
@@ -250,9 +258,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       setDetectedCurrencies({ [activeProfile?.currency || "PLN"]: processed.length } as any);
       setStep(3);
     } catch (err: any) {
-      setAiError(err.message || "Wystąpił problem podczas przetwarzania tekstu.");
+      setTextError(err.message || "Wystąpił problem podczas przetwarzania tekstu.");
     } finally {
-      setIsAiProcessing(false);
+      setIsTextProcessing(false);
     }
   };
 
@@ -324,7 +332,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         </div>
 
         {/* TABS */}
-        {step === 1 && isAiAvailable && (
+        {step === 1 && (
           <div className="flex border-b border-border">
             <button
               onClick={() => setTab("csv")}
@@ -335,41 +343,42 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
             </button>
             <button
-              onClick={() => setTab("ai")}
+              onClick={() => setTab("text")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
-                tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
+                tab === "text" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
               }`}
             >
-              <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
+              <FileText className="w-4 h-4" /> Wklej tekst wyciągu
             </button>
           </div>
         )}
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar min-w-0">
-          {step === 1 && tab === "ai" && isAiAvailable && (
+          {step === 1 && tab === "text" && (
             <div className="space-y-4">
               <div className="bg-brand-subtle p-4 rounded-xl border border-brand/20">
                 <p className="text-sm text-brand font-medium mb-1 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> <strong>Analiza tekstu za pomocą AI</strong>
+                  <FileText className="w-4 h-4" /> <strong>Wklej tekst wyciągu</strong>
                 </p>
                 <p className="text-xs text-text-muted leading-relaxed">
-                  Skopiuj surowy tekst wyciągu ze strony banku lub maila i wklej go poniżej. Model AI wyciągnie kwoty i daty, a szybka automatyzacja przypisze kategorie w tle.
+                  Skopiuj historię transakcji ze strony banku lub maila i wklej ją poniżej. Kwoty, daty i kategorie
+                  rozpoznawane są na Twoim urządzeniu — dane nigdzie nie są wysyłane i działa to również offline.
                 </p>
               </div>
               <textarea
-                value={aiText}
-                onChange={(e) => setAiText(e.target.value)}
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
                 placeholder="Wklej historię transakcji z banku tutaj..."
                 className="w-full h-48 p-4 border border-border rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-focus-ring resize-none transition-colors"
               ></textarea>
-              {aiError && <p className="text-danger text-xs font-semibold">{aiError}</p>}
+              {textError && <p className="text-danger text-xs font-semibold">{textError}</p>}
               <button
-                onClick={handleAiProcess}
-                disabled={isAiProcessing || !aiText.trim()}
+                onClick={handleTextProcess}
+                disabled={isTextProcessing || !pastedText.trim()}
                 className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex justify-center items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
-                {isAiProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                {isAiProcessing ? "Analizowanie..." : "Analizuj transakcje AI"}
+                {isTextProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileText className="w-5 h-5" />}
+                {isTextProcessing ? "Przetwarzanie..." : "Rozpoznaj transakcje"}
               </button>
             </div>
           )}
