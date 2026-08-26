@@ -139,6 +139,26 @@ describe("debtCalculations", () => {
       expect(result.savings.monthlyReduction).toBeGreaterThan(0);
       expect(result.savings.interestSaved).toBeGreaterThan(0);
     });
+
+    it("reduce_payment strategy applies the overpayment even when frequency is monthly or yearly, not just one_time", () => {
+      // Regresja: initialBalanceAfterOverpayment było wcześniej redukowane TYLKO gdy
+      // frequency === "one_time" — wybór "Zmniejszenie raty" + "Miesięczna"/"Roczna" w UI
+      // cicho ignorował kwotę nadpłaty (nowa rata wychodziła ~taka sama jak stara, różnica
+      // rzędu pojedynczych groszy z zaokrągleń, zamiast realnej obniżki).
+      const base = { balance: 100000, annualRatePct: 8.0, monthlyPayment: 1200, overpaymentAmount: 20000, targetStrategy: "reduce_payment" as const };
+
+      const monthly = calculateOverpayment({ ...base, frequency: "monthly" });
+      const yearly = calculateOverpayment({ ...base, frequency: "yearly" });
+      const oneTime = calculateOverpayment({ ...base, frequency: "one_time" });
+
+      expect(monthly.savings.monthlyReduction).toBeGreaterThan(50);
+      expect(yearly.savings.monthlyReduction).toBeGreaterThan(50);
+
+      // Skoro "zmniejszenie raty" ma jedną, spójną definicję (jednorazowa wpłata na kapitał),
+      // wynik nie powinien zależeć od wybranej częstotliwości.
+      expect(monthly.withOverpayment.monthlyPayment).toBe(oneTime.withOverpayment.monthlyPayment);
+      expect(yearly.withOverpayment.monthlyPayment).toBe(oneTime.withOverpayment.monthlyPayment);
+    });
   });
 
   describe("calculateRefinanceComparison (Sprint 2 Refinance MVP)", () => {

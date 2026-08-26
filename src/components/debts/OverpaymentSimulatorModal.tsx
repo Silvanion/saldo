@@ -134,13 +134,19 @@ export function OverpaymentSimulatorModal({
                 </label>
                 <select
                   value={frequency}
+                  disabled={targetStrategy === "reduce_payment"}
                   onChange={(e) => setFrequency(e.target.value as any)}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <option value="monthly">Miesięczna</option>
                   <option value="one_time">Jednorazowa</option>
                   <option value="yearly">Roczna</option>
                 </select>
+                {targetStrategy === "reduce_payment" && (
+                  <p className="text-[10px] text-text-faint mt-1">
+                    Zmniejszenie raty liczy się zawsze jako jednorazowa wpłata — cykliczna nadpłata z definicji skraca okres spłaty, nie obniża raty.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -149,7 +155,13 @@ export function OverpaymentSimulatorModal({
                 </label>
                 <select
                   value={targetStrategy}
-                  onChange={(e) => setTargetStrategy(e.target.value as any)}
+                  onChange={(e) => {
+                    const next = e.target.value as "reduce_term" | "reduce_payment";
+                    setTargetStrategy(next);
+                    if (next === "reduce_payment") {
+                      setFrequency("one_time");
+                    }
+                  }}
                   className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                 >
                   <option value="reduce_term">Skrócenie okresu spłaty</option>

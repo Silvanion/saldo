@@ -1923,10 +1923,12 @@ export function calculateOverpayment({
   }
 
   // 3. Strategy: Reduce Payment (Apply overpayment, recalculate new lower monthly payment over remaining term)
-  let initialBalanceAfterOverpayment = balance;
-  if (frequency === "one_time") {
-    initialBalanceAfterOverpayment = Math.max(0, balance - overpaymentAmount);
-  }
+  // Nadpłata w tej strategii zawsze działa jak jednorazowa wpłata na kapitał, niezależnie od
+  // wybranej częstotliwości — "cykliczna nadpłata, która zmniejsza przyszłą ratę" nie ma
+  // odrębnej definicji od strategii reduce_term (cykliczna nadpłata z definicji skraca okres
+  // spłaty, nie obniża raty). Bez tego "monthly"/"yearly" + reduce_payment cicho ignorowały
+  // kwotę nadpłaty (initialBalanceAfterOverpayment zostawało równe balance).
+  const initialBalanceAfterOverpayment = Math.max(0, balance - overpaymentAmount);
 
   const remainingMonths = baselineMonths > 0 ? baselineMonths : 240;
   let newMonthlyPayment = monthlyPayment;
