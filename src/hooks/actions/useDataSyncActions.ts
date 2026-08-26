@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { AppState } from "../../types";
 import { ConfirmPayload } from "../../uiTypes";
 import { getLocalDateIso } from "../../utils";
-import { validateAndMigrateState } from "../../utils/stateMigration";
+import { validateAndMigrateState, createEmptyState } from "../../utils/stateMigration";
 
 interface UseDataSyncActionsProps {
   state: AppState;
@@ -53,15 +53,11 @@ export function useDataSyncActions({
       tone: "danger",
       onConfirm: async () => {
         try {
-          const res = await fetch("/api/state/reset", { method: "POST" });
-          if (res.ok) {
-            const result = await res.json();
-            makeUndoBackup();
-            saveState(result.data);
-            lockProfile();
-            setActiveView("dashboard");
-            showToast("Baza danych została zresetowana do ustawień początkowych.", "success");
-          }
+          makeUndoBackup();
+          await saveState(createEmptyState());
+          lockProfile();
+          setActiveView("dashboard");
+          showToast("Baza danych została zresetowana do ustawień początkowych.", "success");
         } catch (err) {
           console.error("Failed to reset data:", err);
           showToast("Nie udało się zresetować bazy danych.", "error");

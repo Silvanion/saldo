@@ -158,11 +158,8 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       expect(mockSaveState).not.toHaveBeenCalled();
     });
 
-    it("performs reset on confirmation and shows success toast", async () => {
-      const globalFetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ data: { profiles: [] } })
-      });
+    it("resets locally on confirmation without calling the network", async () => {
+      const globalFetch = vi.fn();
       vi.stubGlobal("fetch", globalFetch);
 
       const { result } = getHook();
@@ -177,9 +174,17 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
         await payload.onConfirm();
       });
 
-      expect(globalFetch).toHaveBeenCalledWith("/api/state/reset", { method: "POST" });
+      // Reset działa na IndexedDB — nie ma endpointu /api/state/reset.
+      expect(globalFetch).not.toHaveBeenCalled();
       expect(mockMakeUndoBackup).toHaveBeenCalledTimes(1);
-      expect(mockSaveState).toHaveBeenCalledWith({ profiles: [] });
+
+      const savedState = mockSaveState.mock.calls[0][0];
+      expect(savedState.profiles).toHaveLength(1);
+      expect(savedState.profiles[0].transactions).toEqual([]);
+      expect(savedState.profiles[0].payments).toEqual([]);
+      expect(savedState.profiles[0].goals).toEqual([]);
+      expect(savedState.activeProfileId).toBe(savedState.profiles[0].id);
+
       expect(mockLockProfile).toHaveBeenCalledTimes(1);
       expect(mockSetActiveView).toHaveBeenCalledWith("dashboard");
       expect(mockShowToast).toHaveBeenCalledWith("Baza danych została zresetowana do ustawień początkowych.", "success");
@@ -188,9 +193,8 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       vi.unstubAllGlobals();
     });
 
-    it("shows error toast when reset request fails after confirmation", async () => {
-      const globalFetch = vi.fn().mockRejectedValue(new Error("Network failure"));
-      vi.stubGlobal("fetch", globalFetch);
+    it("shows error toast when the local save fails after confirmation", async () => {
+      mockSaveState.mockRejectedValueOnce(new Error("IndexedDB failure"));
 
       const { result } = getHook();
       await act(async () => {
@@ -206,8 +210,6 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
 
       expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
       expect(window.alert).not.toHaveBeenCalled();
-
-      vi.unstubAllGlobals();
     });
   });
 
