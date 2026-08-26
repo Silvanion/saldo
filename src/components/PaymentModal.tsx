@@ -3,7 +3,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
-import { getLocalDateIso } from "../utils";
+import { getLocalDateIso, parseAmountInput } from "../utils";
 import { X } from "lucide-react";
 
 export interface PaymentModalProps {
@@ -57,8 +57,8 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    const numAmt = parseFloat(amount.replace(",", "."));
-    if (isNaN(numAmt) || numAmt <= 0) return;
+    const numAmt = parseAmountInput(amount);
+    if (numAmt === null || numAmt <= 0) return;
     setIsSubmitting(true);
     const payload: { name: string; amount: number; dueDate: string; paidBy?: "me" | "partner" | "joint"; splitMode?: "none" | "equal" } = { name, amount: numAmt, dueDate };
     if (activeProfile?.kind === "shared") {

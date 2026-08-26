@@ -144,3 +144,10 @@ describe("GoalsView (Savings Goals, Card Actions & Empty State)", () => {
     expect(onAddInvestment).toHaveBeenCalledWith("IKE ETF", 1200, "Poduszka finansowa");
   });
 });
+
+// Uwaga: pole kwoty w formularzu inwestycji to <input type="number">, więc DOM natywnie
+// odrzuca "1e999"/przepełnienie cyfrowe do pustego stringa zanim dotrze do onChange —
+// ta ścieżka jest już chroniona na poziomie przeglądarki. Właściwa ochrona przed
+// Infinity/NaN (dla danych programowych, np. edycji rekordu z uszkodzonymi danymi
+// sprzed tej poprawki) jest pokryta testami jednostkowymi parseAmountInput w
+// src/utils/format.test.ts.

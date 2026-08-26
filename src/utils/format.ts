@@ -1,24 +1,38 @@
 import { AppLanguage, SupportedCurrency } from "../types";
-export const parseAmount = (val: string): number => {
-  if (!val) return 0;
-  // strip spaces, currency symbols like PLN, zł, $, €
-  let clean = val.replace(/[^0-9,\.\-]/g, "");
-  
-  // Find the last separator to treat it as decimal delimiter
+
+/**
+ * Parsuje kwotę wpisaną przez użytkownika (przecinek lub kropka jako separator
+ * dziesiętny, opcjonalne symbole waluty/spacje). Zwraca null dla pustego pola,
+ * śmieci lub wartości nieskończonej — zwykłe `isNaN(parseFloat(...))` NIE łapie
+ * Infinity (isNaN(Infinity) === false), więc "1e999" albo ciąg samych cyfr
+ * przechodził wcześniej przez walidację formularzy niezauważony.
+ * Rozstrzyganie >0 / >=0 / ujemne dozwolone zostaje po stronie wywołującego —
+ * to tylko parsowanie, nie reguła biznesowa.
+ */
+export function parseAmountInput(raw: string | undefined | null): number | null {
+  if (!raw) return null;
+  // Cyfra-e-cyfra to notacja wykładnicza (1e999 = Infinity) — nikt tak ręcznie nie
+  // wpisuje kwoty. Odrzucamy PRZED usunięciem symboli walut, bo naiwne wycięcie liter
+  // zamieniłoby "1e999" po cichu w błędne "1999" zamiast to odrzucić. Dopasowanie
+  // wymaga cyfry po obu stronach "e", żeby nie odrzucać np. "100 EUR".
+  if (/\d[eE][-+]?\d/.test(raw)) return null;
+
+  // usuń spacje, symbole walut itp., zostaw cyfry, separator dziesiętny i minus
+  let clean = raw.replace(/[^0-9,.\-]/g, "");
+  if (!clean) return null;
+
+  // ostatni separator w ciągu decyduje, który jest dziesiętny (obsługuje "1.234,56" i "1,234.56")
   const commaIndex = clean.lastIndexOf(",");
   const dotIndex = clean.lastIndexOf(".");
-  
   if (commaIndex > dotIndex) {
-    // comma is decimal separator: replace dots (thousands) with empty, and comma with dot
     clean = clean.replace(/\./g, "").replace(",", ".");
   } else if (dotIndex > commaIndex) {
-    // dot is decimal separator: replace commas with empty
     clean = clean.replace(/,/g, "");
   }
-  
+
   const num = parseFloat(clean);
-  return isNaN(num) ? 0 : num;
-};
+  return Number.isFinite(num) ? num : null;
+}
 
 
 

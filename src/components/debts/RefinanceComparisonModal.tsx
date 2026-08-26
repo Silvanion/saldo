@@ -19,7 +19,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { DebtItem } from "../../types";
-import { formatMoney } from "../../utils/format";
+import { formatMoney, parseAmountInput } from "../../utils/format";
 import {
   calculateMultiOfferRefinanceComparison,
   RefinanceOfferInput,
@@ -146,7 +146,7 @@ export function RefinanceComparisonModal({
     } else if (presetType === "zero_costs") {
       handleUpdateOffer(active.id, "closingCosts", "0");
     } else if (presetType === "shorter_term") {
-      const currentY = Math.max(2, parseFloat(active.newTermYears) || 20);
+      const currentY = Math.max(2, parseAmountInput(active.newTermYears) ?? 20);
       handleUpdateOffer(active.id, "newTermYears", String(Math.max(1, currentY - 5)));
     }
   };
@@ -156,9 +156,9 @@ export function RefinanceComparisonModal({
     if (!debt) return null;
 
     const offerInputs: RefinanceOfferInput[] = offers.map((o) => {
-      const parsedRate = Math.max(0, parseFloat(o.newRate.replace(",", ".")) || 0);
-      const parsedCosts = Math.max(0, parseFloat(o.closingCosts.replace(",", ".")) || 0);
-      const parsedYears = Math.max(1, parseFloat(o.newTermYears.replace(",", ".")) || 1);
+      const parsedRate = Math.max(0, parseAmountInput(o.newRate) ?? 0);
+      const parsedCosts = Math.max(0, parseAmountInput(o.closingCosts) ?? 0);
+      const parsedYears = Math.max(1, parseAmountInput(o.newTermYears) ?? 1);
       const parsedMonths = Math.round(parsedYears * 12);
 
       return {
@@ -412,7 +412,7 @@ export function RefinanceComparisonModal({
                       placeholder="20"
                     />
                     <span className="text-[10px] text-text-faint block mt-1">
-                      {Math.round((parseFloat(activeOffer.newTermYears) || 1) * 12)} miesięcy
+                      {Math.round((parseAmountInput(activeOffer.newTermYears) ?? 1) * 12)} miesięcy
                     </span>
                   </div>
                 </div>

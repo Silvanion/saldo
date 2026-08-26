@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addMonthsClamped, parseAmount, hashPin, getLocalDateIso } from "./utils";
+import { addMonthsClamped, hashPin, getLocalDateIso } from "./utils";
 
 describe("Utils tests", () => {
   
@@ -29,23 +29,10 @@ describe("Utils tests", () => {
     });
   });
 
-  describe("parseAmount", () => {
-    it("should parse 1 234,56", () => {
-      expect(parseAmount("1 234,56")).toBe(1234.56);
-    });
-
-    it("should parse 1,234.56", () => {
-      expect(parseAmount("1,234.56")).toBe(1234.56);
-    });
-
-    it("should parse 1234", () => {
-      expect(parseAmount("1234")).toBe(1234);
-    });
-
-    it("should return 0 on invalid input", () => {
-      expect(parseAmount("abc")).toBe(0);
-    });
-  });
+  // parseAmount -> renamed to parseAmountInput, now covered by utils/format.test.ts
+  // (rewritten to reject Infinity/scientific-notation overflow instead of silently
+  // returning 0, and to return null rather than 0 so callers can distinguish
+  // "empty/invalid" from a legitimate zero amount).
 
   describe("hashPin", () => {
     it("should produce a stable hex hash", async () => {

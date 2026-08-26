@@ -6,7 +6,7 @@ import { useApp } from "../app/providers/AppContext";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Profile } from "../types";
-import { expenseCategories, incomeCategories, budgetCategories, iconByCategory, getLocalDateIso } from "../utils";
+import { expenseCategories, incomeCategories, budgetCategories, iconByCategory, getLocalDateIso, parseAmountInput } from "../utils";
 import { checkDuplicate } from "../services/duplicateDetector";
 
 export * from "./TransactionModal";
@@ -39,8 +39,8 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    const numTgt = parseFloat(target.replace(",", "."));
-    if (isNaN(numTgt) || numTgt <= 0) return;
+    const numTgt = parseAmountInput(target);
+    if (numTgt === null || numTgt <= 0) return;
     setIsSubmitting(true);
     onSave({ name, target: numTgt });
     onClose();
@@ -148,8 +148,8 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    const numAmt = parseFloat(amount.replace(",", "."));
-    if (isNaN(numAmt) || numAmt === 0) return; // allow negative
+    const numAmt = parseAmountInput(amount);
+    if (numAmt === null || numAmt === 0) return; // allow negative
     setIsSubmitting(true);
     onSave(numAmt);
     onClose();
@@ -257,8 +257,8 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
     if (isSubmitting) return;
     const finalBudgets: Record<string, number> = {};
     budgetCategories.forEach((cat) => {
-      const num = parseFloat(budgets[cat]?.replace(",", "."));
-      finalBudgets[cat] = isNaN(num) || num < 0 ? 0 : num;
+      const num = parseAmountInput(budgets[cat]);
+      finalBudgets[cat] = num === null || num < 0 ? 0 : num;
     });
     setIsSubmitting(true);
     onSave(finalBudgets);

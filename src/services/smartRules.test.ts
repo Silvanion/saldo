@@ -133,6 +133,20 @@ describe("smartRules service", () => {
       expect(evaluateRuleCondition(null as any, { field: "name", operator: "contains", value: "test" })).toBe(false);
       expect(evaluateRuleCondition(createMockTx(), null as any)).toBe(false);
     });
+
+    it("rejects an amount condition value that overflows to Infinity instead of matching everything", () => {
+      // isNaN(Infinity) === false, więc naiwny parseFloat + isNaN przepuszczał "1e999"
+      // jako Infinity — a każda kwota jest "lessThan Infinity", więc reguła dopasowywałaby
+      // się do WSZYSTKICH transakcji zamiast do żadnej.
+      const tx = createMockTx({ amount: 500 });
+
+      expect(
+        evaluateRuleCondition(tx, { field: "amount", operator: "lessThan", value: "1e999" })
+      ).toBe(false);
+      expect(
+        evaluateRuleCondition(tx, { field: "amount", operator: "greaterThan", value: "1e999" })
+      ).toBe(false);
+    });
   });
 
   describe("findMatchingRule", () => {

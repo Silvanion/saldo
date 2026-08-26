@@ -5,6 +5,7 @@ import { X, Landmark, Home, CreditCard, Banknote, ShoppingBag, Percent, AlertCir
 import { DebtItem, DebtType, SupportedCurrency } from "../../types";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { parseAmountInput } from "../../utils/format";
 
 interface DebtFormModalProps {
   isOpen: boolean;
@@ -93,27 +94,43 @@ export function DebtFormModal({
       return;
     }
 
-    const numBalance = parseFloat(balance.replace(",", "."));
-    if (isNaN(numBalance) || numBalance < 0) {
+    const numBalance = parseAmountInput(balance);
+    if (numBalance === null || numBalance < 0) {
       setErrorMsg("Podaj prawidłowe aktualne saldo zadłużenia (np. 350000).");
       return;
     }
 
-    const numPayment = monthlyPayment ? parseFloat(monthlyPayment.replace(",", ".")) : 0;
-    if (isNaN(numPayment) || numPayment < 0) {
+    const numPayment = monthlyPayment ? parseAmountInput(monthlyPayment) : 0;
+    if (numPayment === null || numPayment < 0) {
       setErrorMsg("Wysokość miesięcznej raty nie może być ujemna.");
       return;
     }
 
-    const numRate = interestRate ? parseFloat(interestRate.replace(",", ".")) : 0;
-    if (isNaN(numRate) || numRate < 0) {
+    const numRate = interestRate ? parseAmountInput(interestRate) : 0;
+    if (numRate === null || numRate < 0) {
       setErrorMsg("Oprocentowanie nie może być ujemne.");
       return;
     }
 
-    const numOriginal = originalAmount ? parseFloat(originalAmount.replace(",", ".")) : undefined;
-    const numProperty = propertyValue ? parseFloat(propertyValue.replace(",", ".")) : undefined;
-    const numLimit = creditLimit ? parseFloat(creditLimit.replace(",", ".")) : undefined;
+    // originalAmount/propertyValue/creditLimit są opcjonalne, ale jeśli ktoś coś wpisał,
+    // musi się dać sparsować — wcześniej śmieci ("abc", "1e999") lądowały w danych jako
+    // NaN/Infinity bez żadnego komunikatu.
+    if (originalAmount && parseAmountInput(originalAmount) === null) {
+      setErrorMsg("Podaj prawidłową pierwotną kwotę zobowiązania albo zostaw pole puste.");
+      return;
+    }
+    if (propertyValue && parseAmountInput(propertyValue) === null) {
+      setErrorMsg("Podaj prawidłową szacowaną wartość nieruchomości albo zostaw pole puste.");
+      return;
+    }
+    if (creditLimit && parseAmountInput(creditLimit) === null) {
+      setErrorMsg("Podaj prawidłowy przyznany limit albo zostaw pole puste.");
+      return;
+    }
+
+    const numOriginal = originalAmount ? parseAmountInput(originalAmount) ?? undefined : undefined;
+    const numProperty = propertyValue ? parseAmountInput(propertyValue) ?? undefined : undefined;
+    const numLimit = creditLimit ? parseAmountInput(creditLimit) ?? undefined : undefined;
 
     onSave({
       name: cleanName,

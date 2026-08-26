@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Sparkles, TrendingDown, Clock, ArrowRight, ShieldAlert } from "lucide-react";
 import { DebtItem } from "../../types";
-import { formatMoney } from "../../utils/format";
+import { formatMoney, parseAmountInput } from "../../utils/format";
 import { calculateOverpayment } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
@@ -42,7 +42,7 @@ export function OverpaymentSimulatorModal({
     }
   }, [isOpen, initialAmount, initialFrequency]);
 
-  const parsedAmount = Math.max(0, parseFloat(amount.replace(",", ".")) || 0);
+  const parsedAmount = Math.max(0, parseAmountInput(amount) ?? 0);
 
   const simulation = useMemo(() => {
     if (!debt) return null;

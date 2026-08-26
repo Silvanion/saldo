@@ -3,7 +3,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
-import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
+import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso, parseAmountInput } from "../utils";
 import { checkDuplicate } from "../services/duplicateDetector";
 import { Sparkles, X } from "lucide-react";
 import { generateSmartRuleSuggestion, SmartRuleSuggestion } from "../services/smartRules";
@@ -126,8 +126,8 @@ export function TransactionModal({
 
   const duplicateWarning = React.useMemo(() => {
     if (!isOpen) return null;
-    const numAmt = parseFloat(amount.replace(",", "."));
-    if (isNaN(numAmt) || numAmt <= 0 || !name || !date) return null;
+    const numAmt = parseAmountInput(amount);
+    if (numAmt === null || numAmt <= 0 || !name || !date) return null;
     const res = checkDuplicate(
       { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags, currency },
       activeProfile?.transactions || []
@@ -167,8 +167,8 @@ export function TransactionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    const numAmt = parseFloat(amount.replace(",", "."));
-    if (isNaN(numAmt) || numAmt <= 0) return;
+    const numAmt = parseAmountInput(amount);
+    if (numAmt === null || numAmt <= 0) return;
     setIsSubmitting(true);
     const payload: any = { name, amount: numAmt, category, categoryIcon, account, type, isoDate: date, tags, currency };
     if (debtId && type === "expense") {

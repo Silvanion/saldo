@@ -1,4 +1,5 @@
 import { Transaction, SmartRule, SmartRuleCondition, TransactionRule } from "../types";
+import { parseAmountInput } from "../utils/format";
 
 export interface SmartRuleMatchPreview {
   transactionId: string;
@@ -66,8 +67,8 @@ export function evaluateRuleCondition(tx: Transaction, condition: SmartRuleCondi
   }
 
   if (condition.field === "amount") {
-    const targetAmount = parseFloat(condition.value.replace(",", "."));
-    if (isNaN(targetAmount)) return false;
+    const targetAmount = parseAmountInput(condition.value);
+    if (targetAmount === null) return false;
 
     const txAmount = Math.abs(Number(tx.amount) || 0);
 

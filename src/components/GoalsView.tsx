@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Profile, Goal, Investment } from "../types";
 import { formatDate } from "../utils";
-import { formatMoney } from "../utils/format";
+import { formatMoney, parseAmountInput } from "../utils/format";
 import { calculateNetWorth } from "../services/budgetCalculations";
 import { NetWorthHeroCard } from "./wealth/NetWorthHeroCard";
 import { Plus, Trash2, ArrowLeftRight, Target, TrendingUp } from "lucide-react";
@@ -29,8 +29,8 @@ export function GoalsView({
 
   const handleInvSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const amountNum = parseFloat(invAmount.replace(",", "."));
-    if (!invName.trim() || isNaN(amountNum) || amountNum <= 0) return;
+    const amountNum = parseAmountInput(invAmount);
+    if (!invName.trim() || amountNum === null || amountNum <= 0) return;
     onAddInvestment(invName.trim(), amountNum, invType);
     setInvName("");
     setInvAmount("");

@@ -13,7 +13,7 @@ import {
   RotateCcw
 } from "lucide-react";
 import { DebtItem, DebtType, SupportedCurrency } from "../../types";
-import { formatMoney } from "../../utils/format";
+import { formatMoney, parseAmountInput } from "../../utils/format";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -49,14 +49,10 @@ export function cleanString(val: string | undefined): string {
 }
 
 export function parseDebtNumber(val: string | undefined): number | undefined {
-  if (!val) return undefined;
-  const cleaned = val
-    .replace(/[złPLN$€\s]/gi, "")
-    .replace(/\s+/g, "")
-    .replace(",", ".");
-  if (!cleaned) return undefined;
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? undefined : parsed;
+  // Deleguje do parseAmountInput, żeby dane z importu CSV (nieufne, zewnętrzne)
+  // przechodziły przez tę samą ochronę przed Infinity/NaN co formularze ręczne —
+  // arkusze potrafią eksportować duże liczby w notacji wykładniczej (np. "1E+300").
+  return parseAmountInput(val) ?? undefined;
 }
 
 export function mapDebtType(rawType: string | undefined): { type: DebtType; isMappedFallback: boolean } {
