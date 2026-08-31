@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from "react";
 import { DebtItem, DebtPayoffScenario, SupportedCurrency } from "../../types";
-import { formatMoney } from "../../utils/format";
+import { formatMoney, getScheduledOverpaymentBadgeLabel } from "../../utils/format";
 import {
   calculatePortfolioPayoffStrategies,
   buildValidatedCustomOrder
@@ -237,6 +237,18 @@ export function PayoffScenarioComparisonModal({
                       <span className="text-sm font-black text-brand tabular-nums block">
                         +{formatMoney(sc.extraMonthlyPayment || 0, currency)} / mc
                       </span>
+                      {(() => {
+                        const overpaymentsBadge = getScheduledOverpaymentBadgeLabel(sc.oneTimeOverpayments);
+                        if (!overpaymentsBadge) return null;
+                        return (
+                          <div className="pt-1">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-brand-subtle text-brand text-[10px] font-bold border border-brand/20">
+                              <Calendar className="w-3 h-3" />
+                              {overpaymentsBadge}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Estimated Payoff & Interest details */}

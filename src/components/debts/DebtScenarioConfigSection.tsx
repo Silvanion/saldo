@@ -7,13 +7,14 @@ import {
   Edit3,
   Copy,
   Trash2,
-  Info
+  Info,
+  Calendar
 } from "lucide-react";
 import {
   SupportedCurrency,
   DebtPayoffScenario
 } from "../../types";
-import { formatMoney } from "../../utils/format";
+import { formatMoney, getScheduledOverpaymentBadgeLabel } from "../../utils/format";
 
 export type DebtPayoffStrategyType = "avalanche" | "snowball" | "custom" | "baseline";
 
@@ -427,6 +428,7 @@ export function DebtScenarioConfigSection({
                   : "Status Quo";
 
               const scPreview = savedScenarioPreviews[sc.id];
+              const overpaymentsBadge = getScheduledOverpaymentBadgeLabel(sc.oneTimeOverpayments);
 
               return (
                 <div
@@ -474,6 +476,14 @@ export function DebtScenarioConfigSection({
                             <span>Termin: <strong className="text-text-main font-semibold">{scPreview.debtFreeDate}</strong></span>
                             <span>•</span>
                             <span>Odsetki: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(scPreview.totalInterestPaid, currency)}</strong></span>
+                          </div>
+                        )}
+                        {overpaymentsBadge && (
+                          <div className="flex items-center gap-1.5 pt-1.5 pb-0.5">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand text-[9px] font-bold border border-brand/20">
+                              <Calendar className="w-2.5 h-2.5" />
+                              {overpaymentsBadge}
+                            </span>
                           </div>
                         )}
                       </div>

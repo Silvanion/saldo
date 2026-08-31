@@ -75,3 +75,45 @@ export function formatMoney(value: number, currency: string) {
     minimumFractionDigits: 2,
   }).format(value);
 }
+
+/**
+ * Zwraca czytelną etykietę badge'a dla nadpłat jednorazowych.
+ * Zwraca null, jeśli brakuje prawidłowych zdarzeń.
+ */
+export function getScheduledOverpaymentBadgeLabel(
+  oneTimeOverpayments?: { month: number; amount: number }[]
+): string | null {
+  if (!oneTimeOverpayments || !Array.isArray(oneTimeOverpayments) || oneTimeOverpayments.length === 0) {
+    return null;
+  }
+
+  const validEvents = oneTimeOverpayments.filter(
+    (e) =>
+      e &&
+      Number.isFinite(e.month) &&
+      e.month >= 1 &&
+      Number.isFinite(e.amount) &&
+      e.amount > 0
+  );
+
+  if (validEvents.length === 0) {
+    return null;
+  }
+
+  const count = validEvents.length;
+
+  let plural = "nadpłat";
+  if (count === 1) {
+    plural = "nadpłata";
+  } else {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+      plural = "nadpłaty";
+    }
+  }
+
+  const earliestMonth = Math.min(...validEvents.map((e) => e.month));
+  
+  return `${count} ${plural} · od mies. ${earliestMonth}`;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseAmountInput } from "./format";
+import { parseAmountInput, getScheduledOverpaymentBadgeLabel } from "./format";
 
 describe("parseAmountInput", () => {
   it("parsuje liczby z przecinkiem i kropką jako separator dziesiętny", () => {
@@ -61,5 +61,71 @@ describe("parseAmountInput", () => {
 
   it("parsuje zero jawnie, nie myli go z brakiem wartości", () => {
     expect(parseAmountInput("0")).toBe(0);
+  });
+});
+
+describe("getScheduledOverpaymentBadgeLabel", () => {
+  it("zwraca null dla undefined", () => {
+    expect(getScheduledOverpaymentBadgeLabel(undefined)).toBeNull();
+  });
+
+  it("zwraca null dla pustej tablicy", () => {
+    expect(getScheduledOverpaymentBadgeLabel([])).toBeNull();
+  });
+
+  it("ignoruje nieprawidłowe wpisy i zwraca null, jeśli brak poprawnych", () => {
+    expect(
+      getScheduledOverpaymentBadgeLabel([
+        { month: 0, amount: 1000 },
+        { month: 1, amount: 0 },
+        { month: 1, amount: -500 },
+        { month: NaN, amount: 1000 },
+        { month: 1, amount: Infinity },
+      ])
+    ).toBeNull();
+  });
+
+  it("poprawnie wyświetla dla 1 prawidłowej nadpłaty", () => {
+    expect(
+      getScheduledOverpaymentBadgeLabel([{ month: 3, amount: 5000 }])
+    ).toBe("1 nadpłata · od mies. 3");
+  });
+
+  it("poprawnie wyświetla dla wielu prawidłowych nadpłat z najwcześniejszym miesiącem", () => {
+    expect(
+      getScheduledOverpaymentBadgeLabel([
+        { month: 12, amount: 10000 },
+        { month: 3, amount: 5000 },
+        { month: 24, amount: 3000 },
+      ])
+    ).toBe("3 nadpłaty · od mies. 3");
+  });
+
+  it("obsługuje pluralizację w języku polskim", () => {
+    // 1 -> nadpłata
+    expect(
+      getScheduledOverpaymentBadgeLabel([{ month: 1, amount: 100 }])
+    ).toMatch(/1 nadpłata/);
+
+    // 2-4 -> nadpłaty
+    expect(
+      getScheduledOverpaymentBadgeLabel(
+        Array(3).fill({ month: 1, amount: 100 })
+      )
+    ).toMatch(/3 nadpłaty/);
+
+    // 5+ -> nadpłat
+    expect(
+      getScheduledOverpaymentBadgeLabel(
+        Array(5).fill({ month: 1, amount: 100 })
+      )
+    ).toMatch(/5 nadpłat/);
+
+    // 22 -> nadpłaty
+    expect(
+      getScheduledOverpaymentBadgeLabel(
+        Array(22).fill({ month: 1, amount: 100 })
+      )
+    ).toMatch(/22 nadpłaty/);
   });
 });
