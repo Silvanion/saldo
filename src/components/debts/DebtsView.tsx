@@ -34,7 +34,7 @@ import { DebtScenarioConfigSection } from "./DebtScenarioConfigSection";
 import { DebtStrategyResultsSection } from "./DebtStrategyResultsSection";
 import { DebtScenarioModalsOrchestrator } from "./DebtScenarioModalsOrchestrator";
 import { PayoffStrategiesKnowledgeCenter } from "./PayoffStrategiesKnowledgeCenter";
-import { MOCK_KNOWLEDGE_ARTICLES } from "./mockData";
+import { KnowledgeAndBenchmarksTab } from "./KnowledgeAndBenchmarksTab";
 import { formatMoney } from "../../utils/format";
 import {
   Plus,
@@ -1341,39 +1341,29 @@ export function DebtsView({
       {/* 7. TAB CONTENT 4: KNOWLEDGE & BENCHMARKS */}
       {activeMainTab === "knowledge" && (
         <div className="space-y-6 animate-fade-in">
-          <PayoffStrategiesKnowledgeCenter
-            selectedStrategy={selectedPayoffStrategy}
-            recommendedStrategy={payoffComparison.recommendedStrategy}
-            defaultOpen={true}
-            onSelectStrategy={(strat) => {
-              setSelectedPayoffStrategy(strat);
-              setActiveMainTab("scenarios");
+          <KnowledgeAndBenchmarksTab 
+            activeDebts={activeDebts}
+            onNavigateToTools={(target) => {
+              if (target === "debt-details" && activeDebts.length > 0) {
+                 handleOpenDetails(activeDebts.find(d => d.type === "mortgage") || activeDebts[0]);
+              } else if (target === "scenario-editor") {
+                 setActiveMainTab("scenarios");
+              } else if (target === "overpayment-calculator") {
+                 setActiveMainTab("scenarios");
+              }
             }}
           />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {MOCK_KNOWLEDGE_ARTICLES.map((art) => (
-              <div
-                key={art.id}
-                className="p-5 bg-surface border border-border rounded-2xl flex flex-col justify-between hover:border-brand/40 transition"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand px-2 py-0.5 bg-brand-subtle rounded-md">
-                      {art.category}
-                    </span>
-                    <span className="text-xs text-text-faint">{art.readTime}</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-text-main mb-2">{art.title}</h4>
-                  <p className="text-xs text-text-muted leading-relaxed">{art.summary}</p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs font-bold text-brand">
-                  <span>Przewodnik edukacyjny</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-            ))}
+          <div className="pt-4 border-t border-border/60">
+            <h3 className="text-base font-bold text-text-main mb-4">Wiedza o strategiach spłaty (Salda)</h3>
+            <PayoffStrategiesKnowledgeCenter
+              selectedStrategy={selectedPayoffStrategy}
+              recommendedStrategy={payoffComparison.recommendedStrategy}
+              defaultOpen={true}
+              onSelectStrategy={(strat) => {
+                setSelectedPayoffStrategy(strat);
+                setActiveMainTab("scenarios");
+              }}
+            />
           </div>
         </div>
       )}
