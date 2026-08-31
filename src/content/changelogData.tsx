@@ -22,6 +22,7 @@ export const changelogData: ChangelogEntry[] = [
       "[Powiązane Transakcje] Rata spłacona z Księgi Transakcji może zostać połączona z konkretnym zobowiązaniem — historia płatności i postęp spłaty aktualizują się automatycznie.",
       "[Lokalne AI (Ollama), w pełni opcjonalne] Dodatkowa warstwa rozpoznawania tekstu wyciągów i sugestii kategorii oparta o model językowy uruchomiony lokalnie na Twoim komputerze — żadne dane nie opuszczają urządzenia. Zewnętrzne, chmurowe AI zostało z aplikacji całkowicie usunięte.",
       "[Karta Kondycji Finansowej na Pulpicie] Kompaktowy skrót wyniku zdrowia finansowego bezpośrednio na ekranie głównym, z odnośnikiem do pełnej analizy.",
+      "[Zaawansowane Scenariusze i Wykresy (What-If)] Wprowadzono harmonogram wielokrotnych jednorazowych nadpłat, nową oś czasu spłaty oraz wykres porównawczy strategii spłaty w stosunku do planu bazowego.",
       "[Wzmocniona Jakość i Bezpieczeństwo Danych] Ujednolicona walidacja kwot odrzucająca błędne/nieskończone wartości we wszystkich formularzach i imporcie CSV, limit wierszy importu z czytelnym ostrzeżeniem zamiast cichego obcinania danych, wydajniejsze (mniejsze) szyfrowane kopie lokalne oraz naprawa rzadkiego przypadku utraty ochrony kodem PIN przy błyskawicznym odświeżeniu strony."
     ]
   },

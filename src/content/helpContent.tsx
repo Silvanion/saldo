@@ -266,53 +266,250 @@ export const helpSectionsData: HelpSectionData[] = [
     )
   },
   {
-    id: "debts",
+    id: "debts-overview",
     cat: "Kredyty i Hipoteka",
-    title: "Kredyty i Hipoteka — Portfel zadłużenia, strategie spłaty i refinansowanie",
+    title: "Co mogę zrobić w module Kredyty i Hipoteka?",
     icon: <Landmark className="w-5 h-5 text-brand" />,
-    badge: "Nowy moduł",
-    keywords: ["kredyt", "hipoteka", "dług", "zadłużenie", "rata", "lawina", "avalanche", "kula śnieżna", "snowball", "nadpłata", "refinansowanie", "wacd", "karta kredytowa", "bnpl", "limit odnawialny"],
+    badge: "Przegląd modułu",
+    keywords: ["kredyt", "hipoteka", "dług", "zadłużenie", "rata", "wstęp", "co to jest"],
     defaultOpen: true,
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Moduł <strong className="text-text-main">Kredyty i Hipoteka</strong> gromadzi wszystkie Twoje zobowiązania (hipotekę, kredyty gotówkowe, karty kredytowe, limity odnawialne, raty 0%/BNPL oraz inne długi) w jednym portfelu i pokazuje realny koszt ich obsługi:
+          Moduł <strong>Kredyty i Hipoteka</strong> służy do monitorowania wszystkich Twoich zobowiązań w jednym miejscu i zarządzania portfelem zadłużenia.
         </p>
-
-        <MockScreenShot title="Portfel zobowiązań — KPI i strategie spłaty" badge="Kredyty i Hipoteka">
-          <MockDebtsVisual />
-        </MockScreenShot>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">📊 Wskaźniki portfela</span>
-            <p className="text-text-muted">Łączne saldo, miesięczna obsługa, pozostałe odsetki oraz średni ważony koszt długu (WACD) — jednym rzutem oka widzisz, ile realnie kosztuje Cię zadłużenie.</p>
-          </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">⚖️ Lawina vs. Kula Śnieżna</span>
-            <p className="text-text-muted">Porównaj obie strategie spłaty side-by-side — Lawina minimalizuje sumę odsetek, Kula Śnieżna daje szybsze psychologiczne zwycięstwa. Aplikacja rekomenduje strategię dopasowaną do Twojego portfela.</p>
-          </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-brand block">💰 Symulator nadpłaty</span>
-            <p className="text-text-muted">Sprawdź, o ile miesięcy skróci się spłata i ile odsetek zaoszczędzisz przy jednorazowej, miesięcznej lub rocznej nadpłacie wybranego zobowiązania.</p>
-          </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">🏦 Porównanie refinansowania</span>
-            <p className="text-text-muted">Zestaw do 3 ofert refinansowania jednocześnie (nowe oprocentowanie, koszty przejścia, nowy okres) i zobacz, która realnie się opłaca po uwzględnieniu wszystkich kosztów.</p>
-          </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">🔗 Powiązane transakcje</span>
-            <p className="text-text-muted">Rata spłacona z Księgi Transakcji może zostać powiązana z konkretnym zobowiązaniem — historia płatności i postęp spłaty aktualizują się automatycznie.</p>
-          </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">📥 Import z wyciągu / BIK</span>
-            <p className="text-text-muted">Zaimportuj dane zobowiązania z pliku CSV zamiast wpisywać wszystko ręcznie — z tą samą walidacją i ochroną przed błędnymi wartościami co w imporcie transakcji.</p>
-          </div>
+        <p className="leading-relaxed">
+          Możesz w nim śledzić całkowite saldo, koszty obsługi oraz badać wpływ potencjalnych nadpłat (scenariusze What-If) i refinansowania na czas trwania długu oraz sumę zapłaconych odsetek.
+        </p>
+        <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+          <span className="font-bold text-text-main block">💡 Od czego zacząć?</span>
+          <p className="text-text-muted">Zacznij od dodania wszystkich swoich kredytów za pomocą przycisku "Dodaj zobowiązanie".</p>
         </div>
-
-        <p className="text-xs text-text-muted leading-relaxed">
-          Moduł znajdziesz w menu głównym pod pozycją <strong className="text-text-main">Kredyty i Hipoteka</strong>, w czterech zakładkach: <em>Portfel zobowiązań</em>, <em>Scenariusze &amp; Strategie</em>, <em>Oferty &amp; Refinansowanie</em> oraz <em>Wiedza &amp; Benchmarki</em>.
+      </div>
+    )
+  },
+  {
+    id: "debts-adding",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak dodać kredyt lub inne zobowiązanie?",
+    icon: <Landmark className="w-5 h-5" />,
+    keywords: ["dodaj", "nowy", "kredyt", "jak dodać"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Aby dodać nowe zobowiązanie, użyj przycisku <strong>+ Dodaj zobowiązanie</strong>. Wypełnij najważniejsze pola, z których najważniejsze to:
         </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Bieżące saldo:</strong> Ile kapitału zostało do spłaty (bez przyszłych odsetek).</li>
+          <li><strong>Miesięczna rata:</strong> Twoja obecna, pełna rata (kapitał + odsetki).</li>
+          <li><strong>Oprocentowanie:</strong> Skala w % w skali roku (np. 7.5).</li>
+        </ul>
+        <p className="leading-relaxed">
+          Zwróć uwagę, by odróżnić obecne saldo od całkowitej kwoty, na którą opiewał kredyt. Prawidłowe i aktualne dane pozwalają na wyliczenie dokładniejszego harmonogramu (np. daty spłaty) i trafniejsze symulacje.
+        </p>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
+          <span className="font-bold text-text-main block">⚠️ Ważne: Brakujące dane</span>
+          <p className="text-text-muted">Jeśli nie podasz np. raty i oprocentowania, system nie wyliczy harmonogramu ani daty końcowej, a zobowiązanie będzie traktowane jak zwykła kwota do zapłaty bez prognozowania odsetek.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-portfolio",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak czytać podsumowanie portfela?",
+    icon: <TrendingUp className="w-5 h-5" />,
+    keywords: ["portfolio", "portfel", "podsumowanie", "kpi", "wacd", "odsetki", "saldo"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          W górnej części zakładki Portfel zobowiązań znajduje się pasek z najważniejszymi wskaźnikami:
+        </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Łączne saldo:</strong> Całkowity pozostały kapitał do spłaty.</li>
+          <li><strong>Miesięczna obsługa:</strong> Suma minimalnych rat wszystkich kredytów.</li>
+          <li><strong>Średni ważony koszt (WACD):</strong> Średnie oprocentowanie całego portfela.</li>
+          <li><strong>Pozostałe odsetki:</strong> Estymowana kwota samych odsetek do końca trwania długów.</li>
+        </ul>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
+          <span className="font-bold text-text-main block">⚠️ Ważne: Wskaźniki to szacunki</span>
+          <p className="text-text-muted">KPI są wyliczane na bieżąco na podstawie dostarczonych danych lokalnych. Część wartości to modele analityczne (szacunki oparte o stałą kwotę raty), a braki danych wpłyną na ich precyzję.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-strategies",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak działają strategie spłaty (Lawina vs Kula Śnieżna)?",
+    icon: <Layers className="w-5 h-5" />,
+    keywords: ["lawina", "avalanche", "kula śnieżna", "snowball", "strategia", "custom"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Moduł oferuje trzy podejścia do szeregowania nadpłat w symulacjach i planowaniu:
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Lawina (Avalanche):</strong> Priorytetyzuje długi z największym oprocentowaniem. Minimalizuje to łączną sumę odsetek i daje największe oszczędności matematyczne.</li>
+          <li><strong>Kula Śnieżna (Snowball):</strong> Skupia się na długach z najmniejszym saldem. Pozwala to na szybkie zamykanie małych pożyczek, uwalniając ich raty do spłacania kolejnych (szybki efekt psychologiczny).</li>
+          <li><strong>Własna kolejność (Custom):</strong> Pozwala ręcznie ułożyć pozycje na liście priorytetów według własnych potrzeb.</li>
+        </ul>
+        <p className="leading-relaxed">
+          Nie istnieje jedna uniwersalnie "najlepsza" strategia – wybór to często kompromis pomiędzy matematyczną optymalizacją (Lawina) a motywacją z widocznych postępów (Kula Śnieżna).
+        </p>
+      </div>
+    )
+  },
+  {
+    id: "debts-what-if",
+    cat: "Kredyty i Hipoteka",
+    title: "Do czego służą scenariusze What-If?",
+    icon: <Sparkles className="w-5 h-5" />,
+    keywords: ["what-if", "scenariusz", "symulacja", "zapisz", "porównaj"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          <strong>Scenariusz What-If (Co by było, gdyby...)</strong> pozwala sprawdzić, jak zmieni się czas spłaty i całkowity koszt kredytów, jeśli zmienisz pewne parametry – np. przeznaczysz dodatkowe 1000 zł miesięcznie na nadpłaty.
+        </p>
+        <p className="leading-relaxed">
+          Scenariusz nie modyfikuje rzeczywistego salda w Twoim portfelu. W panelu bocznym możesz testować strategie, wpisywać nadpłaty i obserwować na bieżąco nowe szacunki. Stworzoną symulację możesz zapisać, aby później łatwo ją porównać z innymi (np. w zakładce Oferty & Refinansowanie).
+        </p>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
+          <span className="font-bold text-text-main block">⚠️ Ważne: To tylko symulacje</span>
+          <p className="text-text-muted">Wyniki What-If są wyłącznie szacunkami matematycznymi i narzędziem do eksploracji wariantów, a nie gwarancją konkretnych kwot w wybranym banku.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-multiple-overpayments",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak działa harmonogram jednorazowych nadpłat?",
+    icon: <Calendar className="w-5 h-5" />,
+    keywords: ["harmonogram", "wielokrotne", "nadpłaty", "jednorazowe", "kalendarz", "bonus"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          W module What-If możesz zaplanować <strong>więcej niż jedną nadpłatę</strong> na przestrzeni czasu. Każda pozycja w harmonogramie określa kwotę oraz miesiąc, w którym wystąpi (gdzie miesiąc 1 to najbliższy planowany moment zasilenia).
+        </p>
+        <p className="leading-relaxed">
+          To doskonałe narzędzie do modelowania np. przyszłych bonusów rocznych, zwrotu podatku, czy spieniężenia lokaty. 
+        </p>
+        <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
+          <span className="font-bold text-text-main block">Przykład:</span>
+          <ul className="list-disc pl-5 text-text-muted">
+            <li><strong>5 000 zł</strong> w miesiącu 3 (zwrot podatku)</li>
+            <li><strong>10 000 zł</strong> w miesiącu 12 (premia roczna)</li>
+            <li><strong>3 000 zł</strong> w miesiącu 24 (zapadająca lokata)</li>
+          </ul>
+        </div>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
+          <span className="font-bold text-text-main block">⚠️ Ważne: Limity danych</span>
+          <p className="text-text-muted">Wartości ujemne nie są akceptowane, a wpłaty zaplanowane po zredukowaniu całego zadłużenia do zera nie wpływają już na wyniki kalkulacji.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-timeline",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak czytać wykres spadku zadłużenia?",
+    icon: <LineChart className="w-5 h-5" />,
+    keywords: ["wykres", "timeline", "oś czasu", "spadek", "baseline", "status quo"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Wykres w module symulacyjnym (DebtPayoffChart) obrazuje, jak szybko będzie malało saldo wszystkich Twoich zobowiązań.
+        </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Oś pozioma:</strong> Kolejne miesiące symulacji.</li>
+          <li><strong>Oś pionowa:</strong> Łączny pozostający do spłaty kapitał (saldo).</li>
+          <li><strong>Szara linia przerywana (Status Quo):</strong> Plan bazowy, czyli przebieg spłat bez żadnych nadpłat (płacenie samych minimalnych rat).</li>
+          <li><strong>Kolorowa linia (Strategia):</strong> Oś czasu (timeline) dla modyfikowanego scenariusza (np. z nadpłatami i kaskadą), wizualizująca szybsze zejście salda do zera.</li>
+        </ul>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
+          <span className="font-bold text-text-main block">⚠️ Ważne: Wykres to projekcja</span>
+          <p className="text-text-muted">Zastrzegamy, że wykres nie przewiduje przyszłych zmian stóp procentowych ani opłat i prowizji bankowych. Jest to matematyczna projekcja estymująca tempo redukcji długu.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-simulator",
+    cat: "Kredyty i Hipoteka",
+    title: "Co pokazuje symulator pojedynczej nadpłaty?",
+    icon: <Target className="w-5 h-5" />,
+    keywords: ["symulator", "pojedyncza", "detale", "skrócenie", "nadpłata"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Wchodząc w szczegóły konkretnego zobowiązania, zyskujesz dostęp do wbudowanego <strong>Symulatora Nadpłaty</strong> dedykowanego tylko temu kredytowi.
+        </p>
+        <p className="leading-relaxed">
+          Obsługuje on zarówno nadpłaty comiesięczne jak i jednorazowe, symulując <strong>skrócenie okresu kredytowania</strong> przy zachowaniu obecnej raty. Dowiesz się dzięki temu, ile miesięcy szybciej spłacisz zobowiązanie i jak duże oszczędności odsetkowe wygenerujesz. Oszczędności zawsze zależą od kwoty kredytu, odsetek, obecnej raty i pozostałego czasu.
+        </p>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
+          <span className="font-bold text-text-main block">⚠️ Ważne: Narzędzie edukacyjne</span>
+          <p className="text-text-muted">Pamiętaj, że symulator stanowi narzędzie edukacyjne, a nie oficjalną poradę finansową. Banki mogą stosować inne mechanizmy zaliczania wpłat.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-saved-scenarios",
+    cat: "Kredyty i Hipoteka",
+    title: "Jak zapisywać i porównywać scenariusze?",
+    icon: <Database className="w-5 h-5" />,
+    keywords: ["zapisz", "scenariusz", "porównanie", "oferty"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Wypracowaną strategię z nałożonym harmonogramem nadpłat możesz łatwo zapisać klikając odpowiedni przycisk. Dzięki temu staje się ona Twoim zapisanym scenariuszem, który nie zniknie.
+        </p>
+        <p className="leading-relaxed">
+          W zakładce <strong>Oferty & Refinansowanie</strong> możesz zestawić ze sobą kilka zapisanych scenariuszy (lub ofert z innego banku), by czytelnie porównać całkowite koszty i oszczędności czasu. Wyniki bazują zawsze na profilu danych obecnym w momencie uruchomienia porównania.
+        </p>
+      </div>
+    )
+  },
+  {
+    id: "debts-refinancing",
+    cat: "Kredyty i Hipoteka",
+    title: "Czy opłaca się refinansować kredyt?",
+    icon: <ArrowRight className="w-5 h-5" />,
+    keywords: ["refinansowanie", "przeniesienie", "inny bank", "nowa oferta"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Aplikacja pozwala na eksploracyjne sprawdzanie wariantów refinansowania poprzez moduł <strong>Oferty & Refinansowanie</strong>, gdzie możesz ująć np. niższe oprocentowanie, zmianę okresu oraz ewentualne prowizje (doliczone do nowego salda).
+        </p>
+        <p className="leading-relaxed">
+          Kluczem jest porównywanie <strong>całkowitego kosztu odsetek i ewentualnych prowizji</strong>, a nie tylko samej raty miesięcznej (wydłużenie okresu kredytu zmniejszy ratę, ale zwiększy sumę odsetek).
+        </p>
+        <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
+          <span className="font-bold text-text-main block">⚠️ Ważne</span>
+          <p className="text-text-muted">Kalkulacje mają charakter pomocniczy. Aplikacja nie dysponuje aktualnymi stawkami z rynku i nie składa zapytań do banków; wszystkie parametry wprowadzasz ręcznie.</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: "debts-limitations",
+    cat: "Kredyty i Hipoteka",
+    title: "Jakość danych i ograniczenia kalkulacji",
+    icon: <ShieldAlert className="w-5 h-5" />,
+    keywords: ["ograniczenia", "błędy", "jakość", "szacunki", "dane", "kalkulator"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Silnik Saldo korzysta z klasycznych wzorów matematyki finansowej dla kredytów (raty równe, model odsetkowy od salda). Aby zapewnić rzetelne estymacje, miej na uwadze kilka zasad technicznych:
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Brak oprocentowania lub pozostałego terminu/raty blokuje silnik przed przewidywaniem przyszłości. Takie wpisy są traktowane statycznie.</li>
+          <li>Założenie o braku zmian WIBOR/WIRON: symulacje są "sztywne", co znaczy, że wyliczają harmonogram zakładając stałość wpisanego przez Ciebie oprocentowania na przestrzeni całego badanego okresu.</li>
+          <li>Karty kredytowe z reguły nie są uwzględniane w algorytmach spłat (Avalanche/Snowball) z uwagi na brak stałego oprocentowania i planu amortyzacji - spłacaj je priorytetowo poza główną ścieżką.</li>
+          <li>Dane mogą podlegać standardowym zaokrągleniom rachunkowym (co do grosza).</li>
+        </ul>
       </div>
     )
   },
