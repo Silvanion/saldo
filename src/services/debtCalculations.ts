@@ -43,8 +43,13 @@ export interface DebtOverpaymentScenarioResult {
   monthsSaved: number;
   baselineTotalRepayment: number;
   simulatedTotalRepayment: number;
+  baselineMonthlyPayment: number;
+  simulatedMonthlyPayment: number;
+  monthlyReduction: number;
   monthlyOverpayment: number;
   oneTimeOverpayment: number;
+  yearlyOverpayment: number;
+  targetStrategy: "reduce_term" | "reduce_payment";
   rows: AmortizationScheduleRow[];
   isEligible: boolean;
   validationStatus: "valid" | "unsupported_type" | "closed_debt" | "insufficient_data" | "non_amortizing";
@@ -56,6 +61,8 @@ export interface DebtOverpaymentVariantInput {
   name: string;
   monthlyOverpayment: number;
   oneTimeOverpayment: number;
+  yearlyOverpayment?: number;
+  targetStrategy?: "reduce_term" | "reduce_payment";
 }
 
 export interface DebtOverpaymentVariantResult {
@@ -690,7 +697,9 @@ export function calculateDebtOverpaymentScenario(
   debt: DebtItem | null | undefined,
   monthlyOverpayment: number = 0,
   oneTimeOverpayment: number = 0,
-  maxMonths: number = 360
+  maxMonths: number = 360,
+  yearlyOverpayment: number = 0,
+  targetStrategy: "reduce_term" | "reduce_payment" = "reduce_term"
 ): DebtOverpaymentScenarioResult {
   const baseAmortization = calculateDebtAmortizationSchedule(debt, maxMonths);
 
@@ -706,8 +715,13 @@ export function calculateDebtOverpaymentScenario(
     monthsSaved: 0,
     baselineTotalRepayment: baseAmortization.estimatedTotalRepayment,
     simulatedTotalRepayment: baseAmortization.estimatedTotalRepayment,
+    baselineMonthlyPayment: debt?.monthlyPayment || 0,
+    simulatedMonthlyPayment: debt?.monthlyPayment || 0,
+    monthlyReduction: 0,
     monthlyOverpayment: cleanMonthlyOverpayment,
     oneTimeOverpayment: cleanOneTimeOverpayment,
+    yearlyOverpayment: Math.max(0, Number(yearlyOverpayment) || 0),
+    targetStrategy,
     rows: baseAmortization.rows,
     isEligible: baseAmortization.isEligible,
     validationStatus: baseAmortization.validationStatus,
@@ -718,7 +732,7 @@ export function calculateDebtOverpaymentScenario(
     return emptyResult;
   }
 
-  if (cleanMonthlyOverpayment === 0 && cleanOneTimeOverpayment === 0) {
+  if (cleanMonthlyOverpayment === 0 && cleanOneTimeOverpayment === 0 && emptyResult.yearlyOverpayment === 0) {
     return emptyResult;
   }
 
@@ -732,29 +746,73 @@ export function calculateDebtOverpaymentScenario(
   let totalRepayment = 0;
   const rows: AmortizationScheduleRow[] = [];
 
-  for (let m = 1; m <= maxMonths; m++) {
-    if (currentBalance <= 0.01) break;
+  let newMonthlyPayment = baseMonthlyPayment;
 
-    const interest = Math.round((currentBalance * monthlyRate) * 100) / 100;
-    const extra = m === 1 ? (cleanMonthlyOverpayment + cleanOneTimeOverpayment) : cleanMonthlyOverpayment;
-    const targetPayment = baseMonthlyPayment + extra;
+  if (targetStrategy === "reduce_payment") {
+    // Legacy behavior for reduce_payment: treat all overpayments as a single one-time lump sum
+    // applied immediately in month 1, and recalculate the annuity payment for the remaining term.
+    const lumpSumOverpayment = cleanOneTimeOverpayment + cleanMonthlyOverpayment + emptyResult.yearlyOverpayment;
+    const initialBalanceAfterOverpayment = Math.max(0, balance - lumpSumOverpayment);
+    const remainingMonths = baseAmortization.estimatedMonths > 0 ? baseAmortization.estimatedMonths : 240;
 
-    const principal = Math.min(currentBalance, Math.max(0, targetPayment - interest));
-    const installment = Math.round((principal + interest) * 100) / 100;
+    if (monthlyRate > 0 && remainingMonths > 0 && initialBalanceAfterOverpayment > 0) {
+      const factor = Math.pow(1 + monthlyRate, remainingMonths);
+      const annuityPayment = initialBalanceAfterOverpayment * ((monthlyRate * factor) / (factor - 1));
+      newMonthlyPayment = Math.max(0, Math.round(annuityPayment * 100) / 100);
+    } else if (remainingMonths > 0) {
+      newMonthlyPayment = Math.round((initialBalanceAfterOverpayment / remainingMonths) * 100) / 100;
+    }
 
-    currentBalance = Math.max(0, Math.round((currentBalance - principal) * 100) / 100);
-    totalInterest += interest;
-    totalRepayment += installment;
+    currentBalance = initialBalanceAfterOverpayment;
 
-    rows.push({
-      monthIndex: m,
-      installment,
-      principal: Math.round(principal * 100) / 100,
-      interest,
-      balance: currentBalance
-    });
+    // Build the new schedule using the new monthly payment and reduced balance
+    for (let m = 1; m <= maxMonths; m++) {
+      if (currentBalance <= 0.01) break;
 
-    if (currentBalance <= 0.01) break;
+      const interest = Math.round((currentBalance * monthlyRate) * 100) / 100;
+      const principal = Math.min(currentBalance, Math.max(0, newMonthlyPayment - interest));
+      const installment = Math.round((principal + interest) * 100) / 100;
+
+      currentBalance = Math.max(0, Math.round((currentBalance - principal) * 100) / 100);
+      totalInterest += interest;
+      totalRepayment += installment;
+
+      rows.push({
+        monthIndex: m,
+        installment,
+        principal: Math.round(principal * 100) / 100,
+        interest,
+        balance: currentBalance
+      });
+    }
+  } else {
+    // Strategy: reduce_term (default)
+    for (let m = 1; m <= maxMonths; m++) {
+      if (currentBalance <= 0.01) break;
+
+      const interest = Math.round((currentBalance * monthlyRate) * 100) / 100;
+      let extra = cleanMonthlyOverpayment;
+      if (m === 1) extra += cleanOneTimeOverpayment;
+      if (emptyResult.yearlyOverpayment > 0 && (m % 12 === 1 || m === 1)) {
+        extra += emptyResult.yearlyOverpayment;
+      }
+      const targetPayment = baseMonthlyPayment + extra;
+
+      const principal = Math.min(currentBalance, Math.max(0, targetPayment - interest));
+      const installment = Math.round((principal + interest) * 100) / 100;
+
+      currentBalance = Math.max(0, Math.round((currentBalance - principal) * 100) / 100);
+      totalInterest += interest;
+      totalRepayment += installment;
+
+      rows.push({
+        monthIndex: m,
+        installment,
+        principal: Math.round(principal * 100) / 100,
+        interest,
+        balance: currentBalance
+      });
+    }
   }
 
   const simTotalInterest = Math.round(totalInterest * 100) / 100;
@@ -763,7 +821,7 @@ export function calculateDebtOverpaymentScenario(
   const monthsSaved = Math.max(0, baseAmortization.estimatedMonths - rows.length);
 
   return {
-    baselineTotalInterest: baseAmortization.estimatedTotalInterest,
+    ...emptyResult,
     simulatedTotalInterest: simTotalInterest,
     baselineMonths: baseAmortization.estimatedMonths,
     simulatedMonths: rows.length,
@@ -771,8 +829,8 @@ export function calculateDebtOverpaymentScenario(
     monthsSaved,
     baselineTotalRepayment: baseAmortization.estimatedTotalRepayment,
     simulatedTotalRepayment: simTotalRepayment,
-    monthlyOverpayment: cleanMonthlyOverpayment,
-    oneTimeOverpayment: cleanOneTimeOverpayment,
+    simulatedMonthlyPayment: newMonthlyPayment,
+    monthlyReduction: Math.max(0, Math.round((baseMonthlyPayment - newMonthlyPayment) * 100) / 100),
     rows,
     isEligible: true,
     validationStatus: "valid"
@@ -1834,6 +1892,7 @@ export function calculateDebtPaymentCoverageSnapshot(
 
 /**
  * Simulates overpayment scenarios (shorten term vs reduce payment)
+ * @deprecated Use calculateDebtOverpaymentScenario instead
  */
 export function calculateOverpayment({
   balance,

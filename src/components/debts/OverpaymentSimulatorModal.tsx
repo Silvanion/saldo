@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Sparkles, TrendingDown, Clock, ArrowRight, ShieldAlert } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney, parseAmountInput } from "../../utils/format";
-import { calculateOverpayment, calculateDebtAmortizationSchedule } from "../../services/debtCalculations";
+import { calculateDebtOverpaymentScenario, calculateDebtAmortizationSchedule } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -47,14 +47,14 @@ export function OverpaymentSimulatorModal({
   const simulation = useMemo(() => {
     if (!debt) return null;
 
-    return calculateOverpayment({
-      balance: debt.balance,
-      annualRatePct: debt.interestRate,
-      monthlyPayment: debt.monthlyPayment,
-      overpaymentAmount: parsedAmount,
-      frequency,
+    return calculateDebtOverpaymentScenario(
+      debt,
+      frequency === "monthly" ? parsedAmount : 0,
+      frequency === "one_time" ? parsedAmount : 0,
+      360,
+      frequency === "yearly" ? parsedAmount : 0,
       targetStrategy
-    });
+    );
   }, [debt, parsedAmount, frequency, targetStrategy]);
 
   const amortizationCheck = useMemo(() => {
@@ -66,8 +66,8 @@ export function OverpaymentSimulatorModal({
 
   const currency = debt.currency || "PLN";
 
-  const baselineYears = simulation ? Math.round((simulation.baseline.months / 12) * 10) / 10 : 0;
-  const withOverpaymentYears = simulation ? Math.round((simulation.withOverpayment.months / 12) * 10) / 10 : 0;
+  const baselineYears = simulation ? Math.round((simulation.baselineMonths / 12) * 10) / 10 : 0;
+  const withOverpaymentYears = simulation ? Math.round((simulation.simulatedMonths / 12) * 10) / 10 : 0;
 
   return createPortal(
     <AnimatePresence>
@@ -198,8 +198,8 @@ export function OverpaymentSimulatorModal({
               if (!simulation) return null;
 
               // Check if we can safely compute percent saved
-              const totalBaselineInterest = simulation.baseline.totalInterest;
-              const interestSaved = simulation.savings.interestSaved;
+              const totalBaselineInterest = simulation.baselineTotalInterest;
+              const interestSaved = simulation.interestSavings;
               const interestSavedPct = totalBaselineInterest > 0 
                 ? Math.round((interestSaved / totalBaselineInterest) * 100) 
                 : null;
@@ -226,19 +226,19 @@ export function OverpaymentSimulatorModal({
                         <div className="flex justify-between">
                           <span className="text-text-muted">Rata miesięczna:</span>
                           <span className="font-bold text-text-main tabular-nums">
-                            {formatMoney(simulation.baseline.monthlyPayment, currency)}
+                            {formatMoney(simulation.baselineMonthlyPayment, currency)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-text-muted">Czas do spłaty:</span>
                           <span className="font-bold text-text-main">
-                            {simulation.baseline.months} mies.
+                            {simulation.baselineMonths} mies.
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-text-muted">Szacowane odsetki:</span>
                           <span className="font-bold text-text-main tabular-nums">
-                            {formatMoney(simulation.baseline.totalInterest, currency)}
+                            {formatMoney(simulation.baselineTotalInterest, currency)}
                           </span>
                         </div>
                       </div>
@@ -260,19 +260,19 @@ export function OverpaymentSimulatorModal({
                         <div className="flex justify-between">
                           <span className="text-text-muted">Nowa rata:</span>
                           <span className="font-bold text-brand tabular-nums">
-                            {formatMoney(simulation.withOverpayment.monthlyPayment, currency)}
+                            {formatMoney(simulation.simulatedMonthlyPayment, currency)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-text-muted">Nowy czas spłaty:</span>
                           <span className="font-bold text-brand tabular-nums">
-                            {simulation.withOverpayment.months} mies.
+                            {simulation.simulatedMonths} mies.
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-text-muted">Nowe odsetki:</span>
                           <span className="font-bold text-brand tabular-nums">
-                            {formatMoney(simulation.withOverpayment.totalInterest, currency)}
+                            {formatMoney(simulation.simulatedTotalInterest, currency)}
                           </span>
                         </div>
                       </div>
@@ -287,7 +287,7 @@ export function OverpaymentSimulatorModal({
                         <div>
                           <span className="text-[11px] font-medium opacity-80 block">Oszczędność odsetek</span>
                           <span className="text-lg font-black tracking-tight">
-                            {formatMoney(simulation.savings.interestSaved, currency)}
+                            {formatMoney(simulation.interestSavings, currency)}
                           </span>
                         </div>
                       </div>
@@ -306,8 +306,8 @@ export function OverpaymentSimulatorModal({
                         </span>
                         <span className="text-lg font-black tracking-tight text-brand">
                           {targetStrategy === "reduce_term"
-                            ? `${simulation.savings.monthsSaved} mies.`
-                            : `-${formatMoney(simulation.savings.monthlyReduction, currency)} / mc`}
+                            ? `${simulation.monthsSaved} mies.`
+                            : `-${formatMoney(simulation.monthlyReduction, currency)} / mc`}
                         </span>
                       </div>
                     </div>

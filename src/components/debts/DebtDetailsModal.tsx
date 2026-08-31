@@ -58,7 +58,6 @@ import {
   DebtPaymentHistoryOrder,
   DebtPaymentSummaryScope,
   DebtPaymentHistoryPeriodPreset,
-  calculateOverpayment,
   calculateRefinanceComparison
 } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -394,30 +393,6 @@ export function DebtDetailsModal({
     if (!isComparingVariants) return null;
     return calculateDebtOverpaymentVariants(debt, comparisonVariants);
   }, [debt, isComparingVariants, comparisonVariants]);
-
-  const overpaymentQuickA = useMemo(() => {
-    if (!debt) return null;
-    return calculateOverpayment({
-      balance: debt.balance,
-      annualRatePct: debt.interestRate,
-      monthlyPayment: debt.monthlyPayment,
-      overpaymentAmount: 500,
-      frequency: "monthly",
-      targetStrategy: "reduce_term"
-    });
-  }, [debt]);
-
-  const overpaymentQuickB = useMemo(() => {
-    if (!debt) return null;
-    return calculateOverpayment({
-      balance: debt.balance,
-      annualRatePct: debt.interestRate,
-      monthlyPayment: debt.monthlyPayment,
-      overpaymentAmount: 1000,
-      frequency: "monthly",
-      targetStrategy: "reduce_term"
-    });
-  }, [debt]);
 
   const refinancePreview = useMemo(() => {
     if (!debt || debt.type !== "mortgage") return null;

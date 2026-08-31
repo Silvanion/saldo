@@ -1268,6 +1268,38 @@ describe("debtCalculations", () => {
       expect(result.rows[0].balance).toBe(0);
       expect(result.rows[0].principal).toBe(500);
     });
+
+    it("respects reduce_payment strategy maintaining legacy equivalence", () => {
+      // 100000 balance, 8% rate, 1200 payment. 20000 overpayment.
+      const testDebt: DebtItem = {
+        id: "rp-test",
+        name: "RP Test",
+        institution: "Bank",
+        type: "mortgage",
+        currency: "PLN",
+        balance: 100000,
+        monthlyPayment: 1200,
+        interestRate: 8.0,
+        status: "active",
+        createdAt: "2026-01-01"
+      };
+
+      const resultMonthlyOnly = calculateDebtOverpaymentScenario(testDebt, 20000, 0, 360, 0, "reduce_payment");
+      const resultOneTimeOnly = calculateDebtOverpaymentScenario(testDebt, 0, 20000, 360, 0, "reduce_payment");
+      const resultYearlyOnly = calculateDebtOverpaymentScenario(testDebt, 0, 0, 360, 20000, "reduce_payment");
+
+      // Verify that all frequencies produce the EXACT same lower monthly payment (legacy behavior)
+      expect(resultMonthlyOnly.simulatedMonthlyPayment).toBe(resultOneTimeOnly.simulatedMonthlyPayment);
+      expect(resultYearlyOnly.simulatedMonthlyPayment).toBe(resultOneTimeOnly.simulatedMonthlyPayment);
+
+      // Verify payment actually drops
+      expect(resultOneTimeOnly.simulatedMonthlyPayment).toBeLessThan(testDebt.monthlyPayment);
+      expect(resultOneTimeOnly.monthlyReduction).toBeGreaterThan(0);
+      expect(resultOneTimeOnly.simulatedMonthlyPayment).toBeCloseTo(955.16, 1); // Exact legacy behavior value
+
+      // Verify interest is saved
+      expect(resultOneTimeOnly.interestSavings).toBeGreaterThan(0);
+    });
   });
 
   describe("calculateDebtOverpaymentVariants (Sprint 18)", () => {
