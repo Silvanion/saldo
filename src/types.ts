@@ -146,6 +146,8 @@ export interface DebtItem {
   originalAmount?: number;
   monthlyPayment: number;
   interestRate: number; // annual interest rate in % e.g. 6.85
+  baseRate?: number;
+  margin?: number;
   rateType?: "fixed" | "variable";
   startDate?: string;
   endDate?: string;

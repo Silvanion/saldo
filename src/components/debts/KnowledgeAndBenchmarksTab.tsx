@@ -98,29 +98,44 @@ export function KnowledgeAndBenchmarksTab({
         </div>
 
         {/* Margin Comparison Card */}
-        <div className="p-5 bg-surface border border-border rounded-2xl shadow-2xs space-y-3">
+        <div className="p-5 bg-surface border border-border rounded-2xl shadow-2xs space-y-3 flex flex-col">
           <h4 className="text-sm font-bold text-text-main flex items-center gap-2">
             <LineChart className="w-4 h-4 text-brand" />
             Porównanie marży
           </h4>
-          {primaryMortgage.interestRate ? (
-            <div>
-              <div className="text-2xl font-black text-text-main">{primaryMortgage.interestRate}%</div>
-              <p className="text-xs text-text-muted mt-1">Twoje aktualne oprocentowanie (całkowite).</p>
+          {primaryMortgage.margin !== undefined && marginBenchmark && marginBenchmark.minValue !== undefined && marginBenchmark.maxValue !== undefined ? (
+            <div className="flex-1 flex flex-col">
+              <div className="text-2xl font-black text-text-main">{primaryMortgage.margin.toFixed(2)}%</div>
+              <p className="text-xs text-text-muted mt-1">Twoja marża z umowy kredytowej.</p>
               
-              {marginBenchmark && (
-                <div className="mt-3 pt-3 border-t border-border/60 text-[11px] text-text-faint space-y-1">
-                  <div>
-                    Orientacyjna marża rynkowa: <strong className="text-text-main">{marginBenchmark.minValue}% – {marginBenchmark.maxValue}%</strong>
-                  </div>
-                  <div>
-                    Brak wystarczających danych do oddzielenia marży od stawki bazowej w Twoim profilu, aby dokładnie porównać z benchmarkiem.
-                  </div>
+              <div className="mt-auto pt-3 border-t border-border/60 text-[11px] text-text-faint space-y-2">
+                <div>
+                  Zakres benchmarku: <strong className="text-text-main">{marginBenchmark.minValue.toFixed(2)}% – {marginBenchmark.maxValue.toFixed(2)}%</strong>
                 </div>
-              )}
+                <div>
+                  Twoja marża {
+                    primaryMortgage.margin < marginBenchmark.minValue 
+                      ? "jest poniżej obserwowanego zakresu." 
+                      : primaryMortgage.margin > marginBenchmark.maxValue 
+                        ? "jest powyżej obserwowanego zakresu." 
+                        : "mieści się w obserwowanym zakresie."
+                  }
+                </div>
+                <div className="pt-1 flex items-center justify-between text-[10px]">
+                  <span>Data benchmarku: {marginBenchmark.asOf}</span>
+                  <a href={marginBenchmark.sourceUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-brand transition">
+                    Źródło: {marginBenchmark.sourceName} <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </div>
+                <div className="pt-1 border-t border-border/30 text-[10px] text-text-faint italic">
+                  Benchmark orientacyjny. {marginBenchmark.limitationsNote ? marginBenchmark.limitationsNote + ". " : ""}To porównanie ma charakter informacyjny, nie stanowi rekomendacji.
+                </div>
+              </div>
             </div>
           ) : (
-            <p className="text-xs text-text-muted">Uzupełnij oprocentowanie, aby porównać ten parametr.</p>
+            <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/70 rounded-xl p-4 bg-surface-2 text-center mt-2">
+              <p className="text-xs text-text-muted">Podaj marżę z umowy, aby zobaczyć orientacyjne porównanie.</p>
+            </div>
           )}
         </div>
       </div>

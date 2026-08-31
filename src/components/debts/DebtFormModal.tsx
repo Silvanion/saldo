@@ -35,6 +35,8 @@ export function DebtFormModal({
   const [originalAmount, setOriginalAmount] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState("");
   const [interestRate, setInterestRate] = useState("");
+  const [baseRate, setBaseRate] = useState("");
+  const [margin, setMargin] = useState("");
   const [rateType, setRateType] = useState<"fixed" | "variable">("fixed");
   const [endDate, setEndDate] = useState("");
   const [fixedRateEndDate, setFixedRateEndDate] = useState("");
@@ -55,6 +57,8 @@ export function DebtFormModal({
         setOriginalAmount(initialData.originalAmount ? String(initialData.originalAmount) : "");
         setMonthlyPayment(String(initialData.monthlyPayment ?? ""));
         setInterestRate(String(initialData.interestRate ?? ""));
+        setBaseRate(initialData.baseRate !== undefined && initialData.baseRate !== null ? String(initialData.baseRate) : "");
+        setMargin(initialData.margin !== undefined && initialData.margin !== null ? String(initialData.margin) : "");
         setRateType(initialData.rateType || "fixed");
         setEndDate(initialData.endDate || "");
         setFixedRateEndDate(initialData.fixedRateEndDate || "");
@@ -71,6 +75,8 @@ export function DebtFormModal({
         setOriginalAmount("");
         setMonthlyPayment("");
         setInterestRate("");
+        setBaseRate("");
+        setMargin("");
         setRateType("fixed");
         setEndDate("");
         setFixedRateEndDate("");
@@ -112,6 +118,34 @@ export function DebtFormModal({
       return;
     }
 
+    let numBaseRate: number | undefined = undefined;
+    if (baseRate) {
+      const parsed = parseAmountInput(baseRate);
+      if (parsed === null) {
+        setErrorMsg("Podaj prawidłową wartość procentową dla stawki bazowej.");
+        return;
+      }
+      if (parsed < 0) {
+        setErrorMsg("Stawka bazowa nie może być ujemna.");
+        return;
+      }
+      numBaseRate = parsed;
+    }
+
+    let numMargin: number | undefined = undefined;
+    if (margin) {
+      const parsed = parseAmountInput(margin);
+      if (parsed === null) {
+        setErrorMsg("Podaj prawidłową wartość procentową dla marży banku.");
+        return;
+      }
+      if (parsed < 0) {
+        setErrorMsg("Marża banku nie może być ujemna.");
+        return;
+      }
+      numMargin = parsed;
+    }
+
     // originalAmount/propertyValue/creditLimit są opcjonalne, ale jeśli ktoś coś wpisał,
     // musi się dać sparsować — wcześniej śmieci ("abc", "1e999") lądowały w danych jako
     // NaN/Infinity bez żadnego komunikatu.
@@ -141,6 +175,8 @@ export function DebtFormModal({
       originalAmount: numOriginal,
       monthlyPayment: numPayment,
       interestRate: numRate,
+      baseRate: type === "mortgage" ? numBaseRate : undefined,
+      margin: type === "mortgage" ? numMargin : undefined,
       rateType: type === "mortgage" ? rateType : undefined,
       endDate: endDate.trim() || undefined,
       fixedRateEndDate: fixedRateEndDate.trim() || undefined,
@@ -350,6 +386,53 @@ export function DebtFormModal({
                   </span>
                 </div>
               </div>
+
+              {type === "mortgage" && (
+                <div className="col-span-1 sm:col-span-2 mt-2 p-4 rounded-xl bg-surface-1 border border-border">
+                  <h4 className="text-sm font-bold text-text-main mb-1">Składniki oprocentowania</h4>
+                  <p className="text-xs text-text-muted mb-4">
+                    Wartości z umowy kredytowej (opcjonalne, służą do dokładniejszych benchmarków rynku).
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                        Stawka bazowa (np. WIBOR)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={baseRate}
+                          onChange={(e) => setBaseRate(e.target.value)}
+                          placeholder="np. 5.85"
+                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                        />
+                        <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
+                          %
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
+                        Marża banku
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={margin}
+                          onChange={(e) => setMargin(e.target.value)}
+                          placeholder="np. 2.15"
+                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                        />
+                        <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1.5">
