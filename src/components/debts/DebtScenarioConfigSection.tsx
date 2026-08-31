@@ -36,8 +36,8 @@ export interface DebtScenarioConfigSectionProps {
 
   selectedPayoffStrategy: DebtPayoffStrategyType;
 
-  oneTimeOverpayment: number;
-  onOneTimeOverpaymentChange: (amount: number) => void;
+  oneTimeOverpayments: { month: number; amount: number }[];
+  onOneTimeOverpaymentsChange: (schedule: { month: number; amount: number }[]) => void;
 
   previewStrategy: DebtPayoffStrategyType | null;
   onPreviewStrategyChange: (strategy: DebtPayoffStrategyType | null) => void;
@@ -66,8 +66,8 @@ export function DebtScenarioConfigSection({
   currency,
   onExtraMonthlyPayoffChange,
   selectedPayoffStrategy,
-  oneTimeOverpayment,
-  onOneTimeOverpaymentChange,
+  oneTimeOverpayments,
+  onOneTimeOverpaymentsChange,
   previewStrategy,
   onPreviewStrategyChange,
   isWhatIfExpanded,
@@ -185,11 +185,11 @@ export function DebtScenarioConfigSection({
             <Sparkles className="w-4 h-4 text-brand" />
             <span>Symulacja wariantowa (What-If)</span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
-              {oneTimeOverpayment > 0 || previewStrategy ? "Aktywna symulacja" : "Opcjonalnie"}
+              {oneTimeOverpayments.length > 0 || previewStrategy ? "Aktywna symulacja" : "Opcjonalnie"}
             </span>
           </button>
 
-          {(oneTimeOverpayment > 0 || previewStrategy) && (
+          {(oneTimeOverpayments.length > 0 || previewStrategy) && (
             <button
               type="button"
               onClick={onResetWhatIf}
@@ -207,46 +207,73 @@ export function DebtScenarioConfigSection({
             className="p-4 bg-surface-2/50 rounded-xl border border-border space-y-3.5 animate-fade-in text-xs"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* 1. One-time overpayment input */}
+              {/* 1. Overpayment schedule input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label
-                    htmlFor="one-time-overpayment-input"
-                    className="font-bold text-text-faint uppercase text-[10px] tracking-wider"
+                  <span className="font-bold text-text-faint uppercase text-[10px] tracking-wider">
+                    Harmonogram Nadpłat
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onOneTimeOverpaymentsChange([...oneTimeOverpayments, { month: 1, amount: 0 }])}
+                    className="text-[11px] font-bold text-brand hover:text-brand-emphasis transition cursor-pointer"
                   >
-                    Jednorazowa nadpłata
-                  </label>
-                  {oneTimeOverpayment > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => onOneTimeOverpaymentChange(0)}
-                      className="text-[11px] font-bold text-text-muted hover:text-brand transition cursor-pointer"
-                      aria-label="Wyzeruj jednorazową nadpłatę"
-                    >
-                      Wyzeruj (0 zł)
-                    </button>
+                    + Dodaj wpłatę
+                  </button>
+                </div>
+                
+                <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                  {oneTimeOverpayments.map((op, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <div className="flex-1 relative">
+                        <span className="absolute left-2 top-2 text-[10px] text-text-muted font-bold pointer-events-none">Msc:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          value={op.month}
+                          onChange={(e) => {
+                            const newArr = [...oneTimeOverpayments];
+                            newArr[idx].month = parseInt(e.target.value) || 1;
+                            onOneTimeOverpaymentsChange(newArr);
+                          }}
+                          className="w-full bg-surface border border-border rounded-lg pl-8 pr-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-1 focus-visible:ring-focus-ring"
+                        />
+                      </div>
+                      <div className="flex-1 relative">
+                        <input
+                          type="number"
+                          min="0"
+                          step="500"
+                          value={op.amount === 0 ? "" : op.amount}
+                          placeholder="0"
+                          onChange={(e) => {
+                            const newArr = [...oneTimeOverpayments];
+                            const val = parseFloat(e.target.value);
+                            newArr[idx].amount = isNaN(val) || val < 0 ? 0 : val;
+                            onOneTimeOverpaymentsChange(newArr);
+                          }}
+                          className="w-full bg-surface border border-border rounded-lg px-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-1 focus-visible:ring-focus-ring tabular-nums pr-8"
+                        />
+                        <span className="absolute right-2 top-1.5 text-[10px] text-text-muted font-bold pointer-events-none">{currency}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onOneTimeOverpaymentsChange(oneTimeOverpayments.filter((_, i) => i !== idx))}
+                        className="text-danger opacity-70 hover:opacity-100 p-1 cursor-pointer font-bold"
+                        aria-label="Usuń nadpłatę"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  {oneTimeOverpayments.length === 0 && (
+                    <div className="text-[11px] font-bold text-text-muted text-center py-2.5 border border-dashed border-border rounded-lg">
+                      Brak zaplanowanych nadpłat
+                    </div>
                   )}
                 </div>
-                <div className="relative">
-                  <input
-                    id="one-time-overpayment-input"
-                    type="number"
-                    min="0"
-                    step="500"
-                    value={oneTimeOverpayment === 0 ? "" : oneTimeOverpayment}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      onOneTimeOverpaymentChange(isNaN(val) || val < 0 ? 0 : val);
-                    }}
-                    className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
-                    placeholder="0"
-                  />
-                  <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
-                    {currency}
-                  </span>
-                </div>
-                <p className="text-[10px] text-text-faint mt-1">
-                  Symulowany jednorazowy zastrzyk gotówki w 1. miesiącu planu.
+                <p className="text-[10px] text-text-faint mt-1.5 leading-tight">
+                  Wprowadź miesiąc (np. 1 = teraz, 12 = za rok) i kwotę.
                 </p>
               </div>
 
@@ -296,10 +323,11 @@ export function DebtScenarioConfigSection({
             </div>
 
             {/* 3. Action-oriented What-if Result Summary */}
-            {(oneTimeOverpayment > 0 || previewStrategy) && whatIfImpact && (
+            {(oneTimeOverpayments.length > 0 || previewStrategy) && whatIfImpact && (
               <div className="p-3 bg-surface rounded-xl border border-brand/30 space-y-1.5 animate-fade-in" id="what-if-result-summary-box">
                 <div className="flex items-center gap-1.5 font-bold text-text-main text-xs">
-                  <Info className="w-3.5 h-3.5 text-brand" />
+                  {/* Zakładam, że Info to ikona, jeśli jej brakuje w importach, należy ją zignorować. Domyślam się, że tam była ikona, bo usunąłem ją w replace. Zrobię fallback na prosty SVG lub sam tekst. A zaraz, widzę ją w oryginale. Mam nadzieję, że jest zaimportowana. Tak, w view_file widzę <Info className=.../> */}
+                  <span className="text-brand">ℹ</span>
                   <span>Wpływ symulacji na plan spłaty:</span>
                 </div>
                 <ul className="space-y-1 pl-5 list-disc text-text-muted text-[11px] leading-relaxed">

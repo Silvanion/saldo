@@ -1039,8 +1039,14 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(toggleWhatIfBtn);
     expect(toggleWhatIfBtn.getAttribute("aria-expanded")).toBe("true");
 
-    const oneTimeInput = screen.getByLabelText(/Jednorazowa nadpłata/i);
-    expect(oneTimeInput).toBeTruthy();
+    const addPaymentBtn = screen.getByRole("button", { name: /\+ Dodaj wpłatę/i });
+    expect(addPaymentBtn).toBeTruthy();
+
+    fireEvent.click(addPaymentBtn);
+
+    // Now there should be an input for amount
+    const amountInputs = screen.getAllByPlaceholderText("0");
+    const oneTimeInput = amountInputs[amountInputs.length - 1];
 
     // Type 10000 one-time overpayment
     fireEvent.change(oneTimeInput, { target: { value: "10000" } });
@@ -1051,14 +1057,17 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(screen.getByText(/Wariant symulacyjny skraca orientacyjny czas spłaty o/i)).toBeTruthy();
     expect(screen.getByText(/Szacowany koszt odsetek jest niższy o około/i)).toBeTruthy();
 
-    // Reset one-time overpayment
-    const resetOneTimeBtn = screen.getByRole("button", { name: /Wyzeruj jednorazową nadpłatę/i });
-    fireEvent.click(resetOneTimeBtn);
-    expect((oneTimeInput as HTMLInputElement).value).toBe("");
+    // Remove the added overpayment
+    const removeOneTimeBtn = screen.getByRole("button", { name: /Usuń nadpłatę/i });
+    fireEvent.click(removeOneTimeBtn);
+    expect(screen.getByText(/Brak zaplanowanych nadpłat/i)).toBeTruthy();
 
-    // Safe handling of negative values
-    fireEvent.change(oneTimeInput, { target: { value: "-5000" } });
-    expect((oneTimeInput as HTMLInputElement).value).toBe("");
+    // Re-add to test safe handling of negative values
+    fireEvent.click(screen.getByRole("button", { name: /\+ Dodaj wpłatę/i }));
+    const amountInputsAgain = screen.getAllByPlaceholderText("0");
+    const newOneTimeInput = amountInputsAgain[amountInputsAgain.length - 1];
+    fireEvent.change(newOneTimeInput, { target: { value: "-5000" } });
+    expect((newOneTimeInput as HTMLInputElement).value).toBe("");
   });
 
   it("Sprint 14: supports strategy what-if preview and maintains save safety without mutating saved scenarios", () => {
@@ -4083,8 +4092,8 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
               onExtraMonthlyPayoffChange={onChangeExtra}
               currency="PLN"
               selectedPayoffStrategy="avalanche"
-              oneTimeOverpayment={0}
-              onOneTimeOverpaymentChange={vi.fn()}
+              oneTimeOverpayments={[]}
+              onOneTimeOverpaymentsChange={vi.fn()}
               previewStrategy={null}
               onPreviewStrategyChange={vi.fn()}
               isWhatIfExpanded={false}

@@ -165,6 +165,7 @@ export interface DebtPayoffScenario {
   name: string;
   strategy: "avalanche" | "snowball" | "baseline" | "custom";
   extraMonthlyPayment: number;
+  oneTimeOverpayments?: { month: number; amount: number }[];
   customDebtOrder?: string[];
   createdAt: string;
   updatedAt?: string;

@@ -371,6 +371,7 @@ export interface DebtPayoffStrategyResult {
   interestSavedVsBaseline: number;
   monthsSavedVsBaseline: number;
   payoffQueue: DebtPayoffQueueItem[];
+  timeline?: { month: number; balance: number; cumulativeInterest: number }[];
 }
 
 export interface PortfolioPayoffComparison {
@@ -2532,7 +2533,7 @@ function simulateSinglePayoffStrategy(
   extraPayment: number,
   startDateStr?: string,
   customPayoffOrder?: string[],
-  oneTimeOverpayment: number = 0
+  oneTimeOverpayments: { month: number; amount: number }[] = []
 ): DebtPayoffStrategyResult {
   const strategyInfo = {
     avalanche: {
@@ -2617,6 +2618,15 @@ function simulateSinglePayoffStrategy(
 
   const MAX_MONTHS = 600; // 50 years cap safety
   let currentMonth = 0;
+  
+  const timeline: { month: number; balance: number; cumulativeInterest: number }[] = [];
+  
+  // Initial state month 0
+  timeline.push({
+    month: 0,
+    balance: Math.round(simDebts.reduce((sum, d) => sum + d.balance, 0)),
+    cumulativeInterest: 0
+  });
 
   while (currentMonth < MAX_MONTHS) {
     currentMonth++;
@@ -2625,9 +2635,12 @@ function simulateSinglePayoffStrategy(
       break;
     }
 
-    // 0. In month 1: Apply one-time overpayment if provided
-    if (currentMonth === 1 && oneTimeOverpayment > 0 && strategy !== "baseline") {
-      let lumpSum = oneTimeOverpayment;
+    // 0. In month N: Apply one-time overpayments if provided
+    const monthOverpayments = oneTimeOverpayments.filter(op => op.month === currentMonth);
+    let lumpSumForMonth = monthOverpayments.reduce((sum, op) => sum + op.amount, 0);
+
+    if (lumpSumForMonth > 0 && strategy !== "baseline") {
+      let lumpSum = lumpSumForMonth;
       const targetDebts = [...simDebts].filter((d) => d.balance > 0.01);
       if (strategy === "avalanche") {
         targetDebts.sort((a, b) => (b.rate !== a.rate ? b.rate - a.rate : a.balance - b.balance));
@@ -2706,6 +2719,15 @@ function simulateSinglePayoffStrategy(
         }
       }
     }
+
+    // 4. Record timeline state
+    const currentTotalBalance = simDebts.reduce((sum, d) => sum + d.balance, 0);
+    const currentTotalInterest = simDebts.reduce((sum, d) => sum + d.totalInterest, 0);
+    timeline.push({
+      month: currentMonth,
+      balance: Math.round(currentTotalBalance),
+      cumulativeInterest: Math.round(currentTotalInterest)
+    });
   }
 
   // Ensure all debts have payoff month
@@ -2746,7 +2768,8 @@ function simulateSinglePayoffStrategy(
     totalInterestPaid,
     interestSavedVsBaseline: 0, // calculated in comparison wrapper
     monthsSavedVsBaseline: 0, // calculated in comparison wrapper
-    payoffQueue
+    payoffQueue,
+    timeline
   };
 }
 
@@ -2758,27 +2781,30 @@ export function calculatePortfolioPayoffStrategies(
   extraMonthlyPayment: number = 0,
   startDateStr?: string,
   customPayoffOrder?: string[],
-  oneTimeOverpayment: number = 0
+  oneTimeOverpaymentsInput: number | { month: number; amount: number }[] = 0
 ): PortfolioPayoffComparison {
   const activeDebts = debts.filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
   const extraPayment = Math.max(0, Number(extraMonthlyPayment) || 0);
-  const oneTime = Math.max(0, Number(oneTimeOverpayment) || 0);
+  
+  const oneTimeOverpayments = Array.isArray(oneTimeOverpaymentsInput)
+    ? oneTimeOverpaymentsInput
+    : (Number(oneTimeOverpaymentsInput) > 0 ? [{ month: 1, amount: Number(oneTimeOverpaymentsInput) }] : []);
 
   // 1. Simulate Baseline (Status Quo)
-  const baseline = simulateSinglePayoffStrategy(activeDebts, "baseline", 0, startDateStr, undefined, 0);
+  const baseline = simulateSinglePayoffStrategy(activeDebts, "baseline", 0, startDateStr, undefined, []);
 
   // 2. Simulate Avalanche (Highest APR First)
-  const avalanche = simulateSinglePayoffStrategy(activeDebts, "avalanche", extraPayment, startDateStr, undefined, oneTime);
+  const avalanche = simulateSinglePayoffStrategy(activeDebts, "avalanche", extraPayment, startDateStr, undefined, oneTimeOverpayments);
   avalanche.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - avalanche.totalInterestPaid);
   avalanche.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - avalanche.totalMonths);
 
   // 3. Simulate Snowball (Smallest Balance First)
-  const snowball = simulateSinglePayoffStrategy(activeDebts, "snowball", extraPayment, startDateStr, undefined, oneTime);
+  const snowball = simulateSinglePayoffStrategy(activeDebts, "snowball", extraPayment, startDateStr, undefined, oneTimeOverpayments);
   snowball.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - snowball.totalInterestPaid);
   snowball.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - snowball.totalMonths);
 
   // 4. Simulate Custom (Custom Payoff Order)
-  const custom = simulateSinglePayoffStrategy(activeDebts, "custom", extraPayment, startDateStr, customPayoffOrder, oneTime);
+  const custom = simulateSinglePayoffStrategy(activeDebts, "custom", extraPayment, startDateStr, customPayoffOrder, oneTimeOverpayments);
   custom.interestSavedVsBaseline = Math.max(0, baseline.totalInterestPaid - custom.totalInterestPaid);
   custom.monthsSavedVsBaseline = Math.max(0, baseline.totalMonths - custom.totalMonths);
 

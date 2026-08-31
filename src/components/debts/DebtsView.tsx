@@ -27,6 +27,7 @@ import { DebtImportModal } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
 import { DebtStrategyGuidanceCard } from "./DebtStrategyGuidanceCard";
 import { DebtStrategyContextHint } from "./DebtStrategyContextHint";
+import { DebtPayoffChart } from "./DebtPayoffChart";
 import { DebtStrategyDecisionSummary } from "./DebtStrategyDecisionSummary";
 import { DebtScenarioFallbackState } from "./DebtScenarioFallbackState";
 import { DebtScenarioConfigSection } from "./DebtScenarioConfigSection";
@@ -332,7 +333,7 @@ export function DebtsView({
   const [customDebtOrder, setCustomDebtOrder] = useState<string[]>([]);
 
   // Sprint 14: What-If simulation parameters (Transient local state)
-  const [oneTimeOverpayment, setOneTimeOverpayment] = useState<number>(0);
+  const [oneTimeOverpayments, setOneTimeOverpayments] = useState<{ month: number; amount: number }[]>([]);
   const [previewStrategy, setPreviewStrategy] = useState<DebtPayoffStrategyType | null>(null);
   const [isWhatIfExpanded, setIsWhatIfExpanded] = useState<boolean>(false);
 
@@ -349,7 +350,7 @@ export function DebtsView({
     selectedPayoffStrategy,
     extraMonthlyPayoff,
     customDebtOrder,
-    oneTimeOverpayment,
+    oneTimeOverpayments,
     previewStrategy,
     savedScenarios
   });
@@ -406,7 +407,8 @@ export function DebtsView({
         name: trimmed,
         strategy: selectedPayoffStrategy,
         extraMonthlyPayment: extraMonthlyPayoff,
-        customDebtOrder: selectedPayoffStrategy === "custom" ? validatedCustomOrder : undefined
+        oneTimeOverpayments: oneTimeOverpayments,
+        customDebtOrder: selectedPayoffStrategy === "custom" ? [...validatedCustomOrder] : undefined
       });
     }
 
@@ -415,18 +417,19 @@ export function DebtsView({
     setEditingScenarioId(null);
   };
 
-  const handleLoadScenario = (scenario: DebtPayoffScenario) => {
-    setSelectedPayoffStrategy(scenario.strategy);
-    setExtraMonthlyPayoff(scenario.extraMonthlyPayment);
-    setOneTimeOverpayment(0);
-    setPreviewStrategy(null);
-    setCustomDebtOrder(
-      scenario.strategy === "custom" && scenario.customDebtOrder?.length
-        ? scenario.customDebtOrder
-        : []
-    );
+  const handleLoadScenario = (scenarioToLoad: DebtPayoffScenario) => {
+    setSelectedPayoffStrategy(scenarioToLoad.strategy);
+    setExtraMonthlyPayoff(scenarioToLoad.extraMonthlyPayment || 0);
+    setOneTimeOverpayments(scenarioToLoad.oneTimeOverpayments || []);
+    
+    if (scenarioToLoad.strategy === "custom" && scenarioToLoad.customDebtOrder) {
+      setCustomDebtOrder(scenarioToLoad.customDebtOrder);
+    } else {
+      setCustomDebtOrder([]);
+    }
 
-    showToast?.(`Wczytano scenariusz: ${scenario.name}`, "info");
+    setPreviewStrategy(null);
+    showToast?.(`Wczytano scenariusz: ${scenarioToLoad.name}`, "info");
   };
 
   const handleOpenRenameModal = (scenario: DebtPayoffScenario) => {
@@ -1198,14 +1201,14 @@ export function DebtsView({
                 onExtraMonthlyPayoffChange={setExtraMonthlyPayoff}
                 currency={currency}
                 selectedPayoffStrategy={selectedPayoffStrategy}
-                oneTimeOverpayment={oneTimeOverpayment}
-                onOneTimeOverpaymentChange={setOneTimeOverpayment}
+                oneTimeOverpayments={oneTimeOverpayments}
+                onOneTimeOverpaymentsChange={setOneTimeOverpayments}
                 previewStrategy={previewStrategy}
                 onPreviewStrategyChange={setPreviewStrategy}
                 isWhatIfExpanded={isWhatIfExpanded}
                 onToggleWhatIfExpanded={() => setIsWhatIfExpanded(!isWhatIfExpanded)}
                 onResetWhatIf={() => {
-                  setOneTimeOverpayment(0);
+                  setOneTimeOverpayments([]);
                   setPreviewStrategy(null);
                 }}
                 whatIfImpact={whatIfImpact}
@@ -1219,6 +1222,12 @@ export function DebtsView({
                 onOpenRenameScenario={handleOpenRenameModal}
                 onOpenDuplicateScenario={handleOpenDuplicateModal}
                 onDeleteScenario={onDeletePayoffScenario}
+              />
+
+              {/* Sprint 15: Debt Payoff Chart */}
+              <DebtPayoffChart 
+                comparison={payoffComparison} 
+                activeStrategy={previewStrategy || selectedPayoffStrategy} 
               />
 
               {/* Strategy Guidance Card */}

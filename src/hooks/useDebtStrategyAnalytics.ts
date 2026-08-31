@@ -24,8 +24,8 @@ export interface UseDebtStrategyAnalyticsParams {
   extraMonthlyPayoff: number;
   /** User-defined order of debt IDs for custom payoff priority */
   customDebtOrder: string[];
-  /** Optional one-time overpayment amount for What-If simulation (default: 0) */
-  oneTimeOverpayment?: number;
+  /** Optional array of overpayments for What-If simulation (default: []) */
+  oneTimeOverpayments?: { month: number; amount: number }[];
   /** Optional transient preview strategy for What-If simulation (default: null) */
   previewStrategy?: DebtPayoffStrategyType | null;
   /** Saved user payoff scenarios for preview calculations (default: []) */
@@ -66,7 +66,7 @@ export function useDebtStrategyAnalytics({
   selectedPayoffStrategy,
   extraMonthlyPayoff,
   customDebtOrder,
-  oneTimeOverpayment = 0,
+  oneTimeOverpayments = [],
   previewStrategy = null,
   savedScenarios = []
 }: UseDebtStrategyAnalyticsParams): UseDebtStrategyAnalyticsResult {
@@ -86,24 +86,24 @@ export function useDebtStrategyAnalytics({
   // 3. Simulated payoff comparison across strategies (with extra payment and one-time overpayment)
   const payoffComparison = useMemo(() => {
     return calculatePortfolioPayoffStrategies(
-      debts,
+      activeDebts,
       extraMonthlyPayoff,
       undefined,
       validatedCustomOrder,
-      oneTimeOverpayment
+      oneTimeOverpayments
     );
-  }, [debts, extraMonthlyPayoff, validatedCustomOrder, oneTimeOverpayment]);
+  }, [activeDebts, extraMonthlyPayoff, validatedCustomOrder, oneTimeOverpayments]);
 
   // 4. Baseline payoff comparison (zero one-time overpayment) for What-If delta comparisons
   const basePayoffComparison = useMemo(() => {
     return calculatePortfolioPayoffStrategies(
-      debts,
+      activeDebts,
       extraMonthlyPayoff,
       undefined,
       validatedCustomOrder,
-      0
+      []
     );
-  }, [debts, extraMonthlyPayoff, validatedCustomOrder]);
+  }, [activeDebts, extraMonthlyPayoff, validatedCustomOrder]);
 
   // 5. Currently active strategy result
   const selectedPayoffResult = useMemo(() => {
@@ -115,7 +115,7 @@ export function useDebtStrategyAnalytics({
 
   // 6. What-If delta calculation (duration and interest difference)
   const whatIfImpact = useMemo(() => {
-    if (oneTimeOverpayment <= 0 && !previewStrategy) return null;
+    if (oneTimeOverpayments.length === 0 && !previewStrategy) return null;
     const activeBaseRes =
       selectedPayoffStrategy === "avalanche"
         ? basePayoffComparison.avalanche
@@ -141,7 +141,7 @@ export function useDebtStrategyAnalytics({
       intDiff: (activeBaseRes.totalInterestPaid || 0) - (currentSimRes.totalInterestPaid || 0),
       debtFreeDate: currentSimRes.debtFreeDate || ""
     };
-  }, [oneTimeOverpayment, previewStrategy, selectedPayoffStrategy, basePayoffComparison, payoffComparison]);
+  }, [oneTimeOverpayments, previewStrategy, selectedPayoffStrategy, basePayoffComparison, payoffComparison]);
 
   // 7. Scenario previews derivation for all saved scenarios
   const savedScenarioPreviews = useMemo(() => {

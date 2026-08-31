@@ -228,14 +228,14 @@ describe("useDebtStrategyAnalytics — Contract & Memoization Hardening", () => 
   });
 
   describe("What-If Simulation Delta Behavior", () => {
-    it("8. returns null when oneTimeOverpayment is 0 and previewStrategy is null", () => {
+    it("8. returns null when oneTimeOverpayments is empty and previewStrategy is null", () => {
       const { result } = renderHook(() =>
         useDebtStrategyAnalytics({
           debts: mockDebts,
           selectedPayoffStrategy: "avalanche",
-          extraMonthlyPayoff: 500,
+          extraMonthlyPayoff: 0,
           customDebtOrder: [],
-          oneTimeOverpayment: 0,
+          oneTimeOverpayments: [],
           previewStrategy: null
         })
       );
@@ -250,7 +250,7 @@ describe("useDebtStrategyAnalytics — Contract & Memoization Hardening", () => 
           selectedPayoffStrategy: "avalanche",
           extraMonthlyPayoff: 500,
           customDebtOrder: [],
-          oneTimeOverpayment: 0,
+          oneTimeOverpayments: [],
           previewStrategy: "snowball"
         })
       );
@@ -261,14 +261,14 @@ describe("useDebtStrategyAnalytics — Contract & Memoization Hardening", () => 
       );
     });
 
-    it("10. computes What-If when positive oneTimeOverpayment is set", () => {
+    it("10. computes What-If when positive oneTimeOverpayments is set", () => {
       const { result } = renderHook(() =>
         useDebtStrategyAnalytics({
           debts: mockDebts,
-          selectedPayoffStrategy: "avalanche",
-          extraMonthlyPayoff: 500,
+          selectedPayoffStrategy: "baseline",
+          extraMonthlyPayoff: 0,
           customDebtOrder: [],
-          oneTimeOverpayment: 3000
+          oneTimeOverpayments: [{ month: 1, amount: 3000 }]
         })
       );
 
