@@ -314,5 +314,43 @@ describe("useDebtStrategyAnalytics — Contract & Memoization Hardening", () => 
       expect(result.current.savedScenarioPreviews["sc-3"]).toBeDefined();
       expect(result.current.savedScenarioPreviews["sc-3"].debtFreeDate).toBeTruthy();
     });
+
+    it("13. saved scenario previews apply oneTimeOverpayments correctly to reduce interest and time", () => {
+      const baseScenario: DebtPayoffScenario = {
+        id: "sc-no-over",
+        name: "Base",
+        strategy: "baseline",
+        extraMonthlyPayment: 0,
+        createdAt: "2026-01-01"
+      };
+
+      const massiveOverpaymentScenario: DebtPayoffScenario = {
+        id: "sc-over",
+        name: "With Overpayment",
+        strategy: "avalanche",
+        extraMonthlyPayment: 0,
+        oneTimeOverpayments: [{ month: 1, amount: 50000 }],
+        createdAt: "2026-01-01"
+      };
+
+      const { result } = renderHook(() =>
+        useDebtStrategyAnalytics({
+          debts: mockDebts,
+          selectedPayoffStrategy: "baseline",
+          extraMonthlyPayoff: 0,
+          customDebtOrder: [],
+          savedScenarios: [baseScenario, massiveOverpaymentScenario]
+        })
+      );
+
+      const basePreview = result.current.savedScenarioPreviews["sc-no-over"];
+      const overPreview = result.current.savedScenarioPreviews["sc-over"];
+
+      expect(basePreview).toBeDefined();
+      expect(overPreview).toBeDefined();
+
+      // Interest should be massively reduced
+      expect(overPreview.totalInterestPaid).toBeLessThan(basePreview.totalInterestPaid);
+    });
   });
 });

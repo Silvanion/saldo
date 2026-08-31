@@ -69,7 +69,8 @@ export function PayoffScenarioComparisonModal({
         activeDebts,
         sc.extraMonthlyPayment || 0,
         undefined,
-        validatedOrder
+        validatedOrder,
+        sc.oneTimeOverpayments ?? []
       );
       const res =
         sc.strategy === "avalanche"

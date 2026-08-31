@@ -197,4 +197,37 @@ describe("PayoffScenarioComparisonModal", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(onCloseMock).not.toHaveBeenCalled();
   });
+
+  it("applies oneTimeOverpayments correctly to comparison results", () => {
+    const scNoOverpayment: DebtPayoffScenario = {
+      id: "sc-no",
+      name: "Bez nadpłat",
+      strategy: "baseline",
+      extraMonthlyPayment: 0,
+      createdAt: "2026-01-01"
+    };
+
+    const scWithOverpayment: DebtPayoffScenario = {
+      id: "sc-yes",
+      name: "Z nadpłatą jednorazową",
+      strategy: "avalanche",
+      extraMonthlyPayment: 0,
+      oneTimeOverpayments: [{ month: 1, amount: 99000 }], // Massive overpayment
+      createdAt: "2026-01-01"
+    };
+
+    render(
+      <PayoffScenarioComparisonModal
+        isOpen={true}
+        onClose={vi.fn()}
+        scenarios={[scNoOverpayment, scWithOverpayment]}
+        activeDebts={mockActiveDebts}
+        currency="PLN"
+      />
+    );
+
+    // The text should reflect a massive time saving because of the 99,000 PLN payment on a 100,000 PLN debt.
+    // Searching for text like "mies. wcześniej" which is generated when there's a difference.
+    expect(screen.getByText(/mies\. wcześniej/)).toBeTruthy();
+  });
 });

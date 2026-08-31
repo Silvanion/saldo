@@ -156,7 +156,8 @@ export function useDebtStrategyAnalytics({
         activeDebts,
         sc.extraMonthlyPayment || 0,
         undefined,
-        scOrder
+        scOrder,
+        sc.oneTimeOverpayments ?? []
       );
       const scRes =
         sc.strategy === "avalanche"
