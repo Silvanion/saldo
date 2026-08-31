@@ -13,8 +13,15 @@ import {
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
-import { getBenchmarkFreshnessStatus, calculateLTV } from "../../utils/benchmark";
+import { 
+  getBenchmarkFreshnessStatus, 
+  calculateLTV,
+  getBenchmarkHistoryRange,
+  getBenchmarkDelta,
+  getBenchmarkTrend
+} from "../../utils/benchmark";
 import { MORTGAGE_ARTICLES, MORTGAGE_BENCHMARKS } from "../../content/mortgageKnowledge";
+import { MORTGAGE_BENCHMARK_HISTORY } from "../../content/mortgageBenchmarkHistory";
 
 export interface KnowledgeAndBenchmarksTabProps {
   activeDebts: DebtItem[];
@@ -28,6 +35,9 @@ export function KnowledgeAndBenchmarksTab({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedArticles, setExpandedArticles] = useState<Set<string>>(new Set());
+  
+  const [selectedHistoryMetric, setSelectedHistoryMetric] = useState<string>("reference-rate");
+  const [historyRangeMonths, setHistoryRangeMonths] = useState<number | null>(null);
 
   const mortgageDebts = activeDebts.filter((d) => d.type === "mortgage");
   const primaryMortgage = mortgageDebts[0];
@@ -179,6 +189,144 @@ export function KnowledgeAndBenchmarksTab({
     );
   };
 
+  const renderHistorySection = () => {
+    const series = MORTGAGE_BENCHMARK_HISTORY.find(s => s.metric === selectedHistoryMetric);
+    if (!series) return null;
+    
+    const rangePoints = getBenchmarkHistoryRange(series.points, historyRangeMonths);
+
+    return (
+      <div className="bg-surface border border-border rounded-2xl p-5 shadow-2xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar">
+            {MORTGAGE_BENCHMARK_HISTORY.map(s => (
+              <button
+                key={s.id}
+                onClick={() => setSelectedHistoryMetric(s.metric)}
+                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                  selectedHistoryMetric === s.metric
+                    ? "bg-surface-2 text-text-main border-border"
+                    : "border-transparent text-text-muted hover:text-text-main"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 p-1 bg-surface-2 rounded-xl border border-border">
+            {[
+              { label: "Wszystko", value: null },
+              { label: "12m", value: 12 },
+              { label: "6m", value: 6 }
+            ].map(opt => (
+              <button
+                key={opt.label}
+                onClick={() => setHistoryRangeMonths(opt.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  historyRangeMonths === opt.value
+                    ? "bg-surface text-text-main shadow-xs border border-border"
+                    : "text-text-muted hover:text-text-main"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <h4 className="text-sm font-bold text-text-main">{series.label}</h4>
+              <p className="text-xs text-text-muted mt-0.5">{series.description}</p>
+            </div>
+          </div>
+          
+          {series.limitationsNote && (
+            <div className="flex items-start gap-1.5 text-xs text-text-muted bg-surface-2 p-3 rounded-xl border border-border">
+              <AlertCircle className="w-4 h-4 shrink-0 text-text-muted" />
+              <span>{series.limitationsNote}</span>
+            </div>
+          )}
+
+          {series.points.length < 2 ? (
+            <div className="p-8 text-center text-text-muted bg-surface-2 border border-border rounded-xl border-dashed">
+              Brak wystarczająco porównywalnej historii dla tego benchmarku.
+            </div>
+          ) : rangePoints.length === 0 ? (
+            <div className="p-8 text-center text-text-muted bg-surface-2 border border-border rounded-xl border-dashed">
+              W wybranym zakresie nie ma wystarczającej liczby punktów.
+            </div>
+          ) : (
+            <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 hide-scrollbar">
+              <table className="w-full text-left text-xs min-w-[500px]">
+                <thead>
+                  <tr className="border-b border-border/60 text-text-muted">
+                    <th className="pb-2 font-semibold">Data</th>
+                    <th className="pb-2 font-semibold text-right">Wartość</th>
+                    <th className="pb-2 font-semibold text-right">Zmiana</th>
+                    <th className="pb-2 font-semibold pl-4">Źródło</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {rangePoints.map((point, idx) => {
+                    // Compute delta relative to the PREVIOUS chronological point (idx - 1)
+                    const prevPoint = idx > 0 ? rangePoints[idx - 1] : null;
+                    const delta = getBenchmarkDelta(point, prevPoint);
+                    const trend = getBenchmarkTrend(delta);
+                    
+                    const formatVal = (val?: number) => {
+                       if (val === undefined) return "-";
+                       return series.unit === "currency" 
+                         ? formatMoney(val, series.currency || "PLN")
+                         : `${val}${series.unit === "percent" ? "%" : ""}`;
+                    };
+
+                    let valueContent = formatVal(point.value);
+                    if (point.value === undefined && point.minValue !== undefined && point.maxValue !== undefined) {
+                       valueContent = `${formatVal(point.minValue)} – ${formatVal(point.maxValue)}`;
+                    }
+
+                    return (
+                      <tr key={point.date} className="group hover:bg-surface-2/50 transition-colors">
+                        <td className="py-3 text-text-main">{point.date}</td>
+                        <td className="py-3 text-text-main font-bold text-right">{valueContent}</td>
+                        <td className="py-3 text-right">
+                           {delta !== null ? (
+                             <span className={`inline-flex items-center gap-0.5 ${trend === "up" ? "text-error-main" : trend === "down" ? "text-success-main" : "text-text-muted"}`}>
+                                {trend === "up" && <ChevronUp className="w-3.5 h-3.5" />}
+                                {trend === "down" && <ChevronDown className="w-3.5 h-3.5" />}
+                                {trend === "flat" && <span className="px-1">-</span>}
+                                {Math.abs(delta).toFixed(series.unit === "percent" ? 2 : 0)}{series.unit === "percent" ? "%" : ""}
+                             </span>
+                           ) : <span className="text-text-faint">-</span>}
+                        </td>
+                        <td className="py-3 pl-4">
+                           <a
+                             href={point.sourceUrl}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="flex items-center gap-1 text-brand hover:underline font-semibold w-max"
+                           >
+                             {point.sourceName} <ExternalLink className="w-3 h-3" />
+                           </a>
+                        </td>
+                      </tr>
+                    );
+                  }).reverse()}
+                </tbody>
+              </table>
+              <div className="mt-3 text-[10px] text-text-faint italic">
+                Tabela posortowana od najnowszych do najstarszych. To dane historyczne, nie prognoza.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
@@ -199,6 +347,12 @@ export function KnowledgeAndBenchmarksTab({
       <section className="space-y-4">
         <h3 className="text-base font-bold text-text-main">Benchmarki rynku polskiego</h3>
         {renderMarketBenchmarks()}
+      </section>
+
+      {/* Historia benchmarków */}
+      <section className="space-y-4">
+        <h3 className="text-base font-bold text-text-main">Historia benchmarków</h3>
+        {renderHistorySection()}
       </section>
 
       {/* Wiedza hipoteczna */}

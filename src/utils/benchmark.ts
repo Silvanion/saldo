@@ -31,3 +31,54 @@ export function calculateLTV(
   }
   return (balance / propertyValue) * 100;
 }
+
+import { MortgageBenchmarkPoint } from "../content/mortgageBenchmarkHistory";
+
+export function sortBenchmarkPoints(points: MortgageBenchmarkPoint[]): MortgageBenchmarkPoint[] {
+  // Usuwanie duplikatów po dacie i sortowanie rosnąco
+  const uniquePoints = new Map<string, MortgageBenchmarkPoint>();
+  points.forEach(p => uniquePoints.set(p.date, p));
+  return Array.from(uniquePoints.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
+export function getBenchmarkHistoryRange(
+  points: MortgageBenchmarkPoint[],
+  months: number | null
+): MortgageBenchmarkPoint[] {
+  const sorted = sortBenchmarkPoints(points);
+  if (months === null || sorted.length === 0) return sorted;
+
+  const latestDate = new Date(sorted[sorted.length - 1].date);
+  latestDate.setUTCMonth(latestDate.getUTCMonth() - months);
+  
+  return sorted.filter(p => new Date(p.date).getTime() >= latestDate.getTime());
+}
+
+export function getLatestBenchmarkPoint(points: MortgageBenchmarkPoint[]): MortgageBenchmarkPoint | null {
+  const sorted = sortBenchmarkPoints(points);
+  return sorted.length > 0 ? sorted[sorted.length - 1] : null;
+}
+
+export function getPreviousBenchmarkPoint(points: MortgageBenchmarkPoint[]): MortgageBenchmarkPoint | null {
+  const sorted = sortBenchmarkPoints(points);
+  return sorted.length > 1 ? sorted[sorted.length - 2] : null;
+}
+
+export function getBenchmarkDelta(
+  current: MortgageBenchmarkPoint | null,
+  previous: MortgageBenchmarkPoint | null
+): number | null {
+  if (!current || !previous || current.value === undefined || previous.value === undefined) {
+    return null;
+  }
+  return current.value - previous.value;
+}
+
+export type BenchmarkTrend = "up" | "down" | "flat" | "unknown";
+
+export function getBenchmarkTrend(delta: number | null): BenchmarkTrend {
+  if (delta === null) return "unknown";
+  if (delta > 0) return "up";
+  if (delta < 0) return "down";
+  return "flat";
+}
