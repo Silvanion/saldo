@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Sparkles, TrendingDown, Clock, ArrowRight, ShieldAlert } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney, parseAmountInput } from "../../utils/format";
-import { calculateOverpayment } from "../../services/debtCalculations";
+import { calculateOverpayment, calculateDebtAmortizationSchedule } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
@@ -56,6 +56,11 @@ export function OverpaymentSimulatorModal({
       targetStrategy
     });
   }, [debt, parsedAmount, frequency, targetStrategy]);
+
+  const amortizationCheck = useMemo(() => {
+    if (!debt) return null;
+    return calculateDebtAmortizationSchedule(debt);
+  }, [debt]);
 
   if (!isOpen || !debt || typeof document === "undefined") return null;
 
@@ -171,109 +176,145 @@ export function OverpaymentSimulatorModal({
             </div>
 
             {/* Comparison Table / Box: Baseline vs Po nadpłacie */}
-            {simulation && (
-              <div className="bg-surface-2/70 border border-border/80 rounded-2xl p-4 sm:p-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-text-faint mb-4">
-                  Rzeczywiste porównanie scenariuszy
-                </h3>
+            {(() => {
+              if (amortizationCheck && !amortizationCheck.isEligible) {
+                return (
+                  <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
+                    <p className="text-[11px] text-text-muted">
+                      {amortizationCheck.errorMessage || "Przy obecnych parametrach nie da się oszacować wpływu nadpłaty."}
+                    </p>
+                  </div>
+                );
+              }
+              if (parsedAmount === 0) {
+                return (
+                  <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
+                    <p className="text-[11px] text-text-muted">
+                      Wprowadź kwotę nadpłaty, aby zobaczyć porównanie.
+                    </p>
+                  </div>
+                );
+              }
+              if (!simulation) return null;
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Baseline Column */}
-                  <div className="p-4 bg-surface rounded-xl border border-border">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-text-faint uppercase tracking-wider">
-                        Stan obecny (Baseline)
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-offset text-text-muted">
-                        Bez nadpłat
-                      </span>
+              // Check if we can safely compute percent saved
+              const totalBaselineInterest = simulation.baseline.totalInterest;
+              const interestSaved = simulation.savings.interestSaved;
+              const interestSavedPct = totalBaselineInterest > 0 
+                ? Math.round((interestSaved / totalBaselineInterest) * 100) 
+                : null;
+
+              return (
+                <div className="bg-surface-2/70 border border-border/80 rounded-2xl p-4 sm:p-5">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-faint mb-4">
+                    Efekt nadpłaty
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Baseline Column */}
+                    <div className="p-4 bg-surface rounded-xl border border-border">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-text-faint uppercase tracking-wider">
+                          Scenariusz bazowy
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-offset text-text-muted">
+                          Bez nadpłat
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Rata miesięczna:</span>
+                          <span className="font-bold text-text-main tabular-nums">
+                            {formatMoney(simulation.baseline.monthlyPayment, currency)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Czas do spłaty:</span>
+                          <span className="font-bold text-text-main">
+                            {simulation.baseline.months} mies.
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Szacowane odsetki:</span>
+                          <span className="font-bold text-text-main tabular-nums">
+                            {formatMoney(simulation.baseline.totalInterest, currency)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2.5 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Rata miesięczna:</span>
-                        <span className="font-bold text-text-main tabular-nums">
-                          {formatMoney(simulation.baseline.monthlyPayment, currency)}
+                    {/* Overpayment Column */}
+                    <div className="p-4 bg-brand-subtle/50 rounded-xl border border-brand/30 relative">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Scenariusz po nadpłacie
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                          Symulacja
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Czas do spłaty:</span>
-                        <span className="font-bold text-text-main">
-                          {simulation.baseline.months} mies. (~{baselineYears} lat)
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Pozostałe odsetki:</span>
-                        <span className="font-bold text-text-main tabular-nums">
-                          {formatMoney(simulation.baseline.totalInterest, currency)}
-                        </span>
+
+                      <div className="space-y-2.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Nowa rata:</span>
+                          <span className="font-bold text-brand tabular-nums">
+                            {formatMoney(simulation.withOverpayment.monthlyPayment, currency)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Nowy czas spłaty:</span>
+                          <span className="font-bold text-brand tabular-nums">
+                            {simulation.withOverpayment.months} mies.
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-text-muted">Nowe odsetki:</span>
+                          <span className="font-bold text-brand tabular-nums">
+                            {formatMoney(simulation.withOverpayment.totalInterest, currency)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Overpayment Column */}
-                  <div className="p-4 bg-brand-subtle/50 rounded-xl border border-brand/30 relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Po nadpłacaniu
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
-                        Zoptymalizowany
-                      </span>
+                  {/* Highlight summary cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    <div className="p-3 bg-brand text-text-inverse rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <TrendingDown className="w-6 h-6 shrink-0 opacity-90" />
+                        <div>
+                          <span className="text-[11px] font-medium opacity-80 block">Oszczędność odsetek</span>
+                          <span className="text-lg font-black tracking-tight">
+                            {formatMoney(simulation.savings.interestSaved, currency)}
+                          </span>
+                        </div>
+                      </div>
+                      {interestSavedPct !== null && interestSavedPct > 0 && (
+                        <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-lg">
+                          -{interestSavedPct}%
+                        </span>
+                      )}
                     </div>
 
-                    <div className="space-y-2.5 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Nowa rata:</span>
-                        <span className="font-bold text-brand tabular-nums">
-                          {formatMoney(simulation.withOverpayment.monthlyPayment, currency)}
+                    <div className="p-3 bg-surface border border-brand/30 text-text-main rounded-xl flex items-center gap-3">
+                      <Clock className="w-6 h-6 text-brand shrink-0" />
+                      <div>
+                        <span className="text-[11px] font-medium text-text-muted block">
+                          {targetStrategy === "reduce_term" ? "Oszczędność czasu" : "Zmniejszenie raty"}
                         </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Nowy czas spłaty:</span>
-                        <span className="font-bold text-brand tabular-nums">
-                          {simulation.withOverpayment.months} mies. (~{withOverpaymentYears} lat)
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">Nowe odsetki:</span>
-                        <span className="font-bold text-brand tabular-nums">
-                          {formatMoney(simulation.withOverpayment.totalInterest, currency)}
+                        <span className="text-lg font-black tracking-tight text-brand">
+                          {targetStrategy === "reduce_term"
+                            ? `${simulation.savings.monthsSaved} mies.`
+                            : `-${formatMoney(simulation.savings.monthlyReduction, currency)} / mc`}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Highlight summary cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                  <div className="p-3 bg-brand text-text-inverse rounded-xl flex items-center gap-3">
-                    <TrendingDown className="w-6 h-6 shrink-0 opacity-90" />
-                    <div>
-                      <span className="text-[11px] font-medium opacity-80 block">Zaoszczędzone odsetki</span>
-                      <span className="text-lg font-black tracking-tight">
-                        {formatMoney(simulation.savings.interestSaved, currency)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-surface border border-brand/30 text-text-main rounded-xl flex items-center gap-3">
-                    <Clock className="w-6 h-6 text-brand shrink-0" />
-                    <div>
-                      <span className="text-[11px] font-medium text-text-muted block">
-                        {targetStrategy === "reduce_term" ? "Zyskany czas" : "Miesięczna ulga w racie"}
-                      </span>
-                      <span className="text-lg font-black tracking-tight text-brand">
-                        {targetStrategy === "reduce_term"
-                          ? `${simulation.savings.monthsSaved} mies. (${simulation.savings.yearsSaved} lat)`
-                          : `-${formatMoney(simulation.savings.monthlyReduction, currency)} / mc`}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Note & Rules check */}
             <div className="text-xs text-text-muted flex items-start gap-2 bg-surface-2 p-3 rounded-xl border border-border">

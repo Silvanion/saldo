@@ -846,6 +846,56 @@ export function DebtDetailsModal({
                   </div>
                 )}
 
+                {/* Rozbicie kosztów */}
+                <div className="p-5 bg-surface border border-border rounded-2xl">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-text-faint mb-3">
+                    Koszt pozostałej spłaty
+                  </h4>
+                  {amortization.isEligible ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <span className="text-[11px] text-text-muted">Pozostały kapitał</span>
+                        <div className="text-sm font-bold text-text-main">
+                          {formatMoney(amortization.initialBalance, currency)}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[11px] text-text-muted">Szacowane odsetki</span>
+                        <div className="text-sm font-bold text-danger">
+                          {formatMoney(amortization.estimatedTotalInterest, currency)}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[11px] text-text-muted">Szacunkowy łączny koszt</span>
+                        <div className="text-sm font-bold text-brand">
+                          {formatMoney(amortization.estimatedTotalRepayment, currency)}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[11px] text-text-muted">Szacowana data spłaty</span>
+                        <div className="text-sm font-bold text-text-main">
+                          {(() => {
+                            if (amortization.estimatedMonths > 0) {
+                              const d = new Date();
+                              d.setMonth(d.getMonth() + amortization.estimatedMonths);
+                              const iso = d.toISOString().slice(0, 7);
+                              return formatMilestoneForecastDate(iso);
+                            }
+                            return "Nie dotyczy";
+                          })()}
+                        </div>
+                        <span className="text-[9px] text-text-faint block leading-tight">
+                          Za {amortization.estimatedMonths} mies.
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-text-muted bg-surface-2/40 p-3 rounded-lg border border-border/40">
+                      {amortization.errorMessage || "Brakuje danych do oszacowania kosztu pozostałej spłaty."}
+                    </div>
+                  )}
+                </div>
+
                 {/* Notes or Key Insights */}
                 {debt.notes && (
                   <div className="p-4 bg-surface-2 border border-border rounded-2xl text-xs text-text-muted">

@@ -238,7 +238,7 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     fireEvent.click(overpaymentBtn);
 
     expect(screen.getByText("Symulator nadpłaty zobowiązania")).toBeTruthy();
-    expect(screen.getByText("Rzeczywiste porównanie scenariuszy")).toBeTruthy();
+    expect(screen.getByText("Efekt nadpłaty")).toBeTruthy();
   });
 
   it("renders deeper debt analytics signals and mix breakdown", () => {
