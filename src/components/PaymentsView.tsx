@@ -173,14 +173,14 @@ export function PaymentsView({
 
   return (
     <div className="space-y-6" id="payments-view-container">
-      {/* Top Overview & Context Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-surface-2 p-4 sm:p-5 rounded-2xl border border-border shadow-sm">
-        <div>
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider">
+      {/* Top Header & Action */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5">
             Harmonogram Płatności
           </p>
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-base sm:text-xl font-bold text-text-main truncate" title="Rachunki i Subskrypcje">
+          <div className="flex items-center gap-2 mb-1.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-main truncate" title="Rachunki i Subskrypcje">
               Rachunki i Subskrypcje
             </h2>
             {unpaidCount > 0 && (
@@ -189,22 +189,25 @@ export function PaymentsView({
               </span>
             )}
           </div>
-          <p className="text-xs text-text-muted truncate">
+          <p className="text-sm text-text-muted mt-1 truncate">
             Śledź okresowe opłaty, abonamenty i kredyty, by nigdy nie zalegać z płatnościami.
           </p>
         </div>
-        <button
-          onClick={() => onOpenPaymentModal()}
-          className="bg-brand text-text-inverse border border-brand font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0 w-full sm:w-auto focus-visible:ring-2 focus-visible:ring-focus-ring"
-          id="btn-add-payment"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Dodaj nową opłatę</span>
-        </button>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 shrink-0 w-full md:w-auto mt-3 md:mt-0 md:justify-end">
+          <button
+            onClick={() => onOpenPaymentModal()}
+            className="w-full sm:w-auto bg-brand text-text-inverse border border-brand font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            id="btn-add-payment"
+          >
+            <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+            <span>Dodaj nową opłatę</span>
+          </button>
+        </div>
       </div>
 
       {/* View Mode Segmented Switch */}
-      <div className="flex bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto shadow-xs" role="tablist" aria-label="Tryb widoku płatności">
+      <div className="flex bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-max shadow-sm" role="tablist" aria-label="Tryb widoku płatności">
         <button
           type="button"
           role="tab"
@@ -217,7 +220,9 @@ export function PaymentsView({
           }`}
           id="btn-view-mode-all"
         >
-          Wszystkie płatności ({profile.payments.length})
+          <span className="hidden sm:inline">Wszystkie płatności</span>
+          <span className="sm:hidden">Wszystkie</span>
+          {" "}({profile.payments.length})
         </button>
         <button
           type="button"
@@ -231,15 +236,17 @@ export function PaymentsView({
           }`}
           id="btn-view-mode-subscriptions"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          Subskrypcje i koszty stałe ({fixedCostHub.activeCount})
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Subskrypcje i koszty stałe</span>
+          <span className="sm:hidden">Subskrypcje</span>
+          {" "}({fixedCostHub.activeCount})
         </button>
       </div>
 
       {viewMode === "all" ? (
         <>
           {/* 4-Pillar Horizon Cashflow Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {/* Overdue */}
         <button
           onClick={() => setTimeFilter(timeFilter === "overdue" ? "all" : "overdue")}
@@ -318,7 +325,7 @@ export function PaymentsView({
       </div>
 
       {/* Browser Notifications Setup Card */}
-      <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
+      <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
         <div className="flex items-start gap-3.5 min-w-0">
           <div className={`p-2.5 rounded-xl shrink-0 ${
             notificationPermission === "granted" 
@@ -361,14 +368,14 @@ export function PaymentsView({
         {notificationPermission !== "granted" && (
           <button
             onClick={handleEnableNotifications}
-            className={`font-bold py-2.5 px-4 rounded-lg text-xs active:scale-[0.98] transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            className={`w-full md:w-auto font-bold py-2.5 px-4 rounded-lg text-sm sm:text-xs active:scale-[0.98] transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring flex items-center justify-center gap-2 ${
               notificationPermission === "denied"
                 ? "bg-surface-2 text-text-muted hover:bg-surface-offset hover:text-text-main border border-border"
                 : "bg-brand text-text-inverse hover:bg-brand-hover shadow-sm border border-brand"
             }`}
             id="btn-enable-desktop-notifications"
           >
-            {notificationPermission === "denied" ? "Zmień uprawnienia" : "🔔 Włącz powiadomienia"}
+            {notificationPermission === "denied" ? "Zmień uprawnienia" : "Włącz powiadomienia"}
           </button>
         )}
       </div>
@@ -383,7 +390,7 @@ export function PaymentsView({
           <h3 className="text-base font-bold text-text-main shrink-0 truncate" title="Lista Twoich opłat">Lista Twoich opłat</h3>
           
           <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto min-w-0">
-            <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner">
+            <div className="flex items-center bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setTimeFilter("all")}
                 className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
@@ -416,7 +423,7 @@ export function PaymentsView({
               >30 dni</button>
             </div>
             {profile.kind === "shared" && (
-              <div className="flex flex-wrap bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner">
+              <div className="flex items-center bg-surface p-1 rounded-xl w-full sm:w-auto max-w-full border border-border shadow-inner overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => setPaidByFilter("all")}
                   className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
