@@ -55,13 +55,13 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
   return (
     <div className="space-y-6" id="budget-view-container">
       {/* Overview header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 sm:p-6 rounded-2xl border border-border shadow-sm min-w-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Plan Kontroli Kosztów">
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5">
             Plan Kontroli Kosztów
           </p>
-          <div className="flex items-center gap-2 mb-1.5 min-w-0">
-            <h2 className="text-xl font-bold text-text-main truncate" title="Budżety miesięczne">
+          <div className="flex items-center gap-2 mb-1.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-main truncate" title="Budżety miesięczne">
               Budżety miesięczne
             </h2>
             {totalPlannedBudget > 0 && (
@@ -76,7 +76,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               </span>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-muted mt-1">
             <span>
               Zaplanowano: <strong className="text-text-main tabular-nums font-bold">{formatMoney(totalPlannedBudget, profile.currency || 'PLN')}</strong>
             </span>
@@ -98,14 +98,16 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           </div>
         </div>
 
-        <button
-          onClick={onOpenBudgetModal}
-          className="bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 self-start sm:self-auto shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-          id="btn-edit-budget-limits"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span>Modyfikuj limity</span>
-        </button>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 shrink-0 w-full md:w-auto mt-3 md:mt-0 md:justify-end">
+          <button
+            onClick={onOpenBudgetModal}
+            className="w-full sm:w-auto bg-brand text-text-inverse font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            id="btn-edit-budget-limits"
+          >
+            <SlidersHorizontal className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+            <span>Modyfikuj limity</span>
+          </button>
+        </div>
       </div>
 
       {/* Progress Cards */}

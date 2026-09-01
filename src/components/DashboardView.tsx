@@ -167,7 +167,7 @@ export function DashboardView({
       {/* Background Glowing Orbs for Glassmorphism (removed for solid light mode) */ }
       
       {/* Month Navigation */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 relative z-10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 relative z-10">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-text-main" id="dash-month-title">
             {getMonthName(currentMonthIdx)} {currentYear}
@@ -178,7 +178,7 @@ export function DashboardView({
           <div className="flex items-center bg-surface rounded-xl border border-border shadow-xs overflow-hidden flex-1 sm:flex-none">
             <button
               onClick={onPrevMonth}
-              className="inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main border-r border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="flex-1 justify-center inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main border-r border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-prev-month"
               aria-label="Poprzedni miesiąc"
             >
@@ -187,7 +187,7 @@ export function DashboardView({
             </button>
             <button
               onClick={onNextMonth}
-              className="inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="flex-1 justify-center inline-flex items-center gap-1 px-3.5 py-2 hover:bg-surface-2 active:bg-surface-3 transition-colors text-xs font-bold text-text-muted hover:text-text-main cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="dash-next-month"
               aria-label="Następny miesiąc"
             >
@@ -197,7 +197,7 @@ export function DashboardView({
           </div>
           <button
             onClick={() => setIsCustomizerOpen(true)}
-            className="p-2 bg-surface border border-border rounded-xl shadow-xs text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="p-2 bg-surface border border-border rounded-xl shadow-xs text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
             title="Dostosuj ekran"
             aria-label="Dostosuj układ ekranu głównego"
           >
@@ -248,7 +248,7 @@ export function DashboardView({
           <button
             type="button"
             onClick={() => onChangeView("debts")}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-hover border border-border text-xs font-bold text-text-main hover:text-brand transition cursor-pointer shadow-2xs shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring self-start sm:self-auto"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-hover border border-border text-xs font-bold text-text-main hover:text-brand transition cursor-pointer shadow-2xs shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring w-full sm:w-auto"
             id="btn-dashboard-to-debts"
             aria-label="Przejdź do pełnego widoku Kredyty i Hipoteka"
           >
