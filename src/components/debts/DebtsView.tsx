@@ -617,7 +617,7 @@ export function DebtsView({
   return (
     <div className="space-y-6 animate-fade-in" id="debts-view-container">
       {/* 1. TOP HEADER & ACTION BUTTONS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5">
             Zarządzanie zadłużeniem
@@ -633,43 +633,46 @@ export function DebtsView({
         </div>
 
         {/* Top Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 shrink-0 w-full md:w-auto mt-3 md:mt-0 md:justify-end">
+          <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => handleTopActionClick("import")}
+              className="whitespace-nowrap shrink-0 bg-surface hover:bg-surface-2 border border-border text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl active:scale-[0.98] transition-all shadow-xs text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring flex-1 sm:flex-none"
+              id="btn-import-debts"
+              title="Importuj dane z wyciągów lub BIK"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Importuj</span>
+            </button>
+
+            <button
+              onClick={() => handleTopActionClick("offers")}
+              className="whitespace-nowrap shrink-0 bg-surface hover:bg-surface-2 border border-border text-text-main font-bold py-2 px-3 rounded-xl active:scale-[0.98] transition-all shadow-xs text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring flex-1 sm:flex-none"
+              id="btn-add-scenario"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-brand" />
+              <span className="hidden sm:inline">Nowa oferta / scenariusz</span>
+              <span className="sm:hidden">Oferta</span>
+            </button>
+
+            <button
+              onClick={() => handleTopActionClick("strategies")}
+              className="whitespace-nowrap shrink-0 bg-brand-subtle text-brand hover:bg-brand-subtle/80 border border-brand/20 font-bold py-2 px-3 rounded-xl active:scale-[0.98] transition-all shadow-xs text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring flex-1 sm:flex-none"
+              id="btn-compare-strategies"
+            >
+              <GitCompare className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Porównaj strategie</span>
+              <span className="sm:hidden">Strategie</span>
+            </button>
+          </div>
+
           <button
             onClick={handleOpenAddModal}
-            className="bg-brand text-text-inverse font-bold py-2.5 px-3.5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full sm:w-auto order-first sm:order-last bg-brand text-text-inverse font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-debt"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
             <span>Dodaj zobowiązanie</span>
-          </button>
-
-          <button
-            onClick={() => handleTopActionClick("offers")}
-            className="bg-surface hover:bg-surface-2 border border-border text-text-main font-bold py-2.5 px-3 rounded-xl active:scale-[0.98] transition-all shadow-2xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-            id="btn-add-scenario"
-          >
-            <PlusCircle className="w-3.5 h-3.5 text-brand" />
-            <span className="hidden sm:inline">Nowa oferta / scenariusz</span>
-            <span className="sm:hidden">Oferta</span>
-          </button>
-
-          <button
-            onClick={() => handleTopActionClick("import")}
-            className="bg-surface hover:bg-surface-2 border border-border text-text-muted hover:text-text-main font-bold py-2.5 px-3 rounded-xl active:scale-[0.98] transition-all shadow-2xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-            id="btn-import-debts"
-            title="Importuj dane z wyciągów lub BIK"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Importuj</span>
-          </button>
-
-          <button
-            onClick={() => handleTopActionClick("strategies")}
-            className="bg-brand-subtle text-brand hover:bg-brand-subtle/80 border border-brand/20 font-bold py-2.5 px-3 rounded-xl active:scale-[0.98] transition-all shadow-2xs text-xs flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-            id="btn-compare-strategies"
-          >
-            <GitCompare className="w-3.5 h-3.5" />
-            <span>Porównaj strategie</span>
           </button>
         </div>
       </div>
@@ -757,10 +760,12 @@ export function DebtsView({
         />
       </div>
 
-      {/* 2AA. SPRINT 13: PAYOFF PROGRESS SUMMARY */}
-      {debts.length > 0 && portfolioProgress.totalOriginal > 0 && (
-        <div className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3" id="debt-payoff-progress-block">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+      {/* WRAPPER FOR PROGRESS AND MILESTONE TO RECLAIM VERTICAL SPACE ON DESKTOP */}
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+        {/* 2AA. SPRINT 13: PAYOFF PROGRESS SUMMARY */}
+        {debts.length > 0 && portfolioProgress.totalOriginal > 0 && (
+          <div className="flex-1 bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3 flex flex-col justify-center" id="debt-payoff-progress-block">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <div className="flex items-center gap-2">
               <TrendingDown className="w-4 h-4 text-brand" />
               <h3 className="text-sm font-bold text-text-main">
@@ -787,7 +792,7 @@ export function DebtsView({
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs text-text-muted">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-y-3 gap-x-2 pt-1 text-xs text-text-muted">
             <div>
               <span className="text-text-faint text-[11px] block">Saldo początkowe:</span>
               <strong className="text-text-main font-bold tabular-nums">
@@ -819,7 +824,7 @@ export function DebtsView({
       {/* 2AB. SPRINT 45: PORTFOLIO NEAREST MILESTONE HERO CARD */}
       {nearestMilestoneCandidate && (
         <div
-          className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          className="flex-1 bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           id="portfolio-nearest-milestone-card"
         >
           <div className="flex items-start sm:items-center gap-3 min-w-0">
@@ -845,6 +850,7 @@ export function DebtsView({
           </div>
         </div>
       )}
+      </div>
 
       {/* 2B. SPRINT 2: COMPACT DEEP ANALYTICS & INSIGHT SIGNALS */}
       {debts.length > 0 && (
