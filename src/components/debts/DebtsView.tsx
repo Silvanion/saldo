@@ -619,15 +619,15 @@ export function DebtsView({
       {/* 1. TOP HEADER & ACTION BUTTONS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-brand-subtle text-brand border border-brand/20 shadow-2xs">
-              <Landmark className="w-4 h-4" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-black text-text-main tracking-tight">
+          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5">
+            Zarządzanie zadłużeniem
+          </p>
+          <div className="flex items-center gap-2.5 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-main">
               Kredyty i Hipoteka
-            </h1>
+            </h2>
           </div>
-          <p className="text-xs text-text-muted mt-1">
+          <p className="text-sm text-text-muted mt-1">
             Cały portfel zadłużenia w jednym miejscu • Analiza kosztów, symulator nadpłat i strategie spłaty
           </p>
         </div>
