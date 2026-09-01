@@ -191,62 +191,66 @@ export function TransactionsView({
             </div>
 
             {/* Actions: Secondary (Export, Import) & Primary (Add Transaction) */}
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <button
-                onClick={() => {
-                  import('../utils').then(({ generateCsvContent, downloadFile }) => {
-                    const csv = generateCsvContent(filteredTransactions);
-                    downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
-                  });
-                }}
-                className="text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
-                title="Eksportuj odfiltrowane dane do pliku CSV"
-                id="btn-export-csv"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Eksportuj</span>
-              </button>
-
-              <button
-                onClick={() => setIsCSVModalOpen(true)}
-                className="text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
-                title="Importuj wyciąg bankowy CSV"
-                id="btn-import-csv"
-              >
-                <UploadCloud className="w-3.5 h-3.5" />
-                <span>Importuj CSV</span>
-              </button>
-
-              {smartRules.length > 0 && onApplySmartRulesBulk && (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full sm:w-auto mt-4 sm:mt-0">
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2.5 w-full sm:w-auto">
                 <button
-                  onClick={() => setIsSmartRulesModalOpen(true)}
-                  className="text-brand hover:text-brand-hover font-bold py-2 px-3 rounded-xl border border-brand/20 bg-brand-subtle hover:bg-brand-subtle/80 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
-                  title="Sprawdź i zastosuj inteligentne reguły kategoryzacji"
-                  id="btn-smart-rules-preview"
+                  onClick={() => {
+                    import('../utils').then(({ generateCsvContent, downloadFile }) => {
+                      const csv = generateCsvContent(filteredTransactions);
+                      downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
+                    });
+                  }}
+                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  title="Eksportuj odfiltrowane dane do pliku CSV"
+                  id="btn-export-csv"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Reguły ({smartRules.length})</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Eksportuj</span>
                 </button>
-              )}
-              
-              {onOpenSmartRulesManager && (
+
                 <button
-                  onClick={() => onOpenSmartRulesManager()}
-                  className="text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
-                  title="Zarządzaj regułami automatycznymi"
-                  id="btn-smart-rules-manager"
+                  onClick={() => setIsCSVModalOpen(true)}
+                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  title="Importuj wyciąg bankowy CSV"
+                  id="btn-import-csv"
                 >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Zarządzaj regułami</span>
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  <span>Importuj</span>
                 </button>
-              )}
+              </div>
+
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2.5 w-full sm:w-auto">
+                {smartRules.length > 0 && onApplySmartRulesBulk && (
+                  <button
+                    onClick={() => setIsSmartRulesModalOpen(true)}
+                    className="w-full sm:w-auto justify-center text-brand hover:text-brand-hover font-bold py-2 px-3 rounded-xl border border-brand/20 bg-brand-subtle hover:bg-brand-subtle/80 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                    title="Sprawdź i zastosuj inteligentne reguły kategoryzacji"
+                    id="btn-smart-rules-preview"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Reguły ({smartRules.length})</span>
+                  </button>
+                )}
+                
+                {onOpenSmartRulesManager && (
+                  <button
+                    onClick={() => onOpenSmartRulesManager()}
+                    className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                    title="Zarządzaj regułami automatycznymi"
+                    id="btn-smart-rules-manager"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>Ustawienia</span>
+                  </button>
+                )}
+              </div>
 
               <button
                 onClick={() => onOpenTxModal()}
-                className="bg-brand text-text-inverse font-bold py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-brand text-text-inverse font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                 id="btn-add-tx-view"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                 <span>Nowa transakcja</span>
               </button>
             </div>

@@ -57,7 +57,7 @@ export function GoalsView({
           </div>
           <button
             onClick={onOpenGoalModal}
-            className="bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center gap-1.5 self-start sm:self-auto shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-xs flex items-center justify-center gap-1.5 w-full sm:w-auto shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-add-goal"
           >
             <Plus className="w-4 h-4" />
