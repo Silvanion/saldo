@@ -32,7 +32,15 @@ describe("PayoffStrategiesKnowledgeCenter", () => {
     // Specific strategy rules are explained
     expect(screen.getByText(/najwyższym oprocentowaniem/i)).toBeTruthy();
     expect(screen.getByText(/najmniejszym saldem/i)).toBeTruthy();
-    expect(screen.getByText(/ręcznie przez użytkownika/i)).toBeTruthy();
+    expect(screen.getByText(/Użytkownik ręcznie określa listę/i)).toBeTruthy();
+
+    // Check new structured layout labels
+    const zalety = screen.getAllByText("Zalety:");
+    expect(zalety.length).toBeGreaterThanOrEqual(3);
+    const ograniczenia = screen.getAllByText("Ograniczenia:");
+    expect(ograniczenia.length).toBeGreaterThanOrEqual(3);
+    const najlepszeDla = screen.getAllByText("Najlepsze dla:");
+    expect(najlepszeDla.length).toBeGreaterThanOrEqual(3);
   });
 
   it("2. highlights active selected strategy semantically", () => {
@@ -40,7 +48,7 @@ describe("PayoffStrategiesKnowledgeCenter", () => {
       <PayoffStrategiesKnowledgeCenter selectedStrategy="avalanche" defaultOpen={true} />
     );
 
-    expect(screen.getByText(/Wybrana strategia:/i)).toBeTruthy();
+    expect(screen.getByText(/Aktualnie symulujesz:/i)).toBeTruthy();
     const activeCard = document.querySelector('[data-selected="true"]');
     expect(activeCard?.textContent).toContain("Lawina (Avalanche)");
 
@@ -71,7 +79,7 @@ describe("PayoffStrategiesKnowledgeCenter", () => {
       />
     );
 
-    const snowballSelectBtn = screen.getByRole("button", { name: /Wybierz Kulę Śnieżną/i });
+    const snowballSelectBtn = screen.getByRole("button", { name: /Zastosuj Kulę Śnieżną/i });
     fireEvent.click(snowballSelectBtn);
 
     expect(onSelect).toHaveBeenCalledWith("snowball");
@@ -84,6 +92,6 @@ describe("PayoffStrategiesKnowledgeCenter", () => {
     expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Własna kolejność (Custom)").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Jak interpretować wyniki symulacji?")).toBeTruthy();
-    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    expect(screen.getByText(/Zastrzeżenie edukacyjne/i)).toBeTruthy();
   });
 });

@@ -545,9 +545,8 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     expect(knowledgeTrigger.getAttribute("aria-expanded")).toBe("true");
 
     // 3. Verify contextual guidance banner is present for default "avalanche"
-    expect(screen.getByText("Wybrana strategia:")).toBeTruthy();
-    expect(screen.getByText("Wyjaśnienie odpowiada aktualnie wybranej strategii.")).toBeTruthy();
-    expect(screen.getByText("Aktualnie wybrana")).toBeTruthy();
+    expect(screen.getByText(/Aktualnie symulujesz:/i)).toBeTruthy();
+    expect(screen.getByText("Wybrana")).toBeTruthy();
 
     // 4. Verify trade-off summary is present
     expect(
@@ -557,22 +556,22 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     // 5. Verify all strategies explanations are present
     expect(screen.getAllByText("Lawina (Avalanche)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najwyższym oprocentowaniem/i)
+      screen.getByText(/Nadpłata jest kierowana w pierwszej kolejności na zobowiązanie z najwyższym oprocentowaniem/i)
     ).toBeTruthy();
 
     expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Nadpłata jest kierowana najpierw na zobowiązanie z najmniejszym saldem/i)
+      screen.getByText(/Nadpłata jest kierowana w pierwszej kolejności na zobowiązanie z najmniejszym saldem/i)
     ).toBeTruthy();
 
-    expect(screen.getByText("Własna kolejność (Custom)")).toBeTruthy();
+    expect(screen.getAllByText("Własna kolejność (Custom)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Symulacja podąża za listą priorytetów zdefiniowaną ręcznie przez użytkownika/i)
+      screen.getByText(/Użytkownik ręcznie określa listę/i)
     ).toBeTruthy();
 
     expect(screen.getAllByText("Status Quo (Plan bazowy)").length).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getByText(/Jest to scenariusz odniesienia oparty na bieżących minimalnych ratach/i)
+      screen.getByText(/Scenariusz odniesienia oparty wyłącznie na bieżących, minimalnych ratach/i)
     ).toBeTruthy();
 
     // 6. Verify metric explanations section (Sprint 32)
@@ -587,9 +586,9 @@ describe("DebtsView (Sprint 1 MVP)", () => {
     ).toBeTruthy();
 
     // 7. Verify educational disclaimer
-    expect(screen.getByText(/Zastrzeżenie edukacyjne:/i)).toBeTruthy();
+    expect(screen.getByText(/Zastrzeżenie edukacyjne/i)).toBeTruthy();
     expect(
-      screen.getByText(/Wskaźniki pokazują wynik modelu na podstawie bieżących danych i przyjętych założeń/i)
+      screen.getByText(/Wszystkie liczby, harmonogramy i nazwy strategii mają charakter wyłącznie edukacyjny/i)
     ).toBeTruthy();
 
     // 8. Click again to collapse
@@ -4253,7 +4252,7 @@ Kredyt prywatny,,InnyDziwnyTyp,5000,100,5`;
           expect(screen.getAllByText("Kula Śnieżna (Snowball)").length).toBeGreaterThanOrEqual(1);
 
           // Click on "Wybierz Kulę Śnieżną" action in Knowledge Center
-          const selectSnowballBtn = screen.getByRole("button", { name: /Wybierz Kulę Śnieżną/i });
+          const selectSnowballBtn = screen.getByRole("button", { name: /Zastosuj Kulę Śnieżną/i });
           fireEvent.click(selectSnowballBtn);
 
           // Should switch to Scenarios tab and have Snowball selected
