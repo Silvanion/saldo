@@ -156,7 +156,7 @@ export function DashboardView({
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
-    localStorage.setItem("dashboard_widgets_v5", JSON.stringify(widgets));
+    localStorage.setItem("dashboard_widgets_v6", JSON.stringify(widgets));
   }, [widgets]);
 
   const currentYear = selectedDate.getFullYear();

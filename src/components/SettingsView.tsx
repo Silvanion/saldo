@@ -149,7 +149,7 @@ export function BankAccountsManager({
   };
 
   return (
-    <div className="mb-10 pb-10 border-b border-border/30 last:border-b-0 last:pb-0 min-w-0" id="settings-bank-accounts-card">
+    <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0" id="settings-bank-accounts-card">
       <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konta operacyjne</h3>
       <p className="text-sm text-text-muted mb-4 leading-relaxed">
         Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
