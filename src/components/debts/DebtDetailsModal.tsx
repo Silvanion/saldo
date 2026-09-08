@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -155,6 +155,45 @@ export function DebtDetailsModal({
       .filter((t) => t.debtId === debt.id)
       .sort((a, b) => new Date(b.isoDate).getTime() - new Date(a.isoDate).getTime());
   }, [transactions, debt]);
+
+  // SPRINT 86: Affected linked transaction IDs for review progression
+  const affectedTransactionIds = useMemo(() => {
+    return linkedTransactions
+      .filter((tx) => {
+        return (
+          !tx.name ||
+          !tx.isoDate ||
+          isNaN(new Date(tx.isoDate).getTime()) ||
+          !tx.currency
+        );
+      })
+      .map((tx) => tx.id);
+  }, [linkedTransactions]);
+
+  const [activeReviewIndex, setActiveReviewIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setActiveReviewIndex(null);
+    }
+  }, [isOpen, debt?.id]);
+
+  useEffect(() => {
+    if (activeReviewIndex !== null && activeReviewIndex >= affectedTransactionIds.length) {
+      setActiveReviewIndex(affectedTransactionIds.length > 0 ? affectedTransactionIds.length - 1 : null);
+    }
+  }, [affectedTransactionIds.length, activeReviewIndex]);
+
+  const navigateToAffectedRow = (index: number) => {
+    if (index < 0 || index >= affectedTransactionIds.length) return;
+    setActiveReviewIndex(index);
+    const targetId = affectedTransactionIds[index];
+    const element = document.getElementById(`review-row-${targetId}`);
+    if (element) {
+      element.focus();
+      element.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   // SPRINT 38: CSV & JSON Export of visible payment history timeline
   const handleExportCsv = () => {
@@ -919,40 +958,22 @@ export function DebtDetailsModal({
                           .sort();
 
                         const qualityIssues = new Set<string>();
-                        let transactionsWithIssuesCount = 0;
-                        let firstAffectedTxId: string | null = null;
-                        
                         linkedTransactions.forEach(tx => {
-                          let hasIssue = false;
-                          
                           if (!tx.name) {
-                            hasIssue = true;
                             qualityIssues.add("Brak opisu transakcji");
                           }
-                          
                           if (!tx.isoDate) {
-                            hasIssue = true;
                             qualityIssues.add("Brak daty transakcji");
                           } else if (isNaN(new Date(tx.isoDate).getTime())) {
-                            hasIssue = true;
                             qualityIssues.add("Nieprawidłowa data transakcji");
                           }
-                          
                           if (!tx.currency) {
-                            hasIssue = true;
                             qualityIssues.add("Użyto waluty zobowiązania jako wartości domyślnej");
-                          }
-                          
-                          if (hasIssue) {
-                            if (transactionsWithIssuesCount === 0) {
-                              firstAffectedTxId = tx.id;
-                            }
-                            transactionsWithIssuesCount++;
                           }
                         });
 
                         const issuesList = Array.from(qualityIssues);
-                        const hasQualityIssues = transactionsWithIssuesCount > 0;
+                        const hasQualityIssues = affectedTransactionIds.length > 0;
 
                         return (
                           <>
@@ -971,34 +992,69 @@ export function DebtDetailsModal({
                                   ))}
                                 </ul>
                                 <div className="mb-2 font-bold text-text-main">
-                                  Liczba transakcji wymagających sprawdzenia: {transactionsWithIssuesCount}
+                                  Liczba transakcji wymagających sprawdzenia: {affectedTransactionIds.length}
                                 </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      linkedHistoryListRef.current?.focus();
-                                      linkedHistoryListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }}
-                                    className="px-3 py-1.5 bg-surface-2 hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-main transition-colors w-fit shrink-0 cursor-pointer"
-                                  >
-                                    Sprawdź transakcje
-                                  </button>
-                                  {firstAffectedTxId && (
+                                <div className="flex flex-col gap-2.5">
+                                  <div className="flex flex-wrap items-center gap-2">
                                     <button
                                       type="button"
                                       onClick={() => {
-                                        const firstIssue = document.getElementById(`review-row-${firstAffectedTxId}`);
-                                        if (firstIssue) {
-                                          firstIssue.focus();
-                                          firstIssue.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        }
+                                        linkedHistoryListRef.current?.focus();
+                                        linkedHistoryListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                       }}
                                       className="px-3 py-1.5 bg-surface-2 hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-main transition-colors w-fit shrink-0 cursor-pointer"
                                     >
-                                      Przejdź do pierwszej
+                                      Sprawdź transakcje
                                     </button>
-                                  )}
+                                    {affectedTransactionIds.length > 0 && (
+                                      <div
+                                        className="flex flex-wrap items-center gap-2"
+                                        role="group"
+                                        aria-label="Nawigacja po transakcjach do sprawdzenia"
+                                      >
+                                        <button
+                                          type="button"
+                                          onClick={() => navigateToAffectedRow(0)}
+                                          className="px-3 py-1.5 bg-surface-2 hover:bg-surface-hover border border-border rounded-lg text-[11px] font-bold text-text-main transition-colors w-fit shrink-0 cursor-pointer"
+                                        >
+                                          Przejdź do pierwszej
+                                        </button>
+                                        {affectedTransactionIds.length >= 2 && activeReviewIndex !== null && (
+                                          <div
+                                            className="flex items-center gap-1 bg-surface-2 border border-border rounded-lg p-0.5"
+                                            role="group"
+                                            aria-label="Kolejne transakcje do sprawdzenia"
+                                          >
+                                            <button
+                                              type="button"
+                                              onClick={() => navigateToAffectedRow(activeReviewIndex - 1)}
+                                              disabled={activeReviewIndex <= 0}
+                                              aria-label="Poprzednia transakcja do sprawdzenia"
+                                              className="px-2 py-1 rounded text-[11px] font-bold text-text-main hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                              Poprzednia
+                                            </button>
+                                            <span
+                                              className="text-[11px] font-bold text-text-main tabular-nums px-1.5 select-none"
+                                              aria-live="polite"
+                                              aria-atomic="true"
+                                            >
+                                              {activeReviewIndex + 1} z {affectedTransactionIds.length}
+                                            </span>
+                                            <button
+                                              type="button"
+                                              onClick={() => navigateToAffectedRow(activeReviewIndex + 1)}
+                                              disabled={activeReviewIndex >= affectedTransactionIds.length - 1}
+                                              aria-label="Następna transakcja do sprawdzenia"
+                                              className="px-2 py-1 rounded text-[11px] font-bold text-text-main hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                              Następna
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
                                   <p className="text-text-muted text-[11px]">
                                     Sprawdź szczegóły transakcji, jeśli chcesz uzupełnić brakujące informacje.
                                   </p>

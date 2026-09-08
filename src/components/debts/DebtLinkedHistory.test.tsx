@@ -287,3 +287,221 @@ describe("Sprint 77: Debt-Linked Transaction History", () => {
     expect(document.activeElement).toBe(firstRow);
   });
 });
+
+describe("Sprint 86: Linked History Review Progression", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  const txBad1: Transaction = {
+    id: "tx-bad-1",
+    name: "", // missing name
+    amount: 1000,
+    category: "Kredyty",
+    type: "expense",
+    account: "Główne",
+    isoDate: "2026-06-15",
+    debtId: "debt-test-1",
+    currency: "PLN"
+  };
+
+  const txBad2: Transaction = {
+    id: "tx-bad-2",
+    name: "Rata majowa",
+    amount: 1000,
+    category: "Kredyty",
+    type: "expense",
+    account: "Główne",
+    isoDate: "invalid-date", // invalid date
+    debtId: "debt-test-1",
+    currency: "PLN"
+  };
+
+  const txBad3: Transaction = {
+    id: "tx-bad-3",
+    name: "Rata kwietniowa",
+    amount: 1000,
+    category: "Kredyty",
+    type: "expense",
+    account: "Główne",
+    isoDate: "2026-04-15",
+    debtId: "debt-test-1",
+    currency: undefined as any // missing currency
+  };
+
+  it("progresses through multiple affected rows with correct position indicator and boundary disabled states", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const onOpenTxModal = vi.fn();
+
+    render(
+      <DebtDetailsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        debt={mockDebt}
+        transactions={[txBad1, txBad2, txBad3, tx1]}
+        onOpenTxModal={onOpenTxModal}
+      />
+    );
+
+    // Initial check: 3 transactions with issues
+    expect(screen.getByText("Liczba transakcji wymagających sprawdzenia: 3")).toBeTruthy();
+
+    // Before review navigation begins, previous/next controls are not displayed
+    expect(screen.queryByRole("button", { name: /Poprzednia transakcja do sprawdzenia/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Następna transakcja do sprawdzenia/i })).toBeNull();
+    expect(screen.queryByText(/1 z 3/)).toBeNull();
+
+    // Begin review navigation by clicking "Przejdź do pierwszej"
+    const firstNavBtn = screen.getByText("Przejdź do pierwszej");
+    fireEvent.click(firstNavBtn);
+
+    // Review navigation has begun: position is 1 z 3
+    expect(screen.getByText("1 z 3")).toBeTruthy();
+    const row1 = document.getElementById(`review-row-tx-bad-1`);
+    expect(document.activeElement).toBe(row1);
+
+    // Boundary: Poprzednia is disabled on first affected row
+    const prevBtn = screen.getByRole("button", { name: "Poprzednia transakcja do sprawdzenia" });
+    const nextBtn = screen.getByRole("button", { name: "Następna transakcja do sprawdzenia" });
+    expect((prevBtn as HTMLButtonElement).disabled).toBe(true);
+    expect((nextBtn as HTMLButtonElement).disabled).toBe(false);
+
+    // Click "Następna" -> position 2 z 3
+    fireEvent.click(nextBtn);
+    expect(screen.getByText("2 z 3")).toBeTruthy();
+    const row2 = document.getElementById(`review-row-tx-bad-2`);
+    expect(document.activeElement).toBe(row2);
+    expect((prevBtn as HTMLButtonElement).disabled).toBe(false);
+    expect((nextBtn as HTMLButtonElement).disabled).toBe(false);
+
+    // Click "Następna" again -> position 3 z 3 (final affected row)
+    fireEvent.click(nextBtn);
+    expect(screen.getByText("3 z 3")).toBeTruthy();
+    const row3 = document.getElementById(`review-row-tx-bad-3`);
+    expect(document.activeElement).toBe(row3);
+
+    // Boundary: Następna is disabled on the final affected row
+    expect((prevBtn as HTMLButtonElement).disabled).toBe(false);
+    expect((nextBtn as HTMLButtonElement).disabled).toBe(true);
+
+    // Click "Poprzednia" -> position 2 z 3
+    fireEvent.click(prevBtn);
+    expect(screen.getByText("2 z 3")).toBeTruthy();
+    expect(document.activeElement).toBe(row2);
+
+    // Click "Przejdź do pierwszej" -> jumps back to row 1 (1 z 3)
+    fireEvent.click(firstNavBtn);
+    expect(screen.getByText("1 z 3")).toBeTruthy();
+    expect(document.activeElement).toBe(row1);
+    expect((prevBtn as HTMLButtonElement).disabled).toBe(true);
+    expect((nextBtn as HTMLButtonElement).disabled).toBe(false);
+
+    // Non-destructive: onOpenTxModal was never called
+    expect(onOpenTxModal).not.toHaveBeenCalled();
+  });
+
+  it("does not render progression previous/next controls when there is only one affected row", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    render(
+      <DebtDetailsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        debt={mockDebt}
+        transactions={[txBad1, tx1, tx2]}
+      />
+    );
+
+    expect(screen.getByText("Liczba transakcji wymagających sprawdzenia: 1")).toBeTruthy();
+    const firstNavBtn = screen.getByText("Przejdź do pierwszej");
+    expect(firstNavBtn).toBeTruthy();
+
+    fireEvent.click(firstNavBtn);
+
+    // Still no previous/next progression controls or indicator for a single affected row
+    expect(screen.queryByRole("button", { name: /Poprzednia transakcja do sprawdzenia/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Następna transakcja do sprawdzenia/i })).toBeNull();
+    expect(screen.queryByText(/1 z 1/)).toBeNull();
+  });
+
+  it("does not render review controls when there are zero affected rows", () => {
+    render(
+      <DebtDetailsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        debt={mockDebt}
+        transactions={[tx1, tx2]}
+      />
+    );
+
+    expect(screen.queryByText("Jakość danych historii")).toBeNull();
+    expect(screen.queryByText("Przejdź do pierwszej")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Poprzednia transakcja do sprawdzenia/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Następna transakcja do sprawdzenia/i })).toBeNull();
+  });
+
+  it("maintains newest-first rendered order for review progression regardless of original transaction array order", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
+    const txJune: Transaction = {
+      id: "tx-order-june",
+      name: "",
+      amount: 500,
+      category: "Kredyty",
+      type: "expense",
+      account: "Główne",
+      isoDate: "2026-06-20",
+      debtId: "debt-test-1",
+      currency: "PLN"
+    };
+
+    const txMay: Transaction = {
+      id: "tx-order-may",
+      name: "Rata majowa",
+      amount: 500,
+      category: "Kredyty",
+      type: "expense",
+      account: "Główne",
+      isoDate: "2026-05-20",
+      debtId: "debt-test-1",
+      currency: undefined as any
+    };
+
+    const txApril: Transaction = {
+      id: "tx-order-april",
+      name: "",
+      amount: 500,
+      category: "Kredyty",
+      type: "expense",
+      account: "Główne",
+      isoDate: "2026-04-20",
+      debtId: "debt-test-1",
+      currency: "PLN"
+    };
+
+    // Pass in reverse order: April, June, May
+    render(
+      <DebtDetailsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        debt={mockDebt}
+        transactions={[txApril, txJune, txMay]}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Przejdź do pierwszej"));
+    // First in sorted newest-first order must be June 20
+    expect(screen.getByText("1 z 3")).toBeTruthy();
+    expect(document.activeElement).toBe(document.getElementById("review-row-tx-order-june"));
+
+    const nextBtn = screen.getByRole("button", { name: "Następna transakcja do sprawdzenia" });
+    fireEvent.click(nextBtn);
+    // Second in sorted order must be May 20
+    expect(screen.getByText("2 z 3")).toBeTruthy();
+    expect(document.activeElement).toBe(document.getElementById("review-row-tx-order-may"));
+
+    fireEvent.click(nextBtn);
+    // Third in sorted order must be April 20
+    expect(screen.getByText("3 z 3")).toBeTruthy();
+    expect(document.activeElement).toBe(document.getElementById("review-row-tx-order-april"));
+  });
+});
