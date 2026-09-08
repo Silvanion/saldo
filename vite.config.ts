@@ -96,6 +96,13 @@ export default defineConfig(() => {
               if (id.includes('papaparse')) {
                 return 'vendor-csv';
               }
+              if (
+                id.includes('recharts') ||
+                id.includes('d3-') ||
+                id.includes('victory-vendor')
+              ) {
+                return 'vendor-charts';
+              }
               if (id.includes('lucide-react')) {
                 return 'vendor-icons';
               }

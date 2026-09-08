@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Compass, TrendingDown, Award, Sliders, Check } from "lucide-react";
 import { DebtPayoffStrategyType } from "../../services/debtCalculations";
 
@@ -7,7 +7,7 @@ export interface DebtStrategyGuidanceCardProps {
   onSelectStrategy?: (strategy: DebtPayoffStrategyType) => void;
 }
 
-export function DebtStrategyGuidanceCard({
+export const DebtStrategyGuidanceCard = memo(function DebtStrategyGuidanceCard({
   selectedStrategy = "avalanche",
   onSelectStrategy
 }: DebtStrategyGuidanceCardProps) {
@@ -126,4 +126,4 @@ export function DebtStrategyGuidanceCard({
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, memo } from "react";
 import { Profile } from "../types";
 import { iconByCategory, budgetCategories, formatDate } from "../utils";
 import { formatMoney } from "../utils/format";
@@ -10,7 +10,7 @@ interface BudgetViewProps {
   onOpenBudgetModal: () => void;
 }
 
-export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetViewProps) {
+export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
 
@@ -239,4 +239,4 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from "react";
+import React, { useState, useEffect, useMemo, useRef, Suspense, lazy, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, DebtItem } from "../types";
 import { formatDate, iconByCategory, getLocalDateIso } from "../utils";
@@ -43,7 +43,7 @@ interface TransactionsViewProps {
   onNavigateToDebts?: (debtId?: string) => void;
 }
 
-export function TransactionsView({
+export const TransactionsView = memo(function TransactionsView({
   profile,
   onOpenTxModal,
   onDeleteTransaction,
@@ -783,7 +783,7 @@ export function TransactionsView({
             <div className="flex justify-center mt-4 border-t border-border pt-4" id="pagination-panel">
               <button
                 onClick={() => setItemsToShow((prev) => prev + 25)}
-                className="bg-brand-subtle text-brand hover:bg-brand-subtle/80 font-bold text-xs px-5 py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer border border-brand/20"
+                className="min-h-[44px] bg-brand-subtle text-brand hover:bg-brand-subtle/80 font-bold text-xs px-5 py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer border border-brand/20"
                 id="btn-load-more"
               >
                 Pokaż więcej ({filteredTransactions.length - itemsToShow} pozostało)
@@ -921,4 +921,4 @@ export function TransactionsView({
       )}
     </div>
   );
-}
+});

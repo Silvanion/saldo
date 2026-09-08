@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { DebtItem } from "../../types";
 import { formatMoney } from "../../utils/format";
 import {
@@ -273,7 +273,7 @@ export interface DebtPortfolioCardProps {
   onToggleStatus: (debtId: string) => void;
 }
 
-export function DebtPortfolioCard({
+export const DebtPortfolioCard = memo(function DebtPortfolioCard({
   debt,
   onOpenDetails,
   onOpenOverpayment,
@@ -626,4 +626,4 @@ export function DebtPortfolioCard({
       </div>
     </div>
   );
-}
+});
