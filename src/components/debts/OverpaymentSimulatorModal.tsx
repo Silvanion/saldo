@@ -101,7 +101,7 @@ export function OverpaymentSimulatorModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               aria-label="Zamknij"
             >
               <X className="w-5 h-5" />
@@ -124,7 +124,7 @@ export function OverpaymentSimulatorModal({
                     step="50"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
                     placeholder="1000"
                   />
                   <span className="absolute right-3 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
@@ -141,14 +141,14 @@ export function OverpaymentSimulatorModal({
                   value={frequency}
                   disabled={targetStrategy === "reduce_payment"}
                   onChange={(e) => setFrequency(e.target.value as any)}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <option value="monthly">Miesięczna</option>
                   <option value="one_time">Jednorazowa</option>
                   <option value="yearly">Roczna</option>
                 </select>
                 {targetStrategy === "reduce_payment" && (
-                  <p className="text-[10px] text-text-faint mt-1">
+                  <p className="text-xs text-text-faint mt-1">
                     Zmniejszenie raty liczy się zawsze jako jednorazowa wpłata — cykliczna nadpłata z definicji skraca okres spłaty, nie obniża raty.
                   </p>
                 )}
@@ -167,7 +167,7 @@ export function OverpaymentSimulatorModal({
                       setFrequency("one_time");
                     }
                   }}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
                 >
                   <option value="reduce_term">Skrócenie okresu spłaty</option>
                   <option value="reduce_payment">Zmniejszenie raty</option>
@@ -180,7 +180,7 @@ export function OverpaymentSimulatorModal({
               if (amortizationCheck && !amortizationCheck.isEligible) {
                 return (
                   <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
-                    <p className="text-[11px] text-text-muted">
+                    <p className="text-xs text-text-muted">
                       {amortizationCheck.errorMessage || "Przy obecnych parametrach nie da się oszacować wpływu nadpłaty."}
                     </p>
                   </div>
@@ -189,7 +189,7 @@ export function OverpaymentSimulatorModal({
               if (parsedAmount === 0) {
                 return (
                   <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
-                    <p className="text-[11px] text-text-muted">
+                    <p className="text-xs text-text-muted">
                       Wprowadź kwotę nadpłaty, aby zobaczyć porównanie.
                     </p>
                   </div>
@@ -217,7 +217,7 @@ export function OverpaymentSimulatorModal({
                         <span className="text-xs font-bold text-text-faint uppercase tracking-wider">
                           Scenariusz bazowy
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-offset text-text-muted">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-surface-offset text-text-muted">
                           Bez nadpłat
                         </span>
                       </div>
@@ -251,7 +251,7 @@ export function OverpaymentSimulatorModal({
                           <Sparkles className="w-3.5 h-3.5" />
                           Scenariusz po nadpłacie
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-brand text-text-inverse">
                           Symulacja
                         </span>
                       </div>
@@ -285,7 +285,7 @@ export function OverpaymentSimulatorModal({
                       <div className="flex items-center gap-3">
                         <TrendingDown className="w-6 h-6 shrink-0 opacity-90" />
                         <div>
-                          <span className="text-[11px] font-medium opacity-80 block">Oszczędność odsetek</span>
+                          <span className="text-xs font-medium opacity-80 block">Oszczędność odsetek</span>
                           <span className="text-lg font-black tracking-tight">
                             {formatMoney(simulation.interestSavings, currency)}
                           </span>
@@ -301,7 +301,7 @@ export function OverpaymentSimulatorModal({
                     <div className="p-3 bg-surface border border-brand/30 text-text-main rounded-xl flex items-center gap-3">
                       <Clock className="w-6 h-6 text-brand shrink-0" />
                       <div>
-                        <span className="text-[11px] font-medium text-text-muted block">
+                        <span className="text-xs font-medium text-text-muted block">
                           {targetStrategy === "reduce_term" ? "Oszczędność czasu" : "Zmniejszenie raty"}
                         </span>
                         <span className="text-lg font-black tracking-tight text-brand">
@@ -329,7 +329,7 @@ export function OverpaymentSimulatorModal({
           <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 bg-surface-2/20">
             <button
               onClick={onClose}
-              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             >
               Zamknij
             </button>

@@ -794,25 +794,25 @@ export function DebtsView({
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-y-3 gap-x-2 pt-1 text-xs text-text-muted">
             <div>
-              <span className="text-text-faint text-[11px] block">Saldo początkowe:</span>
+              <span className="text-text-faint text-xs block">Saldo początkowe:</span>
               <strong className="text-text-main font-bold tabular-nums">
                 {formatMoney(portfolioProgress.totalOriginal, currency)}
               </strong>
             </div>
             <div>
-              <span className="text-text-faint text-[11px] block">Aktualne saldo:</span>
+              <span className="text-text-faint text-xs block">Aktualne saldo:</span>
               <strong className="text-brand font-bold tabular-nums">
                 {formatMoney(portfolioProgress.totalCurrent, currency)}
               </strong>
             </div>
             <div>
-              <span className="text-text-faint text-[11px] block">Czynne umowy:</span>
+              <span className="text-text-faint text-xs block">Czynne umowy:</span>
               <strong className="text-text-main font-bold">
                 {kpiData.activeCount}
               </strong>
             </div>
             <div>
-              <span className="text-text-faint text-[11px] block">Spłacone umowy:</span>
+              <span className="text-text-faint text-xs block">Spłacone umowy:</span>
               <strong className="text-success font-bold">
                 {kpiData.closedCount}
               </strong>
@@ -832,7 +832,7 @@ export function DebtsView({
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+              <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
                 Najbliższy kamień milowy
               </span>
               <h4 className="text-sm sm:text-base font-bold text-text-main truncate mt-0.5" title={nearestMilestoneCandidate.debt.name}>
@@ -864,7 +864,7 @@ export function DebtsView({
             </div>
             <button
               onClick={() => setShowAnalyticsDetails(!showAnalyticsDetails)}
-              className="text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+              className="text-xs font-bold text-text-muted hover:text-text-main px-2.5 py-1 rounded-lg hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             >
               {showAnalyticsDetails ? "Zwiń" : "Rozwiń"}
             </button>
@@ -883,7 +883,7 @@ export function DebtsView({
                       <Sparkles className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                       <div>
                         <span className="text-xs font-bold text-text-main block">{sig.title}</span>
-                        <p className="text-[11px] text-text-muted leading-relaxed mt-0.5">{sig.description}</p>
+                        <p className="text-xs text-text-muted leading-relaxed mt-0.5">{sig.description}</p>
                       </div>
                     </div>
                   ))}
@@ -893,7 +893,7 @@ export function DebtsView({
               {/* Debt Mix Breakdown Table / Bars */}
               {analytics.debtMix.length > 0 && (
                 <div className="space-y-2 pt-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
                     Rozkład kapitału i miesięcznego obciążenia wg typu
                   </span>
 
@@ -906,7 +906,7 @@ export function DebtsView({
                         </div>
 
                         <div>
-                          <div className="flex justify-between text-[11px] text-text-muted mb-1">
+                          <div className="flex justify-between text-xs text-text-muted mb-1">
                             <span>Saldo ({mix.balanceSharePct}%):</span>
                             <span className="font-bold text-text-main tabular-nums">{formatMoney(mix.totalBalance, currency)}</span>
                           </div>
@@ -915,7 +915,7 @@ export function DebtsView({
                           </div>
                         </div>
 
-                        <div className="flex justify-between text-[11px] text-text-muted pt-1 border-t border-border/40">
+                        <div className="flex justify-between text-xs text-text-muted pt-1 border-t border-border/40">
                           <span>Miesięczna rata:</span>
                           <span className="font-semibold text-text-main tabular-nums">{formatMoney(mix.monthlyBurden, currency)}</span>
                         </div>
@@ -933,7 +933,7 @@ export function DebtsView({
       <div className="flex items-center gap-2 border-b border-border pb-1 overflow-x-auto custom-scrollbar">
         <button
           onClick={() => setActiveMainTab("portfolio")}
-          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
             activeMainTab === "portfolio"
               ? "bg-brand text-text-inverse shadow-xs"
               : "text-text-muted hover:text-text-main hover:bg-surface-2"
@@ -943,7 +943,7 @@ export function DebtsView({
           <Layers className="w-4 h-4" />
           <span>Portfel zobowiązań</span>
           <span
-            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+            className={`px-2 py-0.5 rounded-full text-xs font-bold ${
               activeMainTab === "portfolio"
                 ? "bg-text-inverse/20 text-text-inverse"
                 : "bg-surface-2 text-text-muted"
@@ -955,7 +955,7 @@ export function DebtsView({
 
         <button
           onClick={() => setActiveMainTab("scenarios")}
-          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
             activeMainTab === "scenarios"
               ? "bg-brand text-text-inverse shadow-xs"
               : "text-text-muted hover:text-text-main hover:bg-surface-2"
@@ -968,7 +968,7 @@ export function DebtsView({
 
         <button
           onClick={() => setActiveMainTab("offers")}
-          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
             activeMainTab === "offers"
               ? "bg-brand text-text-inverse shadow-xs"
               : "text-text-muted hover:text-text-main hover:bg-surface-2"
@@ -981,7 +981,7 @@ export function DebtsView({
 
         <button
           onClick={() => setActiveMainTab("knowledge")}
-          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+          className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
             activeMainTab === "knowledge"
               ? "bg-brand text-text-inverse shadow-xs"
               : "text-text-muted hover:text-text-main hover:bg-surface-2"
@@ -1002,10 +1002,10 @@ export function DebtsView({
             <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
               <button
                 onClick={() => setSelectedFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "all"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Wszystkie ({debts.length})
@@ -1013,10 +1013,10 @@ export function DebtsView({
 
               <button
                 onClick={() => setSelectedFilter("mortgage")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "mortgage"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Hipoteka ({debts.filter((d) => d.type === "mortgage" && d.status !== "closed").length})
@@ -1024,10 +1024,10 @@ export function DebtsView({
 
               <button
                 onClick={() => setSelectedFilter("cash_loan")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "cash_loan"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Kredyty gotówkowe ({debts.filter((d) => d.type === "cash_loan" && d.status !== "closed").length})
@@ -1035,10 +1035,10 @@ export function DebtsView({
 
               <button
                 onClick={() => setSelectedFilter("cards_and_limits")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "cards_and_limits"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Karty i limity ({debts.filter((d) => (d.type === "credit_card" || d.type === "revolving") && d.status !== "closed").length})
@@ -1046,10 +1046,10 @@ export function DebtsView({
 
               <button
                 onClick={() => setSelectedFilter("bnpl")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "bnpl"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Ratalne ({debts.filter((d) => d.type === "bnpl" && d.status !== "closed").length})
@@ -1057,10 +1057,10 @@ export function DebtsView({
 
               <button
                 onClick={() => setSelectedFilter("other")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedFilter === "other"
                     ? "bg-brand-subtle text-brand border border-brand/20"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                    : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                 }`}
               >
                 Inne ({debts.filter((d) => d.type === "other" && d.status !== "closed").length})
@@ -1069,10 +1069,10 @@ export function DebtsView({
               {kpiData.closedCount > 0 && (
                 <button
                   onClick={() => setSelectedFilter("closed")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                     selectedFilter === "closed"
                       ? "bg-brand-subtle text-brand border border-brand/20"
-                      : "text-text-muted hover:text-text-main hover:bg-surface-2"
+                      : "border border-transparent text-text-muted hover:text-text-main hover:bg-surface-2 hover:border-border"
                   }`}
                 >
                   Zamknięte ({kpiData.closedCount})
@@ -1090,7 +1090,7 @@ export function DebtsView({
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 aria-label="Sortuj zobowiązania"
-                className="bg-surface-2 border border-border text-xs font-bold text-text-main rounded-xl px-2.5 py-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                className="bg-surface-2 border border-border text-xs font-bold text-text-main rounded-xl px-2.5 py-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
               >
                 <option value="apr">Najwyższy APR / Koszt</option>
                 <option value="nearest_milestone">Najbliżej kolejnego kamienia milowego</option>
@@ -1128,7 +1128,7 @@ export function DebtsView({
                   ].map((badge) => (
                     <span
                       key={badge}
-                      className="px-2.5 py-1 rounded-lg bg-surface-2 border border-border text-[11px] font-semibold text-text-muted"
+                      className="px-2.5 py-1 rounded-lg bg-surface-2 border border-border text-xs font-semibold text-text-muted"
                     >
                       {badge}
                     </span>
@@ -1160,7 +1160,7 @@ export function DebtsView({
                     setSelectedFilter("all");
                     setSearchQuery("");
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand hover:text-text-inverse border border-brand/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] shadow-xs"
                 >
                   <span>Wyczyść filtry</span>
                 </button>
@@ -1331,7 +1331,7 @@ export function DebtsView({
                     </div>
                     <button
                       onClick={() => setSelectedDebtForRefinance(cand.debt)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover cursor-pointer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover cursor-pointer px-2 py-1 rounded-lg hover:bg-brand-subtle/30 transition-colors focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                     >
                       <span>Przelicz refinansowanie</span>
                       <ArrowRight className="w-3.5 h-3.5" />

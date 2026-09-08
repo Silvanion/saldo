@@ -105,7 +105,7 @@ export function DebtScenarioModals({
               <button
                 type="button"
                 onClick={onCloseSaveScenario}
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 aria-label="Zamknij"
               >
                 <X className="w-4 h-4" />
@@ -125,7 +125,7 @@ export function DebtScenarioModals({
                   value={scenarioNameInput}
                   onChange={(e) => onScenarioNameChange(e.target.value)}
                   placeholder="np. Wariant optymistyczny 750 zł"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                   autoFocus
                 />
               </div>
@@ -162,14 +162,14 @@ export function DebtScenarioModals({
                 <button
                   type="button"
                   onClick={onCloseSaveScenario}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={scenarioNameInput.trim().length < 2}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Zapisz scenariusz
                 </button>
@@ -211,7 +211,7 @@ export function DebtScenarioModals({
               <button
                 type="button"
                 onClick={onCloseRenameScenario}
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 aria-label="Zamknij"
               >
                 <X className="w-4 h-4" />
@@ -231,7 +231,7 @@ export function DebtScenarioModals({
                   value={renameScenarioInput}
                   onChange={(e) => onRenameScenarioInputChange(e.target.value)}
                   placeholder="np. Nowy wariant planu"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                   autoFocus
                 />
               </div>
@@ -240,14 +240,14 @@ export function DebtScenarioModals({
                 <button
                   type="button"
                   onClick={onCloseRenameScenario}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={renameScenarioInput.trim().length < 2}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Zapisz
                 </button>
@@ -279,7 +279,7 @@ export function DebtScenarioModals({
               <button
                 type="button"
                 onClick={onCloseDuplicateScenario}
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 aria-label="Zamknij"
               >
                 <X className="w-4 h-4" />
@@ -299,7 +299,7 @@ export function DebtScenarioModals({
                   value={duplicateScenarioInput}
                   onChange={(e) => onDuplicateScenarioInputChange(e.target.value)}
                   placeholder="np. Wariant bazowy — kopia"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                   autoFocus
                 />
               </div>
@@ -329,14 +329,14 @@ export function DebtScenarioModals({
                 <button
                   type="button"
                   onClick={onCloseDuplicateScenario}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={duplicateScenarioInput.trim().length < 2}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                 >
                   Utwórz kopię
                 </button>

@@ -85,7 +85,7 @@ export function KnowledgeAndBenchmarksTab({
             <div>
               <div className="text-2xl font-black text-text-main">{ltv.toFixed(1)}%</div>
               <p className="text-xs text-text-muted mt-1">Stosunek salda kredytu do wartości nieruchomości.</p>
-              <div className="mt-3 pt-3 border-t border-border/60 text-[11px] text-text-faint">
+              <div className="mt-3 pt-3 border-t border-border/60 text-xs text-text-faint">
                 <span className="flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-brand" />
                   Rekomendowany wkład własny: 20% (LTV ≤ 80%)
@@ -108,7 +108,7 @@ export function KnowledgeAndBenchmarksTab({
               <div className="text-2xl font-black text-text-main">{primaryMortgage.margin.toFixed(2)}%</div>
               <p className="text-xs text-text-muted mt-1">Twoja marża z umowy kredytowej.</p>
               
-              <div className="mt-auto pt-3 border-t border-border/60 text-[11px] text-text-faint space-y-2">
+              <div className="mt-auto pt-3 border-t border-border/60 text-xs text-text-faint space-y-2">
                 <div>
                   Zakres benchmarku: <strong className="text-text-main">{marginBenchmark.minValue.toFixed(2)}% – {marginBenchmark.maxValue.toFixed(2)}%</strong>
                 </div>
@@ -121,13 +121,13 @@ export function KnowledgeAndBenchmarksTab({
                         : "mieści się w obserwowanym zakresie."
                   }
                 </div>
-                <div className="pt-1 flex items-center justify-between text-[10px]">
+                <div className="pt-1 flex items-center justify-between text-xs">
                   <span>Data benchmarku: {marginBenchmark.asOf}</span>
                   <a href={marginBenchmark.sourceUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-brand transition">
                     Źródło: {marginBenchmark.sourceName} <ExternalLink className="w-2.5 h-2.5" />
                   </a>
                 </div>
-                <div className="pt-1 border-t border-border/30 text-[10px] text-text-faint italic">
+                <div className="pt-1 border-t border-border/30 text-xs text-text-faint italic">
                   Benchmark orientacyjny. {marginBenchmark.limitationsNote ? marginBenchmark.limitationsNote + ". " : ""}To porównanie ma charakter informacyjny, nie stanowi rekomendacji.
                 </div>
               </div>
@@ -153,11 +153,11 @@ export function KnowledgeAndBenchmarksTab({
             <div key={benchmark.id} className="p-4 bg-surface border border-border rounded-2xl shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand px-2 py-0.5 bg-brand-subtle rounded-md">
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand px-2 py-0.5 bg-brand-subtle rounded-md">
                     {benchmark.market}
                   </span>
                   {freshness === "needs_refresh" && (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-warning-main">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-warning-main">
                       <AlertTriangle className="w-3 h-3" />
                       Wymaga odświeżenia
                     </span>
@@ -174,7 +174,7 @@ export function KnowledgeAndBenchmarksTab({
                       : `${benchmark.minValue}${benchmark.unit === "percent" ? "%" : ""} – ${benchmark.maxValue}${benchmark.unit === "percent" ? "%" : ""}`}
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-border/60 text-[10px] text-text-muted space-y-2">
+              <div className="mt-4 pt-3 border-t border-border/60 text-xs text-text-muted space-y-2">
                 {benchmark.isOrientational && (
                   <div className="flex items-start gap-1 text-warning-main font-semibold bg-warning-subtle/30 p-1.5 rounded-md border border-warning-main/10">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -218,7 +218,7 @@ export function KnowledgeAndBenchmarksTab({
               <button
                 key={s.id}
                 onClick={() => setSelectedHistoryMetric(s.metric)}
-                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   selectedHistoryMetric === s.metric
                     ? "bg-surface-2 text-text-main border-border"
                     : "border-transparent text-text-muted hover:text-text-main"
@@ -238,7 +238,7 @@ export function KnowledgeAndBenchmarksTab({
               <button
                 key={opt.label}
                 onClick={() => setHistoryRangeMonths(opt.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   historyRangeMonths === opt.value
                     ? "bg-surface text-text-main shadow-xs border border-border"
                     : "text-text-muted hover:text-text-main"
@@ -332,7 +332,7 @@ export function KnowledgeAndBenchmarksTab({
                   }).reverse()}
                 </tbody>
               </table>
-              <div className="mt-3 text-[10px] text-text-faint italic">
+              <div className="mt-3 text-xs text-text-faint italic">
                 Tabela posortowana od najnowszych do najstarszych. To dane historyczne, nie prognoza.
               </div>
             </div>
@@ -382,7 +382,7 @@ export function KnowledgeAndBenchmarksTab({
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                     selectedCategory === cat
                       ? "bg-surface text-text-main shadow-xs border border-border"
                       : "text-text-muted hover:text-text-main"
@@ -400,7 +400,7 @@ export function KnowledgeAndBenchmarksTab({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj..."
-                className="w-full pl-9 pr-3 py-1.5 bg-surface border border-border rounded-xl text-xs text-text-main placeholder:text-text-faint focus:border-brand focus:ring-1 focus:ring-brand outline-hidden"
+                className="w-full pl-9 pr-3 py-1.5 bg-surface border border-border rounded-xl text-xs text-text-main placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none outline-hidden"
               />
             </div>
           </div>
@@ -420,7 +420,7 @@ export function KnowledgeAndBenchmarksTab({
                     type="button"
                     onClick={() => toggleArticle(art.id)}
                     aria-expanded={isExpanded}
-                    className="w-full text-left p-4 sm:p-5 flex items-center justify-between hover:bg-surface-hover/50 transition cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+                    className="w-full text-left p-4 sm:p-5 flex items-center justify-between hover:bg-surface-hover/50 transition cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
@@ -464,7 +464,7 @@ export function KnowledgeAndBenchmarksTab({
                             <button
                               type="button"
                               onClick={() => onNavigateToTools(art.relatedAction!.target)}
-                              className="px-3 py-1.5 bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-xs font-bold rounded-lg border border-border hover:border-brand transition cursor-pointer inline-flex items-center gap-1.5"
+                              className="px-3 py-1.5 bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-xs font-bold rounded-lg border border-border hover:border-brand transition cursor-pointer inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                             >
                               {art.relatedAction.label}
                               <ArrowRight className="w-3.5 h-3.5" />

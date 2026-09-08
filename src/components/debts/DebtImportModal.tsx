@@ -437,7 +437,7 @@ export function DebtImportModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               aria-label="Zamknij"
             >
               <X className="w-5 h-5" />
@@ -451,7 +451,7 @@ export function DebtImportModal({
               <div className="space-y-4">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/60 rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-3 focus-visible:ring-2 focus-visible:ring-focus-ring outline-none"
+                  className="border-2 border-dashed border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/60 rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-3 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none outline-none"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -502,20 +502,20 @@ export function DebtImportModal({
                     <FileText className="w-4 h-4 text-brand" />
                     Przykładowa struktura nagłówków CSV:
                   </span>
-                  <div className="bg-surface border border-border rounded-xl p-2.5 font-mono text-[11px] text-text-muted overflow-x-auto">
+                  <div className="bg-surface border border-border rounded-xl p-2.5 font-mono text-xs text-text-muted overflow-x-auto">
                     <code>Nazwa, Bank, Typ, Saldo, Rata, Oprocentowanie</code>
                     <br />
                     <code>Kredyt Hipoteczny, PKO BP, Hipoteka, 350000, 2450, 6.85</code>
                     <br />
                     <code>Karta Kredytowa, mBank, Karta, 4500, 250, 18.5</code>
                   </div>
-                  <p className="text-[11px] text-text-faint">
+                  <p className="text-xs text-text-faint">
                     Wymagane kolumny: <strong>Nazwa</strong> oraz <strong>Saldo</strong>. Pozostałe pola są opcjonalne (zostaną uzupełnione wartościami domyślnymi).
                   </p>
                 </div>
 
                 {/* Privacy note */}
-                <div className="flex items-center gap-2 text-[11px] text-text-muted bg-surface p-3 rounded-xl border border-border/60">
+                <div className="flex items-center gap-2 text-xs text-text-muted bg-surface p-3 rounded-xl border border-border/60">
                   <ShieldCheck className="w-4 h-4 text-success shrink-0" />
                   <span>
                     Pełna prywatność: Plik CSV jest analizowany w 100% lokalnie w Twojej przeglądarce. Żadne dane nie są wysyłane na serwer.
@@ -535,7 +535,7 @@ export function DebtImportModal({
                   </div>
                   <button
                     onClick={handleResetFile}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-text-muted hover:text-text-main transition cursor-pointer px-2 py-1 rounded-lg focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Zmień plik</span>
@@ -545,7 +545,7 @@ export function DebtImportModal({
                 {/* Counts bar */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="p-3 bg-success/10 border border-success/20 rounded-xl text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-success block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-success block">
                       Gotowe do importu
                     </span>
                     <span className="text-lg font-black text-success tabular-nums">
@@ -554,7 +554,7 @@ export function DebtImportModal({
                   </div>
 
                   <div className="p-3 bg-warning/10 border border-warning/20 rounded-xl text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-warning block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-warning block">
                       Z ostrzeżeniem
                     </span>
                     <span className="text-lg font-black text-warning tabular-nums">
@@ -563,7 +563,7 @@ export function DebtImportModal({
                   </div>
 
                   <div className="p-3 bg-danger/10 border border-danger/20 rounded-xl text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-danger block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-danger block">
                       Błędne (pominięte)
                     </span>
                     <span className="text-lg font-black text-danger tabular-nums">
@@ -596,28 +596,28 @@ export function DebtImportModal({
                         >
                           <div className="min-w-0 flex-1 space-y-0.5">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[11px] font-mono text-text-faint">
+                              <span className="text-xs font-mono text-text-faint">
                                 #{row.rawIndex}
                               </span>
                               <strong className="text-text-main font-bold truncate">
                                 {row.data?.name || row.raw.Nazwa || row.raw.Name || "Brak nazwy"}
                               </strong>
                               {row.data && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border">
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border">
                                   {row.data.institution} • {row.data.type}
                                 </span>
                               )}
                             </div>
 
                             {row.errors.length > 0 && (
-                              <p className="text-[11px] text-danger font-medium flex items-center gap-1">
+                              <p className="text-xs text-danger font-medium flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3 shrink-0" />
                                 {row.errors.join(", ")}
                               </p>
                             )}
 
                             {row.warnings.length > 0 && (
-                              <p className="text-[11px] text-warning font-medium flex items-center gap-1">
+                              <p className="text-xs text-warning font-medium flex items-center gap-1">
                                 <AlertTriangle className="w-3 h-3 shrink-0" />
                                 {row.warnings.join(", ")}
                               </p>
@@ -630,12 +630,12 @@ export function DebtImportModal({
                                 <span className="text-xs font-black text-text-main tabular-nums block">
                                   {formatMoney(row.data.balance, row.data.currency)}
                                 </span>
-                                <span className="text-[10px] text-text-muted block">
+                                <span className="text-xs text-text-muted block">
                                   Rata: {formatMoney(row.data.monthlyPayment, row.data.currency)} • {row.data.interestRate}%
                                 </span>
                               </div>
                             ) : (
-                              <span className="text-[10px] font-bold text-danger uppercase">
+                              <span className="text-xs font-bold text-danger uppercase">
                                 Niepoprawny
                               </span>
                             )}
@@ -653,7 +653,7 @@ export function DebtImportModal({
           <div className="p-5 sm:p-6 border-t border-border flex items-center justify-between shrink-0 bg-surface-2/30">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-border text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-border text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
             >
               Anuluj
             </button>
@@ -662,7 +662,7 @@ export function DebtImportModal({
               <button
                 onClick={handleConfirmImport}
                 disabled={parseResult.importableCount === 0}
-                className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer shadow-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="px-4 py-2.5 bg-brand text-text-inverse text-xs font-bold rounded-xl hover:bg-brand-hover active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer shadow-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 aria-label={`Zaimportuj ${parseResult.importableCount} zobowiązań`}
               >
                 <Check className="w-4 h-4" />

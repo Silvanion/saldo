@@ -238,7 +238,7 @@ export function DebtFormModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               aria-label="Zamknij formularz"
             >
               <X className="w-5 h-5" />
@@ -265,7 +265,7 @@ export function DebtFormModal({
                     key={t}
                     type="button"
                     onClick={() => setType(t)}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer flex items-center gap-2 ${
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                       type === t
                         ? "bg-brand-subtle text-brand border-brand/40 shadow-2xs"
                         : "bg-surface-2 text-text-muted hover:text-text-main border-border/70"
@@ -290,7 +290,7 @@ export function DebtFormModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={type === "mortgage" ? "Hipoteka mieszkanie" : "np. Karta Visa Gold"}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 />
               </div>
 
@@ -303,7 +303,7 @@ export function DebtFormModal({
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
                   placeholder="np. PKO BP, mBank, Santander"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 />
               </div>
 
@@ -319,7 +319,7 @@ export function DebtFormModal({
                     value={balance}
                     onChange={(e) => setBalance(e.target.value)}
                     placeholder="350000"
-                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
                   />
                   <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                     {currency}
@@ -338,13 +338,13 @@ export function DebtFormModal({
                     value={originalAmount}
                     onChange={(e) => setOriginalAmount(e.target.value)}
                     placeholder="np. 350000"
-                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
                   />
                   <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                     {currency}
                   </span>
                 </div>
-                <p className="text-[11px] text-text-faint mt-1">Do wyliczenia paska postępu spłaty. Zostaw puste, jeśli nie znasz.</p>
+                <p className="text-xs text-text-faint mt-1">Do wyliczenia paska postępu spłaty. Zostaw puste, jeśli nie znasz.</p>
               </div>
 
               <div>
@@ -359,7 +359,7 @@ export function DebtFormModal({
                     value={monthlyPayment}
                     onChange={(e) => setMonthlyPayment(e.target.value)}
                     placeholder="2500"
-                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
                   />
                   <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                     {currency}
@@ -379,7 +379,7 @@ export function DebtFormModal({
                     value={interestRate}
                     onChange={(e) => setInterestRate(e.target.value)}
                     placeholder="6.85"
-                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                    className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-8"
                   />
                   <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                     %
@@ -405,7 +405,7 @@ export function DebtFormModal({
                           value={baseRate}
                           onChange={(e) => setBaseRate(e.target.value)}
                           placeholder="np. 5.85"
-                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-8"
                         />
                         <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                           %
@@ -423,7 +423,7 @@ export function DebtFormModal({
                           value={margin}
                           onChange={(e) => setMargin(e.target.value)}
                           placeholder="np. 2.15"
-                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                          className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-8"
                         />
                         <span className="absolute right-3.5 top-2.5 text-xs text-text-muted font-bold pointer-events-none">
                           %
@@ -443,7 +443,7 @@ export function DebtFormModal({
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   placeholder="np. 2051 lub 11.2028"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 />
               </div>
 
@@ -455,7 +455,7 @@ export function DebtFormModal({
                   type="date"
                   value={nextPaymentDate}
                   onChange={(e) => setNextPaymentDate(e.target.value)}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 />
               </div>
             </div>
@@ -469,13 +469,13 @@ export function DebtFormModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1">
                       Rodzaj stopy
                     </label>
                     <select
                       value={rateType}
                       onChange={(e) => setRateType(e.target.value as any)}
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
                     >
                       <option value="fixed">Stała stopa</option>
                       <option value="variable">Zmienna stopa (WIBOR/WIRON)</option>
@@ -483,7 +483,7 @@ export function DebtFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1">
                       Koniec okresu stałej stopy
                     </label>
                     <input
@@ -491,12 +491,12 @@ export function DebtFormModal({
                       value={fixedRateEndDate}
                       onChange={(e) => setFixedRateEndDate(e.target.value)}
                       placeholder="np. 03.2028"
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1">
                       Szacowana wartość nieruchomości
                     </label>
                     <input
@@ -504,7 +504,7 @@ export function DebtFormModal({
                       value={propertyValue}
                       onChange={(e) => setPropertyValue(e.target.value)}
                       placeholder="np. 540000"
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums"
                     />
                   </div>
                 </div>
@@ -517,7 +517,7 @@ export function DebtFormModal({
                   Parametry karty / limitu
                 </h4>
                 <div>
-                  <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1">
                     Przyznany limit całkowity
                   </label>
                   <input
@@ -525,7 +525,7 @@ export function DebtFormModal({
                     value={creditLimit}
                     onChange={(e) => setCreditLimit(e.target.value)}
                     placeholder="np. 15000"
-                    className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
+                    className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums"
                   />
                 </div>
               </div>
@@ -540,7 +540,7 @@ export function DebtFormModal({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
                 >
                   <option value="active">Aktywne (spłacane)</option>
                   <option value="closed">Spłacone / Zamknięte</option>
@@ -556,7 +556,7 @@ export function DebtFormModal({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="np. Kredyt z dopłatą, numer umowy"
-                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-sm font-semibold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                 />
               </div>
             </div>
@@ -566,13 +566,13 @@ export function DebtFormModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 text-xs font-bold text-text-muted hover:text-text-main rounded-xl hover:bg-surface-2 transition cursor-pointer"
+                className="px-4 py-2.5 text-xs font-bold text-text-muted hover:text-text-main rounded-xl hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
               >
                 Anuluj
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               >
                 {isEditing ? "Zapisz zmiany" : "Dodaj zobowiązanie"}
               </button>

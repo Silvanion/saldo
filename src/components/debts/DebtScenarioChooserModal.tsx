@@ -55,7 +55,7 @@ export function DebtScenarioChooserModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               aria-label="Zamknij"
             >
               <X className="w-5 h-5" />
@@ -72,7 +72,7 @@ export function DebtScenarioChooserModal({
                 onSelectOffer();
                 onClose();
               }}
-              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring outline-none"
+              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] outline-none"
               aria-label="Wybierz: Nowa oferta refinansowania kredytu"
             >
               <div className="flex items-start justify-between gap-3">
@@ -84,7 +84,7 @@ export function DebtScenarioChooserModal({
                     <h3 className="text-sm sm:text-base font-bold text-text-main group-hover:text-brand transition-colors">
                       Nowa oferta / Refinansowanie
                     </h3>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-text-faint">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-text-faint">
                       Pojedynczy kredyt vs nowa propozycja banku
                     </span>
                   </div>
@@ -106,7 +106,7 @@ export function DebtScenarioChooserModal({
                 onSelectScenario();
                 onClose();
               }}
-              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring outline-none"
+              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] outline-none"
               aria-label="Wybierz: Nowy scenariusz spłaty portfela"
             >
               <div className="flex items-start justify-between gap-3">
@@ -118,7 +118,7 @@ export function DebtScenarioChooserModal({
                     <h3 className="text-sm sm:text-base font-bold text-text-main group-hover:text-brand transition-colors">
                       Scenariusz spłaty portfela
                     </h3>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-text-faint">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-text-faint">
                       Strategia spłaty całego portfela zadłużenia
                     </span>
                   </div>
@@ -137,7 +137,7 @@ export function DebtScenarioChooserModal({
           <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end shrink-0 bg-surface-2/30">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-border text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="px-4 py-2 rounded-xl border border-border text-xs font-bold text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
             >
               Zamknij
             </button>

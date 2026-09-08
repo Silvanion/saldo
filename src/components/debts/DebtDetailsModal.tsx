@@ -523,7 +523,7 @@ export function DebtDetailsModal({
 
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               aria-label="Zamknij szczegóły"
             >
               <X className="w-5 h-5" />
@@ -534,7 +534,7 @@ export function DebtDetailsModal({
           <div className="flex items-center gap-1 sm:gap-2 px-5 sm:px-6 border-b border-border bg-surface-2/20 overflow-x-auto custom-scrollbar shrink-0">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                 activeTab === "overview"
                   ? "border-brand text-brand"
                   : "border-transparent text-text-muted hover:text-text-main"
@@ -545,7 +545,7 @@ export function DebtDetailsModal({
 
             <button
               onClick={() => setActiveTab("history")}
-              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                 activeTab === "history"
                   ? "border-brand text-brand"
                   : "border-transparent text-text-muted hover:text-text-main"
@@ -553,7 +553,7 @@ export function DebtDetailsModal({
             >
               <span>Historia płatności</span>
               {activity.items.length > 0 && (
-                <span className="text-[10px] bg-brand-subtle text-brand px-1.5 py-0.5 rounded-full font-bold">
+                <span className="text-xs bg-brand-subtle text-brand px-2 py-0.5 rounded-full font-bold">
                   {activity.items.length}
                 </span>
               )}
@@ -561,7 +561,7 @@ export function DebtDetailsModal({
 
             <button
               onClick={() => setActiveTab("schedule")}
-              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                 activeTab === "schedule"
                   ? "border-brand text-brand"
                   : "border-transparent text-text-muted hover:text-text-main"
@@ -573,7 +573,7 @@ export function DebtDetailsModal({
             {(debt.type === "mortgage" || debt.type === "cash_loan" || debt.type === "bnpl" || debt.type === "other") && (
               <button
                 onClick={() => setActiveTab("overpayment")}
-                className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                   activeTab === "overpayment"
                     ? "border-brand text-brand"
                     : "border-transparent text-text-muted hover:text-text-main"
@@ -586,7 +586,7 @@ export function DebtDetailsModal({
             {debt.type === "mortgage" && (
               <button
                 onClick={() => setActiveTab("refinance")}
-                className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                   activeTab === "refinance"
                     ? "border-brand text-brand"
                     : "border-transparent text-text-muted hover:text-text-main"
@@ -598,7 +598,7 @@ export function DebtDetailsModal({
 
             <button
               onClick={() => setActiveTab("terms")}
-              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              className={`py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                 activeTab === "terms"
                   ? "border-brand text-brand"
                   : "border-transparent text-text-muted hover:text-text-main"
@@ -616,49 +616,49 @@ export function DebtDetailsModal({
                 {/* KPI Strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="p-4 rounded-2xl bg-surface-2/60 border border-border">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
                       Pozostały kapitał
                     </span>
                     <span className="text-lg sm:text-xl font-black text-text-main tabular-nums">
                       {formatMoney(debt.balance, currency)}
                     </span>
                     {debt.originalAmount && (
-                      <span className="text-[10px] text-text-muted block mt-0.5">
+                      <span className="text-xs text-text-muted block mt-0.5">
                         z {formatMoney(debt.originalAmount, currency)}
                       </span>
                     )}
                   </div>
 
                   <div className="p-4 rounded-2xl bg-surface-2/60 border border-border">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
                       Bieżąca rata
                     </span>
                     <span className="text-lg sm:text-xl font-black text-text-main tabular-nums">
                       {formatMoney(debt.monthlyPayment, currency)}
                     </span>
-                    <span className="text-[10px] text-text-muted block mt-0.5">miesięcznie</span>
+                    <span className="text-xs text-text-muted block mt-0.5">miesięcznie</span>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-surface-2/60 border border-border">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
                       Oprocentowanie / APR
                     </span>
                     <span className="text-lg sm:text-xl font-black text-brand tabular-nums">
                       {debt.interestRate.toFixed(2)}%
                     </span>
-                    <span className="text-[10px] text-text-muted block mt-0.5">
+                    <span className="text-xs text-text-muted block mt-0.5">
                       {debt.rateType === "fixed" ? "Stała stopa" : "Stawka zmienna"}
                     </span>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-surface-2/60 border border-border">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
                       Wskaźnik LTV
                     </span>
                     <span className="text-lg sm:text-xl font-black text-text-main tabular-nums">
                       {ltv !== null ? `${ltv}%` : "—"}
                     </span>
-                    <span className="text-[10px] text-text-muted block mt-0.5">
+                    <span className="text-xs text-text-muted block mt-0.5">
                       {debt.propertyValue ? `Wartość: ${formatMoney(debt.propertyValue, currency)}` : "Brak wyceny"}
                     </span>
                   </div>
@@ -681,20 +681,20 @@ export function DebtDetailsModal({
                       }${forecast ? ` Szacowane osiągnięcie progu ${forecast.nextMilestone}%: ${formatMilestoneForecastDate(forecast.estimatedDate)}.` : ""}`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold mb-2 flex-wrap gap-2">
-                        <span className="text-text-faint uppercase tracking-wider text-[11px]">
+                        <span className="text-text-faint uppercase tracking-wider text-xs">
                           Postęp spłaty kapitału
                         </span>
                         <div className="flex items-center gap-2 flex-wrap">
                           {repaymentProgress.isComplete ? (
-                            <span className="text-[11px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
+                            <span className="text-xs font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
                               Dług spłacony
                             </span>
                           ) : forecast ? (
-                            <span className="text-[11px] font-medium text-text-muted">
+                            <span className="text-xs font-medium text-text-muted">
                               Kolejny próg: <strong className="text-text-main">{forecast.nextMilestone}%</strong> (szac. {formatMilestoneForecastDate(forecast.estimatedDate)})
                             </span>
                           ) : repaymentProgress.nextMilestone ? (
-                            <span className="text-[11px] font-medium text-text-muted">
+                            <span className="text-xs font-medium text-text-muted">
                               Następny kamień: <strong className="text-text-main">{repaymentProgress.nextMilestone}%</strong>
                             </span>
                           ) : null}
@@ -713,7 +713,7 @@ export function DebtDetailsModal({
                           return (
                             <span
                               key={milestone}
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-bold transition-colors ${
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-xs font-bold transition-colors ${
                                 isReached
                                   ? "bg-brand-subtle text-brand border-brand/20"
                                   : "bg-surface-2/60 text-text-faint border-border/50"
@@ -732,7 +732,7 @@ export function DebtDetailsModal({
                       {forecast && (
                         <div className="mt-4 pt-3 border-t border-border/50">
                           <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                            <span className="text-[11px] font-bold text-text-muted">
+                            <span className="text-xs font-bold text-text-muted">
                               Wpływ nadpłaty na kolejny próg ({forecast.nextMilestone}%):
                             </span>
                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -741,7 +741,7 @@ export function DebtDetailsModal({
                                   key={preset}
                                   type="button"
                                   onClick={() => setHypotheticalOverpayment(String(preset))}
-                                  className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer border ${
+                                  className={`px-2 py-0.5 rounded text-xs font-bold transition cursor-pointer border focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none ${
                                     hypotheticalOverpayment === String(preset)
                                       ? "bg-brand text-white border-brand shadow-xs"
                                       : "bg-surface-2/60 text-text-muted hover:text-text-main border-border/60 hover:border-brand/40"
@@ -758,14 +758,14 @@ export function DebtDetailsModal({
                                   placeholder="Własna kwota"
                                   value={hypotheticalOverpayment}
                                   onChange={(e) => setHypotheticalOverpayment(e.target.value)}
-                                  className="w-24 px-2 py-0.5 text-[10px] rounded border border-border/60 bg-surface-2/40 text-text-main placeholder:text-text-faint focus:outline-none focus:border-brand"
+                                  className="w-24 px-2 py-0.5 text-xs rounded border border-border/60 bg-surface-2/40 text-text-main placeholder:text-text-faint focus:outline-none focus:border-brand"
                                   aria-label="Własna kwota hipotetycznej nadpłaty"
                                 />
                                 {hypotheticalOverpayment && (
                                   <button
                                     type="button"
                                     onClick={() => setHypotheticalOverpayment("")}
-                                    className="ml-1 text-[10px] text-text-faint hover:text-text-main cursor-pointer"
+                                    className="ml-1 text-xs text-text-faint hover:text-text-main cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                                     aria-label="Wyczyść kwotę nadpłaty"
                                   >
                                     ✕
@@ -783,31 +783,31 @@ export function DebtDetailsModal({
                             return (
                               <div className="space-y-2 mt-2">
                                 {impact.isImmediateCompletion ? (
-                                  <div className="text-[11px] font-medium text-success bg-success-subtle/50 px-2.5 py-1.5 rounded-lg border border-success/20">
+                                  <div className="text-xs font-medium text-success bg-success-subtle/50 px-2.5 py-1.5 rounded-lg border border-success/20">
                                     Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli całkowicie spłacić dług już teraz!
                                   </div>
                                 ) : impact.isImmediateAchievement ? (
-                                  <div className="text-[11px] font-medium text-brand bg-brand-subtle/50 px-2.5 py-1.5 rounded-lg border border-brand/20">
+                                  <div className="text-xs font-medium text-brand bg-brand-subtle/50 px-2.5 py-1.5 rounded-lg border border-brand/20">
                                     Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> pozwoli osiągnąć próg <strong>{impact.nextMilestone}%</strong> od razu.
                                   </div>
                                 ) : impact.monthsAccelerated > 0 ? (
-                                  <div className="text-[11px] font-medium text-text-main bg-surface-2/60 px-2.5 py-1.5 rounded-lg border border-border/60">
+                                  <div className="text-xs font-medium text-text-main bg-surface-2/60 px-2.5 py-1.5 rounded-lg border border-border/60">
                                     Nadpłata <strong>{formatMoney(overpaymentVal, currency)}</strong> przyspieszy próg <strong>{impact.nextMilestone}%</strong> o <strong>{impact.monthsAccelerated} mies.</strong> (szac. <strong>{formatMilestoneForecastDate(impact.adjustedEstimatedDate)}</strong> zamiast {formatMilestoneForecastDate(impact.baselineEstimatedDate)}).
                                   </div>
                                 ) : (
-                                  <div className="text-[11px] font-medium text-text-faint bg-surface-2/40 px-2.5 py-1.5 rounded-lg border border-border/40">
+                                  <div className="text-xs font-medium text-text-faint bg-surface-2/40 px-2.5 py-1.5 rounded-lg border border-border/40">
                                     Ta nadpłata nie zmienia szacowanego terminu kolejnego progu.
                                   </div>
                                 )}
 
                                 <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
-                                  <span className="text-[10px] text-text-faint">
+                                  <span className="text-xs text-text-faint">
                                     Przejdź do pełnej symulacji tej nadpłaty:
                                   </span>
                                   <button
                                     type="button"
                                     onClick={() => onOpenOverpaymentModal?.(debt, overpaymentVal)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand text-white hover:bg-brand-hover transition cursor-pointer shadow-xs"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-brand text-white hover:bg-brand-hover transition cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                                     aria-label={`Otwórz pełny symulator nadpłaty dla kwoty ${overpaymentVal} ${currency}`}
                                   >
                                     <span>Otwórz pełny symulator</span>
@@ -1637,14 +1637,14 @@ export function DebtDetailsModal({
 
                         {/* Order Selector */}
                         <div className="flex items-center gap-1.5">
-                          <label htmlFor="history-order-filter" className="text-[11px] font-bold text-text-muted">
+                          <label htmlFor="history-order-filter" className="text-xs font-bold text-text-muted">
                             Kolejność:
                           </label>
                           <select
                             id="history-order-filter"
                             value={historyOrder}
                             onChange={(e) => setHistoryOrder(e.target.value as DebtPaymentHistoryOrder)}
-                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus:ring-1 focus:ring-brand focus:border-brand cursor-pointer"
+                            className="bg-surface border border-border rounded-lg text-xs font-semibold text-text-main py-1 px-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
                           >
                             <option value="newest">Najnowsze</option>
                             <option value="oldest">Najstarsze</option>
@@ -1656,7 +1656,7 @@ export function DebtDetailsModal({
                           <button
                             type="button"
                             onClick={handleResetHistoryFilters}
-                            className="text-xs font-bold text-brand hover:underline px-1.5 py-1 cursor-pointer"
+                            className="text-xs font-bold text-brand hover:underline px-1.5 py-1 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                           >
                             Wyczyść filtry
                           </button>
@@ -1665,7 +1665,7 @@ export function DebtDetailsModal({
 
                       {/* Action & Count Indicator */}
                       <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
-                        <div className="text-[11px] font-medium text-text-muted shrink-0">
+                        <div className="text-xs font-medium text-text-muted shrink-0">
                           {filteredActivityItems.length === periodActivityItems.length
                             ? (historyPeriodPreset === "all"
                                 ? `Wyświetlane: ${periodActivityItems.length} płatności`
@@ -1679,7 +1679,7 @@ export function DebtDetailsModal({
                               type="button"
                               id="btn-export-history-csv"
                               onClick={handleExportCsv}
-                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                               aria-label="Eksport CSV"
                               title="Eksportuj widoczną historię do CSV"
                             >
@@ -1690,7 +1690,7 @@ export function DebtDetailsModal({
                               type="button"
                               id="btn-export-history-json"
                               onClick={handleExportJson}
-                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                              className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-surface-2 text-text-main hover:bg-surface-3 border border-border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                               aria-label="Eksport JSON"
                               title="Eksportuj widoczną historię do JSON"
                             >
@@ -1709,7 +1709,7 @@ export function DebtDetailsModal({
                               setLinkSearchQuery("");
                               setIsLinkModalOpen(true);
                             }}
-                            className="px-3 py-1.5 text-xs font-bold rounded-xl bg-brand text-text-inverse hover:bg-brand-hover transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            className="px-3 py-1.5 text-xs font-bold rounded-xl bg-brand text-text-inverse hover:bg-brand-hover transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                           >
                             <Link2 className="w-3.5 h-3.5" />
                             <span>Połącz z istniejącą transakcją</span>
@@ -1727,7 +1727,7 @@ export function DebtDetailsModal({
                         <button
                           type="button"
                           onClick={() => setHistoryPeriodPreset("all")}
-                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5"
+                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                         >
                           Pokaż całą historię
                         </button>
@@ -1740,7 +1740,7 @@ export function DebtDetailsModal({
                         <button
                           type="button"
                           onClick={handleResetHistoryFilters}
-                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5"
+                          className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-hover text-text-main border border-border transition-all cursor-pointer inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                         >
                           Wyczyść filtry
                         </button>

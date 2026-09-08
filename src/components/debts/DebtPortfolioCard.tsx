@@ -394,7 +394,7 @@ export function DebtPortfolioCard({
             {badges.map((b, idx) => (
               <span
                 key={idx}
-                className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border ${getBadgeClass(b.tone)} whitespace-nowrap`}
+                className={`text-xs font-bold px-2 py-0.5 rounded-lg border ${getBadgeClass(b.tone)} whitespace-nowrap`}
               >
                 {b.label}
               </span>
@@ -404,7 +404,7 @@ export function DebtPortfolioCard({
             <div className="flex items-center gap-1 ml-1">
               <button
                 onClick={() => onEdit(debt)}
-                className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-2 rounded-lg transition cursor-pointer"
+                className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-2 rounded-lg transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-95"
                 title="Edytuj zobowiązanie"
                 aria-label="Edytuj zobowiązanie"
               >
@@ -413,7 +413,7 @@ export function DebtPortfolioCard({
 
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-lg transition cursor-pointer"
+                className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-lg transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-95"
                 title="Usuń zobowiązanie"
                 aria-label="Usuń zobowiązanie"
               >
@@ -430,7 +430,7 @@ export function DebtPortfolioCard({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-2.5 py-1 text-text-muted hover:text-text-main bg-surface rounded-lg font-bold border border-border cursor-pointer"
+                className="px-2.5 py-1 text-text-muted hover:text-text-main bg-surface rounded-lg font-bold border border-border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-95"
               >
                 Anuluj
               </button>
@@ -439,7 +439,7 @@ export function DebtPortfolioCard({
                   setShowDeleteConfirm(false);
                   onDelete(debt.id);
                 }}
-                className="px-2.5 py-1 bg-danger text-text-inverse rounded-lg font-bold hover:bg-danger/90 cursor-pointer shadow-xs"
+                className="px-2.5 py-1 bg-danger text-text-inverse rounded-lg font-bold hover:bg-danger/90 cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-95"
               >
                 Usuń
               </button>
@@ -450,7 +450,7 @@ export function DebtPortfolioCard({
         {/* Financial Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 my-2 border-y border-border/50 bg-surface-2/40 rounded-xl px-3">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
               Aktualne saldo
             </span>
             <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
@@ -459,17 +459,17 @@ export function DebtPortfolioCard({
           </div>
 
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
               Miesięczna rata
             </span>
             <span className="text-sm sm:text-base font-black text-text-main tabular-nums">
               {formatMoney(debt.monthlyPayment, currency)}
-              <span className="text-[10px] text-text-muted font-normal"> /mc</span>
+              <span className="text-xs text-text-muted font-normal"> /mc</span>
             </span>
           </div>
 
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
               Oprocentowanie / APR
             </span>
             <span
@@ -482,7 +482,7 @@ export function DebtPortfolioCard({
           </div>
 
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block">
               Horyzont spłaty
             </span>
             <span className="text-sm sm:text-base font-bold text-text-main truncate block" title={debt.endDate || "Brak"}>
@@ -522,7 +522,7 @@ export function DebtPortfolioCard({
                   return (
                     <span
                       key={milestone}
-                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${
+                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold border transition-colors ${
                         isReached
                           ? "bg-brand-subtle text-brand border-brand/20"
                           : "bg-surface-2/40 text-text-faint border-border/40"
@@ -538,7 +538,7 @@ export function DebtPortfolioCard({
               </div>
               {/* SPRINT 42: Next Milestone Forecast */}
               {forecast && (
-                <div className="mt-1.5 text-[10px] text-text-muted flex items-center justify-between">
+                <div className="mt-1.5 text-xs text-text-muted flex items-center justify-between">
                   <span>Kolejny próg: <strong className="text-text-main">{forecast.nextMilestone}%</strong></span>
                   <span className="font-medium text-text-faint">szac. {formatMilestoneForecastDate(forecast.estimatedDate)}</span>
                 </div>
@@ -581,7 +581,7 @@ export function DebtPortfolioCard({
           {(debt.type === "mortgage" || debt.type === "cash_loan") && !isClosed && (
             <button
               onClick={() => onOpenOverpayment(debt)}
-              className="px-3 py-1.5 bg-brand-subtle hover:bg-brand-subtle/80 text-brand text-xs font-bold rounded-lg border border-brand/20 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="px-3 py-1.5 bg-brand-subtle hover:bg-brand-subtle/80 text-brand text-xs font-bold rounded-lg border border-brand/20 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
             >
               Symulator nadpłaty
             </button>
@@ -591,7 +591,7 @@ export function DebtPortfolioCard({
           {debt.type === "mortgage" && !isClosed && (
             <button
               onClick={() => onOpenRefinance(debt)}
-              className="px-3 py-1.5 bg-surface hover:bg-surface-hover text-text-muted hover:text-text-main text-xs font-bold rounded-lg border border-border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="px-3 py-1.5 bg-surface hover:bg-surface-hover text-text-muted hover:text-text-main text-xs font-bold rounded-lg border border-border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
             >
               Refinansowanie
             </button>
@@ -600,7 +600,7 @@ export function DebtPortfolioCard({
           {/* Close/Reopen Toggle Button */}
           <button
             onClick={() => onToggleStatus(debt.id)}
-            className="px-2.5 py-1.5 text-text-muted hover:text-text-main hover:bg-surface-2 text-xs font-semibold rounded-lg border border-border/60 transition cursor-pointer flex items-center gap-1"
+            className="px-2.5 py-1.5 text-text-muted hover:text-text-main hover:bg-surface-2 text-xs font-bold rounded-lg border border-border/60 transition cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
           >
             {isClosed ? (
               <>
@@ -618,7 +618,7 @@ export function DebtPortfolioCard({
 
         <button
           onClick={() => onOpenDetails(debt, "overview")}
-          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover p-1.5 transition-colors cursor-pointer group/btn ml-auto"
+          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/30 transition-colors cursor-pointer group/btn ml-auto focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
         >
           <span>Szczegóły</span>
           <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
