@@ -5,6 +5,7 @@ import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { BudgetView } from "./BudgetView";
+import { BudgetModal } from "./Modals";
 import { Profile, Transaction } from "../types";
 
 describe("BudgetView (Header metrics, CTA, Alert banners & Category cards)", () => {
@@ -131,5 +132,40 @@ describe("BudgetView (Header metrics, CTA, Alert banners & Category cards)", () 
 
     // Empty state for categories with no expenses
     expect(screen.getAllByText("Brak wydatków w tym miesiącu").length).toBeGreaterThan(0);
+  });
+});
+
+describe("BudgetModal (UI unification, inputs, close & submission)", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("renders when open and handles form changes and submission", () => {
+    const onClose = vi.fn();
+    const onSave = vi.fn();
+    const currentBudgets = { "Żywność": 1000 };
+
+    render(
+      <BudgetModal
+        isOpen={true}
+        onClose={onClose}
+        currentBudgets={currentBudgets}
+        onSave={onSave}
+      />
+    );
+
+    expect(screen.getByText("Ustaw limity wydatków")).toBeTruthy();
+
+    // Check close button has min 44px touch target
+    const closeBtn = screen.getByLabelText("Zamknij");
+    expect(closeBtn.className).toContain("min-h-[44px]");
+    fireEvent.click(closeBtn);
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    // Check submit button has min 44px touch target
+    const submitBtn = screen.getByRole("button", { name: /Zapisz limity/i });
+    expect(submitBtn.className).toContain("min-h-[44px]");
+    fireEvent.click(submitBtn);
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ "Żywność": 1000 }));
   });
 });

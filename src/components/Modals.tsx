@@ -287,7 +287,12 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
             <p className="text-xs font-medium text-text-muted truncate" title="Limity Miesięczne">Limity Miesięczne</p>
             <h2 id="budget-modal-title" className="text-2xl font-bold text-text-main truncate" title="Ustaw limity wydatków">Ustaw limity wydatków</h2>
           </div>
-          <button onClick={onClose} aria-label="Zamknij" className="text-2xl text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 ml-4 shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-budget-modal">
+          <button
+            onClick={onClose}
+            aria-label="Zamknij"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center text-2xl text-text-muted hover:text-text-main hover:bg-surface-offset rounded-full transition-all active:scale-[0.95] ml-4 shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
+            id="close-budget-modal"
+          >
             &times;
           </button>
         </div>
@@ -304,7 +309,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
                   placeholder="Brak limitu"
                   value={budgets[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
+                  className="w-full min-h-[44px] rounded-xl border border-border bg-surface px-3 py-2.5 text-xs font-semibold text-text-main placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none transition-colors"
                   id={`input-budget-${category}`}
                 />
               </div>
@@ -317,7 +322,7 @@ export function BudgetModal({ isOpen, onClose, currentBudgets, onSave }: BudgetM
             type="submit"
             form="budget-modal-form"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full min-h-[44px] rounded-xl bg-brand py-3 text-xs font-bold text-text-inverse shadow-xs hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             id="btn-budget-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz limity"}

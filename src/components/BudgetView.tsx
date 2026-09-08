@@ -65,7 +65,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               Budżety miesięczne
             </h2>
             {totalPlannedBudget > 0 && (
-              <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold shrink-0 border ${
+              <span className={`text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full font-bold shrink-0 border ${
                 globalBudgetRatio > 100
                   ? "bg-danger-subtle text-danger border-danger/30"
                   : globalBudgetRatio > 80
@@ -101,10 +101,10 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
         <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 shrink-0 w-full md:w-auto mt-3 md:mt-0 md:justify-end">
           <button
             onClick={onOpenBudgetModal}
-            className="w-full sm:w-auto bg-brand text-text-inverse font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full sm:w-auto min-h-[44px] bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             id="btn-edit-budget-limits"
           >
-            <SlidersHorizontal className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+            <SlidersHorizontal className="w-4 h-4 text-text-inverse" />
             <span>Modyfikuj limity</span>
           </button>
         </div>
@@ -126,7 +126,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
           return (
             <div
               key={category}
-              className="bg-surface p-5 rounded-2xl border border-border shadow-sm hover:border-brand/30 transition-colors flex flex-col justify-between space-y-4 min-w-0"
+              className="bg-surface p-5 rounded-2xl border border-border shadow-xs hover:border-brand/30 transition-colors flex flex-col justify-between space-y-4 min-w-0"
             >
               <div className="min-w-0">
                 <div className="flex justify-between items-start min-w-0 gap-2">
@@ -183,14 +183,14 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                     </p>
                   </div>
                 ) : limit > 0 ? (
-                  <div className="mt-2 flex justify-between items-center text-[11px] text-text-faint px-0.5">
+                  <div className="mt-2 flex justify-between items-center text-xs text-text-faint px-0.5">
                     <span>Pozostało do limitu:</span>
                     <span className="font-semibold text-text-muted tabular-nums">
                       {formatMoney(limit - spent, profile.currency || 'PLN')}
                     </span>
                   </div>
                 ) : (
-                  <div className="mt-2 text-[11px] text-text-faint px-0.5">
+                  <div className="mt-2 text-xs text-text-faint px-0.5">
                     Brak ustalonego limitu dla tej kategorii.
                   </div>
                 )}
@@ -199,11 +199,11 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
               {/* Small list of category transactions */}
               <div className="border-t border-border/80 pt-3 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <p className="text-[10px] uppercase font-bold text-text-faint tracking-wider truncate" title="Ostatnie wydatki w tej kategorii">
+                  <p className="text-xs uppercase font-bold text-text-faint tracking-wider truncate" title="Ostatnie wydatki w tej kategorii">
                     Ostatnie wydatki
                   </p>
                   {catTransactions.length > 0 && (
-                    <span className="text-[10px] font-bold text-text-faint tabular-nums">
+                    <span className="text-xs font-bold text-text-faint tabular-nums">
                       {catTransactions.length} {catTransactions.length === 1 ? 'wpis' : catTransactions.length < 5 ? 'wpisy' : 'wpisów'}
                     </span>
                   )}
@@ -221,7 +221,7 @@ export function BudgetView({ profile, selectedDate, onOpenBudgetModal }: BudgetV
                       <div key={t.id} className="flex justify-between items-center text-xs min-w-0 gap-2">
                         <div className="min-w-0 flex-1 flex items-center gap-1.5">
                           <span className="text-text-muted truncate font-medium" title={t.name}>{t.name}</span>
-                          <span className="text-[10px] text-text-faint shrink-0 whitespace-nowrap">
+                          <span className="text-xs text-text-faint shrink-0 whitespace-nowrap">
                             {formatDate(t.isoDate)}
                           </span>
                         </div>
