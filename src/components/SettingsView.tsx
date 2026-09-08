@@ -111,6 +111,7 @@ interface SettingsViewProps {
   transactionRules: TransactionRule[];
   onSaveTransactionRules: (rules: TransactionRule[]) => void;
   onSaveAccounts: (accounts: BankAccount[]) => void;
+  onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
 }
 
 export function BankAccountsManager({
@@ -367,7 +368,8 @@ export function SettingsView({
   onSaveAccounts,
   calendarToken,
   onConnectCalendar,
-  unlockedProfileId
+  unlockedProfileId,
+  onOpenExportReports
 }: SettingsViewProps) {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
@@ -2154,10 +2156,26 @@ export function SettingsView({
 
         <div className="space-y-4">
           <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
-            <h4 className="text-sm font-bold text-text-main mb-3">Eksport danych aktywnego profilu</h4>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-bold text-text-main">Eksport danych i raporty</h4>
+              {onOpenExportReports && (
+                <button
+                  type="button"
+                  onClick={() => onOpenExportReports()}
+                  className="text-xs text-brand font-bold hover:underline flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <span>Centrum raportów</span>
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={() => {
+                  if (onOpenExportReports) {
+                    onOpenExportReports("csv");
+                    return;
+                  }
                   if (activeProfile && activeProfile.transactions) {
                     const csv = generateCsvContent(activeProfile.transactions);
                     downloadFile(csv, `saldo-${activeProfile.name}-transakcje.csv`, "text/csv;charset=utf-8;");
@@ -2171,6 +2189,10 @@ export function SettingsView({
               <div className="flex flex-col gap-1">
                 <button
                   onClick={async () => {
+                    if (onOpenExportReports) {
+                      onOpenExportReports("pdf");
+                      return;
+                    }
                     if (activeProfile) {
                       try {
                         const { generateReportPdf } = await import("../services/pdfGenerator");

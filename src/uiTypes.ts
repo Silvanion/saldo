@@ -32,6 +32,7 @@ export type ModalType =
   | "changelog"
   | "confirm"
   | "smartRulesManager"
+  | "exportReports"
   | null;
 
 export type ModalState =
@@ -47,4 +48,5 @@ export type ModalState =
   | { type: "changelog" }
   | { type: "confirm"; payload: ConfirmPayload }
   | { type: "smartRulesManager" }
+  | { type: "exportReports"; payload?: { initialTab?: "pdf" | "csv" | "backup" } }
   | { type: null };

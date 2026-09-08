@@ -45,9 +45,10 @@ interface AnalysisViewProps {
   recurringRules?: RecurringRule[];
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
   onChangeView?: (view: string) => void;
+  onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
 }
 
-export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -276,6 +277,10 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
         <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 shrink-0 w-full md:w-auto mt-3 md:mt-0 md:justify-end">
           <button
             onClick={async () => {
+              if (onOpenExportReports) {
+                onOpenExportReports("pdf");
+                return;
+              }
               try {
                 const { generateReportPdf } = await import("../services/pdfGenerator");
                 generateReportPdf(profile, currentYear, currentMonthIdx, profile.currency || "PLN");

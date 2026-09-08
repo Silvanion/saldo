@@ -46,6 +46,7 @@ export interface CommandPaletteModalProps {
   onOpenCalendarReminder?: (prefill: Partial<Payment>) => void;
   onOpenGoalModal: () => void;
   onOpenSmartRulesManager?: () => void;
+  onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
   onOpenImportCsvModal?: () => void;
   onExportData?: () => void;
   theme?: "dark" | "light";
@@ -77,6 +78,7 @@ export function CommandPaletteModal({
   onOpenCalendarReminder,
   onOpenGoalModal,
   onOpenSmartRulesManager,
+  onOpenExportReports,
   onOpenImportCsvModal,
   onExportData,
   theme = "dark",
@@ -259,6 +261,18 @@ export function CommandPaletteModal({
       }
     ];
 
+    if (onOpenExportReports) {
+      items.push({
+        id: "action-export-reports",
+        category: "actions",
+        title: "Centrum Raportów i Eksportu (PDF, CSV)",
+        subtitle: "Generuj raporty PDF, pobieraj pliki CSV lub twórz kopię bazy",
+        icon: <FileSpreadsheet className="w-4 h-4 text-brand" />,
+        keywords: ["raport", "eksport", "pdf", "csv", "zestawienie", "roczne", "miesięczne", "pobierz"],
+        onSelect: () => onOpenExportReports()
+      });
+    }
+
     if (onOpenImportCsvModal) {
       items.push({
         id: "action-import-csv",
@@ -296,7 +310,7 @@ export function CommandPaletteModal({
     }
 
     return items;
-  }, [onOpenTransactionModal, onOpenPaymentModal, onOpenGoalModal, onOpenImportCsvModal, onExportData, theme, onToggleTheme, setActiveView]);
+  }, [onOpenTransactionModal, onOpenPaymentModal, onOpenGoalModal, onOpenExportReports, onOpenImportCsvModal, onExportData, theme, onToggleTheme, setActiveView]);
 
   // Build profile items
   const profileItems: PaletteItem[] = useMemo(() => {

@@ -326,6 +326,7 @@ export function AppViewRouter({
             recurringRules={state?.recurringRules || activeProfile?.recurringRules || []}
             showToast={showToast}
             onChangeView={onChangeView}
+            onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
           />
         );
       case "settings":
@@ -347,6 +348,7 @@ export function AppViewRouter({
             recurringRules={activeProfile?.recurringRules || []}
             onSaveRecurringRules={handleSaveRecurringRules}
             onSaveAccounts={handleSaveAccounts}
+            onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
             onExportData={onExportData}
             onResetData={onResetData}
             googleUser={googleUser}

@@ -19,6 +19,7 @@ const CalendarReminderModal = lazy(() => import("../components/CalendarReminderM
 const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m => ({ default: m.ChangelogModal })));
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
 const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
+const ExportReportsModal = lazy(() => import("../components/modals/ExportReportsModal").then(m => ({ default: m.ExportReportsModal })));
 
 export function ModalManager() {
   const {
@@ -182,6 +183,20 @@ export function ModalManager() {
           onClose={closeModal}
           payload={modalState.payload}
         />
+      )}
+      {modalState.type === "exportReports" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować centrum raportów">
+          <Suspense fallback={<ModalFallback />}>
+            <ExportReportsModal
+              isOpen={true}
+              onClose={closeModal}
+              activeProfile={activeProfile}
+              initialTab={modalState.payload?.initialTab}
+              onExportData={handleExportData}
+              showToast={showToast}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </>
   );

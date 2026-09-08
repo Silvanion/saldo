@@ -27,7 +27,8 @@ import {
   Info,
   ArrowLeftRight,
   LogOut,
-  Search
+  Search,
+  FileSpreadsheet
 } from "lucide-react";
 
 export function AppShell({
@@ -488,6 +489,18 @@ export function AppShell({
                 <span className="hidden sm:inline">Przełącz profil</span>
               </button>
             )}
+            {activeProfile && (
+              <button
+                onClick={() => openModal("exportReports")}
+                className="flex items-center gap-1.5 py-2 px-2.5 sm:px-3 bg-surface border border-border hover:bg-surface-2 hover:border-brand/30 text-text-main font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                id="btn-header-export-reports"
+                title="Eksport i raporty (PDF, CSV, Backup)"
+                aria-label="Otwórz centrum raportów i eksportu"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-brand" />
+                <span className="hidden md:inline">Raporty</span>
+              </button>
+            )}
             {activeProfile && !isProfileLocked && (
               <button
                 onClick={onQuickAdd}
@@ -598,6 +611,7 @@ export function AppShell({
               onOpenCalendarReminder={(prefill) => openModal("calendarAi", prefill)}
               onOpenGoalModal={() => openModal("goal")}
               onOpenSmartRulesManager={() => openModal("smartRulesManager")}
+              onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
               onExportData={handleExportData}
               theme={theme === "dark" ? "dark" : "light"}
               onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
