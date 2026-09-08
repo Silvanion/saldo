@@ -36,7 +36,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
               <Gem className="w-4 h-4" />
             </span>
             <p className="text-xs font-bold text-text-faint uppercase tracking-wider">Majątek Netto (Net Worth)</p>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-full border border-border">
+            <span className="text-xs font-bold uppercase tracking-wider bg-surface-2 text-text-muted px-2 py-0.5 rounded-full border border-border">
               Moduł informacyjny
             </span>
           </div>
@@ -52,7 +52,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
 
         <div className="flex items-center gap-2 self-start sm:self-center">
           <div className="text-left sm:text-right">
-            <p className="text-[11px] text-text-faint font-medium">Stosunek Aktywów</p>
+            <p className="text-xs text-text-faint font-medium">Stosunek Aktywów</p>
             <p className="text-xs font-bold text-brand">
               {totalAssets > 0 ? `${Math.round(((totalAssets - totalLiabilities) / totalAssets) * 100)}% kapitału własnego` : "100% kapitału własnego"}
             </p>
@@ -68,14 +68,14 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
             <span className="text-xs font-bold text-text-muted flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-brand" /> Środki płynne i cele
             </span>
-            <span className="text-[10px] font-bold text-text-faint">
+            <span className="text-xs font-bold text-text-faint">
               {totalAssets > 0 ? `${Math.round((totalLiquidAndGoals / totalAssets) * 100)}%` : "0%"}
             </span>
           </div>
           <p className="text-xl font-black text-text-main">
             {formatMoney(totalLiquidAndGoals, currency)}
           </p>
-          <div className="text-[11px] text-text-faint flex justify-between pt-1 border-t border-border/50">
+          <div className="text-xs text-text-faint flex justify-between pt-1 border-t border-border/50">
             <span>Operacyjne: {formatMoney(liquidAssets, currency)}</span>
             <span>Cele: {formatMoney(goalsAssets, currency)}</span>
           </div>
@@ -87,14 +87,14 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
             <span className="text-xs font-bold text-text-muted flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-brand" /> Kapitał inwestycyjny
             </span>
-            <span className="text-[10px] font-bold text-text-faint">
+            <span className="text-xs font-bold text-text-faint">
               {totalAssets > 0 ? `${Math.round((investmentsAssets / totalAssets) * 100)}%` : "0%"}
             </span>
           </div>
           <p className="text-xl font-black text-text-main">
             {formatMoney(investmentsAssets, currency)}
           </p>
-          <p className="text-[11px] text-text-faint pt-1 border-t border-border/50 truncate">
+          <p className="text-xs text-text-faint pt-1 border-t border-border/50 truncate">
             IKE, IKZE, obligacje skarbowe, ETF
           </p>
         </div>
@@ -106,7 +106,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
               <CreditCard className="w-3.5 h-3.5 text-danger" /> Zobowiązania ogółem
             </span>
             {totalLiabilities > 0 && (
-              <span className="text-[10px] font-bold text-danger bg-danger-subtle px-1.5 py-0.5 rounded border border-danger/20">
+              <span className="text-xs font-bold text-danger bg-danger-subtle px-1.5 py-0.5 rounded border border-danger/20">
                 Do spłaty
               </span>
             )}
@@ -114,7 +114,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
           <p className="text-xl font-black text-danger">
             {formatMoney(totalLiabilities, currency)}
           </p>
-          <div className="text-[11px] text-text-faint flex justify-between pt-1 border-t border-border/50">
+          <div className="text-xs text-text-faint flex justify-between pt-1 border-t border-border/50">
             <span>Rachunki: {formatMoney(unpaidLiabilities, currency)}</span>
             <span>Limity: {formatMoney(creditLiabilities, currency)}</span>
           </div>
@@ -128,7 +128,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
             <span className="flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5" /> Struktura klas aktywów
             </span>
-            <span className="text-[11px] text-text-faint">Łącznie: {formatMoney(totalAssets, currency)}</span>
+            <span className="text-xs text-text-faint">Łącznie: {formatMoney(totalAssets, currency)}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {assetClasses.map((ac, idx) => (
@@ -138,7 +138,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
               >
                 <span className="font-semibold text-text-main">{ac.name}:</span>
                 <span className="font-bold text-text-muted">{formatMoney(ac.amount, currency)}</span>
-                <span className="text-[10px] font-bold text-text-faint bg-surface px-1.5 py-0.5 rounded">
+                <span className="text-xs font-bold text-text-faint bg-surface px-1.5 py-0.5 rounded">
                   {ac.percent}%
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { Camera, Loader2, Lock, AlertTriangle, Download } from "lucide-react";
+import { Camera, Loader2, Lock, AlertTriangle, Download, X } from "lucide-react";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
@@ -67,31 +67,36 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
        ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
-            <p className="text-xs font-medium text-text-muted truncate" title="Oszczędności">Oszczędności</p>
+            <p className="text-xs font-semibold text-text-muted truncate" title="Oszczędności">Oszczędności</p>
             <h2 id="goal-modal-title" className="text-2xl font-bold text-text-main truncate" title="Nowy cel oszczędnościowy">Nowy cel oszczędnościowy</h2>
           </div>
-          <button onClick={onClose} aria-label="Zamknij" className="text-2xl text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 ml-4 shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-goal-modal">
-            &times;
+          <button
+            onClick={onClose}
+            aria-label="Zamknij"
+            className="text-text-muted hover:text-text-main hover:bg-surface-offset min-h-[44px] min-w-[44px] w-11 h-11 flex items-center justify-center rounded-xl transition-colors active:scale-95 ml-4 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
+            id="close-goal-modal"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto min-w-0 p-6 custom-scrollbar">
           <form id="goal-modal-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Nazwa celu (np. Wakacje)" htmlFor="input-goal-name">Nazwa celu (np. Wakacje)</label>
+              <label className="block text-xs font-semibold text-text-muted mb-1 truncate" title="Nazwa celu (np. Wakacje)" htmlFor="input-goal-name">Nazwa celu (np. Wakacje)</label>
               <input
                 required
                 maxLength={120}
                 placeholder="np. Poduszka finansowa, Remont, Nowy laptop"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
+                className="w-full min-h-[44px] rounded-xl border border-border bg-surface px-3 py-2.5 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-colors"
                 id="input-goal-name"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota docelowa (zł)" htmlFor="input-goal-target">Kwota docelowa (zł)</label>
+              <label className="block text-xs font-semibold text-text-muted mb-1 truncate" title="Kwota docelowa (zł)" htmlFor="input-goal-target">Kwota docelowa (zł)</label>
               <input
                 required
                 type="number"
@@ -99,7 +104,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                 placeholder="np. 15000"
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
+                className="w-full min-h-[44px] rounded-xl border border-border bg-surface px-3 py-2.5 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-colors"
                 id="input-goal-target"
               />
             </div>
@@ -111,7 +116,7 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
             type="submit"
             form="goal-modal-form"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full min-h-[44px] rounded-xl bg-brand py-2.5 px-4 text-xs font-bold text-text-inverse shadow-sm hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             id="btn-goal-submit"
           >
             {isSubmitting ? "Tworzenie..." : "Utwórz cel"}
@@ -175,18 +180,23 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
        ref={modalRef}>
         <div className="shrink-0 p-6 pb-4 border-b border-border flex items-start justify-between min-w-0">
           <div className="min-w-0">
-            <p className="text-xs font-medium text-text-muted truncate" title="Transfer Celu">Transfer Celu</p>
+            <p className="text-xs font-semibold text-text-muted truncate" title="Transfer Celu">Transfer Celu</p>
             <h2 id="goal-deposit-modal-title" className="text-2xl font-bold text-text-main truncate" title={`Transfer: ${goalName}`}>Transfer: {goalName}</h2>
           </div>
-          <button onClick={onClose} aria-label="Zamknij" className="text-2xl text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 ml-4 shrink-0 leading-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-goal-deposit-modal">
-            &times;
+          <button
+            onClick={onClose}
+            aria-label="Zamknij"
+            className="text-text-muted hover:text-text-main hover:bg-surface-offset min-h-[44px] min-w-[44px] w-11 h-11 flex items-center justify-center rounded-xl transition-colors active:scale-95 ml-4 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
+            id="close-goal-deposit-modal"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto min-w-0 p-6 custom-scrollbar">
           <form id="goal-deposit-modal-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1 truncate" title="Kwota (wpłata lub wypłata)" htmlFor="input-goal-deposit-amount">Kwota (wpłata lub wypłata)</label>
+              <label className="block text-xs font-semibold text-text-muted mb-1 truncate" title="Kwota (wpłata lub wypłata)" htmlFor="input-goal-deposit-amount">Kwota (wpłata lub wypłata)</label>
               <input
                 required
                 type="number"
@@ -194,7 +204,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
                 placeholder="np. 100 (wpłata) lub -50 (wypłata)"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
+                className="w-full min-h-[44px] rounded-xl border border-border bg-surface px-3 py-2.5 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-colors"
                 id="input-goal-deposit-amount"
               />
             </div>
@@ -206,7 +216,7 @@ export function GoalDepositModal({ isOpen, goalName, onClose, onSave }: GoalDepo
             type="submit"
             form="goal-deposit-modal-form"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full min-h-[44px] rounded-xl bg-brand py-2.5 px-4 text-xs font-bold text-text-inverse shadow-sm hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
             id="btn-goal-deposit-submit"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz wpłatę"}
