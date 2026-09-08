@@ -60,7 +60,7 @@ export function DebtStrategyContextHint({
             <span className="text-text-muted">•</span>
             <span className="text-text-muted">{hint.tradeOff}</span>
           </div>
-          <p className="text-[11px] text-text-faint">
+          <p className="text-xs text-text-faint">
             <strong className="font-semibold text-text-muted">Wskazówka:</strong> {hint.decisionNote}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function DebtStrategyContextHint({
         <button
           type="button"
           onClick={onOpenKnowledgeCenter}
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-brand hover:text-brand-hover shrink-0 self-start sm:self-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded-lg px-1.5 py-0.5"
+          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand-hover shrink-0 self-start sm:self-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] rounded-lg px-2 py-1 transition-all"
           aria-label="Otwórz centrum wiedzy o strategiach spłaty"
         >
           <BookOpen className="w-3.5 h-3.5" />

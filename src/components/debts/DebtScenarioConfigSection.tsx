@@ -118,7 +118,7 @@ export function DebtScenarioConfigSection({
             <button
               type="button"
               onClick={() => onExtraMonthlyPayoffChange(0)}
-              className="text-xs font-bold text-text-muted hover:text-brand transition cursor-pointer"
+              className="text-xs font-bold text-text-muted hover:text-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] rounded px-1.5 py-0.5"
             >
               Wyzeruj (0 zł)
             </button>
@@ -136,7 +136,7 @@ export function DebtScenarioConfigSection({
                 const val = parseFloat(e.target.value);
                 onExtraMonthlyPayoffChange(isNaN(val) || val < 0 ? 0 : val);
               }}
-              className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+              className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
               placeholder="0"
             />
             <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
@@ -151,7 +151,7 @@ export function DebtScenarioConfigSection({
                 key={amount}
                 type="button"
                 onClick={() => onExtraMonthlyPayoffChange(amount)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition border cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                   extraMonthlyPayoff === amount
                     ? "bg-brand text-text-inverse border-brand shadow-xs"
                     : "bg-surface-2 text-text-muted hover:text-text-main border-border"
@@ -181,11 +181,11 @@ export function DebtScenarioConfigSection({
             onClick={onToggleWhatIfExpanded}
             aria-expanded={isWhatIfExpanded}
             aria-controls="what-if-planning-panel"
-            className="flex items-center gap-2 text-xs font-bold text-text-main hover:text-brand transition cursor-pointer"
+            className="flex items-center gap-2 text-xs font-bold text-text-main hover:text-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none rounded-lg p-1"
           >
             <Sparkles className="w-4 h-4 text-brand" />
             <span>Symulacja wariantowa (What-If)</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
               {oneTimeOverpayments.length > 0 || previewStrategy ? "Aktywna symulacja" : "Opcjonalnie"}
             </span>
           </button>
@@ -194,7 +194,7 @@ export function DebtScenarioConfigSection({
             <button
               type="button"
               onClick={onResetWhatIf}
-              className="text-xs font-bold text-text-muted hover:text-danger transition cursor-pointer"
+              className="text-xs font-bold text-text-muted hover:text-danger transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] rounded px-1.5 py-0.5"
               aria-label="Zresetuj parametry symulacji What-If"
             >
               Zresetuj symulację
@@ -211,13 +211,13 @@ export function DebtScenarioConfigSection({
               {/* 1. Overpayment schedule input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-text-faint uppercase text-[10px] tracking-wider">
+                  <span className="font-bold text-text-faint uppercase text-xs tracking-wider">
                     Harmonogram Nadpłat
                   </span>
                   <button
                     type="button"
                     onClick={() => onOneTimeOverpaymentsChange([...oneTimeOverpayments, { month: 1, amount: 0 }])}
-                    className="text-[11px] font-bold text-brand hover:text-brand-emphasis transition cursor-pointer"
+                    className="text-xs font-bold text-brand hover:text-brand-emphasis transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none rounded px-1"
                   >
                     + Dodaj wpłatę
                   </button>
@@ -227,7 +227,7 @@ export function DebtScenarioConfigSection({
                   {oneTimeOverpayments.map((op, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <div className="flex-1 relative">
-                        <span className="absolute left-2 top-2 text-[10px] text-text-muted font-bold pointer-events-none">Msc:</span>
+                        <span className="absolute left-2 top-2 text-xs text-text-muted font-bold pointer-events-none">Msc:</span>
                         <input
                           type="number"
                           min="1"
@@ -237,7 +237,7 @@ export function DebtScenarioConfigSection({
                             newArr[idx].month = parseInt(e.target.value) || 1;
                             onOneTimeOverpaymentsChange(newArr);
                           }}
-                          className="w-full bg-surface border border-border rounded-lg pl-8 pr-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-1 focus-visible:ring-focus-ring"
+                          className="w-full bg-surface border border-border rounded-lg pl-8 pr-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                         />
                       </div>
                       <div className="flex-1 relative">
@@ -253,14 +253,14 @@ export function DebtScenarioConfigSection({
                             newArr[idx].amount = isNaN(val) || val < 0 ? 0 : val;
                             onOneTimeOverpaymentsChange(newArr);
                           }}
-                          className="w-full bg-surface border border-border rounded-lg px-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-1 focus-visible:ring-focus-ring tabular-nums pr-8"
+                          className="w-full bg-surface border border-border rounded-lg px-2 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-8"
                         />
-                        <span className="absolute right-2 top-1.5 text-[10px] text-text-muted font-bold pointer-events-none">{currency}</span>
+                        <span className="absolute right-2 top-1.5 text-xs text-text-muted font-bold pointer-events-none">{currency}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => onOneTimeOverpaymentsChange(oneTimeOverpayments.filter((_, i) => i !== idx))}
-                        className="text-danger opacity-70 hover:opacity-100 p-1 cursor-pointer font-bold"
+                        className="text-danger opacity-70 hover:opacity-100 p-1 cursor-pointer font-bold focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none rounded"
                         aria-label="Usuń nadpłatę"
                       >
                         ✕
@@ -268,19 +268,19 @@ export function DebtScenarioConfigSection({
                     </div>
                   ))}
                   {oneTimeOverpayments.length === 0 && (
-                    <div className="text-[11px] font-bold text-text-muted text-center py-2.5 border border-dashed border-border rounded-lg">
+                    <div className="text-xs font-bold text-text-muted text-center py-2.5 border border-dashed border-border rounded-lg">
                       Brak zaplanowanych nadpłat
                     </div>
                   )}
                 </div>
-                <p className="text-[10px] text-text-faint mt-1.5 leading-tight">
+                <p className="text-xs text-text-faint mt-1.5 leading-tight">
                   Wprowadź miesiąc (np. 1 = teraz, 12 = za rok) i kwotę.
                 </p>
               </div>
 
               {/* 2. Strategy What-If Switch */}
               <div>
-                <span className="font-bold text-text-faint uppercase text-[10px] tracking-wider block mb-1.5">
+                <span className="font-bold text-text-faint uppercase text-xs tracking-wider block mb-1.5">
                   Podgląd alternatywnej strategii
                 </span>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -304,7 +304,7 @@ export function DebtScenarioConfigSection({
                             onPreviewStrategyChange(st.id);
                           }
                         }}
-                        className={`px-2.5 py-1.5 rounded-lg font-bold text-xs border transition cursor-pointer text-center ${
+                        className={`px-2.5 py-1.5 rounded-lg font-bold text-xs border transition cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                           isPreviewActive
                             ? "bg-brand text-text-inverse border-brand shadow-xs"
                             : isCurrentMain
@@ -317,7 +317,7 @@ export function DebtScenarioConfigSection({
                     );
                   })}
                 </div>
-                <p className="text-[10px] text-text-faint mt-1">
+                <p className="text-xs text-text-faint mt-1">
                   Kliknij, aby tymczasowo podejrzeć wynik innej metody.
                 </p>
               </div>
@@ -331,7 +331,7 @@ export function DebtScenarioConfigSection({
                   <span className="text-brand">ℹ</span>
                   <span>Wpływ symulacji na plan spłaty:</span>
                 </div>
-                <ul className="space-y-1 pl-5 list-disc text-text-muted text-[11px] leading-relaxed">
+                <ul className="space-y-1 pl-5 list-disc text-text-muted text-xs leading-relaxed">
                   <li>
                     {whatIfImpact.durDiff > 0
                       ? `Wariant symulacyjny skraca orientacyjny czas spłaty o ${whatIfImpact.durDiff} ${
@@ -354,7 +354,7 @@ export function DebtScenarioConfigSection({
                     Szacowany termin spłaty: <strong className="text-text-main font-bold">{whatIfImpact.debtFreeDate}</strong>.
                   </li>
                 </ul>
-                <p className="text-[10px] text-text-faint pt-1 border-t border-border/40">
+                <p className="text-xs text-text-faint pt-1 border-t border-border/40">
                   Szacunek na podstawie podanych danych. Parametr tymczasowej symulacji — nie modyfikuje zapisanych scenariuszy.
                 </p>
               </div>
@@ -380,7 +380,7 @@ export function DebtScenarioConfigSection({
               onClick={onOpenCompareScenarios}
               disabled={savedScenarios.length < 2 || validSelectedScenarioIds.length < 2}
               aria-disabled={savedScenarios.length < 2 || validSelectedScenarioIds.length < 2}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-surface text-text-main text-xs font-bold hover:bg-surface-hover hover:border-brand/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-surface text-text-main text-xs font-bold hover:bg-surface-hover hover:border-brand/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] shadow-2xs"
               aria-label={`Porównaj scenariusze (wybrano ${validSelectedScenarioIds.length} z 2)`}
               title={
                 savedScenarios.length < 2
@@ -406,7 +406,7 @@ export function DebtScenarioConfigSection({
               id="btn-save-scenario"
               onClick={() => onOpenSaveScenario()}
               disabled={savedScenarios.length >= 5}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand/30 bg-brand-subtle text-brand text-xs font-bold hover:bg-brand hover:text-text-inverse transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand/30 bg-brand-subtle text-brand text-xs font-bold hover:bg-brand hover:text-text-inverse transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] shadow-2xs"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Zapisz bieżący plan</span>
@@ -463,16 +463,16 @@ export function DebtScenarioConfigSection({
                         <span className="text-xs font-bold text-text-main truncate" title={sc.name}>
                           {sc.name}
                         </span>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0">
+                        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-surface-2 text-text-muted border border-border shrink-0">
                           {strategyLabel}
                         </span>
                       </div>
-                      <div className="text-[11px] text-text-muted space-y-0.5">
+                      <div className="text-xs text-text-muted space-y-0.5">
                         <div>
                           Nadpłata: <strong className="text-brand font-bold tabular-nums">+{formatMoney(sc.extraMonthlyPayment, currency)} / mc</strong>
                         </div>
                         {scPreview && (
-                          <div className="flex items-center gap-2 text-[10px] text-text-faint pt-0.5">
+                          <div className="flex items-center gap-2 text-xs text-text-faint pt-0.5">
                             <span>Termin: <strong className="text-text-main font-semibold">{scPreview.debtFreeDate}</strong></span>
                             <span>•</span>
                             <span>Odsetki: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(scPreview.totalInterestPaid, currency)}</strong></span>
@@ -480,7 +480,7 @@ export function DebtScenarioConfigSection({
                         )}
                         {overpaymentsBadge && (
                           <div className="flex items-center gap-1.5 pt-1.5 pb-0.5">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand text-[9px] font-bold border border-brand/20">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand text-xs font-bold border border-brand/20">
                               <Calendar className="w-2.5 h-2.5" />
                               {overpaymentsBadge}
                             </span>
@@ -495,7 +495,7 @@ export function DebtScenarioConfigSection({
                       type="button"
                       onClick={() => onLoadScenario(sc)}
                       aria-label={`Wczytaj scenariusz ${sc.name}`}
-                      className="px-2.5 py-1 rounded-lg bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-[11px] font-bold border border-border hover:border-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="px-2.5 py-1 rounded-lg bg-surface-2 hover:bg-brand hover:text-text-inverse text-text-main text-xs font-bold border border-border hover:border-brand transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                     >
                       Wczytaj
                     </button>
@@ -503,7 +503,7 @@ export function DebtScenarioConfigSection({
                       type="button"
                       onClick={() => onOpenRenameScenario(sc)}
                       aria-label={`Zmień nazwę scenariusza ${sc.name}`}
-                      className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                       title="Zmień nazwę"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -513,7 +513,7 @@ export function DebtScenarioConfigSection({
                       onClick={() => onOpenDuplicateScenario(sc)}
                       disabled={savedScenarios.length >= 5}
                       aria-label={`Duplikuj scenariusz ${sc.name}`}
-                      className="p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-brand-subtle transition disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-brand-subtle transition disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                       title={
                         savedScenarios.length >= 5
                           ? "Osiągnięto limit 5 zapisanych scenariuszy"
@@ -527,7 +527,7 @@ export function DebtScenarioConfigSection({
                         type="button"
                         onClick={() => onDeleteScenario(sc.id)}
                         aria-label={`Usuń scenariusz ${sc.name}`}
-                        className="p-1.5 rounded-lg text-text-muted hover:text-danger hover:bg-danger-subtle transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                        className="p-1.5 rounded-lg text-text-muted hover:text-danger hover:bg-danger-subtle transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                         title="Usuń scenariusz"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -539,7 +539,7 @@ export function DebtScenarioConfigSection({
             })}
           </div>
         ) : (
-          <p className="text-[11px] text-text-muted">
+          <p className="text-xs text-text-muted">
             Brak zapisanych scenariuszy. Możesz zapisać do 5 wariantów nadpłat i strategii, aby łatwo je odtwarzać.
           </p>
         )}

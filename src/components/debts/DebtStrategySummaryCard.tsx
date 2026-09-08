@@ -27,8 +27,16 @@ export function DebtStrategySummaryCard({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(strategy)}
-      className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(strategy);
+        }
+      }}
+      className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] ${
         isSelected
           ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
           : "bg-surface border-border hover:border-brand/40"
@@ -36,11 +44,11 @@ export function DebtStrategySummaryCard({
     >
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-surface text-text-main border border-border">
             {result.strategyBadge}
           </span>
           {isRecommended && (
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-brand text-text-inverse">
+            <span className="text-xs font-black uppercase px-2 py-0.5 rounded bg-brand text-text-inverse">
               Rekomendacja
             </span>
           )}

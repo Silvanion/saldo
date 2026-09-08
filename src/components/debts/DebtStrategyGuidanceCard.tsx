@@ -55,7 +55,7 @@ export function DebtStrategyGuidanceCard({
           <h4 className="text-xs sm:text-sm font-bold text-text-main">
             Przewodnik po strategiach spłaty
           </h4>
-          <p className="text-[11px] text-text-muted">
+          <p className="text-xs text-text-muted">
             Którą strategię wybrać dla swojego portfela zadłużenia?
           </p>
         </div>
@@ -71,7 +71,7 @@ export function DebtStrategyGuidanceCard({
             <div
               key={strat.id}
               onClick={() => onSelectStrategy?.(strat.id)}
-              className={`p-3.5 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer ${
+              className={`p-3.5 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] ${
                 isSelected
                   ? "bg-brand-subtle/40 border-brand ring-1 ring-brand/30 shadow-2xs"
                   : "bg-surface-2/40 border-border hover:border-brand/40 hover:bg-surface-2/70"
@@ -99,12 +99,12 @@ export function DebtStrategyGuidanceCard({
                     </span>
                     <span className="font-bold text-text-main truncate">{strat.name}</span>
                   </div>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted shrink-0">
+                  <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted shrink-0">
                     {strat.highlight}
                   </span>
                 </div>
 
-                <div className="space-y-1 text-[11px]">
+                <div className="space-y-1 text-xs">
                   <p className="text-text-faint font-semibold">
                     <strong className="text-text-main font-semibold">Zasada:</strong> {strat.rule}
                   </p>
@@ -115,7 +115,7 @@ export function DebtStrategyGuidanceCard({
               </div>
 
               {isSelected && (
-                <div className="mt-2 pt-2 border-t border-brand/20 flex items-center gap-1 text-[10px] font-bold text-brand">
+                <div className="mt-2 pt-2 border-t border-brand/20 flex items-center gap-1 text-xs font-bold text-brand">
                   <Check className="w-3 h-3" />
                   <span>Aktywny wariant</span>
                 </div>

@@ -80,7 +80,7 @@ export function DebtScenarioFallbackState({
             <button
               type="button"
               onClick={onAddDebt}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-inverse bg-brand hover:bg-brand-hover px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px]"
             >
               <Plus className="w-4 h-4" />
               <span>Dodaj zobowiązanie</span>
@@ -90,7 +90,7 @@ export function DebtScenarioFallbackState({
             <button
               type="button"
               onClick={onOpenKnowledgeCenter}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-main bg-surface hover:bg-surface-2 border border-border px-4 py-2.5 rounded-xl transition-all shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-main bg-surface hover:bg-surface-2 border border-border px-4 py-2.5 rounded-xl transition-all shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px]"
             >
               <span>Zobacz jak działają strategie</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -123,7 +123,7 @@ export function DebtScenarioFallbackState({
             <button
               type="button"
               onClick={onOpenKnowledgeCenter}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-main bg-surface hover:bg-surface-2 border border-border px-4 py-2.5 rounded-xl transition-all shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-text-main bg-surface hover:bg-surface-2 border border-border px-4 py-2.5 rounded-xl transition-all shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px]"
             >
               <span>Zobacz jak działają strategie</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -162,14 +162,14 @@ export function DebtScenarioFallbackState({
               <button
                 type="button"
                 onClick={() => onSelectStrategy("avalanche")}
-                className="px-3 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] flex items-center justify-center"
+                className="px-3 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px] flex items-center justify-center"
               >
                 Wybierz Lawinę
               </button>
               <button
                 type="button"
                 onClick={() => onSelectStrategy("snowball")}
-                className="px-3 py-2 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] flex items-center justify-center"
+                className="px-3 py-2 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px] flex items-center justify-center"
               >
                 Wybierz Kulę Śnieżną
               </button>
@@ -179,7 +179,7 @@ export function DebtScenarioFallbackState({
             <button
               type="button"
               onClick={onAction}
-              className="px-3 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] flex items-center justify-center"
+              className="px-3 py-2 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px] flex items-center justify-center"
             >
               {actionLabel}
             </button>
@@ -211,7 +211,7 @@ export function DebtScenarioFallbackState({
             <button
               type="button"
               onClick={onAction}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] inline-flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-brand text-text-inverse hover:bg-brand-hover transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px] inline-flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{actionLabel}</span>
@@ -253,7 +253,7 @@ export function DebtScenarioFallbackState({
           <button
             type="button"
             onClick={onAction}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] shrink-0"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] min-h-[44px] shrink-0"
           >
             {actionLabel}
           </button>
@@ -287,7 +287,7 @@ export function DebtScenarioFallbackState({
         <button
           type="button"
           onClick={onAction}
-          className="px-3 py-2 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0 self-start sm:self-auto min-h-[44px] flex items-center justify-center"
+          className="px-3 py-2 rounded-xl text-xs font-bold bg-surface hover:bg-surface-2 border border-border text-text-main transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] shrink-0 self-start sm:self-auto min-h-[44px] flex items-center justify-center"
         >
           {actionLabel}
         </button>

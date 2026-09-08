@@ -244,7 +244,7 @@ export function RefinanceComparisonModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
               aria-label="Zamknij"
             >
               <X className="w-5 h-5" />
@@ -265,7 +265,7 @@ export function RefinanceComparisonModal({
                     <button
                       key={off.id}
                       onClick={() => setActiveOfferId(off.id)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                         isActive
                           ? "bg-brand text-text-inverse border-brand shadow-xs"
                           : "bg-surface-2 text-text-muted hover:text-text-main border-border"
@@ -274,7 +274,7 @@ export function RefinanceComparisonModal({
                       <span>{off.name || `Oferta ${idx + 1}`}</span>
                       {isBest && (
                         <span
-                          className={`text-[10px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${
+                          className={`text-xs font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${
                             isActive
                               ? "bg-text-inverse/20 text-text-inverse"
                               : "bg-brand-subtle text-brand border border-brand/30"
@@ -291,7 +291,7 @@ export function RefinanceComparisonModal({
                 {offers.length < 3 && (
                   <button
                     onClick={handleAddOffer}
-                    className="px-3 py-2 rounded-xl text-xs font-bold text-brand bg-brand-subtle/50 hover:bg-brand-subtle border border-brand/30 transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-2 rounded-xl text-xs font-bold text-brand bg-brand-subtle/50 hover:bg-brand-subtle border border-brand/30 transition flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Dodaj ofertę ({offers.length}/3)</span>
@@ -302,7 +302,7 @@ export function RefinanceComparisonModal({
               {offers.length > 1 && (
                 <button
                   onClick={() => handleRemoveOffer(activeOfferId)}
-                  className="text-xs font-semibold text-danger hover:text-danger-hover flex items-center gap-1 p-1.5 rounded-lg hover:bg-danger-subtle/30 transition cursor-pointer"
+                  className="text-xs font-semibold text-danger hover:text-danger-hover flex items-center gap-1 p-1.5 rounded-lg hover:bg-danger-subtle/30 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                   title="Usuń aktywną ofertę"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -316,39 +316,39 @@ export function RefinanceComparisonModal({
               <div className="bg-surface-2/40 border border-border/80 rounded-2xl p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
                   <div className="flex-1 min-w-[200px]">
-                    <label className="block text-[11px] font-bold text-text-faint uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-text-faint uppercase tracking-wider mb-1">
                       Nazwa oferty / Banku
                     </label>
                     <input
                       type="text"
                       value={activeOffer.name}
                       onChange={(e) => handleUpdateOffer(activeOffer.id, "name", e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-1.5 text-xs font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
                       placeholder="np. mBank promocyjna marża"
                     />
                   </div>
 
                   {/* Presets */}
                   <div className="flex items-center gap-1.5 flex-wrap self-end">
-                    <span className="text-[10px] text-text-faint font-bold uppercase mr-1">Szablony:</span>
+                    <span className="text-xs text-text-faint font-bold uppercase mr-1">Szablony:</span>
                     <button
                       type="button"
                       onClick={() => applyPreset("lower_rate")}
-                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                     >
                       -1.5% stopa
                     </button>
                     <button
                       type="button"
                       onClick={() => applyPreset("zero_costs")}
-                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                     >
                       0 zł prowizji
                     </button>
                     <button
                       type="button"
                       onClick={() => applyPreset("shorter_term")}
-                      className="px-2.5 py-1 text-[10px] font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-bold bg-surface border border-border rounded-lg text-text-muted hover:text-brand hover:border-brand/40 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                     >
                       -5 lat okres
                     </button>
@@ -367,7 +367,7 @@ export function RefinanceComparisonModal({
                         min="0"
                         value={activeOffer.newRate}
                         onChange={(e) => handleUpdateOffer(activeOffer.id, "newRate", e.target.value)}
-                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-8"
+                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-8"
                         placeholder="5.85"
                       />
                       <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
@@ -387,14 +387,14 @@ export function RefinanceComparisonModal({
                         min="0"
                         value={activeOffer.closingCosts}
                         onChange={(e) => handleUpdateOffer(activeOffer.id, "closingCosts", e.target.value)}
-                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums pr-12"
+                        className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums pr-12"
                         placeholder="4500"
                       />
                       <span className="absolute right-3 top-2 text-xs text-text-muted font-bold pointer-events-none">
                         {currency}
                       </span>
                     </div>
-                    <span className="text-[10px] text-text-faint block mt-1">wycena, prowizja, opłaty sądowe</span>
+                    <span className="text-xs text-text-faint block mt-1">wycena, prowizja, opłaty sądowe</span>
                   </div>
 
                   <div>
@@ -408,10 +408,10 @@ export function RefinanceComparisonModal({
                       max="35"
                       value={activeOffer.newTermYears}
                       onChange={(e) => handleUpdateOffer(activeOffer.id, "newTermYears", e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums"
+                      className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none tabular-nums"
                       placeholder="20"
                     />
-                    <span className="text-[10px] text-text-faint block mt-1">
+                    <span className="text-xs text-text-faint block mt-1">
                       {Math.round((parseAmountInput(activeOffer.newTermYears) ?? 1) * 12)} miesięcy
                     </span>
                   </div>
@@ -427,10 +427,10 @@ export function RefinanceComparisonModal({
                 </div>
                 <div className="text-xs">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-black uppercase tracking-wider text-[11px] text-brand">
+                    <span className="font-black uppercase tracking-wider text-xs text-brand">
                       Najbardziej opłacalna oferta: {bestOfferItem.offer.name}
                     </span>
-                    <span className="text-[10px] px-1.5 py-0.2 bg-brand text-text-inverse font-bold rounded">
+                    <span className="text-xs px-1.5 py-0.5 bg-brand text-text-inverse font-bold rounded">
                       Ranga #1
                     </span>
                   </div>
@@ -469,11 +469,11 @@ export function RefinanceComparisonModal({
                 <div className="overflow-x-auto border border-border rounded-2xl bg-surface">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-border bg-surface-2/60 text-text-faint font-bold uppercase text-[10px] tracking-wider">
+                      <tr className="border-b border-border bg-surface-2/60 text-text-faint font-bold uppercase text-xs tracking-wider">
                         <th className="py-3 px-4 w-1/4">Parametr / Metryka</th>
                         <th className="py-3 px-3 text-right bg-surface-2/30">
                           <div>Obecny kredyt</div>
-                          <div className="text-[9px] font-normal text-text-muted">{debt.institution}</div>
+                          <div className="text-xs font-normal text-text-muted">{debt.institution}</div>
                         </th>
                         {multiComparison.offers.map((item) => (
                           <th
@@ -488,7 +488,7 @@ export function RefinanceComparisonModal({
                               {item.isBestOffer && <Award className="w-3 h-3 text-brand" />}
                               <span>{item.offer.name}</span>
                             </div>
-                            <div className="text-[9px] font-normal text-text-muted">
+                            <div className="text-xs font-normal text-text-muted">
                               Ranga #{item.rank}
                             </div>
                           </th>
@@ -642,7 +642,7 @@ export function RefinanceComparisonModal({
                               }`}
                             >
                               <span
-                                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${badge.className}`}
+                                className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md border ${badge.className}`}
                               >
                                 {badge.label}
                               </span>
@@ -669,7 +669,7 @@ export function RefinanceComparisonModal({
           <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 bg-surface-2/30 shrink-0">
             <button
               onClick={onClose}
-              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] cursor-pointer min-h-[44px]"
             >
               Zamknij
             </button>

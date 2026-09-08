@@ -74,7 +74,7 @@ export function DebtPayoffRoadmap({
               <h4 className="text-sm font-bold text-text-main">
                 Kamień milowy spłaty zadłużenia
               </h4>
-              <p className="text-[11px] text-text-muted">
+              <p className="text-xs text-text-muted">
                 Szacunek dla wybranej metody:{" "}
                 <strong className="text-text-main">{activePlan.strategyLabel}</strong>
               </p>
@@ -82,7 +82,7 @@ export function DebtPayoffRoadmap({
           </div>
 
           <div className="text-left sm:text-right">
-            <span className="text-[11px] text-text-faint block">Szacowany termin spłaty:</span>
+            <span className="text-xs text-text-faint block">Szacowany termin spłaty:</span>
             <span className="text-sm sm:text-base font-black text-brand tabular-nums">
               {activePlan.debtFreeDate}
             </span>
@@ -91,7 +91,7 @@ export function DebtPayoffRoadmap({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
-            <span className="text-[11px] text-text-faint block">Orientacyjny czas do końca:</span>
+            <span className="text-xs text-text-faint block">Orientacyjny czas do końca:</span>
             <strong className="text-sm font-bold text-text-main tabular-nums">
               {activePlan.totalMonths} mies.
               {activePlan.totalMonths > 0 && (
@@ -103,20 +103,20 @@ export function DebtPayoffRoadmap({
           </div>
 
           <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
-            <span className="text-[11px] text-text-faint block">Szacowany koszt odsetek:</span>
+            <span className="text-xs text-text-faint block">Szacowany koszt odsetek:</span>
             <strong className="text-sm font-bold text-text-main tabular-nums">
               {formatMoney(activePlan.totalInterestPaid, currency)}
             </strong>
           </div>
 
           <div className="p-3 bg-surface rounded-xl border border-border/80 space-y-0.5">
-            <span className="text-[11px] text-text-faint block">Różnica względem wariantu bazowego:</span>
+            <span className="text-xs text-text-faint block">Różnica względem wariantu bazowego:</span>
             {activePlan.interestSavedVsBaseline > 0 ? (
               <div>
                 <strong className="text-sm font-bold text-brand tabular-nums block">
                   +{formatMoney(activePlan.interestSavedVsBaseline, currency)} oszczędności
                 </strong>
-                <span className="text-[10px] text-text-faint block">
+                <span className="text-xs text-text-faint block">
                   Modelowa różnica względem planu bazowego (Status Quo). Wynik symulacji zależny od przyjętych danych i założeń.
                 </span>
               </div>
@@ -132,7 +132,7 @@ export function DebtPayoffRoadmap({
           </div>
         </div>
 
-        <p className="text-[10px] text-text-muted leading-relaxed">
+        <p className="text-xs text-text-muted leading-relaxed">
           Na podstawie podanych danych. Wynik jest orientacyjną symulacją matematyczną i zakłada terminowe opłacanie minimalnych rat oraz stałą miesięczną nadpłatę.
         </p>
       </div>
@@ -149,7 +149,7 @@ export function DebtPayoffRoadmap({
           <div>
             <h4 className="text-sm font-bold text-text-main flex items-center gap-2">
               <span>Ustal kolejność spłaty</span>
-              <span className="text-[11px] font-normal text-text-muted">
+              <span className="text-xs font-normal text-text-muted">
                 (priorytetyzacja nadpłat)
               </span>
             </h4>
@@ -194,16 +194,16 @@ export function DebtPayoffRoadmap({
                       <span className="text-xs font-bold text-text-main truncate">
                         {debtItem.name}
                       </span>
-                      <span className="text-[11px] text-text-muted shrink-0">
+                      <span className="text-xs text-text-muted shrink-0">
                         ({debtItem.institution})
                       </span>
                       {isFirst && (
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded bg-brand text-text-inverse shrink-0 shadow-2xs">
+                        <span className="text-xs font-black px-2 py-0.5 rounded bg-brand text-text-inverse shrink-0 shadow-2xs">
                           Cel priorytetowy #1
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-text-muted flex items-center flex-wrap gap-x-2.5 gap-y-0.5 mt-1">
+                    <div className="text-xs text-text-muted flex items-center flex-wrap gap-x-2.5 gap-y-0.5 mt-1">
                       <span>Saldo: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(debtItem.balance, currency)}</strong></span>
                       <span>•</span>
                       <span>Oprocentowanie: <strong className="text-brand font-bold tabular-nums">{debtItem.interestRate.toFixed(2)}% APR</strong></span>
@@ -211,7 +211,7 @@ export function DebtPayoffRoadmap({
                       <span>Rata: <strong className="text-text-main font-semibold tabular-nums">{formatMoney(debtItem.monthlyPayment, currency)}</strong></span>
                     </div>
                     {isFirst && (
-                      <p className="text-[10px] text-brand font-medium mt-1">
+                      <p className="text-xs text-brand font-medium mt-1">
                         To zobowiązanie otrzymuje całą nadwyżkę nadpłaty do czasu pełnej spłaty.
                       </p>
                     )}
@@ -225,22 +225,22 @@ export function DebtPayoffRoadmap({
                     onClick={() => onMoveDebtUp?.(id)}
                     disabled={isFirst}
                     aria-label={`Przenieś zobowiązanie ${debtItem.name} wyżej (obecnie pozycja ${index + 1} z ${totalCount})`}
-                    className="p-2 sm:px-3 sm:py-2 min-h-[40px] min-w-[40px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-95 cursor-pointer shadow-2xs"
+                    className="p-2 sm:px-3 sm:py-2 min-h-[44px] min-w-[44px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-[0.98] cursor-pointer shadow-2xs"
                     title="Przenieś wyżej"
                   >
                     <ArrowUp className="w-4 h-4" />
-                    <span className="hidden sm:inline text-[11px]">Przenieś wyżej</span>
+                    <span className="hidden sm:inline text-xs">Przenieś wyżej</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => onMoveDebtDown?.(id)}
                     disabled={isLast}
                     aria-label={`Przenieś zobowiązanie ${debtItem.name} niżej (obecnie pozycja ${index + 1} z ${totalCount})`}
-                    className="p-2 sm:px-3 sm:py-2 min-h-[40px] min-w-[40px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-95 cursor-pointer shadow-2xs"
+                    className="p-2 sm:px-3 sm:py-2 min-h-[44px] min-w-[44px] rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none disabled:opacity-25 disabled:cursor-not-allowed disabled:pointer-events-none disabled:bg-surface-2 bg-surface hover:bg-surface-hover hover:border-brand/40 text-text-main active:scale-[0.98] cursor-pointer shadow-2xs"
                     title="Przenieś niżej"
                   >
                     <ArrowDown className="w-4 h-4" />
-                    <span className="hidden sm:inline text-[11px]">Przenieś niżej</span>
+                    <span className="hidden sm:inline text-xs">Przenieś niżej</span>
                   </button>
                 </div>
               </div>
@@ -248,7 +248,7 @@ export function DebtPayoffRoadmap({
           })}
         </div>
 
-        <div className="text-[11px] text-text-muted bg-surface-2/60 p-3.5 rounded-xl border border-border/60 flex items-start gap-2.5">
+        <div className="text-xs text-text-muted bg-surface-2/60 p-3.5 rounded-xl border border-border/60 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong>Zasada działania:</strong> Nadwyżka budżetowa (oraz raty ze spłaconych wcześniej kredytów) trafia w 100% na cel priorytetowy z pozycji nr 1. Po jego całkowitej spłacie uwolnione środki automatycznie przechodzą na kolejne zobowiązanie.
@@ -297,7 +297,7 @@ export function DebtPayoffRoadmap({
               <h4 className="text-sm font-bold text-text-main">
                 Plan i kolejność spłaty: {activePlan.strategyLabel}
               </h4>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-subtle text-brand border border-brand/30">
+              <span className="text-xs font-bold px-2 py-0.5 rounded bg-brand-subtle text-brand border border-brand/30">
                 {activePlan.strategyBadge}
               </span>
             </div>
@@ -311,31 +311,31 @@ export function DebtPayoffRoadmap({
         {/* 3 Summary KPIs */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
               Data spłaty całego długu
             </span>
             <span className="text-lg sm:text-xl font-black text-text-main tabular-nums block">
               {activePlan.debtFreeDate}
             </span>
-            <span className="text-[11px] text-text-muted">
+            <span className="text-xs text-text-muted">
               {activePlan.totalMonths} miesięcy do pełnej wolności
             </span>
           </div>
 
           <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
               Zaoszczędzone odsetki
             </span>
             <span className="text-lg sm:text-xl font-black text-brand tabular-nums block">
               +{formatMoney(activePlan.interestSavedVsBaseline, currency)}
             </span>
-            <span className="text-[11px] text-text-muted">
+            <span className="text-xs text-text-muted">
               w porównaniu ze spłatą tylko minimalnych rat
             </span>
           </div>
 
           <div className="p-4 bg-surface-2/60 rounded-xl border border-border">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-text-faint block mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-faint block mb-1">
               Skrócony czas spłaty
             </span>
             <span className="text-lg sm:text-xl font-black text-success tabular-nums block">
@@ -343,7 +343,7 @@ export function DebtPayoffRoadmap({
                 ? `-${activePlan.monthsSavedVsBaseline} mies.`
                 : "0 mies."}
             </span>
-            <span className="text-[11px] text-text-muted">
+            <span className="text-xs text-text-muted">
               {activePlan.monthsSavedVsBaseline > 0
                 ? `o ${Math.round((activePlan.monthsSavedVsBaseline / 12) * 10) / 10} lat szybciej bez długu`
                 : "standardowy harmonogram"}
@@ -383,7 +383,7 @@ export function DebtPayoffRoadmap({
                 )}
               </div>
             </div>
-            <p className="text-[10px] text-text-faint pt-2 border-t border-brand/10 leading-relaxed">
+            <p className="text-xs text-text-faint pt-2 border-t border-brand/10 leading-relaxed">
               To orientacyjna kolejność wynikająca z bieżących danych i założeń symulacji. Rzeczywisty przebieg może się zmienić, jeśli zmienią się wpłaty, saldo lub warunki zobowiązania.
             </p>
           </div>
@@ -412,14 +412,14 @@ export function DebtPayoffRoadmap({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-text-main">{item.debtName}</span>
-                      <span className="text-[10px] text-text-muted">({item.institution})</span>
+                      <span className="text-xs text-text-muted">({item.institution})</span>
                       {idx === 0 && (
-                        <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20">
+                        <span className="text-xs uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20">
                           Obecny cel
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-text-muted flex items-center gap-2 mt-0.5">
+                    <div className="text-xs text-text-muted flex items-center gap-2 mt-0.5">
                       <span>Saldo początkowe: {formatMoney(item.initialBalance, currency)}</span>
                       <span>•</span>
                       <span className="font-bold text-brand tabular-nums">{item.interestRate.toFixed(2)}% APR</span>
@@ -433,7 +433,7 @@ export function DebtPayoffRoadmap({
                   <span className="text-xs font-black text-text-main block">
                     Spłata: {item.payoffDate}
                   </span>
-                  <span className="text-[10px] text-text-muted">
+                  <span className="text-xs text-text-muted">
                     ({item.payoffMonth}. miesiąc • odsetki: {formatMoney(item.totalInterestPaid, currency)})
                   </span>
                 </div>

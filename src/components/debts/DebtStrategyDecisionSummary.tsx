@@ -49,7 +49,7 @@ export function DebtStrategyDecisionSummary({
             <strong className="text-text-main">Cecha strategii:</strong> {getTradeoffCopy()}
           </p>
 
-          <div className="flex items-start gap-1.5 text-[11px] text-text-faint bg-surface-hover p-2 rounded-lg border border-border/50">
+          <div className="flex items-start gap-1.5 text-xs text-text-faint bg-surface-hover p-2.5 rounded-lg border border-border/50">
             <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <p>
               Wynik symulacji zależy od przyjętych danych i założeń (np. stałości stóp). Oszczędność odsetek jest szacunkiem, a nie gwarantowanym wynikiem.

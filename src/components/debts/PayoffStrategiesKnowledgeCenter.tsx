@@ -59,7 +59,7 @@ export function PayoffStrategiesKnowledgeCenter({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-controls="payoff-strategies-knowledge-content"
-        className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-surface-hover/50 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-hidden min-h-[44px]"
+        className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-surface-hover/50 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none min-h-[44px]"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20">
@@ -148,7 +148,7 @@ export function PayoffStrategiesKnowledgeCenter({
                     type="button"
                     onClick={() => onSelectStrategy("baseline")}
                     aria-pressed={selectedStrategy === "baseline"}
-                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                       selectedStrategy === "baseline"
                         ? "bg-brand/10 text-brand"
                         : "bg-surface-2/50 text-text-main hover:bg-surface-2"
@@ -224,7 +224,7 @@ export function PayoffStrategiesKnowledgeCenter({
                     type="button"
                     onClick={() => onSelectStrategy("avalanche")}
                     aria-pressed={selectedStrategy === "avalanche"}
-                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                       selectedStrategy === "avalanche"
                         ? "bg-brand/10 text-brand"
                         : "bg-surface-2/50 text-text-main hover:bg-surface-2"
@@ -300,7 +300,7 @@ export function PayoffStrategiesKnowledgeCenter({
                     type="button"
                     onClick={() => onSelectStrategy("snowball")}
                     aria-pressed={selectedStrategy === "snowball"}
-                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                       selectedStrategy === "snowball"
                         ? "bg-brand/10 text-brand"
                         : "bg-surface-2/50 text-text-main hover:bg-surface-2"
@@ -370,7 +370,7 @@ export function PayoffStrategiesKnowledgeCenter({
                     type="button"
                     onClick={() => onSelectStrategy("custom")}
                     aria-pressed={selectedStrategy === "custom"}
-                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                       selectedStrategy === "custom"
                         ? "bg-brand/10 text-brand"
                         : "bg-surface-2/50 text-text-main hover:bg-surface-2"
