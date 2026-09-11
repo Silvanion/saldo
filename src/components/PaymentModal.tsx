@@ -4,7 +4,8 @@ import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
 import { getLocalDateIso, parseAmountInput } from "../utils";
-import { X } from "lucide-react";
+import { callAiApi, getAiConfig } from "../services/aiClient";
+import { AlertCircle, Loader2, ScanLine, X } from "lucide-react";
 
 export interface PaymentModalProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState(getLocalDateIso());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isScanningInvoice, setIsScanningInvoice] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   
   const [paidBy, setPaidBy] = useState<"me" | "partner" | "joint">("me");
   const [splitMode, setSplitMode] = useState<"none" | "equal">("equal");
@@ -31,6 +34,8 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
+      setIsScanningInvoice(false);
+      setScanError(null);
       if (initialData && typeof initialData === "object" && !("nativeEvent" in initialData)) {
         // Payload może być częściowy (wypełnienie wstępne), więc każde pole ma wartość zapasową.
         setName(initialData.name || "");
@@ -53,6 +58,55 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   }, [isOpen, initialData]);
 
   if (!isOpen) return null;
+
+  const handleInvoiceScan = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setScanError("Wybierz obraz JPG, PNG lub WebP.");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setScanError("Obraz faktury jest zbyt duży (maksymalnie 3 MB).");
+      return;
+    }
+    if (state.aiMode !== "cloud") {
+      setScanError("Skanowanie faktur wymaga trybu chmurowego AI (Gemini).");
+      return;
+    }
+    setIsScanningInvoice(true);
+    setScanError(null);
+    try {
+      const imageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = typeof reader.result === "string" ? reader.result : "";
+          const [, base64] = result.split(",", 2);
+          base64 ? resolve(base64) : reject(new Error("Nie udało się odczytać obrazu."));
+        };
+        reader.onerror = () => reject(new Error("Nie udało się odczytać pliku faktury."));
+        reader.readAsDataURL(file);
+      });
+      const result = await callAiApi("scan-invoice", {
+        imageBase64,
+        mimeType: file.type
+      }, getAiConfig(state));
+      const scannedName = typeof result?.name === "string" ? result.name.trim() : "";
+      const scannedAmount = Number(result?.amount);
+      const scannedDueDate = typeof result?.dueDate === "string" ? result.dueDate : "";
+      if (!scannedName || !Number.isFinite(scannedAmount) || scannedAmount <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(scannedDueDate)) {
+        throw new Error("AI zwróciło niepełne dane faktury. Uzupełnij formularz ręcznie.");
+      }
+      setName(scannedName);
+      setAmount(String(scannedAmount));
+      setDueDate(scannedDueDate);
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : "Nie udało się zeskanować faktury.");
+    } finally {
+      setIsScanningInvoice(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +175,25 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               className="w-full text-sm rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring bg-surface text-text-main placeholder:text-text-faint transition-colors"
               id="input-payment-name"
             />
+          </div>
+          <div className="rounded-xl border border-brand/20 bg-brand-subtle p-3">
+            <div className="flex items-center gap-2">
+              <ScanLine className="h-4 w-4 text-brand" />
+              <div>
+                <p className="text-xs font-bold text-text-main">Skanuj fakturę</p>
+                <p className="text-[11px] text-text-muted">Gemini odczyta nazwę, kwotę i termin. Sprawdź wynik przed zapisaniem.</p>
+              </div>
+            </div>
+            <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-brand/20 bg-surface px-3 py-2 text-xs font-bold text-brand hover:bg-surface-2">
+              {isScanningInvoice ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ScanLine className="h-3.5 w-3.5" />}
+              {isScanningInvoice ? "Skanowanie..." : "Wybierz obraz faktury"}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleInvoiceScan} disabled={isScanningInvoice} />
+            </label>
+            {scanError && (
+              <p className="mt-2 flex items-start gap-1.5 text-[11px] text-danger">
+                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {scanError}
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-xs font-bold text-text-main mb-1.5" htmlFor="input-payment-amount">
