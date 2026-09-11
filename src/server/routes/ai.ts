@@ -134,6 +134,42 @@ router.all("/health", async (req: any, res: Response) => {
   }
 });
 
+const PullModelInput = z.object({
+  model: z.string().trim().min(1).max(100).regex(/^[a-zA-Z0-9._:/-]+$/)
+});
+
+router.post("/pull", async (req: any, res: Response) => {
+  const parsed = PullModelInput.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Nieprawidłowa nazwa modelu Ollama." });
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15 * 60 * 1000);
+  try {
+    const pullEndpoint = new URL(req.aiConfig.localEndpoint);
+    pullEndpoint.pathname = "/api/pull";
+    pullEndpoint.search = "";
+    const pullResponse = await fetch(pullEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: parsed.data.model, stream: false }),
+      signal: controller.signal
+    });
+    if (!pullResponse.ok) {
+      return res.status(502).json({ error: `Ollama nie mogła pobrać modelu (HTTP ${pullResponse.status}).` });
+    }
+    return res.json({ model: parsed.data.model, result: await pullResponse.json() });
+  } catch (error: any) {
+    const message = error?.name === "AbortError"
+      ? "Pobieranie modelu trwało zbyt długo i zostało przerwane."
+      : "Nie udało się pobrać modelu z Ollamy.";
+    return res.status(502).json({ error: message });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+});
+
 /**
  * Input schemas
  */

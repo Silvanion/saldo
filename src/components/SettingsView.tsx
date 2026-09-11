@@ -60,6 +60,39 @@ function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: s
   return { level: 0, label: "Za krótkie", color: "bg-border" };
 }
 
+function getLocalAiRecommendation(): { primary: string; alternatives: string[]; reason: string } {
+  const browser = navigator as Navigator & {
+    deviceMemory?: number;
+    userAgentData?: { architecture?: string };
+  };
+  const cores = navigator.hardwareConcurrency || 4;
+  const memory = browser.deviceMemory || 8;
+  const architecture = `${browser.userAgentData?.architecture || ""} ${navigator.platform || ""} ${navigator.userAgent}`.toLowerCase();
+  const appleSilicon = architecture.includes("arm") || architecture.includes("mac");
+
+  if (memory <= 4 || cores <= 4) {
+    return {
+      primary: "qwen3:1.7b",
+      alternatives: ["gemma3:1b", "llama3.2:1b"],
+      reason: "Lekki wariant dla urządzeń z mniejszą pamięcią lub mniejszą liczbą rdzeni."
+    };
+  }
+  if (memory >= 16 || cores >= 10) {
+    return {
+      primary: appleSilicon ? "qwen3:8b" : "gemma3:12b",
+      alternatives: ["qwen3:8b", "gemma3:4b"],
+      reason: appleSilicon
+        ? "Apple Silicon zwykle dobrze radzi sobie z lokalnymi modelami 8B."
+        : "Mocniejsze urządzenie może użyć większego modelu dla lepszej jakości odpowiedzi."
+    };
+  }
+  return {
+    primary: "qwen3:4b",
+    alternatives: ["gemma3:4b", "llama3.2:3b"],
+    reason: "Dobry kompromis jakości, szybkości i zużycia pamięci."
+  };
+}
+
 interface SettingsViewProps {
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
   state: AppState;
@@ -367,6 +400,8 @@ export function SettingsView({
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
   const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number }>>([]);
   const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
+  const [isLocalAiPulling, setIsLocalAiPulling] = useState(false);
+  const localAiRecommendation = getLocalAiRecommendation();
 
   const targetPdfDate = selectedDate || (() => {
     if (activeProfile?.transactions && activeProfile.transactions.length > 0) {
@@ -1212,6 +1247,43 @@ export function SettingsView({
                 </p>
               </div>
             )}
+            <div className="rounded-xl border border-border bg-surface p-3 space-y-2">
+              <p className="text-xs font-bold text-text-main">Rekomendacja dla tego urządzenia: {localAiRecommendation.primary}</p>
+              <p className="text-xs text-text-muted">{localAiRecommendation.reason}</p>
+              <p className="text-xs text-text-muted">Alternatywy: {localAiRecommendation.alternatives.join(", ")}.</p>
+              <button
+                type="button"
+                disabled={isLocalAiPulling}
+                onClick={async () => {
+                  setIsLocalAiPulling(true);
+                  try {
+                    const res = await fetch("/api/ai/pull", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "x-ai-mode": "local",
+                        "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate"
+                      },
+                      body: JSON.stringify({ model: localAiRecommendation.primary })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || "Nie udało się pobrać modelu.");
+                    await saveState({ ...state, localAiModel: localAiRecommendation.primary });
+                    setLocalAiModels((models) => models.some((model) => model.name === localAiRecommendation.primary)
+                      ? models
+                      : [...models, { name: localAiRecommendation.primary }]);
+                    showToast(`Model ${localAiRecommendation.primary} został pobrany.`, "success");
+                  } catch (err: any) {
+                    showToast(err.message || "Nie udało się pobrać rekomendowanego modelu.", "error");
+                  } finally {
+                    setIsLocalAiPulling(false);
+                  }
+                }}
+                className="px-3 py-2 bg-brand hover:bg-brand-hover disabled:opacity-60 text-text-inverse text-xs font-bold rounded-xl transition-colors"
+              >
+                {isLocalAiPulling ? "Pobieranie modelu..." : `Pobierz ${localAiRecommendation.primary}`}
+              </button>
+            </div>
             <div className="flex gap-2">
               <input
                 type="text"
