@@ -162,4 +162,16 @@ describe("parsePdfTransactions", () => {
     expect(result.rejectedRows).toHaveLength(2);
     expect(result.transactions[0]).toMatchObject({ amount: 12.5, type: "expense" });
   });
+
+  it("removes identical OCR rows repeated across PDF pages", () => {
+    const result = normalizeAiPdfTransactions([
+      { name: "Biedronka", amount: 25.5, type: "expense", isoDate: "2026-09-11", category: "Żywność" },
+      { name: "Biedronka", amount: 25.5, type: "expense", isoDate: "2026-09-11", category: "Żywność" }
+    ], options);
+
+    expect(result.transactions).toHaveLength(1);
+    expect(result.rejectedRows).toEqual([
+      expect.objectContaining({ reason: "Powielony rekord OCR — pominięto go przed importem." })
+    ]);
+  });
 });

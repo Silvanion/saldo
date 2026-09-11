@@ -698,7 +698,7 @@ export const helpSectionsData: HelpSectionData[] = [
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Podstawowe rozpoznawanie kwot, dat i kategorii działa w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych. Zewnętrzne, chmurowe AI zostało z aplikacji <strong className="text-text-main">całkowicie usunięte</strong>: żadne dane finansowe nigdy nie trafiają na serwery firm trzecich.
+          Podstawowe rozpoznawanie kwot, dat i kategorii działa w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych. Opcjonalne lokalne AI (Ollama) działa na Twoim komputerze. Jeśli używasz trybu chmurowego na własnym wdrożeniu, dane są wysyłane do skonfigurowanego dostawcy AI — przed użyciem sprawdź ustawienia prywatności.
         </p>
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
@@ -709,6 +709,10 @@ export const helpSectionsData: HelpSectionData[] = [
           <li>
             <strong>Szybki wpis w palecie poleceń (⌘K):</strong><br />
             Zdanie w rodzaju „prąd 340 zł za 3 dni” zamienia się w gotowy rachunek — bez otwierania osobnego formularza.
+          </li>
+          <li>
+            <strong>Import PDF i OCR:</strong><br />
+            Tekstowy PDF jest parsowany lokalnie. Skanowany PDF wymaga włączonego AI i modelu multimodalnego z obsługą obrazów. Aplikacja analizuje maksymalnie 10 pierwszych stron, odrzuca niepełne rekordy i zawsze pokazuje podgląd przed zapisaniem.
           </li>
         </ul>
 
@@ -728,6 +732,7 @@ export const helpSectionsData: HelpSectionData[] = [
           <ul className="list-disc pl-5 space-y-2 text-xs mt-3">
             <li><strong>Sugestie kategorii:</strong> dla transakcji, których nie rozpoznały Twoje reguły, model zaproponuje kategorię na podstawie opisu.</li>
             <li><strong>Odczyt wklejonego tekstu:</strong> gdy deterministyczny parser nie wyodrębni poprawnie kwot lub dat z nietypowego formatu wyciągu, lokalne AI spróbuje je odczytać.</li>
+            <li><strong>Skanowane PDF-y:</strong> wybierz model vision (np. gemma4:12b-mlx), ponieważ zwykły model tekstowy nie odczyta obrazu. Dla każdego skanu sprawdź kwoty, daty i opisy w podglądzie — OCR może wymagać ręcznej korekty.</li>
             <li><strong>Zawsze do akceptacji:</strong> każda sugestia trafia do podglądu przed importem — nic nie zapisuje się automatycznie bez Twojej zgody.</li>
             <li><strong>Wyłączone domyślnie:</strong> włączasz to ręcznie w Ustawieniach → Automatyzacja, w każdej chwili możesz wyłączyć.</li>
           </ul>

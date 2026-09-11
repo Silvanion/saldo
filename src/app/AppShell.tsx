@@ -31,8 +31,6 @@ import {
   FileSpreadsheet,
   Plus,
   ChevronDown,
-  User,
-  Users,
   AlertTriangle
 } from "lucide-react";
 
@@ -70,25 +68,19 @@ export function AppShell({
 
   const [showDemoBanner, setShowDemoBanner] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuRef = React.useRef<HTMLDivElement>(null);
   const [isTopUserMenuOpen, setIsTopUserMenuOpen] = useState(false);
   const topUserMenuRef = React.useRef<HTMLDivElement>(null);
 
   // Zamknij menu profilu po kliknięciu poza nim lub klawiszem Escape
   useEffect(() => {
-    if (!isProfileMenuOpen && !isTopUserMenuOpen) return;
+    if (!isTopUserMenuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
-        setIsProfileMenuOpen(false);
-      }
       if (topUserMenuRef.current && !topUserMenuRef.current.contains(e.target as Node)) {
         setIsTopUserMenuOpen(false);
       }
     };
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsProfileMenuOpen(false);
         setIsTopUserMenuOpen(false);
       }
     };
@@ -98,10 +90,9 @@ export function AppShell({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isProfileMenuOpen, isTopUserMenuOpen]);
+  }, [isTopUserMenuOpen]);
 
   const handleLogoutClick = async () => {
-    setIsProfileMenuOpen(false);
     setIsMobileMenuOpen(false);
     try {
       await disconnectGoogle();
@@ -339,71 +330,6 @@ export function AppShell({
             </div>
           </button>
 
-          {activeProfile && (
-            <div className="relative" ref={profileMenuRef}>
-              {isProfileMenuOpen && (
-                <div
-                  className="absolute bottom-full left-0 right-0 mb-2 bg-surface border border-border/80 rounded-xl shadow-lg overflow-hidden py-1.5 z-10"
-                  role="menu"
-                  id="profile-account-menu"
-                >
-                  <button
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      handleSwitchProfile();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    role="menuitem"
-                    className="flex items-center gap-2.5 w-full px-3.5 py-2.5 text-xs font-medium text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                    id="btn-switch-profile"
-                  >
-                    <ArrowLeftRight className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
-                    Przełącz profil
-                  </button>
-                  {googleUser && (
-                    <button
-                      onClick={handleLogoutClick}
-                      role="menuitem"
-                      className="flex items-center gap-2.5 w-full px-3.5 py-2.5 text-xs font-medium text-danger hover:bg-danger-subtle transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      id="btn-header-logout"
-                    >
-                      <LogOut className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-                      Wyloguj z konta Google
-                    </button>
-                  )}
-                </div>
-              )}
-              <button
-                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 w-full px-3 py-2 bg-surface/40 border border-border/70 rounded-xl hover:bg-surface-2/70 hover:border-border active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring group"
-                id="btn-profile-menu-trigger"
-                title="Menu konta"
-                aria-haspopup="menu"
-                aria-expanded={isProfileMenuOpen}
-              >
-                <span className="w-7 h-7 rounded-lg bg-surface-offset text-text-main text-xs font-bold flex items-center justify-center select-none shadow-xs border border-border/60 shrink-0">
-                  {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
-                </span>
-                <div className="min-w-0 flex-1 text-left">
-                  <p className="text-xs font-semibold text-text-main truncate" id="profile-tag-name" title={activeProfile.name}>{activeProfile.name}</p>
-                  <span className="text-[11px] text-text-muted flex items-center gap-1 truncate" title={activeProfile.kind === "shared" ? `Budżet wspólny · ${activeProfile.name} + ${activeProfile.partnerName || 'Partner'}` : "Budżet osobisty"}>
-                    {activeProfile.kind === "shared" ? (
-                      <>
-                        <Users className="w-3 h-3 text-brand shrink-0" strokeWidth={1.75} />
-                        <span className="truncate">Wspólny</span>
-                      </>
-                    ) : (
-                      <>
-                        <User className="w-3 h-3 text-text-faint shrink-0" strokeWidth={1.75} />
-                        <span className="truncate">Osobisty</span>
-                      </>
-                    )}
-                  </span>
-                </div>
-                <ArrowLeftRight className="w-3.5 h-3.5 text-text-faint group-hover:text-brand shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" strokeWidth={1.75} />
-              </button>
-            </div>
-          )}
         </div>
       </aside>
 
@@ -712,4 +638,3 @@ export function AppShell({
     </div>
   );
 }
-

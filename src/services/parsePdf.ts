@@ -48,7 +48,7 @@ export async function renderPdfPages(file: File, maxPages = 10): Promise<string[
   const images: string[] = [];
   for (let pageNumber = 1; pageNumber <= Math.min(pdfDocument.numPages, maxPages); pageNumber++) {
     const page = await pdfDocument.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1.5 });
+    const viewport = page.getViewport({ scale: 2 });
     const canvas = document.createElement("canvas");
     canvas.width = viewport.width;
     canvas.height = viewport.height;
@@ -91,6 +91,7 @@ export function normalizeAiPdfTransactions(
 ): Pick<PdfImportResult, "transactions" | "rejectedRows"> {
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
+  const seen = new Set<string>();
 
   rawTransactions.forEach((raw, index) => {
     const candidate = raw && typeof raw === "object" ? raw as AiPdfTransaction : {};
@@ -113,6 +114,21 @@ export function normalizeAiPdfTransactions(
       options.rules,
       typeof candidate.category === "string" ? candidate.category : "Inne"
     );
+    const duplicateKey = [
+      name.toLocaleLowerCase(),
+      amount.toFixed(2),
+      type,
+      date
+    ].join("|");
+    if (seen.has(duplicateKey)) {
+      rejectedRows.push({
+        row: index + 1,
+        reason: "Powielony rekord OCR — pominięto go przed importem.",
+        raw: JSON.stringify(raw)
+      });
+      return;
+    }
+    seen.add(duplicateKey);
     transactions.push({
       ...buildTransaction(name, amount, type === "expense", date, options.currency, options.account, options.rules),
       category: categorized.category,
