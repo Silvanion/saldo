@@ -21,10 +21,11 @@ Głównym zadaniem aplikacji **Saldo** jest pomoc użytkownikom w kontrolowaniu 
 Aplikacja została zbudowana w architekturze full-stack (React + Express + Firebase).
 
 ### Backend i Baza danych:
-1. **Lokalna Baza Serwerowa (`db.json`)**: Służy jako domyślna baza współdzielona (dla niezalogowanych użytkowników w wersji demonstracyjnej).
+1. **Lokalny zapis przeglądarkowy**: W trybie lokalnym stan aplikacji jest przechowywany w IndexedDB, z kopią zapasową w `localStorage`. Dane nie są wysyłane na serwer.
 2. **Firebase Auth**: Umożliwia bezpieczne logowanie za pomocą konta Google.
 3. **Firebase Firestore (Główny trwale zapisywany stan)**: Po zalogowaniu dane użytkownika są w pełni prywatne i bezpiecznie zapisywane bezpośrednio w chmurze Google Firestore pod dokumentem odpowiadającym unikalnemu identyfikatorowi użytkownika (`uid`).
 4. **Google Drive Sync**: Zapewnia opcjonalną możliwość bezpośredniego zapisu/odczytu kopii zapasowej w formacie pliku `.json` na prywatnym Dysku Google zalogowanego użytkownika.
+5. **Express**: Serwuje aplikację Vite w trybie deweloperskim i zbudowany frontend w produkcji oraz udostępnia endpointy zdrowia, resetu stanu i funkcje AI. Nie jest bazą danych użytkowników.
 
 ---
 
@@ -80,7 +81,7 @@ Aplikacja jest zaimplementowana w przejrzystej i modularnej strukturze plików:
 ├── firebase-blueprint.json         # Definicja schematu bazy danych Firestore
 ├── firestore.rules                 # Reguły bezpieczeństwa dla bazy Firestore
 ├── package.json                    # Konfiguracja pakietów NPM i zależności
-├── server.ts                       # Backend Express.js obsługujący plik db.json
+├── server.ts                       # Serwer Express dla frontendu, resetu stanu i endpointów AI
 ├── index.html                      # Główny punkt wejściowy HTML
 ├── src
 │   ├── main.tsx                    # Główny plik wejściowy React
