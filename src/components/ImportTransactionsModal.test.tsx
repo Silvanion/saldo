@@ -7,8 +7,8 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { Profile, Transaction } from "../types";
 
-let mockAppState = {
-  aiMode: "none" as const,
+let mockAppState: { aiMode: "none" | "local" } = {
+  aiMode: "none",
 };
 
 let mockActiveProfile: Profile = {
@@ -37,6 +37,22 @@ let mockActiveProfile: Profile = {
   transactionRules: []
 };
 
+const { callAiApiMock } = vi.hoisted(() => ({ callAiApiMock: vi.fn() }));
+
+vi.mock("../services/aiClient", async () => {
+  const actual = await vi.importActual<typeof import("../services/aiClient")>("../services/aiClient");
+  return { ...actual, callAiApi: callAiApiMock };
+});
+
+vi.mock("../services/parsePdf", async () => {
+  const actual = await vi.importActual<typeof import("../services/parsePdf")>("../services/parsePdf");
+  return {
+    ...actual,
+    extractPdfText: vi.fn().mockResolvedValue(""),
+    renderPdfPages: vi.fn().mockResolvedValue(["rendered-page"])
+  };
+});
+
 vi.mock("../app/providers/AppContext", () => ({
   useApp: () => ({
     state: mockAppState,
@@ -48,6 +64,8 @@ describe("ImportTransactionsModal — Import Quality & Data Trust v1", () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    mockAppState = { aiMode: "none" };
+    callAiApiMock.mockReset();
   });
 
   const SAMPLE_CSV = `
@@ -162,6 +180,61 @@ invalid_date;100;Błędna data;PLN
     fireEvent.click(screen.getByRole("button", { name: "Anuluj" }));
 
     expect(onImport).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("imports validated transactions from a scanned PDF through the AI preview", async () => {
+    mockAppState = { aiMode: "local" };
+    callAiApiMock.mockResolvedValue({
+      transactions: [
+        {
+          name: "Sklep spożywczy",
+          amount: 42.5,
+          type: "expense",
+          isoDate: "2026-09-11",
+          category: "Żywność"
+        },
+        {
+          name: "Niepełny rekord",
+          amount: 0,
+          type: "expense",
+          isoDate: "2026-09-11"
+        }
+      ]
+    });
+    const onImport = vi.fn();
+    const onClose = vi.fn();
+
+    render(
+      <ImportTransactionsModal
+        isOpen={true}
+        onClose={onClose}
+        onImport={onImport}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Importuj PDF/i }));
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const pdfFile = new File(["fake-pdf"], "wyciag.pdf", { type: "application/pdf" });
+    fireEvent.change(fileInput, { target: { files: [pdfFile] } });
+
+    expect(await screen.findByText("Sklep spożywczy")).toBeTruthy();
+    expect(screen.getByText("Sklep spożywczy")).toBeTruthy();
+    expect(screen.getByText("Odrzucone")).toBeTruthy();
+    expect(callAiApiMock).toHaveBeenCalledWith(
+      "parse-statement-image",
+      expect.objectContaining({ imageBase64: "rendered-page", mimeType: "image/png" }),
+      expect.objectContaining({ aiMode: "local" })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Zaimportuj wybrane \(1\)/i }));
+    expect(onImport).toHaveBeenCalledWith([
+      expect.objectContaining({
+        name: "Sklep spożywczy",
+        amount: 42.5,
+        type: "expense"
+      })
+    ]);
     expect(onClose).toHaveBeenCalled();
   });
 });
