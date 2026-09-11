@@ -3,12 +3,13 @@ import { AiProvider } from "../types";
 
 export class LocalProvider implements AiProvider {
   private endpoint: string;
-  private modelName: string;
+  private modelName?: string;
+  private detectedModel?: string;
 
   constructor(endpoint?: string, modelName?: string) {
     // Default Ollama endpoint assumption if none provided
     this.endpoint = endpoint || "http://localhost:11434/api/generate";
-    this.modelName = modelName || "llama3";
+    this.modelName = modelName?.trim() || undefined;
   }
 
   /**
@@ -67,6 +68,29 @@ export class LocalProvider implements AiProvider {
    * Generic request execution wrapper with timeout, signal handling,
    * network validation, and safe response parsing.
    */
+  private async getModelName(): Promise<string> {
+    if (this.modelName) return this.modelName;
+    if (this.detectedModel) return this.detectedModel;
+
+    const tagsEndpoint = new URL(this.endpoint);
+    tagsEndpoint.pathname = "/api/tags";
+    tagsEndpoint.search = "";
+    const response = await fetch(tagsEndpoint, { method: "GET" });
+    if (!response.ok) {
+      throw new Error("Nie udało się pobrać listy modeli z Ollamy.");
+    }
+
+    const data = await response.json() as { models?: Array<{ name?: string; model?: string }> };
+    const firstModel = data.models?.find((model) => model.name || model.model);
+    const modelName = firstModel?.name || firstModel?.model;
+    if (!modelName) {
+      throw new Error("Nie znaleziono żadnego modelu w Ollamie. Pobierz model, np. qwen3:4b.");
+    }
+
+    this.detectedModel = modelName;
+    return modelName;
+  }
+
   private async callLocalApi(prompt: string, expectJson: boolean = true): Promise<any> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 30s timeout
@@ -74,7 +98,7 @@ export class LocalProvider implements AiProvider {
     try {
       // Default Ollama payload structure
       const payload: Record<string, any> = {
-        model: this.modelName,
+        model: await this.getModelName(),
         prompt: prompt,
         stream: false,
       };
@@ -115,7 +139,13 @@ export class LocalProvider implements AiProvider {
       }
 
       // Return clean domain error message to user
-      if (e.message && e.message.includes("zinterpretować")) {
+      if (
+        e.message &&
+        (e.message.includes("zinterpretować") ||
+          e.message.includes("modeli") ||
+        e.message.includes("Nie znaleziono żadnego modelu") ||
+        e.message.includes("pobrać listy modeli"))
+      ) {
         throw e;
       }
       throw new Error("Lokalny silnik AI nie odpowiedział poprawnie.");

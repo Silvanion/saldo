@@ -365,6 +365,8 @@ export function SettingsView({
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
+  const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number }>>([]);
+  const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
 
   const targetPdfDate = selectedDate || (() => {
     if (activeProfile?.transactions && activeProfile.transactions.length > 0) {
@@ -1189,6 +1191,27 @@ export function SettingsView({
                 Przywróć domyślny Ollama (11434)
               </button>
             </div>
+            {localAiModels.length > 0 && (
+              <div className="space-y-1.5">
+                <label htmlFor="select-local-ai-model" className="text-xs font-bold text-text-main">
+                  Model Ollama
+                </label>
+                <select
+                  id="select-local-ai-model"
+                  value={state.localAiModel || ""}
+                  onChange={(e) => saveState({ ...state, localAiModel: e.target.value || undefined })}
+                  className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                >
+                  <option value="">Automatycznie wybierz pierwszy dostępny</option>
+                  {localAiModels.map((model) => (
+                    <option key={model.name} value={model.name}>{model.name}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-text-muted">
+                  Jeśli nie wybierzesz modelu, Saldo użyje pierwszego modelu wykrytego w Ollamie.
+                </p>
+              </div>
+            )}
             <div className="flex gap-2">
               <input
                 type="text"
@@ -1201,6 +1224,7 @@ export function SettingsView({
               <button
                 type="button"
                 onClick={async () => {
+                  setIsLocalAiChecking(true);
                   try {
                     const res = await fetch("/api/ai/health", {
                       headers: {
@@ -1210,18 +1234,31 @@ export function SettingsView({
                     });
                     const data = await res.json();
                     if (res.ok) {
-                      showToast("Połączenie udane! Lokalny serwer AI odpowiada prawidłowo.", "success");
+                      setLocalAiModels(data.models || []);
+                      if (!state.localAiModel && data.selectedModel) {
+                        await saveState({ ...state, localAiModel: data.selectedModel });
+                      }
+                      showToast(
+                        data.models === undefined
+                          ? "Połączenie udane! Lokalny serwer AI odpowiada prawidłowo."
+                          : data.models.length
+                            ? `Połączenie udane! Wykryto ${data.models.length} modeli Ollama.`
+                            : "Ollama działa, ale nie ma pobranych modeli.",
+                        data.models === undefined ? "success" : data.models.length ? "success" : "info"
+                      );
                     } else {
                       showToast("Błąd połączenia: " + (data.message || data.error || "Serwer lokalny niedostępny."), "error");
                     }
                   } catch (err: any) {
                     showToast("Błąd sieciowy: Nie udało się połączyć z backendem.", "error");
+                  } finally {
+                    setIsLocalAiChecking(false);
                   }
                 }}
                 className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
                 id="btn-test-local-ai"
               >
-                Testuj połączenie
+                {isLocalAiChecking ? "Wykrywanie modeli..." : "Testuj połączenie"}
               </button>
             </div>
             <p className="text-xs text-text-muted leading-relaxed">

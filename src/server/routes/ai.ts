@@ -90,22 +90,34 @@ router.all("/health", async (req: any, res: Response) => {
     }
     
     if (config.mode === "local") {
-      // Test fetch to local endpoint
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       try {
-        const testRes = await fetch(config.localEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ model: "llama3", prompt: "ping", stream: false }),
+        const tagsEndpoint = new URL(config.localEndpoint);
+        tagsEndpoint.pathname = "/api/tags";
+        tagsEndpoint.search = "";
+        const testRes = await fetch(tagsEndpoint, {
+          method: "GET",
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-        if (testRes.ok || testRes.status === 400 || testRes.status === 404) {
-          return res.json({ status: "ok", mode: "local", endpoint: config.localEndpoint, message: "Połączenie z lokalnym endpointem udane." });
-        } else {
+        if (!testRes.ok) {
           return res.status(502).json({ status: "error", mode: "local", message: `Lokalny endpoint odpowiedział kodem ${testRes.status}.` });
         }
+        const data = await testRes.json() as { models?: Array<{ name?: string; model?: string; size?: number }> };
+        const models = (data.models || [])
+          .map((model) => ({ name: model.name || model.model || "", size: model.size }))
+          .filter((model) => model.name);
+        return res.json({
+          status: "ok",
+          mode: "local",
+          endpoint: config.localEndpoint,
+          models,
+          selectedModel: config.localAiModel || models[0]?.name || null,
+          message: models.length
+            ? "Połączenie z Ollamą udane."
+            : "Ollama działa, ale nie ma jeszcze pobranych modeli."
+        });
       } catch (err: any) {
         clearTimeout(timeoutId);
         return res.status(503).json({ status: "error", mode: "local", message: "Brak możliwości połączenia z lokalnym serwerem AI (Ollama)." });
