@@ -489,15 +489,15 @@ export function DebtDetailsModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface border border-border w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+          className="bg-surface border border-border/70 w-full max-w-4xl rounded-xl shadow-lg overflow-hidden flex flex-col max-h-[92vh]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="debt-details-modal-title"
         >
           {/* Top Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/40">
+          <div className="p-5 sm:p-6 border-b border-border/70 flex items-center justify-between shrink-0 bg-surface-2/40">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
                 <Home className="w-6 h-6" />
               </div>
               <div className="min-w-0">
@@ -1175,8 +1175,8 @@ export function DebtDetailsModal({
             {activeTab === "history" && (
               <div className="space-y-6 animate-fade-in">
                 {activity.items.length === 0 ? (
-                  <div className="text-center py-12 px-4 rounded-3xl bg-surface-2/40 border border-border flex flex-col items-center justify-center max-w-lg mx-auto">
-                    <div className="w-12 h-12 rounded-2xl bg-surface-3 flex items-center justify-center text-text-muted mb-3">
+                  <div className="text-center py-12 px-4 rounded-xl bg-surface-2/40 border border-border/70 flex flex-col items-center justify-center max-w-lg mx-auto">
+                    <div className="w-12 h-12 rounded-xl bg-surface-3 flex items-center justify-center text-text-muted mb-3">
                       <Clock className="w-6 h-6" />
                     </div>
                     <h4 className="text-sm font-bold text-text-main mb-1">

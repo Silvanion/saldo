@@ -3,6 +3,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
+import { X } from "lucide-react";
 
 export interface ProfileModalProps {
   isOpen: boolean;
@@ -66,11 +67,11 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-md rounded-xl bg-bg-base/95 backdrop-blur-2xl border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
        ref={modalRef}>
-        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
-          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-profile-modal">
-            &times;
+        <div className="shrink-0 p-6 pb-4 border-b border-border/70 relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-xl transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer" id="close-profile-modal">
+            <X className="w-5 h-5" />
           </button>
           <p className="text-xs font-medium text-text-muted truncate" title="Zarządzanie profilami">Zarządzanie profilami</p>
           <h2 id="profile-modal-title" className="text-2xl font-bold text-text-main min-w-0 truncate" title="Utwórz profil">Utwórz profil</h2>

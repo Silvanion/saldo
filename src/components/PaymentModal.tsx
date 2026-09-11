@@ -87,9 +87,9 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-3xl bg-surface border border-border shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-md rounded-xl bg-surface border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
        ref={modalRef}>
-        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-surface sticky top-0 z-20">
+        <div className="shrink-0 p-6 pb-4 border-b border-border/70 relative bg-surface sticky top-0 z-20">
           <button
             onClick={onClose}
             aria-label="Zamknij"

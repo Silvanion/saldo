@@ -2,7 +2,33 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Transaction, Payment, RecurringRule } from "../types";
 import { formatDate, getMonthName, iconByCategory, monthsPl, budgetCategories } from "../utils";
-import { Wifi, WifiOff, Database, ShieldCheck, Settings, Move, Eye, EyeOff, ArrowUp, ArrowDown, Check, GripVertical, RotateCcw, X, Info, ChevronLeft, ChevronRight, Landmark } from "lucide-react";
+import { 
+  Wifi, 
+  WifiOff, 
+  Database, 
+  ShieldCheck, 
+  Settings, 
+  Move, 
+  Eye, 
+  EyeOff, 
+  ArrowUp, 
+  ArrowDown, 
+  Check, 
+  GripVertical, 
+  RotateCcw, 
+  X, 
+  Info, 
+  ChevronLeft, 
+  ChevronRight, 
+  Landmark,
+  BarChart3,
+  Clock,
+  Calendar,
+  Target,
+  TrendingUp,
+  History,
+  LayoutDashboard
+} from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget, FinancialHealthBridgeCard } from "./dashboard";
 import { formatMoney } from "../utils/format";
@@ -14,6 +40,25 @@ interface Widget {
   name: string;
   visible: boolean;
   icon: string;
+}
+
+function getWidgetIcon(id: string) {
+  switch (id) {
+    case "stats":
+      return <BarChart3 className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "timeline":
+      return <Clock className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "bills":
+      return <Calendar className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "budget":
+      return <Target className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "chart":
+      return <TrendingUp className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "activity":
+      return <History className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    default:
+      return <LayoutDashboard className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+  }
 }
 
 interface DashboardViewProps {
@@ -66,12 +111,12 @@ export function DashboardView({
   }, [activeDebts]);
 
   const DEFAULT_WIDGETS: Widget[] = [
-    { id: "stats", name: "Podsumowanie finansowe i Runway", visible: true, icon: "📊" },
-    { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "⏳" },
-    { id: "bills", name: "Nadchodzące rachunki", visible: true, icon: "📅" },
-    { id: "budget", name: "Plan budżetu i limity", visible: true, icon: "🎯" },
-    { id: "chart", name: "Wykres przepływów (6 mies.)", visible: true, icon: "📈" },
-    { id: "activity", name: "Ostatnie transakcje (Aktywność)", visible: true, icon: "⏱️" },
+    { id: "stats", name: "Podsumowanie finansowe i Runway", visible: true, icon: "stats" },
+    { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "timeline" },
+    { id: "bills", name: "Nadchodzące rachunki", visible: true, icon: "bills" },
+    { id: "budget", name: "Plan budżetu i limity", visible: true, icon: "budget" },
+    { id: "chart", name: "Wykres przepływów (6 mies.)", visible: true, icon: "chart" },
+    { id: "activity", name: "Ostatnie transakcje (Aktywność)", visible: true, icon: "activity" },
   ];
 
   const [widgets, setWidgets] = useState<Widget[]>(() => {
@@ -213,51 +258,6 @@ export function DashboardView({
         showToast={showToast}
       />
 
-      <FinancialHealthBridgeCard
-        profile={profile}
-        recurringRules={recurringRules}
-        selectedDate={selectedDate}
-        onChangeView={onChangeView}
-      />
-
-      {/* SPRINT 15: DEBT PORTFOLIO DASHBOARD BRIDGE INSIGHT */}
-      {debtSummary && (
-        <div
-          id="dashboard-debt-bridge-card"
-          className="bg-surface border border-border/80 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in mb-6"
-        >
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20 shadow-2xs">
-              <Landmark className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-bold text-text-main">
-                  Portfel kredytów i zadłużenia
-                </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
-                  {debtSummary.activeCount} {debtSummary.activeCount === 1 ? "aktywna umowa" : debtSummary.activeCount < 5 ? "aktywne umowy" : "aktywnych umów"}
-                </span>
-              </div>
-              <p className="text-xs text-text-muted mt-0.5 truncate">
-                Łączne aktywne saldo: <strong className="text-text-main font-bold tabular-nums">{formatMoney(debtSummary.totalBalance, profile.currency || "PLN")}</strong> • Raty miesięczne: <strong className="text-text-main font-bold tabular-nums">{formatMoney(debtSummary.totalMonthlyPayment, profile.currency || "PLN")}/mc</strong>
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onChangeView("debts")}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-hover border border-border text-xs font-bold text-text-main hover:text-brand transition cursor-pointer shadow-2xs shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring w-full sm:w-auto"
-            id="btn-dashboard-to-debts"
-            aria-label="Przejdź do pełnego widoku Kredyty i Hipoteka"
-          >
-            <span>Szczegóły i strategie</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
       {isEditMode && (
         <div className="bg-warning-subtle border border-warning/20 text-warning px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 ">
           <div className="flex items-center gap-3 min-w-0">
@@ -279,6 +279,72 @@ export function DashboardView({
           let widgetContent = null;
 
           if (widget.id === "stats") {
+            const debtBridgeCard = debtSummary ? (
+              <div
+                id="dashboard-debt-bridge-card"
+                className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-3.5 h-full transition-all hover:border-border"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-brand-subtle text-brand flex items-center justify-center shrink-0 border border-brand/20 shadow-2xs">
+                      <Landmark className="w-5 h-5" strokeWidth={1.75} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-semibold text-text-main tracking-tight">
+                          Portfel kredytów i zadłużenia
+                        </h3>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
+                          {debtSummary.activeCount} {debtSummary.activeCount === 1 ? "aktywna umowa" : debtSummary.activeCount < 5 ? "aktywne umowy" : "aktywnych umów"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-text-muted block mt-0.5">
+                        Zobowiązania finansowe
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onChangeView("debts")}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+                    id="btn-dashboard-to-debts"
+                    aria-label="Przejdź do pełnego widoku Kredyty i Hipoteka"
+                  >
+                    <span>Kredyty</span>
+                    <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
+                  <div className="bg-surface-2/60 p-2.5 rounded-lg border border-border/40">
+                    <span className="text-[10px] uppercase font-semibold text-text-muted block mb-0.5">Aktywne saldo</span>
+                    <span className="text-sm font-bold text-text-main tabular-nums truncate block">
+                      {formatMoney(debtSummary.totalBalance, profile.currency || "PLN")}
+                    </span>
+                  </div>
+                  <div className="bg-surface-2/60 p-2.5 rounded-lg border border-border/40">
+                    <span className="text-[10px] uppercase font-semibold text-text-muted block mb-0.5">Raty miesięczne</span>
+                    <span className="text-sm font-bold text-text-main tabular-nums truncate block">
+                      {formatMoney(debtSummary.totalMonthlyPayment, profile.currency || "PLN")}/mc
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : null;
+
+            const analyticsMiddleRow = (
+              <div className={`grid gap-4 ${debtBridgeCard ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
+                <FinancialHealthBridgeCard
+                  profile={profile}
+                  recurringRules={recurringRules}
+                  selectedDate={selectedDate}
+                  onChangeView={onChangeView}
+                />
+                {debtBridgeCard}
+              </div>
+            );
+
             widgetContent = (
               <StatsWidget currency={profile?.currency || 'PLN'} 
                 totalIncome={metrics.totalIncome}
@@ -291,6 +357,7 @@ export function DashboardView({
                 runway={metrics.runway}
                 momTrends={metrics.momTrends}
                 onChangeView={onChangeView}
+                middleRowSlot={analyticsMiddleRow}
               />
             );
           } else if (widget.id === "chart") {
@@ -427,8 +494,8 @@ export function DashboardView({
               </button>
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center border border-border shrink-0 text-xl">
-                  ⚙️
+                <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand flex items-center justify-center border border-brand/20 shrink-0">
+                  <Settings className="w-5 h-5" strokeWidth={1.75} />
                 </div>
                 <div>
                   <h3 id="dashboard-customizer-title" className="text-base font-bold text-text-main">Dostosuj Ekran Główny</h3>
@@ -443,8 +510,8 @@ export function DashboardView({
                     className="flex items-center justify-between p-3.5 bg-surface/50 border border-border rounded-xl text-sm"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-lg bg-surface-2 w-8 h-8 rounded-lg shadow-xs flex items-center justify-center shrink-0">
-                        {w.icon}
+                      <span className="w-8 h-8 rounded-lg bg-surface-2 flex items-center justify-center shrink-0 border border-border/50">
+                        {getWidgetIcon(w.id)}
                       </span>
                       <span className="font-bold text-text-main text-xs sm:text-sm truncate" title={w.name}>
                         {w.name}

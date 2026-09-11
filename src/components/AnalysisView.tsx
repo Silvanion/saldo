@@ -595,8 +595,9 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                 <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
                   {emergencySim.status === "completed" ? (
-                    <span className="font-bold text-brand">
-                      🎉 Gratulacje! Twoje płynne rezerwy w 100% pokrywają poduszkę bezpieczeństwa na {targetMonths} miesięcy!
+                    <span className="font-bold text-brand flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-brand shrink-0" />
+                      <span>Gratulacje! Twoje płynne rezerwy w 100% pokrywają poduszkę bezpieczeństwa na {targetMonths} miesięcy!</span>
                     </span>
                   ) : emergencySim.monthsToTarget !== null ? (
                     <span>
@@ -774,8 +775,9 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                       Plan bazowy: <strong className="tabular-nums">{debtSim.baselineMonths} mc</strong>. 
                       Z wybraną nadpłatą spłacisz całość w <strong className="text-brand tabular-nums">{debtSim.acceleratedMonths} mc</strong>. 
                       {debtSim.monthsSaved > 0 ? (
-                        <span className="block font-bold text-brand mt-1">
-                          ⚡ Zyskujesz <span className="tabular-nums">{debtSim.monthsSaved}</span> {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!
+                        <span className="block font-bold text-brand mt-1 flex items-center gap-1.5">
+                          <Zap className="w-3.5 h-3.5 text-brand shrink-0" />
+                          <span>Zyskujesz <span className="tabular-nums">{debtSim.monthsSaved}</span> {debtSim.monthsSaved === 1 ? "miesiąc" : debtSim.monthsSaved < 5 ? "miesiące" : "miesięcy"} wolności finansowej!</span>
                         </span>
                       ) : (
                         <span className="block text-text-muted mt-0.5">

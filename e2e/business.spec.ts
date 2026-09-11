@@ -124,7 +124,8 @@ test.describe("Business E2E Critical Flows", () => {
     await page.locator("#btn-tx-submit").click();
     await expect(page.getByText("E2E Unikalna Transakcja Profilu 1").first()).toBeVisible();
 
-    // Switch profile via header button
+    // Switch profile via header user menu
+    await page.locator("#btn-top-user-menu").click();
     await page.locator("#btn-header-switch-profile").click();
     await expect(page.getByRole("heading", { name: "Wybierz profil do pracy" })).toBeVisible({ timeout: 5000 });
 
@@ -145,7 +146,8 @@ test.describe("Business E2E Critical Flows", () => {
     // Verify Profile 1's transaction is NOT visible in Profile 2
     await expect(page.getByText("E2E Unikalna Transakcja Profilu 1")).toHaveCount(0);
 
-    // Switch back to Profile 1
+    // Switch back to Profile 1 via header user menu
+    await page.locator("#btn-top-user-menu").click();
     await page.locator("#btn-header-switch-profile").click();
     await expect(page.getByRole("heading", { name: "Wybierz profil do pracy" })).toBeVisible({ timeout: 5000 });
     await page.getByRole("button", { name: /Testowy Profil E2E/i }).first().click();

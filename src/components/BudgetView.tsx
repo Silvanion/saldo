@@ -126,16 +126,16 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
           return (
             <div
               key={category}
-              className="bg-surface p-5 rounded-2xl border border-border shadow-xs hover:border-brand/30 transition-colors flex flex-col justify-between space-y-4 min-w-0"
+              className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs hover:border-border transition-colors flex flex-col justify-between space-y-4 min-w-0"
             >
               <div className="min-w-0">
                 <div className="flex justify-between items-start min-w-0 gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-9 h-9 rounded-xl bg-surface-2 border border-border text-xl flex items-center justify-center shrink-0">
+                    <span className="w-9 h-9 rounded-xl bg-surface-2/60 border border-border/70 text-lg flex items-center justify-center shrink-0">
                       {iconByCategory[category] || "📂"}
                     </span>
                     <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-text-main truncate" title={category}>{category}</h4>
+                      <h4 className="text-sm font-semibold text-text-main truncate" title={category}>{category}</h4>
                       <p className="text-xs text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>
                         Wykorzystano <span className="tabular-nums font-semibold">{percent}%</span> limitu
                       </p>
@@ -197,13 +197,13 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
               </div>
 
               {/* Small list of category transactions */}
-              <div className="border-t border-border/80 pt-3 min-w-0">
+              <div className="border-t border-border/70 pt-3 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <p className="text-xs uppercase font-bold text-text-faint tracking-wider truncate" title="Ostatnie wydatki w tej kategorii">
+                  <p className="text-xs uppercase font-semibold text-text-faint tracking-wider truncate" title="Ostatnie wydatki w tej kategorii">
                     Ostatnie wydatki
                   </p>
                   {catTransactions.length > 0 && (
-                    <span className="text-xs font-bold text-text-faint tabular-nums">
+                    <span className="text-xs font-semibold text-text-faint tabular-nums">
                       {catTransactions.length} {catTransactions.length === 1 ? 'wpis' : catTransactions.length < 5 ? 'wpisy' : 'wpisów'}
                     </span>
                   )}
@@ -216,7 +216,7 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-surface-2/30 rounded-xl p-2.5 border border-border/50 space-y-2">
+                  <div className="bg-surface-2/40 rounded-xl p-2.5 border border-border/60 space-y-2">
                     {catTransactions.slice(0, 3).map((t) => (
                       <div key={t.id} className="flex justify-between items-center text-xs min-w-0 gap-2">
                         <div className="min-w-0 flex-1 flex items-center gap-1.5">
@@ -225,7 +225,7 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
                             {formatDate(t.isoDate)}
                           </span>
                         </div>
-                        <span className="font-bold text-text-main tabular-nums shrink-0 whitespace-nowrap" title={formatMoney(t.amount, profile.currency || 'PLN')}>
+                        <span className="font-semibold text-text-main tabular-nums shrink-0 whitespace-nowrap" title={formatMoney(t.amount, profile.currency || 'PLN')}>
                           {formatMoney(t.amount, profile.currency || 'PLN')}
                         </span>
                       </div>

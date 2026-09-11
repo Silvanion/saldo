@@ -33,6 +33,7 @@ import {
   Calendar,
   Lock,
   Shield,
+  ShieldCheck,
   Trash2,
   Cpu,
   Edit2,
@@ -48,7 +49,8 @@ import {
   UserX,
   Eye,
   EyeOff,
-  X
+  X,
+  Landmark
 } from "lucide-react";
 import { generateCsvContent, downloadFile } from "../utils";
 import { prepareStateForRemoteSave, activeKeys } from "../services/crypto";
@@ -150,36 +152,50 @@ export function BankAccountsManager({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm p-6 min-w-0" id="settings-bank-accounts-card">
-      <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Konta operacyjne</h3>
-      <p className="text-sm text-text-muted mb-4 leading-relaxed">
-        Lista miejsc operacyjnych, do których przypisujesz codzienne wydatki i wpływy. 
-        Twój <strong>limit awaryjny</strong> traktuj tu wyłącznie jako bufor bezpieczeństwa – nie są to środki wliczone do budżetu i nie należy ich traktować jako "safe-to-spend".
-      </p>
-      <form onSubmit={handleAddAccount} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-surface-2 border border-border min-w-0 shadow-xs">
-        <div>
-          <label className="block text-xs font-bold text-text-muted uppercase mb-1 truncate" title="Nazwa konta / portfela">Nazwa konta / portfela</label>
-          <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring min-w-0 shadow-xs" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-text-muted uppercase mb-1">Opis dodatkowy (opcjonalnie)</label>
-          <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs" />
-        </div>
-        <div className="flex items-center pt-5">
-          <label className="flex items-center cursor-pointer">
-            <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
-            <div className="w-9 h-5 bg-surface-offset peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
-            <span className="ml-2 text-xs font-bold text-text-muted">Bufor awaryjny</span>
-          </label>
-        </div>
-        {accHasLimit && (
-          <div>
-            <label className="block text-xs font-bold text-text-muted uppercase mb-1">Kwota limitu</label>
-            <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} className="w-full bg-surface text-xs rounded-xl border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums shadow-xs" />
+    <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6 min-w-0" id="settings-bank-accounts-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/40">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+            <Landmark className="w-5 h-5" />
           </div>
-        )}
-        <div className="flex items-end lg:col-span-1">
-          <button type="submit" className="w-full bg-surface border border-border text-brand hover:border-brand/30 hover:bg-surface-offset font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all text-xs shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring">
+          <div>
+            <h3 className="text-base font-bold text-text-main">Konta operacyjne</h3>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+              Miejsca operacyjne przypisane do wydatków i wpływów z buforem awaryjnym (poza "safe-to-spend").
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-subtle text-brand border border-brand/20 shrink-0 self-start sm:self-auto">
+          {accounts.length} {accounts.length === 1 ? "konto" : "kont"}
+        </span>
+      </div>
+
+      <form onSubmit={handleAddAccount} className="space-y-3 mb-5 p-4 sm:p-5 rounded-xl bg-surface-2/60 border border-border/70 min-w-0 shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-text-muted uppercase mb-1.5">Nazwa konta / portfela *</label>
+            <input required value={accName} onChange={(e) => setAccName(e.target.value)} placeholder="np. Konto bieżące, Gotówka" className="w-full bg-surface text-xs rounded-lg border border-border/70 p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring min-w-0 shadow-xs" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-muted uppercase mb-1.5">Opis dodatkowy (opcjonalnie)</label>
+            <input value={accBankName} onChange={(e) => setAccBankName(e.target.value)} placeholder="np. nazwa banku" className="w-full bg-surface text-xs rounded-lg border border-border/70 p-2.5 focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs" />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/40">
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="flex items-center cursor-pointer select-none">
+              <input type="checkbox" checked={accHasLimit} onChange={(e) => setAccHasLimit(e.target.checked)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-surface-offset peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+              <span className="ml-2 text-xs font-bold text-text-muted">Bufor awaryjny</span>
+            </label>
+            {accHasLimit && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-text-muted uppercase">Limit:</span>
+                <input type="number" min="0" step="0.01" value={accLimitAmount} onChange={(e) => setAccLimitAmount(parseFloat(e.target.value) || "")} placeholder="0.00" className="w-28 bg-surface text-xs rounded-lg border border-border/70 p-2 focus-visible:ring-2 focus-visible:ring-focus-ring tabular-nums shadow-xs" />
+              </div>
+            )}
+          </div>
+          <button type="submit" className="px-5 py-2 bg-surface border border-border/70 text-brand hover:border-brand/30 hover:bg-surface-offset font-bold rounded-lg active:scale-[0.98] transition-all text-xs shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ml-auto">
             + Dodaj konto
           </button>
         </div>
@@ -189,29 +205,35 @@ export function BankAccountsManager({
         <div className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {accounts.map((acc, index) => (
-              <div key={acc.id} className="flex items-center justify-between p-3.5 bg-surface border border-border rounded-xl hover:shadow-xs transition shadow-xs">
+              <div key={acc.id} className="flex items-center justify-between p-3.5 bg-surface border border-border/70 rounded-xl hover:border-brand/30 transition shadow-xs">
                 <div className="min-w-0 flex-1 pr-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <strong className="text-xs text-text-main font-bold truncate">{acc.name}</strong>
                     {index === 0 && <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-subtle text-brand border border-brand/20 px-2 py-0.5 rounded shadow-xs">Domyślne</span>}
                   </div>
-                  {acc.bankName && <span className="mt-1 inline-block text-xs text-text-muted bg-surface-2 border border-border px-2 py-0.5 rounded shadow-xs">{acc.bankName}</span>}
+                  {acc.bankName && <span className="mt-1 inline-block text-xs text-text-muted bg-surface-2 border border-border/70 px-2 py-0.5 rounded shadow-xs">{acc.bankName}</span>}
                   {acc.hasCreditLimit && (
                     <p className="text-xs text-brand font-bold mt-1 tabular-nums">Bufor awaryjny: {formatMoney(acc.creditLimit, currency)}</p>
                   )}
                 </div>
-                <button type="button" onClick={() => handleDeleteAccount(acc.id)} aria-label={`Usuń konto bankowe ${acc.name}`} className="text-text-muted hover:text-danger hover:bg-danger-subtle active:scale-95 transition-colors p-1.5 cursor-pointer rounded-xl focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0">
+                <button type="button" onClick={() => handleDeleteAccount(acc.id)} aria-label={`Usuń konto bankowe ${acc.name}`} className="text-text-muted hover:text-danger hover:bg-danger-subtle active:scale-95 transition-colors p-1.5 cursor-pointer rounded-lg focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ))}
           </div>
-          <p className="text-xs text-text-muted">💡 Wskazówka: pierwsze konto z listy będzie domyślnie podpowiadane przy wprowadzaniu nowej transakcji.</p>
+          <div className="p-3 rounded-lg bg-surface-2/60 border border-border/70 text-xs text-text-muted flex items-center gap-2">
+            <Info className="w-4 h-4 text-brand shrink-0" />
+            <span><strong>Wskazówka:</strong> pierwsze konto z listy będzie domyślnie podpowiadane przy wprowadzaniu nowej transakcji.</span>
+          </div>
         </div>
       ) : (
-        <div className="p-8 bg-bg-base/30 rounded-xl border border-dashed border-border text-center">
+        <div className="p-8 bg-surface-2/30 rounded-xl border border-dashed border-border/70 text-center flex flex-col items-center justify-center space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-text-muted border border-border/70">
+            <Landmark className="w-5 h-5" />
+          </div>
           <p className="text-xs text-text-main font-bold">Brak kont operacyjnych</p>
-          <p className="text-[11px] text-text-faint mt-0.5">Nie dodałeś jeszcze żadnych kont. Będziesz je wpisywać ręcznie.</p>
+          <p className="text-[11px] text-text-muted max-w-sm">Nie dodałeś jeszcze żadnych kont. Będziesz je wpisywać ręcznie przy dodawaniu wydatków.</p>
         </div>
       )}
     </div>
@@ -246,13 +268,25 @@ export function TransactionRulesManager({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-category-rules-card">
-      <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyzacja kategoryzacji</h3>
-      <p className="text-sm text-text-muted mb-4 leading-relaxed">
-        Oszczędź czas i zachowaj spójność na liście wydatków. Ustaw słowa kluczowe (np. <em>orlen</em>, <em>netflix</em>), a nowe i importowane transakcje od razu otrzymają właściwą kategorię.
-      </p>
+    <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-category-rules-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/40">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+            <Sliders className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-text-main">Automatyzacja kategoryzacji</h3>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+              Słowa kluczowe automatycznie przypisujące kategorie do nowych i importowanych transakcji.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-subtle text-brand border border-brand/20 shrink-0 self-start sm:self-auto">
+          {transactionRules.length} {transactionRules.length === 1 ? "reguła" : "reguł"}
+        </span>
+      </div>
 
-      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-surface-2 border border-border shadow-xs">
+      <form onSubmit={handleAddTransactionRule} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-surface-2/60 border border-border/70 shadow-xs">
         <div>
           <label className="block text-xs font-bold text-text-muted uppercase mb-1">Słowo kluczowe (Fraza)</label>
           <input
@@ -260,7 +294,7 @@ export function TransactionRulesManager({
             value={rulePattern}
             onChange={(e) => setRulePattern(e.target.value)}
             placeholder="np. biedronka, netflix, orlen"
-            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+            className="w-full text-xs rounded-lg border border-border/70 p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
           />
         </div>
         <div>
@@ -268,7 +302,7 @@ export function TransactionRulesManager({
           <select
             value={ruleCategory}
             onChange={(e) => setRuleCategory(e.target.value)}
-            className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+            className="w-full text-xs rounded-lg border border-border/70 p-2.5 bg-surface focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs cursor-pointer"
           >
             {expenseCategories.concat(incomeCategories).filter((v, i, a) => a.indexOf(v) === i).map((cat) => (
               <option key={cat} value={cat}>
@@ -280,7 +314,7 @@ export function TransactionRulesManager({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle font-bold py-2.5 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="w-full bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle font-bold py-2.5 px-4 rounded-lg text-xs active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             ＋ Zapisz dopasowanie
           </button>
@@ -288,21 +322,24 @@ export function TransactionRulesManager({
       </form>
 
       {transactionRules.length === 0 ? (
-        <div className="p-8 bg-bg-base/30 rounded-xl border border-dashed border-border text-center">
+        <div className="p-8 bg-surface-2/30 rounded-xl border border-dashed border-border/70 text-center flex flex-col items-center justify-center space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-text-muted border border-border/70">
+            <Sliders className="w-5 h-5" />
+          </div>
           <p className="text-xs text-text-main font-bold">Brak zapisanych dopasowań</p>
-          <p className="text-[11px] text-text-faint mt-0.5">Zdefiniuj własne słowa kluczowe, by przyspieszyć przypisywanie kategorii.</p>
+          <p className="text-[11px] text-text-muted max-w-sm">Zdefiniuj własne słowa kluczowe, by automatycznie przypisywać kategorie wydatków.</p>
         </div>
       ) : (
-        <div className="border border-border rounded-xl overflow-hidden shadow-xs">
+        <div className="border border-border/70 rounded-xl overflow-hidden shadow-xs">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-2 border-b border-border text-text-muted font-bold">
+              <tr className="bg-surface-2 border-b border-border/70 text-text-muted font-bold">
                 <th className="py-2.5 px-3">Słowo kluczowe</th>
                 <th className="py-2.5 px-3">Kategoria docelowa</th>
                 <th className="py-2.5 px-3 text-right">Akcja</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border bg-surface">
+            <tbody className="divide-y divide-border/70 bg-surface">
               {transactionRules.map((r) => (
                 <tr key={r.id} className="hover:bg-surface-2/50 transition">
                   <td className="py-2.5 px-3 font-mono font-bold text-text-main">{r.pattern}</td>
@@ -317,7 +354,7 @@ export function TransactionRulesManager({
                       type="button"
                       onClick={() => handleDeleteTransactionRule(r.id)}
                       aria-label={`Usuń regułę dla ${r.pattern}`}
-                      className="text-text-muted hover:text-danger hover:bg-danger-subtle p-1.5 rounded-xl active:scale-95 transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      className="text-text-muted hover:text-danger hover:bg-danger-subtle p-1.5 rounded-lg active:scale-95 transition-colors cursor-pointer inline-flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -627,7 +664,7 @@ export function SettingsView({
     }
   };
 
-  const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "backup" | "automation">("all");
+  const [settingsTab, setSettingsTab] = useState<"all" | "profiles" | "appearance" | "accounts" | "automation" | "backup" | "security">("all");
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
   const [isTestingLocalAi, setIsTestingLocalAi] = useState(false);
@@ -689,63 +726,185 @@ export function SettingsView({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-16" id="settings-view-container">
+    <div className="w-full max-w-7xl mx-auto pb-24 space-y-6" id="settings-view-container">
+      {/* HEADER CONTEXT STRIP */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <Settings2 className="w-4 h-4" />
+            </div>
+            <h2 className="text-lg font-bold text-text-main tracking-tight">Ustawienia systemu</h2>
+          </div>
+          <p className="text-xs text-text-muted mt-1 leading-relaxed">
+            Zarządzaj profilami domowymi, automatyzacją, kontami bankowymi i bezpieczeństwem danych
+          </p>
+        </div>
+
+        {/* Quick Context Badges */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {activeProfile && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs shadow-xs">
+              <span className="text-base leading-none">{activeProfile.avatar || "👤"}</span>
+              <span className="font-bold text-text-main">{activeProfile.name}</span>
+              <span className="text-text-muted text-[11px]">({activeProfile.currency || "PLN"})</span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs text-text-muted font-medium shadow-xs">
+            <Database className="w-3.5 h-3.5 text-brand" />
+            <span>Local-First</span>
+            {googleUser && (
+              <span className="inline-flex items-center gap-1 text-success font-semibold ml-1">
+                • <Cloud className="w-3 h-3" /> Drive
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs font-medium shadow-xs">
+            {activeProfile?.pinHash ? (
+              <span className="text-brand flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" /> PIN aktywny
+              </span>
+            ) : (
+              <span className="text-text-muted flex items-center gap-1">
+                <Lock className="w-3.5 h-3.5" /> Brak PIN
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         
         {/* SIDEBAR NAVIGATION */}
-        <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-2">
-          <div className="bg-surface rounded-2xl border border-border shadow-sm p-2">
+        <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-4">
+          <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-2.5">
             <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 custom-scrollbar min-w-0">
+              
+              {/* Group 1: Główne */}
+              <div className="hidden lg:block px-3 pt-1 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider">
+                Główne
+              </div>
               <button
                 onClick={() => setSettingsTab("all")}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "all"
                     ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Settings2 className="w-4 h-4 shrink-0" /> <span className="truncate">Wszystkie sekcje</span>
+                <div className="flex items-center gap-2.5 truncate">
+                  <Settings2 className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Wszystkie sekcje</span>
+                </div>
               </button>
+
               <button
                 onClick={() => setSettingsTab("profiles")}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "profiles"
                     ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Users className="w-4 h-4 shrink-0" /> <span className="truncate">Profile i PIN ({profiles.length})</span>
+                <div className="flex items-center gap-2.5 truncate">
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Profile i PIN</span>
+                </div>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
+                  {profiles.length}
+                </span>
               </button>
+
               <button
                 onClick={() => setSettingsTab("appearance")}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "appearance"
                     ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Motyw</span>
+                <div className="flex items-center gap-2.5 truncate">
+                  <Palette className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Wygląd i motyw</span>
+                </div>
               </button>
+
+              {/* Group 2: Finanse i Reguły */}
+              <div className="hidden lg:block px-3 pt-3 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider border-t border-border/40 mt-1">
+                Finanse i Automatyzacja
+              </div>
+
               <button
-                onClick={() => setSettingsTab("backup")}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                  settingsTab === "backup"
+                onClick={() => setSettingsTab("accounts")}
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "accounts"
                     ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Cloud className="w-4 h-4 shrink-0" /> <span className="truncate">Chmura i Kopie</span>
+                <div className="flex items-center gap-2.5 truncate">
+                  <Landmark className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Konta operacyjne</span>
+                </div>
+                {activeProfile?.accounts && activeProfile.accounts.length > 0 && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
+                    {activeProfile.accounts.length}
+                  </span>
+                )}
               </button>
+
               <button
                 onClick={() => setSettingsTab("automation")}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "automation"
                     ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
                     : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
                 }`}
               >
-                <Cpu className="w-4 h-4 shrink-0" /> <span className="truncate">Reguły i Konta</span>
+                <div className="flex items-center gap-2.5 truncate">
+                  <Cpu className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Automatyzacja i AI</span>
+                </div>
               </button>
+
+              {/* Group 3: Dane i Bezpieczeństwo */}
+              <div className="hidden lg:block px-3 pt-3 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider border-t border-border/40 mt-1">
+                Dane i Bezpieczeństwo
+              </div>
+
+              <button
+                onClick={() => setSettingsTab("backup")}
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "backup"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 truncate">
+                  <Cloud className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Kopie i Dysk Google</span>
+                </div>
+                {googleUser && (
+                  <span className="w-2 h-2 rounded-full bg-success"></span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setSettingsTab("security")}
+                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "security"
+                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
+                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 truncate">
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Konto i Prywatność</span>
+                </div>
+              </button>
+
             </div>
           </div>
         </div>
@@ -755,18 +914,20 @@ export function SettingsView({
 
       {/* SECTION 1: PROFILES */}
       {(settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-profiles-card">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/30">
-            <div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand" />
-                <h3 className="text-base font-bold text-text-main">Zarządzanie profilami budżetu</h3>
+        <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-profiles-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/40">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+                <Users className="w-5 h-5" />
               </div>
-              <p className="text-xs text-text-muted mt-1 leading-relaxed">
-                Każdy profil posiada niezależne transakcje, limity, salda bankowe oraz cele oszczędnościowe.
-              </p>
+              <div>
+                <h3 className="text-base font-bold text-text-main">Zarządzanie profilami budżetu</h3>
+                <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                  Każdy profil posiada niezależne transakcje, limity, salda bankowe oraz cele oszczędnościowe.
+                </p>
+              </div>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-subtle text-brand border border-brand/20 shrink-0 self-start sm:self-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-subtle text-brand border border-brand/20 shrink-0 self-start sm:self-auto">
               {profiles.length} {profiles.length === 1 ? "profil" : profiles.length < 5 ? "profile" : "profili"}
             </span>
           </div>
@@ -898,138 +1059,64 @@ export function SettingsView({
                 );
               }
 
-              if (isActive) {
-                return (
-                  <div
-                    key={p.id}
-                    className="col-span-1 sm:col-span-2 bg-brand-subtle border-brand/20  rounded-2xl p-5 shadow-md   relative overflow-hidden flex flex-col justify-between gap-4"
-                  >
-                    <div className="flex items-start justify-between gap-3 min-w-0">
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-12 h-12 rounded-2xl bg-surface  border border-brand/20  shadow-sm flex items-center justify-center font-extrabold text-2xl shrink-0">
-                          {p.avatar || "👤"}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-base font-extrabold text-text-main truncate">{p.name}</strong>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle shadow-xs">
-                              <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-                              Aktywny
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="text-xs font-medium text-text-muted truncate max-w-full">
-                              {isShared ? `👪 Wspólny (z ${p.partnerName})` : "👤 Osobisty"}
-                            </span>
-                            {p.pinHash ? (
-                              <span className="inline-flex items-center gap-1 text-xs font-bold text-warning bg-warning-subtle border border-warning/20 px-2 py-0.5 rounded-md">
-                                <Lock className="w-3 h-3 text-warning" /> Kod PIN
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-xs font-medium text-text-muted bg-surface border border-border px-2 py-0.5 rounded-md">
-                                Bez PINu
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1 shrink-0 bg-surface-2  p-1 rounded-xl border border-border  shadow-xs">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                          className="p-2 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          title="Edytuj profil"
-                          aria-label={`Edytuj profil: ${p.name}`}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={onOpenPinModal}
-                          className="p-2 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          title="Zarządzaj kodem PIN"
-                          aria-label={`Zarządzaj kodem PIN dla profilu: ${p.name}`}
-                        >
-                          <KeyRound className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                          className="p-2 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          title="Usuń profil"
-                          aria-label={`Usuń profil: ${p.name}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-3 border-t border-brand/20  text-brand font-bold">
-                      <span className="flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4 text-brand" /> Aktualnie pracujesz na tym profilu
-                      </span>
-                      <button
-                        onClick={onOpenPinModal}
-                        className="text-xs hover:underline flex items-center gap-1 text-brand font-bold cursor-pointer active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      >
-                        {p.pinHash ? "Zmień PIN" : "Ustaw PIN"} <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
-
               return (
                 <div
                   key={p.id}
-                  className="bg-surface border border-border/90 hover:border-border hover:shadow-md transition-all rounded-2xl p-4 flex flex-col justify-between gap-3 group relative"
+                  className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
+                    isActive
+                      ? "bg-brand-subtle/30 border-brand/30 ring-1 ring-brand/20 shadow-xs"
+                      : "bg-surface border-border/70 hover:border-brand/30 hover:bg-surface-2"
+                  }`}
                 >
-                  <div className="flex items-start justify-between gap-3 min-w-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-surface border border-border flex items-center justify-center font-bold text-xl shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center border border-border/70 shadow-xs">
                         {p.avatar || "👤"}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <strong className="block text-sm font-bold text-text-main truncate">{p.name}</strong>
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-xs font-bold text-text-muted bg-surface px-2 py-0.5 rounded-md">
-                            {isShared ? `Wspólny (${p.partnerName})` : "Osobisty"}
-                          </span>
-                          {p.pinHash && (
-                            <span className="text-xs font-bold text-warning bg-warning-subtle border border-warning/20 px-2 py-1 rounded-md flex items-center gap-0.5">
-                              <Lock className="w-3 h-3" /> PIN
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <strong className="text-sm font-bold text-text-main">{p.name}</strong>
+                          {isActive && (
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-brand text-text-inverse px-1.5 py-0.5 rounded shadow-xs">
+                              Aktywny
                             </span>
                           )}
                         </div>
+                        <span className="text-xs text-text-muted mt-0.5 block">
+                          {isShared ? `Wspólny z: ${p.partnerName || "Partner"}` : "Profil osobisty"} • {p.currency || "PLN"}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-0.5 shrink-0">
+                    <div className="flex items-center gap-1">
                       <button
-                        onClick={(e) => { e.stopPropagation(); startEditingProfile(p); }}
-                        className="p-1.5 text-text-muted hover:text-brand hover:bg-brand-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                        onClick={() => startEditingProfile(p)}
+                        className="text-text-muted hover:text-text-main p-1.5 rounded-lg hover:bg-surface-2 active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                         title="Edytuj profil"
-                        aria-label={`Edytuj profil: ${p.name}`}
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setProfileToDelete(p.id); }}
-                        className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-subtle rounded-xl active:scale-95 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-                        title="Usuń profil"
-                        aria-label={`Usuń profil: ${p.name}`}
+                        onClick={() => setProfileToDelete(p.id)}
+                        disabled={profiles.length <= 1}
+                        className="text-text-muted hover:text-danger p-1.5 rounded-lg hover:bg-danger-subtle active:scale-95 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                        title={profiles.length <= 1 ? "Nie możesz usunąć jedynego profilu" : "Usuń profil"}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => onSelectProfile(p.id)}
-                    className="w-full py-2 px-3 bg-brand hover:bg-brand-hover text-text-inverse font-bold text-xs rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1 focus-visible:ring-2 focus-visible:ring-focus-ring"
-                    id={`btn-select-profile-${p.id}`}
-                  >
-                    <span>Otwórz ten profil</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  {!isActive && (
+                    <button
+                      onClick={() => onSelectProfile(p.id)}
+                      className="w-full py-2 px-3 bg-brand hover:bg-brand-hover text-text-inverse font-bold text-xs rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs mt-1 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id={`btn-select-profile-${p.id}`}
+                    >
+                      <span>Otwórz ten profil</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -1037,9 +1124,9 @@ export function SettingsView({
             <button
               onClick={onOpenProfileModal}
               id="btn-add-profile-settings"
-              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-dashed border-border hover:border-brand/30 hover:bg-brand-subtle text-text-main font-bold text-xs active:scale-[0.98] transition-all cursor-pointer group shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2.5 p-4 rounded-xl border border-dashed border-border/70 hover:border-brand/40 hover:bg-brand-subtle/40 text-text-main font-bold text-xs active:scale-[0.98] transition-all cursor-pointer group shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
-              <div className="p-2 bg-brand-subtle text-brand rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-2 bg-brand-subtle text-brand rounded-lg group-hover:scale-110 transition-transform">
                 <Plus className="w-4 h-4" />
               </div>
               <span> Utwórz nowy profil budżetu</span>
@@ -1051,11 +1138,18 @@ export function SettingsView({
 
       {/* SECTION: THEME SELECTION */}
       {(settingsTab === "all" || settingsTab === "appearance") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-theme-card">
-        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Motyw i wygląd aplikacji</h3>
-        <p className="text-xs text-text-muted mb-5 leading-relaxed">
-          Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji. Wybierz jasny motyw dla pełnej czytelności w dzień, ciemny dla ochrony oczu w nocy, lub pozwól systemowi na automatyczną zmianę.
-        </p>
+        <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-theme-card">
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border/40">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-text-main">Motyw i wygląd aplikacji</h3>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                Dostosuj schemat kolorów aplikacji Saldo do swoich preferencji lub pory dnia.
+              </p>
+            </div>
+          </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" id="theme-selectors-grid">
           {/* Light Theme Option */}
@@ -1119,17 +1213,34 @@ export function SettingsView({
       )}
 
       {/* SECTION 2: PIN SECURITY */}
-      {activeProfile && (settingsTab === "all" || settingsTab === "profiles") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-pin-card">
-          <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Zabezpieczenie aktywnego profilu</h3>
-          <p className="text-sm text-text-muted mb-4 leading-relaxed">
-            Dodaj kod PIN, aby zabezpieczyć swoje poufne transakcje i informacje budżetowe przed nieautoryzowanym wglądem innych użytkowników na tym urządzeniu.
-          </p>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-surface border border-border">
+      {activeProfile && (settingsTab === "all" || settingsTab === "profiles" || settingsTab === "security") && (
+        <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-pin-card">
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border/40">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
             <div>
-              <span className="text-xs font-bold text-text-muted block">
-                {activeProfile.pinHash ? "🛡️ Twój profil jest obecnie chroniony kodem PIN" : "🔓 Profil nie posiada zabezpieczenia PIN"}
+              <h3 className="text-base font-bold text-text-main">Zabezpieczenie aktywnego profilu (PIN)</h3>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                Dodaj kod PIN, aby zabezpieczyć swoje transakcje i budżet przed nieautoryzowanym wglądem.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-surface-2/60 border border-border/70">
+            <div>
+              <span className="text-xs font-bold text-text-main flex items-center gap-1.5">
+                {activeProfile.pinHash ? (
+                  <>
+                    <ShieldCheck className="w-4 h-4 text-brand" />
+                    <span>Twój profil jest obecnie chroniony kodem PIN</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 text-text-muted" />
+                    <span>Profil nie posiada zabezpieczenia PIN</span>
+                  </>
+                )}
               </span>
               <p className="text-xs text-text-muted mt-0.5">
                 Każdorazowe otwarcie profilu będzie wymagać wpisania poprawnego kodu.
@@ -1137,7 +1248,7 @@ export function SettingsView({
             </div>
             <button
               onClick={onOpenPinModal}
-              className="bg-surface border border-border text-brand hover:bg-surface-2 hover:border-brand/20 font-bold py-2 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="bg-surface border border-border/70 text-brand hover:bg-brand-subtle hover:border-brand/20 font-bold py-2 px-4 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
               id="btn-set-profile-pin"
             >
               {activeProfile.pinHash ? "Zmień kod PIN" : "Ustaw kod PIN"}
@@ -1148,14 +1259,18 @@ export function SettingsView({
 
       {/* SECTION 3: GOOGLE DRIVE CLOUD INTEGRATION */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-google-drive-card">
-        <div className="flex items-center gap-2 mb-2">
-          <Cloud className="w-5 h-5 text-brand" />
-          <h3 className="text-base font-bold text-text-main">Kopia zapasowa w chmurze (Dysk Google)</h3>
-        </div>
-        <p className="text-xs text-text-muted mb-5 leading-relaxed">
-          Podłącz swój osobisty Dysk Google, aby bezpiecznie archiwizować plik bazy danych budżetu (<code className="bg-surface px-1 py-0.5 rounded border border-border text-text-main font-mono text-xs">saldo_budget.json</code>). Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
-        </p>
+        <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-google-drive-card">
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border/40">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-text-main">Kopia zapasowa w chmurze (Dysk Google)</h3>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                Bezpieczna archiwizacja pliku bazy danych budżetu (<code className="bg-surface-2 px-1 py-0.5 rounded border border-border/70 text-text-main font-mono text-xs">saldo_budget.json</code>) na Twoim prywatnym Dysku. Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
+              </p>
+            </div>
+          </div>
 
         {googleError && (
           <div className="mb-5 p-4 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs space-y-2" id="gdrive-auth-error-notice">
@@ -1171,8 +1286,8 @@ export function SettingsView({
                 <p>
                   Jeśli korzystasz z aplikacji wewnątrz ramki podglądu (iframe) w AI Studio, przeglądarka mogła automatycznie zablokować wyskakujące okienko (pop-up) lub zablokować dostęp do plików cookies firm trzecich.
                 </p>
-                <p className="font-bold text-brand">
-                  💡 Aby rozwiązać ten problem:
+                <p className="font-bold text-brand flex items-center gap-1.5">
+                  <Info className="w-4 h-4" /> Aby rozwiązać ten problem:
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Kliknij przycisk <strong>"Otwórz w nowej karcie"</strong> w prawym górnym rogu podglądu, aby otworzyć aplikację poza ramką iframe.</li>
@@ -1186,7 +1301,7 @@ export function SettingsView({
                 </p>
                 {googleError?.includes('unauthorized-domain') || googleError?.includes('nie jest autoryzowana') ? (
                   <div className="bg-warning-subtle p-3 rounded-xl border border-warning/20 mt-2">
-                    <p className="font-bold text-warning mb-1">⚠️ Wymagana konfiguracja w Firebase</p>
+                    <p className="font-bold text-warning mb-1 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Wymagana konfiguracja w Firebase</p>
                     <p className="text-warning text-xs">
                       Aktualna domena nie jest dodana do autoryzowanych domen w Twoim projekcie Firebase.
                       Aby to naprawić:
@@ -1207,7 +1322,7 @@ export function SettingsView({
         )}
 
         {!googleUser ? (
-          <div className="bg-surface border border-border rounded-2xl p-6 text-center space-y-4">
+          <div className="bg-surface border border-border/70 rounded-xl p-6 text-center space-y-4 shadow-xs">
             <p className="text-xs text-text-muted max-w-md mx-auto">
               Aplikacja Saldo nie posiada centralnej bazy danych do przechowywania Twoich finansów. Podłączenie Dysku Google utworzy bezpieczny plik, z którego możesz korzystać na każdym urządzeniu.
             </p>
@@ -1367,7 +1482,7 @@ export function SettingsView({
 
 
       {/* SECTION: BANK ACCOUNTS */}
-      {activeProfile && (settingsTab === "all" || settingsTab === "automation") && (
+      {activeProfile && (settingsTab === "all" || settingsTab === "accounts") && (
         <BankAccountsManager accounts={activeProfile.accounts || []} onSaveAccounts={onSaveAccounts} currency={activeProfile?.currency || 'PLN'} />
       )}
       {/* SECTION: AUTOMATED CATEGORY RULES */}
@@ -1377,12 +1492,30 @@ export function SettingsView({
 
       {/* SECTION: LOCAL AI (Ollama) */}
       {(settingsTab === "all" || settingsTab === "automation") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-local-ai-card">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <h3 className="text-xl font-black text-text-main tracking-tight truncate flex items-center gap-2">
-              <Cpu className="w-5 h-5 text-brand shrink-0" />
-              Lokalne AI (Ollama)
-            </h3>
+        <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-local-ai-card">
+          <div className="flex items-start sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-border/60">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-text-main tracking-tight truncate">
+                    Lokalne AI (Ollama)
+                  </h3>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    state.aiMode === "local" 
+                      ? "bg-brand-subtle text-brand border-brand/20" 
+                      : "bg-surface-2 text-text-muted border-border"
+                  }`}>
+                    {state.aiMode === "local" ? "Aktywne" : "Wyłączone"}
+                  </span>
+                </div>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Prywatne rozpoznawanie transakcji i kategoryzacja bez wysyłania danych do chmury
+                </p>
+              </div>
+            </div>
             <button
               type="button"
               role="switch"
@@ -1410,7 +1543,7 @@ export function SettingsView({
           <p className="text-xs text-text-muted mb-4 leading-relaxed">
             Sugestie kategorii dla nierozpoznanych transakcji i rozpoznawanie wklejonego tekstu wyciągu przez model
             uruchomiony na Twoim komputerze (Ollama). Nic nie opuszcza urządzenia — przeglądarka łączy się
-            bezpośrednio z <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">localhost</code>.
+            bezpośrednio z <code className="bg-surface-2 px-1.5 py-0.5 rounded border border-border text-brand font-mono text-[11px]">localhost</code>.
             Wynik zawsze trafia do podglądu przed importem — nic nie zapisuje się automatycznie.
           </p>
 
@@ -1489,13 +1622,29 @@ export function SettingsView({
 
       {/* SECTION: RECURRING TRANSACTIONS SCHEDULER */}
       {(settingsTab === "all" || settingsTab === "automation") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-recurring-rules-card">
-        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Automatyczne transakcje cykliczne</h3>
-        <p className="text-sm text-text-muted mb-4 leading-relaxed">
-          Skonfiguruj regularne przychody (np. pensja co miesiąc) lub koszty (np. Netflix, czynsz), aby aplikacja mogła automatycznie generować transakcje we właściwych terminach.
-        </p>
+        <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-recurring-rules-card">
+          <div className="flex items-start sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-border/60">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-text-main tracking-tight truncate">
+                    Automatyczne transakcje cykliczne
+                  </h3>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-2 text-text-muted border border-border">
+                    {recurringRules.length}
+                  </span>
+                </div>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Automatyczne rejestrowanie stałych wpływów (np. pensja) oraz opłat abonamentowych
+                </p>
+              </div>
+            </div>
+          </div>
 
-        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-surface-2 border border-border space-y-3 mb-5 shadow-xs">
+        <form onSubmit={handleAddRecurringRule} className="p-4 rounded-xl bg-surface-2/60 border border-border/80 space-y-3 mb-5 shadow-xs">
           <strong className="block text-xs font-bold text-text-muted">Utwórz nową transakcję cykliczną</strong>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -1676,12 +1825,23 @@ export function SettingsView({
       )}
 
       {/* SECTION 4: SYNC & SECURITY */}
-      {(settingsTab === "all" || settingsTab === "automation" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-sync-security-card">
-        <h3 className="text-base font-bold text-text-main mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-text-muted" />
-          Synchronizacja i bezpieczeństwo
-        </h3>
+      {(settingsTab === "all" || settingsTab === "security" || settingsTab === "backup") && (
+        <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-sync-security-card">
+          <div className="flex items-start sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-border/60">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-text-main tracking-tight truncate">
+                  Synchronizacja i bezpieczeństwo
+                </h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Stan integracji chmurowych, autoryzacja konta i zabezpieczenia sesji
+                </p>
+              </div>
+            </div>
+          </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Account & Firestore */}
@@ -2066,11 +2226,22 @@ export function SettingsView({
 
       {/* SECTION 5: LOCAL FILES & RESET */}
       {(settingsTab === "all" || settingsTab === "backup") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-local-tools-card">
-        <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Lokalna kopia zapasowa i reset</h3>
-        <p className="text-sm text-text-muted mb-4 leading-relaxed">
-          Zarządzaj lokalnymi kopiami zapasowymi. Możesz zapisać plik JSON z całą bazą danych na dysku komputera/telefonu lub wczytać go bezpośrednio do pamięci urządzenia.
-        </p>
+        <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-local-tools-card">
+          <div className="flex items-start sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-border/60">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+                <FileJson className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-text-main tracking-tight truncate">
+                  Lokalna kopia zapasowa i reset
+                </h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Eksport bazy danych, import z pliku JSON oraz generowanie raportów CSV i PDF
+                </p>
+              </div>
+            </div>
+          </div>
 
         {/* Drag and Drop Zone */}
         {!filePreview ? (
@@ -2082,15 +2253,16 @@ export function SettingsView({
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
                 document.getElementById("local-backup-file-input")?.click();
               }
             }}
-            className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer mb-4 focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            onClick={() => document.getElementById("local-backup-file-input")?.click()}
+            className={`border-2 border-dashed rounded-xl p-6 text-center transition cursor-pointer mb-4 focus-visible:ring-2 focus-visible:ring-focus-ring ${
               dragActive
                 ? "border-brand bg-brand-subtle"
                 : "border-border hover:border-border/80 bg-surface"
             }`}
-            onClick={() => document.getElementById("local-backup-file-input")?.click()}
           >
             <input
               id="local-backup-file-input"
@@ -2259,11 +2431,22 @@ export function SettingsView({
 
       {/* SECTION 6: PRIVACY & DEVICE MANAGEMENT */}
       {(settingsTab === "all" || settingsTab === "security") && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm p-6" id="settings-privacy-card">
-          <h3 className="text-xl font-black text-text-main tracking-tight mb-2 truncate">Prywatność i zarządzanie urządzeniem</h3>
-          <p className="text-sm text-text-muted mb-4 leading-relaxed">
-            Zarządzaj sesją i danymi zapisanymi na tym konkretnym urządzeniu. Te opcje pozwalają na bezpieczne czyszczenie lokalnych śladów.
-          </p>
+        <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-privacy-card">
+          <div className="flex items-start sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-border/60">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-danger-subtle text-danger border border-danger/20 flex items-center justify-center shrink-0">
+                <UserX className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-text-main tracking-tight truncate">
+                  Prywatność i zarządzanie urządzeniem
+                </h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Bezpieczne czyszczenie lokalnej pamięci podręcznej i zarządzanie sesjami
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-4">
             {googleUser && (

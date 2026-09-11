@@ -23,10 +23,10 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
   const globalBudgetRatio = totalPlannedBudget > 0 ? (totalActualSpentInBudget / totalPlannedBudget) * 100 : 0;
   
   return (
-    <div className="bg-surface p-5 rounded-2xl border border-border shadow-xs flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden" id="widget-content-budget-box">
-      <div className="flex items-center justify-between gap-4 mb-4 relative z-10 min-w-0">
+    <div className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden" id="widget-content-budget-box">
+      <div className="flex items-center justify-between gap-4 mb-3.5 relative z-10 min-w-0">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Plan Budżetu">Plan Budżetu</p>
+          <p className="text-[11px] font-semibold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Plan Budżetu">Plan Budżetu</p>
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="text-base font-bold text-text-main truncate" title="Użycie budżetów">Użycie budżetów</h3>
             <span className={`text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full font-bold shrink-0 border tabular-nums ${
@@ -38,16 +38,16 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         </div>
         <button
           onClick={() => onChangeView("budget")}
-          className="min-h-[44px] px-3 py-2 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 rounded-xl hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
+          className="px-2.5 py-1.5 text-xs font-semibold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 rounded-lg active:scale-[0.98] transition-all shrink-0 flex items-center gap-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           title="Szczegóły"
         >
           <span>Szczegóły</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.75} />
         </button>
       </div>
 
       {/* Global Budget Progress Bar */}
-      <div className="mb-4 relative z-10 min-w-0 bg-surface-2 p-3 rounded-xl border border-border shadow-xs">
+      <div className="mb-3.5 relative z-10 min-w-0 bg-surface-2/60 p-3 rounded-xl border border-border/70 shadow-xs">
         <div className="flex justify-between items-end gap-2 mb-1.5 min-w-0">
           <span className="text-xs font-bold text-text-muted truncate">Łączny limit miesięczny</span>
           <span className="text-xs font-bold text-text-main tabular-nums truncate shrink-0">
@@ -112,13 +112,13 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
         )}
       </div>
 
-      <div className="pt-3 mt-3 border-t border-border relative z-10">
+      <div className="pt-3 mt-3 border-t border-border/70 relative z-10">
         <button
           onClick={onOpenBudgetModal}
-          className="w-full min-h-[44px] py-2.5 bg-surface hover:bg-surface-offset text-text-main text-xs font-bold rounded-xl active:scale-[0.98] transition-all border border-border flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none shadow-xs"
+          className="w-full py-2 bg-surface-2/60 hover:bg-surface-2 text-text-main text-xs font-semibold rounded-xl active:scale-[0.98] transition-all border border-border/70 flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-2xs"
           title="Konfiguruj budżety"
         >
-          <Settings className="w-4 h-4 text-text-muted" />
+          <Settings className="w-3.5 h-3.5 text-text-muted" strokeWidth={1.75} />
           <span>Konfiguruj budżety</span>
         </button>
       </div>

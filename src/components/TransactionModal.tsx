@@ -49,10 +49,11 @@ export function TransactionModal({
   const state = appContext?.state;
   const handleAddSmartRule = appContext?.handleAddSmartRule;
   const showToast = appContext?.showToast;
+  const defaultAccount = activeProfile?.accounts?.[0]?.name || "Konto główne";
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [categoryIcon, setCategoryIcon] = useState("🛒");
-  const [account, setAccount] = useState("Konto główne");
+  const [account, setAccount] = useState(defaultAccount);
   const [date, setDate] = useState(getLocalDateIso());
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -91,7 +92,7 @@ export function TransactionModal({
         setName(initialData.name || "");
         if (initialData.category) setCategory(initialData.category);
         setCategoryIcon(initialData.categoryIcon || "✨");
-        setAccount(initialData.account || "Konto główne");
+        setAccount(initialData.account || defaultAccount);
         setDate(initialData.isoDate || getLocalDateIso());
         setTags(initialData.tags || []);
         setDebtId(initialData.debtId || "");
@@ -105,7 +106,7 @@ export function TransactionModal({
         setType("expense");
         setAmount("");
         setName("");
-        setAccount("Konto główne");
+        setAccount(defaultAccount);
         setDate(getLocalDateIso());
         setTags([]);
         setDebtId("");
@@ -235,11 +236,11 @@ export function TransactionModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-xl flex flex-col overflow-hidden border border-border"
+          className="relative w-full max-w-md rounded-xl bg-bg-base/95 backdrop-blur-2xl shadow-lg flex flex-col overflow-hidden border border-border/70"
           ref={modalRef}
         >
           {/* Header */}
-          <div className="p-6 pb-4 border-b border-border flex items-center justify-between bg-bg-base/95">
+          <div className="p-6 pb-4 border-b border-border/70 flex items-center justify-between bg-bg-base/95">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
                 <Sparkles className="w-5 h-5" />
@@ -342,11 +343,11 @@ export function TransactionModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-md rounded-xl bg-bg-base/95 backdrop-blur-2xl shadow-lg flex flex-col max-h-[90vh] overflow-hidden border border-border/70"
        ref={modalRef}>
-        <div className="shrink-0 p-6 pb-4 border-b border-border relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
-          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-full transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring" id="close-tx-modal">
-            &times;
+        <div className="shrink-0 p-6 pb-4 border-b border-border/70 relative bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+          <button onClick={onClose} aria-label="Zamknij" className="absolute top-5 right-5 text-text-muted hover:text-text-main hover:bg-surface-offset p-2 rounded-xl transition-colors active:scale-95 shrink-0 w-10 h-10 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer" id="close-tx-modal">
+            <X className="w-5 h-5" />
           </button>
           <p className="text-xs font-medium text-text-muted truncate" title="Nowy Wpis">Nowy Wpis</p>
           <h2 id="tx-modal-title" className="text-2xl font-bold text-text-main min-w-0 truncate" title="Dodaj transakcję">Dodaj transakcję</h2>
@@ -447,14 +448,24 @@ export function TransactionModal({
                 id="select-tx-account"
               >
                 {(activeProfile?.accounts && activeProfile.accounts.length > 0) ? (
-                  activeProfile.accounts.map((acc: any) => (
-                    <option key={acc.id} value={acc.name}>{acc.name} {acc.bankName ? `(${acc.bankName})` : ''}</option>
-                  ))
+                  <>
+                    {activeProfile.accounts.map((acc: any) => (
+                      <option key={acc.id} value={acc.name}>
+                        {acc.name}{acc.bankName ? ` (${acc.bankName})` : ''}
+                      </option>
+                    ))}
+                    {account && !activeProfile.accounts.some((a: any) => a.name === account) && (
+                      <option value={account}>{account}</option>
+                    )}
+                  </>
                 ) : (
                   <>
                     <option value="Konto główne">Konto główne</option>
                     <option value="Gotówka">Gotówka</option>
                     <option value="Konto oszczędnościowe">Oszczędnościowe</option>
+                    {account && !["Konto główne", "Gotówka", "Konto oszczędnościowe"].includes(account) && (
+                      <option value={account}>{account}</option>
+                    )}
                   </>
                 )}
               </select>
@@ -464,11 +475,11 @@ export function TransactionModal({
 
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">Ikona kategorii</label>
-            <div className="flex items-center gap-3 p-2.5 border border-border rounded-xl">
+            <div className="flex items-start gap-3 p-2.5 border border-border rounded-xl">
               <span className="text-2xl w-10 h-10 flex items-center justify-center bg-surface text-text-main rounded-xl border border-border font-bold shrink-0">
                 {categoryIcon}
               </span>
-              <div className="flex-1 flex flex-wrap gap-1.5 py-1 min-w-0 max-h-32 overflow-y-auto custom-scrollbar">
+              <div className="flex-1 flex flex-wrap gap-1.5 p-1 min-w-0 max-h-28 overflow-y-auto custom-scrollbar">
                 {availableIcons.map((ico) => (
                   <button
                     key={ico}

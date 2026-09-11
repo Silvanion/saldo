@@ -243,15 +243,15 @@ export function ExportReportsModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 8 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface border border-border w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-surface border border-border/70 w-full max-w-2xl rounded-xl shadow-lg overflow-hidden flex flex-col max-h-[90vh]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="export-reports-title"
         >
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0">
+          <div className="p-5 sm:p-6 border-b border-border/70 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
               <div>
@@ -728,7 +728,7 @@ export function ExportReportsModal({
             {/* TAB 3: KOPIA BAZY DANYCH */}
             {activeTab === "backup" && (
               <div className="space-y-5">
-                <div className="p-5 rounded-3xl bg-brand/5 border border-brand/20 space-y-3">
+                <div className="p-5 rounded-xl bg-brand/5 border border-brand/20 space-y-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-brand text-white flex items-center justify-center shrink-0">
                       <Database className="w-4 h-4" />

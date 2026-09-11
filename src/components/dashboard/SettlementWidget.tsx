@@ -84,7 +84,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
   const settlementsList: SettlementEntry[] = profile.settlements || [];
 
   return (
-    <div className={`p-5 rounded-2xl border ${containerClass} shadow-sm mb-6 relative overflow-hidden`} id="settlement-widget">
+    <div className={`p-4 sm:p-5 rounded-xl border ${containerClass} shadow-xs mb-6 relative overflow-hidden`} id="settlement-widget">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 min-w-0">
         <div className="min-w-0 flex-1">
           <DelayedTooltip
@@ -92,7 +92,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             label="Na podstawie zrealizowanych transakcji 50/50 oraz zarejestrowanych rozliczeń ręcznych."
             tooltipClassName="w-48 bg-surface border-border text-text-main"
           >
-            <p className="text-xs font-bold text-text-faint uppercase tracking-wider cursor-help border-b border-dashed border-border/60 pb-0.5 truncate" title="Rozliczenie z partnerem">
+            <p className="text-[11px] font-semibold text-text-faint uppercase tracking-wider cursor-help border-b border-dashed border-border/60 pb-0.5 truncate" title="Rozliczenie z partnerem">
               Rozliczenie z partnerem
             </p>
           </DelayedTooltip>
@@ -122,7 +122,7 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             <button
               onClick={handleOpenModal}
               id="open-settlement-modal-btn"
-              className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+              className="text-xs font-semibold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 px-2.5 py-1.5 rounded-lg active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
               title="Rozlicz saldo z partnerem"
             >
               Rozlicz
@@ -133,10 +133,10 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
             <button
               onClick={() => setShowHistory(!showHistory)}
               id="settlement-history-toggle-btn"
-              className="text-xs font-bold text-text-muted bg-surface border border-border hover:bg-surface-offset hover:text-text-main px-3 py-1.5 rounded-lg active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+              className="text-xs font-semibold text-text-muted bg-surface-2/60 border border-border/70 hover:bg-surface-2 hover:text-text-main px-2.5 py-1.5 rounded-lg active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
               title="Pokaż historię rozliczeń"
             >
-              <History className="w-3.5 h-3.5 text-text-muted shrink-0" />
+              <History className="w-3.5 h-3.5 text-text-muted shrink-0" strokeWidth={1.75} />
               <span>Historia ({settlementsList.length})</span>
             </button>
           )}
@@ -194,10 +194,10 @@ export function SettlementWidget({ profile, onAddSettlement, onDeleteSettlement,
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div
-            className="relative w-full max-w-md rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-border"
+            className="relative w-full max-w-md rounded-xl bg-bg-base/95 backdrop-blur-2xl shadow-lg flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-border/70"
             id="settlement-modal"
           >
-            <div className="shrink-0 p-6 pb-4 border-b border-border relative">
+            <div className="shrink-0 p-6 pb-4 border-b border-border/70 relative">
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-6 right-6 p-2 leading-none text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl active:scale-95 transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"

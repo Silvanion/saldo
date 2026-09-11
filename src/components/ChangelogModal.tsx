@@ -21,12 +21,12 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="changelog-modal-title"
-        className="relative bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-2xl border border-border shadow-sm flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative bg-bg-base/95 backdrop-blur-2xl rounded-xl w-full max-w-2xl border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
         ref={modalRef}
       >
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+        <div className="flex items-center justify-between p-6 border-b border-border/70 shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-brand-subtle border border-brand/20 flex items-center justify-center shrink-0">
               <History className="w-5 h-5 text-brand" />

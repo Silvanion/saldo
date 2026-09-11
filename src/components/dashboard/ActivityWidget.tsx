@@ -20,19 +20,19 @@ export const ActivityWidget = memo(function ActivityWidget({
   profileKind
 }: ActivityWidgetProps) {
   return (
-    <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden" id="widget-content-activity-box">
-      <div className="flex items-center justify-between mb-4 relative z-10 gap-4 min-w-0">
+    <div className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden" id="widget-content-activity-box">
+      <div className="flex items-center justify-between mb-3.5 relative z-10 gap-4 min-w-0">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Ostatnie transakcje">Ostatnie transakcje</p>
+          <p className="text-[11px] font-semibold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Ostatnie transakcje">Ostatnie transakcje</p>
           <h3 className="text-base font-bold text-text-main truncate" title="Historia aktywności">Aktywność</h3>
         </div>
         <button
           onClick={() => onChangeView("transactions")}
-          className="text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-subtle/80 active:scale-[0.98] transition-all shrink-0 flex items-center gap-1 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+          className="text-xs font-semibold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 px-2.5 py-1.5 rounded-lg active:scale-[0.98] transition-all shrink-0 flex items-center gap-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           title="Przejdź do Księgi"
         >
           <span>Księga</span>
-          <ArrowRight className="w-3 h-3" />
+          <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.75} />
         </button>
       </div>
 
@@ -87,13 +87,13 @@ export const ActivityWidget = memo(function ActivityWidget({
         )}
       </div>
 
-      <div className="pt-3 mt-3 border-t border-border relative z-10">
+      <div className="pt-3 mt-3 border-t border-border/70 relative z-10">
         <button
           onClick={() => onOpenTxModal()}
-          className="w-full py-2.5 bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-text-main text-xs font-bold rounded-xl border border-border shadow-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+          className="w-full py-2 bg-surface-2/60 hover:bg-surface-2 active:scale-[0.98] transition-all text-text-main text-xs font-semibold rounded-xl border border-border/70 shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           title="Szybki zapis transakcji"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5 text-brand" strokeWidth={1.75} />
           <span>Szybki zapis</span>
         </button>
       </div>

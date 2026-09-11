@@ -164,13 +164,19 @@ export function MockAnalysisVisual() {
 
       {/* Simulator Mini Box */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="font-bold text-brand block mb-1">🛡️ Poduszka 6M</span>
+        <div className="p-3 bg-surface rounded-xl border border-border/70 shadow-xs">
+          <span className="font-semibold text-brand flex items-center gap-1.5 mb-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-brand" />
+            <span>Poduszka 6M</span>
+          </span>
           <p className="text-text-muted text-[11px]">Cel: 32 400 PLN | Posiadasz: 21 000 PLN</p>
           <p className="text-text-main font-bold mt-1 tabular-nums">Osiągnięcie celu za ok. 7 miesięcy</p>
         </div>
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="font-bold text-danger block mb-1">⚡ Kaskada Kuli Śnieżnej</span>
+        <div className="p-3 bg-surface rounded-xl border border-border/70 shadow-xs">
+          <span className="font-semibold text-danger flex items-center gap-1.5 mb-1">
+            <Zap className="w-3.5 h-3.5 text-danger" />
+            <span>Kaskada Kuli Śnieżnej</span>
+          </span>
           <p className="text-text-muted text-[11px]">Priorytet 1: Karta kredytowa (1 200 PLN)</p>
           <p className="text-text-main font-bold mt-1 tabular-nums">+250 PLN/mies. skróci spłatę o 4 mies.</p>
         </div>

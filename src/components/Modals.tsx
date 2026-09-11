@@ -561,7 +561,7 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full max-w-sm rounded-3xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col max-h-[90vh] shadow-sm overflow-hidden ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
+        className={`w-full max-w-sm rounded-xl bg-bg-base/95 backdrop-blur-2xl border border-border/70 flex flex-col max-h-[90vh] shadow-lg overflow-hidden ${isShaking ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}
        ref={modalRef}>
         <div className="flex-1 overflow-y-auto min-w-0 p-8 custom-scrollbar flex flex-col">
           <div className="flex justify-center mb-6 shrink-0">

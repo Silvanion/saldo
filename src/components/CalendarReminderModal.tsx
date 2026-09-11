@@ -6,7 +6,7 @@ import { buildCalendarReminder } from "../services/localParsers";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
-import { Calendar, Clock, Bell, AlertCircle, Check, Loader2 } from "lucide-react";
+import { Calendar, Clock, Bell, AlertCircle, Check, Loader2, X } from "lucide-react";
 import { validateCalendarEventInput } from "../services/calendarValidation";
 import { formatMoney } from "../utils/format";
 
@@ -205,15 +205,15 @@ export function CalendarReminderModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-bg-base/95 backdrop-blur-2xl rounded-3xl w-full max-w-lg shadow-sm overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-bg-base/95 backdrop-blur-2xl border border-border/70 rounded-xl w-full max-w-lg shadow-lg overflow-hidden flex flex-col max-h-[90vh]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="calendar-modal-title"
        ref={modalRef}>
         {/* Header */}
-        <div className="shrink-0 px-6 py-5 border-b border-border flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
+        <div className="shrink-0 px-6 py-5 border-b border-border/70 flex items-center justify-between bg-bg-base/95 backdrop-blur-2xl relative z-10">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-surface-2 text-text-muted flex items-center justify-center shadow-sm border border-border shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-surface-2 text-text-muted flex items-center justify-center shadow-xs border border-border/70 shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -227,7 +227,7 @@ export function CalendarReminderModal({
             className="text-text-muted hover:text-text-main hover:bg-surface-2 p-2 rounded-xl transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
             id="btn-close-calendar-modal"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 

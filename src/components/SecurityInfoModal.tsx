@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
-import { ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, CheckCircle2, X } from "lucide-react";
 import { useApp } from "../app/providers/AppContext";
 import { securityFeatures } from "../content/securityContent";
 
@@ -31,16 +31,16 @@ export function SecurityInfoModal() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-lg rounded-3xl bg-bg-base/95 backdrop-blur-2xl shadow-sm flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-lg rounded-xl bg-bg-base/95 backdrop-blur-2xl border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
        ref={modalRef}>
-        <div className="shrink-0 p-6 md:p-8 pb-4 border-b border-border relative">
+        <div className="shrink-0 p-6 md:p-8 pb-4 border-b border-border/70 relative">
           <button
             onClick={() => toggleSecurityInfo(false)}
             aria-label="Zamknij"
-            className="absolute top-5 right-5 text-2xl leading-none text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="absolute top-5 right-5 text-text-muted hover:text-text-main hover:bg-surface-offset w-8 h-8 flex items-center justify-center rounded-xl transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
             id="close-security-modal"
           >
-            &times;
+            <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-3">
@@ -56,7 +56,7 @@ export function SecurityInfoModal() {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar min-w-0 p-6 md:p-8 space-y-4">
           {securityFeatures.map((feature, idx) => (
-            <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-surface border border-border min-w-0">
+            <div key={idx} className="flex gap-4 p-4 rounded-xl bg-surface border border-border/70 min-w-0">
               <div className="shrink-0">{feature.icon}</div>
               <div className="min-w-0">
                 <h3 className="text-sm font-medium text-text-main mb-1">{feature.title}</h3>
@@ -67,14 +67,14 @@ export function SecurityInfoModal() {
             </div>
           ))}
         </div>
-        <div className="shrink-0 p-6 md:p-8 pt-4 border-t border-border bg-bg-base/95 backdrop-blur-2xl rounded-b-3xl flex items-center justify-between gap-4">
+        <div className="shrink-0 p-6 md:p-8 pt-4 border-t border-border/70 bg-bg-base/95 backdrop-blur-2xl rounded-b-xl flex items-center justify-between gap-4">
           <span className="flex items-center gap-1.5 text-xs font-medium text-brand truncate" title="Ochrona aktywna">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span className="truncate">Ochrona aktywna</span>
           </span>
           <button
             onClick={() => toggleSecurityInfo(false)}
-            className="px-5 py-2.5 rounded-xl bg-surface-offset hover:bg-border text-text-main font-bold text-xs active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="px-5 py-2.5 rounded-xl bg-surface-offset hover:bg-border text-text-main font-bold text-xs active:scale-[0.98] transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           >
             Zamknij
           </button>

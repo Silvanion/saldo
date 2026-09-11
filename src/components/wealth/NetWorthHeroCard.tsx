@@ -27,9 +27,9 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
   const totalLiquidAndGoals = liquidAssets + goalsAssets;
 
   return (
-    <div className="bg-surface border border-border rounded-3xl p-6 sm:p-7 shadow-sm relative overflow-hidden space-y-6" id="net-worth-hero-card">
+    <div className="bg-surface border border-border/70 rounded-xl p-5 sm:p-6 shadow-xs relative overflow-hidden space-y-6" id="net-worth-hero-card">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/70 pb-5">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="p-1.5 rounded-lg bg-brand-subtle text-brand border border-brand/20">
@@ -63,16 +63,16 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
       {/* 3 Pillar Summary Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {/* 1. Liquid Assets & Goals */}
-        <div className="bg-surface-2 border border-border p-4 rounded-2xl space-y-2 relative overflow-hidden">
+        <div className="bg-surface-2/60 border border-border/70 p-4 rounded-xl space-y-2 relative overflow-hidden shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-text-muted flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-brand" /> Środki płynne i cele
             </span>
             <span className="text-xs font-bold text-text-faint">
               {totalAssets > 0 ? `${Math.round((totalLiquidAndGoals / totalAssets) * 100)}%` : "0%"}
             </span>
           </div>
-          <p className="text-xl font-black text-text-main">
+          <p className="text-xl font-black text-text-main tabular-nums">
             {formatMoney(totalLiquidAndGoals, currency)}
           </p>
           <div className="text-xs text-text-faint flex justify-between pt-1 border-t border-border/50">
@@ -82,16 +82,16 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
         </div>
 
         {/* 2. Long-term Investment Capital */}
-        <div className="bg-surface-2 border border-border p-4 rounded-2xl space-y-2 relative overflow-hidden">
+        <div className="bg-surface-2/60 border border-border/70 p-4 rounded-xl space-y-2 relative overflow-hidden shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-text-muted flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-brand" /> Kapitał inwestycyjny
             </span>
             <span className="text-xs font-bold text-text-faint">
               {totalAssets > 0 ? `${Math.round((investmentsAssets / totalAssets) * 100)}%` : "0%"}
             </span>
           </div>
-          <p className="text-xl font-black text-text-main">
+          <p className="text-xl font-black text-text-main tabular-nums">
             {formatMoney(investmentsAssets, currency)}
           </p>
           <p className="text-xs text-text-faint pt-1 border-t border-border/50 truncate">
@@ -100,9 +100,9 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
         </div>
 
         {/* 3. Liabilities */}
-        <div className="bg-surface-2 border border-border p-4 rounded-2xl space-y-2 relative overflow-hidden">
+        <div className="bg-surface-2/60 border border-border/70 p-4 rounded-xl space-y-2 relative overflow-hidden shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-text-muted flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5 text-danger" /> Zobowiązania ogółem
             </span>
             {totalLiabilities > 0 && (
@@ -111,7 +111,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
               </span>
             )}
           </div>
-          <p className="text-xl font-black text-danger">
+          <p className="text-xl font-black text-danger tabular-nums">
             {formatMoney(totalLiabilities, currency)}
           </p>
           <div className="text-xs text-text-faint flex justify-between pt-1 border-t border-border/50">

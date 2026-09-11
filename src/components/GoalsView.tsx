@@ -4,7 +4,7 @@ import { formatDate } from "../utils";
 import { formatMoney, parseAmountInput } from "../utils/format";
 import { calculateNetWorth } from "../services/budgetCalculations";
 import { NetWorthHeroCard } from "./wealth/NetWorthHeroCard";
-import { Plus, Trash2, ArrowLeftRight, Target, TrendingUp } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Target, TrendingUp, Trophy } from "lucide-react";
 
 interface GoalsViewProps {
   profile: Profile;
@@ -66,17 +66,17 @@ export function GoalsView({
         </div>
 
         {profile.goals.length === 0 ? (
-          <div className="text-center py-10 px-6 bg-bg-base/30 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-brand-subtle flex items-center justify-center mb-3 border border-brand/20 shadow-xs">
+          <div className="text-center py-10 px-6 bg-surface-2/20 rounded-xl border border-dashed border-border/70 flex flex-col items-center justify-center min-w-0">
+            <div className="w-12 h-12 rounded-xl bg-brand-subtle flex items-center justify-center mb-3 border border-brand/20 shadow-xs">
               <Target className="w-6 h-6 text-brand" />
             </div>
-            <h3 className="text-sm font-bold text-text-main">Nie zdefiniowałeś jeszcze celów oszczędnościowych</h3>
+            <h3 className="text-sm font-semibold text-text-main">Nie zdefiniowałeś jeszcze celów oszczędnościowych</h3>
             <p className="text-xs text-text-muted max-w-sm mt-1 mb-4">
               Wyznacz cel oszczędnościowy (np. wakacje, poduszka finansowa), aby łatwo odkładać rezerwę.
             </p>
             <button
               onClick={onOpenGoalModal}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 px-4 py-2.5 min-h-[44px] rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 px-4 py-2.5 min-h-[44px] rounded-xl active:scale-[0.98] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Stwórz swój pierwszy cel</span>
@@ -93,13 +93,13 @@ export function GoalsView({
               let badgeInfo = null;
 
               if (isCompleted) {
-                badgeInfo = { text: "Osiągnięty 🎉", colorClass: "bg-brand-subtle text-brand border-brand/20" };
+                badgeInfo = { text: "Osiągnięty", colorClass: "bg-brand-subtle text-brand border-brand/20" };
               } else if (percent >= 90) {
                 badgeInfo = { text: "Prawie u celu!", colorClass: "bg-warning-subtle text-warning border-warning/20" };
               } else if (percent > 0) {
                 badgeInfo = { text: "W trakcie", colorClass: "bg-brand-subtle text-brand border-brand/20" };
               } else {
-                badgeInfo = { text: "Do startu", colorClass: "bg-surface text-text-muted border-border" };
+                badgeInfo = { text: "Do startu", colorClass: "bg-surface-2 text-text-muted border-border/70" };
               }
 
               if (!isCompleted) {
@@ -123,16 +123,17 @@ export function GoalsView({
               return (
                 <div
                   key={g.id}
-                  className="bg-surface border border-border rounded-2xl p-5 shadow-sm hover:border-brand/30 transition-colors flex flex-col justify-between min-h-[12.5rem] relative min-w-0 space-y-3"
+                  className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs hover:border-border transition-colors flex flex-col justify-between min-h-[12.5rem] relative min-w-0 space-y-3"
                 >
                   <div className="min-w-0">
                     <div className="flex justify-between items-start mb-2.5 min-w-0 gap-2">
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 shadow-xs ${isCompleted ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-main border-border"}`}>
-                        {isCompleted ? "🏆" : "🎯"}
+                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm border shrink-0 shadow-xs ${isCompleted ? "bg-brand-subtle text-brand border-brand/20" : "bg-surface-2 text-text-muted border-border/70"}`}>
+                        {isCompleted ? <Trophy className="w-4 h-4 text-brand" /> : <Target className="w-4 h-4 text-text-muted" />}
+                        <span className="sr-only">{isCompleted ? "🏆" : "🎯"}</span>
                       </span>
                       <div className="flex items-center gap-1.5 shrink-0 min-w-0">
                         {badgeInfo && (
-                          <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[120px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
+                          <span className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border shrink-0 truncate max-w-[120px] ${badgeInfo.colorClass}`} title={badgeInfo.text}>
                             {badgeInfo.text}
                           </span>
                         )}
@@ -147,14 +148,14 @@ export function GoalsView({
                         </button>
                       </div>
                     </div>
-                    <h3 className="text-sm font-bold text-text-main line-clamp-1" title={g.name}>{g.name}</h3>
+                    <h3 className="text-sm font-semibold text-text-main line-clamp-1" title={g.name}>{g.name}</h3>
                     <p className="text-xs text-text-muted mt-0.5 truncate" title={`${formatMoney(g.saved, g.currency || profile?.currency || 'PLN')} z ${formatMoney(g.target, g.currency || profile?.currency || 'PLN')}`}>
-                      <span className="font-bold text-text-main tabular-nums">{formatMoney(g.saved, g.currency || profile?.currency || 'PLN')}</span>
+                      <span className="font-semibold text-text-main tabular-nums">{formatMoney(g.saved, g.currency || profile?.currency || 'PLN')}</span>
                       <span className="text-text-faint"> z </span>
                       <span className="tabular-nums">{formatMoney(g.target, g.currency || profile?.currency || 'PLN')}</span>
                     </p>
                     {paceText && (
-                      <p className="text-xs text-text-muted mt-2 font-medium bg-surface-2 inline-block px-2.5 py-1 rounded-md border border-border truncate max-w-full" title={paceText}>
+                      <p className="text-xs text-text-muted mt-2 font-medium bg-surface-2/60 inline-block px-2.5 py-1 rounded-md border border-border/70 truncate max-w-full" title={paceText}>
                         {paceText}
                       </p>
                     )}
@@ -162,19 +163,19 @@ export function GoalsView({
 
                   <div className="min-w-0 pt-1">
                     {/* Progress */}
-                    <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mb-2 border border-border/50" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="w-full bg-surface-2/60 h-2 rounded-full overflow-hidden mb-2 border border-border/40" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                       <div
                         style={{ width: `${percent}%` }}
                         className={`${isCompleted ? "bg-brand" : "bg-brand"} h-full rounded-full transition-all duration-500`}
                       ></div>
                     </div>
                     <div className="flex justify-between items-center gap-2 min-w-0">
-                      <span className="text-xs font-bold text-text-muted tabular-nums shrink-0 truncate" title={`${percent}% celu`}>
+                      <span className="text-xs font-semibold text-text-muted tabular-nums shrink-0 truncate" title={`${percent}% celu`}>
                         {percent}% celu
                       </span>
                       <button
                         onClick={() => onOpenGoalDepositModal(g)}
-                        className="text-xs font-bold text-brand hover:text-brand-hover bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 active:scale-[0.98] transition-all shrink-0 truncate cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none rounded-xl px-3 py-2 min-h-[44px] flex items-center gap-1.5 shadow-xs"
+                        className="text-xs font-semibold text-brand hover:text-brand-hover bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 active:scale-[0.98] transition-all shrink-0 truncate cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none rounded-xl px-3 py-2 min-h-[44px] flex items-center gap-1.5 shadow-xs"
                         id={`btn-deposit-goal-${g.id}`}
                         aria-label={`Transfer na cel ${g.name}`}
                       >
@@ -191,7 +192,7 @@ export function GoalsView({
       </div>
 
       {/* SECTION 2: LONG-TERM INVESTMENTS */}
-      <div className="border-t border-border pt-6 mt-8 p-5 sm:p-6 bg-surface-2/30 rounded-3xl border border-border/70 min-w-0">
+      <div className="border-t border-border/70 pt-6 mt-8 p-5 sm:p-6 bg-surface-2/20 rounded-xl border border-border/70 min-w-0">
         <div className="flex flex-wrap items-center gap-2.5 mb-2 min-w-0">
           <span className="p-1 rounded-lg bg-brand-subtle text-brand border border-brand/20">
             <TrendingUp className="w-4 h-4" />
@@ -209,9 +210,9 @@ export function GoalsView({
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick contribute form */}
-          <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-surface border border-border/70 rounded-xl p-5 shadow-xs space-y-4">
             <div>
-              <h3 className="text-sm font-bold text-text-main">Rejestruj wpłatę kapitałową</h3>
+              <h3 className="text-sm font-semibold text-text-main">Rejestruj wpłatę kapitałową</h3>
               <p className="text-xs text-text-muted leading-relaxed mt-1">
                 Zapisz kwoty odkładane na IKE, IKZE, fundusze, akcje lub obligacje skarbowe.
               </p>
@@ -222,7 +223,7 @@ export function GoalsView({
                 <select
                   value={invType}
                   onChange={(e) => setInvType(e.target.value)}
-                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow cursor-pointer"
+                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border/70 px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow cursor-pointer"
                   id="select-inv-type"
                 >
                   <option value="Poduszka finansowa">Poduszka finansowa</option>
@@ -240,7 +241,7 @@ export function GoalsView({
                   placeholder="np. Obligacje Skarbowe, IKE mBank"
                   value={invName}
                   onChange={(e) => setInvName(e.target.value)}
-                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow"
+                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border/70 px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-name"
                 />
               </div>
@@ -254,13 +255,13 @@ export function GoalsView({
                   placeholder="0,00"
                   value={invAmount}
                   onChange={(e) => setInvAmount(e.target.value)}
-                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow"
+                  className="w-full min-h-[44px] rounded-xl border bg-surface border-border/70 px-3 py-2.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none text-text-main placeholder-text-faint transition-shadow"
                   id="input-inv-amount"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full min-h-[44px] bg-brand text-text-inverse font-bold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none flex items-center justify-center gap-1.5"
+                className="w-full min-h-[44px] bg-brand text-text-inverse font-semibold py-2.5 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all text-xs shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none flex items-center justify-center gap-1.5"
                 id="btn-inv-submit"
               >
                 <Plus className="w-4 h-4" />
@@ -271,8 +272,8 @@ export function GoalsView({
 
           {/* Investment log book */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-text-main mb-3">Wniesiony kapitał (podsumowanie)</h3>
+            <div className="bg-surface border border-border/70 rounded-xl p-5 shadow-xs">
+              <h3 className="text-sm font-semibold text-text-main mb-3">Wniesiony kapitał (podsumowanie)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(
                   profile.investments.reduce((acc, inv) => {
@@ -281,7 +282,7 @@ export function GoalsView({
                     return acc;
                   }, {} as Record<string, number>)
                 ).map(([type, total]) => (
-                  <div key={type} className="p-3 bg-surface-2/60 border border-border/80 rounded-xl min-w-0 shadow-xs space-y-0.5">
+                  <div key={type} className="p-3 bg-surface-2/60 border border-border/70 rounded-xl min-w-0 shadow-xs space-y-0.5">
                     <span className="block text-xs font-medium text-text-muted uppercase tracking-wider truncate" title={type}>{type}</span>
                     <strong className="text-sm font-bold text-text-main tabular-nums block truncate max-w-full" title={formatMoney(total, profile?.currency || 'PLN')}>{formatMoney(total, profile?.currency || 'PLN')}</strong>
                   </div>
@@ -292,11 +293,11 @@ export function GoalsView({
               </div>
             </div>
 
-            <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-text-main mb-3">Historia wpłat kapitałowych</h3>
+            <div className="bg-surface border border-border/70 rounded-xl p-5 shadow-xs">
+              <h3 className="text-sm font-semibold text-text-main mb-3">Historia wpłat kapitałowych</h3>
               <div className="divide-y divide-border/60 overflow-y-auto max-h-[14rem] pr-1">
                 {profile.investments.length === 0 ? (
-                  <div className="text-center py-8 px-4 bg-bg-base/30 rounded-xl border border-dashed border-border/70 my-1">
+                  <div className="text-center py-8 px-4 bg-surface-2/20 rounded-xl border border-dashed border-border/70 my-1">
                     <p className="text-xs text-text-muted font-medium">Brak historii wpłat</p>
                     <p className="text-xs text-text-faint mt-0.5">Użyj formularza obok, aby zarejestrować pierwszą wpłatę kapitałową.</p>
                   </div>

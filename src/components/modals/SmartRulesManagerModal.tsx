@@ -69,15 +69,15 @@ export function SmartRulesManagerModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 8 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface border border-border w-full max-w-3xl rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-surface border border-border/70 w-full max-w-3xl rounded-xl shadow-lg overflow-hidden flex flex-col max-h-[90vh]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="smart-rules-manager-title"
         >
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0">
+          <div className="p-5 sm:p-6 border-b border-border/70 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
                 <Settings2 className="w-5 h-5" />
               </div>
               <div>
@@ -91,7 +91,7 @@ export function SmartRulesManagerModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition cursor-pointer"
               aria-label="Zamknij menedżera"
             >
               <X className="w-5 h-5" />
@@ -102,7 +102,7 @@ export function SmartRulesManagerModal({
           <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
             {sortedRules.length === 0 ? (
               <div className="py-12 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-3xl bg-surface-hover flex items-center justify-center mb-4 border border-border/50">
+                <div className="w-16 h-16 rounded-xl bg-surface-hover flex items-center justify-center mb-4 border border-border/70">
                   <Sparkles className="w-8 h-8 text-text-muted" />
                 </div>
                 <h3 className="text-base font-semibold text-text-main mb-1">Brak reguł</h3>
@@ -195,7 +195,7 @@ export function SmartRulesManagerModal({
               className="absolute inset-0 flex items-center justify-center z-50 p-4 bg-black/40 backdrop-blur-xs"
             >
               <div
-                className="bg-surface p-6 rounded-3xl max-w-sm w-full border border-border shadow-xl"
+                className="bg-surface p-6 rounded-xl max-w-sm w-full border border-border/70 shadow-lg"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="smart-rules-delete-title"

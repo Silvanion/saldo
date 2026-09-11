@@ -216,15 +216,15 @@ export function DebtFormModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-surface border border-border/70 w-full max-w-2xl rounded-xl shadow-lg overflow-hidden flex flex-col max-h-[90vh]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="debt-form-modal-title"
         >
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between shrink-0 bg-surface-2/30">
+          <div className="p-5 sm:p-6 border-b border-border/70 flex items-center justify-between shrink-0 bg-surface-2/30">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
                 <Landmark className="w-5 h-5" />
               </div>
               <div>
@@ -246,8 +246,9 @@ export function DebtFormModal({
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
-            {errorMsg && (
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
+              {errorMsg && (
               <div className="p-3 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
@@ -561,8 +562,10 @@ export function DebtFormModal({
               </div>
             </div>
 
+            </div>
+
             {/* Footer Buttons */}
-            <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
+            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 shrink-0 bg-surface">
               <button
                 type="button"
                 onClick={onClose}

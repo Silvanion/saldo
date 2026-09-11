@@ -28,7 +28,8 @@ import {
   RotateCcw,
   Sparkles,
   Settings,
-  Link2
+  Link2,
+  ReceiptText
 } from "lucide-react";
 
 interface TransactionsViewProps {
@@ -175,24 +176,24 @@ export const TransactionsView = memo(function TransactionsView({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in" id="transactions-page-layout">
       {/* Table Section */}
-      <div className="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-sm p-6 flex flex-col justify-between relative overflow-hidden" id="transactions-view-container">
+      <div className="lg:col-span-2 bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden" id="transactions-view-container">
         <div className="relative z-10">
           
           {/* Header & Primary Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 relative z-10 min-w-0">
             <div className="min-w-0">
-              <p className="text-xs font-bold text-text-faint uppercase tracking-wider truncate" title="Historia finansowa">Historia finansowa</p>
+              <p className="text-[11px] font-semibold text-text-faint uppercase tracking-wider truncate" title="Historia finansowa">Historia finansowa</p>
               <div className="flex items-center gap-2.5">
                 <h2 className="text-xl font-bold text-text-main truncate" title="Zarejestrowane transakcje">Księga transakcji</h2>
-                <span className="text-xs font-bold text-text-muted bg-surface-2 border border-border px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold text-text-muted bg-surface-2/70 border border-border/70 px-2 py-0.5 rounded-full tabular-nums">
                   {filteredTransactions.length}
                 </span>
               </div>
             </div>
 
             {/* Actions: Secondary (Export, Import) & Primary (Add Transaction) */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full sm:w-auto mt-4 sm:mt-0">
-              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2.5 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto mt-3 sm:mt-0">
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     import('../utils').then(({ generateCsvContent, downloadFile }) => {
@@ -200,34 +201,34 @@ export const TransactionsView = memo(function TransactionsView({
                       downloadFile(csv, `transakcje_${getLocalDateIso()}.csv`, "text/csv;charset=utf-8;");
                     });
                   }}
-                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-semibold py-1.5 px-3 rounded-xl border border-border/70 bg-surface-2/60 hover:bg-surface-2 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-2xs"
                   title="Eksportuj odfiltrowane dane do pliku CSV"
                   id="btn-export-csv"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-3.5 h-3.5" strokeWidth={1.75} />
                   <span>Eksportuj</span>
                 </button>
 
                 <button
                   onClick={() => setIsCSVModalOpen(true)}
-                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-semibold py-1.5 px-3 rounded-xl border border-border/70 bg-surface-2/60 hover:bg-surface-2 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-2xs"
                   title="Importuj wyciąg bankowy CSV"
                   id="btn-import-csv"
                 >
-                  <UploadCloud className="w-3.5 h-3.5" />
+                  <UploadCloud className="w-3.5 h-3.5" strokeWidth={1.75} />
                   <span>Importuj</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2.5 w-full sm:w-auto">
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full sm:w-auto">
                 {smartRules.length > 0 && onApplySmartRulesBulk && (
                   <button
                     onClick={() => setIsSmartRulesModalOpen(true)}
-                    className="w-full sm:w-auto justify-center text-brand hover:text-brand-hover font-bold py-2 px-3 rounded-xl border border-brand/20 bg-brand-subtle hover:bg-brand-subtle/80 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                    className="w-full sm:w-auto justify-center text-brand hover:text-brand-hover font-semibold py-1.5 px-3 rounded-xl border border-brand/20 bg-brand-subtle hover:bg-brand-subtle/80 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-2xs"
                     title="Sprawdź i zastosuj inteligentne reguły kategoryzacji"
                     id="btn-smart-rules-preview"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sparkles className="w-3.5 h-3.5" strokeWidth={1.75} />
                     <span>Reguły ({smartRules.length})</span>
                   </button>
                 )}
@@ -235,11 +236,11 @@ export const TransactionsView = memo(function TransactionsView({
                 {onOpenSmartRulesManager && (
                   <button
                     onClick={() => onOpenSmartRulesManager()}
-                    className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-bold py-2 px-3 rounded-xl border border-border bg-surface hover:bg-surface-offset active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-xs"
+                    className="w-full sm:w-auto justify-center text-text-muted hover:text-text-main font-semibold py-1.5 px-3 rounded-xl border border-border/70 bg-surface-2/60 hover:bg-surface-2 active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shadow-2xs"
                     title="Zarządzaj regułami automatycznymi"
                     id="btn-smart-rules-manager"
                   >
-                    <Settings className="w-3.5 h-3.5" />
+                    <Settings className="w-3.5 h-3.5" strokeWidth={1.75} />
                     <span>Ustawienia</span>
                   </button>
                 )}
@@ -247,17 +248,17 @@ export const TransactionsView = memo(function TransactionsView({
 
               <button
                 onClick={() => onOpenTxModal()}
-                className="w-full sm:w-auto justify-center bg-brand text-text-inverse font-bold py-2.5 sm:py-2 px-4 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm text-sm sm:text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-brand text-text-inverse font-semibold py-1.5 px-3.5 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
                 id="btn-add-tx-view"
               >
-                <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                <Plus className="w-3.5 h-3.5" strokeWidth={1.75} />
                 <span>Nowa transakcja</span>
               </button>
             </div>
           </div>
 
           {/* Filter and Search controls */}
-          <div className="flex flex-col gap-3.5 border-b border-border pb-5 mb-5">
+          <div className="flex flex-col gap-3 border-b border-border/70 pb-4 mb-4">
             {/* Top Row: Search + Segmented Controls */}
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 w-full min-w-0">
               
@@ -268,11 +269,11 @@ export const TransactionsView = memo(function TransactionsView({
                   placeholder="Szukaj po nazwie, kategorii, koncie lub tagu..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-xl border border-border py-2 px-4 pl-9 pr-8 focus-visible:ring-2 focus-visible:ring-focus-ring text-xs bg-surface-2 focus:bg-surface text-text-main placeholder:text-text-faint transition shadow-xs"
+                  className="w-full rounded-xl border border-border/70 py-2 px-4 pl-9 pr-8 focus-visible:ring-2 focus-visible:ring-focus-ring text-xs bg-surface-2/60 focus:bg-surface text-text-main placeholder:text-text-faint transition shadow-2xs"
                   id="tx-search-input"
                   aria-label="Wyszukaj transakcje po nazwie, kategorii, koncie lub tagu"
                 />
-                <Search className="w-4 h-4 text-text-faint absolute left-3 top-2.5 pointer-events-none" />
+                <Search className="w-4 h-4 text-text-faint absolute left-3 top-2.5 pointer-events-none" strokeWidth={1.75} />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm("")}
@@ -280,34 +281,34 @@ export const TransactionsView = memo(function TransactionsView({
                     title="Wyczyść szukanie"
                     aria-label="Wyczyść wyszukiwanie"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5" strokeWidth={1.75} />
                   </button>
                 )}
               </div>
 
               {/* Segmented Control: Type Filter */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex bg-surface p-1 rounded-xl border border-border shadow-inner">
+                <div className="flex bg-surface-2/60 p-1 rounded-xl border border-border/70 shadow-inner">
                   <button
                     onClick={() => setFilterType("all")}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                      filterType === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "all" ? "bg-surface text-text-main shadow-xs border border-border/70" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                     }`}
                   >
                     Wszystkie
                   </button>
                   <button
                     onClick={() => setFilterType("expense")}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                      filterType === "expense" ? "bg-danger-subtle text-danger shadow-sm border border-danger/30" : "text-text-muted hover:text-danger hover:bg-danger-subtle"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "expense" ? "bg-danger-subtle text-danger shadow-xs border border-danger/20" : "text-text-muted hover:text-danger hover:bg-danger-subtle"
                     }`}
                   >
                     Wydatki
                   </button>
                   <button
                     onClick={() => setFilterType("income")}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                      filterType === "income" ? "bg-brand-subtle text-brand shadow-sm border border-brand/30" : "text-text-muted hover:text-brand hover:bg-brand-subtle"
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                      filterType === "income" ? "bg-brand-subtle text-brand shadow-xs border border-brand/20" : "text-text-muted hover:text-brand hover:bg-brand-subtle"
                     }`}
                   >
                     Przychody
@@ -316,35 +317,35 @@ export const TransactionsView = memo(function TransactionsView({
                 
                 {/* Segmented Control: Role (Shared Profiles Only) */}
                 {profile.kind === "shared" && (
-                  <div className="flex bg-surface p-1 rounded-xl border border-border shadow-inner">
+                  <div className="flex bg-surface-2/60 p-1 rounded-xl border border-border/70 shadow-inner">
                     <button
                       onClick={() => setPaidByFilter("all")}
-                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                        paidByFilter === "all" ? "bg-surface-2 text-text-main shadow-sm border border-border" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "all" ? "bg-surface text-text-main shadow-xs border border-border/70" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Wszyscy
                     </button>
                     <button
                       onClick={() => setPaidByFilter("me")}
-                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                        paidByFilter === "me" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "me" ? "bg-brand-subtle text-brand shadow-xs border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Ja
                     </button>
                     <button
                       onClick={() => setPaidByFilter("partner")}
-                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                        paidByFilter === "partner" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "partner" ? "bg-brand-subtle text-brand shadow-xs border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Partner
                     </button>
                     <button
                       onClick={() => setPaidByFilter("joint")}
-                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
-                        paidByFilter === "joint" ? "bg-brand-subtle text-brand shadow-sm border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
+                      className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0 ${
+                        paidByFilter === "joint" ? "bg-brand-subtle text-brand shadow-xs border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-offset"
                       }`}
                     >
                       Wspólne
@@ -355,7 +356,7 @@ export const TransactionsView = memo(function TransactionsView({
             </div>
 
             {/* Advanced Filters Row: Date Range & Amount Range */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-surface-2 p-3 rounded-xl border border-border">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-surface-2/40 p-3 rounded-xl border border-border/70">
               <div className="flex flex-wrap items-center gap-3">
                 {/* Date range */}
                 <div className="flex items-center gap-1.5">
@@ -473,12 +474,13 @@ export const TransactionsView = memo(function TransactionsView({
               <tbody className="divide-y divide-border">
                 {visibleTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center bg-bg-base/30 rounded-xl border border-dashed border-border my-2">
+                    <td colSpan={6} className="py-12 text-center bg-surface-2/20 rounded-xl border border-dashed border-border/70 my-2">
                       <div className="flex flex-col items-center justify-center min-w-0">
-                        <div className="text-2xl mb-1 opacity-50 shrink-0">
-                          {profile.transactions.length > 0 ? "🔍" : "🍵"}
+                        <div className="w-10 h-10 rounded-full bg-surface-2 border border-border/70 flex items-center justify-center mb-2.5 text-text-faint">
+                          <ReceiptText className="w-5 h-5 text-text-muted" />
+                          <span className="sr-only">{profile.transactions.length > 0 ? "🔍" : "🍵"}</span>
                         </div>
-                        <p className="font-bold text-xs text-text-main mb-0.5 truncate">
+                        <p className="font-semibold text-sm text-text-main mb-0.5 truncate">
                           {profile.transactions.length > 0
                             ? "Brak transakcji pasujących do filtrów"
                             : "Brak zarejestrowanych transakcji"}
@@ -491,7 +493,7 @@ export const TransactionsView = memo(function TransactionsView({
                         {profile.transactions.length === 0 && (
                           <button
                             onClick={() => onOpenTxModal()}
-                            className="mt-3 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
+                            className="mt-3 text-xs font-semibold text-brand bg-brand-subtle border border-brand/20 px-3.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
                           >
                             + Dodaj pierwszą transakcję
                           </button>
@@ -630,11 +632,12 @@ export const TransactionsView = memo(function TransactionsView({
           {/* Mobile Card List View */}
           <div className="block md:hidden space-y-3" id="tx-mobile-list">
             {visibleTransactions.length === 0 ? (
-              <div className="py-10 px-4 text-center bg-bg-base/30 border border-dashed border-border rounded-xl flex flex-col items-center justify-center min-w-0">
-                <div className="text-2xl mb-1 opacity-50 shrink-0">
-                  {profile.transactions.length > 0 ? "🔍" : "🍵"}
+              <div className="py-10 px-4 text-center bg-surface-2/20 border border-dashed border-border/70 rounded-xl flex flex-col items-center justify-center min-w-0">
+                <div className="w-10 h-10 rounded-full bg-surface-2 border border-border/70 flex items-center justify-center mb-2.5 text-text-faint">
+                  <ReceiptText className="w-5 h-5 text-text-muted" />
+                  <span className="sr-only">{profile.transactions.length > 0 ? "🔍" : "🍵"}</span>
                 </div>
-                <p className="font-bold text-xs text-text-main mb-0.5 truncate">
+                <p className="font-semibold text-sm text-text-main mb-0.5 truncate">
                   {profile.transactions.length > 0
                     ? "Brak transakcji pasujących do filtrów"
                     : "Brak zarejestrowanych transakcji"}
@@ -647,7 +650,7 @@ export const TransactionsView = memo(function TransactionsView({
                 {profile.transactions.length === 0 && (
                   <button
                     onClick={() => onOpenTxModal()}
-                    className="mt-3 text-xs font-bold text-brand bg-brand-subtle border border-brand/20 px-3 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
+                    className="mt-3 text-xs font-semibold text-brand bg-brand-subtle border border-brand/20 px-3.5 py-1.5 rounded-lg hover:bg-brand-subtle active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer shrink-0"
                   >
                     + Dodaj transakcję
                   </button>

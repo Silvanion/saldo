@@ -364,5 +364,40 @@ describe("TransactionModal — Smart Rule Suggestion Flow (Sprint 2)", () => {
         })
       );
     });
+
+    it("pre-selects the first operating account from activeProfile as default", () => {
+      const onSave = vi.fn();
+      const profileWithCustomAccounts: Profile = {
+        ...mockProfile,
+        accounts: [
+          { id: "acc-custom-1", name: "mBank bieżące", bankName: "mBank", hasCreditLimit: false, creditLimit: 0 },
+          { id: "acc-custom-2", name: "PKO Oszczędnościowe", bankName: "PKO", hasCreditLimit: false, creditLimit: 0 },
+        ],
+      };
+
+      render(
+        <TransactionModal
+          isOpen={true}
+          onClose={vi.fn()}
+          activeProfile={profileWithCustomAccounts}
+          onSave={onSave}
+        />
+      );
+
+      const accountSelect = screen.getByLabelText("Konto / Portfel") as HTMLSelectElement;
+      expect(accountSelect.value).toBe("mBank bieżące");
+
+      fireEvent.change(screen.getByLabelText("Kwota"), { target: { value: "85" } });
+      fireEvent.change(screen.getByLabelText("Opis transakcji"), { target: { value: "Kawiarnia" } });
+      fireEvent.click(screen.getByRole("button", { name: /Dodaj transakcję|Zapisz zmiany/i }));
+
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Kawiarnia",
+          amount: 85,
+          account: "mBank bieżące",
+        })
+      );
+    });
   });
 });

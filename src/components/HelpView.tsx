@@ -25,8 +25,8 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={`border rounded-2xl overflow-hidden mb-3.5 shadow-xs transition-colors ${
-      isOpen ? "bg-surface border-brand/30 shadow-sm" : "bg-surface border-border hover:bg-surface-offset"
+    <div className={`border rounded-xl overflow-hidden mb-3.5 shadow-xs transition-colors ${
+      isOpen ? "bg-surface border-brand/30 shadow-xs" : "bg-surface border-border/70 hover:bg-surface-offset"
     }`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -82,7 +82,7 @@ export function HelpView() {
   return (
     <div className="w-full space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-300 min-w-0">
       {/* Header Banner */}
-      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 text-text-main relative overflow-hidden shadow-sm">
+      <div className="bg-surface border border-border/70 rounded-xl p-6 sm:p-8 text-text-main relative overflow-hidden shadow-xs">
         <div className="relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 bg-brand-subtle border border-brand/20 px-3 py-1 rounded-full text-xs font-bold text-brand">
             <Sparkles className="w-3.5 h-3.5" /> Baza Wiedzy i Instrukcja Użytkownika
@@ -104,7 +104,7 @@ export function HelpView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Szukaj funkcji (np. 'import CSV', 'Safe-to-Spend', 'Runway', 'NBP', 'PIN')..."
-                className="w-full pl-10 pr-9 py-2.5 bg-surface-2 border border-border text-text-main placeholder:text-text-faint rounded-xl text-xs sm:text-sm font-medium focus-visible:ring-2 focus-visible:ring-focus-ring transition shadow-xs"
+                className="w-full pl-10 pr-9 py-2.5 bg-surface-2 border border-border/70 text-text-main placeholder:text-text-faint rounded-xl text-xs sm:text-sm font-medium focus-visible:ring-2 focus-visible:ring-focus-ring transition shadow-xs"
               />
               {searchQuery && (
                 <button
@@ -136,15 +136,15 @@ export function HelpView() {
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+      <div className="flex flex-wrap items-center gap-2 pb-1">
         {helpCategories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer ${
               selectedCategory === cat
                 ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                : "bg-surface text-text-muted border border-border hover:bg-surface-offset hover:text-text-main active:scale-95"
+                : "bg-surface text-text-muted border border-border/70 hover:bg-surface-offset hover:text-text-main active:scale-95"
             }`}
           >
             {cat}
@@ -155,7 +155,7 @@ export function HelpView() {
       {/* Accordion Sections */}
       <div className="space-y-3">
         {filteredSections.length === 0 ? (
-          <div className="bg-surface rounded-2xl border border-dashed border-border p-10 text-center">
+          <div className="bg-surface rounded-xl border border-dashed border-border/70 p-10 text-center shadow-xs">
             <p className="font-bold text-text-main text-sm">Brak pasujących artykułów pomocy</p>
             <p className="text-xs text-text-faint mt-1">Spróbuj wpisać inną frazę lub wybierz inną kategorię.</p>
           </div>
@@ -177,7 +177,7 @@ export function HelpView() {
       </div>
 
       {/* Interactive FAQ Box */}
-      <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+      <div className="bg-surface border border-border/70 rounded-xl p-6 sm:p-8 space-y-6 shadow-xs">
         <h3 className="text-lg font-bold text-text-main flex items-center gap-2.5">
           <HelpCircle className="w-5 h-5 text-brand" />
           Najczęściej zadawane pytania (FAQ)
@@ -185,7 +185,7 @@ export function HelpView() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {faqData.map((faq, idx) => (
-            <div key={idx} className="p-4 sm:p-5 bg-surface-2 rounded-2xl border border-border space-y-2">
+            <div key={idx} className="p-4 sm:p-5 bg-surface-2 rounded-xl border border-border/70 space-y-2 shadow-xs">
               <h5 className="font-bold text-text-main text-sm">{faq.question}</h5>
               <p className="text-text-muted text-xs sm:text-sm leading-relaxed">{faq.answer}</p>
             </div>

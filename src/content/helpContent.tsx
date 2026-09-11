@@ -70,21 +70,21 @@ export const quickSummaryCards: QuickSummaryCardData[] = [
     title: "Prywatność i Szyfrowanie",
     description: "Swoje dane przechowujesz lokalnie lub na własnym koncie Google Drive z 4-cyfrowym kodem PIN.",
     icon: <ShieldCheck className="w-5 h-5 text-brand" />,
-    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3 shadow-xs",
+    wrapperClass: "bg-surface border border-border/70 p-4 rounded-xl flex items-start gap-3 shadow-xs",
     iconClass: "p-2 bg-brand-subtle text-brand border border-brand/20 rounded-xl shrink-0"
   },
   {
     title: "Symulatory i Decyzje",
     description: "Kalkulatory poduszki finansowej (3/6/12M) oraz kaskada spłaty długu metodą Kuli Śnieżnej.",
     icon: <Zap className="w-5 h-5 text-brand" />,
-    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3 shadow-xs",
+    wrapperClass: "bg-surface border border-border/70 p-4 rounded-xl flex items-start gap-3 shadow-xs",
     iconClass: "p-2 bg-brand-subtle text-brand border border-brand/20 rounded-xl shrink-0"
   },
   {
     title: "10 Banków & Kursy NBP",
     description: "Automatyczny import wyciągów z 10 banków w Polsce z przeliczaniem walut po kursie średnim NBP.",
     icon: <FileSpreadsheet className="w-5 h-5 text-brand" />,
-    wrapperClass: "bg-surface border border-border p-4 rounded-2xl flex items-start gap-3 shadow-xs",
+    wrapperClass: "bg-surface border border-border/70 p-4 rounded-xl flex items-start gap-3 shadow-xs",
     iconClass: "p-2 bg-brand-subtle text-brand border border-brand/20 rounded-xl shrink-0"
   }
 ];
@@ -159,12 +159,12 @@ export const helpSectionsData: HelpSectionData[] = [
         </MockScreenShot>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">🔍 Szybkie szukanie transakcji</span>
+          <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+            <span className="font-semibold text-text-main block">Szybkie szukanie transakcji</span>
             <p className="text-text-muted">Wpisz nazwę sklepu (np. "Biedronka", "Orlen"), kwotę lub kategorię, a lista wyników pojawi się natychmiastowo.</p>
           </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-text-main block">⚡ Błyskawiczne akcje</span>
+          <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+            <span className="font-semibold text-text-main block">Błyskawiczne akcje</span>
             <p className="text-text-muted">Wpisz nazwę widoku ("Płatności", "Analizy", "Cele") lub polecenie "+ Nowa transakcja", aby od razu wywołać właściwy formularz.</p>
           </div>
         </div>
@@ -237,20 +237,20 @@ export const helpSectionsData: HelpSectionData[] = [
         </MockScreenShot>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-brand block">⚖️ Wzorzec Budżetowy 50 / 30 / 20</span>
+          <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+            <span className="font-semibold text-brand block">Wzorzec Budżetowy 50 / 30 / 20</span>
             <p className="text-text-muted">
               Dzieli wydatki na: <strong>50% Potrzeby</strong> (rachunki, jedzenie, transport), <strong>30% Styl życia</strong> (rozrywka, hobby) oraz <strong>20% Oszczędności</strong>.
             </p>
           </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-brand block">🛡️ Symulator Poduszki (3 / 6 / 12M)</span>
+          <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+            <span className="font-semibold text-brand block">Symulator Poduszki (3 / 6 / 12M)</span>
             <p className="text-text-muted">
               Wylicza wymagany kapitał bezpieczeństwa w oparciu o realny <em>burn rate</em> i estymuje liczbę miesięcy do celu przy obecnej nadwyżce operacyjnej.
             </p>
           </div>
-          <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-            <span className="font-bold text-danger block">💳 Kaskada Spłaty Długu (Kula Śnieżna)</span>
+          <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+            <span className="font-semibold text-danger block">Kaskada Spłaty Długu (Kula Śnieżna)</span>
             <p className="text-text-muted">
               Szereguje zobowiązania od najmniejszego salda, aby jak najszybciej uwalniać miesięczne raty na nadpłacanie kolejnych pozycji.
             </p>
@@ -281,8 +281,8 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Możesz w nim śledzić całkowite saldo, koszty obsługi oraz badać wpływ potencjalnych nadpłat (scenariusze What-If) i refinansowania na czas trwania długu oraz sumę zapłaconych odsetek.
         </p>
-        <div className="p-3.5 bg-surface border border-border rounded-xl space-y-1 shadow-xs">
-          <span className="font-bold text-text-main block">💡 Od czego zacząć?</span>
+        <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
+          <span className="font-semibold text-text-main block">Od czego zacząć?</span>
           <p className="text-text-muted">Zacznij od dodania wszystkich swoich kredytów za pomocą przycisku "Dodaj zobowiązanie".</p>
         </div>
       </div>
@@ -308,7 +308,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Zwróć uwagę, by odróżnić obecne saldo od całkowitej kwoty, na którą opiewał kredyt. Prawidłowe i aktualne dane pozwalają na wyliczenie dokładniejszego harmonogramu (np. daty spłaty) i trafniejsze symulacje.
         </p>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
-          <span className="font-bold text-text-main block">⚠️ Ważne: Brakujące dane</span>
+          <span className="font-semibold text-text-main block">Ważne: Brakujące dane</span>
           <p className="text-text-muted">Jeśli nie podasz np. raty i oprocentowania, system nie wyliczy harmonogramu ani daty końcowej, a zobowiązanie będzie traktowane jak zwykła kwota do zapłaty bez prognozowania odsetek.</p>
         </div>
       </div>
@@ -332,7 +332,7 @@ export const helpSectionsData: HelpSectionData[] = [
           <li><strong>Pozostałe odsetki:</strong> Estymowana kwota samych odsetek do końca trwania długów.</li>
         </ul>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
-          <span className="font-bold text-text-main block">⚠️ Ważne: Wskaźniki to szacunki</span>
+          <span className="font-semibold text-text-main block">Ważne: Wskaźniki to szacunki</span>
           <p className="text-text-muted">KPI są wyliczane na bieżąco na podstawie dostarczonych danych lokalnych. Część wartości to modele analityczne (szacunki oparte o stałą kwotę raty), a braki danych wpłyną na ich precyzję.</p>
         </div>
       </div>
@@ -375,7 +375,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Scenariusz nie modyfikuje rzeczywistego salda w Twoim portfelu. W panelu bocznym możesz testować strategie, wpisywać nadpłaty i obserwować na bieżąco nowe szacunki. Stworzoną symulację możesz zapisać, aby później łatwo ją porównać z innymi (np. w zakładce Oferty & Refinansowanie).
         </p>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
-          <span className="font-bold text-text-main block">⚠️ Ważne: To tylko symulacje</span>
+          <span className="font-semibold text-text-main block">Ważne: To tylko symulacje</span>
           <p className="text-text-muted">Wyniki What-If są wyłącznie szacunkami matematycznymi i narzędziem do eksploracji wariantów, a nie gwarancją konkretnych kwot w wybranym banku.</p>
         </div>
       </div>
@@ -404,7 +404,7 @@ export const helpSectionsData: HelpSectionData[] = [
           </ul>
         </div>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
-          <span className="font-bold text-text-main block">⚠️ Ważne: Limity danych</span>
+          <span className="font-semibold text-text-main block">Ważne: Limity danych</span>
           <p className="text-text-muted">Wartości ujemne nie są akceptowane, a wpłaty zaplanowane po zredukowaniu całego zadłużenia do zera nie wpływają już na wyniki kalkulacji.</p>
         </div>
       </div>
@@ -428,7 +428,7 @@ export const helpSectionsData: HelpSectionData[] = [
           <li><strong>Kolorowa linia (Strategia):</strong> Oś czasu (timeline) dla modyfikowanego scenariusza (np. z nadpłatami i kaskadą), wizualizująca szybsze zejście salda do zera.</li>
         </ul>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
-          <span className="font-bold text-text-main block">⚠️ Ważne: Wykres to projekcja</span>
+          <span className="font-semibold text-text-main block">Ważne: Wykres to projekcja</span>
           <p className="text-text-muted">Zastrzegamy, że wykres nie przewiduje przyszłych zmian stóp procentowych ani opłat i prowizji bankowych. Jest to matematyczna projekcja estymująca tempo redukcji długu.</p>
         </div>
       </div>
@@ -449,7 +449,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Obsługuje on zarówno nadpłaty comiesięczne jak i jednorazowe, symulując <strong>skrócenie okresu kredytowania</strong> przy zachowaniu obecnej raty. Dowiesz się dzięki temu, ile miesięcy szybciej spłacisz zobowiązanie i jak duże oszczędności odsetkowe wygenerujesz. Oszczędności zawsze zależą od kwoty kredytu, odsetek, obecnej raty i pozostałego czasu.
         </p>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1 mt-2">
-          <span className="font-bold text-text-main block">⚠️ Ważne: Narzędzie edukacyjne</span>
+          <span className="font-semibold text-text-main block">Ważne: Narzędzie edukacyjne</span>
           <p className="text-text-muted">Pamiętaj, że symulator stanowi narzędzie edukacyjne, a nie oficjalną poradę finansową. Banki mogą stosować inne mechanizmy zaliczania wpłat.</p>
         </div>
       </div>
@@ -487,7 +487,7 @@ export const helpSectionsData: HelpSectionData[] = [
           Kluczem jest porównywanie <strong>całkowitego kosztu odsetek i ewentualnych prowizji</strong>, a nie tylko samej raty miesięcznej (wydłużenie okresu kredytu zmniejszy ratę, ale zwiększy sumę odsetek).
         </p>
         <div className="p-3.5 bg-brand-subtle/20 border border-brand/30 rounded-xl space-y-1">
-          <span className="font-bold text-text-main block">⚠️ Ważne</span>
+          <span className="font-semibold text-text-main block">Ważne</span>
           <p className="text-text-muted">Kalkulacje mają charakter pomocniczy. Aplikacja nie dysponuje aktualnymi stawkami z rynku i nie składa zapytań do banków; wszystkie parametry wprowadzasz ręcznie.</p>
         </div>
       </div>

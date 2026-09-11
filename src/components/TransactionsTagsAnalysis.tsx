@@ -88,9 +88,9 @@ export function TransactionsTagsAnalysis({
         {/* Tag distribution bar list */}
         <div className="space-y-2 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar">
           {tagSummaries.length === 0 ? (
-            <div className="text-center py-10 text-xs text-text-muted bg-surface-2 rounded-xl border border-dashed border-border">
-              <span className="text-2xl block mb-1 opacity-50">🏷️</span>
-              <p className="font-bold text-text-main">Brak otagowanych wydatków</p>
+            <div className="text-center py-10 text-xs text-text-muted bg-surface-2/50 rounded-xl border border-dashed border-border/70 flex flex-col items-center justify-center">
+              <Tag className="w-6 h-6 text-text-muted/60 mb-1.5" strokeWidth={1.75} />
+              <p className="font-semibold text-text-main">Brak otagowanych wydatków</p>
               <p className="text-text-faint mt-0.5">Dodaj tagi podczas wprowadzania transakcji.</p>
             </div>
           ) : (

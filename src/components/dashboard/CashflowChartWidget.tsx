@@ -9,11 +9,13 @@ interface CashflowChartWidgetProps {
 }
 
 export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData, currency }: CashflowChartWidgetProps) {
+  const hasData = chartData.some((d) => d.income > 0 || d.expense > 0);
+
   return (
-    <div className="bg-surface p-5 rounded-2xl border border-border shadow-sm flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden group hover:bg-surface transition" id="widget-content-chart-box">
-      <div className="flex items-center justify-between gap-4 mb-4 relative z-10">
+    <div className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs flex flex-col justify-between h-full max-h-[440px] relative overflow-hidden group hover:bg-surface transition" id="widget-content-chart-box">
+      <div className="flex items-center justify-between gap-4 mb-3.5 relative z-10">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Przepływy">Przepływy</p>
+          <p className="text-[11px] font-semibold text-text-faint uppercase tracking-wider mb-0.5 truncate" title="Przepływy">Przepływy</p>
           <h3 className="text-base font-bold text-text-main truncate" title="Ostatnie 6 miesięcy">Ostatnie 6 miesięcy</h3>
         </div>
         <div className="flex gap-3 shrink-0">
@@ -29,6 +31,13 @@ export const CashflowChartWidget = memo(function CashflowChartWidget({ chartData
       </div>
 
       <div className="flex-1 flex items-end justify-between gap-1.5 sm:gap-3 pt-6 border-b border-border pb-3 h-48 relative z-10">
+        {!hasData && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-6 z-20">
+            <span className="text-xs text-text-faint font-medium bg-surface/80 px-3 py-1.5 rounded-lg border border-border/50 backdrop-blur-xs">
+              Brak zarejestrowanych przepływów
+            </span>
+          </div>
+        )}
         {chartData.map((d, i) => (
           <div key={i} className="flex-1 flex flex-col justify-end items-center relative h-full group/bar min-w-0">
             <div className="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full relative">
