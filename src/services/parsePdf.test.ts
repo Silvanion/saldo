@@ -47,6 +47,32 @@ describe("parsePdfTransactions", () => {
     expect(result.transactions[1]).toMatchObject({ amount: 5000, type: "income" });
   });
 
+  it("keeps multiline descriptions together when PDF text is split across lines", () => {
+    const result = parsePdfTransactions(
+      [
+        "Wyciąg bankowy; Data operacji; Tytuł; Kwota",
+        "11/09/2026",
+        "Płatność kartą",
+        "SKLEP SPOŻYWCZY",
+        "-42,99 PLN",
+        "12/09/2026 Przelew wynagrodzenia 6 500,00 PLN"
+      ].join("\n"),
+      options
+    );
+
+    expect(result.transactions).toHaveLength(2);
+    expect(result.transactions[0]).toMatchObject({
+      name: "Płatność kartą SKLEP SPOŻYWCZY",
+      amount: 42.99,
+      type: "expense"
+    });
+    expect(result.transactions[1]).toMatchObject({
+      name: "Przelew wynagrodzenia",
+      amount: 6500,
+      type: "income"
+    });
+  });
+
   it("rejects incomplete OCR rows instead of importing guessed values", () => {
     const result = normalizeAiPdfTransactions([
       { name: "Sklep", amount: 12.5, type: "expense", isoDate: "2026-09-11" },

@@ -133,7 +133,9 @@ export function parsePdfTransactions(
 ): PdfImportResult {
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
-  const lines = text.split(/\r?\n/).flatMap((line) => line.split(/(?=\d{1,2}[./-]\d{1,2}[./-]\d{4})/));
+  const lines = text
+    .replace(/\r?\n/g, " ")
+    .split(/(?=\d{1,2}[./-]\d{1,2}[./-]\d{4})/);
 
   lines.forEach((raw, index) => {
     const row = raw.replace(/\s+/g, " ").trim();
