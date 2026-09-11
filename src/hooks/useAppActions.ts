@@ -42,7 +42,21 @@ export function useAppActions({
   showToast,
   openModal
 }: UseAppActionsProps) {
-  
+  const persistState = useCallback(
+    (nextState: AppState) => {
+      try {
+        void Promise.resolve(saveState(nextState)).catch((err) => {
+          console.error("Failed to save application state:", err);
+          setApiError?.("Nie udało się zapisać zmian na urządzeniu.");
+        });
+      } catch (err) {
+        console.error("Failed to save application state:", err);
+        setApiError?.("Nie udało się zapisać zmian na urządzeniu.");
+      }
+    },
+    [saveState, setApiError]
+  );
+
   // Helper to update active profile safely
   const updateActiveProfile = useCallback(
     (updater: (profile: Profile) => Partial<Profile>) => {
@@ -72,10 +86,10 @@ export function useAppActions({
       });
 
       if (hasChanges) {
-        saveState({ ...state, profiles: updatedProfiles });
+        persistState({ ...state, profiles: updatedProfiles });
       }
     },
-    [activeProfile, state, saveState]
+    [activeProfile, state, persistState]
   );
 
 
@@ -368,20 +382,20 @@ export function useAppActions({
     (profileId: string) => {
       const nextProfile = state.profiles.find((p) => p.id === profileId);
       if (nextProfile) {
-        saveState({ ...state, activeProfileId: profileId });
+        persistState({ ...state, activeProfileId: profileId });
         if (!nextProfile.pinHash) {
           unlockProfile(profileId);
         }
         setActiveView("dashboard");
       }
     },
-    [state, saveState, unlockProfile, setActiveView]
+    [state, persistState, unlockProfile, setActiveView]
   );
 
   const handleSwitchProfile = useCallback(() => {
-    saveState({ ...state, activeProfileId: null });
+    persistState({ ...state, activeProfileId: null });
     setActiveView("dashboard");
-  }, [state, saveState, setActiveView]);
+  }, [state, persistState, setActiveView]);
 
   const handleDeleteProfile = useCallback(
     (profileId: string) => {
@@ -400,7 +414,7 @@ export function useAppActions({
       };
       
       makeUndoBackup();
-      saveState(updatedState);
+      persistState(updatedState);
       
       if (activeKeys[profileId]) {
          delete activeKeys[profileId];
@@ -410,7 +424,7 @@ export function useAppActions({
          setActiveView("dashboard");
       }
     },
-    [state, saveState, makeUndoBackup, setActiveView]
+    [state, persistState, makeUndoBackup, setActiveView]
   );
 
   const handleUpdateProfile = useCallback(
@@ -468,11 +482,16 @@ export function useAppActions({
         profiles: [...state.profiles, newProfile],
         activeProfileId: newId
       };
-      saveState(updatedState);
-      unlockProfile(newId);
-      setActiveView("dashboard");
+      try {
+        await saveState(updatedState);
+        unlockProfile(newId);
+        setActiveView("dashboard");
+      } catch (err) {
+        console.error("Failed to save new profile:", err);
+        setApiError?.("Nie udało się zapisać nowego profilu.");
+      }
     },
-    [state, saveState, unlockProfile, setActiveView]
+    [state, saveState, unlockProfile, setActiveView, setApiError]
   );
 
   const txActions = useTransactionActions({
