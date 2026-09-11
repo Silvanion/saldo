@@ -1,7 +1,7 @@
 import { auth } from "../firebase";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { User } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
 import { decryptProfile, activeKeys, prepareStateForRemoteSave, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
@@ -92,11 +92,53 @@ export function useBudgetState(googleUser: User | null) {
     setHistoryState(JSON.parse(JSON.stringify(customState || state)));
   }, [state]);
 
-  // Fetch state from the backend Express server (Fallback / Demo mode)
+  // Refresh state from Firestore or the local cache after a recoverable error.
   const fetchState = useCallback(async (showLoader = false) => {
     if (showLoader) setIsSyncing(true);
     setApiError(null);
-    if (showLoader) setIsSyncing(false);
+
+    try {
+      if (googleUser && db) {
+        const snapshot = await getDoc(doc(db, "users", googleUser.uid));
+        if (snapshot.exists()) {
+          const incoming = validateAndMigrateState(snapshot.data(), googleUser.email || "chmura");
+          const rawIncoming = JSON.parse(JSON.stringify(incoming));
+          const decryptedProfiles = await Promise.all(incoming.profiles.map(async (profile: Profile) => {
+            if (profile.encryptedPayload && activeKeys[profile.id]) {
+              try {
+                return await decryptProfile(profile, activeKeys[profile.id]);
+              } catch (err) {
+                console.error("Failed decrypting refreshed profile:", profile.id, err);
+                setApiError("Nie udało się odszyfrować danych profilu z chmury. Sprawdź poprawność kodu PIN.");
+              }
+            }
+            return profile;
+          }));
+
+          incoming.profiles = decryptedProfiles;
+          const incomingTime = new Date(incoming.updatedAt || 0).getTime();
+          const localTime = new Date(localUpdatedAtRef.current || 0).getTime();
+          if (incomingTime >= localTime) {
+            setState(incoming);
+            localUpdatedAtRef.current = incoming.updatedAt || localUpdatedAtRef.current;
+            await localDb.saveState(rawIncoming);
+          }
+        }
+      } else {
+        const cached = await localDb.loadState();
+        const cachedTime = new Date(cached?.updatedAt || 0).getTime();
+        const localTime = new Date(localUpdatedAtRef.current || 0).getTime();
+        if (cached && cachedTime > localTime) {
+          setState(cached);
+          localUpdatedAtRef.current = cached.updatedAt || localUpdatedAtRef.current;
+        }
+      }
+    } catch (err) {
+      console.error("State refresh failed:", err);
+      setApiError("Nie udało się odświeżyć danych. Spróbuj ponownie później.");
+    } finally {
+      if (showLoader) setIsSyncing(false);
+    }
   }, [googleUser]);
 
   // Save state to Firestore, local server or local storage / IDB
