@@ -1,4 +1,3 @@
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { SupportedCurrency, Transaction, TransactionRule } from "../types";
 import { autoCategorizeTransaction, iconByCategory } from "../utils";
 import { checkDuplicate } from "./duplicateDetector";
@@ -11,6 +10,7 @@ export interface PdfImportResult {
 }
 
 export async function extractPdfText(file: File): Promise<string> {
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const data = new Uint8Array(await file.arrayBuffer());
   const document = await pdfjsLib.getDocument({
     data,
@@ -72,7 +72,8 @@ export function parsePdfTransactions(
     if (!dateMatch) return;
 
     const date = parseCsvDate(dateMatch[0]);
-    const amountMatches = [...row.matchAll(/(?:-?\(?\d[\d\s]*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?/gi)];
+    const rowWithoutDate = row.replace(dateMatch[0], " ");
+    const amountMatches = [...rowWithoutDate.matchAll(/(?:-?\(?\d[\d\s]*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?/gi)];
     const amountMatch = amountMatches.at(-1)?.[0];
     const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
     const name = row
