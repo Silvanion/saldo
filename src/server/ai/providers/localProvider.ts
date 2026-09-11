@@ -157,6 +157,15 @@ export class LocalProvider implements AiProvider {
     }
   }
 
+  private isRealIsoDate(value: unknown): value is string {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day;
+  }
+
   async suggestEvent(payment: any, currentDate: string): Promise<any> {
     const prompt = `Zaplanuj przypomnienie kalendarza w formacie JSON dla płatności:
 Nazwa: ${payment.name}
@@ -193,7 +202,19 @@ Jeśli nie ma transakcji, zwróć {"transactions":[]}. Zwróć tylko prawidłowy
     const transactions = Array.isArray(res)
       ? res
       : (Array.isArray(res?.transactions) ? res.transactions : []);
-    if (transactions.length > 0) return { transactions };
+    const validTransactions = transactions.filter((transaction: any) =>
+      transaction &&
+      typeof transaction.name === "string" &&
+      transaction.name.trim().length > 0 &&
+      typeof transaction.amount === "number" &&
+      Number.isFinite(transaction.amount) &&
+      transaction.amount > 0 &&
+      (transaction.type === "income" || transaction.type === "expense") &&
+      this.isRealIsoDate(transaction.isoDate) &&
+      typeof transaction.category === "string" &&
+      transaction.category.trim().length > 0
+    );
+    if (validTransactions.length > 0) return { transactions: validTransactions };
 
     // Some Ollama models (notably reasoning models with JSON mode) return {}
     // instead of the requested shape. Preserve the import instead of silently

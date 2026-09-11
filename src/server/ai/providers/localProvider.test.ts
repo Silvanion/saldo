@@ -83,4 +83,28 @@ describe("LocalProvider model selection", () => {
       isoDate: "2026-09-11"
     })]);
   });
+
+  it("rejects malformed AI rows and falls back to deterministic parsing", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({
+      response: JSON.stringify({
+        transactions: [{
+          name: "Biedronka",
+          amount: -25.5,
+          type: "expense",
+          isoDate: "2026-02-30",
+          category: ""
+        }]
+      })
+    }), { status: 200 })));
+
+    const result = await new LocalProvider("http://localhost:11434/api/generate", "qwen3:14b")
+      .parseStatement("2026-09-11; Biedronka; -25,50", "2026-09-11");
+
+    expect(result.transactions).toEqual([expect.objectContaining({
+      name: "Biedronka",
+      amount: 25.5,
+      type: "expense",
+      isoDate: "2026-09-11"
+    })]);
+  });
 });
