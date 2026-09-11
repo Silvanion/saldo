@@ -121,6 +121,20 @@ describe("checkLocalAiHealth", () => {
     const result = await checkLocalAiHealth(config);
     expect(result.ok).toBe(false);
   });
+
+  it("nie wysyła danych do endpointu spoza localhost", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    await expect(
+      categorizeDescriptionsWithLocalAi(["BIEDRONKA"], {
+        endpoint: "https://example.com/api/generate",
+        model: "qwen3:14b"
+      })
+    ).resolves.toEqual(new Map());
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });
 
 describe("categorizeDescriptionsWithLocalAi", () => {

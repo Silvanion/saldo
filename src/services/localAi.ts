@@ -36,6 +36,9 @@ interface OllamaCallOptions {
 }
 
 async function callOllama(opts: OllamaCallOptions): Promise<string> {
+  if (!isLocalEndpointSafe(opts.endpoint)) {
+    throw new LocalAiError("Lokalne AI może korzystać wyłącznie z adresu localhost.");
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? REQUEST_TIMEOUT_MS);
   try {

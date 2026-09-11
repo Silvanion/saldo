@@ -46,4 +46,41 @@ describe("LocalProvider model selection", () => {
       new LocalProvider("http://localhost:11434/api/generate").parseNatural("Kawa", "2026-09-11")
     ).rejects.toThrow("Nie znaleziono żadnego modelu w Ollamie.");
   });
+
+  it("uses an Ollama-compatible transaction wrapper for statement parsing", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({
+      response: JSON.stringify({
+        transactions: [{
+          name: "Biedronka",
+          amount: 25.5,
+          type: "expense",
+          isoDate: "2026-09-11",
+          category: "Żywność"
+        }]
+      })
+    }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await new LocalProvider("http://localhost:11434/api/generate", "qwen3:14b")
+      .parseStatement("2026-09-11; Biedronka; -25,50", "2026-09-11");
+
+    expect(result.transactions).toHaveLength(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).prompt).toContain('"transactions"');
+  });
+
+  it("falls back to the deterministic parser when Ollama returns an empty object", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({
+      response: "{}"
+    }), { status: 200 })));
+
+    const result = await new LocalProvider("http://localhost:11434/api/generate", "qwen3:14b")
+      .parseStatement("2026-09-11; Biedronka; -25,50", "2026-09-11");
+
+    expect(result.transactions).toEqual([expect.objectContaining({
+      name: "Biedronka",
+      amount: 25.5,
+      type: "expense",
+      isoDate: "2026-09-11"
+    })]);
+  });
 });

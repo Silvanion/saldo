@@ -237,8 +237,15 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           }
         });
         const health = await healthResponse.json().catch(() => ({}));
-        if (!healthResponse.ok || health.selectedModelVisionAvailable !== true) {
-          throw new Error("Wybrany model Ollama nie obsługuje obrazów. Wybierz model multimodalny, np. gemma3:4b, i spróbuj ponownie.");
+        if (
+          !healthResponse.ok ||
+          (state.aiMode === "local" && health.selectedModelVisionAvailable !== true)
+        ) {
+          throw new Error(
+            state.aiMode === "local"
+              ? "Wybrany model Ollama nie obsługuje obrazów. Wybierz model multimodalny, np. gemma3:4b, i spróbuj ponownie."
+              : "Nie można połączyć się z chmurowym AI, aby przeanalizować skan PDF."
+          );
         }
         const aiResults = [];
         for (const imageBase64 of pages) {
@@ -387,7 +394,22 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     setTextError("");
     try {
       const config = resolveLocalAiConfig(state);
-      const rows = await extractTransactionsWithLocalAi(pastedText, config);
+      let rows = await extractTransactionsWithLocalAi(pastedText, config);
+
+      // A reasoning model may return an empty JSON object despite valid input.
+      // Keep the import usable without accepting model-generated guesses.
+      if (rows.length === 0) {
+        const fallbackRows = parseStatementText(
+          pastedText,
+          getLocalDateIso(),
+          activeProfile?.transactionRules || [],
+          defaultAccount
+        );
+        rows = fallbackRows.map((row) => ({
+          ...row,
+          amountConsistent: true
+        }));
+      }
 
       if (rows.length === 0) {
         setTextError("Lokalne AI nie rozpoznało żadnej transakcji w tym tekście.");

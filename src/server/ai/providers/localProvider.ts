@@ -1,4 +1,5 @@
 import { getLocalDateIso } from "../../../utils";
+import { parseStatementText } from "../../../services/localParsers";
 import { AiProvider } from "../types";
 
 export class LocalProvider implements AiProvider {
@@ -183,11 +184,23 @@ Zwróć tylko prawidłowy obiekt JSON.`;
     const prompt = `Analizuj wyciąg bankowy. Data odniesienia: ${currentDate}.
 Tekst: """${text}"""
 
-Zwróć JSON jako płaską tablicę obiektów: name, amount (liczba dodatnia), type ("income" lub "expense"), isoDate (YYYY-MM-DD), category, account (zawsze "Konto główne").
-Zwróć tylko zwalidowany kod JSON (tablicę).`;
+Zwróć JSON jako obiekt z jednym kluczem "transactions", zawierającym tablicę
+obiektów: name, amount (liczba dodatnia), type ("income" lub "expense"),
+isoDate (YYYY-MM-DD), category, account (zawsze "Konto główne").
+Jeśli nie ma transakcji, zwróć {"transactions":[]}. Zwróć tylko prawidłowy JSON.`;
     
     const res = await this.callLocalApi(prompt, true);
-    return { transactions: Array.isArray(res) ? res : (res.transactions ? res.transactions : []) };
+    const transactions = Array.isArray(res)
+      ? res
+      : (Array.isArray(res?.transactions) ? res.transactions : []);
+    if (transactions.length > 0) return { transactions };
+
+    // Some Ollama models (notably reasoning models with JSON mode) return {}
+    // instead of the requested shape. Preserve the import instead of silently
+    // reporting success with an empty result.
+    return {
+      transactions: parseStatementText(text, currentDate)
+    };
   }
 
   async parseStatementImage(imageBase64: string, mimeType: string, currentDate: string): Promise<any> {

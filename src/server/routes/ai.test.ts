@@ -2,10 +2,11 @@ import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const parseStatementImage = vi.fn();
+const verifyFirebaseToken = vi.fn((_req: unknown, _res: unknown, next: () => void) => next());
 let provider: Record<string, unknown> = { parseStatementImage };
 
 vi.mock("../middleware/auth", () => ({
-  verifyFirebaseToken: (_req: unknown, _res: unknown, next: () => void) => next()
+  verifyFirebaseToken
 }));
 vi.mock("../middleware/security", () => {
   const passThrough = (_req: unknown, _res: unknown, next: () => void) => next();
@@ -38,6 +39,7 @@ const createTestServer = async () => {
 describe("POST /api/ai/parse-statement-image", () => {
   afterEach(() => {
     parseStatementImage.mockReset();
+    verifyFirebaseToken.mockClear();
     provider = { parseStatementImage };
     vi.restoreAllMocks();
   });
@@ -52,6 +54,7 @@ describe("POST /api/ai/parse-statement-image", () => {
         category: "Żywność"
       }]
     });
+
     const { server, url } = await createTestServer();
 
     try {
@@ -80,6 +83,32 @@ describe("POST /api/ai/parse-statement-image", () => {
         }]
       });
       expect(parseStatementImage).toHaveBeenCalledWith("aGVsbG8=", "image/png", "2026-09-11");
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("does not require Firebase authentication for local AI", async () => {
+    provider = { parseStatementImage: vi.fn().mockResolvedValue({ transactions: [] }) };
+    const { server, url } = await createTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/ai/parse-statement-image`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ai-mode": "local",
+          "x-ai-local-endpoint": "http://localhost:11434/api/generate"
+        },
+        body: JSON.stringify({
+          imageBase64: "aGVsbG8=",
+          mimeType: "image/png",
+          currentDate: "2026-09-11"
+        })
+      });
+
+      expect(response.status).toBe(200);
+      expect(verifyFirebaseToken).not.toHaveBeenCalled();
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }

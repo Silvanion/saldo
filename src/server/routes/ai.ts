@@ -41,7 +41,8 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
       const isAllowedLocalHost =
         hostname === "localhost" ||
         hostname === "127.0.0.1" ||
-        hostname === "::1";
+        hostname === "::1" ||
+        hostname === "[::1]";
 
       if (!isAllowedLocalHost) {
         return res.status(403).json({
@@ -63,11 +64,15 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
 const routeSecurityByMode = (req: any, res: Response, next: NextFunction) => {
   const mode = req.aiConfig.mode;
 
-  if (mode === "cloud" || mode === "local") {
+  if (mode === "cloud") {
     return verifyFirebaseToken(req, res, () => {
-      if (mode === "cloud") return cloudAiRateLimiter(req, res, next);
-      return localAiRateLimiter(req, res, next);
+      return cloudAiRateLimiter(req, res, next);
     });
+  }
+
+  if (mode === "local") {
+    // Local Ollama is private and must remain usable offline without Firebase login.
+    return localAiRateLimiter(req, res, next);
   }
 
   // mode === "none"
@@ -132,6 +137,9 @@ router.all("/health", async (req: any, res: Response) => {
           } catch {
             selectedModelVisionAvailable = false;
           }
+        }
+        if (!selectedModelVisionAvailable) {
+          selectedModelVisionAvailable = models.find((model) => model.name === selectedModel)?.vision || false;
         }
         return res.json({
           status: "ok",
@@ -303,15 +311,18 @@ const ParseNaturalOutput = z.object({
   isoDate: z.string().optional()
 }).passthrough();
 
-const ParseStatementOutput = z.array(
-  z.object({
-    name: z.string(),
-    amount: z.number(),
-    type: z.enum(["income", "expense"]),
-    isoDate: z.string(),
-    category: z.string()
-  }).passthrough()
-);
+const ParseStatementTransaction = z.object({
+  name: z.string(),
+  amount: z.number(),
+  type: z.enum(["income", "expense"]),
+  isoDate: z.string(),
+  category: z.string()
+}).passthrough();
+
+const ParseStatementOutput = z.union([
+  z.array(ParseStatementTransaction),
+  z.object({ transactions: z.array(ParseStatementTransaction) }).passthrough()
+]);
 
 const ChatOutput = z.object({
   reply: z.string()
@@ -409,7 +420,7 @@ router.post("/parse-statement", checkProductionAiMode, async (req: any, res: Res
     const rawResult = await provider.parseStatement(parsedInput.text, parsedInput.currentDate);
     const result = ParseStatementOutput.parse(rawResult);
     logCostMetric("/parse-statement", uid, ip, parsedInput.text.length, true);
-    res.json(result);
+    res.json(Array.isArray(result) ? { transactions: result } : result);
   } catch (error: any) {
     logCostMetric("/parse-statement", uid, ip, 0, false);
     if (error instanceof z.ZodError) {
