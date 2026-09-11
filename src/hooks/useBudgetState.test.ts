@@ -448,6 +448,7 @@ describe("useBudgetState hydration race condition protection", () => {
 
     // Final state must be updated to IDB Newer Profile
     expect(hookRef.current.state.profiles[0].name).toBe("IDB Newer Profile");
+    expect(hookRef.current.state.updatedAt).toBe("2026-07-23T12:00:00.000Z");
   });
 
   it("saveState w trakcie pending loadState -> finalny stan = zapisany, nie stary IDB", async () => {
