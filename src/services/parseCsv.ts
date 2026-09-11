@@ -148,6 +148,7 @@ export function parseCsvDate(rawDate: string): string | null {
 export function parseCsvAmount(rawAmount: string): { amount: number; isNegative: boolean } | null {
   if (!rawAmount) return null;
   let cleaned = rawAmount
+    .replace(/[−–—]/g, "-")
     .replace(/\s+/g, "")
     .replace(/PLN|EUR|USD|GBP|zł|PLZ/gi, "")
     .replace(/^["']|["']$/g, "");
@@ -155,12 +156,24 @@ export function parseCsvAmount(rawAmount: string): { amount: number; isNegative:
   if (!cleaned) return null;
 
   let isNegative = false;
-  if (cleaned.startsWith("-") || cleaned.includes("-") || (cleaned.startsWith("(") && cleaned.endsWith(")"))) {
+  if (cleaned.startsWith("-") || cleaned.endsWith("-") || (cleaned.startsWith("(") && cleaned.endsWith(")"))) {
     isNegative = true;
   }
 
-  // Replace comma with dot
-  cleaned = cleaned.replace(/,/g, ".").replace(/[^\d.-]/g, "");
+  cleaned = cleaned.replace(/[()]/g, "").replace(/^-|-$/g, "");
+  const lastComma = cleaned.lastIndexOf(",");
+  const lastDot = cleaned.lastIndexOf(".");
+  if (lastComma >= 0 && lastDot >= 0) {
+    const decimalSeparator = lastComma > lastDot ? "," : ".";
+    const thousandsSeparator = decimalSeparator === "," ? "." : ",";
+    cleaned = cleaned.replaceAll(thousandsSeparator, "").replace(decimalSeparator, ".");
+  } else if (lastComma >= 0) {
+    cleaned = cleaned.replaceAll(",", ".");
+  } else if ((cleaned.match(/\./g) || []).length > 1) {
+    const decimalSeparatorIndex = cleaned.lastIndexOf(".");
+    cleaned = `${cleaned.slice(0, decimalSeparatorIndex).replaceAll(".", "")}${cleaned.slice(decimalSeparatorIndex)}`;
+  }
+  cleaned = cleaned.replace(/[^\d.]/g, "");
 
   const val = parseFloat(cleaned);
   if (isNaN(val) || val === 0) {

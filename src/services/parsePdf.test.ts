@@ -33,6 +33,20 @@ describe("parsePdfTransactions", () => {
     expect(result.rejectedRows).toHaveLength(1);
   });
 
+  it("parses European thousands separators and trailing debit signs", () => {
+    const result = parsePdfTransactions(
+      [
+        "11.09.2026 Sklep spożywczy 1.234,56-",
+        "12.09.2026 Wynagrodzenie 5 000,00 PLN"
+      ].join("\n"),
+      options
+    );
+
+    expect(result.transactions).toHaveLength(2);
+    expect(result.transactions[0]).toMatchObject({ amount: 1234.56, type: "expense" });
+    expect(result.transactions[1]).toMatchObject({ amount: 5000, type: "income" });
+  });
+
   it("rejects incomplete OCR rows instead of importing guessed values", () => {
     const result = normalizeAiPdfTransactions([
       { name: "Sklep", amount: 12.5, type: "expense", isoDate: "2026-09-11" },

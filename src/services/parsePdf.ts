@@ -143,7 +143,7 @@ export function parsePdfTransactions(
 
     const date = parseCsvDate(dateMatch[0]);
     const rowWithoutDate = row.replace(dateMatch[0], " ");
-    const amountMatches = [...rowWithoutDate.matchAll(/(?:-?\(?\d[\d\s]*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?/gi)];
+    const amountMatches = [...rowWithoutDate.matchAll(/(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi)];
     const amountMatch = amountMatches.at(-1)?.[0];
     const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
     const name = row
