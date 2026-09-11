@@ -13,7 +13,7 @@ export function useProfileSecurity({
 }: {
   state: AppState;
   activeProfile: Profile | null;
-  saveState: (newState: AppState, localOnly?: boolean) => void;
+  saveState: (newState: AppState, localOnly?: boolean) => Promise<void>;
 }) {
   const [unlockedProfileId, setUnlockedProfileId] = useState<string | null>(null);
   const [isSecurityInfoOpen, setIsSecurityInfoOpen] = useState(false);
@@ -66,8 +66,6 @@ export function useProfileSecurity({
               throw new Error("Nie udało się odszyfrować danych profilu. Sprawdź kod PIN lub spójność danych.");
             }
           }
-          activeKeys[activeProfile.id] = key;
-          
           const updatedProfiles = state.profiles.map(p => p.id === activeProfile.id ? decrypted : p);
 
           // Await tak samo jak w handleSetProfilePin: caller (onUnlock) czeka na ten
@@ -106,8 +104,6 @@ export function useProfileSecurity({
         const newSalt = generateRandomSalt();
         const newHash = await hashPin(pin, newSalt);
         const key = await deriveKeyFromPin(pin, newSalt);
-        activeKeys[activeProfile.id] = key;
-        
         const updatedProfiles = state.profiles.map((p) => {
           if (p.id === activeProfile.id) {
             return { ...p, pinHash: newHash, salt: newSalt };
@@ -122,7 +118,6 @@ export function useProfileSecurity({
         await saveState({ ...state, profiles: updatedProfiles });
         unlockProfile(activeProfile.id);
       } else {
-        delete activeKeys[activeProfile.id];
         const updatedProfiles = state.profiles.map((p) => {
           if (p.id === activeProfile.id) {
             const { encryptedPayload, salt, pinHash, ...rest } = p;
@@ -150,4 +145,3 @@ export function useProfileSecurity({
     lockoutUntil,
   };
 }
-

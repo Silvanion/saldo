@@ -80,18 +80,32 @@ export default defineConfig(() => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('firebase')) {
+              if (id.includes('@firebase/auth')) {
+                return 'vendor-firebase-auth';
+              }
+              if (id.includes('@firebase/firestore')) {
+                return 'vendor-firebase-firestore';
+              }
+              if (id.includes('@firebase/app') || id.includes('@firebase/util')) {
+                return 'vendor-firebase-core';
+              }
+              if (id.includes('/firebase/')) {
                 return 'vendor-firebase';
               }
-              if (
-                id.includes('jspdf') ||
-                id.includes('html2canvas') ||
-                id.includes('dompurify') ||
-                id.includes('purify') ||
-                id.includes('fflate') ||
-                id.includes('canvg')
-              ) {
-                return 'vendor-pdf';
+              if (id.includes('/jspdf/')) {
+                return 'vendor-jspdf';
+              }
+              if (id.includes('/html2canvas/')) {
+                return 'vendor-html2canvas';
+              }
+              if (id.includes('/dompurify/') || id.includes('/purify/')) {
+                return 'vendor-dompurify';
+              }
+              if (id.includes('/fflate/')) {
+                return 'vendor-fflate';
+              }
+              if (id.includes('/canvg/')) {
+                return 'vendor-canvg';
               }
               if (id.includes('papaparse')) {
                 return 'vendor-csv';

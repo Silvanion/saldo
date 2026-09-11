@@ -190,7 +190,8 @@ export function useDriveSync({
         if (targetFileId) {
           setGdriveFileId(targetFileId);
           localStorage.setItem(DRIVE_FILE_ID_KEY, targetFileId);
-          onImportState({ ...stateToBackup, driveFileId: targetFileId });
+          // Keep the local state decrypted after uploading the encrypted backup.
+          onImportState({ ...state, driveFileId: targetFileId });
         }
 
         const syncIso = stateToBackup.updatedAt || new Date().toISOString();
@@ -318,7 +319,9 @@ export function useDriveSync({
           decision: choice
         });
         localStorage.setItem("saldo-conflict-decision-logs", JSON.stringify(existingLogs.slice(-20)));
-      } catch (_) {}
+      } catch (err) {
+        console.warn("[DriveSync] Failed to persist conflict decision log:", err);
+      }
 
       setDriveConflictInfo(null);
 

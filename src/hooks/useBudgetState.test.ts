@@ -17,6 +17,7 @@ vi.mock("firebase/firestore", async (importOriginal) => {
   return {
     ...actual,
     doc: vi.fn(() => "mocked-doc-ref"),
+    getDoc: vi.fn(),
     setDoc: vi.fn(),
     onSnapshot: vi.fn(() => vi.fn())
   };
@@ -520,6 +521,32 @@ describe("useBudgetState hydration race condition protection", () => {
     // Equal updatedAt should ignore IDB and keep initial LS state
     expect(hookRef.current.state.lastModifiedBy).toBe("LS Origin");
     expect(hookRef.current.state.profiles[0].name).toBe("LS Profile");
+  });
+
+  it("refreshState reloads a newer local snapshot after an error", async () => {
+    const oldState = validateAndMigrateState({
+      updatedAt: "2026-07-23T10:00:00.000Z",
+      profiles: [{ id: "p1", name: "Old Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
+    });
+    const refreshedState = validateAndMigrateState({
+      updatedAt: "2026-07-23T12:00:00.000Z",
+      profiles: [{ id: "p1", name: "Refreshed Profile", kind: "personal", transactions: [], payments: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
+    });
+
+    localStorage.setItem(LOCAL_STORAGE_KEY_V2, JSON.stringify(oldState));
+    vi.spyOn(localDb, "loadState")
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(refreshedState);
+
+    const hookRef = renderBudgetHook();
+
+    await act(async () => {
+      await Promise.resolve();
+      await hookRef.current.refreshState();
+    });
+
+    expect(hookRef.current.state.profiles[0].name).toBe("Refreshed Profile");
+    expect(hookRef.current.apiError).toBeNull();
   });
 });
 

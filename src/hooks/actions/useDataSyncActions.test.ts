@@ -158,8 +158,11 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       expect(mockSaveState).not.toHaveBeenCalled();
     });
 
-    it("resets locally on confirmation without calling the network", async () => {
-      const globalFetch = vi.fn();
+    it("performs reset on confirmation and shows success toast", async () => {
+      const globalFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { profiles: [] } })
+      });
       vi.stubGlobal("fetch", globalFetch);
 
       const { result } = getHook();
@@ -174,20 +177,18 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
         await payload.onConfirm();
       });
 
-      // Reset działa na IndexedDB — nie ma endpointu /api/state/reset.
-      expect(globalFetch).not.toHaveBeenCalled();
+      expect(globalFetch).toHaveBeenCalledWith("/api/state/reset", { method: "POST" });
       expect(mockMakeUndoBackup).toHaveBeenCalledTimes(1);
 
       const savedState = mockSaveState.mock.calls[0][0];
-      expect(savedState.profiles).toHaveLength(1);
-      expect(savedState.profiles[0].transactions).toEqual([]);
-      expect(savedState.profiles[0].payments).toEqual([]);
-      expect(savedState.profiles[0].goals).toEqual([]);
-      expect(savedState.activeProfileId).toBe(savedState.profiles[0].id);
+      expect(savedState).toEqual({ profiles: [] });
 
       expect(mockLockProfile).toHaveBeenCalledTimes(1);
       expect(mockSetActiveView).toHaveBeenCalledWith("dashboard");
       expect(mockShowToast).toHaveBeenCalledWith("Baza danych została zresetowana do ustawień początkowych.", "success");
+      expect(window.alert).not.toHaveBeenCalled();
+
+      vi.unstubAllGlobals();
       expect(window.alert).not.toHaveBeenCalled();
 
       vi.unstubAllGlobals();
@@ -210,6 +211,59 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
 
       expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
       expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it("shows error toast when saving reset state fails", async () => {
+      mockSaveState.mockRejectedValue(new Error("Storage failure"));
+      const globalFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { profiles: [] } })
+      });
+      vi.stubGlobal("fetch", globalFetch);
+
+      const { result } = getHook();
+      await act(async () => {
+        await result.current.handleResetData();
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
+      expect(mockLockProfile).not.toHaveBeenCalled();
+      expect(mockSetActiveView).not.toHaveBeenCalled();
+
+      vi.unstubAllGlobals();
+    });
+
+    it("shows error toast when reset returns a non-success HTTP status", async () => {
+      const globalFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500
+      });
+      vi.stubGlobal("fetch", globalFetch);
+
+      const { result } = getHook();
+      await act(async () => {
+        await result.current.handleResetData();
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
+      expect(mockMakeUndoBackup).not.toHaveBeenCalled();
+      expect(mockSaveState).not.toHaveBeenCalled();
+
+      vi.unstubAllGlobals();
     });
   });
 
@@ -265,6 +319,28 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       expect(mockSaveState).toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith("Kopia lokalna została pomyślnie wczytana!", "success");
       expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it("shows error toast when saving imported state fails", async () => {
+      mockSaveState.mockRejectedValue(new Error("Storage failure"));
+      const { result } = getHook();
+      const validState = {
+        profiles: [{ id: "p2", name: "Import", kind: "personal", payments: [], transactions: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
+      };
+
+      act(() => {
+        result.current.handleImportLocalData(validState as any);
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się wczytać kopii lokalnej.", "error");
+      expect(mockShowToast).not.toHaveBeenCalledWith("Kopia lokalna została pomyślnie wczytana!", "success");
     });
   });
 });

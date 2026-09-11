@@ -14,9 +14,11 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, isOpen: boolean
     if (!isOpen) return;
 
     let cleanupListeners: (() => void) | undefined;
-    let initialFocusTimeout: any;
+    let initialFocusTimeout: ReturnType<typeof setTimeout> | undefined;
+    let isCancelled = false;
 
     const setupTrap = () => {
+      if (isCancelled || typeof document === "undefined") return false;
       const modalElement = ref.current;
       if (!modalElement) return false;
 
@@ -74,7 +76,7 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, isOpen: boolean
 
       // Initial focus on the first element if none is focused within the modal
       initialFocusTimeout = setTimeout(() => {
-        if (ref.current && !ref.current.contains(document.activeElement)) {
+        if (!isCancelled && typeof document !== "undefined" && ref.current && !ref.current.contains(document.activeElement)) {
           const focusableElements = Array.from(
             ref.current.querySelectorAll<HTMLElement>(focusableSelectors)
           ).filter(el => isVisible(el as HTMLElement));
@@ -86,8 +88,9 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, isOpen: boolean
       }, 50);
 
       cleanupListeners = () => {
+        isCancelled = true;
         document.removeEventListener("keydown", handleKeyDown);
-        clearTimeout(initialFocusTimeout);
+        if (initialFocusTimeout) clearTimeout(initialFocusTimeout);
         
         // Restore focus when closing
         if (previousFocus && typeof previousFocus.focus === "function") {

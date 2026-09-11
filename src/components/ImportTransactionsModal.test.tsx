@@ -38,6 +38,22 @@ let mockActiveProfile: Profile = {
   transactionRules: []
 };
 
+const { callAiApiMock } = vi.hoisted(() => ({ callAiApiMock: vi.fn() }));
+
+vi.mock("../services/aiClient", async () => {
+  const actual = await vi.importActual<typeof import("../services/aiClient")>("../services/aiClient");
+  return { ...actual, callAiApi: callAiApiMock };
+});
+
+vi.mock("../services/parsePdf", async () => {
+  const actual = await vi.importActual<typeof import("../services/parsePdf")>("../services/parsePdf");
+  return {
+    ...actual,
+    extractPdfText: vi.fn().mockResolvedValue(""),
+    renderPdfPages: vi.fn().mockResolvedValue(["rendered-page"])
+  };
+});
+
 vi.mock("../app/providers/AppContext", () => ({
   useApp: () => ({
     state: mockAppState,
@@ -49,6 +65,8 @@ describe("ImportTransactionsModal — Import Quality & Data Trust v1", () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    mockAppState = { aiMode: "none" };
+    callAiApiMock.mockReset();
   });
 
   const SAMPLE_CSV = `

@@ -2,6 +2,7 @@
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import { callAiApi, getAiConfig } from "../services/aiClient";
 import { parseStatementText } from "../services/localParsers";
 import { resolveLocalAiConfig, extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
 import { useApp } from "../app/providers/AppContext";
@@ -38,6 +39,7 @@ import {
   detectCsvSeparator,
   RejectedCsvRow
 } from "../services/parseCsv";
+import { extractPdfText, renderPdfPages, parsePdfTransactions, normalizeAiPdfTransactions, findPdfDuplicates } from "../services/parsePdf";
 
 interface ImportTransactionsModalProps {
   isOpen: boolean;
@@ -52,7 +54,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   useFocusTrap(modalRef, isOpen, onClose);
   const { activeProfile, state } = useApp();
   const isLocalAiEnabled = state.aiMode === "local";
-  const [tab, setTab] = useState<"csv" | "text">("csv");
+  const isAiAvailable = state.aiMode !== "none";
+  const [tab, setTab] = useState<"csv" | "text" | "pdf">("csv");
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Input, 2: Mapping, 3: Preview
 
   // CSV State
@@ -79,6 +82,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [pastedText, setPastedText] = useState("");
   const [isTextProcessing, setIsTextProcessing] = useState(false);
   const [textError, setTextError] = useState("");
+  const [pdfError, setPdfError] = useState("");
+  const [isPdfProcessing, setIsPdfProcessing] = useState(false);
 
   // Lokalne AI: alternatywna ekstrakcja tekstu + sugestie kategorii w podglądzie
   const [isAiExtracting, setIsAiExtracting] = useState(false);
@@ -201,12 +206,93 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   };
 
   const handleFile = (file: File) => {
+    if (tab === "pdf") {
+      void handlePdfFile(file);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
       processRawCsvString(text, file.name);
     };
     reader.readAsText(file);
+  };
+
+  const handlePdfFile = async (file: File) => {
+    setIsPdfProcessing(true);
+    setPdfError("");
+    setFileName(file.name);
+    try {
+      const text = await extractPdfText(file);
+      if (!text.trim()) {
+        if (!isAiAvailable) {
+          throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI lub Chmurę AI, aby przeanalizować skan.");
+        }
+        const pages = await renderPdfPages(file);
+        const healthResponse = await fetch("/api/ai/health", {
+          headers: {
+            "x-ai-mode": state.aiMode,
+            "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate",
+            ...(state.localAiModel ? { "x-ai-local-model": state.localAiModel } : {})
+          }
+        });
+        const health = await healthResponse.json().catch(() => ({}));
+        if (!healthResponse.ok || health.selectedModelVisionAvailable !== true) {
+          throw new Error("Wybrany model Ollama nie obsługuje obrazów. Wybierz model multimodalny, np. gemma3:4b, i spróbuj ponownie.");
+        }
+        const aiResults = [];
+        for (const imageBase64 of pages) {
+          const data = await callAiApi("parse-statement-image", {
+            imageBase64,
+            mimeType: "image/png",
+            currentDate: getLocalDateIso()
+          }, getAiConfig(state));
+          aiResults.push(...(data.transactions || []));
+        }
+        if (!aiResults.length) throw new Error("AI nie rozpoznało transakcji na stronach PDF.");
+        const normalized = normalizeAiPdfTransactions(aiResults, {
+          currency: activeProfile?.currency || "PLN",
+          account: defaultAccount,
+          rules: activeProfile?.transactionRules || []
+        });
+        if (!normalized.transactions.length) {
+          throw new Error("AI nie zwróciło żadnej poprawnej transakcji. Sprawdź jakość skanu.");
+        }
+        const processed = normalized.transactions;
+        setMappedTransactions(processed);
+        setRejectedRows(normalized.rejectedRows);
+        const duplicateIds = findPdfDuplicates(processed, activeProfile?.transactions || []);
+        setSelectedTxIds(new Set(processed.filter((transaction) => !duplicateIds.has(transaction.id)).map((transaction) => transaction.id)));
+        setImportStats({ invalidAmount: 0, invalidDate: 0, skippedEmpty: 0, tooMany: processed.length >= 2000 });
+        setStep(3);
+        return;
+      }
+      const result = parsePdfTransactions(text, {
+        currency: activeProfile?.currency || "PLN",
+        account: defaultAccount,
+        rules: activeProfile?.transactionRules || []
+      });
+      if (!result.transactions.length) {
+        throw new Error("Nie udało się rozpoznać transakcji w PDF. Sprawdź, czy to tekstowy wyciąg bankowy.");
+      }
+      setMappedTransactions(result.transactions);
+      setRejectedRows(result.rejectedRows);
+      const duplicateIds = findPdfDuplicates(result.transactions, activeProfile?.transactions || []);
+      setSelectedTxIds(new Set(result.transactions
+        .filter((transaction) => !duplicateIds.has(transaction.id))
+        .map((transaction) => transaction.id)));
+      setImportStats({
+        invalidAmount: result.rejectedRows.filter((row) => row.reason.includes("kwoty")).length,
+        invalidDate: result.rejectedRows.filter((row) => row.reason.includes("daty")).length,
+        skippedEmpty: 0,
+        tooMany: result.transactions.length >= 2000
+      });
+      setStep(3);
+    } catch (error: any) {
+      setPdfError(error.message || "Nie udało się odczytać pliku PDF.");
+    } finally {
+      setIsPdfProcessing(false);
+    }
   };
 
   const handleGenerateCsvPreview = () => {
@@ -462,6 +548,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             >
               <FileText className="w-4 h-4" /> Wklej tekst wyciągu
             </button>
+            <button
+              onClick={() => setTab("pdf")}
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
+                tab === "pdf" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
+              }`}
+            >
+              <FileText className="w-4 h-4" /> Importuj PDF
+            </button>
           </div>
         )}
 
@@ -597,6 +691,33 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   Przetwórz wklejony tekst CSV &rarr;
                 </button>
               </div>
+            </div>
+          )}
+
+          {step === 1 && tab === "pdf" && (
+            <div className="space-y-4">
+              <div className="bg-brand-subtle p-4 rounded-xl border border-brand/20">
+                <p className="text-sm text-brand font-medium mb-1"><strong>Import tekstowego wyciągu PDF</strong></p>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Saldo odczyta tekstowe tabele z wyciągu, a skany przeanalizuje przez model multimodalny. W obu przypadkach sprawdzi daty, kwoty i duplikaty, a następnie pokaże podgląd przed zapisem.
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                disabled={isPdfProcessing}
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl disabled:opacity-50"
+              >
+                {isPdfProcessing ? "Odczytywanie PDF..." : "Wybierz plik PDF"}
+              </button>
+              {pdfError && <p className="text-xs text-danger font-medium">{pdfError}</p>}
             </div>
           )}
 

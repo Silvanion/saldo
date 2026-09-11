@@ -69,6 +69,39 @@ function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: s
   return { level: 0, label: "Za krótkie", color: "bg-border" };
 }
 
+function getLocalAiRecommendation(): { primary: string; alternatives: string[]; reason: string } {
+  const browser = navigator as Navigator & {
+    deviceMemory?: number;
+    userAgentData?: { architecture?: string };
+  };
+  const cores = navigator.hardwareConcurrency || 4;
+  const memory = browser.deviceMemory || 8;
+  const architecture = `${browser.userAgentData?.architecture || ""} ${navigator.platform || ""} ${navigator.userAgent}`.toLowerCase();
+  const appleSilicon = architecture.includes("arm") && architecture.includes("mac");
+
+  if (memory <= 4 || cores <= 4) {
+    return {
+      primary: "qwen3:1.7b",
+      alternatives: ["gemma3:1b", "llama3.2:1b"],
+      reason: "Lekki wariant dla urządzeń z mniejszą pamięcią lub mniejszą liczbą rdzeni."
+    };
+  }
+  if (memory >= 16 || cores >= 10) {
+    return {
+      primary: appleSilicon ? "qwen3:8b" : "gemma3:12b",
+      alternatives: ["qwen3:8b", "gemma3:4b"],
+      reason: appleSilicon
+        ? "Apple Silicon zwykle dobrze radzi sobie z lokalnymi modelami 8B."
+        : "Mocniejsze urządzenie może użyć większego modelu dla lepszej jakości odpowiedzi."
+    };
+  }
+  return {
+    primary: "qwen3:4b",
+    alternatives: ["gemma3:4b", "llama3.2:3b"],
+    reason: "Dobry kompromis jakości, szybkości i zużycia pamięci."
+  };
+}
+
 interface SettingsViewProps {
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
   state: AppState;
@@ -411,6 +444,13 @@ export function SettingsView({
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
+  const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number; vision?: boolean }>>([]);
+  const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
+  const [localAiVisionAvailable, setLocalAiVisionAvailable] = useState<boolean | null>(null);
+  const [isLocalAiPulling, setIsLocalAiPulling] = useState(false);
+  const [localAiPullProgress, setLocalAiPullProgress] = useState<{ status: string; completed: number; total: number } | null>(null);
+  const localAiPullController = React.useRef<AbortController | null>(null);
+  const localAiRecommendation = getLocalAiRecommendation();
 
   const targetPdfDate = selectedDate || (() => {
     if (activeProfile?.transactions && activeProfile.transactions.length > 0) {
