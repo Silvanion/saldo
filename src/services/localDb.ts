@@ -199,6 +199,8 @@ export async function clearState(): Promise<void> {
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY_V2);
       localStorage.removeItem(LOCAL_STORAGE_KEY_V1);
-    } catch (_) {}
+    } catch (err) {
+      console.warn("localStorage clear failed:", err);
+    }
   }
 }

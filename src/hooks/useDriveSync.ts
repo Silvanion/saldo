@@ -319,7 +319,9 @@ export function useDriveSync({
           decision: choice
         });
         localStorage.setItem("saldo-conflict-decision-logs", JSON.stringify(existingLogs.slice(-20)));
-      } catch (_) {}
+      } catch (err) {
+        console.warn("[DriveSync] Failed to persist conflict decision log:", err);
+      }
 
       setDriveConflictInfo(null);
 

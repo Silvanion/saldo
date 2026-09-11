@@ -18,13 +18,17 @@ export function useBudgetState(googleUser: User | null) {
       if (cachedV2) {
         try {
           return validateAndMigrateState(JSON.parse(cachedV2));
-        } catch (_) {}
+        } catch (err) {
+          console.warn("Failed parsing localStorage V2 state:", err);
+        }
       }
       const cachedV1 = localStorage.getItem(localDb.LOCAL_STORAGE_KEY_V1);
       if (cachedV1) {
         try {
           return validateAndMigrateState(JSON.parse(cachedV1));
-        } catch (_) {}
+        } catch (err) {
+          console.warn("Failed parsing localStorage V1 state:", err);
+        }
       }
     }
     return {
@@ -273,9 +277,9 @@ export function useBudgetState(googleUser: User | null) {
       } else {
         const cached = await localDb.loadState();
         if (cached) {
-          try {
-            void saveState(cached);
-          } catch (_) {}
+          void saveState(cached).catch((err) => {
+            console.error("Failed to restore cached state to Firestore:", err);
+          });
         } else {
           const emptyProfile: Profile = {
             id: crypto.randomUUID(),
@@ -298,7 +302,9 @@ export function useBudgetState(googleUser: User | null) {
             recurringRules: [],
             transactionRules: []
           };
-          void saveState(emptyState);
+          void saveState(emptyState).catch((err) => {
+            console.error("Failed to initialize empty Firestore state:", err);
+          });
         }
       }
     }, (error) => {
