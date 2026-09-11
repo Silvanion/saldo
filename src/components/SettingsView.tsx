@@ -9,7 +9,8 @@ import {
   DEFAULT_LOCAL_AI_MODEL,
   resolveLocalAiConfig,
   checkLocalAiHealth,
-  isLocalAiLikelyUnsupported
+  isLocalAiLikelyUnsupported,
+  isLocalEndpointSafe
 } from "../services/localAi";
 import {
   Cloud,
@@ -708,6 +709,91 @@ export function SettingsView({
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
   const [isTestingLocalAi, setIsTestingLocalAi] = useState(false);
+
+  const refreshLocalAiModels = async () => {
+    const config = resolveLocalAiConfig(state);
+    if (!isLocalEndpointSafe(config.endpoint)) {
+      showToast("Endpoint lokalnego AI musi wskazywać na localhost.", "error");
+      return;
+    }
+    setIsLocalAiChecking(true);
+    try {
+      const tagsUrl = config.endpoint.replace(/\/api\/generate\/?$/, "/api/tags");
+      const response = await fetch(tagsUrl);
+      if (!response.ok) throw new Error(`Ollama odpowiedziała błędem HTTP ${response.status}.`);
+      const data = await response.json() as {
+        models?: Array<{ name?: string; model?: string; size?: number; capabilities?: string[] }>
+      };
+      const models = (data.models || [])
+        .map((model) => ({
+          name: model.name || model.model || "",
+          size: model.size,
+          vision: model.capabilities?.includes("vision") || false
+        }))
+        .filter((model) => model.name);
+      setLocalAiModels(models);
+      const selected = models.find((model) => model.name === config.model) || models[0];
+      setLocalAiVisionAvailable(selected?.vision ?? false);
+      if (selected && selected.name !== config.model) {
+        await saveState({ ...state, localAiModel: selected.name });
+      }
+      showToast(models.length ? `Wykryto ${models.length} modeli Ollama.` : "Ollama działa, ale nie ma pobranych modeli.", models.length ? "success" : "info");
+    } catch (error) {
+      setLocalAiModels([]);
+      setLocalAiVisionAvailable(null);
+      showToast(error instanceof Error ? error.message : "Nie udało się pobrać listy modeli Ollama.", "error");
+    } finally {
+      setIsLocalAiChecking(false);
+    }
+  };
+
+  const pullLocalAiModel = async () => {
+    const config = resolveLocalAiConfig(state);
+    if (!isLocalEndpointSafe(config.endpoint) || !config.model) return;
+    localAiPullController.current?.abort();
+    const controller = new AbortController();
+    localAiPullController.current = controller;
+    setIsLocalAiPulling(true);
+    setLocalAiPullProgress({ status: "Rozpoczynanie pobierania...", completed: 0, total: 0 });
+    try {
+      const pullUrl = config.endpoint.replace(/\/api\/generate\/?$/, "/api/pull");
+      const response = await fetch(pullUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: config.model, stream: true }),
+        signal: controller.signal
+      });
+      if (!response.ok || !response.body) throw new Error(`Nie udało się pobrać modelu (HTTP ${response.status}).`);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const update = JSON.parse(line) as { status?: string; completed?: number; total?: number };
+          setLocalAiPullProgress({
+            status: update.status || "Pobieranie...",
+            completed: update.completed || 0,
+            total: update.total || 0
+          });
+        }
+        if (done) break;
+      }
+      showToast(`Model ${config.model} jest gotowy.`, "success");
+      await refreshLocalAiModels();
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        showToast(error instanceof Error ? error.message : "Nie udało się pobrać modelu Ollama.", "error");
+      }
+    } finally {
+      setIsLocalAiPulling(false);
+      localAiPullController.current = null;
+    }
+  };
 
   // Cloud account deletion states
   const [showCloudDeleteModal, setShowCloudDeleteModal] = useState(false);
@@ -1684,6 +1770,62 @@ export function SettingsView({
               >
                 {isTestingLocalAi ? "Testowanie..." : "Testuj połączenie"}
               </button>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={refreshLocalAiModels}
+                  disabled={isLocalAiChecking}
+                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50"
+                  id="btn-detect-local-ai-models"
+                >
+                  {isLocalAiChecking ? "Wykrywanie..." : "Wykryj modele"}
+                </button>
+                <button
+                  type="button"
+                  onClick={pullLocalAiModel}
+                  disabled={isLocalAiPulling || !state.localAiModel}
+                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50"
+                  id="btn-pull-local-ai-model"
+                >
+                  {isLocalAiPulling ? "Pobieranie..." : `Pobierz ${state.localAiModel || DEFAULT_LOCAL_AI_MODEL}`}
+                </button>
+              </div>
+
+              {localAiModels.length > 0 && (
+                <div className="rounded-xl border border-border/70 bg-surface p-3 space-y-2">
+                  <div className="text-xs font-bold text-text-main">Modele dostępne w Ollama</div>
+                  <div className="flex flex-wrap gap-2">
+                    {localAiModels.map((model) => (
+                      <button
+                        key={model.name}
+                        type="button"
+                        onClick={() => saveState({ ...state, localAiModel: model.name })}
+                        className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${
+                          state.localAiModel === model.name ? "border-brand/30 bg-brand-subtle text-brand" : "border-border text-text-muted hover:bg-surface-2"
+                        }`}
+                      >
+                        {model.name}{model.vision ? " · vision" : ""}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-text-muted">
+                    {localAiVisionAvailable ? "Wybrany model obsługuje obrazy i OCR skanów PDF." : "Wybrany model obsługuje tekst. Do skanów PDF wybierz model vision."}
+                  </p>
+                </div>
+              )}
+
+              {localAiPullProgress && (
+                <div className="rounded-xl border border-brand/20 bg-brand-subtle p-3 text-xs text-text-main" aria-live="polite">
+                  <div className="flex justify-between gap-2">
+                    <span>{localAiPullProgress.status}</span>
+                    {localAiPullProgress.total > 0 && <span>{Math.round((localAiPullProgress.completed / localAiPullProgress.total) * 100)}%</span>}
+                  </div>
+                  {localAiPullProgress.total > 0 && (
+                    <progress className="mt-2 h-2 w-full accent-brand" value={localAiPullProgress.completed} max={localAiPullProgress.total} />
+                  )}
+                </div>
+              )}
 
               <p className="text-xs text-text-muted leading-relaxed">
                 Wymaga zainstalowanej i uruchomionej <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium">Ollama</a> z

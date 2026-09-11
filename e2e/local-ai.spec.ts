@@ -20,6 +20,23 @@ test.describe("Local AI E2E Flows", () => {
     await expect(page.getByText("Połączenie udane! Lokalny model odpowiada prawidłowo.")).toBeVisible();
   });
 
+  test("A2. Settings: detects and selects an Ollama model", async ({ page }) => {
+    await page.route("http://localhost:11434/api/tags", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ models: [{ name: "gemma4:12b-mlx", size: 200, capabilities: ["completion", "vision"] }] })
+      });
+    });
+
+    await setupApp(page);
+    await navigateToView(page, "settings");
+    await page.locator("#toggle-local-ai").click();
+    await page.locator("#btn-detect-local-ai-models").click();
+    await expect(page.getByRole("button", { name: /gemma4:12b-mlx.*vision/i })).toBeVisible();
+    await expect(page.getByText("Wybrany model obsługuje obrazy i OCR skanów PDF.")).toBeVisible();
+  });
+
   test("B. Import: local AI extracts transactions and opens the review", async ({ page }) => {
     await page.route("http://localhost:11434/api/generate", async (route) => {
       await route.fulfill({
