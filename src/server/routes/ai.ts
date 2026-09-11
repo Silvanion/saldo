@@ -148,6 +148,10 @@ router.post("/pull", async (req: any, res: Response) => {
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15 * 60 * 1000);
+  let responseFinished = false;
+  req.on("close", () => {
+    if (!responseFinished) controller.abort();
+  });
   try {
     const pullEndpoint = new URL(req.aiConfig.localEndpoint);
     pullEndpoint.pathname = "/api/pull";
@@ -155,13 +159,30 @@ router.post("/pull", async (req: any, res: Response) => {
     const pullResponse = await fetch(pullEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: parsed.data.model, stream: false }),
+      body: JSON.stringify({ model: parsed.data.model, stream: true }),
       signal: controller.signal
     });
     if (!pullResponse.ok) {
       return res.status(502).json({ error: `Ollama nie mogła pobrać modelu (HTTP ${pullResponse.status}).` });
     }
-    return res.json({ model: parsed.data.model, result: await pullResponse.json() });
+    if (!pullResponse.body) {
+      return res.status(502).json({ error: "Ollama nie zwróciła strumienia postępu pobierania." });
+    }
+
+    res.status(200);
+    res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    const reader = pullResponse.body.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(decoder.decode(value, { stream: true }));
+    }
+    const remainder = decoder.decode();
+    if (remainder) res.write(remainder);
+    responseFinished = true;
+    return res.end();
   } catch (error: any) {
     const message = error?.name === "AbortError"
       ? "Pobieranie modelu trwało zbyt długo i zostało przerwane."

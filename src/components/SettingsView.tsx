@@ -68,7 +68,7 @@ function getLocalAiRecommendation(): { primary: string; alternatives: string[]; 
   const cores = navigator.hardwareConcurrency || 4;
   const memory = browser.deviceMemory || 8;
   const architecture = `${browser.userAgentData?.architecture || ""} ${navigator.platform || ""} ${navigator.userAgent}`.toLowerCase();
-  const appleSilicon = architecture.includes("arm") || architecture.includes("mac");
+  const appleSilicon = architecture.includes("arm") && architecture.includes("mac");
 
   if (memory <= 4 || cores <= 4) {
     return {
@@ -401,6 +401,8 @@ export function SettingsView({
   const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number }>>([]);
   const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
   const [isLocalAiPulling, setIsLocalAiPulling] = useState(false);
+  const [localAiPullProgress, setLocalAiPullProgress] = useState<{ status: string; completed: number; total: number } | null>(null);
+  const localAiPullController = React.useRef<AbortController | null>(null);
   const localAiRecommendation = getLocalAiRecommendation();
 
   const targetPdfDate = selectedDate || (() => {
@@ -1255,7 +1257,10 @@ export function SettingsView({
                 type="button"
                 disabled={isLocalAiPulling}
                 onClick={async () => {
+                  const controller = new AbortController();
+                  localAiPullController.current = controller;
                   setIsLocalAiPulling(true);
+                  setLocalAiPullProgress({ status: "Rozpoczynanie...", completed: 0, total: 0 });
                   try {
                     const res = await fetch("/api/ai/pull", {
                       method: "POST",
@@ -1264,25 +1269,90 @@ export function SettingsView({
                         "x-ai-mode": "local",
                         "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate"
                       },
-                      body: JSON.stringify({ model: localAiRecommendation.primary })
+                      body: JSON.stringify({ model: localAiRecommendation.primary }),
+                      signal: controller.signal
                     });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.error || "Nie udało się pobrać modelu.");
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      throw new Error(data.error || "Nie udało się pobrać modelu.");
+                    }
+                    if (!res.body) throw new Error("Brak strumienia postępu pobierania.");
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = "";
+                    while (true) {
+                      const { done, value } = await reader.read();
+                      if (done) break;
+                      buffer += decoder.decode(value, { stream: true });
+                      const lines = buffer.split("\n");
+                      buffer = lines.pop() || "";
+                      for (const line of lines) {
+                        if (!line.trim()) continue;
+                        const progress = JSON.parse(line) as { status?: string; completed?: number; total?: number; error?: string };
+                        if (progress.error) throw new Error(progress.error);
+                        setLocalAiPullProgress({
+                          status: progress.status || "Pobieranie...",
+                          completed: progress.completed || 0,
+                          total: progress.total || 0
+                        });
+                      }
+                    }
+                    if (buffer.trim()) {
+                      const progress = JSON.parse(buffer) as { status?: string; completed?: number; total?: number };
+                      setLocalAiPullProgress({ status: progress.status || "Zakończono", completed: progress.completed || 0, total: progress.total || 0 });
+                    }
+                    const verifyResponse = await fetch("/api/ai/health", {
+                      headers: {
+                        "x-ai-mode": "local",
+                        "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate",
+                        "x-ai-local-model": localAiRecommendation.primary
+                      },
+                      signal: controller.signal
+                    });
+                    const verified = await verifyResponse.json();
+                    if (!verifyResponse.ok || !verified.selectedModelAvailable) {
+                      throw new Error("Model nie został potwierdzony przez Ollamę.");
+                    }
                     await saveState({ ...state, localAiModel: localAiRecommendation.primary });
                     setLocalAiModels((models) => models.some((model) => model.name === localAiRecommendation.primary)
                       ? models
                       : [...models, { name: localAiRecommendation.primary }]);
                     showToast(`Model ${localAiRecommendation.primary} został pobrany.`, "success");
                   } catch (err: any) {
-                    showToast(err.message || "Nie udało się pobrać rekomendowanego modelu.", "error");
+                    showToast(err.name === "AbortError" ? "Pobieranie modelu anulowano." : (err.message || "Nie udało się pobrać rekomendowanego modelu."), "error");
                   } finally {
                     setIsLocalAiPulling(false);
+                    localAiPullController.current = null;
                   }
                 }}
                 className="px-3 py-2 bg-brand hover:bg-brand-hover disabled:opacity-60 text-text-inverse text-xs font-bold rounded-xl transition-colors"
               >
                 {isLocalAiPulling ? "Pobieranie modelu..." : `Pobierz ${localAiRecommendation.primary}`}
               </button>
+              {isLocalAiPulling && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-text-muted">
+                    <span>{localAiPullProgress?.status || "Pobieranie..."}</span>
+                    <span>
+                      {localAiPullProgress?.total
+                        ? `${Math.round((localAiPullProgress.completed / localAiPullProgress.total) * 100)}%`
+                        : "—"}
+                    </span>
+                  </div>
+                  <progress
+                    className="w-full h-2"
+                    max={localAiPullProgress?.total || 1}
+                    value={localAiPullProgress?.completed || 0}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => localAiPullController.current?.abort()}
+                    className="text-xs font-bold text-danger hover:underline"
+                  >
+                    Anuluj pobieranie
+                  </button>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <input
