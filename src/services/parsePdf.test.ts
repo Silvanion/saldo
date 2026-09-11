@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeAiPdfTransactions, parsePdfTransactions } from "./parsePdf";
+import { findPdfDuplicates, normalizeAiPdfTransactions, parsePdfTransactions } from "./parsePdf";
 
 describe("parsePdfTransactions", () => {
   const options = {
@@ -99,6 +99,30 @@ describe("parsePdfTransactions", () => {
       amount: 6500,
       type: "income"
     });
+  });
+
+  it("parses an anonymized mBank-style operation excerpt and detects re-import duplicates", () => {
+    const result = parsePdfTransactions(
+      [
+        "Lista operacji\nData Opis operacji Rachunek Kategoria Kwota Saldo po operacji",
+        "2026-09-11 PIEKARNIA PRZYKŁADOWA eKonto Żywność -14,97 PLN -",
+        "ZAKUP PRZY UŻYCIU KARTY W KRAJU",
+        "2026-09-10 PRZELEW NA CELE eKonto Oszczędzanie -6,20 PLN 395,80 PLN",
+        "2026-09-08 OSOBA TESTOWA eKonto Wpływy 30,00 PLN 889,55 PLN"
+      ].join("\n"),
+      options
+    );
+
+    expect(result.transactions).toHaveLength(3);
+    expect(result.rejectedRows).toHaveLength(0);
+    expect(result.transactions.map(({ amount, type }) => ({ amount, type }))).toEqual([
+      { amount: 14.97, type: "expense" },
+      { amount: 6.2, type: "expense" },
+      { amount: 30, type: "income" }
+    ]);
+
+    const duplicateIds = findPdfDuplicates(result.transactions, result.transactions);
+    expect(duplicateIds.size).toBe(3);
   });
 
   it("rejects incomplete OCR rows instead of importing guessed values", () => {
