@@ -1,0 +1,109 @@
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import { SupportedCurrency, Transaction, TransactionRule } from "../types";
+import { autoCategorizeTransaction, iconByCategory } from "../utils";
+import { checkDuplicate } from "./duplicateDetector";
+import { parseCsvAmount, parseCsvDate } from "./parseCsv";
+
+export interface PdfImportResult {
+  transactions: Transaction[];
+  rejectedRows: Array<{ row: number; reason: string; raw: string }>;
+  extractedText: string;
+}
+
+export async function extractPdfText(file: File): Promise<string> {
+  const data = new Uint8Array(await file.arrayBuffer());
+  const document = await pdfjsLib.getDocument({
+    data,
+    useWorkerFetch: false
+  }).promise;
+  const pages: string[] = [];
+
+  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
+    const page = await document.getPage(pageNumber);
+    const content = await page.getTextContent();
+    pages.push(content.items
+      .map((item) => "str" in item ? item.str : "")
+      .filter(Boolean)
+      .join(" "));
+  }
+
+  return pages.join("\n").trim();
+}
+
+function buildTransaction(
+  name: string,
+  amount: number,
+  isNegative: boolean,
+  date: string,
+  currency: SupportedCurrency,
+  account: string,
+  rules: TransactionRule[]
+): Transaction {
+  const categorized = autoCategorizeTransaction(name, rules, "Inne");
+  return {
+    id: `tx-pdf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: name.trim(),
+    amount,
+    type: isNegative ? "expense" : "income",
+    isoDate: date,
+    category: categorized.category,
+    categoryIcon: categorized.categoryIcon || iconByCategory[categorized.category] || "✨",
+    account,
+    currency
+  };
+}
+
+export function parsePdfTransactions(
+  text: string,
+  options: {
+    currency: SupportedCurrency;
+    account: string;
+    rules: TransactionRule[];
+  }
+): PdfImportResult {
+  const transactions: Transaction[] = [];
+  const rejectedRows: PdfImportResult["rejectedRows"] = [];
+  const lines = text.split(/\r?\n/).flatMap((line) => line.split(/(?=\d{1,2}[./-]\d{1,2}[./-]\d{4})/));
+
+  lines.forEach((raw, index) => {
+    const row = raw.replace(/\s+/g, " ").trim();
+    if (!row) return;
+    const dateMatch = row.match(/\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/);
+    if (!dateMatch) return;
+
+    const date = parseCsvDate(dateMatch[0]);
+    const amountMatches = [...row.matchAll(/(?:-?\(?\d[\d\s]*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?/gi)];
+    const amountMatch = amountMatches.at(-1)?.[0];
+    const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
+    const name = row
+      .replace(dateMatch[0], "")
+      .replace(amountMatch || "", "")
+      .replace(/\s+/g, " ")
+      .replace(/^[\s|;:-]+|[\s|;:-]+$/g, "");
+
+    if (!date || !parsedAmount || name.length < 2) {
+      rejectedRows.push({ row: index + 1, reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.", raw: row });
+      return;
+    }
+    transactions.push(buildTransaction(
+      name,
+      parsedAmount.amount,
+      parsedAmount.isNegative,
+      date,
+      options.currency,
+      options.account,
+      options.rules
+    ));
+  });
+
+  return { transactions, rejectedRows, extractedText: text };
+}
+
+export function findPdfDuplicates(
+  transactions: Transaction[],
+  existing: Transaction[]
+): Set<string> {
+  return new Set(transactions
+    .filter((transaction) => checkDuplicate(transaction, existing).isLikelyDuplicate)
+    .map((transaction) => transaction.id));
+}

@@ -36,6 +36,7 @@ import {
   detectCsvSeparator,
   RejectedCsvRow
 } from "../services/parseCsv";
+import { extractPdfText, parsePdfTransactions, findPdfDuplicates } from "../services/parsePdf";
 
 interface ImportTransactionsModalProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   useFocusTrap(modalRef, isOpen, onClose);
   const { state, activeProfile } = useApp();
   const isAiAvailable = state.aiMode !== "none";
-  const [tab, setTab] = useState<"csv" | "ai">("csv");
+  const [tab, setTab] = useState<"csv" | "pdf" | "ai">("csv");
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Input, 2: Mapping, 3: Preview
 
   // CSV State
@@ -77,6 +78,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [aiText, setAiText] = useState("");
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [pdfError, setPdfError] = useState("");
+  const [isPdfProcessing, setIsPdfProcessing] = useState(false);
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
@@ -163,12 +166,53 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   };
 
   const handleFile = (file: File) => {
+    if (tab === "pdf") {
+      void handlePdfFile(file);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
       processRawCsvString(text, file.name);
     };
     reader.readAsText(file);
+  };
+
+  const handlePdfFile = async (file: File) => {
+    setIsPdfProcessing(true);
+    setPdfError("");
+    setFileName(file.name);
+    try {
+      const text = await extractPdfText(file);
+      if (!text.trim()) {
+        throw new Error("Ten PDF nie zawiera warstwy tekstowej. Skanowane dokumenty będą obsługiwane w kolejnym etapie OCR.");
+      }
+      const result = parsePdfTransactions(text, {
+        currency: activeProfile?.currency || "PLN",
+        account: defaultAccount,
+        rules: activeProfile?.transactionRules || []
+      });
+      if (!result.transactions.length) {
+        throw new Error("Nie udało się rozpoznać transakcji w PDF. Sprawdź, czy to tekstowy wyciąg bankowy.");
+      }
+      setMappedTransactions(result.transactions);
+      setRejectedRows(result.rejectedRows);
+      const duplicateIds = findPdfDuplicates(result.transactions, activeProfile?.transactions || []);
+      setSelectedTxIds(new Set(result.transactions
+        .filter((transaction) => !duplicateIds.has(transaction.id))
+        .map((transaction) => transaction.id)));
+      setImportStats({
+        invalidAmount: result.rejectedRows.filter((row) => row.reason.includes("kwoty")).length,
+        invalidDate: result.rejectedRows.filter((row) => row.reason.includes("daty")).length,
+        skippedEmpty: 0,
+        tooMany: result.transactions.length >= 2000
+      });
+      setStep(3);
+    } catch (error: any) {
+      setPdfError(error.message || "Nie udało się odczytać pliku PDF.");
+    } finally {
+      setIsPdfProcessing(false);
+    }
   };
 
   const handleGenerateCsvPreview = () => {
@@ -324,7 +368,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         </div>
 
         {/* TABS */}
-        {step === 1 && isAiAvailable && (
+        {step === 1 && (
           <div className="flex border-b border-border">
             <button
               onClick={() => setTab("csv")}
@@ -335,6 +379,15 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               <FileSpreadsheet className="w-4 h-4" /> Wgraj / wklej plik CSV (Darmowe)
             </button>
             <button
+              onClick={() => setTab("pdf")}
+              className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                tab === "pdf" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
+              }`}
+            >
+              <FileText className="w-4 h-4" /> Importuj PDF
+            </button>
+            {isAiAvailable && (
+            <button
               onClick={() => setTab("ai")}
               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
                 tab === "ai" ? "text-brand border-b-2 border-brand bg-brand-subtle" : "text-text-muted hover:bg-surface-2"
@@ -342,6 +395,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
             >
               <Sparkles className="w-4 h-4" /> Analiza tekstu (AI)
             </button>
+            )}
           </div>
         )}
 
@@ -463,6 +517,33 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                   Przetwórz wklejony tekst CSV &rarr;
                 </button>
               </div>
+            </div>
+          )}
+
+          {step === 1 && tab === "pdf" && (
+            <div className="space-y-4">
+              <div className="bg-brand-subtle p-4 rounded-xl border border-brand/20">
+                <p className="text-sm text-brand font-medium mb-1"><strong>Import tekstowego wyciągu PDF</strong></p>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Saldo odczyta tekstowe tabele z wyciągu, sprawdzi daty, kwoty i duplikaty, a następnie pokaże podgląd przed zapisem. Skanowane PDF-y wymagają jeszcze OCR.
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                disabled={isPdfProcessing}
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl disabled:opacity-50"
+              >
+                {isPdfProcessing ? "Odczytywanie PDF..." : "Wybierz plik PDF"}
+              </button>
+              {pdfError && <p className="text-xs text-danger font-medium">{pdfError}</p>}
             </div>
           )}
 
