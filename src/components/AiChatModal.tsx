@@ -41,7 +41,7 @@ export function AiChatModal({ isOpen, onClose, activeProfile }: AiChatModalProps
           return [...prev, {
             id: "local-ai-info",
             sender: "ai",
-            text: "Wskazówka: Używasz lokalnego trybu AI (Ollama).\n\nJeśli czat nie odpowiada lub zgłasza błąd połączenia, upewnij się, że:\n1. Masz zainstalowaną i uruchomioną aplikację Ollama (ollama.com).\n2. Pobrałeś model wpisując w terminalu np. `ollama run [nazwa_modelu]` (np. `ollama run llama3`).\n3. Twój serwer Ollama akceptuje żądania z tej przeglądarki (ustaw zmienną środowiskową OLLAMA_ORIGINS=\"*\").\n\nPamiętaj, że pierwsze zapytanie do modelu może potrwać do około minuty ze względu na ładowanie do pamięci (RAM/VRAM).\n\nJeśli wolisz, możesz zawsze wrócić do trybu Chmury AI w zakładce Ustawienia aplikacji."
+            text: "Wskazówka: Używasz lokalnego trybu AI (Ollama).\n\nJeśli czat nie odpowiada lub zgłasza błąd połączenia, upewnij się, że:\n1. Masz zainstalowaną i uruchomioną aplikację Ollama (ollama.com).\n2. Pobrałeś model wpisując w terminalu np. `ollama run [nazwa_modelu]` (np. `ollama run qwen3:4b`). Możesz też wybrać inny zainstalowany model w Ustawieniach.\n3. Twój serwer Ollama akceptuje żądania z tej przeglądarki (ustaw zmienną środowiskową OLLAMA_ORIGINS=\"*\").\n\nPamiętaj, że pierwsze zapytanie do modelu może potrwać do około minuty ze względu na ładowanie do pamięci (RAM/VRAM).\n\nJeśli wolisz, możesz zawsze wrócić do trybu Chmury AI w zakładce Ustawienia aplikacji."
           }];
         });
       }

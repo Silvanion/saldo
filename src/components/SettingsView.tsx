@@ -1424,7 +1424,7 @@ export function SettingsView({
                   <h4 className="font-bold text-text-main text-sm flex items-center gap-1.5">🍎 macOS</h4>
                   <ol className="list-decimal pl-5 space-y-1">
                     <li>Pobierz instalator dla macOS ze strony <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium hover:text-brand">ollama.com</a>.</li>
-                    <li>Po instalacji otwórz <strong>Terminal</strong> i uruchom model (np. llama3): <br/><code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded inline-block mt-1 text-text-main">ollama run llama3</code></li>
+                    <li>Po instalacji otwórz <strong>Terminal</strong> i uruchom wybrany model, np. lekki <strong>qwen3:4b</strong>: <br/><code className="bg-surface-2 border border-border px-1.5 py-0.5 rounded inline-block mt-1 text-text-main">ollama run qwen3:4b</code></li>
                   </ol>
                 </div>
 
@@ -1436,7 +1436,7 @@ export function SettingsView({
                   </ol>
                   <div className="bg-surface-2 border border-border text-text-main p-2.5 rounded-xl font-mono text-xs leading-relaxed mx-2">
                     set OLLAMA_ORIGINS="*"<br/>
-                    ollama run llama3
+                    ollama run qwen3:4b
                   </div>
                   <p className="pl-1 italic text-xs">Pozostaw otwarte okno terminala podczas korzystania z aplikacji.</p>
                 </div>
