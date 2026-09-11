@@ -242,4 +242,32 @@ invalid_date;100;Błędna data;PLN
     expect(onClose).toHaveBeenCalled();
     fetchMock.mockRestore();
   });
+
+  it("rejects scanned PDFs for text-only Ollama models without calling image AI", async () => {
+    mockAppState = { aiMode: "local" };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({ selectedModelVisionAvailable: false })
+    } as any);
+    const onImport = vi.fn();
+
+    render(
+      <ImportTransactionsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onImport={onImport}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Importuj PDF/i }));
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(fileInput, {
+      target: { files: [new File(["fake-pdf"], "skan.pdf", { type: "application/pdf" })] }
+    });
+
+    expect(await screen.findByText(/Wybrany model Ollama nie obsługuje obrazów/i)).toBeTruthy();
+    expect(callAiApiMock).not.toHaveBeenCalled();
+    expect(onImport).not.toHaveBeenCalled();
+    fetchMock.mockRestore();
+  });
 });
