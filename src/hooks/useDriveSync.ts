@@ -190,7 +190,8 @@ export function useDriveSync({
         if (targetFileId) {
           setGdriveFileId(targetFileId);
           localStorage.setItem(DRIVE_FILE_ID_KEY, targetFileId);
-          onImportState({ ...stateToBackup, driveFileId: targetFileId });
+          // Keep the local state decrypted after uploading the encrypted backup.
+          onImportState({ ...state, driveFileId: targetFileId });
         }
 
         const syncIso = stateToBackup.updatedAt || new Date().toISOString();
