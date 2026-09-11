@@ -240,8 +240,10 @@ export function useBudgetState(googleUser: User | null) {
 
     const docRef = doc(db, "users", googleUser.uid);
     let isFirstSnapshot = true;
+    let isActive = true;
 
     const unsubscribe = onSnapshot(docRef, async (docSnap) => {
+      if (!isActive) return;
       setIsSyncing(false);
       if (docSnap.exists()) {
         const incoming = validateAndMigrateState(docSnap.data(), googleUser.email || "chmura");
@@ -266,9 +268,10 @@ export function useBudgetState(googleUser: User | null) {
           }));
           incoming.profiles = decryptedProfiles;
 
+          if (!isActive) return;
           setState(incoming);
           localDb.saveState(rawIncoming).catch((err) => {
-            if (err?.message?.includes("QUOTA_EXCEEDED")) {
+            if (isActive && err?.message?.includes("QUOTA_EXCEEDED")) {
               setApiError("Przekroczono limit pamięci urządzenia (QuotaExceeded).");
             }
           });
@@ -276,9 +279,12 @@ export function useBudgetState(googleUser: User | null) {
         }
       } else {
         const cached = await localDb.loadState();
+        if (!isActive) return;
         if (cached) {
           void saveState(cached).catch((err) => {
-            console.error("Failed to restore cached state to Firestore:", err);
+            if (isActive) {
+              console.error("Failed to restore cached state to Firestore:", err);
+            }
           });
         } else {
           const emptyProfile: Profile = {
@@ -303,17 +309,23 @@ export function useBudgetState(googleUser: User | null) {
             transactionRules: []
           };
           void saveState(emptyState).catch((err) => {
-            console.error("Failed to initialize empty Firestore state:", err);
+            if (isActive) {
+              console.error("Failed to initialize empty Firestore state:", err);
+            }
           });
         }
       }
     }, (error) => {
+      if (!isActive) return;
       console.error("Firestore onSnapshot error:", error);
       setApiError("Błąd odczytu chmury. Praca w trybie lokalnym.");
       setIsSyncing(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      isActive = false;
+      unsubscribe();
+    };
   }, [googleUser, fetchState, saveState]);
 
   return {
