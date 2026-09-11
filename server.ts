@@ -44,6 +44,10 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  app.post("/api/state/reset", (req, res) => {
+    res.json({ data: { profiles: [] } });
+  });
+
   // Use Helmet but configure CSP for Vite development and Firebase Auth
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === "production" ? {
