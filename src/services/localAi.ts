@@ -311,7 +311,8 @@ Jeśli nie znajdziesz żadnej transakcji, zwróć [].`;
   let raw: string;
   try {
     raw = await callOllama({ ...config, prompt });
-  } catch {
+  } catch (error) {
+    if (error instanceof LocalAiError) throw error;
     return [];
   }
 
@@ -361,8 +362,14 @@ export async function extractTransactionsWithLocalAi(
   if (blocks.length <= 1) return extractFromBlock(text, config);
 
   const all: LocalAiExtractedRow[] = [];
+  let firstError: LocalAiError | null = null;
   for (const block of blocks) {
-    all.push(...(await extractFromBlock(block, config)));
+    try {
+      all.push(...(await extractFromBlock(block, config)));
+    } catch (error) {
+      if (!firstError && error instanceof LocalAiError) firstError = error;
+    }
   }
+  if (all.length === 0 && firstError) throw firstError;
   return all;
 }

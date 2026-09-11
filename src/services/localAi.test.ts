@@ -287,4 +287,15 @@ describe("extractTransactionsWithLocalAi", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].name).toBe("Apteka");
   });
+
+  it("zwraca błąd połączenia, gdy wszystkie bloki kończą się awarią Ollamy", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
+
+    await expect(
+      extractTransactionsWithLocalAi(
+        "12.08.2026 Czynsz 1 850,00-\n13.08.2026 Apteka 62,30-",
+        config
+      )
+    ).rejects.toThrow("Nie udało się połączyć z lokalnym AI");
+  });
 });
