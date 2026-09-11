@@ -209,6 +209,32 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
 
       vi.unstubAllGlobals();
     });
+
+    it("shows error toast when reset returns a non-success HTTP status", async () => {
+      const globalFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500
+      });
+      vi.stubGlobal("fetch", globalFetch);
+
+      const { result } = getHook();
+      await act(async () => {
+        await result.current.handleResetData();
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
+      expect(mockMakeUndoBackup).not.toHaveBeenCalled();
+      expect(mockSaveState).not.toHaveBeenCalled();
+
+      vi.unstubAllGlobals();
+    });
   });
 
   describe("handleImportLocalData with ConfirmModal", () => {
