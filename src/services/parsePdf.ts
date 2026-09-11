@@ -9,6 +9,15 @@ export interface PdfImportResult {
   extractedText: string;
 }
 
+export interface AiPdfTransaction {
+  name?: unknown;
+  amount?: unknown;
+  type?: unknown;
+  isoDate?: unknown;
+  category?: unknown;
+  account?: unknown;
+}
+
 export async function extractPdfText(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const data = new Uint8Array(await file.arrayBuffer());
@@ -70,6 +79,48 @@ function buildTransaction(
     account,
     currency
   };
+}
+
+export function normalizeAiPdfTransactions(
+  rawTransactions: unknown[],
+  options: {
+    currency: SupportedCurrency;
+    account: string;
+    rules: TransactionRule[];
+  }
+): Pick<PdfImportResult, "transactions" | "rejectedRows"> {
+  const transactions: Transaction[] = [];
+  const rejectedRows: PdfImportResult["rejectedRows"] = [];
+
+  rawTransactions.forEach((raw, index) => {
+    const candidate = raw && typeof raw === "object" ? raw as AiPdfTransaction : {};
+    const name = typeof candidate.name === "string" ? candidate.name.trim() : "";
+    const amount = typeof candidate.amount === "number" ? candidate.amount : Number(candidate.amount);
+    const date = typeof candidate.isoDate === "string" ? parseCsvDate(candidate.isoDate) : null;
+    const type = candidate.type === "income" || candidate.type === "expense" ? candidate.type : null;
+
+    if (!name || name.length < 2 || !Number.isFinite(amount) || amount <= 0 || !date || !type) {
+      rejectedRows.push({
+        row: index + 1,
+        reason: "AI zwróciło niepełną lub nieprawidłową transakcję. Sprawdź opis, datę, kwotę i typ.",
+        raw: JSON.stringify(raw)
+      });
+      return;
+    }
+
+    const categorized = autoCategorizeTransaction(
+      name,
+      options.rules,
+      typeof candidate.category === "string" ? candidate.category : "Inne"
+    );
+    transactions.push({
+      ...buildTransaction(name, amount, type === "expense", date, options.currency, options.account, options.rules),
+      category: categorized.category,
+      categoryIcon: categorized.categoryIcon
+    });
+  });
+
+  return { transactions, rejectedRows };
 }
 
 export function parsePdfTransactions(

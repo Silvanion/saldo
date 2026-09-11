@@ -36,7 +36,7 @@ import {
   detectCsvSeparator,
   RejectedCsvRow
 } from "../services/parseCsv";
-import { extractPdfText, renderPdfPages, parsePdfTransactions, findPdfDuplicates } from "../services/parsePdf";
+import { extractPdfText, renderPdfPages, parsePdfTransactions, normalizeAiPdfTransactions, findPdfDuplicates } from "../services/parsePdf";
 
 interface ImportTransactionsModalProps {
   isOpen: boolean;
@@ -199,19 +199,17 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           aiResults.push(...(data.transactions || []));
         }
         if (!aiResults.length) throw new Error("AI nie rozpoznało transakcji na stronach PDF.");
-        const processed: Transaction[] = aiResults.map((transaction: any, index: number) => ({
-          id: `tx-pdf-ai-${Date.now()}-${index}`,
-          name: transaction.name || "Nieznana transakcja",
-          amount: Number(transaction.amount) || 0,
-          type: transaction.type === "income" ? "income" : "expense",
-          isoDate: transaction.isoDate || getLocalDateIso(),
-          category: transaction.category || defaultCategory,
-          categoryIcon: iconByCategory[transaction.category] || "✨",
-          account: transaction.account || defaultAccount,
-          currency: activeProfile?.currency || "PLN"
-        }));
+        const normalized = normalizeAiPdfTransactions(aiResults, {
+          currency: activeProfile?.currency || "PLN",
+          account: defaultAccount,
+          rules: activeProfile?.transactionRules || []
+        });
+        if (!normalized.transactions.length) {
+          throw new Error("AI nie zwróciło żadnej poprawnej transakcji. Sprawdź jakość skanu.");
+        }
+        const processed = normalized.transactions;
         setMappedTransactions(processed);
-        setRejectedRows([]);
+        setRejectedRows(normalized.rejectedRows);
         const duplicateIds = findPdfDuplicates(processed, activeProfile?.transactions || []);
         setSelectedTxIds(new Set(processed.filter((transaction) => !duplicateIds.has(transaction.id)).map((transaction) => transaction.id)));
         setImportStats({ invalidAmount: 0, invalidDate: 0, skippedEmpty: 0, tooMany: processed.length >= 2000 });
