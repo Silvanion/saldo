@@ -1587,6 +1587,41 @@ export function SettingsView({
             Wynik zawsze trafia do podglądu przed importem — nic nie zapisuje się automatycznie.
           </p>
 
+          <div className="mb-4 rounded-xl border border-border/70 bg-surface-2/50 p-3">
+            <div className="mb-2 text-xs font-bold text-text-main">Tryb modułu AI</div>
+            <div className="flex flex-wrap gap-2">
+              {([
+                ["none", "Wyłączone"],
+                ["local", "Lokalne (Ollama)"],
+                ["cloud", "Chmurowe (Gemini)"]
+              ] as const).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  disabled={mode === "cloud" && !googleUser}
+                  onClick={() => saveState({
+                    ...state,
+                    aiMode: mode,
+                    ...(mode === "local"
+                      ? {
+                          localAiEndpoint: state.localAiEndpoint || DEFAULT_LOCAL_AI_ENDPOINT,
+                          localAiModel: state.localAiModel || DEFAULT_LOCAL_AI_MODEL
+                        }
+                      : {})
+                  })}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition-colors ${
+                    state.aiMode === mode
+                      ? "border-brand/30 bg-brand-subtle text-brand"
+                      : "border-border bg-surface text-text-muted hover:bg-surface-2"
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {!googleUser && <p className="mt-2 text-[11px] text-text-muted">Tryb chmurowy wymaga zalogowania przez Google.</p>}
+          </div>
+
           {isLocalAiLikelyUnsupported() && (
             <div className="mb-4 p-3.5 bg-warning-subtle border border-warning/20 rounded-xl flex items-start gap-2.5 text-xs">
               <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />

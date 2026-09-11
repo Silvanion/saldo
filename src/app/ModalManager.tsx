@@ -20,6 +20,7 @@ const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m 
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
 const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
 const ExportReportsModal = lazy(() => import("../components/modals/ExportReportsModal").then(m => ({ default: m.ExportReportsModal })));
+const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 
 export function ModalManager() {
   const {
@@ -131,6 +132,13 @@ export function ModalManager() {
               onConnectCalendar={() => connectGoogle("calendar")}
               onCalendarAuthInvalid={invalidateCalendarToken}
             />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "aiChat" && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować doradcy AI">
+          <Suspense fallback={<ModalFallback />}>
+            <AiChatModal isOpen={true} onClose={closeModal} />
           </Suspense>
         </ErrorBoundary>
       )}

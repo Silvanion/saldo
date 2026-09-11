@@ -209,7 +209,7 @@ export interface AppState {
   smartRules?: SmartRule[];
   debts?: DebtItem[];
   debtPayoffScenarios?: DebtPayoffScenario[];
-  aiMode?: "none" | "local";
+  aiMode?: "none" | "local" | "cloud";
   localAiEndpoint?: string;
   localAiModel?: string;
   autoLockMinutes?: number; // 1 | 5 | 15 | 30 | 0 (nigdy); domyślnie undefined → 5

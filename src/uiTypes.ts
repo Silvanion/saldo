@@ -29,6 +29,7 @@ export type ModalType =
   | "pin"
   | "budget"
   | "calendarAi"
+  | "aiChat"
   | "changelog"
   | "confirm"
   | "smartRulesManager"
@@ -45,6 +46,7 @@ export type ModalState =
   | { type: "pin" }
   | { type: "budget" }
   | { type: "calendarAi"; payload?: Payment | Partial<Payment> }
+  | { type: "aiChat" }
   | { type: "changelog" }
   | { type: "confirm"; payload: ConfirmPayload }
   | { type: "smartRulesManager" }

@@ -35,7 +35,7 @@ export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSy
   activeProfile: Profile | null;
   isDriveAutoSyncEnabled: boolean;
   toggleAutoSync: (enabled: boolean) => void;
-  aiMode: "none" | "local";
+  aiMode: "none" | "local" | "cloud";
   canUseCloudSync: boolean;
   isOfflineBudgetMode: boolean;
 }
@@ -116,7 +116,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 15));
   };
 
-  const aiMode: "none" | "local" = budgetData.state.aiMode === "local" ? "local" : "none";
+  const aiMode: "none" | "local" | "cloud" =
+    budgetData.state.aiMode === "local" || budgetData.state.aiMode === "cloud"
+      ? budgetData.state.aiMode
+      : "none";
   const canUseCloudSync = authData.isGoogleAuthenticated;
   const isOfflineBudgetMode = !authData.googleUser;
 

@@ -424,6 +424,18 @@ export function AppShell({
               </kbd>
             </button>
 
+            <button
+              onClick={() => openModal("aiChat")}
+              disabled={isProfileLocked}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50"
+              id="btn-open-ai-chat"
+              title="Otwórz doradcę finansowego AI"
+              aria-label="Otwórz doradcę finansowego AI"
+            >
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <span className="hidden lg:inline">Doradca AI</span>
+            </button>
+
             {/* Primary Action 2: Quick Add CTA Button */}
             {activeProfile && !isProfileLocked && (
               <button
