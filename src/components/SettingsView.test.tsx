@@ -367,7 +367,12 @@ describe('SettingsView Diagnostic Loop', () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
-      json: async () => ({ status: 'ok' })
+      json: async () => ({
+        status: 'ok',
+        models: [{ name: 'gemma3:4b', vision: true }],
+        selectedModel: 'gemma3:4b',
+        selectedModelVisionAvailable: true
+      })
     } as any);
 
     render(
@@ -411,9 +416,10 @@ describe('SettingsView Diagnostic Loop', () => {
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith(
-        'Połączenie udane! Lokalny serwer AI odpowiada prawidłowo.',
+        'Połączenie udane! Wykryto 1 modeli Ollama.',
         'success'
       );
+      expect(screen.getByText('✓ Wybrany model obsługuje analizę obrazów i skanowanych PDF-ów.')).toBeTruthy();
     });
     expect(alertSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();

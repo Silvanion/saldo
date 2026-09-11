@@ -1237,7 +1237,10 @@ export function SettingsView({
                 <select
                   id="select-local-ai-model"
                   value={state.localAiModel || ""}
-                  onChange={(e) => saveState({ ...state, localAiModel: e.target.value || undefined })}
+                  onChange={(e) => {
+                    setLocalAiVisionAvailable(null);
+                    void saveState({ ...state, localAiModel: e.target.value || undefined });
+                  }}
                   className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   <option value="">Automatycznie wybierz pierwszy dostępny</option>
