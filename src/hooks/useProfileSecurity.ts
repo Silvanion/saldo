@@ -13,7 +13,7 @@ export function useProfileSecurity({
 }: {
   state: AppState;
   activeProfile: Profile | null;
-  saveState: (newState: AppState, localOnly?: boolean) => void;
+  saveState: (newState: AppState, localOnly?: boolean) => Promise<void>;
 }) {
   const [unlockedProfileId, setUnlockedProfileId] = useState<string | null>(null);
   const [isSecurityInfoOpen, setIsSecurityInfoOpen] = useState(false);
@@ -66,11 +66,10 @@ export function useProfileSecurity({
               throw new Error("Nie udało się odszyfrować danych profilu. Sprawdź kod PIN lub spójność danych.");
             }
           }
-          activeKeys[activeProfile.id] = key;
-          
           const updatedProfiles = state.profiles.map(p => p.id === activeProfile.id ? decrypted : p);
           
-          saveState({ ...state, profiles: updatedProfiles }, true);
+          await saveState({ ...state, profiles: updatedProfiles }, true);
+          activeKeys[activeProfile.id] = key;
           unlockProfile(activeProfile.id);
           // Reset brute-force counters on success
           setFailedAttempts(0);
@@ -102,18 +101,16 @@ export function useProfileSecurity({
         const newSalt = generateRandomSalt();
         const newHash = await hashPin(pin, newSalt);
         const key = await deriveKeyFromPin(pin, newSalt);
-        activeKeys[activeProfile.id] = key;
-        
         const updatedProfiles = state.profiles.map((p) => {
           if (p.id === activeProfile.id) {
             return { ...p, pinHash: newHash, salt: newSalt };
           }
           return p;
         });
-        saveState({ ...state, profiles: updatedProfiles });
+        await saveState({ ...state, profiles: updatedProfiles });
+        activeKeys[activeProfile.id] = key;
         unlockProfile(activeProfile.id);
       } else {
-        delete activeKeys[activeProfile.id];
         const updatedProfiles = state.profiles.map((p) => {
           if (p.id === activeProfile.id) {
             const { encryptedPayload, salt, pinHash, ...rest } = p;
@@ -121,7 +118,8 @@ export function useProfileSecurity({
           }
           return p;
         });
-        saveState({ ...state, profiles: updatedProfiles });
+        await saveState({ ...state, profiles: updatedProfiles });
+        delete activeKeys[activeProfile.id];
       }
     },
     [activeProfile, state, saveState, unlockProfile]
@@ -141,4 +139,3 @@ export function useProfileSecurity({
     lockoutUntil,
   };
 }
-
