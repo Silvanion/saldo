@@ -642,6 +642,11 @@ export function AppShell({
               onExportData={handleExportData}
               theme={theme === "dark" ? "dark" : "light"}
               onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+              aiConfig={{
+                aiMode: state.aiMode || "none",
+                localAiEndpoint: state.localAiEndpoint,
+                localAiModel: state.localAiModel
+              }}
             />
           </Suspense>
         </ErrorBoundary>
