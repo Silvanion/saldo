@@ -565,7 +565,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               <div className="bg-brand-subtle p-4 rounded-xl border border-brand/20">
                 <p className="text-sm text-brand font-medium mb-1"><strong>Import tekstowego wyciągu PDF</strong></p>
                 <p className="text-xs text-text-muted leading-relaxed">
-                  Saldo odczyta tekstowe tabele z wyciągu, sprawdzi daty, kwoty i duplikaty, a następnie pokaże podgląd przed zapisem. Skanowane PDF-y wymagają jeszcze OCR.
+                  Saldo odczyta tekstowe tabele z wyciągu, a skany przeanalizuje przez model multimodalny. W obu przypadkach sprawdzi daty, kwoty i duplikaty, a następnie pokaże podgląd przed zapisem.
                 </p>
               </div>
               <input

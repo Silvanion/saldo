@@ -458,6 +458,21 @@ export const helpSectionsData: HelpSectionData[] = [
             Łączy się z lokalnym modelem uruchomionym na Twoim komputerze za pomocą aplikacji Ollama (<code className="bg-surface px-1 py-0.5 rounded border border-border">http://localhost:11434</code>).
           </li>
         </ul>
+        <div className="p-4 bg-surface border border-border rounded-xl space-y-3 text-xs">
+          <strong className="text-text-main block">Import wyciągów PDF</strong>
+          <p>
+            Tekstowy PDF jest odczytywany lokalnie w przeglądarce. Aplikacja rozpoznaje daty, opisy i kwoty, sprawdza niepoprawne wiersze oraz duplikaty, a przed zapisem pokazuje podgląd.
+          </p>
+          <p>
+            Skanowany PDF bez warstwy tekstowej jest zamieniany na obrazy stron i analizowany przez model multimodalny. W ustawieniach taki model ma oznaczenie <strong>(obrazy)</strong> i capability <strong>vision</strong>.
+          </p>
+          <p>
+            Model tekstowy, np. <code className="bg-surface-2 px-1 rounded border border-border">qwen3:4b</code>, obsługuje tekst i tekstowe PDF-y, ale nie skany. Do skanów wybierz zainstalowany model multimodalny, np. <code className="bg-surface-2 px-1 rounded border border-border">gemma3:4b</code>.
+          </p>
+          <p className="font-semibold text-text-main">
+            Żadne transakcje nie są zapisywane automatycznie: zawsze zatwierdzasz poprawne pozycje na ekranie podglądu.
+          </p>
+        </div>
       </div>
     )
   }

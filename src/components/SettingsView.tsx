@@ -400,6 +400,7 @@ export function SettingsView({
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
   const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number; vision?: boolean }>>([]);
   const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
+  const [localAiVisionAvailable, setLocalAiVisionAvailable] = useState<boolean | null>(null);
   const [isLocalAiPulling, setIsLocalAiPulling] = useState(false);
   const [localAiPullProgress, setLocalAiPullProgress] = useState<{ status: string; completed: number; total: number } | null>(null);
   const localAiPullController = React.useRef<AbortController | null>(null);
@@ -1250,6 +1251,13 @@ export function SettingsView({
                 <p className="text-xs text-text-muted">
                   Modele oznaczone <strong>(obrazy)</strong> mogą analizować skanowane PDF-y.
                 </p>
+                {localAiVisionAvailable !== null && (
+                  <p className={`text-xs font-semibold ${localAiVisionAvailable ? "text-success" : "text-warning"}`}>
+                    {localAiVisionAvailable
+                      ? "✓ Wybrany model obsługuje analizę obrazów i skanowanych PDF-ów."
+                      : "⚠ Wybrany model obsługuje tekst, ale nie analizę obrazów."}
+                  </p>
+                )}
               </div>
             )}
             <div className="rounded-xl border border-border bg-surface p-3 space-y-2">
@@ -1380,8 +1388,10 @@ export function SettingsView({
                     const data = await res.json();
                     if (res.ok) {
                       setLocalAiModels(data.models || []);
+                      setLocalAiVisionAvailable(data.selectedModelVisionAvailable === true);
                       const unavailableSavedModel = data.selectedModelAvailable === false && state.localAiModel;
                       if (unavailableSavedModel) {
+                        setLocalAiVisionAvailable(null);
                         showToast(`Model ${state.localAiModel} nie jest już zainstalowany. Przywrócono autodetekcję.`, "info");
                         await saveState({ ...state, localAiModel: undefined });
                       }
