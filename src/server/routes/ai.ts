@@ -108,12 +108,14 @@ router.all("/health", async (req: any, res: Response) => {
         const models = (data.models || [])
           .map((model) => ({ name: model.name || model.model || "", size: model.size }))
           .filter((model) => model.name);
+        const selectedModel = config.localAiModel || models[0]?.name || null;
         return res.json({
           status: "ok",
           mode: "local",
           endpoint: config.localEndpoint,
           models,
-          selectedModel: config.localAiModel || models[0]?.name || null,
+          selectedModel,
+          selectedModelAvailable: selectedModel ? models.some((model) => model.name === selectedModel) : false,
           message: models.length
             ? "Połączenie z Ollamą udane."
             : "Ollama działa, ale nie ma jeszcze pobranych modeli."

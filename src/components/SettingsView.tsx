@@ -1307,10 +1307,15 @@ export function SettingsView({
                     const data = await res.json();
                     if (res.ok) {
                       setLocalAiModels(data.models || []);
-                      if (!state.localAiModel && data.selectedModel) {
+                      const unavailableSavedModel = data.selectedModelAvailable === false && state.localAiModel;
+                      if (unavailableSavedModel) {
+                        showToast(`Model ${state.localAiModel} nie jest już zainstalowany. Przywrócono autodetekcję.`, "info");
+                        await saveState({ ...state, localAiModel: undefined });
+                      }
+                      if (!unavailableSavedModel && !state.localAiModel && data.selectedModel) {
                         await saveState({ ...state, localAiModel: data.selectedModel });
                       }
-                      showToast(
+                      if (!unavailableSavedModel) showToast(
                         data.models === undefined
                           ? "Połączenie udane! Lokalny serwer AI odpowiada prawidłowo."
                           : data.models.length

@@ -117,6 +117,9 @@ export class LocalProvider implements AiProvider {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
+        if (res.status === 404 && this.modelName) {
+          throw new Error(`Model ${this.modelName} nie jest zainstalowany w Ollamie. Wykryj modele lub wybierz inny.`);
+        }
         throw new Error(`Błąd HTTP ${res.status}: ${res.statusText}`);
       }
 
@@ -143,6 +146,7 @@ export class LocalProvider implements AiProvider {
         e.message &&
         (e.message.includes("zinterpretować") ||
           e.message.includes("modeli") ||
+          e.message.includes("nie jest zainstalowany") ||
         e.message.includes("Nie znaleziono żadnego modelu") ||
         e.message.includes("pobrać listy modeli"))
       ) {
