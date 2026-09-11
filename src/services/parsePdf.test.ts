@@ -125,6 +125,32 @@ describe("parsePdfTransactions", () => {
     expect(duplicateIds.size).toBe(3);
   });
 
+  it("matches totals from an anonymized annual mBank statement summary", () => {
+    const result = parsePdfTransactions(
+      [
+        "Lista operacji za okres od 2025-01-01 do 2025-12-31",
+        "Wpływy 84 000,14 PLN Wydatki -88 068,13 PLN",
+        "Operacje",
+        "2025-12-31 Wpłata przykładowa 84 000,14 PLN",
+        "2025-12-30 Zakupy przykładowe -88 000,00 PLN",
+        "2025-01-02 Opłata bankowa -68,13 PLN"
+      ].join("\n"),
+      options
+    );
+
+    const totals = result.transactions.reduce(
+      (summary, transaction) => {
+        summary[transaction.type] += transaction.amount;
+        return summary;
+      },
+      { income: 0, expense: 0 }
+    );
+
+    expect(result.transactions).toHaveLength(3);
+    expect(result.rejectedRows).toHaveLength(0);
+    expect(totals).toEqual({ income: 84000.14, expense: 88068.13 });
+  });
+
   it("rejects incomplete OCR rows instead of importing guessed values", () => {
     const result = normalizeAiPdfTransactions([
       { name: "Sklep", amount: 12.5, type: "expense", isoDate: "2026-09-11" },
