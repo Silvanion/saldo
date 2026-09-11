@@ -90,4 +90,23 @@ test.describe("Local AI E2E Flows", () => {
 
     await expect(dialog.getByText("Nie udało się połączyć z lokalnym AI")).toBeVisible({ timeout: 15000 });
   });
+
+  test("D. Invoice scan: clearly requires cloud AI when local mode is active", async ({ page }) => {
+    await setupApp(page);
+    await navigateToView(page, "settings");
+    await page.locator("#toggle-local-ai").click();
+    await navigateToView(page, "payments");
+    await page.getByRole("button", { name: /Dodaj.*płatność|Dodaj.*rachunek/i }).first().click();
+
+    const dialog = page.getByRole("dialog", { name: /Dodaj rachunek/i });
+    const invoiceInput = dialog.locator('input[type="file"]');
+    await invoiceInput.setInputFiles({
+      name: "invoice.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("fake invoice")
+    });
+
+    await expect(dialog.getByText("Skanowanie faktur wymaga trybu chmurowego AI (Gemini).")).toBeVisible();
+    await expect(dialog.locator("#input-payment-name")).toHaveValue("");
+  });
 });
