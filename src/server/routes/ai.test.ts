@@ -39,6 +39,7 @@ describe("POST /api/ai/parse-statement-image", () => {
   afterEach(() => {
     parseStatementImage.mockReset();
     provider = { parseStatementImage };
+    vi.restoreAllMocks();
   });
 
   it("returns validated transaction list from an image provider", async () => {
@@ -149,6 +150,43 @@ describe("POST /api/ai/parse-statement-image", () => {
 
       expect(response.status).toBe(502);
       expect(await response.json()).toEqual({ error: "Nieprawidłowa odpowiedź modelu AI." });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("reports vision capability from Ollama /api/show", async () => {
+    const nativeFetch = globalThis.fetch;
+    const ollamaFetch = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        models: [{ name: "gemma3:4b", size: 100, capabilities: ["completion"] }]
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        capabilities: ["completion", "vision"]
+      }), { status: 200 }));
+    const { server, url } = await createTestServer();
+
+    try {
+      const response = await nativeFetch(`${url}/api/ai/health`, {
+        headers: {
+          "x-ai-mode": "local",
+          "x-ai-local-endpoint": "http://localhost:11434/api/generate",
+          "x-ai-local-model": "gemma3:4b"
+        }
+      });
+
+      expect(response.status).toBe(200);
+      expect((await response.json()).selectedModelVisionAvailable).toBe(true);
+      expect(ollamaFetch).toHaveBeenNthCalledWith(
+        1,
+        new URL("http://localhost:11434/api/tags"),
+        expect.objectContaining({ method: "GET" })
+      );
+      expect(ollamaFetch).toHaveBeenNthCalledWith(
+        2,
+        new URL("http://localhost:11434/api/show"),
+        expect.objectContaining({ method: "POST", body: JSON.stringify({ name: "gemma3:4b" }) })
+      );
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }

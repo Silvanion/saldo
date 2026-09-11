@@ -398,7 +398,7 @@ export function SettingsView({
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [filePreview, setFilePreview] = useState<AppState | null>(null);
-  const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number }>>([]);
+  const [localAiModels, setLocalAiModels] = useState<Array<{ name: string; size?: number; vision?: boolean }>>([]);
   const [isLocalAiChecking, setIsLocalAiChecking] = useState(false);
   const [isLocalAiPulling, setIsLocalAiPulling] = useState(false);
   const [localAiPullProgress, setLocalAiPullProgress] = useState<{ status: string; completed: number; total: number } | null>(null);
@@ -1241,11 +1241,14 @@ export function SettingsView({
                 >
                   <option value="">Automatycznie wybierz pierwszy dostępny</option>
                   {localAiModels.map((model) => (
-                    <option key={model.name} value={model.name}>{model.name}</option>
+                    <option key={model.name} value={model.name}>{model.name}{model.vision ? " (obrazy)" : ""}</option>
                   ))}
                 </select>
                 <p className="text-xs text-text-muted">
                   Jeśli nie wybierzesz modelu, Saldo użyje pierwszego modelu wykrytego w Ollamie.
+                </p>
+                <p className="text-xs text-text-muted">
+                  Modele oznaczone <strong>(obrazy)</strong> mogą analizować skanowane PDF-y.
                 </p>
               </div>
             )}

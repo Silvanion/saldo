@@ -189,6 +189,17 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
           throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI lub Chmurę AI, aby przeanalizować skan.");
         }
         const pages = await renderPdfPages(file);
+        const healthResponse = await fetch("/api/ai/health", {
+          headers: {
+            "x-ai-mode": state.aiMode,
+            "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate",
+            ...(state.localAiModel ? { "x-ai-local-model": state.localAiModel } : {})
+          }
+        });
+        const health = await healthResponse.json().catch(() => ({}));
+        if (!healthResponse.ok || health.selectedModelVisionAvailable !== true) {
+          throw new Error("Wybrany model Ollama nie obsługuje obrazów. Wybierz model multimodalny, np. gemma3:4b, i spróbuj ponownie.");
+        }
         const aiResults = [];
         for (const imageBase64 of pages) {
           const data = await callAiApi("parse-statement-image", {

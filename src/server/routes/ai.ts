@@ -104,11 +104,35 @@ router.all("/health", async (req: any, res: Response) => {
         if (!testRes.ok) {
           return res.status(502).json({ status: "error", mode: "local", message: `Lokalny endpoint odpowiedział kodem ${testRes.status}.` });
         }
-        const data = await testRes.json() as { models?: Array<{ name?: string; model?: string; size?: number }> };
+        const data = await testRes.json() as { models?: Array<{ name?: string; model?: string; size?: number; capabilities?: string[] }> };
         const models = (data.models || [])
-          .map((model) => ({ name: model.name || model.model || "", size: model.size }))
+          .map((model) => ({
+            name: model.name || model.model || "",
+            size: model.size,
+            vision: model.capabilities?.includes("vision") || false
+          }))
           .filter((model) => model.name);
         const selectedModel = config.localAiModel || models[0]?.name || null;
+        let selectedModelVisionAvailable = false;
+        if (selectedModel) {
+          try {
+            const showEndpoint = new URL(config.localEndpoint);
+            showEndpoint.pathname = "/api/show";
+            showEndpoint.search = "";
+            const showResponse = await fetch(showEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: selectedModel }),
+              signal: controller.signal
+            });
+            if (showResponse.ok) {
+              const showData = await showResponse.json() as { capabilities?: string[] };
+              selectedModelVisionAvailable = showData.capabilities?.includes("vision") || false;
+            }
+          } catch {
+            selectedModelVisionAvailable = false;
+          }
+        }
         return res.json({
           status: "ok",
           mode: "local",
@@ -116,6 +140,7 @@ router.all("/health", async (req: any, res: Response) => {
           models,
           selectedModel,
           selectedModelAvailable: selectedModel ? models.some((model) => model.name === selectedModel) : false,
+          selectedModelVisionAvailable,
           message: models.length
             ? "Połączenie z Ollamą udane."
             : "Ollama działa, ale nie ma jeszcze pobranych modeli."
@@ -252,6 +277,12 @@ const ScanInvoiceInput = z.object({
   mimeType: z.string().max(50)
 });
 
+const ParseStatementImageInput = z.object({
+  imageBase64: z.string().min(1).max(10_000_000),
+  mimeType: z.string().max(50),
+  currentDate: z.string()
+});
+
 /**
  * Output schemas for strict output validation
  */
@@ -385,6 +416,33 @@ router.post("/parse-statement", checkProductionAiMode, async (req: any, res: Res
       return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
     }
     const message = process.env.NODE_ENV === "production" ? "Błąd silnika AI." : (error.message || "Błąd silnika AI.");
+    res.status(500).json({ error: message });
+  }
+});
+
+router.post("/parse-statement-image", checkProductionAiMode, async (req: any, res: Response) => {
+  const uid = req.user?.uid;
+  const ip = req.ip || "unknown";
+  const parsedInput = ParseStatementImageInput.safeParse(req.body);
+  if (!parsedInput.success) return res.status(400).json({ error: "Błędne dane obrazu wyciągu." });
+
+  try {
+    const provider = createAiProvider(req.aiConfig);
+    if (!provider.parseStatementImage) {
+      return res.status(422).json({ error: "Wybrany model AI nie obsługuje analizy obrazów." });
+    }
+    const rawResult = await provider.parseStatementImage(
+      parsedInput.data.imageBase64,
+      parsedInput.data.mimeType,
+      parsedInput.data.currentDate
+    );
+    const result = ParseStatementOutput.parse(rawResult.transactions || rawResult);
+    logCostMetric("/parse-statement-image", uid, ip, parsedInput.data.imageBase64.length, true);
+    res.json({ transactions: result });
+  } catch (error: any) {
+    logCostMetric("/parse-statement-image", uid, ip, 0, false);
+    if (error instanceof z.ZodError) return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
+    const message = process.env.NODE_ENV === "production" ? "Błąd silnika AI." : (error.message || "Błąd analizy obrazu.");
     res.status(500).json({ error: message });
   }
 });

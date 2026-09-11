@@ -185,6 +185,10 @@ invalid_date;100;Błędna data;PLN
 
   it("imports validated transactions from a scanned PDF through the AI preview", async () => {
     mockAppState = { aiMode: "local" };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({ selectedModelVisionAvailable: true })
+    } as any);
     callAiApiMock.mockResolvedValue({
       transactions: [
         {
@@ -236,5 +240,6 @@ invalid_date;100;Błędna data;PLN
       })
     ]);
     expect(onClose).toHaveBeenCalled();
+    fetchMock.mockRestore();
   });
 });
