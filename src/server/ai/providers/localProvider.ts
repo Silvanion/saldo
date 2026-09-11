@@ -190,6 +190,24 @@ Zwróć tylko zwalidowany kod JSON (tablicę).`;
     return { transactions: Array.isArray(res) ? res : (res.transactions ? res.transactions : []) };
   }
 
+  async parseStatementImage(imageBase64: string, mimeType: string, currentDate: string): Promise<any> {
+    const model = await this.getModelName();
+    const response = await fetch(this.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt: `Odczytaj tabelę operacji bankowych z obrazu. Zwróć wyłącznie JSON: tablicę obiektów name, amount (dodatnia liczba), type ("income" lub "expense"), isoDate (YYYY-MM-DD), category. Data odniesienia: ${currentDate}.`,
+        images: [imageBase64],
+        stream: false,
+        format: "json"
+      })
+    });
+    if (!response.ok) throw new Error(`Błąd HTTP ${response.status} podczas analizy obrazu.`);
+    const data = await response.json() as { response?: string };
+    return this.extractJson(data.response || "");
+  }
+
   async chat(message: string, profileData: any): Promise<any> {
     const prompt = `Jesteś doradcą "Saldo". Odpowiadaj zwięźle i profesjonalnie.
 Profil użytkownika (do kontekstu, zanonimizowany): ${JSON.stringify(profileData)}.

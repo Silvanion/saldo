@@ -128,6 +128,39 @@ Tekst: """${text}"""`;
     return { transactions: parsedTransactions };
   }
 
+  async parseStatementImage(imageBase64: string, mimeType: string, currentDate: string): Promise<any> {
+    const ai = getGemini();
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: [
+        { inlineData: { data: imageBase64, mimeType: mimeType || "image/png" } },
+        `Odczytaj tabelę operacji bankowych z obrazu. Data odniesienia: ${currentDate || getLocalDateIso()}. Zwróć wyłącznie tablicę JSON obiektów: name, amount (dodatnia liczba), type ("income" lub "expense"), isoDate (YYYY-MM-DD), category, account.`
+      ],
+      config: {
+        maxOutputTokens: 1500,
+        temperature: 0.1,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              amount: { type: Type.NUMBER },
+              type: { type: Type.STRING, enum: ["income", "expense"] },
+              isoDate: { type: Type.STRING },
+              category: { type: Type.STRING },
+              account: { type: Type.STRING }
+            },
+            required: ["name", "amount", "type", "isoDate", "category", "account"]
+          }
+        }
+      }
+    });
+    if (!response.text) throw new Error("Model nie odczytał transakcji z obrazu.");
+    return { transactions: JSON.parse(response.text.trim()) };
+  }
+
   async chat(message: string, profileData: any): Promise<any> {
     const ai = getGemini();
     const prunedProfile = {

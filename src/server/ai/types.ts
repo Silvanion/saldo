@@ -2,6 +2,7 @@ export interface AiProvider {
   suggestEvent(payment: any, currentDate: string, uid?: string): Promise<any>;
   parseNatural(text: string, currentDate: string): Promise<any>;
   parseStatement(text: string, currentDate: string): Promise<any>;
+  parseStatementImage?(imageBase64: string, mimeType: string, currentDate: string): Promise<any>;
   chat(message: string, profileData: any): Promise<any>;
   scanInvoice(imageBase64: string, mimeType: string): Promise<any>;
 }

@@ -12,14 +12,14 @@ export interface PdfImportResult {
 export async function extractPdfText(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const data = new Uint8Array(await file.arrayBuffer());
-  const document = await pdfjsLib.getDocument({
+  const pdfDocument = await pdfjsLib.getDocument({
     data,
     useWorkerFetch: false
   }).promise;
   const pages: string[] = [];
 
-  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
-    const page = await document.getPage(pageNumber);
+  for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
+    const page = await pdfDocument.getPage(pageNumber);
     const content = await page.getTextContent();
     pages.push(content.items
       .map((item) => "str" in item ? item.str : "")
@@ -28,6 +28,25 @@ export async function extractPdfText(file: File): Promise<string> {
   }
 
   return pages.join("\n").trim();
+}
+
+export async function renderPdfPages(file: File, maxPages = 10): Promise<string[]> {
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfDocument = await pdfjsLib.getDocument({
+    data: new Uint8Array(await file.arrayBuffer()),
+    useWorkerFetch: false
+  }).promise;
+  const images: string[] = [];
+  for (let pageNumber = 1; pageNumber <= Math.min(pdfDocument.numPages, maxPages); pageNumber++) {
+    const page = await pdfDocument.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
+    images.push(canvas.toDataURL("image/png").split(",", 2)[1]);
+  }
+  return images;
 }
 
 function buildTransaction(

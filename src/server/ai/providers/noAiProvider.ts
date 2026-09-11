@@ -131,6 +131,7 @@ export class NoAiProvider implements AiProvider {
                 amount = num;
                 type = "income";
               }
+
             } else if (trimmed.length > 2 && !/^(data|kwota|opis|tytuł|saldo)$/i.test(trimmed)) {
               name = trimmed;
             }
@@ -169,6 +170,10 @@ export class NoAiProvider implements AiProvider {
     return {
       reply: "Funkcja interaktywnego chatu wymaga włączenia trybu Lokalne AI (Ollama) lub Chmura AI w Ustawieniach."
     };
+  }
+
+  async parseStatementImage(): Promise<any> {
+    throw new Error("Analiza skanów wymaga włączenia lokalnego modelu multimodalnego lub Chmury AI.");
   }
 
   async scanInvoice(_imageBase64: string, _mimeType: string): Promise<any> {

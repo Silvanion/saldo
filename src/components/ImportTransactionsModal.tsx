@@ -36,7 +36,7 @@ import {
   detectCsvSeparator,
   RejectedCsvRow
 } from "../services/parseCsv";
-import { extractPdfText, parsePdfTransactions, findPdfDuplicates } from "../services/parsePdf";
+import { extractPdfText, renderPdfPages, parsePdfTransactions, findPdfDuplicates } from "../services/parsePdf";
 
 interface ImportTransactionsModalProps {
   isOpen: boolean;
@@ -185,7 +185,38 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     try {
       const text = await extractPdfText(file);
       if (!text.trim()) {
-        throw new Error("Ten PDF nie zawiera warstwy tekstowej. Skanowane dokumenty będą obsługiwane w kolejnym etapie OCR.");
+        if (!isAiAvailable) {
+          throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI lub Chmurę AI, aby przeanalizować skan.");
+        }
+        const pages = await renderPdfPages(file);
+        const aiResults = [];
+        for (const imageBase64 of pages) {
+          const data = await callAiApi("parse-statement-image", {
+            imageBase64,
+            mimeType: "image/png",
+            currentDate: getLocalDateIso()
+          }, getAiConfig(state));
+          aiResults.push(...(data.transactions || []));
+        }
+        if (!aiResults.length) throw new Error("AI nie rozpoznało transakcji na stronach PDF.");
+        const processed: Transaction[] = aiResults.map((transaction: any, index: number) => ({
+          id: `tx-pdf-ai-${Date.now()}-${index}`,
+          name: transaction.name || "Nieznana transakcja",
+          amount: Number(transaction.amount) || 0,
+          type: transaction.type === "income" ? "income" : "expense",
+          isoDate: transaction.isoDate || getLocalDateIso(),
+          category: transaction.category || defaultCategory,
+          categoryIcon: iconByCategory[transaction.category] || "✨",
+          account: transaction.account || defaultAccount,
+          currency: activeProfile?.currency || "PLN"
+        }));
+        setMappedTransactions(processed);
+        setRejectedRows([]);
+        const duplicateIds = findPdfDuplicates(processed, activeProfile?.transactions || []);
+        setSelectedTxIds(new Set(processed.filter((transaction) => !duplicateIds.has(transaction.id)).map((transaction) => transaction.id)));
+        setImportStats({ invalidAmount: 0, invalidDate: 0, skippedEmpty: 0, tooMany: processed.length >= 2000 });
+        setStep(3);
+        return;
       }
       const result = parsePdfTransactions(text, {
         currency: activeProfile?.currency || "PLN",
