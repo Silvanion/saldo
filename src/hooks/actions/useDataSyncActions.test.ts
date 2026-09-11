@@ -210,6 +210,33 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       vi.unstubAllGlobals();
     });
 
+    it("shows error toast when saving reset state fails", async () => {
+      mockSaveState.mockRejectedValue(new Error("Storage failure"));
+      const globalFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { profiles: [] } })
+      });
+      vi.stubGlobal("fetch", globalFetch);
+
+      const { result } = getHook();
+      await act(async () => {
+        await result.current.handleResetData();
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się zresetować bazy danych.", "error");
+      expect(mockLockProfile).not.toHaveBeenCalled();
+      expect(mockSetActiveView).not.toHaveBeenCalled();
+
+      vi.unstubAllGlobals();
+    });
+
     it("shows error toast when reset returns a non-success HTTP status", async () => {
       const globalFetch = vi.fn().mockResolvedValue({
         ok: false,
@@ -289,6 +316,28 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       expect(mockSaveState).toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith("Kopia lokalna została pomyślnie wczytana!", "success");
       expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it("shows error toast when saving imported state fails", async () => {
+      mockSaveState.mockRejectedValue(new Error("Storage failure"));
+      const { result } = getHook();
+      const validState = {
+        profiles: [{ id: "p2", name: "Import", kind: "personal", payments: [], transactions: [], goals: [], investments: [], currency: "PLN", budgets: {} }]
+      };
+
+      act(() => {
+        result.current.handleImportLocalData(validState as any);
+      });
+
+      const confirmCall = mockOpenModal.mock.calls.find((c: any[]) => c[0] === "confirm");
+      const payload: ConfirmPayload = confirmCall[1];
+
+      await act(async () => {
+        await payload.onConfirm();
+      });
+
+      expect(mockShowToast).toHaveBeenCalledWith("Nie udało się wczytać kopii lokalnej.", "error");
+      expect(mockShowToast).not.toHaveBeenCalledWith("Kopia lokalna została pomyślnie wczytana!", "success");
     });
   });
 });

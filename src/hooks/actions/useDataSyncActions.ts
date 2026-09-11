@@ -60,7 +60,7 @@ export function useDataSyncActions({
 
           const result = await res.json();
           makeUndoBackup();
-          saveState(result.data);
+          await saveState(result.data);
           lockProfile();
           setActiveView("dashboard");
           showToast("Baza danych została zresetowana do ustawień początkowych.", "success");
@@ -85,10 +85,15 @@ export function useDataSyncActions({
         message: "Czy chcesz zastąpić obecne dane danymi z pliku lokalnego? W razie potrzeby możesz cofnąć tę zmianę.",
         confirmLabel: "Importuj i nadpisz",
         tone: "warning",
-        onConfirm: () => {
-          makeUndoBackup();
-          saveState(validated);
-          showToast("Kopia lokalna została pomyślnie wczytana!", "success");
+        onConfirm: async () => {
+          try {
+            makeUndoBackup();
+            await saveState(validated);
+            showToast("Kopia lokalna została pomyślnie wczytana!", "success");
+          } catch (err) {
+            console.error("Failed to import local data:", err);
+            showToast("Nie udało się wczytać kopii lokalnej.", "error");
+          }
         }
       });
     },
