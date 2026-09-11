@@ -33,6 +33,34 @@ describe("parsePdfTransactions", () => {
     expect(result.rejectedRows).toHaveLength(1);
   });
 
+  it("rejects impossible calendar dates", () => {
+    const result = parsePdfTransactions("2026-09-00 Nieprawidłowa data -10,00 PLN", options);
+
+    expect(result.transactions).toHaveLength(0);
+    expect(result.rejectedRows).toHaveLength(1);
+  });
+
+  it("ignores statement summaries before the operations table", () => {
+    const result = parsePdfTransactions(
+      "Okres od 2025-09-11 do 2026-09-11 Wpływy 80 057,70 PLN\nOperacje\nData Opis Kwota\n2026-09-11 Piekarnia -14,97 PLN",
+      options
+    );
+
+    expect(result.transactions).toHaveLength(1);
+    expect(result.transactions[0]).toMatchObject({ amount: 14.97, type: "expense" });
+  });
+
+  it("does not split on dates embedded in an operation description", () => {
+    const result = parsePdfTransactions(
+      "2026-08-24 ZUS świadczenie za okres 01-31.08.2026 3 934,20 PLN",
+      options
+    );
+
+    expect(result.transactions).toHaveLength(1);
+    expect(result.rejectedRows).toHaveLength(0);
+    expect(result.transactions[0]).toMatchObject({ amount: 3934.2, type: "income" });
+  });
+
   it("parses European thousands separators and trailing debit signs", () => {
     const result = parsePdfTransactions(
       [

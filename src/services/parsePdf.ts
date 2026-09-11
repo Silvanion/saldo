@@ -133,9 +133,19 @@ export function parsePdfTransactions(
 ): PdfImportResult {
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
-  const lines = text
-    .replace(/\r?\n/g, " ")
-    .split(/(?=\d{1,2}[./-]\d{1,2}[./-]\d{4})/);
+  const operationsIndex = text.search(/\bOperacje\b/i);
+  const statementText = operationsIndex >= 0 ? text.slice(operationsIndex) : text;
+  const dateAtLineStart = /^\s*(?:\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\d{4}[./-]\d{1,2}[./-]\d{1,2}\b)/;
+  const lines: string[] = [];
+  let currentLine = "";
+  statementText.split(/\r?\n/).forEach((line) => {
+    if (dateAtLineStart.test(line) && currentLine.trim()) {
+      lines.push(currentLine);
+      currentLine = "";
+    }
+    currentLine += `${currentLine ? " " : ""}${line.trim()}`;
+  });
+  if (currentLine.trim()) lines.push(currentLine);
 
   lines.forEach((raw, index) => {
     const row = raw.replace(/\s+/g, " ").trim();
@@ -145,8 +155,9 @@ export function parsePdfTransactions(
 
     const date = parseCsvDate(dateMatch[0]);
     const rowWithoutDate = row.replace(dateMatch[0], " ");
-    const amountMatches = [...rowWithoutDate.matchAll(/(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi)];
-    const amountMatch = amountMatches.at(-1)?.[0];
+    const amountSearchRow = rowWithoutDate.replace(/\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/g, " ");
+    const amountMatches = [...amountSearchRow.matchAll(/(?<![\d-])(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi)];
+    const amountMatch = amountMatches[0]?.[0];
     const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
     const name = row
       .replace(dateMatch[0], "")

@@ -109,7 +109,8 @@ export function parseCsvDate(rawDate: string): string | null {
 
   // YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    return trimmed;
+    const parsed = new Date(`${trimmed}T00:00:00Z`);
+    return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === trimmed ? trimmed : null;
   }
 
   // DD.MM.YYYY or DD-MM-YYYY or DD/MM/YYYY
@@ -118,7 +119,9 @@ export function parseCsvDate(rawDate: string): string | null {
     const day = dmyMatch[1].padStart(2, "0");
     const month = dmyMatch[2].padStart(2, "0");
     const year = dmyMatch[3];
-    return `${year}-${month}-${day}`;
+    const normalized = `${year}-${month}-${day}`;
+    const parsed = new Date(`${normalized}T00:00:00Z`);
+    return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === normalized ? normalized : null;
   }
 
   // YYYY.MM.DD or YYYY/MM/DD
@@ -127,7 +130,9 @@ export function parseCsvDate(rawDate: string): string | null {
     const year = ymdMatch[1];
     const month = ymdMatch[2].padStart(2, "0");
     const day = ymdMatch[3].padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const normalized = `${year}-${month}-${day}`;
+    const parsed = new Date(`${normalized}T00:00:00Z`);
+    return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === normalized ? normalized : null;
   }
 
   // ISO string with time: YYYY-MM-DD HH:MM:SS or YYYY-MM-DDTHH:MM:SS
