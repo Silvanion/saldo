@@ -529,4 +529,67 @@ describe('SettingsView Diagnostic Loop', () => {
     expect(alertSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  it('streams Ollama pull progress and verifies the model before saving it', async () => {
+    const showToast = vi.fn();
+    const saveState = vi.fn().mockResolvedValue(undefined);
+    const pullStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('{"status":"downloading","completed":50,"total":100}\n'));
+        controller.enqueue(new TextEncoder().encode('{"status":"success","completed":100,"total":100}\n'));
+        controller.close();
+      }
+    });
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({ ok: true, body: pullStream } as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ selectedModelAvailable: true })
+      } as any);
+
+    render(
+      <SettingsView
+        state={{ ...mockState, aiMode: 'local' } as any}
+        saveState={saveState}
+        profiles={mockProfiles as any}
+        activeProfileId="p1"
+        onSelectProfile={vi.fn()}
+        onUpdateProfile={vi.fn()}
+        onDeleteProfile={vi.fn()}
+        onOpenProfileModal={vi.fn()}
+        onOpenPinModal={vi.fn()}
+        onExportData={vi.fn()}
+        onResetData={vi.fn()}
+        googleUser={null}
+        isGoogleLoading={false}
+        isDriveActionLoading={false}
+        gdriveFileId={null}
+        gdriveLastSynced={null}
+        isDriveAutoSyncEnabled={false}
+        onConnectGoogle={vi.fn()}
+        onDisconnectGoogle={vi.fn()}
+        onSyncToDrive={vi.fn()}
+        onLoadFromDrive={vi.fn()}
+        onToggleDriveAutoSync={vi.fn()}
+        onImportLocalData={vi.fn()}
+        theme="light"
+        onThemeChange={vi.fn()}
+        recurringRules={[]}
+        onSaveRecurringRules={vi.fn()}
+        transactionRules={[]}
+        onSaveTransactionRules={vi.fn()}
+        onSaveAccounts={vi.fn()}
+        showToast={showToast}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Pobierz (qwen3|gemma3):/ }));
+
+    await waitFor(() => {
+      expect(showToast).toHaveBeenCalledWith(expect.stringMatching(/^Model (qwen3|gemma3):/), 'success');
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(saveState).toHaveBeenCalledWith(expect.objectContaining({ localAiModel: expect.stringMatching(/^(qwen3|gemma3):/) }));
+    fetchSpy.mockRestore();
+  });
 });

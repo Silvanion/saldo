@@ -184,6 +184,10 @@ router.post("/pull", async (req: any, res: Response) => {
     responseFinished = true;
     return res.end();
   } catch (error: any) {
+    if (res.headersSent) {
+      responseFinished = true;
+      return res.end();
+    }
     const message = error?.name === "AbortError"
       ? "Pobieranie modelu trwało zbyt długo i zostało przerwane."
       : "Nie udało się pobrać modelu z Ollamy.";
