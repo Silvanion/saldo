@@ -116,7 +116,7 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
   }));
 
   const recentTransactions = [...transactions]
-    .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
+    .sort((a, b) => (b.isoDate || "").localeCompare(a.isoDate || ""))
     .slice(0, 4);
 
   const runway = calculateRunway(profile, 3);

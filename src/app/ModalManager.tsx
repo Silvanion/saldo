@@ -236,6 +236,8 @@ export function ModalManager() {
               onSavePlan={handleSaveFinancialPlan}
               onTogglePlanItem={handleTogglePlanItem}
               onDeletePlan={handleDeleteFinancialPlan}
+              onCreateGoal={handleAddGoal}
+              showToast={showToast}
             />
           </Suspense>
         </ErrorBoundary>

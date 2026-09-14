@@ -98,6 +98,7 @@ export function AppViewRouter({
     handleThemeChange,
     handleUpdateProfile,
     handleApplySmartRulesBulk,
+    handleTogglePlanItem,
     showToast
   } = useApp();
 
@@ -246,6 +247,9 @@ export function AppViewRouter({
             onOpenBudgetModal={onOpenBudgetModal}
             onOpenPaymentModal={onOpenPaymentModal}
             onOpenNetWorthModal={() => openModal("netWorth")}
+            onOpenDataAuditor={() => openModal("dataAuditor")}
+            onOpenFinancialSkills={() => openModal("financialSkills")}
+            onTogglePlanItem={handleTogglePlanItem}
             onChangeView={onChangeView}
             recurringRules={activeProfile?.recurringRules || []}
             onAddSettlement={handleAddSettlement}

@@ -143,4 +143,55 @@ describe("FinancialSkillsModal", () => {
     fireEvent.click(deleteBtn);
     expect(handleDelete).toHaveBeenCalledWith("plan-1");
   });
+
+  it("pozwala utworzyć cel oszczędnościowy w Skarbonkach z planu posiadającego targetAmount", () => {
+    const handleCreateGoal = vi.fn();
+    const handleToast = vi.fn();
+    const profileWithGoalPlan: Profile = {
+      ...mockProfile,
+      goals: [],
+      financialPlans: [
+        {
+          id: "plan-emergency",
+          skillId: "emergency-fund-builder",
+          title: "3-Etapowa Poduszka Bezpieczeństwa",
+          description: "Zbuduj poduszkę finansową",
+          status: "in_progress",
+          targetAmount: 15000,
+          createdAt: "2026-03-01T10:00:00Z",
+          items: [{ id: "step-1", title: "Krok 1", category: "cushion", completed: false }],
+        },
+      ],
+    };
+
+    render(
+      <FinancialSkillsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        profile={profileWithGoalPlan}
+        onSavePlan={vi.fn()}
+        onTogglePlanItem={vi.fn()}
+        onDeletePlan={vi.fn()}
+        onCreateGoal={handleCreateGoal}
+        showToast={handleToast}
+      />
+    );
+
+    const plansTabBtn = screen.getByRole("button", { name: /Moje Plany Działań/i });
+    fireEvent.click(plansTabBtn);
+
+    const createGoalBtn = screen.getByRole("button", { name: /Utwórz cel w Skarbonkach/i });
+    expect(createGoalBtn).toBeTruthy();
+    fireEvent.click(createGoalBtn);
+
+    expect(handleCreateGoal).toHaveBeenCalledWith({
+      name: "3-Etapowa Poduszka Bezpieczeństwa",
+      target: 15000,
+    });
+    expect(handleToast).toHaveBeenCalledWith(
+      expect.stringContaining("3-Etapowa Poduszka Bezpieczeństwa"),
+      "success"
+    );
+  });
 });
+

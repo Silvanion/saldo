@@ -16,6 +16,7 @@ import {
   Check,
   Clock,
   Coins,
+  Target,
 } from "lucide-react";
 import { Profile, FinancialActionPlan } from "../../types";
 import {
@@ -33,6 +34,8 @@ export interface FinancialSkillsModalProps {
   onSavePlan: (plan: FinancialActionPlan) => void;
   onTogglePlanItem: (planId: string, itemId: string) => void;
   onDeletePlan: (planId: string) => void;
+  onCreateGoal?: (goal: { name: string; target: number }) => void;
+  showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
 export function FinancialSkillsModal({
@@ -42,6 +45,8 @@ export function FinancialSkillsModal({
   onSavePlan,
   onTogglePlanItem,
   onDeletePlan,
+  onCreateGoal,
+  showToast,
 }: FinancialSkillsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
@@ -303,6 +308,44 @@ export function FinancialSkillsModal({
                             />
                           </div>
                         </div>
+
+                        {/* Goal Link/Create Card if plan has targetAmount */}
+                        {onCreateGoal && plan.targetAmount && plan.targetAmount > 0 && (
+                          (() => {
+                            const alreadyHasGoal = (profile.goals || []).some(
+                              (g) =>
+                                g.name.toLowerCase().trim() === plan.title.toLowerCase().trim() ||
+                                (plan.title.toLowerCase().includes("poduszka") && g.name.toLowerCase().includes("poduszk"))
+                            );
+                            return (
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-brand-subtle/40 border border-brand/20 my-3">
+                                <div className="flex items-center gap-2">
+                                  <Target className="w-4 h-4 text-brand shrink-0" />
+                                  <span className="text-xs text-text-main">
+                                    Cel oszczędnościowy: <strong className="font-bold">{formatMoney(plan.targetAmount, cur)}</strong>
+                                  </span>
+                                </div>
+                                {alreadyHasGoal ? (
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 shrink-0">
+                                    <Check className="w-3 h-3" /> W Skarbonkach
+                                  </span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      onCreateGoal({ name: plan.title, target: plan.targetAmount! });
+                                      if (showToast) showToast(`Utworzono cel "${plan.title}" w Skarbonkach!`, "success");
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all text-xs font-bold cursor-pointer shadow-xs shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+                                  >
+                                    <Target className="w-3.5 h-3.5" />
+                                    <span>Utwórz cel w Skarbonkach</span>
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })()
+                        )}
 
                         {/* Checklist of Steps */}
                         <div className="space-y-2 pt-2 border-t border-border/50">

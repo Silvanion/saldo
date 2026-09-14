@@ -27,13 +27,17 @@ import {
   Target,
   TrendingUp,
   History,
-  LayoutDashboard
+  LayoutDashboard,
+  Sparkles,
+  ListTodo,
+  ArrowRight
 } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget, FinancialHealthBridgeCard, NetWorthWidget } from "./dashboard";
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import { runDataAudit } from "../services/dataAuditor";
 
 interface Widget {
   id: string;
@@ -74,6 +78,9 @@ interface DashboardViewProps {
   onOpenBudgetModal: () => void;
   onOpenPaymentModal: () => void;
   onOpenNetWorthModal?: () => void;
+  onOpenDataAuditor?: () => void;
+  onOpenFinancialSkills?: () => void;
+  onTogglePlanItem?: (planId: string, itemId: string) => void;
   onChangeView: (view: string) => void;
   recurringRules?: RecurringRule[];
   onAddSettlement?: (entry: { amount: number; isoDate: string; note?: string }) => void;
@@ -91,6 +98,9 @@ export function DashboardView({
   onOpenBudgetModal,
   onOpenPaymentModal,
   onOpenNetWorthModal,
+  onOpenDataAuditor,
+  onOpenFinancialSkills,
+  onTogglePlanItem,
   onChangeView,
   recurringRules = [],
   onAddSettlement,
@@ -98,6 +108,18 @@ export function DashboardView({
 }: DashboardViewProps) {
   
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
+
+  const auditReport = useMemo(() => {
+    return runDataAudit(profile);
+  }, [profile]);
+
+  const activePlan = useMemo(() => {
+    return (profile?.financialPlans || []).find((p) => p.items.some((i) => !i.completed));
+  }, [profile?.financialPlans]);
+
+  const nextIncompleteItem = useMemo(() => {
+    return activePlan?.items.find((i) => !i.completed) || null;
+  }, [activePlan]);
 
   const activeDebts = useMemo(() => {
     return (profile?.debts || []).filter((d) => d && d.status !== "closed" && (Number(d.balance) || 0) > 0);
@@ -267,6 +289,96 @@ export function DashboardView({
         onDeleteSettlement={onDeleteSettlement}
         showToast={showToast}
       />
+
+      {/* Doktor Saldo Alert Banner (when anomalies detected) */}
+      {auditReport.issuesCount > 0 && onOpenDataAuditor && (
+        <div
+          id="dashboard-doctor-saldo-alert"
+          className="mb-6 bg-surface border border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-3 relative z-10"
+        >
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-xs">
+              <Database className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold text-text-main">
+                  Doktor Saldo • Wykryto niespójności w danych
+                </span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  Spójność: {auditReport.healthScore}%
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5">
+                Znaleziono {auditReport.issuesCount}{" "}
+                {auditReport.issuesCount === 1 ? "problem" : "problemów"} (np. duplikaty, brakujące kategorie). Użyj samonaprawy, aby zachować czystość bazy.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenDataAuditor}
+            id="btn-dash-open-doctor-saldo"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all text-xs font-bold shadow-xs cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Napraw w Doktor Saldo</span>
+          </button>
+        </div>
+      )}
+
+      {/* Active Financial Action Plan Strip */}
+      {activePlan && nextIncompleteItem && (
+        <div
+          id="dashboard-active-plan-strip"
+          className="mb-6 bg-surface border border-border/70 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-3 relative z-10"
+        >
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+              <ListTodo className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand">
+                  Plan: {activePlan.title}
+                </span>
+                <span className="text-[11px] font-semibold text-text-muted">
+                  • Najbliższy krok:
+                </span>
+              </div>
+              <p className="text-sm font-bold text-text-main mt-0.5 truncate" title={nextIncompleteItem.title}>
+                {nextIncompleteItem.title}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+            {onTogglePlanItem && (
+              <button
+                type="button"
+                onClick={() => {
+                  onTogglePlanItem(activePlan.id, nextIncompleteItem.id);
+                  showToast("Odznaczono krok planu działania!", "success");
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-text-main active:scale-[0.98] transition-all text-xs font-semibold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Zrobione</span>
+              </button>
+            )}
+            {onOpenFinancialSkills && (
+              <button
+                type="button"
+                onClick={onOpenFinancialSkills}
+                id="btn-dash-open-financial-plan"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-subtle hover:bg-brand/15 border border-brand/20 text-brand active:scale-[0.98] transition-all text-xs font-bold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                <span>Szczegóły planu</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {isEditMode && (
         <div className="bg-warning-subtle border border-warning/20 text-warning px-4 py-3 rounded-xl mb-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 relative z-10 ">

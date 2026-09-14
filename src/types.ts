@@ -192,6 +192,7 @@ export interface FinancialActionPlan {
   createdAt: string;
   updatedAt?: string;
   targetDate?: string;
+  targetAmount?: number;
   estimatedSavings?: number;
   items: FinancialActionPlanItem[];
 }
