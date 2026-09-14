@@ -179,4 +179,8 @@ export class NoAiProvider implements AiProvider {
   async scanInvoice(_imageBase64: string, _mimeType: string): Promise<any> {
     throw new Error("Skanowanie faktur wymaga włączenia lokalnego AI i modelu Ollama vision.");
   }
+
+  async explain(): Promise<any> {
+    throw new Error("Wyjaśnienia AI wymagają włączenia lokalnego AI (Ollama) w Ustawieniach.");
+  }
 }

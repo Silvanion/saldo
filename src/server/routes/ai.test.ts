@@ -14,7 +14,8 @@ vi.mock("../middleware/security", () => {
     cloudAiRateLimiter: passThrough,
     localAiRateLimiter: passThrough,
     noAiRateLimiter: passThrough,
-    aiPayloadLimiter: passThrough
+    aiPayloadLimiter: passThrough,
+    identifyUser: passThrough
   };
 });
 vi.mock("../services/aiService", () => ({ logCostMetric: vi.fn() }));
@@ -216,6 +217,84 @@ describe("POST /api/ai/parse-statement-image", () => {
         new URL("http://localhost:11434/api/show"),
         expect.objectContaining({ method: "POST", body: JSON.stringify({ name: "gemma3:4b" }) })
       );
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+});
+
+describe("POST /api/ai/chat", () => {
+  afterEach(() => {
+    provider = { parseStatementImage };
+    vi.restoreAllMocks();
+  });
+
+  const postChat = async (url: string) =>
+    fetch(`${url}/api/ai/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ai-mode": "local", "x-ai-local-endpoint": "http://localhost:11434/api/generate" },
+      body: JSON.stringify({ message: "Ile wydałem w tym miesiącu?", profileData: {} })
+    });
+
+  it("passes through a valid addTransaction action", async () => {
+    provider = {
+      chat: vi.fn().mockResolvedValue({
+        reply: "Dodałem propozycję transakcji.",
+        action: { type: "addTransaction", payload: { name: "Zarobki", amount: 1000, type: "income" } }
+      })
+    };
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({
+        reply: "Dodałem propozycję transakcji.",
+        action: { type: "addTransaction", payload: { name: "Zarobki", amount: 1000, type: "income" } }
+      });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("drops a malformed action but still returns the text reply", async () => {
+    provider = {
+      chat: vi.fn().mockResolvedValue({
+        reply: "Nie jestem pewien, ale spróbowałem coś zaproponować.",
+        action: { type: "deleteEverything", payload: { oops: true } }
+      })
+    };
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({
+        reply: "Nie jestem pewien, ale spróbowałem coś zaproponować.",
+        action: null
+      });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("returns action: null when the model proposes nothing", async () => {
+    provider = { chat: vi.fn().mockResolvedValue({ reply: "Wydałeś 1200 zł.", action: null }) };
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ reply: "Wydałeś 1200 zł.", action: null });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("rejects a response missing the required reply field", async () => {
+    provider = { chat: vi.fn().mockResolvedValue({ action: null }) };
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(502);
+      expect(await response.json()).toEqual({ error: "Nieprawidłowa odpowiedź modelu AI." });
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }

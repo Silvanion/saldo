@@ -17,9 +17,10 @@ interface GoalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: { name: string; target: number }) => void;
+  initialData?: { name?: string; target?: number };
 }
 
-export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
+export function GoalModal({ isOpen, onClose, onSave, initialData }: GoalModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
@@ -30,7 +31,10 @@ export function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);
+      setName(initialData?.name || "");
+      setTarget(initialData?.target ? String(initialData.target) : "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   if (!isOpen) return null;

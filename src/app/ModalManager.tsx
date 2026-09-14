@@ -26,6 +26,7 @@ const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSk
 const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
 const DataAuditorModal = lazy(() => import("../components/modals/DataAuditorModal").then(m => ({ default: m.DataAuditorModal })));
 const B2bTaxModal = lazy(() => import("../components/tax/B2bTaxModal").then(m => ({ default: m.B2bTaxModal })));
+const BugReportModal = lazy(() => import("../components/BugReportModal").then(m => ({ default: m.BugReportModal })));
 
 export function ModalManager() {
   const {
@@ -96,6 +97,7 @@ export function ModalManager() {
           isOpen={true}
           onClose={closeModal}
           onSave={onSaveGoal}
+          initialData={modalState.payload}
         />
       )}
       {modalState.type === "goalDeposit" && (
@@ -280,6 +282,16 @@ export function ModalManager() {
               initialRevenue={modalState.payload?.initialRevenue}
               initialCosts={modalState.payload?.initialCosts}
               showToast={showToast}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "bugReport" && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować formularza zgłoszeń">
+          <Suspense fallback={<ModalFallback />}>
+            <BugReportModal
+              isOpen={true}
+              onClose={closeModal}
             />
           </Suspense>
         </ErrorBoundary>

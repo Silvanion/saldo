@@ -41,6 +41,11 @@ async function createWindow(port) {
 
   // Handle external links securely
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // Pozwól na otwieranie pop-upów dla mechanizmu autoryzacji Google/Firebase
+    if (url.includes('firebaseapp.com/__/auth') || url.includes('accounts.google.com/o/oauth2')) {
+      return { action: 'allow' };
+    }
+
     if (url.startsWith('http:') || url.startsWith('https:')) {
       if (!url.startsWith(`http://localhost:${port}`)) {
         shell.openExternal(url);

@@ -3,12 +3,15 @@ import { getLocalDateIso } from "../utils";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { buildCalendarReminder } from "../services/localParsers";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
-import { Calendar, Clock, Bell, AlertCircle, Check, Loader2, X } from "lucide-react";
+import { Calendar, Clock, Bell, AlertCircle, Check, Loader2, Sparkles, X } from "lucide-react";
 import { validateCalendarEventInput } from "../services/calendarValidation";
 import { formatMoney } from "../utils/format";
+import { AppContext } from "../app/providers/AppContext";
+import { callAiApi, getAiConfig } from "../services/aiClient";
+import { ReasonCard } from "./shared/ReasonCard";
 
 interface CalendarReminderModalProps {
   isOpen: boolean;
@@ -30,13 +33,17 @@ export function CalendarReminderModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
+  const appCtx = useContext(AppContext);
+  const isAiEnabled = appCtx?.state?.aiMode === "local";
+  const [isAiSuggesting, setIsAiSuggesting] = useState(false);
 
-  
   // Suggested event fields
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("10:00");
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [recurrence, setRecurrence] = useState("none");
   const [reminders, setReminders] = useState<number[]>([1440, 120]); // default: 1 day, 2 hours
 
   // Status & loading
@@ -62,6 +69,8 @@ export function CalendarReminderModal({
       setDescription("");
       setEventDate(getLocalDateIso());
       setEventTime("10:00");
+      setIsAllDay(false);
+      setRecurrence("none");
       setReminders([1440, 120]);
       setErrorMsg(null);
       setSuccessMsg(null);
@@ -83,6 +92,33 @@ export function CalendarReminderModal({
     setEventDate(p.dueDate || getLocalDateIso());
     setEventTime(draft.suggestedTime.slice(0, 5));
     setReminders(draft.reminders);
+  };
+
+  // Optional AI-assisted version of the same suggestion, using the locally
+  // running Ollama model (see src/server/ai/providers/localProvider.ts::suggestEvent).
+  // Only ever pre-fills the form below — nothing is sent to Google Calendar here.
+  const handleAiSuggest = async () => {
+    if (!payment || isAiSuggesting) return;
+    setIsAiSuggesting(true);
+    setErrorMsg(null);
+    try {
+      const result = await callAiApi("suggest-event", {
+        payment: { name: payment.name, amount: payment.amount, dueDate: payment.dueDate },
+        currentDate: getLocalDateIso()
+      }, getAiConfig(appCtx?.state));
+
+      if (typeof result.summary === "string" && result.summary.trim()) setSummary(result.summary);
+      if (typeof result.description === "string" && result.description.trim()) setDescription(result.description);
+      if (typeof result.suggestedDate === "string" && result.suggestedDate.trim()) setEventDate(result.suggestedDate);
+      if (typeof result.suggestedTime === "string" && result.suggestedTime.trim()) setEventTime(result.suggestedTime.slice(0, 5));
+      if (Array.isArray(result.suggestedReminders) && result.suggestedReminders.length > 0) {
+        setReminders(result.suggestedReminders.filter((m: unknown) => typeof m === "number").slice(0, 5));
+      }
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Nie udało się uzyskać propozycji od AI.");
+    } finally {
+      setIsAiSuggesting(false);
+    }
   };
 
   const calculateEndTime = (timeStr: string): string => {
@@ -107,7 +143,8 @@ export function CalendarReminderModal({
       description,
       eventDate,
       eventTime,
-      reminders
+      reminders,
+      isAllDay
     });
 
     if (!validation.isValid) {
@@ -119,25 +156,38 @@ export function CalendarReminderModal({
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    const startTime = `${eventDate}T${eventTime}:00`;
-    const endTime = `${eventDate}T${calculateEndTime(eventTime)}:00`;
-
-    const event = {
+    const event: any = {
       summary: summary.trim(),
       description: description.trim(),
-      start: {
-        dateTime: startTime,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
-      end: {
-        dateTime: endTime,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
       reminders: {
         useDefault: false,
         overrides: reminders.map((min) => ({ method: "popup", minutes: min }))
       }
     };
+
+    if (isAllDay) {
+      event.start = { date: eventDate };
+      const nextDay = new Date(eventDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      event.end = { date: nextDay.toISOString().split("T")[0] };
+    } else {
+      const startTime = `${eventDate}T${eventTime}:00`;
+      const endTime = `${eventDate}T${calculateEndTime(eventTime)}:00`;
+      event.start = {
+        dateTime: startTime,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+      event.end = {
+        dateTime: endTime,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+    }
+
+    if (recurrence === "monthly") {
+      event.recurrence = ["RRULE:FREQ=MONTHLY"];
+    } else if (recurrence === "yearly") {
+      event.recurrence = ["RRULE:FREQ=YEARLY"];
+    }
 
     try {
       const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
@@ -265,11 +315,42 @@ export function CalendarReminderModal({
               {(
                 <div className="space-y-4 p-5 bg-bg-base/95 backdrop-blur-2xl border border-border rounded-2xl shadow-sm animate-fade-in relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-brand"></div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-brand" />
-                    <span className="text-xs font-medium text-text-muted">Szczegóły przypomnienia w Kalendarzu</span>
+                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-brand" />
+                      <span className="text-xs font-medium text-text-muted">Szczegóły przypomnienia w Kalendarzu</span>
+                    </div>
+                    {isAiEnabled && (
+                      <button
+                        type="button"
+                        onClick={handleAiSuggest}
+                        disabled={isAiSuggesting}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand-subtle/70 border border-brand/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
+                        id="btn-ai-suggest-calendar-event"
+                      >
+                        {isAiSuggesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                        {isAiSuggesting ? "AI proponuje..." : "Zaproponuj przez AI"}
+                      </button>
+                    )}
                   </div>
-                  
+
+                  {!isAiEnabled && (
+                    <ReasonCard
+                      className="mb-1"
+                      reason={{
+                        code: "calendar-ai-suggest-disabled",
+                        severity: "info",
+                        title: "Chcesz, by AI dopracowało treść przypomnienia?",
+                        message: "Powyższa treść jest już wygenerowana lokalnie i działa od razu. Włącz lokalne AI (Ollama) w Ustawieniach → Automatyzacja, aby dodatkowo poprosić model o bardziej dopracowaną wersję.",
+                        actionLabel: "Przejdź do Ustawień",
+                        onAction: () => {
+                          onClose();
+                          appCtx?.setActiveView("settings");
+                        }
+                      }}
+                    />
+                  )}
+
                   {/* Event Summary */}
                   <div>
                     <label className="block text-xs font-medium text-text-muted mb-1.5">Tytuł wydarzenia</label>
@@ -312,19 +393,50 @@ export function CalendarReminderModal({
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-medium text-text-muted mb-1.5">Godzina</label>
-                      <div className="relative">
-                        <Clock className="w-4 h-4 text-brand absolute left-3 top-2.5" />
-                        <input
-                          required
-                          type="time"
-                          value={eventTime}
-                          onChange={(e) => setEventTime(e.target.value)}
-                          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
-                          id="input-event-time"
-                        />
+                    {!isAllDay && (
+                      <div>
+                        <label className="block text-xs font-medium text-text-muted mb-1.5">Godzina</label>
+                        <div className="relative">
+                          <Clock className="w-4 h-4 text-brand absolute left-3 top-2.5" />
+                          <input
+                            required
+                            type="time"
+                            value={eventTime}
+                            onChange={(e) => setEventTime(e.target.value)}
+                            className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm font-bold text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring transition cursor-pointer"
+                            id="input-event-time"
+                          />
+                        </div>
                       </div>
+                    )}
+                  </div>
+
+                  {/* All Day & Recurrence */}
+                  <div className="flex items-center gap-4 bg-surface p-4 rounded-xl border border-border/70">
+                    <label className="flex items-center gap-2 cursor-pointer group flex-1">
+                      <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isAllDay ? 'bg-brand border-brand text-text-inverse' : 'border-border/70 bg-surface-2 group-hover:border-brand/50'}`}>
+                        {isAllDay && <Check className="w-3.5 h-3.5" />}
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={isAllDay} 
+                        onChange={(e) => setIsAllDay(e.target.checked)} 
+                        className="hidden" 
+                      />
+                      <span className="text-xs font-medium text-text-main group-hover:text-brand transition-colors">Całodniowe</span>
+                    </label>
+                    <div className="w-px h-6 bg-border/70"></div>
+                    <div className="flex-1 flex items-center gap-2">
+                       <span className="text-xs font-medium text-text-muted shrink-0">Powtarzaj:</span>
+                       <select
+                          value={recurrence}
+                          onChange={(e) => setRecurrence(e.target.value)}
+                          className="w-full bg-surface-2 border border-border/70 rounded-xl px-2.5 py-2 text-xs text-text-main outline-none focus:border-brand"
+                       >
+                         <option value="none">Nigdy</option>
+                         <option value="monthly">Co miesiąc</option>
+                         <option value="yearly">Co rok</option>
+                       </select>
                     </div>
                   </div>
 

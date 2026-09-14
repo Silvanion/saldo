@@ -546,3 +546,23 @@ export const loadUserStateFromFirestore = async (uid: string): Promise<AppState 
     return null;
   }
 };
+
+export const submitBugReport = async (report: { title: string; description: string; type: "bug" | "suggestion"; contactEmail?: string; appVersion?: string; screenshotBase64?: string }) => {
+  const ready = await ensureFirebaseReady();
+  if (!ready || !firestoreMod || !db) {
+    throw new Error("Brak połączenia z Firebase.");
+  }
+  
+  try {
+    const reportsCollection = firestoreMod.collection(db, "bug_reports");
+    await firestoreMod.addDoc(reportsCollection, {
+      ...report,
+      createdAt: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      status: "new"
+    });
+  } catch (error) {
+    console.error("Błąd podczas wysyłania zgłoszenia:", error);
+    throw new Error("Nie udało się wysłać zgłoszenia.");
+  }
+};

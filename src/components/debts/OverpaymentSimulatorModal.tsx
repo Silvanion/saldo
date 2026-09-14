@@ -7,6 +7,9 @@ import { formatMoney, parseAmountInput } from "../../utils/format";
 import { calculateDebtOverpaymentScenario, calculateDebtAmortizationSchedule } from "../../services/debtCalculations";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { ReasonCard } from "../shared/ReasonCard";
+import { useAiExplain } from "../../hooks/useAiExplain";
+import type { CalculationReason } from "../../types";
 
 export interface OverpaymentSimulatorModalProps {
   isOpen: boolean;
@@ -26,6 +29,7 @@ export function OverpaymentSimulatorModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
+  const { isAiEnabled, explainReason } = useAiExplain();
 
   const [amount, setAmount] = useState(() => (initialAmount !== undefined ? String(initialAmount) : "1000"));
   const [frequency, setFrequency] = useState<"monthly" | "one_time" | "yearly">(() => initialFrequency || "monthly");
@@ -178,21 +182,31 @@ export function OverpaymentSimulatorModal({
             {/* Comparison Table / Box: Baseline vs Po nadpłacie */}
             {(() => {
               if (amortizationCheck && !amortizationCheck.isEligible) {
+                const notEligibleReason: CalculationReason = {
+                  code: "overpayment-not-eligible",
+                  severity: "blocker",
+                  title: "Nie można oszacować wpływu nadpłaty",
+                  message: amortizationCheck.errorMessage || "Przy obecnych parametrach nie da się oszacować wpływu nadpłaty."
+                };
                 return (
-                  <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
-                    <p className="text-xs text-text-muted">
-                      {amortizationCheck.errorMessage || "Przy obecnych parametrach nie da się oszacować wpływu nadpłaty."}
-                    </p>
-                  </div>
+                  <ReasonCard
+                    reason={notEligibleReason}
+                    onAskAi={isAiEnabled ? () => explainReason(notEligibleReason) : undefined}
+                  />
                 );
               }
               if (parsedAmount === 0) {
+                const zeroAmountReason: CalculationReason = {
+                  code: "overpayment-amount-zero",
+                  severity: "info",
+                  title: "Wprowadź kwotę nadpłaty",
+                  message: "Wprowadź kwotę nadpłaty, aby zobaczyć porównanie."
+                };
                 return (
-                  <div className="p-4 bg-surface-2 border border-border rounded-xl text-center">
-                    <p className="text-xs text-text-muted">
-                      Wprowadź kwotę nadpłaty, aby zobaczyć porównanie.
-                    </p>
-                  </div>
+                  <ReasonCard
+                    reason={zeroAmountReason}
+                    onAskAi={isAiEnabled ? () => explainReason(zeroAmountReason) : undefined}
+                  />
                 );
               }
               if (!simulation) return null;

@@ -40,7 +40,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   const passwordMismatch = !isLogin && confirmPassword.length > 0 && password !== confirmPassword;
 
   const canSubmitRegister = !isLogin
-    ? password.length >= 6 && password === confirmPassword
+    ? passwordStrength.level >= 3 && password === confirmPassword
     : true;
 
   const handleError = (err: any) => {
@@ -330,25 +330,34 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             </div>
 
             {/* Password strength indicator — registration only */}
-            {!isLogin && password.length > 0 && (
+            {!isLogin && (
               <div className="mt-2 space-y-1">
-                <div className="flex gap-1">
-                  {[1, 2, 3].map((seg) => (
-                    <div
-                      key={seg}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
-                        passwordStrength.level >= seg ? passwordStrength.color : "bg-border"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className={`text-[11px] font-medium ${
-                  passwordStrength.level >= 3 ? "text-success" :
-                  passwordStrength.level >= 2 ? "text-warning" :
-                  "text-danger"
-                }`}>
-                  {passwordStrength.label}
-                </p>
+                {password.length > 0 && (
+                  <>
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map((seg) => (
+                        <div
+                          key={seg}
+                          className={`h-1 flex-1 rounded-full transition-colors ${
+                            passwordStrength.level >= seg ? passwordStrength.color : "bg-border"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`text-[11px] font-medium ${
+                      passwordStrength.level >= 3 ? "text-success" :
+                      passwordStrength.level >= 2 ? "text-warning" :
+                      "text-danger"
+                    }`}>
+                      {passwordStrength.label}
+                    </p>
+                  </>
+                )}
+                {passwordStrength.level < 3 && (
+                  <p className="text-[11px] font-medium text-text-faint">
+                    Wymagane: min. 8 znaków, w tym cyfra i znak specjalny.
+                  </p>
+                )}
               </div>
             )}
           </div>

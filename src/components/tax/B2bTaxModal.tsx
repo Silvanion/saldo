@@ -17,10 +17,12 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
-import { Profile } from "../../types";
+import { Profile, CalculationReason } from "../../types";
 import { formatMoney, parseAmountInput } from "../../utils/format";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { ReasonCard } from "../shared/ReasonCard";
+import { useAiExplain } from "../../hooks/useAiExplain";
 import {
   ZusTier,
   RyczaltRate,
@@ -29,6 +31,19 @@ import {
   calculateCurrentMonthTaxBuffer,
   TAX_CONSTANTS_PL,
 } from "../../services/taxCalculations";
+
+function getB2bTaxReason(revenue: number): CalculationReason | null {
+  if (revenue <= 0) {
+    return {
+      code: "b2b-no-revenue",
+      severity: "blocker",
+      title: "Brak przychodu do porównania form opodatkowania",
+      message: "Kalkulator porównuje Ryczałt, Podatek liniowy i Skalę podatkową na podstawie przychodu miesięcznego. Przy przychodzie 0 zł każda forma wychodzi identycznie (same składki bez podatku), więc wskazanie \"najbardziej opłacalnej\" formy nie miałoby sensu.",
+      missingFields: ["Przychód netto na fakturach (obecnie 0 zł)"],
+    };
+  }
+  return null;
+}
 
 export type B2bTaxTab = "comparison" | "monthly_buffer" | "calendar_tips";
 
@@ -52,6 +67,7 @@ export function B2bTaxModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
+  const { isAiEnabled, explainReason } = useAiExplain();
 
   const [activeTab, setActiveTab] = useState<B2bTaxTab>("comparison");
   const [revenue, setRevenue] = useState<number>(initialRevenue);
@@ -343,6 +359,13 @@ export function B2bTaxModal({
                   </div>
                 </div>
 
+                {getB2bTaxReason(revenue) ? (
+                  <ReasonCard
+                    reason={getB2bTaxReason(revenue)!}
+                    onAskAi={isAiEnabled ? () => explainReason(getB2bTaxReason(revenue)!) : undefined}
+                  />
+                ) : (
+                <>
                 {/* Banner Rekomendacji i Wniosków */}
                 <div
                   className="bg-brand-subtle/50 border border-brand/30 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs"
@@ -476,6 +499,8 @@ export function B2bTaxModal({
                     );
                   })}
                 </div>
+                </>
+                )}
               </div>
             )}
 

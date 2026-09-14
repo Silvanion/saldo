@@ -30,6 +30,9 @@ import {
   Briefcase
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
+import { ReasonCard } from "./shared/ReasonCard";
+import { useAiExplain } from "../hooks/useAiExplain";
+import type { CalculationReason } from "../types";
 import {
   calculate503020,
   calculateRollingTrends,
@@ -57,6 +60,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
+  const { isAiEnabled, explainReason } = useAiExplain();
 
   // Strategic simulator mode ("cushion" vs "debt")
   const [simulatorMode, setSimulatorMode] = useState<"cushion" | "debt">("cushion");
@@ -272,10 +276,10 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
     <div className="space-y-4 sm:space-y-6 pb-12 animate-fade-in" id="analysis-view-container">
       {/* Top Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-text-faint uppercase tracking-wider mb-0.5">Inteligencja Finansowa</p>
           <div className="flex items-center gap-2 mb-1.5">
-            <h2 className="text-xl sm:text-2xl font-bold text-text-main truncate">Analiza i Prognozy ({monthName} {currentYear})</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-text-main">Analiza i Prognozy ({monthName} {currentYear})</h2>
           </div>
         </div>
         
@@ -404,6 +408,22 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           </span>
         </div>
 
+        {breakdown503020.totalExpense <= 0 ? (() => {
+          const budgetRuleReason: CalculationReason = {
+            code: "503020-no-expenses",
+            severity: "info",
+            title: "Brak wydatków w wybranym miesiącu",
+            message: "Reguła 50/30/20 dzieli Twoje wydatki na kategorie Potrzeb, Zachcianek i Oszczędności — bez żadnej zarejestrowanej transakcji wydatkowej nie ma czego podzielić, więc wynik 0% we wszystkich kolumnach nie oznacza \"idealnego budżetu\", tylko brak danych.",
+            actionLabel: "Dodaj transakcję wydatku",
+            onAction: () => onChangeView?.("transactions")
+          };
+          return (
+          <ReasonCard
+            reason={budgetRuleReason}
+            onAskAi={isAiEnabled ? () => explainReason(budgetRuleReason) : undefined}
+          />
+          );
+        })() : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {/* Needs (50%) */}
           <div className="p-3.5 sm:p-4 rounded-xl border border-border bg-surface-2 space-y-2 shadow-xs">
@@ -478,6 +498,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
             </div>
           </div>
         </div>
+        )}
       </div>
 
       {/* 2-Column Grid: Rolling Trends (Left) & Strategic Simulators (Right) */}

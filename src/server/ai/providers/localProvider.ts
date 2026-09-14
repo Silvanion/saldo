@@ -1,6 +1,44 @@
 import { getLocalDateIso } from "../../../utils";
 import { parseStatementText } from "../../../services/localParsers";
+import {
+  generateDebtPayoffPlan,
+  generateEmergencyFundPlan,
+  generateSubscriptionAuditPlan,
+  generateBudget503020Plan
+} from "../../../services/financialSkills";
+import { Profile, FinancialActionPlan } from "../../../types";
 import { AiProvider } from "../types";
+
+/**
+ * Lightweight keyword intent match, mapping a chat message to one of the
+ * deterministic "Financial Skills" plan generators (src/services/financialSkills.ts).
+ * Order matters: debt/cushion/subscription are checked before the generic
+ * budget keywords so a message like "pomóż spłacić dług" doesn't fall through
+ * to the 50/30/20 rebalance.
+ */
+function matchFinancialSkillGenerator(message: string): ((profile: Profile) => FinancialActionPlan) | null {
+  const text = message.toLowerCase();
+  if (/dług|dlug|zadłuż|zadluz|kredyt.*spłac|spłat.*kredyt|spłac.*rat/.test(text)) {
+    return (profile) => generateDebtPayoffPlan(profile);
+  }
+  if (/poduszk|fundusz awaryjny|fundusz bezpiecz|na czarną godzinę|awaryjn/.test(text)) {
+    return (profile) => generateEmergencyFundPlan(profile);
+  }
+  if (/subskryp|abonament/.test(text)) {
+    return (profile) => generateSubscriptionAuditPlan(profile);
+  }
+  if (/50\s*\/\s*30\s*\/\s*20|rebalans|zbalansow.*budż|zbalansow.*budz/.test(text)) {
+    return (profile) => generateBudget503020Plan(profile);
+  }
+  return null;
+}
+
+/** Picks the profile the chat should reason/compute about, matching the shape sent by AiChatModal. */
+function pickActiveProfile(profileData: any): Profile | null {
+  if (!profileData?.profiles?.length) return null;
+  const found = profileData.profiles.find((p: any) => p.id === profileData.activeProfileId);
+  return (found || profileData.profiles[0]) as Profile;
+}
 
 export class LocalProvider implements AiProvider {
   private endpoint: string;
@@ -173,8 +211,27 @@ Kwota: ${payment.amount}
 Termin: ${payment.dueDate}
 Dzisiejsza data: ${currentDate || getLocalDateIso()}
 
-Wymagane pola JSON: summary (np. "💸 Płatność: [Nazwa] ([Kwota])"), description (stworzony profesjonalny szablon z przypomnieniem o kwocie, dacie i dodaną krótką, przyjazną poradą finansową), suggestedTime (HH:MM:SS), reminders (tablica liczb, minuty np [1440, 120]). Zwróć tylko prawidłowy obiekt JSON.`;
-    return this.callLocalApi(prompt, true);
+Zwróć WYŁĄCZNIE JSON z dokładnie tymi polami:
+{
+  "summary": "np. 💸 Płatność: [Nazwa] ([Kwota])",
+  "description": "profesjonalny szablon z przypomnieniem o kwocie, dacie i krótką, przyjazną poradą finansową",
+  "suggestedDate": "YYYY-MM-DD, zwykle termin płatności",
+  "suggestedTime": "HH:MM:SS",
+  "suggestedReminders": [tablica liczb w minutach przed wydarzeniem, np. 1440, 120]
+}`;
+    const result = await this.callLocalApi(prompt, true);
+    // Normalize: tolerate a model that names the last field "reminders" (older
+    // prompt shape) and default suggestedDate to the payment's own due date.
+    const suggestedReminders = Array.isArray(result?.suggestedReminders)
+      ? result.suggestedReminders
+      : (Array.isArray(result?.reminders) ? result.reminders : undefined);
+    return {
+      summary: result?.summary,
+      description: result?.description,
+      suggestedDate: this.isRealIsoDate(result?.suggestedDate) ? result.suggestedDate : payment.dueDate,
+      suggestedTime: result?.suggestedTime,
+      suggestedReminders
+    };
   }
 
   async parseNatural(text: string, currentDate: string): Promise<any> {
@@ -243,11 +300,57 @@ Jeśli nie ma transakcji, zwróć {"transactions":[]}. Zwróć tylko prawidłowy
   }
 
   async chat(message: string, profileData: any): Promise<any> {
-    const prompt = `Jesteś doradcą "Saldo". Odpowiadaj zwięźle i profesjonalnie.
-Profil użytkownika (do kontekstu, zanonimizowany): ${JSON.stringify(profileData)}.
+    // If the message matches a known financial-skill intent (debt payoff, emergency
+    // fund, subscription audit, 50/30/20 rebalance), compute the REAL plan with the
+    // same deterministic engine as the "Plany Działania" tool (financialSkills.ts)
+    // instead of letting the model guess numbers from scratch.
+    const skillGenerator = matchFinancialSkillGenerator(message);
+    const activeProfile = skillGenerator ? pickActiveProfile(profileData) : null;
+    let computedPlan: FinancialActionPlan | null = null;
+    if (skillGenerator && activeProfile) {
+      try {
+        computedPlan = skillGenerator(activeProfile);
+      } catch (err) {
+        console.error("[LocalProvider] Financial skill grounding failed, falling back to freeform chat:", err);
+      }
+    }
+
+    const groundingBlock = computedPlan
+      ? `\n\nDOKŁADNE WYLICZENIE (przygotowane przez deterministyczny silnik finansowy aplikacji — NIE licz własnych liczb, oprzyj odpowiedź WYŁĄCZNIE na tych faktach):\n${JSON.stringify(computedPlan)}\n\nOpisz ten plan użytkownikowi w polu "reply" (tytuł, uzasadnienie, kluczowe kroki z podanymi kwotami). W polu "action" zawsze zwróć null w tym wypadku — aplikacja sama doda przycisk zapisania tego planu.`
+      : "";
+
+    const prompt = `Jesteś asystentem finansowym AI w aplikacji "Saldo".
+Oprócz odpowiadania na pytania, możesz zaproponować JEDNĄ akcję w imieniu użytkownika — otworzy ona formularz WSTĘPNIE WYPEŁNIONY Twoją propozycją, ale to użytkownik musi go ręcznie zatwierdzić. Nigdy nic nie zapisuje się automatycznie.
+Zwracaj odpowiedź w formacie JSON zawierającym dwa pola:
+{
+  "reply": "Twoja odpowiedź tekstowa na pytanie użytkownika",
+  "action": null // LUB dokładnie jeden z poniższych obiektów akcji
+}
+
+Dostępne akcje (podaj tylko pola, które faktycznie wynikają z rozmowy — reszta zostanie uzupełniona przez użytkownika):
+- {"type": "addTransaction", "payload": {"name": "Zarobki", "amount": 1000, "type": "income", "category": "Wynagrodzenie", "isoDate": "2024-10-10"}} — dodanie transakcji (type to "income" lub "expense").
+- {"type": "addPayment", "payload": {"name": "Czynsz", "amount": 1800, "dueDate": "2024-11-10", "category": "Dom i rachunki"}} — dodanie rachunku/subskrypcji do zapłacenia.
+- {"type": "addGoal", "payload": {"name": "Poduszka finansowa", "target": 15000}} — założenie nowego celu oszczędnościowego.
+
+Jeśli żadna akcja nie pasuje do prośby użytkownika, zwróć "action": null. Zawsze zwróć poprawny JSON zgodny dokładnie z jednym z powyższych kształtów — źle sformatowana akcja zostanie odrzucona i użytkownik zobaczy tylko Twoją odpowiedź tekstową.
+${groundingBlock}
+
+WAŻNE: Otrzymujesz poniżej pełne dane profilu użytkownika (transakcje, cykliczne płatności/subskrypcje, cele).
+NIGDY nie pytaj użytkownika o te dane (np. o listę subskrypcji czy zarobki). Zamiast tego, PRZEANALIZUJ dostarczony obiekt JSON i na jego podstawie udziel odpowiedzi.
+
+Dane profilu użytkownika (do analizy):
+${JSON.stringify(profileData)}
+
 Pytanie użytkownika: ${message}`;
-    
-    return this.callLocalApi(prompt, false);
+
+    const result = await this.callLocalApi(prompt, true);
+
+    // Override whatever the model proposed for "action" with the real, computed
+    // plan — the LLM only ever supplies the prose, never the numbers, for this path.
+    if (computedPlan && result && typeof result === "object") {
+      return { reply: result.reply, action: { type: "createFinancialPlan", payload: computedPlan } };
+    }
+    return result;
   }
 
   async scanInvoice(imageBase64: string, mimeType: string): Promise<any> {
@@ -272,5 +375,24 @@ Pytanie użytkownika: ${message}`;
       dueDate: result?.dueDate,
       category: result?.category
     };
+  }
+
+  async explain(reasonCode: string, title: string, message: string, missingFields?: string[]): Promise<any> {
+    const fieldsBlock = missingFields && missingFields.length > 0
+      ? `\nBrakujące dane: ${missingFields.join(", ")}.`
+      : "";
+    const prompt = `Jesteś asystentem finansowym w aplikacji "Saldo". Użytkownik widzi w interfejsie następujący komunikat, tłumaczący dlaczego dane narzędzie nie pokazuje wyniku:
+
+Tytuł: ${title}
+Treść: ${message}${fieldsBlock}
+
+Napisz w 1-2 krótkich zdaniach (po polsku, bezpośrednio do użytkownika, bez powtarzania powyższego tytułu/treści słowo w słowo) dodatkowe, konkretne wyjaśnienie ORAZ następny krok, który użytkownik może wykonać. Zwróć wyłącznie JSON: {"explanation": "..."}.`;
+
+    const result = await this.callLocalApi(prompt, true);
+    const explanation = typeof result?.explanation === "string" ? result.explanation : null;
+    if (!explanation) {
+      throw new Error("Lokalny model nie zwrócił poprawnego wyjaśnienia.");
+    }
+    return { explanation };
   }
 }

@@ -642,7 +642,8 @@ export function RefinanceComparisonModal({
                               }`}
                             >
                               <span
-                                className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md border ${badge.className}`}
+                                title={item.result.comparison.statusReason}
+                                className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md border cursor-help ${badge.className}`}
                               >
                                 {badge.label}
                               </span>

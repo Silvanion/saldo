@@ -1,4 +1,26 @@
 import rateLimit from "express-rate-limit";
+import { getAuth } from "firebase-admin/auth";
+
+// Populates req.user from a Firebase ID token when the client sends one (see
+// src/services/aiClient.ts, which always attaches `Authorization: Bearer <idToken>`
+// when the user is signed in). Verification failures never block the request —
+// local/offline AI usage without a Firebase session must keep working — they just
+// leave req.user unset, so downstream rate limiting/cost logging falls back to IP.
+export const identifyUser = async (req: any, _res: any, next: any) => {
+  const header = req.headers.authorization;
+  if (typeof header === "string" && header.startsWith("Bearer ")) {
+    const token = header.slice("Bearer ".length).trim();
+    if (token) {
+      try {
+        const decoded = await getAuth().verifyIdToken(token);
+        req.user = { uid: decoded.uid };
+      } catch {
+        // Invalid/expired token — proceed unauthenticated rather than failing the request.
+      }
+    }
+  }
+  next();
+};
 
 // Protects local AI endpoints (moderately strict, max 30 requests per minute per user/IP)
 export const localAiRateLimiter = rateLimit({

@@ -3,6 +3,9 @@ import { DelayedTooltip } from "./DelayedTooltip";
 import { SafeToSpendBreakdown, RunwayCalculation, MoMTrend } from "../../services/budgetCalculations";
 import { formatMoney } from "../../utils/format";
 import { TrendingUp, TrendingDown, Wallet, CalendarClock, ShieldCheck, Hourglass, AlertTriangle, ArrowRight, ChevronRight } from "lucide-react";
+import { ReasonCard } from "../shared/ReasonCard";
+import { useAiExplain } from "../../hooks/useAiExplain";
+import type { CalculationReason } from "../../types";
 
 interface StatsWidgetProps {
   currency: string;
@@ -33,6 +36,7 @@ export const StatsWidget = memo(function StatsWidget({
   onChangeView,
   middleRowSlot
 }: StatsWidgetProps) {
+  const { isAiEnabled, explainReason } = useAiExplain();
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* LEVEL 1: Core Financial Metrics (3-column grid) */}
@@ -312,13 +316,15 @@ export const StatsWidget = memo(function StatsWidget({
                           ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/40"
                           : runway.status === "warning"
                           ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/40"
+                          : runway.status === "infinite"
+                          ? "bg-surface-2 text-text-muted border-border"
                           : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40"
                       }`}
                     >
                       {runway.status === "critical" && "Ryzyko płynności"}
                       {runway.status === "warning" && "Umiarkowana ochrona"}
                       {runway.status === "healthy" && "Wysoka ochrona"}
-                      {runway.status === "infinite" && "Pełna niezależność"}
+                      {runway.status === "infinite" && "Brak danych o wydatkach"}
                     </span>
                   </div>
                   <p className="text-xs text-text-muted font-medium truncate" title="Liczba miesięcy, na ile wystarczą Twoje rezerwy i oszczędności przy obecnym tempie wydatków.">
@@ -337,6 +343,24 @@ export const StatsWidget = memo(function StatsWidget({
               </button>
             </div>
 
+            {runway.status === "infinite" ? (() => {
+              const runwayReason: CalculationReason = {
+                code: "runway-no-expense-history",
+                severity: "info",
+                title: "Za mało danych, by wyliczyć poduszkę płynności",
+                message: `Masz zgromadzone ${formatMoney(runway.liquidAssets, currency)} płynnych środków, ale bez żadnych zarejestrowanych wydatków w ostatnich miesiącach aplikacja nie może wyliczyć Twojego tempa spalania gotówki (burn rate) — stąd brak liczby miesięcy poniżej.`,
+                actionLabel: "Dodaj pierwszą transakcję wydatku",
+                onAction: () => onChangeView("transactions")
+              };
+              return (
+              <div className="mt-4 pt-4 border-t border-border/60 relative z-10">
+                <ReasonCard
+                  reason={runwayReason}
+                  onAskAi={isAiEnabled ? () => explainReason(runwayReason) : undefined}
+                />
+              </div>
+              );
+            })() : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/60 relative z-10">
               <div className="bg-surface-2/60 p-3 rounded-lg border border-border/50 min-w-0 flex flex-col">
                 <span className="text-[11px] uppercase font-semibold text-text-muted block mb-0.5">Długość poduszki</span>
@@ -357,6 +381,7 @@ export const StatsWidget = memo(function StatsWidget({
                 </span>
               </div>
             </div>
+            )}
           </div>
         )}
       </div>

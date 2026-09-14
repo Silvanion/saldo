@@ -32,13 +32,10 @@ import {
 
 import {
   MockScreenShot,
-  MockDashboardVisual,
-  MockAnalysisVisual,
   MockCurrencyVisual,
   MockSettlementVisual,
-  MockCommandPaletteVisual,
-  MockDebtsVisual,
-  MockLocalAiVisual
+  MockLocalAiVisual,
+  Screenshot
 } from "../components/help/HelpVisuals";
 
 export const helpCategories = [
@@ -116,9 +113,12 @@ export const helpSectionsData: HelpSectionData[] = [
           Witamy w Saldo! Aplikacja została zaprojektowana w modelu <strong className="text-text-main">Local-First</strong> z myślą o maksymalnej przejrzystości i ochronie Twojej płynności finansowej. Poniżej znajduje się zestaw pierwszych kroków:
         </p>
 
-        <MockScreenShot
-          title="Aplikacja Saldo — Wskazówki nawigacji"
-          badge="Interfejs użytkownika"
+        <Screenshot
+          title="Pulpit Główny — Saldo"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/02-dashboard.png"
+          alt="Pulpit Saldo z widocznymi przychodami, wydatkami, bilansem oraz kondycją finansową"
+          caption="Prawdziwy widok Pulpitu po dodaniu kilku transakcji: karty Przychody / Wydatki / Bilans, ocena Kondycji finansowej oraz prognoza na koniec miesiąca."
           steps={[
             {
               step: 1,
@@ -136,9 +136,15 @@ export const helpSectionsData: HelpSectionData[] = [
               description: "Zobacz swój bilans na Pulpicie — aplikacja od razu wyliczy ile możesz bezpiecznie wydać po odliczeniu opłat."
             }
           ]}
-        >
-          <MockDashboardVisual />
-        </MockScreenShot>
+        />
+
+        <Screenshot
+          title="Dodaj transakcję"
+          badge="Formularz"
+          src="/assets/help/03-add-transaction-modal.png"
+          alt="Formularz dodawania nowej transakcji z polami kwoty, opisu, kategorii i konta"
+          caption="Ten formularz otwierasz przyciskiem 'Dodaj wpis' w górnym pasku lub skrótem klawiszowym z Palety Komend (⌘K)."
+        />
       </>
     )
   },
@@ -155,9 +161,13 @@ export const helpSectionsData: HelpSectionData[] = [
           Paleta Komend umożliwia błyskawiczne sterowanie aplikacją Saldo bez odrywania rąk od klawiatury. Otworzysz ją z dowolnego miejsca za pomocą skrótu <strong>Cmd+K</strong> (Mac), <strong>Ctrl+K</strong> (Windows/Linux) lub naciskając klawisz <strong>/</strong> (slash).
         </p>
 
-        <MockScreenShot title="Wyszukiwarka transakcji i nawigacja" badge="Paleta ⌘K">
-          <MockCommandPaletteVisual />
-        </MockScreenShot>
+        <Screenshot
+          title="Paleta Komend"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/04-command-palette.png"
+          alt="Otwarta Paleta Komend z listą dostępnych akcji i wyszukiwarką"
+          caption="Zacznij pisać, aby przefiltrować akcje i widoki, albo od razu wpisz nazwę transakcji, by przejść do wyszukiwania."
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
@@ -185,9 +195,13 @@ export const helpSectionsData: HelpSectionData[] = [
           Pulpit Główny w Saldo to Twoje centrum dowodzenia. Każdy wskaźnik pełni ściśle określoną rolę chroniącą Cię przed wpadnięciem w dołek finansowy:
         </p>
 
-        <MockScreenShot title="Pulpit Finansowy i Wskaźniki Płynności" badge="Algorytmy Saldo">
-          <MockDashboardVisual />
-        </MockScreenShot>
+        <Screenshot
+          title="Pulpit Finansowy i Wskaźniki Płynności"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/02-dashboard.png"
+          alt="Pulpit Saldo z kartami Prognoza na koniec miesiąca, Bezpieczna Kwota do Wydania i Runway"
+          caption="Karty 'Prognoza na koniec miesiąca', 'Bezpieczna Kwota do Wydania' i 'Runway (Poduszka Płynności)' aktualizują się automatycznie po każdej zmianie w transakcjach i rachunkach."
+        />
 
         <div className="space-y-3">
           <div className="p-4 bg-surface rounded-xl border border-border shadow-xs space-y-2">
@@ -233,9 +247,13 @@ export const helpSectionsData: HelpSectionData[] = [
           Moduł analityczny w Saldo łączy analizę historyczną z symulatorami strategicznymi (50/30/20, Poduszka 3/6/12M oraz Kaskada Kuli Śnieżnej):
         </p>
 
-        <MockScreenShot title="Wzorce finansowe i symulatory strategiczne" badge="Analizy Finansowe">
-          <MockAnalysisVisual />
-        </MockScreenShot>
+        <Screenshot
+          title="Analiza i Prognozy"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/11-analysis.png"
+          alt="Widok Analizy z oceną Kondycji finansowej oraz skrótami do kalkulatora B2B, Planów Działania i Saldo Wrapped"
+          caption="Górny pasek widoku Analiza daje dostęp do eksportu raportu PDF, Planów Działania (Claude Skills), Saldo Wrapped oraz Kalkulatora B2B i Podatków."
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div className="p-3.5 bg-surface border border-border/70 rounded-xl space-y-1 shadow-xs">
@@ -286,6 +304,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Od czego zacząć?</span>
           <p className="text-text-muted">Zacznij od dodania wszystkich swoich kredytów za pomocą przycisku "Dodaj zobowiązanie".</p>
         </div>
+
+        <Screenshot
+          title="Kredyty i Hipoteka — Portfel zobowiązań"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/10-debts.png"
+          alt="Widok Kredyty i Hipoteka z KPI portfela, paskiem postępu spłaty i sygnałami decyzyjnymi"
+          caption="Górny pasek KPI (Łączne saldo, Miesięczna obsługa, Pozostałe odsetki, WACD) oraz cztery zakładki: Portfel zobowiązań, Scenariusze & Strategie, Oferty & Refinansowanie, Wiedza & Benchmarki."
+        />
       </div>
     )
   },
@@ -312,6 +338,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: Brakujące dane</span>
           <p className="text-text-muted">Jeśli nie podasz np. raty i oprocentowania, system nie wyliczy harmonogramu ani daty końcowej, a zobowiązanie będzie traktowane jak zwykła kwota do zapłaty bez prognozowania odsetek.</p>
         </div>
+
+        <Screenshot
+          title="Kredyty i Hipoteka — po dodaniu zobowiązania"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/10-debts.png"
+          alt="Widok portfela zobowiązań z jednym dodanym kredytem hipotecznym i przyciskiem Dodaj zobowiązanie"
+          caption="Przycisk '+ Dodaj zobowiązanie' w prawym górnym rogu otwiera formularz z polami Nazwa, Bank, Aktualne saldo, Rata i Oprocentowanie."
+        />
       </div>
     )
   },
@@ -336,6 +370,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: Wskaźniki to szacunki</span>
           <p className="text-text-muted">KPI są wyliczane na bieżąco na podstawie dostarczonych danych lokalnych. Część wartości to modele analityczne (szacunki oparte o stałą kwotę raty), a braki danych wpłyną na ich precyzję.</p>
         </div>
+
+        <Screenshot
+          title="Pasek KPI portfela zobowiązań"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/10-debts.png"
+          alt="Osiem kart KPI portfela zobowiązań: łączne saldo, miesięczna obsługa, pozostałe odsetki, WACD, najdroższy dług, najbliższa płatność, refi alert i potencjał nadpłaty"
+          caption="Osiem kart w górnej części ekranu daje natychmiastowy przegląd kondycji całego portfela, bez wchodzenia w szczegóły pojedynczych kredytów."
+        />
       </div>
     )
   },
@@ -358,6 +400,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Nie istnieje jedna uniwersalnie "najlepsza" strategia – wybór to często kompromis pomiędzy matematyczną optymalizacją (Lawina) a motywacją z widocznych postępów (Kula Śnieżna).
         </p>
+
+        <Screenshot
+          title="Scenariusze & Strategie — Symulator portfela"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/14-debts-strategies.png"
+          alt="Zakładka Scenariusze i Strategie z symulatorem strategii spłaty całego portfela oraz suwakiem dodatkowego budżetu na nadpłatę"
+          caption="Zakładka 'Scenariusze & Strategie' pozwala ustawić dodatkowy budżet na nadpłatę i od razu zobaczyć wynik dla obu strategii."
+        />
       </div>
     )
   },
@@ -379,6 +429,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: To tylko symulacje</span>
           <p className="text-text-muted">Wyniki What-If są wyłącznie szacunkami matematycznymi i narzędziem do eksploracji wariantów, a nie gwarancją konkretnych kwot w wybranym banku.</p>
         </div>
+
+        <Screenshot
+          title="Symulacja wariantowa (What-If)"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/14-debts-strategies.png"
+          alt="Panel symulatora strategii spłaty portfela z opcjonalnym przełącznikiem Symulacja wariantowa (What-If)"
+          caption="Przełącznik 'Symulacja wariantowa (What-If)' (oznaczony jako Opcjonalnie) znajduje się bezpośrednio pod suwakiem dodatkowego budżetu na nadpłatę."
+        />
       </div>
     )
   },
@@ -408,6 +466,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: Limity danych</span>
           <p className="text-text-muted">Wartości ujemne nie są akceptowane, a wpłaty zaplanowane po zredukowaniu całego zadłużenia do zera nie wpływają już na wyniki kalkulacji.</p>
         </div>
+
+        <Screenshot
+          title="Dodatkowy budżet na nadpłatę"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/14-debts-strategies.png"
+          alt="Pole dodatkowego budżetu na nadpłatę z szybkimi przyciskami +0, +200, +500, +1000, +2000 zł"
+          caption="Szybkie przyciski (+200 zł, +500 zł, +1000 zł...) i pole liczbowe pozwalają szybko przetestować różne kwoty jednorazowych lub cyklicznych nadpłat."
+        />
       </div>
     )
   },
@@ -432,6 +498,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: Wykres to projekcja</span>
           <p className="text-text-muted">Zastrzegamy, że wykres nie przewiduje przyszłych zmian stóp procentowych ani opłat i prowizji bankowych. Jest to matematyczna projekcja estymująca tempo redukcji długu.</p>
         </div>
+
+        <Screenshot
+          title="Postęp spłaty portfela i kamień milowy"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/10-debts.png"
+          alt="Pasek postępu spłaty portfela zadłużenia oraz karta najbliższego kamienia milowego"
+          caption="Pasek 'Postęp spłaty portfela zadłużenia' i karta 'Najbliższy kamień milowy' na ekranie Portfel zobowiązań dają szybki podgląd postępu — szczegółowy wykres DebtPayoffChart znajdziesz po wejściu w konkretne zobowiązanie."
+        />
       </div>
     )
   },
@@ -453,6 +527,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne: Narzędzie edukacyjne</span>
           <p className="text-text-muted">Pamiętaj, że symulator stanowi narzędzie edukacyjne, a nie oficjalną poradę finansową. Banki mogą stosować inne mechanizmy zaliczania wpłat.</p>
         </div>
+
+        <Screenshot
+          title="Symulator strategii spłaty portfela"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/14-debts-strategies.png"
+          alt="Symulator strategii spłaty całego portfela z podaną łączną miesięczną wpłatą"
+          caption="Widok pokazuje symulator na poziomie całego portfela. Symulator nadpłaty dla pojedynczego kredytu znajdziesz po wejściu w jego szczegóły — działa na tej samej zasadzie."
+        />
       </div>
     )
   },
@@ -470,6 +552,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           W zakładce <strong>Oferty & Refinansowanie</strong> możesz zestawić ze sobą kilka zapisanych scenariuszy (lub ofert z innego banku), by czytelnie porównać całkowite koszty i oszczędności czasu. Wyniki bazują zawsze na profilu danych obecnym w momencie uruchomienia porównania.
         </p>
+
+        <Screenshot
+          title="Zapisane scenariusze"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/14-debts-strategies.png"
+          alt="Sekcja Zapisane scenariusze (0/5) z przyciskami Porównaj scenariusze i Zapisz bieżący plan"
+          caption="Przycisk 'Zapisz bieżący plan' zachowuje aktualne ustawienia symulatora. Możesz zapisać do 5 wariantów i porównać dowolne dwa z nich przyciskiem 'Porównaj scenariusze'."
+        />
       </div>
     )
   },
@@ -491,6 +581,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <span className="font-semibold text-text-main block">Ważne</span>
           <p className="text-text-muted">Kalkulacje mają charakter pomocniczy. Aplikacja nie dysponuje aktualnymi stawkami z rynku i nie składa zapytań do banków; wszystkie parametry wprowadzasz ręcznie.</p>
         </div>
+
+        <Screenshot
+          title="Refi Alert"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/10-debts.png"
+          alt="Karta Refi Alert na ekranie portfela zobowiązań sygnalizująca kandydata do weryfikacji ofert refinansowania"
+          caption="Karta 'Refi Alert' w pasku KPI od razu sygnalizuje, które zobowiązanie warto zweryfikować pod kątem refinansowania — szczegóły znajdziesz w sekcji 'Struktura portfela i sygnały decyzyjne' poniżej."
+        />
       </div>
     )
   },
@@ -511,6 +609,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <li>Karty kredytowe z reguły nie są uwzględniane w algorytmach spłat (Avalanche/Snowball) z uwagi na brak stałego oprocentowania i planu amortyzacji - spłacaj je priorytetowo poza główną ścieżką.</li>
           <li>Dane mogą podlegać standardowym zaokrągleniom rachunkowym (co do grosza).</li>
         </ul>
+
+        <Screenshot
+          title="Wiedza & Benchmarki"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/15-debts-knowledge.png"
+          alt="Zakładka Wiedza i Benchmarki z orientacyjnymi danymi rynkowymi dla kredytów hipotecznych w Polsce"
+          caption="Zakładka 'Wiedza & Benchmarki' zestawia Twój kredyt z orientacyjnymi danymi rynkowymi (LTV, marże) — to dobre miejsce, by sprawdzić założenia i ograniczenia kalkulacji."
+        />
       </div>
     )
   },
@@ -529,6 +635,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <MockScreenShot title="Przelicznik walutowy NBP w Saldo" badge="Kursy oficjalne">
           <MockCurrencyVisual />
         </MockScreenShot>
+
+        <Screenshot
+          title="Wybór waluty przy dodawaniu transakcji"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/03-add-transaction-modal.png"
+          alt="Formularz dodawania transakcji z rozwijaną listą walut PLN, EUR, USD, GBP"
+          caption="W formularzu 'Dodaj transakcję' rozwijana lista 'Waluta' pozwala wybrać PLN, EUR, USD lub GBP — kwota zostanie automatycznie przeliczona po kursie średnim NBP z dnia operacji."
+        />
 
         <ul className="list-disc pl-5 space-y-2 text-xs">
           <li><strong>Waluta bazowa profilu:</strong> PLN, EUR, USD, GBP lub CHF z dedykowanym formatowaniem kwot.</li>
@@ -549,6 +663,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Księga transakcji gromadzi całą historię wpływów i wydatków. Wyciągi bankowe możesz importować w formacie CSV jednym ruchem:
         </p>
+
+        <Screenshot
+          title="Księga Transakcji"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/06-transactions.png"
+          alt="Widok Historia transakcji z listą wpisów, filtrami i panelem raportowania po tagach"
+          caption="Przyciski 'Importuj' i 'Eksportuj' znajdują się nad tabelą. Panel po prawej ('Wydatki według tagów') pozwala grupować i filtrować wydatki po własnych etykietach."
+        />
 
         <div className="p-4 bg-surface border border-border rounded-xl text-xs space-y-2 shadow-xs">
           <span className="font-bold text-text-main block">Dedykowane presety bankowe w Polsce:</span>
@@ -588,6 +710,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="text-xs text-text-muted leading-relaxed">
           Oznaczając rachunek jako <strong>opłacony</strong>, aplikacja automatycznie tworzy powiązaną transakcję wyjściową w Księdze Transakcji, oszczędzając Twój czas.
         </p>
+
+        <Screenshot
+          title="Rachunki i Subskrypcje"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/07-payments.png"
+          alt="Widok Płatności z czterema kartami horyzontów czasowych i listą zaplanowanych opłat"
+          caption="Cztery karty na górze (Zaległe, Na dzisiaj, Najbliższe 7 dni, Najbliższe 30 dni) filtrują listę poniżej. Przycisk '+ Dodaj nową opłatę' tworzy nowy cykliczny rachunek lub subskrypcję."
+        />
       </div>
     )
   },
@@ -614,6 +744,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <span><strong>100%+ limitu:</strong> Czerwone ostrzeżenie i propozycja korekty na Pulpicie.</span>
           </div>
         </div>
+
+        <Screenshot
+          title="Budżety miesięczne"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/08-budget.png"
+          alt="Widok Budżet z kartami kategorii Żywność, Dom i rachunki, Transport, Rozrywka oraz wykorzystaniem limitu"
+          caption="Każda karta kategorii pokazuje kwotę wydaną w miesiącu, procent wykorzystania limitu oraz listę ostatnich transakcji z tej kategorii. Przycisk 'Modyfikuj limity' otwiera edycję wszystkich progów naraz."
+        />
       </div>
     )
   },
@@ -637,6 +775,14 @@ export const helpSectionsData: HelpSectionData[] = [
             Wpisy w sekcji inwestycji i celów mają charakter wyłącznie ewidencyjny. Nie powiększają kwoty <em>Safe-to-Spend</em> ani nie zniekształcają miesięcznego bilansu operacyjnego.
           </div>
         </div>
+
+        <Screenshot
+          title="Cele Finansowe i Inwestycje"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/09-goals.png"
+          alt="Widok Cele i oszczędności z panelem Majątek Netto na górze oraz sekcją Cele oszczędnościowe poniżej"
+          caption="Panel 'Majątek Netto' na górze rozbija Twój kapitał na środki płynne, inwestycje i zobowiązania. Sekcja 'Cele oszczędnościowe' poniżej — przycisk '+ Nowy cel' zakłada nową skarbonkę z kwotą docelową."
+        />
       </div>
     )
   },
@@ -651,6 +797,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Saldo umożliwia posiadanie wielu odizolowanych profili finansowych w ramach jednej aplikacji (np. "Mój budżet prywatny" oraz "Wspólny budżet z partnerem"):
         </p>
+
+        <Screenshot
+          title="Ustawienia Saldo — Profile"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/12-settings.png"
+          alt="Widok Ustawień z sekcją Profile i Blokada PIN w lewym menu oraz odznaką Bez PIN w nagłówku"
+          caption="Odznaki w nagłówku Ustawień ('Budżet Domowy (PLN)', 'Local-First', 'Bez PIN') pokazują stan aktywnego profilu. Kliknij 'Profile & Blokada PIN' w menu po lewej, aby zarządzać profilami i kodem PIN."
+        />
 
         <MockScreenShot title="Rozliczenia w Profilu Wspólnym" badge="Split 50/50">
           <MockSettlementVisual />
@@ -686,6 +840,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <li><strong>Google Drive Auto-Sync:</strong> Bezpieczna synchronizacja z plikiem <code className="bg-surface px-1 py-0.5 rounded border border-border">saldo_budget.json</code> w prywatnym katalogu Twojego Dysku Google.</li>
           <li><strong>Raporty PDF i CSV:</strong> Eksportuj comiesięczne estetyczne zestawienia gotowe do druku lub analizy w Excelu.</li>
         </ul>
+
+        <Screenshot
+          title="Ustawienia Saldo — Centrum Usług Google"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/12-settings.png"
+          alt="Widok Ustawień z Centrum Usług Google i informacją o architekturze Local-First"
+          caption="Sekcja 'Centrum Usług Google' wyjaśnia model Local-First: Twoje finanse są Twoje, a połączenie z Google jedynie synchronizuje dane między urządzeniami przez Twój prywatny Dysk."
+        />
       </div>
     )
   },
@@ -701,6 +863,14 @@ export const helpSectionsData: HelpSectionData[] = [
         <p className="leading-relaxed">
           Podstawowe rozpoznawanie kwot, dat i kategorii działa w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych. Opcjonalne lokalne AI (Ollama) działa na Twoim komputerze. Jeśli używasz trybu chmurowego na własnym wdrożeniu, dane są wysyłane do skonfigurowanego dostawcy AI — przed użyciem sprawdź ustawienia prywatności.
         </p>
+
+        <Screenshot
+          title="Doradca finansowy AI"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/05-ai-chat.png"
+          alt="Otwarte okno Doradcy finansowego AI z polem do wpisania pytania oraz skrótami Skills"
+          caption="Przycisk 'Doradca AI' w górnym pasku otwiera czat, który odpowiada na pytania o Twój budżet i może zaproponować konkretną akcję (np. dodanie transakcji) do Twojej akceptacji. Przyciski 'Skills' u dołu to gotowe podpowiedzi pytań."
+        />
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
           <li>
@@ -772,6 +942,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <strong>Oś Czasu (Timeline):</strong> śledzenie trajektorii wzrostu kapitału miesiąc do miesiąca z dynamiką procentową.
           </li>
         </ul>
+
+        <Screenshot
+          title="Majątek Netto (Net Worth)"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/09-goals.png"
+          alt="Panel Majątek Netto z podziałem na środki płynne, kapitał inwestycyjny i zobowiązania ogółem"
+          caption="Panel 'Majątek Netto' na górze widoku Cele i oszczędności pokazuje rozbicie na Środki płynne i cele, Kapitał inwestycyjny oraz Zobowiązania ogółem, wraz ze strukturą klas aktywów poniżej."
+        />
       </div>
     )
   },
@@ -808,6 +986,14 @@ export const helpSectionsData: HelpSectionData[] = [
             <strong>Śledzenie na Pulpicie:</strong> najbliższy krok z checklisty wyświetla się bezpośrednio na ekranie głównym z przyciskiem szybkiego odznaczenia.
           </li>
         </ul>
+
+        <Screenshot
+          title="Wejście do Planów Działania"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/11-analysis.png"
+          alt="Przycisk Plany i Umiejętności (Claude Skills) w górnym pasku widoku Analiza"
+          caption="Przycisk 'Plany i Umiejętności (Claude Skills)' w widoku Analiza otwiera centrum planów działania — możesz go też wywołać wpisując '+ Nowy plan' w Palecie Komend."
+        />
       </div>
     )
   },
@@ -833,6 +1019,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <li><strong>Karta Lidera Saldo:</strong> estetyczna karta wykonawcza z podsumowaniem kluczowych liczb.</li>
           <li><strong>Natywny Eksport PNG:</strong> możliwość pobrania dowolnej karty jako pliku graficznego o wysokiej rozdzielczości (1080x1920) za pomocą jednego kliknięcia.</li>
         </ul>
+
+        <Screenshot
+          title="Wejście do Saldo Wrapped"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/11-analysis.png"
+          alt="Przycisk Saldo Wrapped (Story) w górnym pasku widoku Analiza"
+          caption="Przycisk 'Saldo Wrapped (Story)' w widoku Analiza generuje serię kart na podstawie danych z bieżącego miesiąca."
+        />
       </div>
     )
   },
@@ -858,6 +1052,14 @@ export const helpSectionsData: HelpSectionData[] = [
           <li><strong>Desynchronizacja Skarbonek:</strong> przelicza sumę wpłat na cele z historią transferów i koryguje zaokrąglenia.</li>
           <li><strong>Automatyczne Bezpieczeństwo (Undo):</strong> przed każdą naprawą tworzona jest migawka stanu, co pozwala natychmiast cofnąć operację skrótem <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-[11px] font-mono">Ctrl+Z</kbd> / <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-[11px] font-mono">Cmd+Z</kbd>.</li>
         </ul>
+
+        <Screenshot
+          title="Kondycja finansowa na Pulpicie"
+          badge="Zrzut ekranu aplikacji"
+          src="/assets/help/02-dashboard.png"
+          alt="Karta Kondycja finansowa na Pulpicie z wynikiem punktowym i odznaką jakości danych"
+          caption="Karta 'Kondycja finansowa' na Pulpicie to punkt wejścia do Doktora Saldo — gdy wykryje anomalie w danych, pojawi się tu alert z przyciskiem uruchamiającym automatyczną diagnostykę i naprawę."
+        />
       </div>
     )
   }

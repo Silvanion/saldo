@@ -4,6 +4,7 @@ export interface CalendarEventInput {
   eventDate: string;
   eventTime: string;
   reminders: number[];
+  isAllDay?: boolean;
 }
 
 export interface ValidationResult {
@@ -20,8 +21,10 @@ export function validateCalendarEventInput(input: CalendarEventInput): Validatio
     return { isValid: false, error: "Wybierz prawidłową datę wydarzenia w formacie YYYY-MM-DD." };
   }
 
-  if (!input.eventTime || !/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(input.eventTime)) {
-    return { isValid: false, error: "Wybierz prawidłową godzinę wydarzenia w formacie HH:MM." };
+  if (!input.isAllDay) {
+    if (!input.eventTime || !/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(input.eventTime)) {
+      return { isValid: false, error: "Wybierz prawidłową godzinę wydarzenia w formacie HH:MM." };
+    }
   }
 
   if (Array.isArray(input.reminders) && input.reminders.length > 5) {

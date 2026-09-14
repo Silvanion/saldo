@@ -32,9 +32,10 @@ import {
   FileSpreadsheet,
   Plus,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Bug
 } from "lucide-react";
-import PWABadge from "./PWABadge";
+
 
 const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
 
@@ -396,6 +397,21 @@ export function AppShell({
               <Settings className="w-4 h-4 shrink-0" />
               {"Ustawienia"}
             </span>
+          </button>
+
+          <button
+            onClick={() => {
+              openModal("bugReport");
+              setIsMobileMenuOpen(false);
+            }}
+            className="flex items-center justify-between w-full px-3.5 py-2 mb-3 bg-surface-2/60 border border-border/70 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all group cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20">
+                <Bug className="w-3.5 h-3.5" strokeWidth={1.75} />
+              </span>
+              <span className="text-xs font-semibold text-text-main group-hover:text-orange-500">Zgłoś błąd / Sugestię</span>
+            </div>
           </button>
 
           <button

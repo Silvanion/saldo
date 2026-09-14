@@ -39,13 +39,14 @@ export type ModalType =
   | "financialStory"
   | "dataAuditor"
   | "b2bTax"
+  | "bugReport"
   | null;
 
 export type ModalState =
   // payload z "id" oznacza edycję; payload bez "id" to wypełnienie wstępne nowego wpisu.
   | { type: "transaction"; payload?: Transaction | Partial<Transaction> }
   | { type: "payment"; payload?: Payment | Partial<Payment> }
-  | { type: "goal" }
+  | { type: "goal"; payload?: { name?: string; target?: number } }
   | { type: "goalDeposit"; payload: Goal }
   | { type: "profile" }
   | { type: "pin" }
@@ -61,4 +62,5 @@ export type ModalState =
   | { type: "financialStory"; payload?: { year?: number; monthIdx?: number } }
   | { type: "dataAuditor" }
   | { type: "b2bTax"; payload?: { initialRevenue?: number; initialCosts?: number } }
+  | { type: "bugReport" }
   | { type: null };

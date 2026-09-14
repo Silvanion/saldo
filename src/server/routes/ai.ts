@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { localAiRateLimiter, noAiRateLimiter, aiPayloadLimiter } from "../middleware/security";
+import { localAiRateLimiter, noAiRateLimiter, aiPayloadLimiter, identifyUser } from "../middleware/security";
 import { createAiProvider } from "../ai/createAiProvider";
 import { logCostMetric } from "../services/aiService";
+import { AiChatAction } from "../../services/aiActions";
 import { z } from "zod";
 
 const router = Router();
@@ -73,6 +74,7 @@ const routeSecurityByMode = (req: any, res: Response, next: NextFunction) => {
 };
 
 // Apply pipeline globally to AI router
+router.use(identifyUser);
 router.use(extractAndValidateAiConfig);
 router.use(aiPayloadLimiter);
 router.use(routeSecurityByMode);
@@ -264,7 +266,34 @@ const ChatInput = z.object({
         dueDate: z.string().optional(),
         status: z.string().optional()
       })).max(50).optional(),
-      budgets: z.record(z.string(), z.number()).optional()
+      budgets: z.record(z.string(), z.number()).optional(),
+      currency: z.string().optional(),
+      // Below: only what src/services/financialSkills.ts (deterministic plan
+      // generators) and calculateRunway() actually read — kept intentionally
+      // narrow like the fields above, not the full Profile shape.
+      debts: z.array(z.object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+        institution: z.string().optional(),
+        balance: z.number().optional(),
+        interestRate: z.number().optional(),
+        monthlyPayment: z.number().optional(),
+        status: z.string().optional()
+      }).passthrough()).max(50).optional(),
+      goals: z.array(z.object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+        saved: z.number().optional()
+      }).passthrough()).max(50).optional(),
+      investments: z.array(z.object({
+        type: z.string().optional(),
+        name: z.string().optional(),
+        amount: z.number().optional()
+      }).passthrough()).max(50).optional(),
+      recurringRules: z.array(z.object({
+        type: z.string().optional(),
+        isActive: z.boolean().optional()
+      }).passthrough()).max(100).optional()
     })).max(20).optional()
   }).optional()
 });
@@ -315,6 +344,22 @@ const ParseStatementOutput = z.union([
 
 const ChatOutput = z.object({
   reply: z.string()
+}).passthrough();
+
+// Validates the optional `action` the model may propose, without failing the
+// whole /chat response if the action shape is wrong — a bad action is simply
+// dropped (and logged) so the user still gets the text reply. See
+// src/services/aiActions.ts for the shared client/server action contract.
+
+const ExplainInput = z.object({
+  reasonCode: z.string().min(1).max(100),
+  title: z.string().min(1).max(300),
+  message: z.string().min(1).max(1000),
+  missingFields: z.array(z.string().max(200)).max(10).optional()
+});
+
+const ExplainOutput = z.object({
+  explanation: z.string().min(1)
 }).passthrough();
 
 const ScanInvoiceOutput = z.object({
@@ -465,10 +510,52 @@ router.post("/chat", checkProductionAiMode, async (req: any, res: Response) => {
     const provider = createAiProvider(req.aiConfig);
     const rawResult = await provider.chat(parsedInput.message, parsedInput.profileData);
     const result = ChatOutput.parse(rawResult);
+
+    let action: z.infer<typeof AiChatAction> | null = null;
+    if (result.action) {
+      const actionParsed = AiChatAction.safeParse(result.action);
+      if (actionParsed.success) {
+        action = actionParsed.data;
+      } else {
+        console.warn("[AI Chat] Model proposed an action with an invalid shape, dropping it:", actionParsed.error.message);
+      }
+    }
+
     logCostMetric("/chat", uid, ip, parsedInput.message.length, true);
-    res.json(result);
+    res.json({ reply: result.reply, action });
   } catch (error: any) {
     logCostMetric("/chat", uid, ip, 0, false);
+    if (error instanceof z.ZodError) {
+      return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
+    }
+    const message = process.env.NODE_ENV === "production" ? "Błąd silnika AI." : (error.message || "Błąd silnika AI.");
+    res.status(500).json({ error: message });
+  }
+});
+
+/**
+ * Endpoint: Explain a deterministic CalculationReason in natural language.
+ * Optional AI layer over the always-available deterministic reason text
+ * shown by <ReasonCard> (src/components/shared/ReasonCard.tsx).
+ */
+router.post("/explain", checkProductionAiMode, async (req: any, res: Response) => {
+  const uid = req.user?.uid;
+  const ip = req.ip || "unknown";
+  let parsedInput;
+  try {
+    parsedInput = ExplainInput.parse(req.body);
+  } catch (error) {
+    return res.status(400).json({ error: "Błędne dane wejściowe." });
+  }
+
+  try {
+    const provider = createAiProvider(req.aiConfig);
+    const rawResult = await provider.explain(parsedInput.reasonCode, parsedInput.title, parsedInput.message, parsedInput.missingFields);
+    const result = ExplainOutput.parse(rawResult);
+    logCostMetric("/explain", uid, ip, parsedInput.message.length, true);
+    res.json({ explanation: result.explanation });
+  } catch (error: any) {
+    logCostMetric("/explain", uid, ip, 0, false);
     if (error instanceof z.ZodError) {
       return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
     }

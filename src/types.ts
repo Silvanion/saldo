@@ -242,3 +242,27 @@ export interface AppState {
 
 export type AppLanguage = "pl" | "en";
 export type SupportedCurrency = "PLN" | "EUR" | "USD" | "GBP";
+
+/**
+ * Severity of a CalculationReason — drives the icon/color of ReasonCard.
+ * "blocker": the tool cannot produce a result at all.
+ * "warning": a result exists but is degenerate/unreliable.
+ * "info": purely informational context (e.g. AI-only feature is off).
+ */
+export type ReasonSeverity = "info" | "warning" | "blocker";
+
+/**
+ * Structured explanation for why a calculator/tool produced no (or a
+ * misleading) result, and what the user can do about it. Rendered by
+ * <ReasonCard> (src/components/shared/ReasonCard.tsx). `code` is a stable
+ * identifier usable as a cache key / AI-explain-endpoint input.
+ */
+export interface CalculationReason {
+  code: string;
+  severity: ReasonSeverity;
+  title: string;
+  message: string;
+  missingFields?: string[];
+  actionLabel?: string;
+  onAction?: () => void;
+}

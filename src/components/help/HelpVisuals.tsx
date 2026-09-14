@@ -3,7 +3,6 @@ import {
   ShieldCheck,
   Zap,
   TrendingUp,
-  TrendingDown,
   Wallet,
   Clock,
   Users,
@@ -17,7 +16,6 @@ import {
   Sparkles,
   Search,
   Target,
-  Landmark,
   Cpu
 } from "lucide-react";
 
@@ -71,6 +69,55 @@ export function MockScreenShot({ title, badge, children, steps }: MockScreenShot
       </div>
 
       {/* Step by Step Action Markers */}
+      {steps && steps.length > 0 && (
+        <div className="bg-surface p-4 sm:p-5 border-t border-border grid gap-2.5 sm:grid-cols-2">
+          {steps.map((s) => (
+            <StepHighlight key={s.step} step={s.step} label={s.label} description={s.description} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export interface ScreenshotProps {
+  title: string;
+  badge?: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  steps?: StepHighlightProps[];
+}
+
+/**
+ * Renders a real, captured screenshot of the Saldo app in the same "browser window"
+ * chrome as MockScreenShot, with an optional caption explaining what's shown.
+ */
+export function Screenshot({ title, badge, src, alt, caption, steps }: ScreenshotProps) {
+  return (
+    <div className="my-5 border border-border rounded-2xl overflow-hidden bg-bg-base shadow-sm text-text-main">
+      <div className="bg-surface px-4 py-2.5 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <div className="w-2.5 h-2.5 rounded-full bg-border" />
+          <span className="text-xs font-bold text-text-muted ml-2">{title}</span>
+        </div>
+        {badge && (
+          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 bg-surface-2 text-text-muted border border-border rounded-md shadow-xs">
+            {badge}
+          </span>
+        )}
+      </div>
+
+      <img src={src} alt={alt} loading="lazy" className="w-full h-auto block" />
+
+      {caption && (
+        <p className="px-4 sm:px-5 py-3 text-xs text-text-muted border-t border-border bg-surface leading-relaxed">
+          {caption}
+        </p>
+      )}
+
       {steps && steps.length > 0 && (
         <div className="bg-surface p-4 sm:p-5 border-t border-border grid gap-2.5 sm:grid-cols-2">
           {steps.map((s) => (
@@ -263,59 +310,6 @@ export function MockCommandPaletteVisual() {
           <span>+ Dodaj nową transakcję</span>
           <span className="text-[10px] font-mono text-text-faint">Enter</span>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Mock UI: Kredyty i Hipoteka — portfel zobowiązań, KPI i porównanie strategii spłaty
- */
-export function MockDebtsVisual() {
-  return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Łączne saldo</span>
-          <div className="text-base font-black text-text-main tabular-nums mt-0.5">300 000 zł</div>
-        </div>
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Miesięczna obsługa</span>
-          <div className="text-base font-black text-text-main tabular-nums mt-0.5">2 200 zł</div>
-        </div>
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Pozostałe odsetki</span>
-          <div className="text-base font-black text-danger tabular-nums mt-0.5">246 471 zł</div>
-        </div>
-        <div className="p-3 bg-surface rounded-xl border border-border shadow-xs">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Śr. koszt długu</span>
-          <div className="text-base font-black text-text-main tabular-nums mt-0.5">6,5%</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="p-3.5 bg-surface rounded-xl border border-border shadow-xs space-y-1.5">
-          <div className="flex items-center gap-1.5 font-bold text-text-main">
-            <TrendingDown className="w-3.5 h-3.5 text-brand" />
-            Lawina (Avalanche)
-          </div>
-          <p className="text-text-muted text-[11px]">Priorytet: najwyższe oprocentowanie najpierw — mniej odsetek łącznie.</p>
-        </div>
-        <div className="p-3.5 bg-surface rounded-xl border border-border shadow-xs space-y-1.5">
-          <div className="flex items-center gap-1.5 font-bold text-text-main">
-            <Zap className="w-3.5 h-3.5 text-brand" />
-            Kula Śnieżna (Snowball)
-          </div>
-          <p className="text-text-muted text-[11px]">Priorytet: najmniejsze saldo najpierw — szybkie psychologiczne zwycięstwa.</p>
-        </div>
-      </div>
-
-      <div className="p-3 bg-brand-subtle border border-brand/20 rounded-xl flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
-          <Landmark className="w-4 h-4 text-brand shrink-0" />
-          <span className="text-brand font-medium">Nadpłata +500 zł/mies. skróci okres spłaty o:</span>
-        </div>
-        <strong className="text-brand font-black tabular-nums">3 lata 2 mies.</strong>
       </div>
     </div>
   );
