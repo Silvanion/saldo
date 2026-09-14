@@ -29,8 +29,9 @@ if (getApps().length === 0) {
   }
 }
 
-async function startServer() {
+export async function startServer(customPort?: number) {
   const app = express();
+  const actualPort = customPort || PORT;
 
   // Security Middleware
   app.set("trust proxy", 1); // For express-rate-limit to work correctly behind proxy
@@ -133,7 +134,7 @@ async function startServer() {
     // Production static files
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    app.get(/.*/, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
@@ -151,11 +152,17 @@ async function startServer() {
     });
   });
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+  return new Promise((resolve, reject) => {
+    const server = app.listen(actualPort, "0.0.0.0", () => {
+      console.log(`Server running on http://0.0.0.0:${actualPort}`);
+      resolve(server);
+    });
+    server.on('error', reject);
   });
 }
 
-startServer().catch((err) => {
-  console.error("Failed to start server:", err);
-});
+if (process.env.IS_ELECTRON !== "true") {
+  startServer().catch((err) => {
+    console.error("Failed to start server:", err);
+  });
+}
