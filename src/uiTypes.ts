@@ -38,6 +38,7 @@ export type ModalType =
   | "financialSkills"
   | "financialStory"
   | "dataAuditor"
+  | "b2bTax"
   | null;
 
 export type ModalState =
@@ -59,4 +60,5 @@ export type ModalState =
   | { type: "financialSkills" }
   | { type: "financialStory"; payload?: { year?: number; monthIdx?: number } }
   | { type: "dataAuditor" }
+  | { type: "b2bTax"; payload?: { initialRevenue?: number; initialCosts?: number } }
   | { type: null };

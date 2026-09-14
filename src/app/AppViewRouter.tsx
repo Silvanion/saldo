@@ -334,6 +334,7 @@ export function AppViewRouter({
             onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
             onOpenFinancialSkills={() => openModal("financialSkills")}
             onOpenFinancialStory={(year, monthIdx) => openModal("financialStory", { year, monthIdx })}
+            onOpenB2bTax={() => openModal("b2bTax")}
           />
         );
       case "settings":

@@ -256,5 +256,53 @@ test.describe("Smoke: Core Application Flow", () => {
     await page.locator("#btn-close-mortgage-pro").click();
     await expect(page.locator("#mortgage-pro-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("I. B2B & Polish Tax Engine Flow: opens tax calculator, compares Ryczałt vs Linear vs Scale, verifies tax buffer and recommendations", async ({ page }) => {
+    await setupApp(page);
+
+    // 1. Navigate to Analysis view
+    await navigateToView(page, "analysis");
+    await expect(page.locator("#analysis-view-container")).toBeVisible({ timeout: 5000 });
+
+    // 2. Click B2B Tax button
+    const taxBtn = page.locator("#btn-open-b2b-tax");
+    await expect(taxBtn).toBeVisible({ timeout: 5000 });
+    await taxBtn.click();
+
+    // 3. Verify B2B Tax Modal opened
+    const modalTitle = page.locator("#b2b-tax-modal-title");
+    await expect(modalTitle).toBeVisible({ timeout: 5000 });
+    await expect(modalTitle).toContainText("Kalkulator Podatkowy & B2B / JDG");
+
+    // 4. Verify Tab 1: Comparison & Recommendation Banner
+    await expect(page.locator("#tax-comparison-content")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#tax-recommendation-banner")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#tax-cards-grid")).toBeVisible();
+    await expect(page.getByText(/Podatek Liniowy \(19%\)/i).first()).toBeVisible();
+    await expect(page.getByText(/Skala Podatkowa \(12% \/ 32%\)/i).first()).toBeVisible();
+
+    // 5. Test Revenue adjustment
+    const revenueInput = page.locator("#input-tax-revenue");
+    await revenueInput.fill("28000");
+
+    // 6. Switch to Tab 2: Monthly Buffer & Set Aside calculation
+    const bufferTab = page.locator("#tab-tax-monthly-buffer");
+    await bufferTab.click();
+    await expect(page.locator("#tax-monthly-buffer-content")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#val-tax-buffer-total")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Przelew ZUS \(DRA\)/i).first()).toBeVisible();
+    await expect(page.getByText(/Zaliczka PIT do Urzędu Skarbowego/i).first()).toBeVisible();
+
+    // 7. Switch to Tab 3: Calendar & Tips
+    const tipsTab = page.locator("#tab-tax-calendar-tips");
+    await tipsTab.click();
+    await expect(page.locator("#tax-calendar-tips-content")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/20\. dzień każdego miesiąca/i).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/25\. dzień każdego miesiąca/i).first()).toBeVisible({ timeout: 5000 });
+
+    // 8. Close Modal
+    await page.locator("#btn-close-b2b-tax").click();
+    await expect(modalTitle).not.toBeVisible({ timeout: 5000 });
+  });
 });
 

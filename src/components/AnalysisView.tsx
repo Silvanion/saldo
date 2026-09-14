@@ -26,7 +26,8 @@ import {
   ChevronRight,
   Eye,
   Calendar,
-  Brain
+  Brain,
+  Briefcase
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 import {
@@ -49,9 +50,10 @@ interface AnalysisViewProps {
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
   onOpenFinancialSkills?: () => void;
   onOpenFinancialStory?: (year?: number, monthIdx?: number) => void;
+  onOpenB2bTax?: () => void;
 }
 
-export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports, onOpenFinancialSkills, onOpenFinancialStory }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports, onOpenFinancialSkills, onOpenFinancialStory, onOpenB2bTax }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -323,8 +325,56 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
               <span>Saldo Wrapped (Story)</span>
             </button>
           )}
+          {onOpenB2bTax && (
+            <button
+              onClick={onOpenB2bTax}
+              type="button"
+              className="w-full sm:w-auto bg-surface hover:bg-surface-offset text-text-muted hover:text-text-main border border-border font-bold py-2.5 sm:py-2 px-4 rounded-xl active:scale-[0.98] transition-all shadow-xs text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-open-b2b-tax"
+              title="Kalkulator podatkowy B2B & JDG (Ryczałt, Liniowy, Skala, ZUS)"
+            >
+              <Briefcase className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand" />
+              <span>Kalkulator B2B & Podatki</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* B2B & JDG Tax Optimizer Quick Banner */}
+      {onOpenB2bTax && (
+        <div
+          className="bg-surface border border-brand/30 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          id="b2b-tax-quick-card"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-2xs">
+              <Briefcase className="w-5 h-5 text-brand" strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-text-main tracking-tight">
+                  Kalkulator Podatkowy & B2B / JDG (Polska)
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-brand-subtle text-brand text-[10px] font-bold border border-brand/20">
+                  2025/2026
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5">
+                Porównaj Ryczałt, Podatek liniowy i Skalę, wylicz ZUS i składkę zdrowotną oraz zaplanuj rezerwę na podatki.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenB2bTax}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand text-text-inverse hover:bg-brand/90 active:scale-[0.98] transition-all text-xs font-bold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+            id="btn-open-b2b-tax-banner"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Uruchom Kalkulator B2B</span>
+          </button>
+        </div>
+      )}
 
       {/* Financial Health Score & Alerts Section */}
       <FinancialHealthSection

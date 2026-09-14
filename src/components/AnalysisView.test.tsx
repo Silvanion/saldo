@@ -252,6 +252,22 @@ describe("AnalysisView (full polish)", () => {
     fireEvent.click(storyBtn);
     expect(onOpenFinancialStoryMock).toHaveBeenCalledWith(testDate.getFullYear(), testDate.getMonth());
   });
+
+  it("calls onOpenB2bTax when clicking B2B tax button", () => {
+    const onOpenB2bTaxMock = vi.fn();
+    render(
+      <AnalysisView
+        profile={mockProfile}
+        selectedDate={testDate}
+        onOpenB2bTax={onOpenB2bTaxMock}
+      />
+    );
+
+    const taxBtn = screen.getByRole("button", { name: /Kalkulator B2B & Podatki/i });
+    expect(taxBtn).toBeTruthy();
+    fireEvent.click(taxBtn);
+    expect(onOpenB2bTaxMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 

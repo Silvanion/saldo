@@ -25,6 +25,7 @@ const NetWorthModal = lazy(() => import("../components/modals/NetWorthModal").th
 const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
 const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
 const DataAuditorModal = lazy(() => import("../components/modals/DataAuditorModal").then(m => ({ default: m.DataAuditorModal })));
+const B2bTaxModal = lazy(() => import("../components/tax/B2bTaxModal").then(m => ({ default: m.B2bTaxModal })));
 
 export function ModalManager() {
   const {
@@ -264,6 +265,20 @@ export function ModalManager() {
               onClose={closeModal}
               profile={activeProfile}
               onApplyRepair={handleApplyAuditRepair}
+              showToast={showToast}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "b2bTax" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować kalkulatora podatkowego B2B">
+          <Suspense fallback={<ModalFallback />}>
+            <B2bTaxModal
+              isOpen={true}
+              onClose={closeModal}
+              profile={activeProfile}
+              initialRevenue={modalState.payload?.initialRevenue}
+              initialCosts={modalState.payload?.initialCosts}
               showToast={showToast}
             />
           </Suspense>
