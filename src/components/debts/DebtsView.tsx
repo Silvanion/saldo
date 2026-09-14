@@ -22,6 +22,7 @@ import {
 } from "./DebtDetailsModal";
 import { OverpaymentSimulatorModal } from "./OverpaymentSimulatorModal";
 import { RefinanceComparisonModal } from "./RefinanceComparisonModal";
+import { MortgageProModal } from "./MortgageProModal";
 import { DebtFormModal } from "./DebtFormModal";
 import { DebtImportModal } from "./DebtImportModal";
 import { DebtScenarioChooserModal } from "./DebtScenarioChooserModal";
@@ -228,6 +229,8 @@ export function DebtsView({
   const [selectedDebtForOverpayment, setSelectedDebtForOverpayment] = useState<DebtItem | null>(null);
   const [overpaymentInitialAmount, setOverpaymentInitialAmount] = useState<number | undefined>(undefined);
   const [selectedDebtForRefinance, setSelectedDebtForRefinance] = useState<DebtItem | null>(null);
+  const [isMortgageProOpen, setIsMortgageProOpen] = useState<boolean>(false);
+  const [mortgageProDebtId, setMortgageProDebtId] = useState<string | undefined>(undefined);
 
   // SPRINT 39: Per-debt in-memory payment history filter preset / session persistence
   const [historySessionFiltersByDebt, setHistorySessionFiltersByDebt] = useState<
@@ -1101,6 +1104,46 @@ export function DebtsView({
             </div>
           </div>
 
+          {/* Mortgage Pro Center Action Banner */}
+          {debts.some((d) => d.type === "mortgage" && d.status !== "closed") && (
+            <div
+              className="bg-surface border border-brand/30 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              id="mortgage-pro-banner"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Sparkles className="w-5 h-5 text-brand" strokeWidth={1.75} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-bold text-text-main tracking-tight">
+                      Centrum Hipoteczne Mortgage Pro
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full bg-brand-subtle text-brand text-[10px] font-bold border border-brand/20">
+                      PRO
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-muted mt-0.5">
+                    Stress-test stóp KNF (+300 pb), kalkulator wakacji kredytowych z dźwignią nadpłaty, porównanie rat malejących i monitor LTV.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  const firstMortgage = debts.find((d) => d.type === "mortgage" && d.status !== "closed");
+                  setMortgageProDebtId(firstMortgage?.id);
+                  setIsMortgageProOpen(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand text-text-inverse hover:bg-brand/90 active:scale-[0.98] transition-all text-xs font-bold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+                id="btn-open-mortgage-pro-hub"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Uruchom Mortgage Pro</span>
+              </button>
+            </div>
+          )}
+
           {/* Cards Grid / Empty State */}
           {filteredDebts.length === 0 ? (
             debts.length === 0 ? (
@@ -1417,6 +1460,10 @@ export function DebtsView({
             setSelectedDebtForDetails(null);
             setSelectedDebtForRefinance(d);
           }}
+          onOpenMortgagePro={(id) => {
+            setMortgageProDebtId(id);
+            setIsMortgageProOpen(true);
+          }}
         />
       )}
 
@@ -1494,6 +1541,15 @@ export function DebtsView({
           }}
         />
       )}
+
+      {/* MODAL 10: MORTGAGE PRO */}
+      <MortgageProModal
+        isOpen={isMortgageProOpen}
+        onClose={() => setIsMortgageProOpen(false)}
+        debts={debts}
+        initialDebtId={mortgageProDebtId}
+        onUpdateDebt={onUpdateDebt}
+      />
     </div>
   );
 }

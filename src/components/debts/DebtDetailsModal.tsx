@@ -94,6 +94,7 @@ interface DebtDetailsModalProps {
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
   onOpenTxModal?: (tx: Transaction) => void;
   onSaveHistoryFilters?: (debtId: string, filters: DebtPaymentHistorySessionFilters) => void;
+  onOpenMortgagePro?: (debtId: string) => void;
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -109,6 +110,7 @@ export function DebtDetailsModal({
   onUpdateTransaction,
   onOpenTxModal,
   onSaveHistoryFilters,
+  onOpenMortgagePro,
   showToast
 }: DebtDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -521,13 +523,27 @@ export function DebtDetailsModal({
               </div>
             </div>
 
-            <button
-              onClick={onClose}
-              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
-              aria-label="Zamknij szczegóły"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {debt.type === "mortgage" && onOpenMortgagePro && (
+                <button
+                  type="button"
+                  onClick={() => onOpenMortgagePro(debt.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-subtle text-brand hover:bg-brand/15 border border-brand/20 text-xs font-bold transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  id="btn-open-mortgage-pro-from-details"
+                  title="Otwórz Centrum Hipoteczne Mortgage Pro"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Mortgage Pro</span>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
+                aria-label="Zamknij szczegóły"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Internal Navigation Tabs */}
