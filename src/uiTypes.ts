@@ -35,6 +35,7 @@ export type ModalType =
   | "smartRulesManager"
   | "exportReports"
   | "netWorth"
+  | "financialSkills"
   | null;
 
 export type ModalState =
@@ -53,4 +54,5 @@ export type ModalState =
   | { type: "smartRulesManager" }
   | { type: "exportReports"; payload?: { initialTab?: "pdf" | "csv" | "backup" } }
   | { type: "netWorth" }
+  | { type: "financialSkills" }
   | { type: null };

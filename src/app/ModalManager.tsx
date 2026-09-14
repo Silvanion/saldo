@@ -22,6 +22,7 @@ const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRule
 const ExportReportsModal = lazy(() => import("../components/modals/ExportReportsModal").then(m => ({ default: m.ExportReportsModal })));
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const NetWorthModal = lazy(() => import("../components/modals/NetWorthModal").then(m => ({ default: m.NetWorthModal })));
+const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
 
 export function ModalManager() {
   const {
@@ -37,7 +38,10 @@ export function ModalManager() {
     closeDriveConflictModal,
     showToast,
     handleToggleSmartRule,
-    handleDeleteSmartRule
+    handleDeleteSmartRule,
+    handleSaveFinancialPlan,
+    handleTogglePlanItem,
+    handleDeleteFinancialPlan
   } = useApp();
 
   const onSaveTransaction = (data: any) => {
@@ -215,6 +219,20 @@ export function ModalManager() {
               onClose={closeModal}
               profile={activeProfile}
               onChangeView={(v) => setActiveView(v as any)}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "financialSkills" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować umiejętności finansowych">
+          <Suspense fallback={<ModalFallback />}>
+            <FinancialSkillsModal
+              isOpen={true}
+              onClose={closeModal}
+              profile={activeProfile}
+              onSavePlan={handleSaveFinancialPlan}
+              onTogglePlanItem={handleTogglePlanItem}
+              onDeletePlan={handleDeleteFinancialPlan}
             />
           </Suspense>
         </ErrorBoundary>

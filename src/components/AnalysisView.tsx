@@ -25,7 +25,8 @@ import {
   ExternalLink,
   ChevronRight,
   Eye,
-  Calendar
+  Calendar,
+  Brain
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 import {
@@ -46,9 +47,10 @@ interface AnalysisViewProps {
   showToast?: (msg: string, type?: "success" | "error" | "info") => void;
   onChangeView?: (view: string) => void;
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
+  onOpenFinancialSkills?: () => void;
 }
 
-export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports, onOpenFinancialSkills }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -296,6 +298,18 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
             <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand" />
             <span>Eksportuj raport PDF</span>
           </button>
+          {onOpenFinancialSkills && (
+            <button
+              onClick={onOpenFinancialSkills}
+              type="button"
+              className="w-full sm:w-auto bg-surface hover:bg-surface-offset text-text-muted hover:text-text-main border border-border font-bold py-2.5 sm:py-2 px-4 rounded-xl active:scale-[0.98] transition-all shadow-xs text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-open-financial-skills"
+              title="Centrum Umiejętności Finansowych i Planów Działania"
+            >
+              <Brain className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand" />
+              <span>Plany i Umiejętności (Claude Skills)</span>
+            </button>
+          )}
         </div>
       </div>
 

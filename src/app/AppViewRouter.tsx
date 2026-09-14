@@ -328,6 +328,7 @@ export function AppViewRouter({
             showToast={showToast}
             onChangeView={onChangeView}
             onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
+            onOpenFinancialSkills={() => openModal("financialSkills")}
           />
         );
       case "settings":

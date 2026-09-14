@@ -173,6 +173,29 @@ export interface DebtPayoffScenario {
   updatedAt?: string;
 }
 
+export interface FinancialActionPlanItem {
+  id: string;
+  title: string;
+  description?: string;
+  category: "cushion" | "debt" | "budget" | "investment" | "subscription" | "custom";
+  targetAmount?: number;
+  completed: boolean;
+  completedAt?: string;
+}
+
+export interface FinancialActionPlan {
+  id: string;
+  skillId: string;
+  title: string;
+  description: string;
+  status: "in_progress" | "completed" | "paused";
+  createdAt: string;
+  updatedAt?: string;
+  targetDate?: string;
+  estimatedSavings?: number;
+  items: FinancialActionPlanItem[];
+}
+
 export interface Profile {
   id: string;
   name: string;
@@ -194,6 +217,7 @@ export interface Profile {
   settlements?: SettlementEntry[];
   debts?: DebtItem[];
   debtPayoffScenarios?: DebtPayoffScenario[];
+  financialPlans?: FinancialActionPlan[];
   currency: SupportedCurrency;
 }
 

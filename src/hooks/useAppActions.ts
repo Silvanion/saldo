@@ -1,6 +1,6 @@
 import { activeKeys, generateRandomSalt } from "../services/crypto";
 import { useCallback } from "react";
-import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem, DebtPayoffScenario } from "../types";
+import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem, DebtPayoffScenario, FinancialActionPlan } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
 import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { applySmartRulesToTransactions } from "../services/smartRules";
@@ -378,6 +378,71 @@ export function useAppActions({
     [updateActiveProfile]
   );
 
+  const handleSaveFinancialPlan = useCallback(
+    (plan: FinancialActionPlan) => {
+      updateActiveProfile((p) => {
+        const existing = p.financialPlans || [];
+        const index = existing.findIndex((pl) => pl.id === plan.id);
+        const updatedPlans =
+          index >= 0
+            ? existing.map((pl) => (pl.id === plan.id ? plan : pl))
+            : [plan, ...existing];
+        return { financialPlans: updatedPlans };
+      });
+      showToast?.("Zapisano plan działania.", "success");
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleTogglePlanItem = useCallback(
+    (planId: string, itemId: string) => {
+      updateActiveProfile((p) => {
+        const plans = (p.financialPlans || []).map((plan) => {
+          if (plan.id !== planId) return plan;
+          const updatedItems = plan.items.map((it) => {
+            if (it.id !== itemId) return it;
+            const completed = !it.completed;
+            return {
+              ...it,
+              completed,
+              completedAt: completed ? new Date().toISOString() : undefined,
+            };
+          });
+          const allCompleted = updatedItems.length > 0 && updatedItems.every((it) => it.completed);
+          return {
+            ...plan,
+            items: updatedItems,
+            status: allCompleted ? ("completed" as const) : ("in_progress" as const),
+            updatedAt: new Date().toISOString(),
+          };
+        });
+        return { financialPlans: plans };
+      });
+    },
+    [updateActiveProfile]
+  );
+
+  const handleDeleteFinancialPlan = useCallback(
+    (planId: string) => {
+      updateActiveProfile((p) => ({
+        financialPlans: (p.financialPlans || []).filter((pl) => pl.id !== planId),
+      }));
+      showToast?.("Usunięto plan działania.", "info");
+    },
+    [updateActiveProfile, showToast]
+  );
+
+  const handleUpdateFinancialPlanStatus = useCallback(
+    (planId: string, status: "in_progress" | "completed" | "paused") => {
+      updateActiveProfile((p) => ({
+        financialPlans: (p.financialPlans || []).map((pl) =>
+          pl.id === planId ? { ...pl, status, updatedAt: new Date().toISOString() } : pl
+        ),
+      }));
+    },
+    [updateActiveProfile]
+  );
+
   const handleSelectProfile = useCallback(
     (profileId: string) => {
       const nextProfile = state.profiles.find((p) => p.id === profileId);
@@ -544,5 +609,9 @@ export function useAppActions({
     handleAddProfile,
     handleUpdateProfile,
     handleDeleteProfile,
+    handleSaveFinancialPlan,
+    handleTogglePlanItem,
+    handleDeleteFinancialPlan,
+    handleUpdateFinancialPlanStatus,
   };
 }

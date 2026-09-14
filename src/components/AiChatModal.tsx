@@ -12,7 +12,7 @@ interface ChatMessage {
 }
 
 export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { state, activeProfile } = useApp();
+  const { state, activeProfile, openModal } = useApp();
   const modalRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
@@ -84,6 +84,51 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           {loading && <div className="flex items-center gap-2 text-xs text-text-muted"><Loader2 className="h-4 w-4 animate-spin text-brand" /> Asystent pisze...</div>}
           <div ref={endRef} />
         </div>
+
+        {/* Claude Skills Quick Triggers */}
+        <div className="px-4 py-2 bg-surface-2/40 border-t border-border/60 flex items-center gap-1.5 overflow-x-auto custom-scrollbar text-[11px] shrink-0">
+          <span className="text-text-muted font-bold flex items-center gap-1 shrink-0">
+            <Sparkles className="w-3 h-3 text-brand" /> Skills:
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              openModal("financialSkills" as any);
+            }}
+            className="px-2.5 py-1 rounded-lg bg-surface border border-border/70 text-text-main hover:border-brand hover:text-brand transition-colors shrink-0 font-medium cursor-pointer"
+          >
+            📋 Centrum Planów Działań
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setInput("Przeanalizuj moje długi i zaproponuj optymalną kolejność ich spłaty.");
+            }}
+            className="px-2.5 py-1 rounded-lg bg-surface border border-border/70 text-text-main hover:border-brand hover:text-brand transition-colors shrink-0 font-medium cursor-pointer"
+          >
+            ⚡ Spłata długów
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setInput("Jak zbudować 3-miesięczną poduszkę finansową przy moich obecnych wydatkach?");
+            }}
+            className="px-2.5 py-1 rounded-lg bg-surface border border-border/70 text-text-main hover:border-brand hover:text-brand transition-colors shrink-0 font-medium cursor-pointer"
+          >
+            🛡️ Poduszka 3M
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setInput("Przeanalizuj moje wydatki cykliczne i wskaż subskrypcje do optymalizacji.");
+            }}
+            className="px-2.5 py-1 rounded-lg bg-surface border border-border/70 text-text-main hover:border-brand hover:text-brand transition-colors shrink-0 font-medium cursor-pointer"
+          >
+            ✂️ Audyt subskrypcji
+          </button>
+        </div>
+
         <form onSubmit={sendMessage} className="border-t border-border p-4">
           <div className="flex gap-2">
             <input value={input} onChange={(event) => setInput(event.target.value)} disabled={loading} placeholder="Zapytaj o swój budżet..." className="min-w-0 flex-1 rounded-xl border border-border bg-surface px-3 py-3 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring" />

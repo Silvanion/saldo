@@ -115,4 +115,35 @@ test.describe("Smoke: Core Application Flow", () => {
     await closeBtn.click();
     await expect(page.locator("#net-worth-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("E. Financial Skills & Action Planner (Claude Skills): generates multi-step plan from skills catalog", async ({ page }) => {
+    await setupApp(page);
+
+    // Navigate to Analysis
+    await navigateToView(page, "analysis");
+    await expect(page.locator("#analysis-view-container")).toBeVisible({ timeout: 5000 });
+
+    // Open Financial Skills modal
+    const skillsBtn = page.locator("#btn-open-financial-skills");
+    await expect(skillsBtn).toBeVisible({ timeout: 5000 });
+    await skillsBtn.click();
+
+    // Verify modal elements
+    await expect(page.locator("#financial-skills-modal-title")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("Katalog Umiejętności")).toBeVisible();
+    await expect(page.getByText("Architekt Poduszki Finansowej")).toBeVisible();
+
+    // Run Emergency Fund Skill
+    const runBtn = page.getByRole("button", { name: /Uruchom umiejętność i stwórz plan/i }).nth(1);
+    await runBtn.click();
+
+    // Verify switched to "Moje Plany Działań" with created plan
+    await expect(page.getByText(/3-Etapowa Poduszka Bezpieczeństwa/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Postęp realizacji/i)).toBeVisible();
+
+    // Close modal
+    const closeBtn = page.getByRole("button", { name: /Zamknij modal umiejętności/i });
+    await closeBtn.click();
+    await expect(page.locator("#financial-skills-modal-title")).not.toBeVisible({ timeout: 5000 });
+  });
 });
