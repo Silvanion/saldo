@@ -15,7 +15,8 @@ import {
   Info,
   Sparkles,
   ChevronDown,
-  Lock
+  Lock,
+  Database
 } from "lucide-react";
 import { AppState, Profile } from "../../types";
 import { generateCsvContent, downloadFile, getMonthName } from "../../utils";
@@ -45,6 +46,7 @@ interface SettingsBackupSectionProps {
   onResetData: () => void;
   onOpenPinModal: () => void;
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
+  onOpenDataAuditor?: () => void;
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -71,6 +73,7 @@ export function SettingsBackupSection({
   onResetData,
   onOpenPinModal,
   onOpenExportReports,
+  onOpenDataAuditor,
   showToast
 }: SettingsBackupSectionProps) {
   const [dragActive, setDragActive] = useState<boolean>(false);
@@ -537,6 +540,33 @@ export function SettingsBackupSection({
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Doktor Saldo - Integralność bazy */}
+          <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4 text-brand" />
+                <h4 className="text-sm font-bold text-text-main">Doktor Saldo • Spójność bazy</h4>
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                Self-Healing
+              </span>
+            </div>
+            <p className="text-xs text-text-muted mb-3">
+              Przeskanuj swoje transakcje, rachunki i konta w poszukiwaniu ukrytych duplikatów, brakujących kategorii lub niespójności sald, i napraw je jednym kliknięciem.
+            </p>
+            {onOpenDataAuditor && (
+              <button
+                type="button"
+                onClick={onOpenDataAuditor}
+                id="btn-open-doctor-saldo"
+                className="w-full bg-brand-subtle text-brand border border-brand/20 hover:bg-brand/15 active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Uruchom Doktor Saldo (Audyt i samonaprawa)</span>
+              </button>
+            )}
           </div>
           
           <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">

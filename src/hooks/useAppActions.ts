@@ -513,6 +513,14 @@ export function useAppActions({
     [state, saveState]
   );
 
+  const handleApplyAuditRepair = useCallback(
+    async (repairedProfile: Profile) => {
+      makeUndoBackup();
+      updateActiveProfile(() => repairedProfile);
+    },
+    [makeUndoBackup, updateActiveProfile]
+  );
+
   const handleAddProfile = useCallback(
     async (data: { name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string }) => {
       const newId = "profile-" + Date.now();
@@ -613,5 +621,6 @@ export function useAppActions({
     handleTogglePlanItem,
     handleDeleteFinancialPlan,
     handleUpdateFinancialPlanStatus,
+    handleApplyAuditRepair,
   };
 }

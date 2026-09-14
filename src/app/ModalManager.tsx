@@ -24,6 +24,7 @@ const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ 
 const NetWorthModal = lazy(() => import("../components/modals/NetWorthModal").then(m => ({ default: m.NetWorthModal })));
 const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
 const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
+const DataAuditorModal = lazy(() => import("../components/modals/DataAuditorModal").then(m => ({ default: m.DataAuditorModal })));
 
 export function ModalManager() {
   const {
@@ -42,7 +43,8 @@ export function ModalManager() {
     handleDeleteSmartRule,
     handleSaveFinancialPlan,
     handleTogglePlanItem,
-    handleDeleteFinancialPlan
+    handleDeleteFinancialPlan,
+    handleApplyAuditRepair
   } = useApp();
 
   const onSaveTransaction = (data: any) => {
@@ -247,6 +249,19 @@ export function ModalManager() {
               profile={activeProfile}
               initialYear={modalState.payload?.year}
               initialMonthIdx={modalState.payload?.monthIdx}
+              showToast={showToast}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "dataAuditor" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować audytora bazy danych">
+          <Suspense fallback={<ModalFallback />}>
+            <DataAuditorModal
+              isOpen={true}
+              onClose={closeModal}
+              profile={activeProfile}
+              onApplyRepair={handleApplyAuditRepair}
               showToast={showToast}
             />
           </Suspense>

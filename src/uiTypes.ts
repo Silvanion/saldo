@@ -37,6 +37,7 @@ export type ModalType =
   | "netWorth"
   | "financialSkills"
   | "financialStory"
+  | "dataAuditor"
   | null;
 
 export type ModalState =
@@ -57,4 +58,5 @@ export type ModalState =
   | { type: "netWorth" }
   | { type: "financialSkills" }
   | { type: "financialStory"; payload?: { year?: number; monthIdx?: number } }
+  | { type: "dataAuditor" }
   | { type: null };

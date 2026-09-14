@@ -352,6 +352,7 @@ export function AppViewRouter({
             onSaveRecurringRules={handleSaveRecurringRules}
             onSaveAccounts={handleSaveAccounts}
             onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
+            onOpenDataAuditor={() => openModal("dataAuditor")}
             onExportData={onExportData}
             onResetData={onResetData}
             googleUser={googleUser}

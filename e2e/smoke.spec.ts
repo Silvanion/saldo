@@ -173,4 +173,27 @@ test.describe("Smoke: Core Application Flow", () => {
     await closeBtn.click();
     await expect(page.locator("#financial-story-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("G. Doktor Saldo (Data Auditor & Self-Healing): runs integrity audit and opens repair modal", async ({ page }) => {
+    await setupApp(page);
+
+    // Navigate to Settings
+    await navigateToView(page, "settings");
+    await expect(page.locator("#settings-view-container")).toBeVisible({ timeout: 5000 });
+
+    // Ensure backup section is in view / click doctor saldo button
+    const doctorBtn = page.locator("#btn-open-doctor-saldo");
+    await expect(doctorBtn).toBeVisible({ timeout: 5000 });
+    await doctorBtn.click();
+
+    // Verify modal elements
+    await expect(page.locator("#data-auditor-modal-title")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#data-auditor-health-score")).toBeVisible({ timeout: 5000 });
+
+    // Close modal
+    const closeBtn = page.getByLabel("Zamknij modal audytora");
+    await closeBtn.click();
+    await expect(page.locator("#data-auditor-modal-title")).not.toBeVisible({ timeout: 5000 });
+  });
 });
+

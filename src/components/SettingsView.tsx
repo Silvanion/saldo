@@ -81,6 +81,7 @@ export interface SettingsViewProps {
   onSaveTransactionRules: (rules: TransactionRule[]) => void;
   onSaveAccounts: (accounts: BankAccount[]) => void;
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
+  onOpenDataAuditor?: () => void;
 }
 
 export function SettingsView({
@@ -120,7 +121,8 @@ export function SettingsView({
   calendarToken,
   onConnectCalendar,
   unlockedProfileId,
-  onOpenExportReports
+  onOpenExportReports,
+  onOpenDataAuditor
 }: SettingsViewProps) {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
   const [settingsTab, setSettingsTab] = useState<
@@ -374,6 +376,7 @@ export function SettingsView({
               onResetData={onResetData}
               onOpenPinModal={onOpenPinModal}
               onOpenExportReports={onOpenExportReports}
+              onOpenDataAuditor={onOpenDataAuditor}
               showToast={showToast}
             />
           )}
