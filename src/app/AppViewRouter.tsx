@@ -1,4 +1,4 @@
-import { Settings, Wallet, Lock, ArrowRight, Plus } from "lucide-react";
+import { Settings, WalletCards, Lock, ArrowRight, Plus } from "lucide-react";
 import { useApp } from "./providers/AppContext";
 import React, { Suspense, lazy, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -168,7 +168,7 @@ export function AppViewRouter({
       <div className="flex flex-col items-center justify-center p-6 sm:p-12 text-center h-full min-h-[60vh] max-w-4xl mx-auto">
         <div className="text-center space-y-2 mb-8">
           <div className="inline-flex p-3 bg-brand-subtle text-brand rounded-2xl mb-2">
-            <Wallet className="w-8 h-8" />
+            <WalletCards className="w-8 h-8" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-text-main tracking-tight">Wybierz profil do pracy</h2>
           <p className="text-text-muted max-w-md mx-auto text-sm">

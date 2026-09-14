@@ -12,7 +12,7 @@ import {
   LayoutDashboard,
   History,
   Clock,
-  Wallet,
+  WalletCards,
   Target,
   LineChart,
   Settings,
@@ -34,6 +34,9 @@ import {
   ChevronDown,
   AlertTriangle
 } from "lucide-react";
+import PWABadge from "./PWABadge";
+
+const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
 
 export function AppShell({
   children,
@@ -157,19 +160,19 @@ export function AppShell({
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-bg-base/95 backdrop-blur-2xl border-r border-border/50 p-6 transition-transform lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        } ${isElectron ? "pt-12" : ""}`}
         id="sidebar-panel"
       >
         {/* Brand */}
-        <div className="flex items-center justify-between mb-8">
+        <div className={`flex items-center justify-between mb-8 ${isElectron ? "[-webkit-app-region:drag]" : ""}`}>
           <div className="flex items-center gap-2 text-2xl font-black text-text-main tracking-tight">
             <span className="flex items-center justify-center bg-brand-subtle text-brand rounded-xl w-8 h-8 shadow-sm border border-brand/20">
-              <Wallet className="w-5 h-5" />
+              <WalletCards className="w-5 h-5" />
             </span>
             <span>saldo</span>
           </div>
           <button
-            className="lg:hidden p-1 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="lg:hidden p-1 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Zamknij menu"
           >
@@ -272,7 +275,7 @@ export function AppShell({
               />
             )}
             <span className="relative z-10 flex items-center gap-3">
-              <Wallet className="w-4 h-4 shrink-0" />
+              <WalletCards className="w-4 h-4 shrink-0" />
               {"Budżet"}
             </span>
           </button>
@@ -444,11 +447,11 @@ export function AppShell({
         )}
 
         {/* HIGH-DENSITY CONSOLIDATED TOP BAR HEADER */}
-        <header className="flex items-center justify-between bg-surface/90 backdrop-blur-md border-b border-border/60 px-4 sm:px-6 py-2.5 sm:py-3 shrink-0 shadow-2xs z-20 gap-3" id="top-bar-header">
+        <header className={`flex items-center justify-between bg-surface/90 backdrop-blur-md border-b border-border/60 px-4 sm:px-6 py-2.5 sm:py-3 shrink-0 shadow-2xs z-20 gap-3 ${isElectron ? "[-webkit-app-region:drag] pl-[72px] lg:pl-6" : ""}`} id="top-bar-header">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1.5 rounded-lg border border-border hover:bg-surface-offset active:scale-[0.98] transition-all lg:hidden shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="p-1.5 rounded-lg border border-border hover:bg-surface-offset active:scale-[0.98] transition-all lg:hidden shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
               id="btn-open-mobile-menu"
               aria-label="Otwórz menu"
             >
@@ -492,7 +495,7 @@ export function AppShell({
             {/* Primary Action 1: Command Palette Trigger */}
             <button
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="flex items-center gap-2 py-1.5 px-2.5 sm:px-3 bg-surface border border-border/70 hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-lg active:scale-[0.98] transition-all cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring"
+              className="flex items-center gap-2 py-1.5 px-2.5 sm:px-3 bg-surface border border-border/70 hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-lg active:scale-[0.98] transition-all cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
               id="btn-open-command-palette"
               title="Wyszukaj lub uruchom polecenie (⌘K / /)"
               aria-label="Wyszukaj lub uruchom polecenie"
@@ -507,7 +510,7 @@ export function AppShell({
             <button
               onClick={() => openModal("aiChat")}
               disabled={isProfileLocked}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50 [-webkit-app-region:no-drag]"
               id="btn-open-ai-chat"
               title="Otwórz doradcę finansowego AI"
               aria-label="Otwórz doradcę finansowego AI"

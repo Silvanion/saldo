@@ -21,7 +21,8 @@
       "package.json"
     ],
     "mac": {
-      "target": ["dmg"]
+      "target": ["dmg"],
+      "category": "public.app-category.finance"
     },
     "win": {
       "target": ["nsis"]

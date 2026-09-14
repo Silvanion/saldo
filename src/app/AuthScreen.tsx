@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Wallet, Mail, Lock, LogIn, UserPlus, AlertTriangle, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
+import { WalletCards, Mail, Lock, LogIn, UserPlus, AlertTriangle, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
 import { loginWithEmail, registerWithEmail, googleSignInBasic, resetPassword, verifyEmail } from "../firebase";
 
 interface AuthScreenProps {
@@ -232,7 +232,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <div className="bg-brand text-text-inverse p-3.5 rounded-2xl shadow-lg">
-              <Wallet className="w-8 h-8" />
+              <WalletCards className="w-8 h-8" />
             </div>
           </div>
           <h1 className="text-4xl font-black text-text-main tracking-tight">saldo</h1>

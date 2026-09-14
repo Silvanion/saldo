@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, shell, Menu } = require("electron");
 const path = require("path");
 const net = require("net");
 
@@ -29,6 +29,8 @@ async function createWindow(port) {
     width: 1280,
     height: 800,
     title: "Saldo",
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 20, y: 20 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -36,6 +38,83 @@ async function createWindow(port) {
     },
     // icon: path.join(__dirname, "../public/icon.png") // Optional if we have an icon
   });
+
+  // Handle external links securely
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http:') || url.startsWith('https:')) {
+      if (!url.startsWith(`http://localhost:${port}`)) {
+        shell.openExternal(url);
+        return { action: 'deny' };
+      }
+    }
+    return { action: 'allow' };
+  });
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('http:') || url.startsWith('https:')) {
+      if (!url.startsWith(`http://localhost:${port}`)) {
+        event.preventDefault();
+        shell.openExternal(url);
+      }
+    }
+  });
+
+  // Setup basic application menu to enable Copy/Paste on Mac
+  const isMac = process.platform === 'darwin';
+  const template = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    }] : []),
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteAndMatchStyle' },
+        { role: 'delete' },
+        { role: 'selectAll' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        ...(isMac ? [{ role: 'front' }, { role: 'window' }] : [{ role: 'close' }])
+      ]
+    }
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
   // Load the web app served by our embedded Express server
   mainWindow.loadURL(`http://localhost:${port}`);
