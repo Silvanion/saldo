@@ -235,6 +235,23 @@ describe("AnalysisView (full polish)", () => {
     // Modal is closed
     expect(screen.queryByRole("dialog")).toBeNull();
   });
+
+  it("calls onOpenFinancialStory with current year and month when clicking Saldo Wrapped button", () => {
+    const onOpenFinancialStoryMock = vi.fn();
+    render(
+      <AnalysisView
+        profile={mockProfile}
+        selectedDate={testDate}
+        onOpenFinancialStory={onOpenFinancialStoryMock}
+      />
+    );
+
+    const storyBtn = screen.getByRole("button", { name: /Saldo Wrapped \(Story\)/i });
+    expect(storyBtn).toBeTruthy();
+
+    fireEvent.click(storyBtn);
+    expect(onOpenFinancialStoryMock).toHaveBeenCalledWith(testDate.getFullYear(), testDate.getMonth());
+  });
 });
 
 

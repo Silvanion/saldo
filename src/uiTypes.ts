@@ -36,6 +36,7 @@ export type ModalType =
   | "exportReports"
   | "netWorth"
   | "financialSkills"
+  | "financialStory"
   | null;
 
 export type ModalState =
@@ -55,4 +56,5 @@ export type ModalState =
   | { type: "exportReports"; payload?: { initialTab?: "pdf" | "csv" | "backup" } }
   | { type: "netWorth" }
   | { type: "financialSkills" }
+  | { type: "financialStory"; payload?: { year?: number; monthIdx?: number } }
   | { type: null };

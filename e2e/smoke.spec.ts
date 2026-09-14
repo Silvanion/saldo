@@ -146,4 +146,31 @@ test.describe("Smoke: Core Application Flow", () => {
     await closeBtn.click();
     await expect(page.locator("#financial-skills-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("F. Saldo Wrapped & Financial Story Cards (MoneyPrinterTurbo): opens and navigates story slides", async ({ page }) => {
+    await setupApp(page);
+
+    // Navigate to Analysis
+    await navigateToView(page, "analysis");
+    await expect(page.locator("#analysis-view-container")).toBeVisible({ timeout: 5000 });
+
+    // Open Saldo Wrapped Story modal
+    const storyBtn = page.locator("#btn-open-financial-story");
+    await expect(storyBtn).toBeVisible({ timeout: 5000 });
+    await storyBtn.click();
+
+    // Verify modal elements
+    await expect(page.locator("#financial-story-modal-title")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("Karta 1 z 6")).toBeVisible({ timeout: 5000 });
+
+    // Navigate to next slide
+    const nextBtn = page.getByLabel("Następny slajd");
+    await nextBtn.click();
+    await expect(page.getByText("Karta 2 z 6")).toBeVisible({ timeout: 5000 });
+
+    // Close modal
+    const closeBtn = page.getByRole("button", { name: "Zamknij" });
+    await closeBtn.click();
+    await expect(page.locator("#financial-story-modal-title")).not.toBeVisible({ timeout: 5000 });
+  });
 });

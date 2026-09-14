@@ -23,6 +23,7 @@ const ExportReportsModal = lazy(() => import("../components/modals/ExportReports
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const NetWorthModal = lazy(() => import("../components/modals/NetWorthModal").then(m => ({ default: m.NetWorthModal })));
 const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
+const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
 
 export function ModalManager() {
   const {
@@ -233,6 +234,20 @@ export function ModalManager() {
               onSavePlan={handleSaveFinancialPlan}
               onTogglePlanItem={handleTogglePlanItem}
               onDeletePlan={handleDeleteFinancialPlan}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {modalState.type === "financialStory" && activeProfile && (
+        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować podsumowania Saldo Wrapped">
+          <Suspense fallback={<ModalFallback />}>
+            <FinancialStoryModal
+              isOpen={true}
+              onClose={closeModal}
+              profile={activeProfile}
+              initialYear={modalState.payload?.year}
+              initialMonthIdx={modalState.payload?.monthIdx}
+              showToast={showToast}
             />
           </Suspense>
         </ErrorBoundary>

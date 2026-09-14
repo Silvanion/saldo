@@ -48,9 +48,10 @@ interface AnalysisViewProps {
   onChangeView?: (view: string) => void;
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
   onOpenFinancialSkills?: () => void;
+  onOpenFinancialStory?: (year?: number, monthIdx?: number) => void;
 }
 
-export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports, onOpenFinancialSkills }: AnalysisViewProps) {
+export function AnalysisView({ profile, selectedDate, recurringRules = [], showToast, onChangeView, onOpenExportReports, onOpenFinancialSkills, onOpenFinancialStory }: AnalysisViewProps) {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
@@ -308,6 +309,18 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
             >
               <Brain className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand" />
               <span>Plany i Umiejętności (Claude Skills)</span>
+            </button>
+          )}
+          {onOpenFinancialStory && (
+            <button
+              onClick={() => onOpenFinancialStory(currentYear, currentMonthIdx)}
+              type="button"
+              className="w-full sm:w-auto bg-brand text-text-inverse hover:bg-brand-hover font-bold py-2.5 sm:py-2 px-4 rounded-xl active:scale-[0.98] transition-all shadow-xs text-sm sm:text-xs flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              id="btn-open-financial-story"
+              title="Otwórz podsumowanie wizualne w formacie Stories (Saldo Wrapped)"
+            >
+              <Sparkles className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+              <span>Saldo Wrapped (Story)</span>
             </button>
           )}
         </div>
