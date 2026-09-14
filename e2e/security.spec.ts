@@ -6,7 +6,7 @@ test.describe("Security & Privacy E2E Flows", () => {
     await setupApp(page);
 
     // Navigate to Settings
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "security" });
     await expect(page.locator("#settings-view-container")).toBeVisible({ timeout: 5000 });
 
     // Verify privacy card is reachable
@@ -39,7 +39,7 @@ test.describe("Security & Privacy E2E Flows", () => {
     await setupApp(page);
 
     // Navigate to Settings
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "security" });
     await expect(page.locator("#settings-view-container")).toBeVisible({ timeout: 5000 });
 
     // Verify security configuration card exists in settings

@@ -16,7 +16,7 @@ test.describe("Data Quality & Encryption E2E Flows", () => {
     await expect(page.locator("#tx-table").getByText("E2E transakcja przed PIN")).toBeVisible();
 
     // Set a PIN on the active profile
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "profiles" });
     await expect(page.locator("#settings-pin-card")).toBeVisible({ timeout: 5000 });
     await page.locator("#btn-set-profile-pin").click();
 

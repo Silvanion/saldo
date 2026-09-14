@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { User } from "firebase/auth";
+import { motion } from "motion/react";
 import {
   Cloud,
   Database,
@@ -9,7 +10,8 @@ import {
   Palette,
   Landmark,
   Cpu,
-  Settings2
+  Settings2,
+  FileJson
 } from "lucide-react";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
 import {
@@ -21,13 +23,26 @@ import {
   TransactionRulesManager,
   RECOMMENDED_AI_MODELS,
   SettingsBackupSection,
-  SettingsSecuritySection
+  SettingsSecuritySection,
+  SettingsGoogleHubSection
 } from "./settings";
+import { DriveIntegrityReport } from "../hooks/useDriveSync";
 
 export { BankAccountsManager, TransactionRulesManager, RECOMMENDED_AI_MODELS };
 export type { RecommendedAiModel } from "./settings";
 
+export type SettingsTab =
+  | "cloud"
+  | "profiles"
+  | "accounts"
+  | "automation"
+  | "backup"
+  | "security"
+  | "appearance"
+  | "all";
+
 export interface SettingsViewProps {
+  initialTab?: SettingsTab;
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
   state: AppState;
   saveState: (s: AppState) => Promise<void>;
@@ -50,7 +65,7 @@ export interface SettingsViewProps {
   onExportData: () => void;
   onResetData: () => void;
 
-  // Google Drive integration props
+  // Google integration props
   googleUser: User | null;
   isGoogleLoading: boolean;
   googleError?: string | null;
@@ -58,6 +73,9 @@ export interface SettingsViewProps {
   gdriveFileId: string | null;
   gdriveLastSynced: string | null;
   isDriveAutoSyncEnabled: boolean;
+  autoSyncStatus?: "idle" | "saving" | "synced" | "error";
+  driveIntegrityReport?: DriveIntegrityReport | null;
+  onCheckIntegrity?: () => Promise<any>;
   onConnectGoogle: () => Promise<void>;
   onDisconnectGoogle: () => Promise<void>;
   onSyncToDrive: () => Promise<void>;
@@ -85,6 +103,7 @@ export interface SettingsViewProps {
 }
 
 export function SettingsView({
+  initialTab,
   showToast,
   state,
   saveState,
@@ -104,6 +123,9 @@ export function SettingsView({
   gdriveFileId,
   gdriveLastSynced,
   isDriveAutoSyncEnabled,
+  autoSyncStatus,
+  driveIntegrityReport,
+  onCheckIntegrity,
   onConnectGoogle,
   onDisconnectGoogle,
   onSyncToDrive,
@@ -125,54 +147,54 @@ export function SettingsView({
   onOpenDataAuditor
 }: SettingsViewProps) {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
-  const [settingsTab, setSettingsTab] = useState<
-    "all" | "profiles" | "appearance" | "accounts" | "automation" | "backup" | "security"
-  >("all");
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>(initialTab || "cloud");
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-24 space-y-6" id="settings-view-container">
       {/* HEADER CONTEXT STRIP */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 sm:p-5 rounded-2xl border border-border/70 shadow-xs">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
               <Settings2 className="w-4 h-4" />
             </div>
-            <h2 className="text-lg font-bold text-text-main tracking-tight">Ustawienia systemu</h2>
+            <div>
+              <h2 className="text-lg font-bold text-text-main tracking-tight">Ustawienia Saldo</h2>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                Konfiguracja chmury Google, profili domowych, kont bankowych i bezpieczeństwa
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-text-muted mt-1 leading-relaxed">
-            Zarządzaj profilami domowymi, automatyzacją, kontami bankowymi i bezpieczeństwem danych
-          </p>
         </div>
 
         {/* Quick Context Badges */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           {activeProfile && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs shadow-xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-border/70 text-xs shadow-xs">
               <span className="text-base leading-none">{activeProfile.avatar || "👤"}</span>
               <span className="font-bold text-text-main">{activeProfile.name}</span>
               <span className="text-text-muted text-[11px]">({activeProfile.currency || "PLN"})</span>
             </div>
           )}
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs text-text-muted font-medium shadow-xs">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 border border-border/70 text-xs font-medium shadow-xs">
             <Database className="w-3.5 h-3.5 text-brand" />
             <span>Local-First</span>
             {googleUser && (
-              <span className="inline-flex items-center gap-1 text-success font-semibold ml-1">
-                • <Cloud className="w-3 h-3" /> Drive
+              <span className="inline-flex items-center gap-1 text-success font-bold ml-1">
+                • <Cloud className="w-3 h-3" /> Chmura
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border/70 text-xs font-medium shadow-xs">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 border border-border/70 text-xs font-medium shadow-xs">
             {activeProfile?.pinHash ? (
-              <span className="text-brand flex items-center gap-1">
+              <span className="text-brand flex items-center gap-1 font-bold">
                 <ShieldCheck className="w-3.5 h-3.5" /> PIN aktywny
               </span>
             ) : (
               <span className="text-text-muted flex items-center gap-1">
-                <Lock className="w-3.5 h-3.5" /> Brak PIN
+                <Lock className="w-3.5 h-3.5" /> Bez PIN
               </span>
             )}
           </div>
@@ -182,76 +204,97 @@ export function SettingsView({
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* SIDEBAR NAVIGATION */}
         <div className="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-6 space-y-4">
-          <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-2.5">
+          <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-2.5">
             <div className="flex lg:flex-col items-stretch gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 custom-scrollbar min-w-0">
-              {/* Group 1: Główne */}
+              
+              {/* GROUP 1: CHMURA & PROFILE */}
               <div className="hidden lg:block px-3 pt-1 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider">
-                Główne
+                Chmura i Profile
               </div>
+
               <button
-                onClick={() => setSettingsTab("all")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                  settingsTab === "all"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                onClick={() => setSettingsTab("cloud")}
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "cloud"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-cloud"
               >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Settings2 className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Wszystkie sekcje</span>
+                {settingsTab === "cloud" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
+                  <Cloud className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Usługi Google & Chmura</span>
+                </div>
+                <div className="relative z-10">
+                  {googleUser ? (
+                    <span className="w-2 h-2 rounded-full bg-success inline-block shrink-0" title="Połączono z Google" />
+                  ) : (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
+                      Lokalne
+                    </span>
+                  )}
                 </div>
               </button>
 
               <button
                 onClick={() => setSettingsTab("profiles")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "profiles"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-profiles"
               >
-                <div className="flex items-center gap-2.5 truncate">
+                {settingsTab === "profiles" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
                   <Users className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Profile i PIN</span>
+                  <span className="truncate">Profile & Blokada PIN</span>
                 </div>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
+                <span className="relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
                   {profiles.length}
                 </span>
               </button>
 
-              <button
-                onClick={() => setSettingsTab("appearance")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                  settingsTab === "appearance"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Palette className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Wygląd i motyw</span>
-                </div>
-              </button>
-
-              {/* Group 2: Finanse i Reguły */}
+              {/* GROUP 2: FINANSE & AUTOMATYZACJA */}
               <div className="hidden lg:block px-3 pt-3 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider border-t border-border/40 mt-1">
-                Finanse i Automatyzacja
+                Finanse i Narzędzia
               </div>
 
               <button
                 onClick={() => setSettingsTab("accounts")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "accounts"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-accounts"
               >
-                <div className="flex items-center gap-2.5 truncate">
+                {settingsTab === "accounts" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
                   <Landmark className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Konta operacyjne</span>
+                  <span className="truncate">Konta bankowe</span>
                 </div>
                 {activeProfile?.accounts && activeProfile.accounts.length > 0 && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
+                  <span className="relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border/70 text-text-muted">
                     {activeProfile.accounts.length}
                   </span>
                 )}
@@ -259,49 +302,116 @@ export function SettingsView({
 
               <button
                 onClick={() => setSettingsTab("automation")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "automation"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-automation"
               >
-                <div className="flex items-center gap-2.5 truncate">
+                {settingsTab === "automation" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
                   <Cpu className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Automatyzacja i AI</span>
+                  <span className="truncate">Automatyzacja & AI</span>
                 </div>
               </button>
 
-              {/* Group 3: Dane i Bezpieczeństwo */}
+              <button
+                onClick={() => setSettingsTab("backup")}
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "backup"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
+                }`}
+                id="btn-settings-tab-backup"
+              >
+                {settingsTab === "backup" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
+                  <FileJson className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Kopie & Raporty</span>
+                </div>
+              </button>
+
+              {/* GROUP 3: SYSTEM & BEZPIECZEŃSTWO */}
               <div className="hidden lg:block px-3 pt-3 pb-1 text-[10px] font-bold text-text-faint uppercase tracking-wider border-t border-border/40 mt-1">
-                Dane i Bezpieczeństwo
+                System i Preferencje
               </div>
 
               <button
-                onClick={() => setSettingsTab("backup")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
-                  settingsTab === "backup"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                onClick={() => setSettingsTab("appearance")}
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "appearance"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-appearance"
               >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Cloud className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Kopie i Dysk Google</span>
+                {settingsTab === "appearance" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
+                  <Palette className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Wygląd & Motyw</span>
                 </div>
-                {googleUser && <span className="w-2 h-2 rounded-full bg-success"></span>}
               </button>
 
               <button
                 onClick={() => setSettingsTab("security")}
-                className={`px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-between gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
                   settingsTab === "security"
-                    ? "bg-brand-subtle text-brand border border-brand/20 shadow-xs"
-                    : "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text-main border border-transparent"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                 }`}
+                id="btn-settings-tab-security"
               >
-                <div className="flex items-center gap-2.5 truncate">
+                {settingsTab === "security" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
                   <ShieldCheck className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Konto i Prywatność</span>
+                  <span className="truncate">Konto & Hasło</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setSettingsTab("all")}
+                className={`relative px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap lg:whitespace-normal text-left min-h-[44px] focus-visible:ring-2 focus-visible:ring-focus-ring ${
+                  settingsTab === "all"
+                    ? "text-brand"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-main"
+                }`}
+                id="btn-settings-tab-all"
+              >
+                {settingsTab === "all" && (
+                  <motion.span
+                    layoutId="activeSettingsTabPill"
+                    className="absolute inset-0 rounded-xl bg-brand-subtle border border-brand/20 shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5 truncate">
+                  <Settings2 className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Wszystkie sekcje</span>
                 </div>
               </button>
             </div>
@@ -310,25 +420,64 @@ export function SettingsView({
 
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 min-w-0 space-y-6 w-full">
-          {/* SECTION 1: PROFILES */}
-          {(settingsTab === "all" || settingsTab === "profiles") && (
-            <SettingsProfileSection
-              profiles={profiles}
-              activeProfileId={activeProfileId}
-              onSelectProfile={onSelectProfile}
-              onUpdateProfile={onUpdateProfile}
-              onDeleteProfile={onDeleteProfile}
-              onOpenProfileModal={onOpenProfileModal}
+          {/* TAB 1: GOOGLE HUB (CLOUD) */}
+          {(settingsTab === "all" || settingsTab === "cloud") && (
+            <SettingsGoogleHubSection
+              googleUser={googleUser}
+              isGoogleLoading={isGoogleLoading}
+              googleError={googleError}
+              isDriveActionLoading={isDriveActionLoading}
+              gdriveFileId={gdriveFileId}
+              gdriveLastSynced={gdriveLastSynced}
+              isDriveAutoSyncEnabled={isDriveAutoSyncEnabled}
+              autoSyncStatus={autoSyncStatus}
+              driveIntegrityReport={driveIntegrityReport}
+              calendarToken={calendarToken}
+              onConnectGoogle={onConnectGoogle}
+              onDisconnectGoogle={onDisconnectGoogle}
+              onConnectCalendar={onConnectCalendar}
+              onSyncToDrive={onSyncToDrive}
+              onLoadFromDrive={onLoadFromDrive}
+              onToggleDriveAutoSync={onToggleDriveAutoSync}
+              onCheckIntegrity={onCheckIntegrity}
               showToast={showToast}
             />
           )}
 
-          {/* SECTION 2: APPEARANCE */}
-          {(settingsTab === "all" || settingsTab === "appearance") && (
-            <SettingsAppearanceSection theme={theme} onThemeChange={onThemeChange} />
+          {/* TAB 2: PROFILES */}
+          {(settingsTab === "all" || settingsTab === "profiles") && (
+            <>
+              <SettingsProfileSection
+                profiles={profiles}
+                activeProfileId={activeProfileId}
+                onSelectProfile={onSelectProfile}
+                onUpdateProfile={onUpdateProfile}
+                onDeleteProfile={onDeleteProfile}
+                onOpenProfileModal={onOpenProfileModal}
+                showToast={showToast}
+              />
+              <SettingsSecuritySection
+                state={state}
+                saveState={saveState}
+                activeProfile={activeProfile}
+                unlockedProfileId={unlockedProfileId}
+                googleUser={googleUser}
+                gdriveFileId={gdriveFileId}
+                gdriveLastSynced={gdriveLastSynced}
+                isDriveActionLoading={isDriveActionLoading}
+                calendarToken={calendarToken}
+                onConnectCalendar={onConnectCalendar}
+                onConnectGoogle={onConnectGoogle}
+                onSyncToDrive={onSyncToDrive}
+                onOpenPinModal={onOpenPinModal}
+                showToast={showToast}
+                showPinCard={true}
+                showAccountSecurity={false}
+              />
+            </>
           )}
 
-          {/* SECTION 3: BANK ACCOUNTS */}
+          {/* TAB 3: ACCOUNTS */}
           {activeProfile && (settingsTab === "all" || settingsTab === "accounts") && (
             <SettingsAccountsSection
               accounts={activeProfile.accounts || []}
@@ -337,7 +486,7 @@ export function SettingsView({
             />
           )}
 
-          {/* SECTION 4: AUTOMATION & LOCAL AI */}
+          {/* TAB 4: AUTOMATION & AI */}
           {(settingsTab === "all" || settingsTab === "automation") && (
             <SettingsAutomationSection
               state={state}
@@ -351,7 +500,7 @@ export function SettingsView({
             />
           )}
 
-          {/* SECTION 5: BACKUP & CLOUD */}
+          {/* TAB 5: BACKUP & REPORTS */}
           {(settingsTab === "all" || settingsTab === "backup") && (
             <SettingsBackupSection
               state={state}
@@ -381,8 +530,13 @@ export function SettingsView({
             />
           )}
 
-          {/* SECTION 6: SECURITY & PRIVACY */}
-          {(settingsTab === "all" || settingsTab === "security" || settingsTab === "profiles") && (
+          {/* TAB 6: APPEARANCE */}
+          {(settingsTab === "all" || settingsTab === "appearance") && (
+            <SettingsAppearanceSection theme={theme} onThemeChange={onThemeChange} />
+          )}
+
+          {/* TAB 7: SECURITY & ACCOUNT */}
+          {(settingsTab === "all" || settingsTab === "security") && (
             <SettingsSecuritySection
               state={state}
               saveState={saveState}
@@ -398,8 +552,8 @@ export function SettingsView({
               onSyncToDrive={onSyncToDrive}
               onOpenPinModal={onOpenPinModal}
               showToast={showToast}
-              showPinCard={settingsTab === "all" || settingsTab === "profiles" || settingsTab === "security"}
-              showAccountSecurity={settingsTab === "all" || settingsTab === "security"}
+              showPinCard={false}
+              showAccountSecurity={true}
             />
           )}
         </div>

@@ -48,8 +48,14 @@ export async function setupApp(page: Page, options?: { profileName?: string }) {
   await expect(page.locator("#nav-dashboard")).toBeVisible({ timeout: 15000 });
 }
 
-export async function navigateToView(page: Page, view: E2EView) {
+export async function navigateToView(page: Page, view: E2EView, options?: { tab?: string }) {
   const navBtn = page.locator(`#nav-${view}`);
   await expect(navBtn).toBeVisible({ timeout: 10000 });
   await navBtn.click();
+
+  if (view === "settings" && options?.tab) {
+    const tabBtn = page.locator(`#btn-settings-tab-${options.tab}`);
+    await expect(tabBtn).toBeVisible({ timeout: 5000 });
+    await tabBtn.click();
+  }
 }

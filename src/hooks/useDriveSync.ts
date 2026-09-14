@@ -14,6 +14,18 @@ export interface SyncConflictInfo {
   fileId?: string | null;
 }
 
+export interface DriveIntegrityReport {
+  status: "synced" | "remote_newer" | "local_newer" | "conflict" | "no_remote_file" | "error";
+  message: string;
+  localUpdatedAt?: string | null;
+  remoteUpdatedAt?: string | null;
+  localProfilesCount?: number;
+  remoteProfilesCount?: number;
+  localTxCount?: number;
+  remoteTxCount?: number;
+  checkedAt: string;
+}
+
 interface UseDriveSyncProps {
   driveToken: string | null;
   state: AppState;
@@ -79,9 +91,18 @@ export function useDriveSync({
   const [gdriveFileId, setGdriveFileId] = useState<string | null>(() => {
     return state.driveFileId || (typeof window !== "undefined" ? localStorage.getItem(DRIVE_FILE_ID_KEY) : null);
   });
-  const [gdriveLastSynced, setGdriveLastSynced] = useState<string | null>(null);
+  const [gdriveLastSynced, setGdriveLastSynced] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const savedIso = localStorage.getItem(LAST_SYNCED_AT_KEY);
+    if (savedIso) {
+      const d = new Date(savedIso);
+      return isNaN(d.getTime()) ? savedIso : d.toLocaleString("pl-PL");
+    }
+    return null;
+  });
   const [isDriveActionLoading, setIsDriveActionLoading] = useState<boolean>(false);
   const [driveConflictInfo, setDriveConflictInfo] = useState<SyncConflictInfo | null>(null);
+  const [driveIntegrityReport, setDriveIntegrityReport] = useState<DriveIntegrityReport | null>(null);
 
   // Keep gdriveFileId and localStorage in sync
   useEffect(() => {
@@ -129,6 +150,9 @@ export function useDriveSync({
       }
       if (!driveToken) {
         throw new Error("Konto Google Drive nie jest podłączone.");
+      }
+      if (!state || !Array.isArray(state.profiles) || state.profiles.length === 0) {
+        throw new Error("Błąd integralności: próba zapisu pustego profilu na Dysk Google.");
       }
       setIsDriveActionLoading(true);
       try {
@@ -336,11 +360,113 @@ export function useDriveSync({
     [backupToDriveManual, restoreFromDriveManual]
   );
 
+  const checkDriveIntegrity = useCallback(async (): Promise<DriveIntegrityReport> => {
+    if (!navigator.onLine) {
+      const rep: DriveIntegrityReport = {
+        status: "error",
+        message: "Brak połączenia z internetem. Sprawdzenie spójności niemożliwe offline.",
+        checkedAt: new Date().toISOString()
+      };
+      setDriveIntegrityReport(rep);
+      return rep;
+    }
+    if (!driveToken) {
+      const rep: DriveIntegrityReport = {
+        status: "error",
+        message: "Konto Google Drive nie jest podłączone.",
+        checkedAt: new Date().toISOString()
+      };
+      setDriveIntegrityReport(rep);
+      return rep;
+    }
+    setIsDriveActionLoading(true);
+    try {
+      let fileId = gdriveFileId || state.driveFileId || localStorage.getItem(DRIVE_FILE_ID_KEY);
+      if (!fileId) {
+        const file = await findBudgetFile(driveToken);
+        if (!file) {
+          const rep: DriveIntegrityReport = {
+            status: "no_remote_file",
+            message: "Plik saldo_budget.json nie istnieje jeszcze na Twoim Dysku Google. Wykonaj pierwszy zapis.",
+            checkedAt: new Date().toISOString()
+          };
+          setDriveIntegrityReport(rep);
+          return rep;
+        }
+        fileId = file.id;
+        setGdriveFileId(file.id);
+        localStorage.setItem(DRIVE_FILE_ID_KEY, file.id);
+      }
+
+      const remoteRaw = await readBudgetFile(driveToken, fileId);
+      if (!remoteRaw || !Array.isArray(remoteRaw.profiles)) {
+        const rep: DriveIntegrityReport = {
+          status: "error",
+          message: "Plik na Dysku Google ma nieprawidłowy format danych.",
+          checkedAt: new Date().toISOString()
+        };
+        setDriveIntegrityReport(rep);
+        return rep;
+      }
+
+      const validatedRemote = validateAndMigrateState(remoteRaw);
+      const lastSyncedAtIso = localStorage.getItem(LAST_SYNCED_AT_KEY);
+      const isConflict = detectConflict(state, validatedRemote, lastSyncedAtIso);
+
+      const localTs = state.updatedAt ? new Date(state.updatedAt).getTime() : 0;
+      const remoteTs = validatedRemote.updatedAt ? new Date(validatedRemote.updatedAt).getTime() : 0;
+
+      const localTxCount = state.profiles.reduce((sum, p) => sum + (p.transactions?.length || 0), 0);
+      const remoteTxCount = validatedRemote.profiles.reduce((sum, p) => sum + (p.transactions?.length || 0), 0);
+
+      let status: DriveIntegrityReport["status"] = "synced";
+      let message = "Wszystkie dane lokalne i plik na Dysku Google są w 100% spójne.";
+
+      if (isConflict) {
+        status = "conflict";
+        message = "Wykryto rozbieżność: różne zmiany wprowadzono lokalnie i na Dysku Google.";
+      } else if (remoteTs > localTs) {
+        status = "remote_newer";
+        message = "Na Dysku Google znajduje się nowsza wersja danych. Zalecane pobranie kopii z chmury.";
+      } else if (localTs > remoteTs) {
+        status = "local_newer";
+        message = "Dane lokalne zawierają nowsze zmiany niż plik na Dysku. Zalecany zapis na Dysk Google.";
+      }
+
+      const report: DriveIntegrityReport = {
+        status,
+        message,
+        localUpdatedAt: state.updatedAt,
+        remoteUpdatedAt: validatedRemote.updatedAt,
+        localProfilesCount: state.profiles.length,
+        remoteProfilesCount: validatedRemote.profiles.length,
+        localTxCount,
+        remoteTxCount,
+        checkedAt: new Date().toISOString()
+      };
+      setDriveIntegrityReport(report);
+      return report;
+    } catch (err: any) {
+      const rep: DriveIntegrityReport = {
+        status: "error",
+        message: err.message || "Błąd podczas sprawdzania spójności z Dyskiem Google.",
+        checkedAt: new Date().toISOString()
+      };
+      setDriveIntegrityReport(rep);
+      return rep;
+    } finally {
+      setIsDriveActionLoading(false);
+    }
+  }, [driveToken, gdriveFileId, state]);
+
   return {
     gdriveFileId,
     gdriveLastSynced,
     isDriveActionLoading,
     driveConflictInfo,
+    driveIntegrityReport,
+    checkDriveIntegrity,
+    clearIntegrityReport: () => setDriveIntegrityReport(null),
     backupToDriveManual,
     restoreFromDriveManual,
     resolveDriveConflict,

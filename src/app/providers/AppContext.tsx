@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { Goal, Payment, AppState, Profile } from "../../types";
 import { AppView } from "../../uiTypes";
 import { useAuth } from "../../hooks/useAuth";
@@ -35,6 +35,7 @@ export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSy
   activeProfile: Profile | null;
   isDriveAutoSyncEnabled: boolean;
   toggleAutoSync: (enabled: boolean) => void;
+  autoSyncStatus: "idle" | "saving" | "synced" | "error";
   aiMode: "none" | "local";
   canUseCloudSync: boolean;
   isOfflineBudgetMode: boolean;
@@ -44,18 +45,18 @@ export const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isDemoMode, setIsDemoMode] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [activeView, setActiveView] = useState<AppView>("dashboard");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -65,9 +66,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const authData = useAuth();
   const budgetData = useBudgetState(authData.googleUser);
   
-  const [isDriveAutoSyncEnabled, setIsDriveAutoSyncEnabled] = useState(false);
+  const [isDriveAutoSyncEnabled, setIsDriveAutoSyncEnabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("saldo-drive-autosync-enabled") === "true";
+  });
+  const [autoSyncStatus, setAutoSyncStatus] = useState<"idle" | "saving" | "synced" | "error">("idle");
+  const lastSyncedUpdatedAtRef = useRef<string | undefined>(budgetData.state.updatedAt);
+
   const toggleAutoSync = (enabled: boolean) => {
     setIsDriveAutoSyncEnabled(enabled);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("saldo-drive-autosync-enabled", String(enabled));
+    }
   };
 
   const driveSyncData = useDriveSync({
@@ -77,6 +87,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     onBeforeRestore: budgetData.makeUndoBackup,
     onDriveAuthInvalid: authData.invalidateDriveToken
   });
+
+  // Background Auto-Sync effect
+  useEffect(() => {
+    if (!isDriveAutoSyncEnabled || !authData.driveToken || !isOnline) {
+      return;
+    }
+    const currentUpdatedAt = budgetData.state.updatedAt;
+    if (!currentUpdatedAt || currentUpdatedAt === lastSyncedUpdatedAtRef.current) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setAutoSyncStatus("saving");
+        await driveSyncData.backupToDriveManual();
+        lastSyncedUpdatedAtRef.current = budgetData.state.updatedAt;
+        setAutoSyncStatus("synced");
+      } catch (err) {
+        console.warn("[AutoSync] Background auto-sync failed:", err);
+        setAutoSyncStatus("error");
+      }
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [isDriveAutoSyncEnabled, authData.driveToken, isOnline, budgetData.state.updatedAt, driveSyncData.backupToDriveManual]);
 
   const activeProfile = budgetData.state.profiles.find((p) => p.id === budgetData.state.activeProfileId) || null;
 
@@ -128,6 +163,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isOnline, setIsOnline,
     activeProfile,
     isDriveAutoSyncEnabled, toggleAutoSync,
+    autoSyncStatus,
     aiMode,
     canUseCloudSync,
     isOfflineBudgetMode,

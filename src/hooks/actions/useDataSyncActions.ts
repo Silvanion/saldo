@@ -99,13 +99,16 @@ export function useDataSyncActions({
     [openModal, makeUndoBackup, saveState, showToast]
   );
 
-  const handleConnectGoogle = useCallback(async () => {
-    try {
-      await connectGoogle("drive");
-    } catch (e) {
-      console.error("Google connect error", e);
-    }
-  }, [connectGoogle]);
+  const handleConnectGoogle = useCallback(
+    async (mode: "basic" | "drive" | "calendar" = "drive") => {
+      try {
+        await connectGoogle(mode);
+      } catch (e) {
+        console.error("Google connect error", e);
+      }
+    },
+    [connectGoogle]
+  );
 
   const handleDisconnectGoogle = useCallback(async () => {
     await disconnectGoogle();

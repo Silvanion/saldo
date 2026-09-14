@@ -30,6 +30,7 @@ describe('SettingsView Diagnostic Loop', () => {
 
     const { container } = render(
       <SettingsView
+        initialTab="all"
         showToast={vi.fn()}
         state={mockState as any}
         saveState={saveState}
@@ -116,6 +117,7 @@ describe('SettingsView Diagnostic Loop', () => {
     const showToast = vi.fn();
     render(
       <SettingsView
+        initialTab="all"
         state={mockState as any}
         saveState={vi.fn()}
         profiles={mockProfiles as any}
@@ -186,6 +188,7 @@ describe('SettingsView Diagnostic Loop', () => {
     const showToast = vi.fn();
     render(
       <SettingsView
+        initialTab="all"
         state={mockState as any}
         saveState={vi.fn()}
         profiles={mockProfiles as any}
@@ -245,6 +248,7 @@ describe('SettingsView Diagnostic Loop', () => {
 
     render(
       <SettingsView
+        initialTab="all"
         state={mockState as any}
         saveState={vi.fn()}
         profiles={mockProfiles as any}
@@ -313,6 +317,7 @@ describe('SettingsView Diagnostic Loop', () => {
 
     render(
       <SettingsView
+        initialTab="all"
         state={mockState as any}
         saveState={vi.fn()}
         profiles={mockProfiles as any}
@@ -362,4 +367,71 @@ describe('SettingsView Diagnostic Loop', () => {
     expect(confirmSpy).not.toHaveBeenCalled();
   });
 
+  it('renders Google Cloud Hub by default and handles Google connection and integrity check', async () => {
+    const onConnectGoogle = vi.fn();
+    const onCheckIntegrity = vi.fn().mockResolvedValue({
+      status: 'synced',
+      message: 'Wszystkie dane są w 100% spójne.',
+      checkedAt: new Date().toISOString()
+    });
+    const onToggleDriveAutoSync = vi.fn();
+
+    render(
+      <SettingsView
+        state={mockState as any}
+        saveState={vi.fn()}
+        profiles={mockProfiles as any}
+        activeProfileId="p1"
+        onSelectProfile={vi.fn()}
+        onUpdateProfile={vi.fn()}
+        onDeleteProfile={vi.fn()}
+        onOpenProfileModal={vi.fn()}
+        onOpenPinModal={vi.fn()}
+        onExportData={vi.fn()}
+        onResetData={vi.fn()}
+        googleUser={{
+          displayName: 'Jan Kowalski',
+          email: 'jan.kowalski@gmail.com',
+          photoURL: null
+        } as any}
+        isGoogleLoading={false}
+        isDriveActionLoading={false}
+        gdriveFileId="file-123"
+        gdriveLastSynced="14.09.2026, 16:00:00"
+        isDriveAutoSyncEnabled={true}
+        autoSyncStatus="synced"
+        onConnectGoogle={onConnectGoogle}
+        onDisconnectGoogle={vi.fn()}
+        onSyncToDrive={vi.fn()}
+        onLoadFromDrive={vi.fn()}
+        onToggleDriveAutoSync={onToggleDriveAutoSync}
+        onCheckIntegrity={onCheckIntegrity}
+        onImportLocalData={vi.fn()}
+        theme="light"
+        onThemeChange={vi.fn()}
+        recurringRules={[]}
+        onSaveRecurringRules={vi.fn()}
+        transactionRules={[]}
+        onSaveTransactionRules={vi.fn()}
+        onSaveAccounts={vi.fn()}
+        showToast={vi.fn()}
+      />
+    );
+
+    // Google Cloud Hub header should be visible
+    expect(screen.getByText('Centrum Usług Google')).toBeTruthy();
+    expect(screen.getByText('Jan Kowalski')).toBeTruthy();
+    expect(screen.getByText('jan.kowalski@gmail.com')).toBeTruthy();
+    expect(screen.getByText('14.09.2026, 16:00:00')).toBeTruthy();
+
+    // Check integrity button
+    const checkIntegrityBtn = screen.getByText('Sprawdź spójność');
+    fireEvent.click(checkIntegrityBtn);
+    expect(onCheckIntegrity).toHaveBeenCalledTimes(1);
+
+    // Tab navigation test: switch to Accounts
+    const accountsTabBtn = screen.getByRole('button', { name: /Konta bankowe/i });
+    fireEvent.click(accountsTabBtn);
+    expect(screen.getByText('+ Dodaj konto')).toBeTruthy();
+  });
 });

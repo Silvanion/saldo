@@ -160,225 +160,30 @@ export function SettingsBackupSection({
 
   return (
     <div className="space-y-6">
-      {/* SECTION: GOOGLE DRIVE CLOUD INTEGRATION */}
-      <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-google-drive-card">
-        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border/40">
-          <div className="w-10 h-10 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
-            <Cloud className="w-5 h-5" />
+      {/* QUICK CLOUD BANNER */}
+      <div className="bg-brand-subtle/40 border border-brand/20 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-brand-subtle text-brand border border-brand/20 flex items-center justify-center shrink-0">
+            <Cloud className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-text-main">Kopia zapasowa w chmurze (Dysk Google)</h3>
-            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
-              Bezpieczna archiwizacja pliku bazy danych budżetu (<code className="bg-surface-2 px-1 py-0.5 rounded border border-border/70 text-text-main font-mono text-xs">saldo_budget.json</code>) na Twoim prywatnym Dysku. Gwarantuje to pełną kontrolę nad danymi i ochronę przed ich utratą po wyczyszczeniu przeglądarki.
+            <h4 className="text-xs font-bold text-text-main">Synchronizacja w chmurze (Dysk Google)</h4>
+            <p className="text-[11px] text-text-muted">
+              {googleUser ? "Połączono z kontem Google • Dostępny automatyczny zapis i weryfikacja spójności w zakładce Usługi Google" : "Dostępna kopia zapasowa na Dysku Google w zakładce Usługi Google"}
             </p>
           </div>
         </div>
-
-        {googleError && (
-          <div className="mb-5 p-4 bg-danger-subtle border border-danger/20 rounded-xl text-danger text-xs space-y-2" id="gdrive-auth-error-notice">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
-              <div className="font-bold text-danger">Błąd połączenia z kontem Google</div>
-            </div>
-            {googleError === "auth/popup-closed-by-user" ? (
-              <div className="leading-relaxed text-text-muted pl-6 space-y-2">
-                <p>
-                  <strong>Okno logowania zostało zamknięte</strong> przed ukończeniem autoryzacji.
-                </p>
-                <p>
-                  Jeśli korzystasz z aplikacji wewnątrz ramki podglądu (iframe) w AI Studio, przeglądarka mogła automatycznie zablokować wyskakujące okienko (pop-up) lub zablokować dostęp do plików cookies firm trzecich.
-                </p>
-                <p className="font-bold text-brand flex items-center gap-1.5">
-                  <Info className="w-4 h-4" /> Aby rozwiązać ten problem:
-                </p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Kliknij przycisk <strong>"Otwórz w nowej karcie"</strong> w prawym górnym rogu podglądu, aby otworzyć aplikację poza ramką iframe.</li>
-                  <li>Upewnij się, że zezwalasz na wyskakujące okienka (pop-ups) w ustawieniach przeglądarki dla tej domeny.</li>
-                </ul>
-              </div>
-            ) : (
-              <div className="leading-relaxed text-text-muted pl-6 space-y-2">
-                <p>
-                  Szczegóły błędu: <code className="bg-danger-subtle border border-danger/20 text-danger px-1 py-0.5 rounded font-mono text-xs">{googleError}</code>.
-                </p>
-                {googleError?.includes('unauthorized-domain') || googleError?.includes('nie jest autoryzowana') ? (
-                  <div className="bg-warning-subtle p-3 rounded-xl border border-warning/20 mt-2">
-                    <p className="font-bold text-warning mb-1 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Wymagana konfiguracja w Firebase</p>
-                    <p className="text-warning text-xs">
-                      Aktualna domena nie jest dodana do autoryzowanych domen w Twoim projekcie Firebase.
-                      Aby to naprawić:
-                    </p>
-                    <ol className="list-decimal pl-5 mt-1 space-y-1 text-warning text-xs font-medium">
-                      <li>Wejdź na stronę <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-warning">console.firebase.google.com</a></li>
-                      <li>Wybierz swój projekt</li>
-                      <li>Przejdź do <strong>Authentication</strong> &gt; <strong>Settings</strong> (Ustawienia) &gt; <strong>Authorized domains</strong> (Autoryzowane domeny)</li>
-                      <li>Dodaj domenę: <code className="bg-warning-subtle border border-warning/20 text-text-main px-1 rounded select-all">{window.location.hostname}</code></li>
-                    </ol>
-                  </div>
-                ) : (
-                  <p>Zalecamy otwarcie aplikacji w nowej karcie podglądu, aby uniknąć ograniczeń związanych z ramką (iframe).</p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {!googleUser ? (
-          <div className="bg-surface border border-border/70 rounded-xl p-6 text-center space-y-4 shadow-xs">
-            <p className="text-xs text-text-muted max-w-md mx-auto">
-              Aplikacja Saldo nie posiada centralnej bazy danych do przechowywania Twoich finansów. Podłączenie Dysku Google utworzy bezpieczny plik, z którego możesz korzystać na każdym urządzeniu.
-            </p>
-            <button
-              onClick={onConnectGoogle}
-              disabled={isGoogleLoading}
-              className="inline-flex items-center gap-2 bg-brand text-text-inverse border border-brand hover:bg-brand-hover font-bold py-3 px-6 rounded-xl text-xs active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 cursor-pointer shadow-md focus-visible:ring-2 focus-visible:ring-focus-ring"
-              id="btn-google-drive-connect"
-            >
-              {isGoogleLoading ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.41 0-6.173-2.763-6.173-6.174 0-3.41 2.763-6.173 6.173-6.173 1.48 0 2.83.52 3.9 1.383l3.153-3.152C18.99 1.943 15.82 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c5.786 0 10.74-4.14 10.74-11.24 0-.648-.06-1.285-.16-1.955H12.24z"/>
-                </svg>
-              )}
-              <span>Połącz z kontem Google Drive</span>
-            </button>
-            <details className="group mt-4 border border-border rounded-xl bg-surface overflow-hidden text-left max-w-md mx-auto shadow-xs">
-              <summary className="p-3 text-xs font-bold text-text-muted cursor-pointer hover:bg-surface-2 flex justify-between items-center list-none select-none">
-                <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-text-muted shrink-0" /> Dlaczego potrzebujemy dostępu do Dysku Google?</span>
-                <ChevronDown className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0" />
-              </summary>
-              <div className="p-4 border-t border-border/30 text-xs text-text-muted space-y-3 leading-relaxed">
-                <p>
-                  Aplikacja Saldo działa w modelu <strong className="text-text-main">Local-First</strong> (dane są na Twoim urządzeniu). 
-                  Aby zapewnić Ci kopię zapasową oraz możliwość synchronizacji między urządzeniami (np. telefonem a komputerem), 
-                  oferujemy zapis do prywatnego, ukrytego pliku na Twoim koncie Google Drive.
-                </p>
-                <div className="bg-brand-subtle p-3 rounded-xl border border-brand/20">
-                  <span className="font-bold text-brand block mb-1">Pełna prywatność:</span>
-                  Aplikacja prosi wyłącznie o dostęp typu <code className="bg-surface px-1 py-0.5 rounded border border-border text-brand text-xs">drive.file</code>.
-                  Oznacza to, że ma dostęp <strong>tylko i wyłącznie</strong> do plików, które sama utworzyła. Nie mamy dostępu do Twoich prywatnych zdjęć ani dokumentów!
-                </div>
-              </div>
-            </details>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-brand-subtle border border-brand/20 rounded-xl gap-4 shadow-xs">
-              <div className="flex items-center gap-3 min-w-0">
-                {googleUser.photoURL ? (
-                  <img
-                    src={googleUser.photoURL}
-                    referrerPolicy="no-referrer"
-                    alt={googleUser.displayName || "Google User"}
-                    className="w-10 h-10 rounded-full border border-brand/20"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-brand-subtle text-brand flex items-center justify-center font-bold text-sm">
-                    {getInitials(googleUser.displayName || googleUser.email || "G")}
-                  </div>
-                )}
-                <div>
-                  <span className="text-xs font-black text-text-main flex items-center gap-1.5">
-                    <CheckCircle className="w-3.5 h-3.5 text-brand" />
-                    Zalogowano jako: {googleUser.displayName || "Użytkownik Google"}
-                  </span>
-                  <p className="text-xs text-text-muted font-medium">{googleUser.email}</p>
-                </div>
-              </div>
-              <button
-                onClick={onDisconnectGoogle}
-                className="text-xs font-bold text-text-muted hover:text-danger hover:bg-danger-subtle p-2 rounded-xl active:scale-95 transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
-                id="btn-google-drive-disconnect"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Odłącz konto</span>
-              </button>
-            </div>
-
-            {/* Backups Action Stats */}
-            <div className="p-4 bg-surface rounded-xl border border-border grid grid-cols-1 md:grid-cols-2 gap-4 shadow-xs">
-              <div>
-                <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Nazwa pliku na dysku</span>
-                <span className="text-xs font-bold text-text-main font-mono block mt-0.5">saldo_budget.json</span>
-                <span className="text-xs text-text-muted flex items-center gap-1.5 mt-1">
-                  Status:
-                  {gdriveFileId ? (
-                    <span className="inline-flex items-center gap-1 text-brand font-bold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand" /> Plik istnieje
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-text-faint font-medium">
-                      <span className="w-1.5 h-1.5 rounded-full bg-text-muted" /> Plik zostanie utworzony przy pierwszym zapisie
-                    </span>
-                  )}
-                </span>
-              </div>
-              <div>
-                <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Ostatni zapis w chmurze</span>
-                <span className="text-xs font-bold text-text-main block mt-0.5 tabular-nums">
-                  {gdriveLastSynced || "Brak wykonanego zapisu"}
-                </span>
-                <span className="text-xs text-text-muted block mt-1">Dostępny do wczytania</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={onSyncToDrive}
-                disabled={isDriveActionLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand text-text-inverse border border-brand hover:bg-brand-hover font-bold py-2.5 px-4 rounded-xl text-xs active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring"
-                id="btn-google-drive-upload"
-              >
-                {isDriveActionLoading ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <CloudUpload className="w-3.5 h-3.5" />
-                )}
-                <span>Zapisz teraz kopie na Dysk</span>
-              </button>
-              <button
-                onClick={onLoadFromDrive}
-                disabled={isDriveActionLoading || !gdriveFileId}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-surface border border-border text-text-main hover:bg-surface-2 hover:border-brand/20 hover:text-brand active:scale-[0.98] transition-all disabled:opacity-40 disabled:active:scale-100 disabled:hover:border-border disabled:hover:text-text-main py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring"
-                id="btn-google-drive-download"
-              >
-                {isDriveActionLoading ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <CloudDownload className="w-3.5 h-3.5" />
-                )}
-                <span>Wczytaj kopie z Dysku Google</span>
-              </button>
-            </div>
-
-            {/* AutoSync Switch toggle */}
-            <div className="flex items-center justify-between p-4 bg-surface/50 border border-border rounded-xl">
-              <div className="pr-4">
-                <strong className="text-xs font-bold text-text-main flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" />
-                  Automatyczny zapis (Auto-Sync)
-                </strong>
-                <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
-                  Każda zmiana w transakcjach lub celach będzie automatycznie zapisywana na Twoim Dysku Google.
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer select-none focus-within:ring-2 focus-within:ring-focus-ring rounded-full">
-                <input
-                  type="checkbox"
-                  checked={isDriveAutoSyncEnabled}
-                  onChange={(e) => onToggleDriveAutoSync(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-surface-offset rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring"></div>
-              </label>
-            </div>
-            <p className="text-xs text-text-muted italic text-center">
-              Uwaga: Ze względów bezpieczeństwa tokeny Google Drive są przechowywane wyłącznie w pamięci RAM. Po odświeżeniu aplikacji wystarczy kliknąć przycisk autoryzacji ponownie.
-            </p>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {googleUser ? (
+            <span className="text-[11px] font-bold text-success flex items-center gap-1 bg-surface px-2.5 py-1 rounded-lg border border-border">
+              <CheckCircle className="w-3 h-3" /> Chmura aktywna
+            </span>
+          ) : (
+            <span className="text-[11px] font-medium text-text-muted bg-surface px-2.5 py-1 rounded-lg border border-border">
+              Tryb lokalny
+            </span>
+          )}
+        </div>
       </div>
 
       {/* SECTION: LOCAL FILES & RESET */}

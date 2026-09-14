@@ -182,6 +182,10 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#settings-view-container")).toBeVisible({ timeout: 5000 });
 
     // Ensure backup section is in view / click doctor saldo button
+    const backupTabBtn = page.locator("#btn-settings-tab-backup");
+    if (await backupTabBtn.isVisible()) {
+      await backupTabBtn.click();
+    }
     const doctorBtn = page.locator("#btn-open-doctor-saldo");
     await expect(doctorBtn).toBeVisible({ timeout: 5000 });
     await doctorBtn.click();

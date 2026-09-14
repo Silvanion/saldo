@@ -85,7 +85,10 @@ describe('Full App Diagnostic Loop - Forms', () => {
       );
     });
 
-    await screen.findByText('Wszystkie sekcje');
+    const allSectionsBtn = await screen.findByText('Wszystkie sekcje');
+    await act(async () => {
+      fireEvent.click(allSectionsBtn);
+    });
 
     // 1. Dodaj konto
     const addAccountBtn = screen.getByRole('button', { name: /\+\s*Dodaj konto/i });

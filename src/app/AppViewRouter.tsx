@@ -88,6 +88,9 @@ export function AppViewRouter({
     gdriveFileId,
     gdriveLastSynced,
     isDriveAutoSyncEnabled,
+    autoSyncStatus,
+    driveIntegrityReport,
+    checkDriveIntegrity,
     handleConnectGoogle,
     handleDisconnectGoogle,
     handleSyncToDrive,
@@ -367,6 +370,9 @@ export function AppViewRouter({
             gdriveFileId={gdriveFileId}
             gdriveLastSynced={gdriveLastSynced}
             isDriveAutoSyncEnabled={isDriveAutoSyncEnabled}
+            autoSyncStatus={autoSyncStatus}
+            driveIntegrityReport={driveIntegrityReport}
+            onCheckIntegrity={checkDriveIntegrity}
             onConnectGoogle={() => handleConnectGoogle("drive")}
             onDisconnectGoogle={onDisconnectGoogle}
             onSyncToDrive={onSyncToDrive}

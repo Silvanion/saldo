@@ -313,81 +313,8 @@ export function SettingsSecuritySection({
             </div>
           </div>
 
-          {/* Integrations & Security */}
+          {/* Security & PIN */}
           <div className="space-y-4">
-            <div className="bg-surface rounded-xl p-4 border border-border/30">
-              <div className="flex items-start gap-3">
-                <Database className="w-5 h-5 text-text-muted shrink-0" />
-                <div className="w-full">
-                  <h4 className="text-sm font-bold text-text-main">Google Drive</h4>
-                  <div className="mt-1 flex items-center justify-between">
-                    {gdriveFileId ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-subtle text-brand">
-                        <CheckCircle className="w-3 h-3" /> Połączony
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-surface-2 text-text-muted">
-                        Niepołączony
-                      </span>
-                    )}
-
-                    {!gdriveFileId && (
-                      <button
-                        onClick={onConnectGoogle}
-                        disabled={isDriveActionLoading}
-                        className="text-xs font-bold text-brand hover:underline disabled:opacity-50 active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      >
-                        Połącz Dysk Google
-                      </button>
-                    )}
-                  </div>
-
-                  {gdriveFileId && (
-                    <div className="mt-2 flex justify-between items-center">
-                      <p className="text-xs text-text-muted">
-                        Ostatnia kopia: {gdriveLastSynced ? new Date(gdriveLastSynced).toLocaleString("pl-PL") : "Brak danych o ostatniej synchronizacji"}
-                      </p>
-                      <button
-                        onClick={onSyncToDrive}
-                        disabled={isDriveActionLoading}
-                        className="text-xs font-bold text-brand hover:underline disabled:opacity-50 active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      >
-                        Wykonaj kopię teraz
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-surface rounded-xl p-4 border border-border/30">
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-text-muted shrink-0" />
-                <div className="w-full">
-                  <h4 className="text-sm font-bold text-text-main">Google Calendar</h4>
-                  <div className="mt-1 flex items-center justify-between">
-                    {calendarToken ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-brand-subtle text-brand">
-                        <CheckCircle className="w-3 h-3" /> Połączony
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-surface-2 text-text-muted">
-                        Niepołączony
-                      </span>
-                    )}
-
-                    {!calendarToken && onConnectCalendar && (
-                      <button
-                        onClick={onConnectCalendar}
-                        className="text-xs font-bold text-brand hover:underline active:scale-95 transition-transform rounded focus-visible:ring-2 focus-visible:ring-focus-ring"
-                      >
-                        Połącz Kalendarz Google
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <div className="bg-surface rounded-xl p-4 border border-border/30">
               <div className="flex items-start gap-3">

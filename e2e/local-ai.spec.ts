@@ -12,7 +12,7 @@ test.describe("Local AI E2E Flows", () => {
     });
 
     await setupApp(page);
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "automation" });
     await page.locator("#toggle-local-ai").click();
     await expect(page.locator("#input-local-ai-model")).toHaveValue("qwen2.5:7b");
 
@@ -30,7 +30,7 @@ test.describe("Local AI E2E Flows", () => {
     });
 
     await setupApp(page);
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "automation" });
     await page.locator("#toggle-local-ai").click();
     await page.locator("#btn-detect-local-ai-models").click();
     await expect(page.getByRole("button", { name: /gemma4:12b-mlx.*vision/i })).toBeVisible();
@@ -54,7 +54,7 @@ test.describe("Local AI E2E Flows", () => {
     });
 
     await setupApp(page);
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "automation" });
     await page.locator("#toggle-local-ai").click();
     await navigateToView(page, "transactions");
     await page.locator("#btn-import-csv").click();
@@ -76,7 +76,7 @@ test.describe("Local AI E2E Flows", () => {
     });
 
     await setupApp(page);
-    await navigateToView(page, "settings");
+    await navigateToView(page, "settings", { tab: "automation" });
     await page.locator("#toggle-local-ai").click();
     await navigateToView(page, "transactions");
     await page.locator("#btn-import-csv").click();
