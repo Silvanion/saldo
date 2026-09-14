@@ -6,3 +6,4 @@ export { ActivityWidget } from "./ActivityWidget";
 export * from './SettlementWidget';
 export { PaymentsTimelineWidget } from "./PaymentsTimelineWidget";
 export { FinancialHealthBridgeCard } from "./FinancialHealthBridgeCard";
+export { NetWorthWidget } from "./NetWorthWidget";

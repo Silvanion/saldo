@@ -34,6 +34,7 @@ export type ModalType =
   | "confirm"
   | "smartRulesManager"
   | "exportReports"
+  | "netWorth"
   | null;
 
 export type ModalState =
@@ -51,4 +52,5 @@ export type ModalState =
   | { type: "confirm"; payload: ConfirmPayload }
   | { type: "smartRulesManager" }
   | { type: "exportReports"; payload?: { initialTab?: "pdf" | "csv" | "backup" } }
+  | { type: "netWorth" }
   | { type: null };

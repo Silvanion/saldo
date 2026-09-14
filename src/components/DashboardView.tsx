@@ -30,7 +30,7 @@ import {
   LayoutDashboard
 } from "lucide-react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
-import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget, FinancialHealthBridgeCard } from "./dashboard";
+import { StatsWidget, CashflowChartWidget, BillsWidget, BudgetWarningsWidget, ActivityWidget, SettlementWidget, PaymentsTimelineWidget, FinancialHealthBridgeCard, NetWorthWidget } from "./dashboard";
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -46,6 +46,8 @@ function getWidgetIcon(id: string) {
   switch (id) {
     case "stats":
       return <BarChart3 className="w-4 h-4 text-brand" strokeWidth={1.75} />;
+    case "netWorth":
+      return <Landmark className="w-4 h-4 text-brand" strokeWidth={1.75} />;
     case "timeline":
       return <Clock className="w-4 h-4 text-brand" strokeWidth={1.75} />;
     case "bills":
@@ -71,6 +73,7 @@ interface DashboardViewProps {
   onOpenTxModal: () => void;
   onOpenBudgetModal: () => void;
   onOpenPaymentModal: () => void;
+  onOpenNetWorthModal?: () => void;
   onChangeView: (view: string) => void;
   recurringRules?: RecurringRule[];
   onAddSettlement?: (entry: { amount: number; isoDate: string; note?: string }) => void;
@@ -87,6 +90,7 @@ export function DashboardView({
   onOpenTxModal,
   onOpenBudgetModal,
   onOpenPaymentModal,
+  onOpenNetWorthModal,
   onChangeView,
   recurringRules = [],
   onAddSettlement,
@@ -112,6 +116,7 @@ export function DashboardView({
 
   const DEFAULT_WIDGETS: Widget[] = [
     { id: "stats", name: "Podsumowanie finansowe i Runway", visible: true, icon: "stats" },
+    { id: "netWorth", name: "Majątek Netto (Wealthfolio)", visible: true, icon: "netWorth" },
     { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "timeline" },
     { id: "bills", name: "Nadchodzące rachunki", visible: true, icon: "bills" },
     { id: "budget", name: "Plan budżetu i limity", visible: true, icon: "budget" },
@@ -122,11 +127,16 @@ export function DashboardView({
   const [widgets, setWidgets] = useState<Widget[]>(() => {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       try {
-        const saved = localStorage.getItem("dashboard_widgets_v6");
+        const saved = localStorage.getItem("dashboard_widgets_v7") || localStorage.getItem("dashboard_widgets_v6");
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length === DEFAULT_WIDGETS.length) {
-            return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const knownIds = new Set(parsed.map((w: any) => w.id));
+            const missing = DEFAULT_WIDGETS.filter((dw) => !knownIds.has(dw.id));
+            const validParsed = parsed.filter((w: any) => DEFAULT_WIDGETS.some((dw) => dw.id === w.id));
+            if (validParsed.length + missing.length === DEFAULT_WIDGETS.length) {
+              return [...validParsed, ...missing];
+            }
           }
         }
       } catch (e) {
@@ -147,7 +157,7 @@ export function DashboardView({
     setWidgets(newWidgets);
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       try {
-        localStorage.setItem("dashboard_widgets_v6", JSON.stringify(newWidgets));
+        localStorage.setItem("dashboard_widgets_v7", JSON.stringify(newWidgets));
       } catch (e) {
         // Fallback
       }
@@ -358,6 +368,15 @@ export function DashboardView({
                 momTrends={metrics.momTrends}
                 onChangeView={onChangeView}
                 middleRowSlot={analyticsMiddleRow}
+              />
+            );
+          } else if (widget.id === "netWorth") {
+            widgetContent = (
+              <NetWorthWidget
+                profile={profile}
+                currency={profile.currency}
+                onOpenNetWorthModal={onOpenNetWorthModal}
+                onChangeView={onChangeView}
               />
             );
           } else if (widget.id === "chart") {

@@ -245,6 +245,7 @@ export function AppViewRouter({
             onOpenTxModal={onOpenTxModal}
             onOpenBudgetModal={onOpenBudgetModal}
             onOpenPaymentModal={onOpenPaymentModal}
+            onOpenNetWorthModal={() => openModal("netWorth")}
             onChangeView={onChangeView}
             recurringRules={activeProfile?.recurringRules || []}
             onAddSettlement={handleAddSettlement}
