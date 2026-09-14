@@ -1,7 +1,7 @@
 import { auth } from "../firebase";
 
 export interface AiConfig {
-  aiMode: "none" | "local" | "cloud";
+  aiMode: "none" | "local";
   localAiEndpoint?: string;
   localAiModel?: string;
 }
@@ -11,8 +11,8 @@ export interface AiConfig {
  */
 export function getAiConfig(state?: { aiMode?: string; localAiEndpoint?: string; localAiModel?: string }): AiConfig {
   const rawMode = state?.aiMode?.toLowerCase();
-  const validMode = (rawMode === "cloud" || rawMode === "local" || rawMode === "none")
-    ? (rawMode as "none" | "local" | "cloud")
+  const validMode = (rawMode === "local" || rawMode === "none")
+    ? (rawMode as "none" | "local")
     : "none";
 
   return {
@@ -39,7 +39,7 @@ export async function callAiApi(endpoint: string, payload: any, config: AiConfig
     }
   }
 
-  // Attach auth token when available (required for 'cloud' mode, optional for local/none)
+  // Attach auth token when available
   const token = await auth.currentUser?.getIdToken();
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;

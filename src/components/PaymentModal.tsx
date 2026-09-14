@@ -71,8 +71,8 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
       setScanError("Obraz faktury jest zbyt duży (maksymalnie 3 MB).");
       return;
     }
-    if (state.aiMode !== "cloud") {
-      setScanError("Skanowanie faktur wymaga trybu chmurowego AI (Gemini).");
+    if (state.aiMode !== "local") {
+      setScanError("Skanowanie faktur wymaga włączenia lokalnego AI i modelu Ollama vision.");
       return;
     }
     setIsScanningInvoice(true);
@@ -181,7 +181,7 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
               <ScanLine className="h-4 w-4 text-brand" />
               <div>
                 <p className="text-xs font-bold text-text-main">Skanuj fakturę</p>
-                <p className="text-[11px] text-text-muted">Gemini odczyta nazwę, kwotę i termin. Sprawdź wynik przed zapisaniem.</p>
+                <p className="text-[11px] text-text-muted">Lokalny model AI odczyta nazwę, kwotę i termin. Sprawdź wynik przed zapisaniem.</p>
               </div>
             </div>
             <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-brand/20 bg-surface px-3 py-2 text-xs font-bold text-brand hover:bg-surface-2">

@@ -733,7 +733,7 @@ export const helpSectionsData: HelpSectionData[] = [
             <li><strong>Sugestie kategorii:</strong> dla transakcji, których nie rozpoznały Twoje reguły, model zaproponuje kategorię na podstawie opisu.</li>
             <li><strong>Odczyt wklejonego tekstu:</strong> gdy deterministyczny parser nie wyodrębni poprawnie kwot lub dat z nietypowego formatu wyciągu, lokalne AI spróbuje je odczytać.</li>
             <li><strong>Skanowane PDF-y:</strong> wybierz model vision (np. gemma4:12b-mlx), ponieważ zwykły model tekstowy nie odczyta obrazu. Dla każdego skanu sprawdź kwoty, daty i opisy w podglądzie — OCR może wymagać ręcznej korekty.</li>
-            <li><strong>Skanowanie faktur:</strong> w formularzu płatności możesz wybrać obraz faktury (JPG, PNG lub WebP do 3 MB). Ta funkcja korzysta z chmurowego Gemini, wymaga zalogowania i zawsze tylko wypełnia formularz — zapis następuje dopiero po Twoim zatwierdzeniu.</li>
+            <li><strong>Skanowanie faktur:</strong> w formularzu płatności możesz wybrać obraz faktury (JPG, PNG lub WebP do 3 MB). Ta funkcja korzysta z lokalnego modelu wizyjnego (Ollama vision), działa w pełni na Twoim urządzeniu i wstępnie wypełnia formularz — zapis następuje dopiero po Twoim zatwierdzeniu.</li>
             <li><strong>Zawsze do akceptacji:</strong> każda sugestia trafia do podglądu przed importem — nic nie zapisuje się automatycznie bez Twojej zgody.</li>
             <li><strong>Wyłączone domyślnie:</strong> włączasz to ręcznie w Ustawieniach → Automatyzacja, w każdej chwili możesz wyłączyć.</li>
           </ul>

@@ -52,7 +52,7 @@ export interface CommandPaletteModalProps {
   onExportData?: () => void;
   theme?: "dark" | "light";
   onToggleTheme?: () => void;
-  aiConfig?: { aiMode: "none" | "local" | "cloud"; localAiEndpoint?: string; localAiModel?: string };
+  aiConfig?: { aiMode: "none" | "local"; localAiEndpoint?: string; localAiModel?: string };
 }
 
 interface PaletteItem {
@@ -400,7 +400,7 @@ export function CommandPaletteModal({
       title: isAiParsing ? "Rozpoznawanie wpisu przez AI..." : "Rozpoznaj wpis przez AI",
       subtitle: `Przeanalizuj: „${text}”`,
       icon: <Sparkles className="w-4 h-4 text-brand" />,
-      badge: aiConfig.aiMode === "cloud" ? "Gemini" : "Ollama",
+      badge: "Ollama",
       onSelect: async () => {
         if (isAiParsing) return;
         setIsAiParsing(true);

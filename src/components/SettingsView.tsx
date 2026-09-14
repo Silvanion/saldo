@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { User } from "firebase/auth";
 import { iconByCategory, expenseCategories, incomeCategories, getMonthName } from "../utils";
 import { Profile, RecurringRule, TransactionRule, AppState, BankAccount, SupportedCurrency } from "../types";
@@ -70,36 +70,79 @@ function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: s
   return { level: 0, label: "Za krótkie", color: "bg-border" };
 }
 
-function getLocalAiRecommendation(): { primary: string; alternatives: string[]; reason: string } {
-  const browser = navigator as Navigator & {
+export interface RecommendedAiModel {
+  tag: string;
+  title: string;
+  badge: string;
+  description: string;
+  sizeEst: string;
+  isVision: boolean;
+}
+
+export const RECOMMENDED_AI_MODELS: RecommendedAiModel[] = [
+  {
+    tag: "llama3.2:3b",
+    title: "Llama 3.2 3B",
+    badge: "Lekki & Szybki",
+    description: "Niskie zużycie RAM (~2.0 GB). Błyskawiczna kategoryzacja i małe obciążenie.",
+    sizeEst: "~2.0 GB",
+    isVision: false
+  },
+  {
+    tag: "qwen2.5:7b",
+    title: "Qwen 2.5 7B",
+    badge: "Rekomendowany do Saldo",
+    description: "Najwyższa celność w ewaluacji Saldo. Ścisły JSON i polskie kategorie.",
+    sizeEst: "~4.7 GB",
+    isVision: false
+  },
+  {
+    tag: "llama3.2-vision:11b",
+    title: "Llama 3.2 Vision 11B",
+    badge: "OCR, Skany & Faktury",
+    description: "Model multimodalny. Wymagany do odczytu zdjęć faktur i skanów PDF.",
+    sizeEst: "~7.9 GB",
+    isVision: true
+  }
+];
+
+function getLocalAiRecommendation(): { primary: string; alternatives: string[]; reason: string; hardwareSummary: string } {
+  const browser = typeof navigator !== "undefined" ? (navigator as Navigator & {
     deviceMemory?: number;
     userAgentData?: { architecture?: string };
-  };
-  const cores = navigator.hardwareConcurrency || 4;
-  const memory = browser.deviceMemory || 8;
-  const architecture = `${browser.userAgentData?.architecture || ""} ${navigator.platform || ""} ${navigator.userAgent}`.toLowerCase();
+  }) : null;
+  const cores = (typeof navigator !== "undefined" && navigator.hardwareConcurrency) || 4;
+  const memory = browser?.deviceMemory || 8;
+  const architecture = `${browser?.userAgentData?.architecture || ""} ${typeof navigator !== "undefined" ? (navigator.platform || "") + " " + navigator.userAgent : ""}`.toLowerCase();
   const appleSilicon = architecture.includes("arm") && architecture.includes("mac");
+
+  const hardwareSummary = appleSilicon
+    ? `Apple Silicon (${cores} rdzeni, ~${memory} GB RAM)`
+    : `${cores} rdzeni CPU, ~${memory} GB RAM`;
 
   if (memory <= 4 || cores <= 4) {
     return {
-      primary: "qwen3:1.7b",
-      alternatives: ["gemma3:1b", "llama3.2:1b"],
-      reason: "Lekki wariant dla urządzeń z mniejszą pamięcią lub mniejszą liczbą rdzeni."
+      primary: "llama3.2:3b",
+      alternatives: ["qwen2.5:3b", "gemma2:2b"],
+      reason: "Zoptymalizowany pod kątem mniejszego zużycia pamięci RAM.",
+      hardwareSummary
     };
   }
-  if (memory >= 16 || cores >= 10) {
+  if (memory >= 16 || cores >= 10 || appleSilicon) {
     return {
-      primary: appleSilicon ? "qwen3:8b" : "gemma3:12b",
-      alternatives: ["qwen3:8b", "gemma3:4b"],
+      primary: "qwen2.5:7b",
+      alternatives: ["llama3.2:3b", "llama3.2-vision:11b"],
       reason: appleSilicon
-        ? "Apple Silicon zwykle dobrze radzi sobie z lokalnymi modelami 8B."
-        : "Mocniejsze urządzenie może użyć większego modelu dla lepszej jakości odpowiedzi."
+        ? "Wykryto Apple Silicon — rekomendowany Qwen 2.5 7B lub Llama 3.2 Vision dla pełnego OCR."
+        : "Wydajne urządzenie — rekomendowany Qwen 2.5 7B dla najwyższej precyzji finansowej.",
+      hardwareSummary
     };
   }
   return {
-    primary: "qwen3:4b",
-    alternatives: ["gemma3:4b", "llama3.2:3b"],
-    reason: "Dobry kompromis jakości, szybkości i zużycia pamięci."
+    primary: "qwen2.5:7b",
+    alternatives: ["llama3.2:3b", "llama3.2-vision:11b"],
+    reason: "Optymalny kompromis precyzji, szybkości i zużycia pamięci.",
+    hardwareSummary
   };
 }
 
@@ -709,11 +752,22 @@ export function SettingsView({
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showDeviceResetConfirm, setShowDeviceResetConfirm] = useState(false);
   const [isTestingLocalAi, setIsTestingLocalAi] = useState(false);
+  const [localAiTestResult, setLocalAiTestResult] = useState<{
+    ok: boolean;
+    message: string;
+    latencyMs?: number;
+  } | null>(null);
 
-  const refreshLocalAiModels = async () => {
+  useEffect(() => {
+    if (state.aiMode === "local" && (settingsTab === "all" || settingsTab === "automation")) {
+      refreshLocalAiModels(true);
+    }
+  }, [state.aiMode, settingsTab]);
+
+  const refreshLocalAiModels = async (silent = false) => {
     const config = resolveLocalAiConfig(state);
     if (!isLocalEndpointSafe(config.endpoint)) {
-      showToast("Endpoint lokalnego AI musi wskazywać na localhost.", "error");
+      if (!silent) showToast("Endpoint lokalnego AI musi wskazywać na localhost.", "error");
       return;
     }
     setIsLocalAiChecking(true);
@@ -734,33 +788,40 @@ export function SettingsView({
       setLocalAiModels(models);
       const selected = models.find((model) => model.name === config.model) || models[0];
       setLocalAiVisionAvailable(selected?.vision ?? false);
-      if (selected && selected.name !== config.model) {
+      if (selected && selected.name !== config.model && !state.localAiModel) {
         await saveState({ ...state, localAiModel: selected.name });
       }
-      showToast(models.length ? `Wykryto ${models.length} modeli Ollama.` : "Ollama działa, ale nie ma pobranych modeli.", models.length ? "success" : "info");
+      if (!silent) {
+        showToast(models.length ? `Wykryto ${models.length} modeli Ollama.` : "Ollama działa, ale nie ma pobranych modeli.", models.length ? "success" : "info");
+      }
     } catch (error) {
       setLocalAiModels([]);
       setLocalAiVisionAvailable(null);
-      showToast(error instanceof Error ? error.message : "Nie udało się pobrać listy modeli Ollama.", "error");
+      if (!silent) {
+        showToast(error instanceof Error ? error.message : "Nie udało się pobrać listy modeli Ollama.", "error");
+      }
     } finally {
       setIsLocalAiChecking(false);
     }
   };
 
-  const pullLocalAiModel = async () => {
+  const pullLocalAiModel = async (overrideModel?: string) => {
+    const targetModel = (typeof overrideModel === "string" && overrideModel.trim())
+      ? overrideModel.trim()
+      : (state.localAiModel?.trim() || DEFAULT_LOCAL_AI_MODEL);
     const config = resolveLocalAiConfig(state);
-    if (!isLocalEndpointSafe(config.endpoint) || !config.model) return;
+    if (!isLocalEndpointSafe(config.endpoint) || !targetModel) return;
     localAiPullController.current?.abort();
     const controller = new AbortController();
     localAiPullController.current = controller;
     setIsLocalAiPulling(true);
-    setLocalAiPullProgress({ status: "Rozpoczynanie pobierania...", completed: 0, total: 0 });
+    setLocalAiPullProgress({ status: `Rozpoczynanie pobierania ${targetModel}...`, completed: 0, total: 0 });
     try {
       const pullUrl = config.endpoint.replace(/\/api\/generate\/?$/, "/api/pull");
       const response = await fetch(pullUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: config.model, stream: true }),
+        body: JSON.stringify({ model: targetModel, stream: true }),
         signal: controller.signal
       });
       if (!response.ok || !response.body) throw new Error(`Nie udało się pobrać modelu (HTTP ${response.status}).`);
@@ -783,8 +844,11 @@ export function SettingsView({
         }
         if (done) break;
       }
-      showToast(`Model ${config.model} jest gotowy.`, "success");
-      await refreshLocalAiModels();
+      showToast(`Model ${targetModel} jest gotowy.`, "success");
+      if (state.localAiModel !== targetModel) {
+        await saveState({ ...state, localAiModel: targetModel });
+      }
+      await refreshLocalAiModels(true);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         showToast(error instanceof Error ? error.message : "Nie udało się pobrać modelu Ollama.", "error");
@@ -1678,13 +1742,11 @@ export function SettingsView({
             <div className="flex flex-wrap gap-2">
               {([
                 ["none", "Wyłączone"],
-                ["local", "Lokalne (Ollama)"],
-                ["cloud", "Chmurowe (Gemini)"]
+                ["local", "Lokalne (Ollama)"]
               ] as const).map(([mode, label]) => (
                 <button
                   key={mode}
                   type="button"
-                  disabled={mode === "cloud" && !googleUser}
                   onClick={() => saveState({
                     ...state,
                     aiMode: mode,
@@ -1705,7 +1767,7 @@ export function SettingsView({
                 </button>
               ))}
             </div>
-            {!googleUser && <p className="mt-2 text-[11px] text-text-muted">Tryb chmurowy wymaga zalogowania przez Google.</p>}
+            <p className="mt-2 text-[11px] text-text-muted">Dane są przetwarzane lokalnie przez Ollama. Tryb chmurowy Gemini został usunięty.</p>
           </div>
 
           {isLocalAiLikelyUnsupported() && (
@@ -1749,47 +1811,150 @@ export function SettingsView({
                 </div>
               </div>
 
-              <button
-                type="button"
-                disabled={isTestingLocalAi}
-                onClick={async () => {
-                  setIsTestingLocalAi(true);
-                  try {
-                    const result = await checkLocalAiHealth(resolveLocalAiConfig(state));
-                    if (result.ok) {
-                      showToast("Połączenie udane! Lokalny model odpowiada prawidłowo.", "success");
-                    } else {
-                      showToast(result.reason || "Nie udało się połączyć z lokalnym AI.", "error");
-                    }
-                  } finally {
-                    setIsTestingLocalAi(false);
-                  }
-                }}
-                className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
-                id="btn-test-local-ai"
-              >
-                {isTestingLocalAi ? "Testowanie..." : "Testuj połączenie"}
-              </button>
-
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={refreshLocalAiModels}
+                  disabled={isTestingLocalAi}
+                  onClick={async () => {
+                    setIsTestingLocalAi(true);
+                    const startTime = performance.now();
+                    try {
+                      const result = await checkLocalAiHealth(resolveLocalAiConfig(state));
+                      const latencyMs = Math.round(performance.now() - startTime);
+                      if (result.ok) {
+                        setLocalAiTestResult({
+                          ok: true,
+                          message: `Ollama odpowiada prawidłowo (${latencyMs} ms). Model: ${state.localAiModel || DEFAULT_LOCAL_AI_MODEL}`,
+                          latencyMs
+                        });
+                        showToast("Połączenie udane! Lokalny model odpowiada prawidłowo.", "success");
+                      } else {
+                        setLocalAiTestResult({
+                          ok: false,
+                          message: result.reason || "Nie udało się połączyć z lokalnym AI."
+                        });
+                        showToast(result.reason || "Nie udało się połączyć z lokalnym AI.", "error");
+                      }
+                    } finally {
+                      setIsTestingLocalAi(false);
+                    }
+                  }}
+                  className="px-3 py-2 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  id="btn-test-local-ai"
+                >
+                  {isTestingLocalAi ? "Testowanie..." : "Testuj połączenie"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => refreshLocalAiModels(false)}
                   disabled={isLocalAiChecking}
-                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50"
+                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50 cursor-pointer"
                   id="btn-detect-local-ai-models"
                 >
                   {isLocalAiChecking ? "Wykrywanie..." : "Wykryj modele"}
                 </button>
+
                 <button
                   type="button"
-                  onClick={pullLocalAiModel}
+                  onClick={() => pullLocalAiModel()}
                   disabled={isLocalAiPulling || !state.localAiModel}
-                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50"
+                  className="px-3 py-2 bg-surface border border-border text-text-main text-xs font-bold rounded-xl hover:bg-surface-2 disabled:opacity-50 cursor-pointer"
                   id="btn-pull-local-ai-model"
                 >
                   {isLocalAiPulling ? "Pobieranie..." : `Pobierz ${state.localAiModel || DEFAULT_LOCAL_AI_MODEL}`}
                 </button>
+              </div>
+
+              {localAiTestResult && (
+                <div
+                  className={`p-3 rounded-xl border text-xs flex items-center justify-between ${
+                    localAiTestResult.ok
+                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                      : "bg-danger-subtle border-danger/20 text-danger"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {localAiTestResult.ok ? (
+                      <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+                    )}
+                    <span>{localAiTestResult.message}</span>
+                  </div>
+                  {localAiTestResult.latencyMs !== undefined && (
+                    <span className="font-mono text-[11px] opacity-75 shrink-0 ml-2">
+                      {localAiTestResult.latencyMs} ms
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* REKOMENDOWANE MODELE DO URZĄDZENIA */}
+              <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-3">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand" />
+                    <span className="text-xs font-bold text-text-main">Rekomendowane modele do Saldo</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-2 text-text-muted border border-border">
+                    {localAiRecommendation.hardwareSummary}
+                  </span>
+                </div>
+                <p className="text-[11px] text-text-muted">
+                  {localAiRecommendation.reason}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {RECOMMENDED_AI_MODELS.map((rec) => {
+                    const isSelected = state.localAiModel === rec.tag;
+                    const isInstalled = localAiModels.some((m) => m.name === rec.tag || m.name.startsWith(rec.tag.split(":")[0] + ":"));
+                    return (
+                      <div
+                        key={rec.tag}
+                        className={`p-2.5 rounded-xl border flex flex-col justify-between transition-colors ${
+                          isSelected
+                            ? "border-brand/40 bg-brand-subtle"
+                            : "border-border/80 bg-surface-2/40 hover:bg-surface-2/80"
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-xs font-bold text-text-main truncate">{rec.title}</span>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                              rec.isVision ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20" : "bg-surface text-text-muted border border-border"
+                            }`}>
+                              {rec.badge}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-text-muted line-clamp-2 leading-relaxed mb-2">
+                            {rec.description}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+                          <span className="text-[10px] font-mono text-text-muted">{rec.sizeEst}</span>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await saveState({ ...state, localAiModel: rec.tag });
+                              if (!isInstalled) {
+                                void pullLocalAiModel(rec.tag);
+                              }
+                            }}
+                            className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-brand text-text-inverse"
+                                : isInstalled
+                                ? "bg-surface border border-border text-text-main hover:bg-surface-2"
+                                : "bg-brand/15 text-brand hover:bg-brand/25 border border-brand/30"
+                            }`}
+                          >
+                            {isSelected ? "Wybrany" : isInstalled ? "Wybierz" : "Pobierz"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {localAiModels.length > 0 && (

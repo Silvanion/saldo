@@ -56,7 +56,16 @@ async function startServer() {
         scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        connectSrc: ["'self'", "https://apis.google.com", "https://*.googleapis.com", "https://securetoken.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com"],
+        connectSrc: [
+          "'self'",
+          "https://apis.google.com",
+          "https://*.googleapis.com",
+          "https://securetoken.googleapis.com",
+          "https://firestore.googleapis.com",
+          "https://identitytoolkit.googleapis.com",
+          "http://localhost:11434",
+          "http://127.0.0.1:11434"
+        ],
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],
       }

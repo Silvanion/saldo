@@ -250,7 +250,27 @@ Pytanie użytkownika: ${message}`;
     return this.callLocalApi(prompt, false);
   }
 
-  async scanInvoice(_imageBase64: string, _mimeType: string): Promise<any> {
-    throw new Error("Skanowanie faktur z obrazka nie jest wspierane przez obecny lokalny model AI (wymaga modelu multimodalnego).");
+  async scanInvoice(imageBase64: string, mimeType: string): Promise<any> {
+    const model = await this.getModelName();
+    const response = await fetch(this.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt: "Odczytaj fakturę. Zwróć wyłącznie JSON z polami name (tytuł lub sprzedawca), amount (dodatnia kwota), dueDate (YYYY-MM-DD) i category. Nie zgaduj brakujących danych.",
+        images: [imageBase64],
+        stream: false,
+        format: "json"
+      })
+    });
+    if (!response.ok) throw new Error(`Błąd HTTP ${response.status} podczas analizy faktury.`);
+    const data = await response.json() as { response?: string };
+    const result = this.extractJson(data.response || "");
+    return {
+      name: result?.name,
+      amount: result?.amount,
+      dueDate: result?.dueDate,
+      category: result?.category
+    };
   }
 }

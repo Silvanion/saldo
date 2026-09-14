@@ -65,13 +65,13 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             <Sparkles className="h-5 w-5 text-brand" />
             <div>
               <h2 id="ai-chat-title" className="font-bold text-text-main">Doradca finansowy AI</h2>
-              <p className="text-xs text-text-muted">Tryb: {state.aiMode === "cloud" ? "Gemini" : state.aiMode === "local" ? "Ollama" : "wyłączony"}</p>
+              <p className="text-xs text-text-muted">Tryb: {state.aiMode === "local" ? "Ollama" : "wyłączony"}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Zamknij" className="rounded-lg p-2 text-text-muted hover:bg-surface-2"><X className="h-5 w-5" /></button>
         </header>
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {state.aiMode === "none" && <div className="rounded-xl border border-warning/20 bg-warning-subtle p-3 text-xs text-text-main">Włącz lokalne lub chmurowe AI w Ustawieniach, aby otrzymywać odpowiedzi.</div>}
+          {state.aiMode === "none" && <div className="rounded-xl border border-warning/20 bg-warning-subtle p-3 text-xs text-text-main">Włącz lokalne AI (Ollama) w Ustawieniach, aby otrzymywać odpowiedzi.</div>}
           {messages.map((message) => (
             <div key={message.id} className={`flex gap-2 ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
               {message.sender === "ai" && <Bot className="mt-2 h-4 w-4 shrink-0 text-brand" />}

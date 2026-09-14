@@ -9,13 +9,13 @@ const { callAiApiMock } = vi.hoisted(() => ({ callAiApiMock: vi.fn() }));
 
 vi.mock("../services/aiClient", () => ({
   callAiApi: callAiApiMock,
-  getAiConfig: vi.fn(() => ({ aiMode: "cloud" }))
+  getAiConfig: vi.fn(() => ({ aiMode: "local" }))
 }));
 
 let mockAppState: {
   profiles: any[];
   activeProfileId: string;
-  aiMode: "none" | "cloud";
+  aiMode: "none" | "local";
 } = {
   profiles: [
     {
@@ -213,7 +213,7 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
   });
 
   it("scans an invoice image and fills fields without saving automatically", async () => {
-    mockAppState.aiMode = "cloud";
+    mockAppState.aiMode = "local";
     callAiApiMock.mockResolvedValueOnce({
       name: "Faktura Orange",
       amount: 129.99,

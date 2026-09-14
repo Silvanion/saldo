@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { verifyFirebaseToken } from "../middleware/auth";
-import { cloudAiRateLimiter, localAiRateLimiter, noAiRateLimiter, aiPayloadLimiter } from "../middleware/security";
+import { localAiRateLimiter, noAiRateLimiter, aiPayloadLimiter } from "../middleware/security";
 import { createAiProvider } from "../ai/createAiProvider";
 import { logCostMetric } from "../services/aiService";
 import { z } from "zod";
@@ -15,7 +14,7 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
   const mode = (modeHeader || "none").toString().toLowerCase();
 
   // Validate allowed modes
-  if (mode !== "cloud" && mode !== "local" && mode !== "none") {
+  if (mode !== "local" && mode !== "none") {
     return res.status(400).json({ error: "Nieprawidłowy tryb AI." });
   }
 
@@ -63,12 +62,6 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
  */
 const routeSecurityByMode = (req: any, res: Response, next: NextFunction) => {
   const mode = req.aiConfig.mode;
-
-  if (mode === "cloud") {
-    return verifyFirebaseToken(req, res, () => {
-      return cloudAiRateLimiter(req, res, next);
-    });
-  }
 
   if (mode === "local") {
     // Local Ollama is private and must remain usable offline without Firebase login.
@@ -157,10 +150,6 @@ router.all("/health", async (req: any, res: Response) => {
         clearTimeout(timeoutId);
         return res.status(503).json({ status: "error", mode: "local", message: "Brak możliwości połączenia z lokalnym serwerem AI (Ollama)." });
       }
-    }
-
-    if (config.mode === "cloud") {
-      return res.json({ status: "ok", mode: "cloud", message: "Chmura AI (Gemini) jest gotowa." });
     }
 
     res.json({ status: "ok", config });
@@ -332,6 +321,7 @@ const ScanInvoiceOutput = z.object({
   name: z.string().optional(),
   amount: z.number().optional(),
   type: z.enum(["income", "expense"]).optional(),
+  dueDate: z.string().optional(),
   isoDate: z.string().optional(),
   category: z.string().optional()
 }).passthrough();

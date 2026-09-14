@@ -8,7 +8,7 @@ export interface AiProvider {
 }
 
 export interface AiConfig {
-  mode: "none" | "local" | "cloud";
+  mode: "none" | "local";
   localEndpoint?: string;
   localAiModel?: string;
 }

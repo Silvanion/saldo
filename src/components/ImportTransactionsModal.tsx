@@ -226,7 +226,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       const text = await extractPdfText(file);
       if (!text.trim()) {
         if (!isAiAvailable) {
-          throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI lub Chmurę AI, aby przeanalizować skan.");
+          throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI (z modelem vision w Ustawieniach), aby przeanalizować skan.");
         }
         const pages = await renderPdfPages(file);
         if (state.aiMode === "local") {

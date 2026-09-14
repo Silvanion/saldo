@@ -1,22 +1,5 @@
 import rateLimit from "express-rate-limit";
 
-// Protects cloud AI endpoints (most strict, max 10 requests per minute per user/IP)
-export const cloudAiRateLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 10,
-  message: { error: "Zbyt wiele zapytań do chmury AI. Spróbuj ponownie za chwilę." },
-  standardHeaders: true, 
-  legacyHeaders: false,
-  validate: false,
-  keyGenerator: (req: any) => {
-    if (req.user && req.user.uid) return req.user.uid;
-    return req.ip || "unknown";
-  }
-});
-
-// Alias for naming consistency
-export const aiCloudRateLimiter = cloudAiRateLimiter;
-
 // Protects local AI endpoints (moderately strict, max 30 requests per minute per user/IP)
 export const localAiRateLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
