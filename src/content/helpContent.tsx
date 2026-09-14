@@ -26,7 +26,8 @@ import {
   RefreshCw,
   Sliders,
   CheckCircle,
-  Landmark
+  Landmark,
+  ListTodo
 } from "lucide-react";
 
 import {
@@ -740,6 +741,125 @@ export const helpSectionsData: HelpSectionData[] = [
         </div>
       </div>
     )
+  },
+  {
+    id: "net-worth-wealthfolio",
+    cat: "Analizy i Symulatory",
+    title: "Majątek Netto (Wealthfolio) — Aktywa, Pasywa i Wskaźniki Płynności",
+    icon: <Landmark className="w-5 h-5" />,
+    badge: "Nowość v1.3",
+    keywords: ["majątek", "net worth", "wealthfolio", "aktywa", "pasywa", "dti", "runway", "wartość netto", "kapitał"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Moduł <strong className="text-text-main">Majątku Netto (Wealthfolio)</strong> pozwala spojrzeć na Twoje finanse z lotu ptaka, precyzyjnie rozdzielając to, co posiadasz (aktywa), od tego, co jesteś winien instytucjom finansowym (pasywa).
+        </p>
+
+        <ul className="list-disc pl-5 space-y-2 text-xs">
+          <li>
+            <strong>Rozbicie Aktywów:</strong> płynna gotówka na kontach operacyjnych, środki w Skarbonkach (celach), wyceny nieruchomości oraz inwestycje kapitałowe.
+          </li>
+          <li>
+            <strong>Rozbicie Pasywów:</strong> kredyty hipoteczne, pożyczki gotówkowe, karty kredytowe, limity w koncie oraz nieopłacone rachunki bieżącego miesiąca.
+          </li>
+          <li>
+            <strong>Wskaźnik DTI (Debt-to-Assets):</strong> stosunek Twoich łącznych długów do zgromadzonych aktywów. Wartość poniżej 30% oznacza zdrowy profil bez nadmiernej dźwigni finansowej.
+          </li>
+          <li>
+            <strong>Bufor Płynności (Liquid Runway):</strong> liczba miesięcy przetrwania w oparciu wyłącznie o gotówkę i płynne oszczędności, niezależnie od majątku trwałego.
+          </li>
+          <li>
+            <strong>Oś Czasu (Timeline):</strong> śledzenie trajektorii wzrostu kapitału miesiąc do miesiąca z dynamiką procentową.
+          </li>
+        </ul>
+      </div>
+    )
+  },
+  {
+    id: "financial-skills-plans",
+    cat: "Automatyzacja lokalna",
+    title: "Deterministyczne Plany Działania (Claude Skills) i Skarbonki",
+    icon: <ListTodo className="w-5 h-5" />,
+    badge: "Asystenci Finansowi",
+    keywords: ["plany działania", "skills", "umiejętności", "lawina", "poduszka", "subskrypcje", "50/30/20", "checklist"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Zamiast ogólnych porad, Saldo oferuje deterministycznych asystentów taktycznych inspirowanych architekturą Claude Skills. Generują oni gotowe, skrojone pod Twój profil plany z konkretnymi krokami do odhaczenia:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-2 text-xs">
+          <li>
+            <strong>Akcelerator Spłaty Długów:</strong> dobiera najkorzystniejszy plan nadpłat odsetkowych (metoda Lawiny) i szacuje zaoszczędzone odsetki.
+          </li>
+          <li>
+            <strong>Architekt Poduszki Finansowej:</strong> 3-etapowy plan budowy rezerwy awaryjnej (1-miesięczna, 3-miesięczna i 6-miesięczna) z automatycznym wyliczeniem wymaganej kwoty.
+          </li>
+          <li>
+            <strong>Audyt Kosztów Cyklicznych:</strong> identyfikacja i renegocjacja subskrypcji oraz przejście na rozliczenia roczne.
+          </li>
+          <li>
+            <strong>Rebalansowanie Budżetu 50/30/20:</strong> zrównoważenie proporcji między potrzebami, zachciankami i inwestycjami.
+          </li>
+          <li>
+            <strong>1-klikowe Tworzenie Celu:</strong> z poziomu wygenerowanego planu możesz jednym przyciskiem założyć powiązany cel w Skarbonkach.
+          </li>
+          <li>
+            <strong>Śledzenie na Pulpicie:</strong> najbliższy krok z checklisty wyświetla się bezpośrednio na ekranie głównym z przyciskiem szybkiego odznaczenia.
+          </li>
+        </ul>
+      </div>
+    )
+  },
+  {
+    id: "saldo-wrapped-stories",
+    cat: "Analizy i Symulatory",
+    title: "Saldo Wrapped — Wizualne Karty Podsumowań (Stories) i Eksport PNG",
+    icon: <Sparkles className="w-5 h-5" />,
+    badge: "Format 9:16",
+    keywords: ["saldo wrapped", "stories", "podsumowanie", "karty", "moneyprinterturbo", "social", "png", "grafika"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          Zainspirowane popularnym formatem rocznych i miesięcznych podsumowań, <strong className="text-text-main">Saldo Wrapped</strong> przekształca surowe liczby w serię 6 dynamicznych kart narracyjnych:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-2 text-xs">
+          <li><strong>Intro & Bilans:</strong> syntetyczne podsumowanie wpływów, wydatków, bilansu netto i stopy oszczędności.</li>
+          <li><strong>Anatomia Wydatków:</strong> 4 dominujące kategorie z porównaniem procentowym do poprzedniego miesiąca.</li>
+          <li><strong>Rytm i Nawyki:</strong> najdroższy dzień tygodnia, największy jednorazowy wydatek oraz dzienny burn rate.</li>
+          <li><strong>Majątek & Skarbonki:</strong> postęp realizacji celów i płynne rezerwy finansowe.</li>
+          <li><strong>Health Score:</strong> syntetyczny scoring kondycji (0–100 pkt) z kluczowym atutem miesiąca.</li>
+          <li><strong>Karta Lidera Saldo:</strong> estetyczna karta wykonawcza z podsumowaniem kluczowych liczb.</li>
+          <li><strong>Natywny Eksport PNG:</strong> możliwość pobrania dowolnej karty jako pliku graficznego o wysokiej rozdzielczości (1080x1920) za pomocą jednego kliknięcia.</li>
+        </ul>
+      </div>
+    )
+  },
+  {
+    id: "doctor-saldo-auditor",
+    cat: "Kopia i Chmura",
+    title: "Doktor Saldo — Autonomiczny Audytor Bazy i Samonaprawa (Self-Healing)",
+    icon: <Database className="w-5 h-5" />,
+    badge: "Autoprotection & Undo",
+    keywords: ["doktor saldo", "audytor", "spójność", "naprawa", "self-healing", "duplikaty", "błędy", "integralność"],
+    content: (
+      <div className="space-y-4 text-sm text-text-muted">
+        <p className="leading-relaxed">
+          <strong className="text-text-main">Doktor Saldo</strong> to autonomiczny silnik diagnostyczny, który czuwa nad nieskazitelną spójnością Twoich danych. Automatycznie wykrywa i naprawia ukryte błędy bazy:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-2 text-xs">
+          <li><strong>Duplikaty Transakcji:</strong> wychwytuje transakcje o identycznej dacie, kwocie i opisie (np. po wielokrotnym imporcie wyciągów CSV).</li>
+          <li><strong>Osierocone Transakcje:</strong> identyfikuje wpisy przypisane do usuniętych kont bankowych i przypisuje je do konta domyślnego.</li>
+          <li><strong>Transakcje Bez Kategorii:</strong> wykrywa puste kategorie i uzupełnia je lub przypisuje do kategorii „Inne”.</li>
+          <li><strong>Błędne Daty:</strong> koryguje niepoprawne, puste lub omyłkowo wybiegające w daleką przyszłość daty wpisów.</li>
+          <li><strong>Rachunki bez Pokrycia:</strong> znajduje zapłacone rachunki, które nie wygenerowały odpowiadającej im transakcji rozchodowej.</li>
+          <li><strong>Desynchronizacja Skarbonek:</strong> przelicza sumę wpłat na cele z historią transferów i koryguje zaokrąglenia.</li>
+          <li><strong>Automatyczne Bezpieczeństwo (Undo):</strong> przed każdą naprawą tworzona jest migawka stanu, co pozwala natychmiast cofnąć operację skrótem <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-[11px] font-mono">Ctrl+Z</kbd> / <kbd className="px-1.5 py-0.5 bg-surface border border-border rounded text-[11px] font-mono">Cmd+Z</kbd>.</li>
+        </ul>
+      </div>
+    )
   }
 ];
 
@@ -808,5 +928,18 @@ export const faqData: FaqEntry[] = [
   {
     question: "Czy transakcja spłaty raty może zostać automatycznie powiązana z kredytem?",
     answer: "Tak. W module Kredyty i Hipoteka możesz połączyć istniejącą transakcję wydatku z konkretnym zobowiązaniem. Historia powiązanych płatności, postęp spłaty i kamienie milowe aktualizują się automatycznie na podstawie tych powiązań."
+  },
+  {
+    question: "Jak dokładnie obliczany jest Majątek Netto i wskaźnik DTI?",
+    answer: "Majątek Netto to suma wszystkich Twoich aktywów (gotówka na kontach, oszczędności w celach, nieruchomości, inwestycje) minus suma wszystkich pasywów (kredyty hipoteczne, pożyczki, karty kredytowe, niezapłacone rachunki). Wskaźnik DTI (Debt-to-Assets) to stosunek łącznego długu do łącznych aktywów — wartość poniżej 30% oznacza bardzo bezpieczny poziom."
+  },
+  {
+    question: "Czym są Plany Działania (Claude Skills) i jak powiązać je ze Skarbonkami?",
+    answer: "Plany Działania to deterministyczne scenariusze krok-po-kroku (np. budowa poduszki finansowej lub eliminacja zbędnych subskrypcji). Każdy wygenerowany plan z kwotą docelową posiada przycisk 'Utwórz cel w Skarbonkach', który automatycznie zakłada cel oszczędnościowy w module Cele. Najbliższy krok planu możesz odznaczać bezpośrednio z Pulpitu."
+  },
+  {
+    question: "Jak działa samonaprawa (Self-Healing) w Doktorze Saldo?",
+    answer: "Doktor Saldo analizuje bazę pod kątem 6 typów anomalii (np. przypadkowe duplikaty po imporcie CSV czy desynchronizacja kwot celów). Kliknięcie przycisku 'Napraw wszystko automatycznie' koryguje znalezione problemy w ułamku sekundy, a system automatycznie zapisuje kopię cofania (Undo), dzięki czemu możesz odwrócić operację w dowolnym momencie."
   }
 ];
+
