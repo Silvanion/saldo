@@ -1,6 +1,7 @@
 
 import { useApp } from "./providers/AppContext";
 import React, { useState, useEffect, Suspense, lazy } from "react";
+import { motion } from "motion/react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
 import { ErrorBoundary } from "../components/ErrorBoundary";
@@ -184,13 +185,22 @@ export function AppShell({
               setActiveView("dashboard");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "dashboard" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "dashboard" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-dashboard"
           >
-            <LayoutDashboard className="w-4 h-4 shrink-0" />
-            {"Przegląd"}
+            {activeView === "dashboard" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
+              {"Przegląd"}
+            </span>
           </button>
 
           <button
@@ -198,13 +208,22 @@ export function AppShell({
               setActiveView("transactions");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "transactions" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "transactions" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-transactions"
           >
-            <History className="w-4 h-4 shrink-0" />
-            {"Historia"}
+            {activeView === "transactions" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <History className="w-4 h-4 shrink-0" />
+              {"Historia"}
+            </span>
           </button>
 
           <button
@@ -212,17 +231,24 @@ export function AppShell({
               setActiveView("payments");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "payments" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center justify-between w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "payments" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-payments"
           >
-            <span className="flex items-center gap-3">
+            {activeView === "payments" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
               <Clock className="w-4 h-4 shrink-0" />
               {"Płatności"}
             </span>
             {activeProfile && activeProfile.payments.filter((p) => p.status !== "Opłacono").length > 0 && (
-              <span className="bg-danger-subtle text-danger text-xs font-black px-2 py-0.5 rounded-full shrink-0">
+              <span className="relative z-10 bg-danger-subtle text-danger text-xs font-black px-2 py-0.5 rounded-full shrink-0">
                 {activeProfile.payments.filter((p) => p.status !== "Opłacono").length}
               </span>
             )}
@@ -233,13 +259,22 @@ export function AppShell({
               setActiveView("budget");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "budget" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "budget" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-budget"
           >
-            <Wallet className="w-4 h-4 shrink-0" />
-            {"Budżet"}
+            {activeView === "budget" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <Wallet className="w-4 h-4 shrink-0" />
+              {"Budżet"}
+            </span>
           </button>
 
           <button
@@ -247,13 +282,22 @@ export function AppShell({
               setActiveView("goals");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "goals" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "goals" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-goals"
           >
-            <Target className="w-4 h-4 shrink-0" />
-            {"Cele i oszczędności"}
+            {activeView === "goals" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <Target className="w-4 h-4 shrink-0" />
+              {"Cele i oszczędności"}
+            </span>
           </button>
 
           <button
@@ -261,13 +305,22 @@ export function AppShell({
               setActiveView("analysis");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "analysis" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "analysis" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-analysis"
           >
-            <LineChart className="w-4 h-4 shrink-0" />
-            {"Analiza"}
+            {activeView === "analysis" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <LineChart className="w-4 h-4 shrink-0" />
+              {"Analiza"}
+            </span>
           </button>
 
           <button
@@ -275,13 +328,22 @@ export function AppShell({
               setActiveView("debts");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "debts" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "debts" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-debts"
           >
-            <Landmark className="w-4 h-4 shrink-0" />
-            {"Kredyty i Hipoteka"}
+            {activeView === "debts" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <Landmark className="w-4 h-4 shrink-0" />
+              {"Kredyty i Hipoteka"}
+            </span>
           </button>
         </nav>
 
@@ -292,13 +354,22 @@ export function AppShell({
               setActiveView("help");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "help" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "help" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-help"
           >
-            <Info className="w-4 h-4 shrink-0" />
-            {"Pomoc"}
+            {activeView === "help" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <Info className="w-4 h-4 shrink-0" />
+              {"Pomoc"}
+            </span>
           </button>
 
           <button
@@ -306,13 +377,22 @@ export function AppShell({
               setActiveView("settings");
               setIsMobileMenuOpen(false);
             }}
-            className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold mb-3 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "settings" ? "bg-brand-subtle text-brand border border-brand/20" : "text-text-muted hover:text-text-main hover:bg-surface-2"
+            className={`relative flex items-center gap-3 w-full px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-bold mb-3 active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+              activeView === "settings" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
             }`}
             id="nav-settings"
           >
-            <Settings className="w-4 h-4 shrink-0" />
-            {"Ustawienia"}
+            {activeView === "settings" && (
+              <motion.span
+                layoutId="activeSidebarPill"
+                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
+                transition={{ type: "spring", stiffness: 420, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-3">
+              <Settings className="w-4 h-4 shrink-0" />
+              {"Ustawienia"}
+            </span>
           </button>
 
           <button

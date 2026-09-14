@@ -67,6 +67,28 @@ function getWidgetIcon(id: string) {
   }
 }
 
+const dashboardGridVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const dashboardWidgetVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.28,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
 interface DashboardViewProps {
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
   profile: Profile;
@@ -396,7 +418,12 @@ export function DashboardView({
       )}
 
       {/* Flexible Masonry/Grid Layout for Widgets */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 items-stretch relative z-0">
+      <motion.div
+        variants={dashboardGridVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 items-stretch relative z-0"
+      >
         {widgets.filter(w => w.visible || isEditMode).map((widget, index) => {
           let widgetContent = null;
 
@@ -540,6 +567,7 @@ export function DashboardView({
             <motion.div
               key={widget.id}
               layout
+              variants={dashboardWidgetVariants}
               draggable={isEditMode}
               onDragStart={(e: any) => handleDragStart(e, widget.id)}
               onDragOver={(e: any) => handleDragOver(e, widget.id)}
@@ -591,7 +619,7 @@ export function DashboardView({
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Customizer Overlay Modal */}
       <AnimatePresence>
