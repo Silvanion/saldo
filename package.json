@@ -21,11 +21,17 @@
       "package.json"
     ],
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.png",
       "category": "public.app-category.finance"
     },
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
     }
   },
   "scripts": {
@@ -73,6 +79,7 @@
     "esbuild": "^0.25.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
