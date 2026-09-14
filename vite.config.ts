@@ -120,13 +120,17 @@ export default defineConfig(() => {
               if (id.includes('lucide-react')) {
                 return 'vendor-icons';
               }
+              if (id.includes('pdfjs-dist')) {
+                return 'vendor-pdfjs';
+              }
               if (id.includes('react') || id.includes('scheduler') || id.includes('motion')) {
                 return 'vendor-framework';
               }
             }
           }
         }
-      }
+      },
+      chunkSizeWarningLimit: 1000
     },
     resolve: {
       alias: {
