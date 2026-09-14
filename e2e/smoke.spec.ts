@@ -195,5 +195,66 @@ test.describe("Smoke: Core Application Flow", () => {
     await closeBtn.click();
     await expect(page.locator("#data-auditor-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("H. Mortgage Pro Center Flow: adds mortgage, verifies KNF stress test, credit vacation, and LTV monitor", async ({ page }) => {
+    await setupApp(page);
+
+    // 1. Navigate to Debts view
+    await navigateToView(page, "debts");
+    await expect(page.locator("#debts-view-container")).toBeVisible({ timeout: 5000 });
+
+    // 2. Add Mortgage Debt via modal if not present
+    const mortgageBanner = page.locator("#mortgage-pro-banner");
+    if (!await mortgageBanner.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const addDebtBtn = page.locator("#btn-add-debt");
+      await expect(addDebtBtn).toBeVisible({ timeout: 5000 });
+      await addDebtBtn.click();
+
+      // Ensure form is open
+      await expect(page.locator("#debt-form-modal-title")).toBeVisible({ timeout: 5000 });
+      await page.locator("#input-debt-name").fill("Kredyt Hipoteczny E2E");
+      await page.locator("#input-debt-institution").fill("PKO Bank Polski");
+      await page.locator("#input-debt-balance").fill("420000");
+      await page.locator("#input-debt-monthly-payment").fill("3100");
+      await page.locator("#input-debt-interest-rate").fill("7.15");
+      await page.locator("#btn-submit-debt-form").click();
+
+      await expect(page.locator("#debt-form-modal-title")).not.toBeVisible({ timeout: 5000 });
+    }
+
+    // 3. Verify Mortgage Pro banner is visible and open modal
+    await expect(page.locator("#mortgage-pro-banner")).toBeVisible({ timeout: 5000 });
+    const openProBtn = page.locator("#btn-open-mortgage-pro-hub");
+    await expect(openProBtn).toBeVisible({ timeout: 5000 });
+    await openProBtn.click();
+
+    // 4. Verify Mortgage Pro Modal opened
+    const modalTitle = page.locator("#mortgage-pro-modal-title");
+    await expect(modalTitle).toBeVisible({ timeout: 5000 });
+    await expect(modalTitle).toContainText("Centrum Hipoteczne Mortgage Pro");
+
+    // 5. Check Tab 1: Stress-Test KNF (+300 pb)
+    await expect(page.locator("#tab-mortgage-stress-test")).toBeVisible();
+    await expect(page.getByText(/Bufor ostrożnościowy KNF/i).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#btn-export-mortgage-pdf")).toBeVisible();
+
+    // 6. Check Tab 2: Wakacje Kredytowe
+    await page.locator("#tab-mortgage-vacation").click();
+    await expect(page.getByText(/Konfiguracja zawieszenia rat/i).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Dźwignia Finansowa/i).first()).toBeVisible();
+
+    // 7. Check Tab 3: Raty Malejące vs Równe
+    await page.locator("#tab-mortgage-annuity-vs-decreasing").click();
+    await expect(page.getByText(/Zysk z rat malejących/i).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Raty Malejące \(Kapitałowe\)/i).first()).toBeVisible();
+
+    // 8. Check Tab 4: LTV & Bufor Kapitałowy
+    await page.locator("#tab-mortgage-ltv").click();
+    await expect(page.getByText(/Wartość nieruchomości/i).first()).toBeVisible({ timeout: 5000 });
+
+    // 9. Close Modal
+    await page.locator("#btn-close-mortgage-pro").click();
+    await expect(page.locator("#mortgage-pro-modal-title")).not.toBeVisible({ timeout: 5000 });
+  });
 });
 

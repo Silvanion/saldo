@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { Profile } from "../types";
+import { Profile, DebtItem } from "../types";
 import { getMonthName, cleanPolishChars, expenseCategories, iconByCategory } from "../utils";
 import { formatMoney } from "../utils/format";
 import {
@@ -1339,6 +1339,238 @@ export function generateAnnualReportPdf(
 
   // Zapis pliku PDF z bezpieczną nazwą
   const filename = `Roczne_Podsumowanie_Saldo_${year}.pdf`;
+  if (options?.returnBlob) {
+    return doc.output("blob");
+  }
+  doc.save(filename);
+}
+
+/**
+ * Generuje profesjonalny raport analityczny kredytu hipotecznego Mortgage Pro (PDF).
+ */
+export function generateMortgageReportPdf(
+  debt: DebtItem,
+  currency: string = "PLN",
+  options?: { returnBlob?: boolean }
+): Blob | void {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const cleanStr = (text: string) => cleanPolishChars(text || "");
+
+  const colors = {
+    brandTeal: [19, 117, 102] as [number, number, number],
+    brandDarkTeal: [15, 92, 80] as [number, number, number],
+    darkInk: [15, 23, 42] as [number, number, number],
+    mutedText: [100, 116, 139] as [number, number, number],
+    surfaceLight: [248, 250, 252] as [number, number, number],
+    borderLight: [226, 232, 240] as [number, number, number],
+    incomeGreen: [16, 185, 129] as [number, number, number],
+    expenseCoral: [244, 63, 94] as [number, number, number],
+    tealSubtleBg: [230, 244, 241] as [number, number, number]
+  };
+
+  let y = 14;
+
+  // --- TOP ACCENT BAR ---
+  doc.setFillColor(...colors.brandTeal);
+  doc.rect(0, 0, 210, 4, "F");
+
+  // --- HEADER SECTION ---
+  y += 4;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(...colors.brandTeal);
+  doc.text("SALDO", 14, y + 6);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.mutedText);
+  doc.text("Centrum Hipoteczne Mortgage Pro", 14, y + 11);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(...colors.darkInk);
+  const titleText = cleanStr("RAPORT ANALITYCZNY HIPOTEKI");
+  doc.text(titleText, 196 - doc.getTextWidth(titleText), y + 6);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.mutedText);
+  const dateStr = cleanStr(`Wygenerowano: ${new Date().toLocaleDateString("pl-PL")}`);
+  doc.text(dateStr, 196 - doc.getTextWidth(dateStr), y + 11);
+
+  y += 18;
+  doc.setDrawColor(...colors.borderLight);
+  doc.line(14, y, 196, y);
+  y += 6;
+
+  // --- LOAN DETAILS HEADER STRIP ---
+  doc.setFillColor(...colors.surfaceLight);
+  doc.roundedRect(14, y, 182, 22, 2, 2, "F");
+  doc.setDrawColor(...colors.borderLight);
+  doc.roundedRect(14, y, 182, 22, 2, 2, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr(debt.name), 18, y + 7);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr(`Instytucja: ${debt.institution || "Bank"} | Status: ${debt.status === "active" ? "Aktywny" : "Zamkniety"}`), 18, y + 13);
+  doc.text(cleanStr(`Pozostaly okres: ${debt.remainingMonths || 240} miesiecy (${Math.round(((debt.remainingMonths || 240) / 12) * 10) / 10} lat)`), 18, y + 18);
+
+  const balanceText = cleanStr(`Saldo: ${formatMoney(debt.balance, currency)}`);
+  const rateText = cleanStr(`Oprocentowanie: ${debt.interestRate}%`);
+  const paymentText = cleanStr(`Rata: ${formatMoney(debt.monthlyPayment, currency)}`);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...colors.brandDarkTeal);
+  doc.text(balanceText, 192 - doc.getTextWidth(balanceText), y + 7);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...colors.darkInk);
+  doc.text(rateText, 192 - doc.getTextWidth(rateText), y + 13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...colors.darkInk);
+  doc.text(paymentText, 192 - doc.getTextWidth(paymentText), y + 18);
+
+  y += 28;
+
+  // --- METRICS GRID (2 CARDS) ---
+  const ltv = debt.propertyValue && debt.propertyValue > 0
+    ? Math.round((debt.balance / debt.propertyValue) * 1000) / 10
+    : null;
+  const ltvOverpayment80 = ltv && ltv > 80 && debt.propertyValue
+    ? Math.max(0, Math.round(debt.balance - debt.propertyValue * 0.8))
+    : 0;
+
+  // Card 1: LTV
+  doc.setFillColor(...colors.tealSubtleBg);
+  doc.roundedRect(14, y, 88, 26, 2, 2, "F");
+  doc.setDrawColor(...colors.borderLight);
+  doc.roundedRect(14, y, 88, 26, 2, 2, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.brandDarkTeal);
+  doc.text(cleanStr("WSKAZNIK LTV (LOAN-TO-VALUE)"), 18, y + 6);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(ltv !== null ? `${ltv}%` : "Brak danych", 18, y + 14);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(...colors.mutedText);
+  if (ltv !== null) {
+    if (ltv <= 80) {
+      doc.text(cleanStr("Bezpieczna strefa (ponizej 80% LTV)."), 18, y + 21);
+    } else {
+      doc.text(cleanStr(`Nadplac ${formatMoney(ltvOverpayment80, currency)} do progu 80% LTV.`), 18, y + 21);
+    }
+  } else {
+    doc.text(cleanStr("Wymaga uzupelnienia wartosci nieruchomosci."), 18, y + 21);
+  }
+
+  // Card 2: KNF Stress Test (+300 pb)
+  const monthlyRate = (debt.interestRate + 3.0) / 100 / 12;
+  const months = debt.remainingMonths || 240;
+  const pow = Math.pow(1 + monthlyRate, months);
+  const knfPayment = Math.round(((debt.balance * monthlyRate * pow) / (pow - 1)) * 100) / 100;
+  const knfDiff = Math.max(0, Math.round((knfPayment - debt.monthlyPayment) * 100) / 100);
+
+  doc.setFillColor(...colors.surfaceLight);
+  doc.roundedRect(108, y, 88, 26, 2, 2, "F");
+  doc.setDrawColor(...colors.borderLight);
+  doc.roundedRect(108, y, 88, 26, 2, 2, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...colors.expenseCoral);
+  doc.text(cleanStr("TEST ODPORNOSCI KNF (+3.00 P.P.)"), 112, y + 6);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr(formatMoney(knfPayment, currency)), 112, y + 14);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(...colors.mutedText);
+  doc.text(cleanStr(`Wzrost raty: +${formatMoney(knfDiff, currency)}/mc (+${formatMoney(knfDiff * 12, currency)}/rok)`), 112, y + 21);
+
+  y += 32;
+
+  // --- AMORTIZATION SCHEDULE PREVIEW ---
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...colors.darkInk);
+  doc.text(cleanStr("HARMONOGRAM SPLATY (PIERWSZE 16 MIESIECY)"), 14, y);
+  y += 5;
+
+  doc.setFillColor(...colors.brandTeal);
+  doc.rect(14, y, 182, 6.5, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text(cleanStr("Miesiac"), 17, y + 4.5);
+  doc.text(cleanStr("Rata laczna"), 50, y + 4.5);
+  doc.text(cleanStr("Czesc kapitalowa"), 90, y + 4.5);
+  doc.text(cleanStr("Czesc odsetkowa"), 135, y + 4.5);
+  doc.text(cleanStr("Pozostaly kapital"), 165, y + 4.5);
+  y += 6.5;
+
+  let currentBal = debt.balance;
+  const baseMonthlyRate = (debt.interestRate / 100) / 12;
+  const previewMonths = Math.min(16, debt.remainingMonths || 240);
+
+  for (let m = 1; m <= previewMonths; m++) {
+    if (m % 2 === 0) {
+      doc.setFillColor(...colors.surfaceLight);
+      doc.rect(14, y, 182, 5.5, "F");
+    }
+
+    const interestPortion = Math.round(currentBal * baseMonthlyRate * 100) / 100;
+    const principalPortion = Math.min(currentBal, Math.max(0, Math.round((debt.monthlyPayment - interestPortion) * 100) / 100));
+    currentBal = Math.max(0, Math.round((currentBal - principalPortion) * 100) / 100);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...colors.darkInk);
+    doc.text(cleanStr(`Miesiac ${m}`), 17, y + 3.8);
+    doc.text(cleanStr(formatMoney(debt.monthlyPayment, currency)), 50, y + 3.8);
+    doc.setTextColor(...colors.incomeGreen);
+    doc.text(cleanStr(formatMoney(principalPortion, currency)), 90, y + 3.8);
+    doc.setTextColor(...colors.expenseCoral);
+    doc.text(cleanStr(formatMoney(interestPortion, currency)), 135, y + 3.8);
+    doc.setTextColor(...colors.mutedText);
+    doc.text(cleanStr(formatMoney(currentBal, currency)), 165, y + 3.8);
+
+    y += 5.5;
+  }
+
+  // --- FOOTER ---
+  doc.setDrawColor(...colors.borderLight);
+  doc.line(14, 282, 196, 282);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7.5);
+  doc.setTextColor(...colors.mutedText);
+
+  const footerLeft = cleanStr(`Saldo Mortgage Pro | Raport Kredytu: ${debt.name} (${debt.institution})`);
+  const footerRight = cleanStr("Strona 1 z 1");
+
+  doc.text(footerLeft, 14, 287);
+  doc.text(footerRight, 196 - doc.getTextWidth(footerRight), 287);
+
+  const filename = `Raport_Hipoteki_${cleanStr(debt.name).replace(/\s+/g, "_")}.pdf`;
   if (options?.returnBlob) {
     return doc.output("blob");
   }

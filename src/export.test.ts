@@ -187,4 +187,26 @@ describe("KROK 8G - Bezpieczny eksport CSV", () => {
     const annualBlob = generateAnnualReportPdf(mockProfile as Profile, 2026, "PLN", { returnBlob: true });
     expect(annualBlob).toBeInstanceOf(Blob);
   });
+
+  it("generuje specjalistyczny raport PDF Mortgage Pro z harmonogramem i testem KNF", async () => {
+    const { generateMortgageReportPdf } = await import("./services/pdfGenerator");
+    const mockMortgage: DebtItem = {
+      id: "mortgage-test",
+      name: "Apartament Mokotów",
+      institution: "mBank Hipoteczny",
+      type: "mortgage",
+      currency: "PLN",
+      balance: 450000,
+      monthlyPayment: 3200,
+      interestRate: 6.95,
+      remainingMonths: 240,
+      propertyValue: 600000,
+      status: "active",
+      createdAt: "2026-01-01"
+    };
+
+    const pdfBlob = generateMortgageReportPdf(mockMortgage, "PLN", { returnBlob: true }) as Blob;
+    expect(pdfBlob).toBeInstanceOf(Blob);
+    expect(pdfBlob.size).toBeGreaterThan(1000);
+  });
 });

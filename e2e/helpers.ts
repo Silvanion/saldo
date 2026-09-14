@@ -7,6 +7,7 @@ export type E2EView =
   | "budget" 
   | "goals" 
   | "analysis" 
+  | "debts"
   | "settings" 
   | "help";
 

@@ -286,6 +286,7 @@ export function DebtFormModal({
                   Nazwa zobowiązania *
                 </label>
                 <input
+                  id="input-debt-name"
                   type="text"
                   required
                   value={name}
@@ -300,6 +301,7 @@ export function DebtFormModal({
                   Bank / Instytucja
                 </label>
                 <input
+                  id="input-debt-institution"
                   type="text"
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
@@ -314,6 +316,7 @@ export function DebtFormModal({
                 </label>
                 <div className="relative">
                   <input
+                    id="input-debt-balance"
                     type="number"
                     step="0.01"
                     required
@@ -334,6 +337,7 @@ export function DebtFormModal({
                 </label>
                 <div className="relative">
                   <input
+                    id="input-debt-original-amount"
                     type="number"
                     step="0.01"
                     value={originalAmount}
@@ -354,6 +358,7 @@ export function DebtFormModal({
                 </label>
                 <div className="relative">
                   <input
+                    id="input-debt-monthly-payment"
                     type="number"
                     step="0.01"
                     required
@@ -374,6 +379,7 @@ export function DebtFormModal({
                 </label>
                 <div className="relative">
                   <input
+                    id="input-debt-interest-rate"
                     type="number"
                     step="0.01"
                     required
@@ -575,6 +581,7 @@ export function DebtFormModal({
               </button>
               <button
                 type="submit"
+                id="btn-submit-debt-form"
                 className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-text-inverse text-xs font-bold rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               >
                 {isEditing ? "Zapisz zmiany" : "Dodaj zobowiązanie"}

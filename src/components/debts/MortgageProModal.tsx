@@ -15,12 +15,14 @@ import {
   Scale,
   ArrowRight,
   Info,
-  ChevronDown
+  ChevronDown,
+  Download
 } from "lucide-react";
 import { DebtItem } from "../../types";
 import { formatMoney, parseAmountInput } from "../../utils/format";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { generateMortgageReportPdf } from "../../services/pdfGenerator";
 import {
   calculateLtvMetrics,
   calculateInterestRateStressTest,
@@ -189,14 +191,28 @@ export function MortgageProModal({
               </div>
             </div>
 
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
-              aria-label="Zamknij"
-              id="btn-close-mortgage-pro"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {currentDebt && (
+                <button
+                  onClick={() => generateMortgageReportPdf(currentDebt, currency)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-2 border border-border/80 text-text-main text-xs font-bold active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
+                  id="btn-export-mortgage-pdf"
+                  title="Pobierz pełny raport PDF dla doradcy lub banku"
+                >
+                  <Download className="w-3.5 h-3.5 text-brand" />
+                  <span className="hidden sm:inline">Pobierz raport PDF</span>
+                  <span className="sm:hidden">PDF</span>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
+                aria-label="Zamknij"
+                id="btn-close-mortgage-pro"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Debt Selector Bar (if mortgages exist) */}
@@ -820,16 +836,28 @@ export function MortgageProModal({
           </div>
 
           {/* Footer */}
-          <div className="p-4 sm:p-5 border-t border-border/60 bg-surface-2/30 flex items-center justify-between shrink-0">
-            <span className="text-xs text-text-faint">
+          <div className="p-4 sm:p-5 border-t border-border/60 bg-surface-2/30 flex items-center justify-between shrink-0 gap-3">
+            <span className="text-xs text-text-faint truncate">
               Wszystkie obliczenia wykonywane są lokalnie na Twoim urządzeniu.
             </span>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-surface hover:bg-surface-2 border border-border text-text-main rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-            >
-              Zamknij
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {currentDebt && (
+                <button
+                  onClick={() => generateMortgageReportPdf(currentDebt, currency)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-surface hover:bg-surface-2 border border-border text-text-main rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  id="btn-export-mortgage-pdf-footer"
+                >
+                  <Download className="w-3.5 h-3.5 text-brand" />
+                  <span>Raport PDF</span>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-surface hover:bg-surface-2 border border-border text-text-main rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                Zamknij
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
