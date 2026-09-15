@@ -7,6 +7,15 @@ import { z } from "zod";
 
 const router = Router();
 
+// Blokada lokalnego AI w NODE_ENV=production chroni przed SSRF na prawdziwym
+// hostingu webowym (tam "localhost" to sam serwer, nie komputer użytkownika).
+// Ten sam serwer Express jest jednak wbudowany w aplikację desktopową
+// (electron/main.cjs), gdzie zawsze ustawia NODE_ENV=production, a "localhost"
+// jest tam faktycznie komputerem użytkownika — IS_ELECTRON=true (ustawiane
+// tylko przez electron/main.cjs, już używane gdzie indziej w server.ts do tego
+// samego rozróżnienia) jest jedynym sygnałem odróżniającym te dwa przypadki.
+const isDesktopRuntime = () => process.env.IS_ELECTRON === "true";
+
 /**
  * Middleware 1: Extract and strictly validate AI configuration headers
  */
@@ -22,9 +31,9 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
   let localEndpoint = (req.headers["x-ai-local-endpoint"] || "").toString().trim();
   let localAiModel = (req.headers["x-ai-local-model"] || "").toString().trim();
   
-  if (process.env.NODE_ENV === "production" && mode === "local") {
-    return res.status(403).json({ 
-      error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym." 
+  if (process.env.NODE_ENV === "production" && mode === "local" && !isDesktopRuntime()) {
+    return res.status(403).json({
+      error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym."
     });
   }
 
@@ -373,7 +382,7 @@ const ScanInvoiceOutput = z.object({
 
 // Middleware: zablokuj lokalne AI w produkcji
 const checkProductionAiMode = (req: any, res: Response, next: any) => {
-  if (process.env.NODE_ENV === "production" && req.aiConfig?.mode === "local") {
+  if (process.env.NODE_ENV === "production" && req.aiConfig?.mode === "local" && !isDesktopRuntime()) {
     return res.status(403).json({ error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym." });
   }
   next();

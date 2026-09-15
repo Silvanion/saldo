@@ -65,7 +65,11 @@ export async function startServer(customPort?: number) {
           "https://firestore.googleapis.com",
           "https://identitytoolkit.googleapis.com",
           "http://localhost:11434",
-          "http://127.0.0.1:11434"
+          "http://127.0.0.1:11434",
+          // Sprawdzanie/pobieranie aktualizacji (UpdateManager/UpdateToast) łączy
+          // się bezpośrednio z GitHub z procesu renderera — potrzebne tylko w
+          // aplikacji desktopowej (hosting web nie ma tej funkcji), stąd warunek.
+          ...(process.env.IS_ELECTRON === "true" ? ["https://api.github.com", "https://github.com", "https://objects.githubusercontent.com"] : [])
         ],
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],

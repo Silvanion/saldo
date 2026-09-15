@@ -300,3 +300,50 @@ describe("POST /api/ai/chat", () => {
     }
   });
 });
+
+describe("Local AI availability in NODE_ENV=production", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalRuntime = process.env.IS_ELECTRON;
+
+  afterEach(() => {
+    provider = { parseStatementImage };
+    vi.restoreAllMocks();
+    process.env.NODE_ENV = originalNodeEnv;
+    if (originalRuntime === undefined) delete process.env.IS_ELECTRON;
+    else process.env.IS_ELECTRON = originalRuntime;
+  });
+
+  const postChat = async (url: string) =>
+    fetch(`${url}/api/ai/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ai-mode": "local", "x-ai-local-endpoint": "http://localhost:11434/api/generate" },
+      body: JSON.stringify({ message: "Ile wydałem w tym miesiącu?", profileData: {} })
+    });
+
+  it("blocks local AI in a real production web deployment (SSRF protection)", async () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.IS_ELECTRON;
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual({ error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym." });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+
+  it("allows local AI when the embedded server is running inside the desktop app", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.IS_ELECTRON = "true";
+    provider = { chat: vi.fn().mockResolvedValue({ reply: "Wydałeś 1200 zł.", action: null }) };
+    const { server, url } = await createTestServer();
+    try {
+      const response = await postChat(url);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ reply: "Wydałeś 1200 zł.", action: null });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
+});

@@ -74,4 +74,32 @@ describe("UpdateManager - GitHub Releases & Semver Matching", () => {
     expect(manager.getState()).toBe("AVAILABLE");
     expect(manager.getReleaseInfo()?.assetName).toBe("Saldo-9.9.9.dmg");
   });
+
+  it("stays silent (IDLE, no error notified) when a background auto-check fails", async () => {
+    const manager = UpdateManager.getInstance();
+    const onError = vi.fn();
+    const unsubscribe = manager.subscribe({ onError });
+
+    globalThis.fetch = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+
+    const res = await manager.checkForUpdates(false);
+    expect(res).toBeNull();
+    expect(manager.getState()).toBe("IDLE");
+    expect(onError).not.toHaveBeenCalled();
+    unsubscribe();
+  });
+
+  it("surfaces an ERROR state when a manual check fails", async () => {
+    const manager = UpdateManager.getInstance();
+    const onError = vi.fn();
+    const unsubscribe = manager.subscribe({ onError });
+
+    globalThis.fetch = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+
+    const res = await manager.checkForUpdates(true);
+    expect(res).toBeNull();
+    expect(manager.getState()).toBe("ERROR");
+    expect(onError).toHaveBeenCalledWith("Failed to fetch");
+    unsubscribe();
+  });
 });

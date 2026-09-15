@@ -266,8 +266,17 @@ export class UpdateManager {
       return this.releaseInfo;
     } catch (err: any) {
       this.errorMessage = err?.message || "Nie udało się sprawdzić aktualizacji.";
-      this.setState("ERROR");
-      this.notifyError(this.errorMessage);
+      // Cichy, automatyczny check (przy starcie apki) nie powinien wyskakiwać
+      // z błędem za każdym uruchomieniem, gdy np. GitHub jest chwilowo
+      // nieosiągalny — spójnie z natywnym autoUpdaterem (który też pokazuje
+      // błąd tylko po ręcznym "Sprawdź aktualizacje"). Stan wraca do IDLE,
+      // więc UpdateToast (który nic nie renderuje w IDLE) zostaje niewidoczny.
+      if (manual) {
+        this.setState("ERROR");
+        this.notifyError(this.errorMessage);
+      } else {
+        this.setState("IDLE");
+      }
       return null;
     }
   }

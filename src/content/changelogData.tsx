@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.5.1",
+    date: "Wrzesień 2026",
+    title: "Naprawa Lokalnego AI w Wersji Desktop i Cichych Sprawdzeń Aktualizacji",
+    icon: <CheckCircle2 className="w-5 h-5 text-brand" />,
+    features: [
+      "[Naprawa Lokalnego AI (Ollama) na Desktopie] Wbudowany serwer aplikacji desktopowej zawsze uruchamiał się w trybie produkcyjnym, co wyzwalało ochronę SSRF przeznaczoną dla prawdziwego hostingu webowego i blokowało czat AI oraz skanowanie faktur mimo poprawnie działającego, lokalnie uruchomionego Ollama.",
+      "[Naprawa Sprawdzania Aktualizacji] Zasady bezpieczeństwa (CSP) blokowały połączenie z GitHub API z poziomu aplikacji desktopowej, przez co pływący widżet aktualizacji pokazywał błąd \"Failed to fetch\" przy każdym uruchomieniu. Dodatkowo: ciche, automatyczne sprawdzenie w tle nie pokazuje już żadnego powiadomienia, gdy nic nie znajdzie lub napotka błąd — widżet pojawia się teraz wyłącznie, gdy jest coś realnego do zgłoszenia, albo po ręcznym kliknięciu \"Sprawdź aktualizacje\"."
+    ]
+  },
+  {
     version: "v1.5.0",
     date: "Wrzesień 2026",
     title: "Local-First Onboarding, Nowoczesne Awatary, Działająca Biometria w Ekranie Wyboru Profilu i Naprawione Zgłoszenia Błędów",
