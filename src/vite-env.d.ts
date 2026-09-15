@@ -13,9 +13,18 @@ interface Window {
     getLoginItem?: () => Promise<boolean>;
     setLoginItem?: (openAtLogin: boolean) => Promise<boolean>;
     setProgressBar?: (progress: number) => Promise<void>;
-    checkBiometricsStatus?: (profileId?: string) => Promise<{ available: boolean; isEnrolledForProfile: boolean }>;
+    checkBiometricsStatus?: (profileId?: string) => Promise<{ available: boolean; isEnrolledForProfile: boolean; platform?: string }>;
     saveBiometricsPin?: (profileId: string, pin: string) => Promise<{ success: boolean; error?: string }>;
     promptBiometricsUnlock?: (profileId: string, promptReason?: string) => Promise<{ success: boolean; pin?: string; error?: string }>;
     removeBiometricsPin?: (profileId: string) => Promise<{ success: boolean; error?: string }>;
+    platform?: string;
+    getWindowState?: () => Promise<{ isMaximized: boolean; isFullScreen: boolean }>;
+    onWindowStateChange?: (callback: (state: { isMaximized: boolean; isFullScreen: boolean }) => void) => () => void;
+    checkForUpdates?: () => Promise<void>;
+    startDownloadUpdate?: () => Promise<void>;
+    installUpdate?: () => Promise<void>;
+    onUpdateProgress?: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
+    onUpdateAvailable?: (callback: (info: { version: string; releaseNotes?: string }) => void) => () => void;
+    onUpdateDownloaded?: (callback: (info: { version: string }) => void) => () => void;
   };
 }

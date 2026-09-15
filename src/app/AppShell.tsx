@@ -6,6 +6,9 @@ import { Profile } from "../types";
 import { AppView } from "../uiTypes";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { ModalFallback } from "../components/ModalFallback";
+import { ProfileDropdown } from "../components/profile/ProfileDropdown";
+import { UpdateToast } from "../components/update/UpdateToast";
+import { useWindowScale } from "../services/WindowScaleManager";
 
 const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
@@ -71,31 +74,11 @@ export function AppShell({
     showToast
   } = useApp();
 
+  useWindowScale();
+
   const [showDemoBanner, setShowDemoBanner] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isTopUserMenuOpen, setIsTopUserMenuOpen] = useState(false);
-  const topUserMenuRef = React.useRef<HTMLDivElement>(null);
-
-  // Zamknij menu profilu po kliknięciu poza nim lub klawiszem Escape
-  useEffect(() => {
-    if (!isTopUserMenuOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (topUserMenuRef.current && !topUserMenuRef.current.contains(e.target as Node)) {
-        setIsTopUserMenuOpen(false);
-      }
-    };
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsTopUserMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isTopUserMenuOpen]);
 
   const handleLogoutClick = async () => {
     setIsMobileMenuOpen(false);
@@ -568,108 +551,19 @@ export function AppShell({
 
             {/* Consolidated Secondary Actions: User Profile Dropdown Menu */}
             {activeProfile && (
-              <div className="relative" ref={topUserMenuRef}>
-                <button
-                  onClick={() => setIsTopUserMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg border border-border/70 bg-surface hover:bg-surface-2 hover:border-brand/30 transition-all cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring group"
-                  id="btn-top-user-menu"
-                  aria-haspopup="menu"
-                  aria-expanded={isTopUserMenuOpen}
-                  aria-label="Menu profilu i akcji"
-                >
-                  <span className="w-6 h-6 rounded-full bg-brand-subtle text-brand text-xs font-bold flex items-center justify-center select-none shadow-2xs shrink-0 border border-brand/20">
-                    {activeProfile.avatar || activeProfile.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
-                  </span>
-                  <span className="text-xs font-semibold text-text-main max-w-[85px] truncate hidden md:inline">
-                    {activeProfile.name}
-                  </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform duration-200 ${isTopUserMenuOpen ? "rotate-180" : ""}`} strokeWidth={1.75} />
-                </button>
-
-                {/* Floating shadcn-style dropdown menu */}
-                {isTopUserMenuOpen && (
-                  <div
-                    className="absolute right-0 top-full mt-1.5 w-60 bg-surface border border-border rounded-xl shadow-lg overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-top-2"
-                    role="menu"
-                    id="top-user-actions-menu"
-                  >
-                    <div className="px-3.5 py-2 border-b border-border/50">
-                      <p className="text-xs font-bold text-text-main truncate">{activeProfile.name}</p>
-                      <p className="text-[11px] text-text-muted truncate">
-                        {activeProfile.kind === "shared" ? `Budżet wspólny (${activeProfile.partnerName || 'Partner'})` : "Budżet osobisty"}
-                      </p>
-                    </div>
-
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setIsTopUserMenuOpen(false);
-                          handleSwitchProfile();
-                        }}
-                        role="menuitem"
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-focus-ring"
-                        id="btn-header-switch-profile"
-                      >
-                        <ArrowLeftRight className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
-                        <span>Przełącz profil</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setIsTopUserMenuOpen(false);
-                          openModal("exportReports");
-                        }}
-                        role="menuitem"
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-focus-ring"
-                        id="btn-header-export-reports"
-                      >
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
-                        <span>Raporty i eksport</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setIsTopUserMenuOpen(false);
-                          setIsDemoMode(!isDemoMode);
-                        }}
-                        role="menuitem"
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-focus-ring"
-                        id="btn-header-toggle-demo"
-                      >
-                        <Database className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
-                        <span>{isDemoMode ? "Tryb: Lokalne Saldo" : "Tryb: Chmura"}</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setIsTopUserMenuOpen(false);
-                          toggleSecurityInfo(true);
-                        }}
-                        role="menuitem"
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-focus-ring"
-                        id="btn-header-security-info"
-                      >
-                        <ShieldCheck className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
-                        <span>Szczegóły ochrony</span>
-                      </button>
-                    </div>
-
-                    {googleUser && (
-                      <div className="border-t border-border/50 pt-1">
-                        <button
-                          onClick={handleLogoutClick}
-                          role="menuitem"
-                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-danger hover:bg-danger-subtle transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-focus-ring"
-                          id="btn-header-logout"
-                        >
-                          <LogOut className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-                          <span>Wyloguj z konta Google</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <ProfileDropdown
+                activeProfile={activeProfile}
+                isOpen={isTopUserMenuOpen}
+                onClose={() => setIsTopUserMenuOpen(false)}
+                onToggle={() => setIsTopUserMenuOpen((prev) => !prev)}
+                onSwitchProfile={handleSwitchProfile}
+                onExportReports={() => openModal("exportReports")}
+                isDemoMode={isDemoMode}
+                onToggleDemoMode={() => setIsDemoMode(!isDemoMode)}
+                onOpenSecurityInfo={() => toggleSecurityInfo(true)}
+                googleUser={googleUser}
+                onLogoutGoogle={handleLogoutClick}
+              />
             )}
           </div>
         </header>
@@ -769,6 +663,8 @@ export function AppShell({
         </ErrorBoundary>
       )}
 
+      {/* Floating non-blocking update notification widget */}
+      <UpdateToast />
     </div>
   );
 }

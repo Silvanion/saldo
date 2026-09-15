@@ -26,5 +26,30 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkBiometricsStatus: (profileId) => ipcRenderer.invoke('biometrics-status', profileId),
   saveBiometricsPin: (profileId, pin) => ipcRenderer.invoke('biometrics-save-pin', profileId, pin),
   promptBiometricsUnlock: (profileId, promptReason) => ipcRenderer.invoke('biometrics-prompt-unlock', profileId, promptReason),
-  removeBiometricsPin: (profileId) => ipcRenderer.invoke('biometrics-remove-pin', profileId)
+  removeBiometricsPin: (profileId) => ipcRenderer.invoke('biometrics-remove-pin', profileId),
+  platform: process.platform,
+  getWindowState: () => ipcRenderer.invoke('get-window-state'),
+  onWindowStateChange: (callback) => {
+    const handler = (_event, state) => callback(state);
+    ipcRenderer.on('window-state-changed', handler);
+    return () => ipcRenderer.removeListener('window-state-changed', handler);
+  },
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  startDownloadUpdate: () => ipcRenderer.invoke('start-download-update'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  onUpdateProgress: (callback) => {
+    const handler = (_event, progress) => callback(progress);
+    ipcRenderer.on('update-progress', handler);
+    return () => ipcRenderer.removeListener('update-progress', handler);
+  },
+  onUpdateAvailable: (callback) => {
+    const handler = (_event, info) => callback(info);
+    ipcRenderer.on('update-available', handler);
+    return () => ipcRenderer.removeListener('update-available', handler);
+  },
+  onUpdateDownloaded: (callback) => {
+    const handler = (_event, info) => callback(info);
+    ipcRenderer.on('update-downloaded', handler);
+    return () => ipcRenderer.removeListener('update-downloaded', handler);
+  }
 });

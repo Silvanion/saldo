@@ -194,3 +194,23 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* High-DPI font antialiasing and subpixel compensation for Windows 125%/150%/200% */
+html.high-dpi {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Dynamic window safe areas & desktop titlebar integration */
+:root {
+  --titlebar-safe-left: 0px;
+  --titlebar-safe-right: 0px;
+  --app-height: 100dvh;
+}
+
+#top-bar-header {
+  padding-left: max(1rem, var(--titlebar-safe-left));
+  padding-right: max(1rem, var(--titlebar-safe-right));
+}
+

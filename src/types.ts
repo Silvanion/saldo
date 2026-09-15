@@ -203,8 +203,14 @@ export interface Profile {
   kind: "personal" | "shared";
   partnerName?: string;
   avatar?: string;
+  color?: string; // Akcent kolorystyczny profilu (np. brand, emerald, violet, sky, amber)
+  is_demo?: boolean; // Flaga profilu demonstracyjnego/gościa (sandbox)
   pinHash?: string;
   salt?: string;
+  hasBiometrics?: boolean; // Czy profil ma aktywną autoryzację biometryczną (Touch ID / Windows Hello)
+  passkeyCredentialId?: string; // Identyfikator poświadczenia FIDO2 / WebAuthn Passkey
+  failedAttempts?: number; // Liczba kolejnych błędnych prób wprowadzenia PIN
+  lockedUntil?: string | null; // Znacznik czasu ISO do kiedy profil jest zablokowany (antibrute-force)
   encryptedPayload?: string;
   accounts?: BankAccount[];
   transactions: Transaction[];

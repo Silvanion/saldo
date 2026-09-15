@@ -217,8 +217,12 @@ function saveBiometricsData(data) {
 
 ipcMain.handle('biometrics-status', (event, profileId) => {
   const isMac = process.platform === 'darwin';
+  const isWin = process.platform === 'win32';
   const hasTouchID = isMac && typeof systemPreferences.canPromptTouchID === 'function' && systemPreferences.canPromptTouchID();
   const encryptionAvailable = typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable();
+
+  // On Windows, safeStorage uses DPAPI (backed by Windows Hello / Credential Manager / TPM)
+  const hasBiometricsHardware = isMac ? Boolean(hasTouchID) : isWin ? Boolean(encryptionAvailable) : false;
 
   let isEnrolledForProfile = false;
   if (profileId) {
@@ -227,9 +231,34 @@ ipcMain.handle('biometrics-status', (event, profileId) => {
   }
 
   return {
-    available: Boolean(hasTouchID && encryptionAvailable),
-    isEnrolledForProfile
+    available: Boolean(hasBiometricsHardware && encryptionAvailable),
+    isEnrolledForProfile,
+    platform: process.platform
   };
+});
+
+ipcMain.handle('get-window-state', () => {
+  if (!mainWindow || mainWindow.isDestroyed()) return { isMaximized: false, isFullScreen: false };
+  return {
+    isMaximized: mainWindow.isMaximized(),
+    isFullScreen: mainWindow.isFullScreen()
+  };
+});
+
+ipcMain.handle('check-for-updates', async () => {
+  checkForUpdates(true);
+});
+
+ipcMain.handle('start-download-update', async () => {
+  if (autoUpdater && typeof autoUpdater.downloadUpdate === 'function') {
+    return await autoUpdater.downloadUpdate();
+  }
+});
+
+ipcMain.handle('install-update', () => {
+  if (autoUpdater) {
+    autoUpdater.quitAndInstall();
+  }
 });
 
 ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
@@ -300,6 +329,23 @@ autoUpdater.on("checking-for-update", () => {
 
 autoUpdater.on("update-available", (info) => {
   log.info(`[AutoUpdater] Dostępna aktualizacja: ${info.version}`);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update-available", {
+      version: info.version,
+      releaseNotes: typeof info.releaseNotes === "string" ? info.releaseNotes : undefined
+    });
+  }
+});
+
+autoUpdater.on("download-progress", (progressObj) => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update-progress", {
+      percent: progressObj.percent,
+      bytesPerSecond: progressObj.bytesPerSecond,
+      transferred: progressObj.transferred,
+      total: progressObj.total
+    });
+  }
 });
 
 autoUpdater.on("update-not-available", () => {
@@ -328,6 +374,9 @@ autoUpdater.on("error", (err) => {
 autoUpdater.on("update-downloaded", (info) => {
   log.info(`[AutoUpdater] Pobrano aktualizację: ${info.version}`);
   isManualUpdateCheck = false;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update-downloaded", { version: info.version });
+  }
   dialog.showMessageBox(mainWindow, {
     type: "info",
     title: "Dostępna nowa wersja",
@@ -384,6 +433,20 @@ async function createWindow(port) {
   });
 
   mainWindowState.manage(mainWindow);
+
+  const notifyWindowState = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('window-state-changed', {
+        isMaximized: mainWindow.isMaximized(),
+        isFullScreen: mainWindow.isFullScreen()
+      });
+    }
+  };
+
+  mainWindow.on('maximize', notifyWindowState);
+  mainWindow.on('unmaximize', notifyWindowState);
+  mainWindow.on('enter-full-screen', notifyWindowState);
+  mainWindow.on('leave-full-screen', notifyWindowState);
 
   // Handle external links securely
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

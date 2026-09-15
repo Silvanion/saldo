@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.4.0",
+    date: "Wrzesień 2026",
+    title: "Zaawansowana Biometria (Touch ID / Windows Hello), Naprawa Menu Profilu, Skalowanie Okna i Auto-Update z Paskiem Postępu",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Autonaprawa i Detekcja Biometrii] Automatyczne wykrywanie Touch ID (macOS) oraz Windows Hello (Windows) z bezpiecznym szyfrowaniem w Apple Keychain / Windows DPAPI i fallbackiem dla Linuxa/Web.",
+      "[Naprawa Menu Rozwijanego Profilu] Wyeliminowanie blokowania kliknięć w strefie drag paska okna poprzez przeniesienie menu do portalu z dynamicznym pozycjonowaniem, obsługą klawisza Esc i płynną animacją.",
+      "[Menedżer Skalowania Okna i DPI] Likwidacja ucinania dolnych pasków i rozmycia czcionek przy skalowaniu Windows (125%, 150%, 200%) oraz dynamiczne bezpieczne marginesy dla kontrolek systemowych (Traffic Lights i WCO).",
+      "[Twarde Bezpieczeństwo Zero-Leak] Całkowity brak statycznych kluczy API w paczkach ASAR, bezpieczny magazyn BYOK w pęku kluczy oraz natychmiastowe zerowanie pamięci RAM (Zeroization) po wykonaniu operacji.",
+      "[Nowy Silnik Auto-Update z Paskiem Postępu] Odporność na limity GitHub API dzięki nagłówkom ETag, pływający widżet pobierania z prędkością MB/s i postępem w czasie rzeczywistym oraz weryfikacja sumy kontrolnej SHA-256."
+    ]
+  },
+  {
     version: "v1.3.2",
     date: "Wrzesień 2026",
     title: "Poprawka Uruchamiania Wersji Desktop & Izolacja Zależności Serwera",
