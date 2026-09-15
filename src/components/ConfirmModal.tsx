@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { motion } from "motion/react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { ConfirmPayload } from "../uiTypes";
@@ -44,16 +45,24 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
   const isWarning = tone === "warning";
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs animate-in fade-in duration-200"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs"
       id="confirm-modal"
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
         aria-describedby="confirm-modal-description"
-        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col shadow-xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md rounded-2xl bg-bg-base/95 backdrop-blur-2xl border border-border flex flex-col shadow-xl overflow-hidden"
         ref={modalRef}
       >
         <div className="p-6">
@@ -91,7 +100,7 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="shrink-0 p-1.5 -mr-1.5 -mt-1.5 text-text-muted hover:text-text-main rounded-lg hover:bg-bg-subtle transition-colors focus:outline-none focus:ring-2 focus:ring-brand"
+              className="shrink-0 p-1.5 -mr-1.5 -mt-1.5 text-text-muted hover:text-text-main rounded-lg hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
               aria-label="Zamknij"
             >
               <X className="w-5 h-5" />
@@ -103,7 +112,7 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-text-main bg-bg-surface hover:bg-bg-subtle border border-border rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50"
+              className="px-4 py-2 text-sm font-bold text-text-main bg-surface hover:bg-surface-2 border border-border rounded-xl active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {cancelLabel}
             </button>
@@ -112,12 +121,12 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
               type="button"
               onClick={handleConfirm}
               disabled={isSubmitting}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-xl transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${
+              className={`px-4 py-2 text-sm font-bold text-text-inverse rounded-xl active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm focus-visible:ring-2 focus-visible:ring-focus-ring ${
                 isDanger
-                  ? "bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm shadow-red-500/20"
+                  ? "bg-danger hover:bg-danger/90"
                   : isWarning
-                  ? "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500 shadow-sm shadow-amber-500/20"
-                  : "bg-brand hover:bg-brand-hover focus:ring-brand shadow-sm shadow-brand/20"
+                  ? "bg-warning hover:bg-warning/90"
+                  : "bg-brand hover:bg-brand-hover"
               }`}
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -125,7 +134,7 @@ export function ConfirmModal({ isOpen, onClose, payload }: ConfirmModalProps) {
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -103,7 +103,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
         <div className="bg-surface-2/60 border border-border/70 p-4 rounded-xl space-y-2 relative overflow-hidden shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5 text-danger" /> Zobowiązania ogółem
+              <CreditCard className={`w-3.5 h-3.5 ${totalLiabilities > 0 ? "text-danger" : "text-text-faint"}`} /> Zobowiązania ogółem
             </span>
             {totalLiabilities > 0 && (
               <span className="text-xs font-bold text-danger bg-danger-subtle px-1.5 py-0.5 rounded border border-danger/20">
@@ -111,7 +111,7 @@ export const NetWorthHeroCard = memo(function NetWorthHeroCard({
               </span>
             )}
           </div>
-          <p className="text-xl font-black text-danger tabular-nums">
+          <p className={`text-xl font-black tabular-nums ${totalLiabilities > 0 ? "text-danger" : "text-text-main"}`}>
             {formatMoney(totalLiabilities, currency)}
           </p>
           <div className="text-xs text-text-faint flex justify-between pt-1 border-t border-border/50">

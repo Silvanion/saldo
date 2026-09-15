@@ -443,7 +443,7 @@ export function SettingsAutomationSection({
                 localAiModel: state.localAiModel || DEFAULT_LOCAL_AI_MODEL
               })
             }
-            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
+            className={`relative w-11 h-6 rounded-full transition-all active:scale-[0.96] hover:brightness-110 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
               state.aiMode === "local" ? "bg-brand" : "bg-surface-2 border border-border"
             }`}
             id="toggle-local-ai"

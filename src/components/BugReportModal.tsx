@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "motion/react";
 import { Bug, Send, X, Lightbulb, Loader2, ImagePlus, Trash2, Info } from "lucide-react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -74,13 +75,21 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
         ref={modalRef}
         role="dialog"
         aria-modal="true"
@@ -108,7 +117,7 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
           <button
             onClick={onClose}
             aria-label="Zamknij"
-            className="rounded-lg p-2 text-text-muted hover:bg-surface-2"
+            className="rounded-lg p-2 text-text-muted hover:bg-surface-2 hover:text-text-main active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <X className="h-5 w-5" />
           </button>
@@ -205,7 +214,8 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     <button
                       type="button"
                       onClick={() => setScreenshot(null)}
-                      className="absolute -right-2 -top-2 rounded-full bg-danger p-1 text-text-inverse hover:bg-danger-hover shadow-sm cursor-pointer"
+                      aria-label="Usuń zrzut ekranu"
+                      className="absolute -right-2 -top-2 rounded-full bg-danger p-1 text-text-inverse hover:bg-danger-hover active:scale-[0.98] transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -270,7 +280,7 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
             </form>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

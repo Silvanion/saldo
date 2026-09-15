@@ -329,16 +329,14 @@ export function PaymentsView({
       <div className="bg-surface rounded-xl border border-border/70 shadow-xs p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 min-w-0">
         <div className="flex items-start sm:items-center gap-3 min-w-0">
           <div className={`p-2 rounded-lg shrink-0 ${
-            notificationPermission === "granted" 
+            notificationPermission === "granted"
               ? "bg-brand-subtle text-brand"
-              : notificationPermission === "denied"
-                ? "bg-danger-subtle text-danger"
-                : "bg-warning-subtle text-warning"
+              : "bg-warning-subtle text-warning"
           }`}>
             {notificationPermission === "granted" ? (
               <Bell className="w-4 h-4 text-brand" />
             ) : notificationPermission === "denied" ? (
-              <BellOff className="w-4 h-4 text-danger" />
+              <BellOff className="w-4 h-4 text-warning" />
             ) : (
               <BellRing className="w-4 h-4 text-warning animate-pulse" />
             )}

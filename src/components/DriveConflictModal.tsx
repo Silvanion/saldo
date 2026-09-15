@@ -1,5 +1,6 @@
 
 import React, { useRef } from "react";
+import { motion } from "motion/react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { AppState } from "../types";
@@ -55,12 +56,22 @@ export function DriveConflictModal({
     remoteState.profiles?.some((p) => p.kind === "shared");
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drive-conflict-title"
-        className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full shadow-xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-bg-base/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full shadow-xl border border-border flex flex-col max-h-[90vh] overflow-hidden"
         ref={modalRef}
       >
         {/* Header */}
@@ -79,7 +90,7 @@ export function DriveConflictModal({
           <button
             onClick={onClose}
             aria-label="Zamknij"
-            className="p-1 rounded-xl text-text-muted hover:text-text-main hover:bg-surface-offset transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="p-1 rounded-xl text-text-muted hover:text-text-main hover:bg-surface-offset transition-all active:scale-[0.98] shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -191,7 +202,7 @@ export function DriveConflictModal({
             <span className="truncate">Wyślij (nadpisz remote)</span>
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { User } from "firebase/auth";
 import {
   ShieldCheck,
@@ -15,9 +15,11 @@ import {
   AlertTriangle,
   UserX,
   LogOut,
-  Trash2
+  Trash2,
+  Fingerprint
 } from "lucide-react";
 import { AppState, Profile } from "../../types";
+import { hashPin } from "../../utils";
 import { isFirebaseConfigured, changePassword, changeEmail, logout, deleteOwnAccount } from "../../firebase";
 import { clearState } from "../../services/localDb";
 import { activeKeys } from "../../services/crypto";
@@ -72,6 +74,66 @@ export function SettingsSecuritySection({
   showPinCard = true,
   showAccountSecurity = true
 }: SettingsSecuritySectionProps) {
+  // Biometrics Touch ID states
+  const [biometricsStatus, setBiometricsStatus] = useState<{ available: boolean; isEnrolledForProfile: boolean }>({
+    available: false,
+    isEnrolledForProfile: false
+  });
+  const [isEnrollingBiometrics, setIsEnrollingBiometrics] = useState(false);
+  const [enrollPinInput, setEnrollPinInput] = useState("");
+  const [enrollPinError, setEnrollPinError] = useState("");
+  const [isEnrollingLoading, setIsEnrollingLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.electronAPI?.checkBiometricsStatus && activeProfile?.id) {
+      window.electronAPI.checkBiometricsStatus(activeProfile.id).then((status) => {
+        if (status) setBiometricsStatus(status);
+      }).catch(() => {});
+    }
+  }, [activeProfile?.id]);
+
+  const handleEnrollBiometrics = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeProfile || !window.electronAPI?.saveBiometricsPin) return;
+    setEnrollPinError("");
+    setIsEnrollingLoading(true);
+
+    try {
+      const salt = activeProfile.salt || activeProfile.id;
+      const hashed = await hashPin(enrollPinInput, salt);
+      if (hashed !== activeProfile.pinHash) {
+        setEnrollPinError("Nieprawidłowy kod PIN. Podaj aktualny kod tego profilu.");
+        setIsEnrollingLoading(false);
+        return;
+      }
+
+      const res = await window.electronAPI.saveBiometricsPin(activeProfile.id, enrollPinInput);
+      if (res.success) {
+        setBiometricsStatus(prev => ({ ...prev, isEnrolledForProfile: true }));
+        setIsEnrollingBiometrics(false);
+        setEnrollPinInput("");
+        showToast("Włączono Touch ID dla profilu!", "success");
+      } else {
+        setEnrollPinError(res.error || "Błąd zapisu danych biometrycznych.");
+      }
+    } catch (err: any) {
+      setEnrollPinError(err?.message || "Błąd weryfikacji PIN.");
+    } finally {
+      setIsEnrollingLoading(false);
+    }
+  };
+
+  const handleDisableBiometrics = async () => {
+    if (!activeProfile || !window.electronAPI?.removeBiometricsPin) return;
+    try {
+      await window.electronAPI.removeBiometricsPin(activeProfile.id);
+      setBiometricsStatus(prev => ({ ...prev, isEnrolledForProfile: false }));
+      showToast("Wyłączono logowanie Touch ID.", "info");
+    } catch {
+      showToast("Nie udało się wyłączyć Touch ID.", "error");
+    }
+  };
+
   // Password change states
   const [pwdCurrent, setPwdCurrent] = useState("");
   const [pwdNew, setPwdNew] = useState("");
@@ -250,6 +312,81 @@ export function SettingsSecuritySection({
               {activeProfile.pinHash ? "Zmień kod PIN" : "Ustaw kod PIN"}
             </button>
           </div>
+
+          {/* Biometrics / Touch ID Card */}
+          {activeProfile.pinHash && biometricsStatus.available && (
+            <div className="mt-4 pt-4 border-t border-border/60">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs font-bold text-text-main flex items-center gap-1.5">
+                    <Fingerprint className="w-4 h-4 text-brand" />
+                    <span>Logowanie biometryczne (Touch ID)</span>
+                  </span>
+                  <p className="text-xs text-text-muted mt-0.5">
+                    {biometricsStatus.isEnrolledForProfile
+                      ? "Touch ID jest aktywne. Możesz odblokowywać ten profil odciskiem palca."
+                      : "Możesz odblokowywać ten profil za pomocą Touch ID na tym urządzeniu."}
+                  </p>
+                </div>
+                <div>
+                  {biometricsStatus.isEnrolledForProfile ? (
+                    <button
+                      type="button"
+                      onClick={handleDisableBiometrics}
+                      className="bg-surface border border-danger/30 text-danger hover:bg-danger-subtle font-bold py-2 px-3.5 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="btn-disable-biometrics"
+                    >
+                      Wyłącz Touch ID
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEnrollingBiometrics(prev => !prev);
+                        setEnrollPinError("");
+                      }}
+                      className="bg-surface border border-border/70 text-brand hover:bg-brand-subtle font-bold py-2 px-3.5 rounded-xl text-xs active:scale-[0.98] transition-all shadow-xs shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="btn-enable-biometrics"
+                    >
+                      {isEnrollingBiometrics ? "Anuluj" : "Włącz Touch ID"}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {isEnrollingBiometrics && !biometricsStatus.isEnrolledForProfile && (
+                <form onSubmit={handleEnrollBiometrics} className="mt-4 p-4 rounded-xl bg-surface-2 border border-border/70 space-y-3">
+                  <p className="text-xs text-text-muted">
+                    Wpisz swój obecny kod PIN, aby bezpiecznie powiązać profil z Touch ID (zapis w bezpiecznym magazynie macOS):
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]{4,8}"
+                      placeholder="Aktualny PIN"
+                      value={enrollPinInput}
+                      onChange={(e) => setEnrollPinInput(e.target.value)}
+                      required
+                      className="w-full sm:w-48 px-3 py-2 text-sm rounded-xl border border-border bg-surface text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      id="input-enroll-pin"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isEnrollingLoading || !enrollPinInput}
+                      className="px-4 py-2 bg-brand text-text-inverse font-bold text-xs rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                      id="btn-submit-enroll-pin"
+                    >
+                      {isEnrollingLoading ? "Zapisywanie..." : "Potwierdź i włącz"}
+                    </button>
+                  </div>
+                  {enrollPinError && (
+                    <p className="text-xs text-danger font-semibold">{enrollPinError}</p>
+                  )}
+                </form>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -424,7 +561,8 @@ export function SettingsSecuritySection({
                           <button
                             type="button"
                             onClick={() => setShowEmailPwd(!showEmailPwd)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                            aria-label={showEmailPwd ? "Ukryj hasło" : "Pokaż hasło"}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                           >
                             {showEmailPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -515,7 +653,8 @@ export function SettingsSecuritySection({
                           <button
                             type="button"
                             onClick={() => setShowPwds(!showPwds)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                            aria-label={showPwds ? "Ukryj hasło" : "Pokaż hasło"}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                           >
                             {showPwds ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -723,7 +862,8 @@ export function SettingsSecuritySection({
                     <button
                       type="button"
                       onClick={() => setShowDeletePwd(!showDeletePwd)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                      aria-label={showDeletePwd ? "Ukryj hasło" : "Pokaż hasło"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                     >
                       {showDeletePwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>

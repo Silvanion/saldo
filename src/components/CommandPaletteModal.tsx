@@ -562,7 +562,7 @@ export function CommandPaletteModal({
                       onClose();
                     }}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all active:scale-[0.99] cursor-pointer group ${
+                    className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all active:scale-[0.98] cursor-pointer group ${
                       isSelected
                         ? "bg-brand text-text-inverse shadow-xs"
                         : "text-text-main hover:bg-surface-2"

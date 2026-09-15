@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { DebtItem, DebtPayoffScenario, SupportedCurrency } from "../../types";
 import { formatMoney, getScheduledOverpaymentBadgeLabel } from "../../utils/format";
 import {
@@ -122,11 +123,21 @@ export function PayoffScenarioComparisonModal({
     };
   }, [simulatedScenarios, currency]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-      <div
+    <AnimatePresence>
+      {isOpen && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
         ref={modalRef}
         className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-3xl shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
         role="dialog"
@@ -333,7 +344,9 @@ export function PayoffScenarioComparisonModal({
             Zamknij
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

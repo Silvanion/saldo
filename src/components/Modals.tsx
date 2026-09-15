@@ -1,6 +1,6 @@
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { Camera, Loader2, Lock, AlertTriangle, Download, X } from "lucide-react";
+import { Camera, Loader2, Lock, AlertTriangle, Download, X, Fingerprint } from "lucide-react";
 import { useApp } from "../app/providers/AppContext";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
@@ -495,13 +495,14 @@ export function PinModal({ isOpen, onClose, onSave, onExportData }: PinModalProp
 interface UnlockModalProps {
   isOpen: boolean;
   profileName: string;
+  profileId?: string;
   onUnlock: (pin: string) => Promise<boolean>;
   onSelectOtherProfile: () => void;
   failedAttempts?: number;
   lockoutUntil?: number | null;
 }
 
-export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfile, failedAttempts = 0, lockoutUntil = null }: UnlockModalProps) {
+export function UnlockModal({ isOpen, profileName, profileId, onUnlock, onSelectOtherProfile, failedAttempts = 0, lockoutUntil = null }: UnlockModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen);
@@ -509,6 +510,40 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
   const [errorMsg, setErrorMsg] = useState("");
   const [isShaking, setIsShaking] = useState(false);
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
+  const [isBiometricsAvailable, setIsBiometricsAvailable] = useState(false);
+  const [isPromptingBiometrics, setIsPromptingBiometrics] = useState(false);
+
+  // Sprawdź czy Touch ID jest dostępne i zarejestrowane dla tego profilu
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.electronAPI?.checkBiometricsStatus && profileId) {
+      window.electronAPI.checkBiometricsStatus(profileId).then((status) => {
+        if (status?.available && status?.isEnrolledForProfile) {
+          setIsBiometricsAvailable(true);
+        }
+      }).catch(() => {});
+    }
+  }, [profileId]);
+
+  const handleBiometricUnlock = async () => {
+    if (!profileId || !window.electronAPI?.promptBiometricsUnlock || lockoutRemaining > 0 || isPromptingBiometrics) return;
+    setIsPromptingBiometrics(true);
+    setErrorMsg("");
+    try {
+      const res = await window.electronAPI.promptBiometricsUnlock(profileId, `Odblokuj profil ${profileName}`);
+      if (res.success && res.pin) {
+        const success = await onUnlock(res.pin);
+        if (!success) {
+          setErrorMsg("Weryfikacja PIN z Touch ID nie powiodła się.");
+        }
+      } else if (res.error && res.error !== "Weryfikacja anulowana.") {
+        setErrorMsg(res.error);
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Błąd weryfikacji biometrycznej.");
+    } finally {
+      setIsPromptingBiometrics(false);
+    }
+  };
 
   // Lockout countdown timer
   useEffect(() => {
@@ -625,6 +660,28 @@ export function UnlockModal({ isOpen, profileName, onUnlock, onSelectOtherProfil
 
         <div className="shrink-0 p-8 pt-4 border-t border-border bg-bg-base/95 rounded-b-3xl">
           <div className="space-y-3">
+            {isBiometricsAvailable && !isLockedOut && (
+              <button
+                type="button"
+                onClick={handleBiometricUnlock}
+                disabled={isPromptingBiometrics}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-surface-2 hover:bg-surface-offset text-text-main border border-border/80 py-3.5 text-xs font-bold transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-focus-ring active:scale-[0.98]"
+                id="btn-unlock-touchid"
+              >
+                {isPromptingBiometrics ? (
+                  <>
+                    <Loader2 className="w-4 h-4 text-brand animate-spin" />
+                    <span>Weryfikacja Touch ID...</span>
+                  </>
+                ) : (
+                  <>
+                    <Fingerprint className="w-4 h-4 text-brand" />
+                    <span>Odblokuj za pomocą Touch ID</span>
+                  </>
+                )}
+              </button>
+            )}
+
             <button
               type="submit"
               form="unlock-modal-form"

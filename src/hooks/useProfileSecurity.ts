@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
 import { deriveKeyFromPin, activeKeys, decryptProfile, generateRandomSalt } from "../services/crypto";
@@ -27,6 +27,15 @@ export function useProfileSecurity({
   const lockProfile = useCallback(() => {
     setUnlockedProfileId(null);
   }, []);
+
+  // System lock listener (np. gdy PC zostaje uśpiony lub zablokowany)
+  useEffect(() => {
+    if (window.electronAPI?.onSystemLock) {
+      return window.electronAPI.onSystemLock(() => {
+        lockProfile();
+      });
+    }
+  }, [lockProfile]);
 
   const toggleSecurityInfo = useCallback((isOpen?: boolean) => {
     setIsSecurityInfoOpen((prev) => (isOpen !== undefined ? isOpen : !prev));

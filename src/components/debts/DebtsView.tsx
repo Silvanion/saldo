@@ -715,15 +715,19 @@ export function DebtsView({
 
         <StatCard
           icon={<Flame className="w-3.5 h-3.5" />}
-          tone="danger"
+          tone={kpiData.mostExpensiveDebt ? "danger" : "neutral"}
           label="Najdroższy dług"
           value={kpiData.mostExpensiveDebt?.name || "Brak aktywnych"}
           valueTitle={kpiData.mostExpensiveDebt?.name || "Brak"}
           valueClassName="text-sm sm:text-base font-bold"
           caption={
-            <span className="font-black text-danger">
-              {kpiData.mostExpensiveDebt ? `APR ${kpiData.mostExpensiveDebt.apr.toFixed(1)}%` : "0.0%"}
-            </span>
+            kpiData.mostExpensiveDebt ? (
+              <span className="font-black text-danger">
+                {`APR ${kpiData.mostExpensiveDebt.apr.toFixed(1)}%`}
+              </span>
+            ) : (
+              <span className="font-black text-text-faint">Brak zobowiązań</span>
+            )
           }
         />
 

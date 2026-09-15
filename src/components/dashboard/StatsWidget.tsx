@@ -198,7 +198,7 @@ export const StatsWidget = memo(function StatsWidget({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/60 relative z-10">
               <div className="bg-surface-2/60 p-3 rounded-lg border border-border/50 shadow-2xs min-w-0 flex flex-col">
                 <span className="text-[11px] uppercase font-semibold text-text-muted block mb-0.5 truncate" title="Planowane Wydatki">Planowane Wydatki</span>
-                <span className="text-base font-semibold text-danger tabular-nums truncate" title={formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}>{formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}</span>
+                <span className={`text-base font-semibold tabular-nums truncate ${(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum) > 0 ? "text-danger" : "text-text-main"}`} title={formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}>{formatMoney(endOfMonthForecast.unpaidPaymentsSum + endOfMonthForecast.futureRecurringExpensesSum, currency)}</span>
               </div>
 
               <div className="bg-surface-2/60 p-3 rounded-lg border border-border/50 shadow-2xs min-w-0 flex flex-col">

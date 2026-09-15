@@ -36,7 +36,7 @@ export function DebtStrategySummaryCard({
           onSelect(strategy);
         }
       }}
-      className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] ${
+      className={`p-5 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
         isSelected
           ? "bg-brand-subtle/50 border-brand shadow-md ring-2 ring-brand/20"
           : "bg-surface border-border hover:border-brand/40"

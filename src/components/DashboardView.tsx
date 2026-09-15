@@ -431,7 +431,7 @@ export function DashboardView({
             const debtBridgeCard = debtSummary ? (
               <div
                 id="dashboard-debt-bridge-card"
-                className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-3.5 h-full transition-all hover:border-border"
+                className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-3.5 h-full transition-all hover:shadow-md hover:border-brand/40"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
@@ -700,7 +700,7 @@ export function DashboardView({
 
                       <button
                         onClick={() => handleToggleVisibility(w.id)}
-                        className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer flex items-center ${
+                        className={`w-11 h-6 rounded-full p-0.5 transition-all duration-200 active:scale-[0.96] hover:brightness-110 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer flex items-center ${
                           w.visible ? "bg-brand justify-end" : "bg-surface-3 justify-start"
                         }`}
                         aria-label={w.visible ? `Ukryj widget: ${w.name}` : `Pokaż widget: ${w.name}`}

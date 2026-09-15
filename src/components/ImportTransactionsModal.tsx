@@ -730,7 +730,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 type="button"
                 disabled={isPdfProcessing}
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl disabled:opacity-50"
+                className="w-full bg-brand text-text-inverse font-bold py-3 px-6 rounded-xl hover:bg-brand-hover active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {isPdfProcessing ? "Odczytywanie PDF..." : "Wybierz plik PDF"}
               </button>

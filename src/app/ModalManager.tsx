@@ -1,5 +1,6 @@
 import { useApp } from "./providers/AppContext";
 import React, { Suspense, lazy } from "react";
+import { AnimatePresence } from "motion/react";
 import { Profile, Goal, Payment } from "../types";
 import { ModalState } from "../uiTypes";
 import {
@@ -74,7 +75,7 @@ export function ModalManager() {
   const onSaveBudgets = (budgets: any) => { handleSaveBudgets(budgets); closeModal(); };
 
   return (
-    <>
+    <AnimatePresence>
       {modalState.type === "transaction" && activeProfile && (
         <TransactionModal
           isOpen={true}
@@ -296,6 +297,6 @@ export function ModalManager() {
           </Suspense>
         </ErrorBoundary>
       )}
-    </>
+    </AnimatePresence>
   );
 }

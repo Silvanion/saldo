@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { motion } from "motion/react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { X, History } from "lucide-react";
@@ -16,12 +17,22 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="changelog-modal-title"
-        className="relative bg-bg-base/95 backdrop-blur-2xl rounded-xl w-full max-w-2xl border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative bg-bg-base/95 backdrop-blur-2xl rounded-xl w-full max-w-2xl border border-border/70 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
         ref={modalRef}
       >
         
@@ -39,7 +50,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           <button 
             onClick={onClose}
             aria-label="Zamknij"
-            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-colors active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
+            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-all active:scale-[0.98] shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -87,7 +98,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

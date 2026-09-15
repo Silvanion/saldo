@@ -71,7 +71,7 @@ export const DebtStrategyGuidanceCard = memo(function DebtStrategyGuidanceCard({
             <div
               key={strat.id}
               onClick={() => onSelectStrategy?.(strat.id)}
-              className={`p-3.5 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] ${
+              className={`p-3.5 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] ${
                 isSelected
                   ? "bg-brand-subtle/40 border-brand ring-1 ring-brand/30 shadow-2xs"
                   : "bg-surface-2/40 border-border hover:border-brand/40 hover:bg-surface-2/70"

@@ -30,7 +30,7 @@ function HelpSection({ title, category, icon, badge, defaultOpen = false, childr
     }`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 text-left active:scale-[0.99] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring relative z-10"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring relative z-10"
       >
         <div className="flex items-center gap-3.5">
           <div className={`p-2.5 rounded-xl shadow-xs shrink-0 ${isOpen ? "bg-brand-subtle text-brand border border-brand/20" : "bg-surface-2 text-text-muted border border-border"}`}>

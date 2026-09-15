@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Bot, CheckCircle2, ListTodo, Loader2, Send, Sparkles, User, X } from "lucide-react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -31,8 +32,6 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   useEffect(() => {
     if (isOpen) endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [isOpen, messages.length]);
-
-  if (!isOpen) return null;
 
   const sendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -91,10 +90,22 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs" onMouseDown={(event) => {
+    <AnimatePresence>
+      {isOpen && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onClose();
     }}>
-      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="ai-chat-title" className="flex h-[80vh] max-h-[800px] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.15 }}
+        ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="ai-chat-title" className="flex h-[80vh] max-h-[800px] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-brand" />
@@ -106,7 +117,7 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <button type="button" onClick={onClose} aria-label="Zamknij" className="rounded-lg p-2 text-text-muted hover:bg-surface-2"><X className="h-5 w-5" /></button>
         </header>
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {state.aiMode === "none" && (
+          {state.aiMode !== "local" && (
             <ReasonCard
               reason={{
                 code: "ai-chat-disabled",
@@ -217,10 +228,12 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         <form onSubmit={sendMessage} className="border-t border-border p-4">
           <div className="flex gap-2">
             <input value={input} onChange={(event) => setInput(event.target.value)} disabled={loading} placeholder="Zapytaj o swój budżet..." className="min-w-0 flex-1 rounded-xl border border-border bg-surface px-3 py-3 text-sm focus-visible:ring-2 focus-visible:ring-focus-ring" />
-            <button type="submit" disabled={loading || !input.trim()} aria-label="Wyślij" className="rounded-xl bg-brand px-3 text-text-inverse disabled:opacity-50"><Send className="h-4 w-4" /></button>
+            <button type="submit" disabled={loading || !input.trim()} aria-label="Wyślij" className="rounded-xl bg-brand px-3 text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"><Send className="h-4 w-4" /></button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

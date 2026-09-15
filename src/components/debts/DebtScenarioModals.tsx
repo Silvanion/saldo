@@ -1,4 +1,5 @@
 import React from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Bookmark, X, Edit3, Copy } from "lucide-react";
 import {
   DebtItem,
@@ -82,11 +83,22 @@ export function DebtScenarioModals({
   useFocusTrap(duplicateModalRef, !!duplicateModalScenario, onCloseDuplicateScenario);
 
   return (
-    <>
+    <AnimatePresence>
       {/* MODAL 5: SAVE SCENARIO */}
       {isSaveScenarioModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div
+        <motion.div
+          key="save-scenario-modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.15 }}
             ref={saveModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
@@ -175,8 +187,8 @@ export function DebtScenarioModals({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* MODAL 6: COMPARE SCENARIOS */}
@@ -191,8 +203,19 @@ export function DebtScenarioModals({
 
       {/* MODAL 7: RENAME SCENARIO */}
       {renameModalScenario && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div
+        <motion.div
+          key="rename-scenario-modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.15 }}
             ref={renameModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
@@ -253,14 +276,25 @@ export function DebtScenarioModals({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* MODAL 8: DUPLICATE SCENARIO */}
       {duplicateModalScenario && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div
+        <motion.div
+          key="duplicate-scenario-modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.15 }}
             ref={duplicateModalRef}
             className="bg-surface border border-border rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4"
             role="dialog"
@@ -342,9 +376,9 @@ export function DebtScenarioModals({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 }

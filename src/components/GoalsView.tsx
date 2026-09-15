@@ -123,7 +123,7 @@ export function GoalsView({
               return (
                 <div
                   key={g.id}
-                  className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs hover:border-border transition-colors flex flex-col justify-between min-h-[12.5rem] relative min-w-0 space-y-3"
+                  className="bg-surface border border-border/70 rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between min-h-[12.5rem] relative min-w-0 space-y-3"
                 >
                   <div className="min-w-0">
                     <div className="flex justify-between items-start mb-2.5 min-w-0 gap-2">

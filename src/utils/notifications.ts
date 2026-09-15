@@ -52,13 +52,23 @@ export function checkAndNotifyPayments(profile: Profile, appCurrency?: Supported
     else timeLabel = `za ${diffDays} dni`;
 
     const resolvedCur = resolveCurrency(p.currency, profile.currency, appCurrency);
-    new Notification("Zbliżający się termin płatności!", {
-      body: `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} ${resolvedCur} jest do opłacenia ${timeLabel} (${p.dueDate}).`,
-    });
+    const title = "Zbliżający się termin płatności!";
+    const body = `Rachunek "${p.name}" na kwotę ${p.amount.toFixed(2)} ${resolvedCur} jest do opłacenia ${timeLabel} (${p.dueDate}).`;
+    
+    if (window.electronAPI) {
+      window.electronAPI.showNotification(title, body);
+    } else {
+      new Notification(title, { body });
+    }
   } else {
     const listNames = toNotify.map((p) => p.name).join(", ");
-    new Notification("Masz zbliżające się płatności!", {
-      body: `Do opłacenia masz ${toNotify.length} rachunki: ${listNames}.`,
-    });
+    const title = "Masz zbliżające się płatności!";
+    const body = `Do opłacenia masz ${toNotify.length} rachunki: ${listNames}.`;
+    
+    if (window.electronAPI) {
+      window.electronAPI.showNotification(title, body);
+    } else {
+      new Notification(title, { body });
+    }
   }
 }

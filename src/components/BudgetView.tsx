@@ -126,7 +126,7 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
           return (
             <div
               key={category}
-              className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs hover:border-border transition-colors flex flex-col justify-between space-y-4 min-w-0"
+              className="bg-surface p-4 sm:p-5 rounded-xl border border-border/70 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-4 min-w-0"
             >
               <div className="min-w-0">
                 <div className="flex justify-between items-start min-w-0 gap-2">
@@ -136,9 +136,13 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
                     </span>
                     <div className="min-w-0">
                       <h4 className="text-sm font-semibold text-text-main truncate" title={category}>{category}</h4>
-                      <p className="text-xs text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>
-                        Wykorzystano <span className="tabular-nums font-semibold">{percent}%</span> limitu
-                      </p>
+                      {limit > 0 ? (
+                        <p className="text-xs text-text-faint truncate" title={`Wykorzystano ${percent}% limitu`}>
+                          Wykorzystano <span className="tabular-nums font-semibold">{percent}%</span> limitu
+                        </p>
+                      ) : (
+                        <p className="text-xs text-text-faint truncate">Bez ustalonego limitu</p>
+                      )}
                     </div>
                   </div>
                   

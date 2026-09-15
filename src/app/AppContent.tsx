@@ -95,6 +95,7 @@ export function AppContent() {
           <UnlockModal
             isOpen={true}
             profileName={activeProfile.name}
+            profileId={activeProfile.id}
             onUnlock={async (pin) => {
               return await handleUnlockProfile(pin);
             }}

@@ -130,6 +130,24 @@ export function AppShell({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Desktop IPC listeners (global shortcut, system tray, preferences menu)
+  useEffect(() => {
+    if (!window.electronAPI) return;
+
+    const unsubAddExpense = window.electronAPI.onOpenAddExpense?.(() => {
+      openModal("transaction");
+    });
+
+    const unsubPreferences = window.electronAPI.onOpenPreferences?.(() => {
+      setActiveView("settings");
+    });
+
+    return () => {
+      unsubAddExpense?.();
+      unsubPreferences?.();
+    };
+  }, [openModal, setActiveView]);
+
   // Format active weekday date for header
   const getTodayFormatted = () => {
     return new Intl.DateTimeFormat("pl-PL", {
@@ -474,7 +492,7 @@ export function AppShell({
               <Menu className="w-5 h-5 text-text-main" strokeWidth={1.75} />
             </button>
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs font-semibold text-text-faint tracking-wider uppercase truncate" title={getTodayFormatted()}>{getTodayFormatted()}</p>
+              <p className="hidden sm:block text-[10px] sm:text-xs font-semibold text-text-faint tracking-wider uppercase truncate" title={getTodayFormatted()}>{getTodayFormatted()}</p>
               <div className="flex items-center gap-2">
                 <h1 className="text-sm sm:text-base md:text-lg font-bold text-text-main tracking-tight truncate">
                   {activeView === "dashboard" && (new Date().getHours() >= 5 && new Date().getHours() < 18 ? "Dzień dobry" : "Dobry wieczór")}

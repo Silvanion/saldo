@@ -1,6 +1,6 @@
 import { Settings, WalletCards, Lock, ArrowRight, Plus } from "lucide-react";
 import { useApp } from "./providers/AppContext";
-import React, { Suspense, lazy, useState } from "react";
+import React, { Suspense, lazy, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Profile, Payment, Goal } from "../types";
 import { AppView } from "../uiTypes";
@@ -145,6 +145,19 @@ export function AppViewRouter({
   const onToggleDriveAutoSync = toggleAutoSync;
   const onImportLocalData = handleImportLocalData;
   const onThemeChange = handleThemeChange;
+
+  useEffect(() => {
+    if (!window.electronAPI?.updateBadge || !activeProfile?.payments) return;
+    
+    // Obliczamy liczbę "zaległych" lub "na dziś" rachunków
+    const todayStr = new Date().toISOString().split("T")[0];
+    const pendingCount = activeProfile.payments.filter(p => {
+      if (p.status === "Opłacono") return false;
+      return p.dueDate <= todayStr;
+    }).length;
+
+    window.electronAPI.updateBadge(pendingCount > 0 ? pendingCount.toString() : "");
+  }, [activeProfile?.payments]);
 
   if (!activeProfile && activeView !== "settings") {
     if (profiles.length === 0) {

@@ -129,6 +129,19 @@ export function SettingsBackupSection({
     }
   };
 
+  const processJsonString = (text: string) => {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && Array.isArray(parsed.profiles)) {
+        setFilePreview(parsed);
+      } else {
+        showToast("Plik JSON nie zawiera prawidłowej bazy danych aplikacji Saldo.", "error");
+      }
+    } catch {
+      showToast("Błąd dekodowania pliku JSON. Upewnij się, że plik nie jest uszkodzony.", "error");
+    }
+  };
+
   const processFile = (file: File) => {
     if (!file.name.endsWith(".json")) {
       showToast("Proszę wybrać plik w formacie JSON (.json).", "error");
@@ -136,17 +149,8 @@ export function SettingsBackupSection({
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const parsed = JSON.parse(text);
-        if (parsed && Array.isArray(parsed.profiles)) {
-          setFilePreview(parsed);
-        } else {
-          showToast("Plik JSON nie zawiera prawidłowej bazy danych aplikacji Saldo.", "error");
-        }
-      } catch {
-        showToast("Błąd dekodowania pliku JSON. Upewnij się, że plik nie jest uszkodzony.", "error");
-      }
+      const text = e.target?.result as string;
+      processJsonString(text);
     };
     reader.readAsText(file);
   };
@@ -212,13 +216,25 @@ export function SettingsBackupSection({
             onDragLeave={handleDrag}
             onDrop={handleDrop}
             tabIndex={0}
-            onKeyDown={(e) => {
+            onKeyDown={async (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                if (window.electronAPI) {
+                  const json = await window.electronAPI.importData();
+                  if (json) processJsonString(json);
+                } else {
+                  document.getElementById("local-backup-file-input")?.click();
+                }
+              }
+            }}
+            onClick={async () => {
+              if (window.electronAPI) {
+                const json = await window.electronAPI.importData();
+                if (json) processJsonString(json);
+              } else {
                 document.getElementById("local-backup-file-input")?.click();
               }
             }}
-            onClick={() => document.getElementById("local-backup-file-input")?.click()}
             className={`border-2 border-dashed rounded-xl p-6 text-center transition cursor-pointer mb-4 focus-visible:ring-2 focus-visible:ring-focus-ring ${
               dragActive
                 ? "border-brand bg-brand-subtle"
@@ -381,7 +397,17 @@ export function SettingsBackupSection({
                 onClick={async () => {
                   const safeState = await prepareStateForRemoteSave(state);
                   const json = JSON.stringify(safeState, null, 2);
-                  downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
+                  if (window.electronAPI) {
+                    window.electronAPI.setProgressBar?.(0.5);
+                    try {
+                      const path = await window.electronAPI.exportData('saldo-kopia-zaszyfrowana.json', json);
+                      if (path) showToast("Zapisano zaszyfrowaną kopię.", "success");
+                    } finally {
+                      window.electronAPI.setProgressBar?.(-1);
+                    }
+                  } else {
+                    downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
+                  }
                 }}
                 className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
@@ -426,9 +452,19 @@ export function SettingsBackupSection({
                 confirmLabel: "Eksportuj",
                 cancelLabel: "Anuluj",
                 tone: "warning",
-                onConfirm: () => {
+                onConfirm: async () => {
                   const json = JSON.stringify(state, null, 2);
-                  downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
+                  if (window.electronAPI) {
+                    window.electronAPI.setProgressBar?.(0.5);
+                    try {
+                      const path = await window.electronAPI.exportData('saldo-kopia-czytelna.json', json);
+                      if (path) showToast("Zapisano kopię danych.", "success");
+                    } finally {
+                      window.electronAPI.setProgressBar?.(-1);
+                    }
+                  } else {
+                    downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
+                  }
                   if (onExportData) {
                     onExportData();
                   }

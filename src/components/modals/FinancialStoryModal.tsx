@@ -368,7 +368,7 @@ export function FinancialStoryModal({
                   setCurrentSlideIdx(idx);
                   setSlideProgress(0);
                 }}
-                className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden focus:outline-none"
+                className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer hover:bg-white/30 active:scale-y-150 transition-all focus-visible:ring-2 focus-visible:ring-white/60 focus:outline-none"
                 title={`Slajd ${idx + 1}: ${slide.title}`}
                 aria-label={`Slajd ${idx + 1}: ${slide.title}`}
               >

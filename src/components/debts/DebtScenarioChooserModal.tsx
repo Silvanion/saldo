@@ -72,7 +72,7 @@ export function DebtScenarioChooserModal({
                 onSelectOffer();
                 onClose();
               }}
-              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] outline-none"
+              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] outline-none"
               aria-label="Wybierz: Nowa oferta refinansowania kredytu"
             >
               <div className="flex items-start justify-between gap-3">
@@ -106,7 +106,7 @@ export function DebtScenarioChooserModal({
                 onSelectScenario();
                 onClose();
               }}
-              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.99] outline-none"
+              className="w-full text-left p-4 sm:p-5 rounded-2xl border border-border hover:border-brand/50 bg-surface-2/30 hover:bg-surface-2/70 transition-all group cursor-pointer space-y-2 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] outline-none"
               aria-label="Wybierz: Nowy scenariusz spłaty portfela"
             >
               <div className="flex items-start justify-between gap-3">
