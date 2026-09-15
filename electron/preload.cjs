@@ -20,6 +20,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('open-preferences', handler);
     return () => ipcRenderer.removeListener('open-preferences', handler);
   },
+  onImportFileDropped: (callback) => {
+    const handler = (_event, payload) => callback(payload);
+    ipcRenderer.on('import-file-dropped', handler);
+    return () => ipcRenderer.removeListener('import-file-dropped', handler);
+  },
   getLoginItem: () => ipcRenderer.invoke('get-login-item'),
   setLoginItem: (openAtLogin) => ipcRenderer.invoke('set-login-item', openAtLogin),
   setProgressBar: (progress) => ipcRenderer.invoke('set-progress-bar', progress),

@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.0",
+    date: "Wrzesień 2026",
+    title: "Natywny Wygląd Desktopu: Menu Kontekstowe, Panel \"O Programie\", Przeciąganie Plików z Systemu",
+    icon: <Laptop className="w-5 h-5 text-brand" />,
+    features: [
+      "[Natywne Menu Kontekstowe] Kliknięcie prawym przyciskiem myszy na dowolnym polu tekstowym pokazuje teraz systemowe menu Wytnij/Kopiuj/Wklej wraz z podpowiedziami pisowni — wcześniej nie pokazywało się nic.",
+      "[Panel \"O Programie\"] Menu aplikacji (macOS/Linux) pokazuje teraz właściwą, podpisaną marką Saldo wersję i prawa autorskie zamiast domyślnego, generycznego okna Electron.",
+      "[Przeciąganie Wyciągów z Systemu] Plik CSV/PDF upuszczony bezpośrednio na okno aplikacji, na ikonę w Docku/pasku zadań, lub otwarty przez \"Otwórz za pomocą Saldo\" w Finderze/Eksploratorze — nawet gdy moduł importu nie jest jeszcze otwarty — automatycznie przełącza widok na Transakcje i uruchamia import. Wcześniej działało to wyłącznie wewnątrz już otwartego okna importu.",
+      "[Płynniejszy Start] Wyeliminowano charakterystyczny biały błysk okna tuż przed załadowaniem aplikacji (szczególnie widoczny w trybie ciemnym) — tło okna dopasowuje się teraz do spodziewanego motywu."
+    ]
+  },
+  {
     version: "v1.5.1",
     date: "Wrzesień 2026",
     title: "Naprawa Lokalnego AI w Wersji Desktop i Cichych Sprawdzeń Aktualizacji",

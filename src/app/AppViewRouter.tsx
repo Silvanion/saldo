@@ -103,7 +103,8 @@ export function AppViewRouter({
     handleUpdateProfile,
     handleApplySmartRulesBulk,
     handleTogglePlanItem,
-    showToast
+    showToast,
+    pendingImportFile, setPendingImportFile
   } = useApp();
 
   const onPrevMonth = handlePrevMonth;
@@ -285,6 +286,8 @@ export function AppViewRouter({
             onShowToast={showToast}
             onOpenSmartRulesManager={() => openModal("smartRulesManager")}
             onNavigateToDebts={handleNavigateToDebts}
+            pendingImportFile={pendingImportFile}
+            onConsumePendingImportFile={() => setPendingImportFile(null)}
           />
         );
       case "payments":

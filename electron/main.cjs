@@ -27,17 +27,62 @@ if (!gotTheLock) {
   process.exit(0);
 }
 
+let mainWindow;
+let localServer;
+let tray = null;
+let cachedBadgeOverlayIcon; // undefined = not attempted yet, null = attempted and failed
+let pendingImportFilePath; // set when a statement file is opened before the window/renderer is ready
+
+// Statement file opened via Finder/Explorer "Open with", a Dock/taskbar-icon
+// drop, or a double-click while the app is already running — distinct from
+// the in-app dropzone (ImportTransactionsModal), which only reacts to drops
+// made while that modal is already open.
+const IMPORT_FILE_EXTENSIONS = ['.csv', '.pdf'];
+
+function isImportableFile(filePath) {
+  return typeof filePath === 'string' && IMPORT_FILE_EXTENSIONS.includes(path.extname(filePath).toLowerCase());
+}
+
+async function openImportFile(filePath) {
+  if (!isImportableFile(filePath)) return;
+  if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isLoadingMainFrame()) {
+    pendingImportFilePath = filePath;
+    return;
+  }
+  try {
+    const bytes = await fs.promises.readFile(filePath);
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    if (!mainWindow.isVisible()) mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.send('import-file-dropped', { name: path.basename(filePath), bytes });
+  } catch (err) {
+    log.error("[OpenFile] Błąd odczytu pliku do zaimportowania:", err);
+  }
+}
+
+// Registered before app.whenReady() — required on macOS to catch a file
+// opened at cold start (double-click / Dock drop before the app was running).
+app.on('open-file', (event, filePath) => {
+  event.preventDefault();
+  if (app.isReady()) {
+    openImportFile(filePath);
+  } else {
+    pendingImportFilePath = filePath;
+  }
+});
+
 app.on('second-instance', (event, commandLine, workingDirectory) => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.focus();
   }
+  // Windows/Linux: a file dropped on the .exe/shortcut, or "Open with Saldo",
+  // relaunches with the file path as the last CLI argument.
+  const filePath = commandLine[commandLine.length - 1];
+  if (isImportableFile(filePath)) {
+    openImportFile(filePath);
+  }
 });
-
-let mainWindow;
-let localServer;
-let tray = null;
-let cachedBadgeOverlayIcon; // undefined = not attempted yet, null = attempted and failed
 
 function triggerAddExpense() {
   if (mainWindow) {
@@ -129,6 +174,15 @@ function getFreePort() {
 
 // Set App User Model ID for Windows (required for native notifications)
 app.setAppUserModelId("com.saldo.app");
+
+// Branded native About panel (macOS: App menu > About Saldo; Linux: also supported)
+app.setAboutPanelOptions({
+  applicationName: "Saldo",
+  applicationVersion: app.getVersion(),
+  version: app.getVersion(),
+  copyright: `© ${new Date().getFullYear()} Silvanion`,
+  iconPath: path.join(__dirname, "../build/icon.png")
+});
 
 // IPC handlers
 ipcMain.handle('export-data', async (event, defaultPath, data) => {
@@ -437,6 +491,16 @@ async function createWindow(port) {
     defaultHeight: 800
   });
 
+  // Electron paints a blank window before the SPA finishes loading; without
+  // an explicit backgroundColor that default is white, which is a jarring
+  // flash in dark mode. Match the app's own light/dark bg-base token using
+  // the same time-of-day heuristic src/hooks/useTheme.ts uses for its
+  // default "auto" theme (we can't read the renderer's localStorage choice
+  // this early), so the flash blends in for most users most of the time.
+  const currentHour = new Date().getHours();
+  const isLikelyDark = currentHour >= 18 || currentHour < 6;
+  const backgroundColor = isLikelyDark ? "#121315" : "#f5f5f5";
+
   mainWindow = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
@@ -445,6 +509,7 @@ async function createWindow(port) {
     minWidth: 800,
     minHeight: 600,
     title: "Saldo",
+    backgroundColor,
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 20, y: 20 },
     webPreferences: {
@@ -466,6 +531,47 @@ async function createWindow(port) {
       });
     }
   };
+
+  // Native right-click menu on text fields (Cut/Copy/Paste, spell-check
+  // suggestions) — without this, right-clicking any input shows nothing.
+  mainWindow.webContents.on('context-menu', (event, params) => {
+    const menuTemplate = [];
+
+    if (params.misspelledWord) {
+      for (const suggestion of params.dictionarySuggestions) {
+        menuTemplate.push({
+          label: suggestion,
+          click: () => mainWindow.webContents.replaceMisspelling(suggestion)
+        });
+      }
+      if (params.dictionarySuggestions.length > 0) {
+        menuTemplate.push({ type: 'separator' });
+      }
+      menuTemplate.push({
+        label: 'Dodaj do słownika',
+        click: () => mainWindow.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord)
+      });
+      menuTemplate.push({ type: 'separator' });
+    }
+
+    if (params.isEditable) {
+      menuTemplate.push(
+        { role: 'undo', enabled: params.editFlags.canUndo },
+        { role: 'redo', enabled: params.editFlags.canRedo },
+        { type: 'separator' },
+        { role: 'cut', enabled: params.editFlags.canCut },
+        { role: 'copy', enabled: params.editFlags.canCopy },
+        { role: 'paste', enabled: params.editFlags.canPaste },
+        { role: 'selectAll', enabled: params.editFlags.canSelectAll }
+      );
+    } else if (params.selectionText) {
+      menuTemplate.push({ role: 'copy' });
+    }
+
+    if (menuTemplate.length === 0) return;
+
+    Menu.buildFromTemplate(menuTemplate).popup({ window: mainWindow });
+  });
 
   mainWindow.on('maximize', notifyWindowState);
   mainWindow.on('unmaximize', notifyWindowState);
@@ -582,6 +688,14 @@ async function createWindow(port) {
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (pendingImportFilePath) {
+      const filePath = pendingImportFilePath;
+      pendingImportFilePath = undefined;
+      openImportFile(filePath);
+    }
+  });
+
   // Load the web app served by our embedded Express server
   mainWindow.loadURL(`http://localhost:${port}`);
 
@@ -604,6 +718,16 @@ app.whenReady().then(async () => {
     
     // Open the browser window
     createWindow(freePort);
+
+    // Windows/Linux: a file dropped on the .exe/shortcut, or "Open with
+    // Saldo", launches the app with the file path as the last CLI argument
+    // (macOS instead fires the 'open-file' event registered above).
+    if (process.platform !== 'darwin') {
+      const argvFilePath = process.argv[process.argv.length - 1];
+      if (isImportableFile(argvFilePath)) {
+        openImportFile(argvFilePath);
+      }
+    }
 
     // Initialize System Tray
     createTray();

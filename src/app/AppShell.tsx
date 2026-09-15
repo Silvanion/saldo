@@ -59,6 +59,7 @@ export function AppShell({
     theme,
     handleThemeChange,
     isMobileMenuOpen, setIsMobileMenuOpen,
+    setPendingImportFile,
     isOnline,
     isSyncing,
     refreshState,
@@ -125,11 +126,53 @@ export function AppShell({
       setActiveView("settings");
     });
 
+    // Statement file opened via Finder/Explorer "Open with", a Dock/taskbar
+    // drop, or double-click while the app is already running.
+    const unsubImportFile = window.electronAPI.onImportFileDropped?.(({ name, bytes }) => {
+      const file = new File([new Uint8Array(bytes)], name);
+      setActiveView("transactions");
+      setPendingImportFile(file);
+    });
+
     return () => {
       unsubAddExpense?.();
       unsubPreferences?.();
+      unsubImportFile?.();
     };
-  }, [openModal, setActiveView]);
+  }, [openModal, setActiveView, setPendingImportFile]);
+
+  // Statement file (CSV/PDF) dragged from the OS straight onto the app
+  // window while it's running — distinct from the modal's own dropzone,
+  // which only reacts once the import modal is already open.
+  useEffect(() => {
+    const isImportableFile = (file: File) => /\.(csv|pdf)$/i.test(file.name);
+
+    const handleWindowDragOver = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes("Files")) {
+        e.preventDefault();
+      }
+    };
+
+    const handleWindowDrop = (e: DragEvent) => {
+      const file = e.dataTransfer?.files?.[0];
+      if (file && isImportableFile(file)) {
+        e.preventDefault();
+        setActiveView("transactions");
+        setPendingImportFile(file);
+      } else if (e.dataTransfer?.types.includes("Files")) {
+        // Prevent Electron/Chromium from navigating the window to the
+        // dropped file for unsupported types too.
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, [setActiveView, setPendingImportFile]);
 
   // Format active weekday date for header
   const getTodayFormatted = () => {

@@ -30,6 +30,8 @@ export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSy
   setActiveView: (view: AppView) => void;
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (val: boolean) => void;
+  pendingImportFile: File | null;
+  setPendingImportFile: (file: File | null) => void;
   isOnline: boolean;
   setIsOnline: (val: boolean) => void;
   activeProfile: Profile | null;
@@ -48,6 +50,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [pendingImportFile, setPendingImportFile] = useState<File | null>(null);
   const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
 
   useEffect(() => {
@@ -160,6 +163,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedDate, setSelectedDate, handlePrevMonth, handleNextMonth,
     activeView, setActiveView,
     isMobileMenuOpen, setIsMobileMenuOpen,
+    pendingImportFile, setPendingImportFile,
     isOnline, setIsOnline,
     activeProfile,
     isDriveAutoSyncEnabled, toggleAutoSync,

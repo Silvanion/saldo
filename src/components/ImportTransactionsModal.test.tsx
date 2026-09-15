@@ -184,6 +184,42 @@ invalid_date;100;Błędna data;PLN
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("initialFile: auto-processes a CSV supplied from outside the dropzone (OS-level drag & drop) and consumes it once", async () => {
+    const onImport = vi.fn();
+    const onClose = vi.fn();
+    const onConsumeInitialFile = vi.fn();
+    const file = new File([SAMPLE_CSV], "wyciag.csv", { type: "text/csv" });
+
+    const { rerender } = render(
+      <ImportTransactionsModal
+        isOpen={true}
+        onClose={onClose}
+        onImport={onImport}
+        initialFile={file}
+        onConsumeInitialFile={onConsumeInitialFile}
+      />
+    );
+
+    // handleFile() reads the File asynchronously (FileReader) — wait for the
+    // mapping step (step 2) to confirm it was parsed without any manual paste/click.
+    await screen.findByText(/Mapowanie kolumn/i);
+    expect(onConsumeInitialFile).toHaveBeenCalledTimes(1);
+
+    // The parent clears initialFile once consumed — re-render with null must
+    // not reprocess/reset the already-in-progress import.
+    rerender(
+      <ImportTransactionsModal
+        isOpen={true}
+        onClose={onClose}
+        onImport={onImport}
+        initialFile={null}
+        onConsumeInitialFile={onConsumeInitialFile}
+      />
+    );
+    expect(onConsumeInitialFile).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/Mapowanie kolumn/i)).toBeTruthy();
+  });
+
   it("4. plik z liczbą wierszy powyżej limitu pokazuje ostrzeżenie o obcięciu importu", () => {
     const header = "Data;Kwota;Tytuł";
     const rowCount = MAX_IMPORT_ROWS + 100;

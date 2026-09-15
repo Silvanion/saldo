@@ -7,7 +7,7 @@ import { parseStatementText } from "../services/localParsers";
 import { resolveLocalAiConfig, extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
 import { useApp } from "../app/providers/AppContext";
 import { createPortal } from "react-dom";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
 import { SupportedCurrency, Transaction } from "../types";
 import { expenseCategories, incomeCategories, iconByCategory, getLocalDateIso } from "../utils";
@@ -46,9 +46,14 @@ interface ImportTransactionsModalProps {
   onClose: () => void;
   onImport: (transactions: Transaction[]) => void;
   onBeforeImport?: () => void;
+  // Pre-supplied file (dropped on the OS window/Dock icon, or opened via
+  // "Open with Saldo") to process automatically as soon as the modal mounts,
+  // instead of waiting for the user to pick/drop a file in the dropzone.
+  initialFile?: File | null;
+  onConsumeInitialFile?: () => void;
 }
 
-export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImport }: ImportTransactionsModalProps) {
+export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImport, initialFile, onConsumeInitialFile }: ImportTransactionsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
@@ -150,8 +155,6 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     [mappedTransactions]
   );
 
-  if (!isOpen) return null;
-
   const processRawCsvString = (text: string, name: string = "Wklejony tekst CSV") => {
     setFileName(name);
     setCsvText(text);
@@ -205,8 +208,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     }
   };
 
-  const handleFile = (file: File) => {
-    if (tab === "pdf") {
+  const handleFile = (file: File, targetTab: "csv" | "pdf" = tab === "pdf" ? "pdf" : "csv") => {
+    if (targetTab === "pdf") {
       void handlePdfFile(file);
       return;
     }
@@ -217,6 +220,20 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     };
     reader.readAsText(file);
   };
+
+  // A file supplied from outside the dropzone (OS-level drag & drop onto the
+  // window/Dock icon) — process it once, then let the parent clear the
+  // signal so re-opening the modal later doesn't reprocess the same file.
+  useEffect(() => {
+    if (!initialFile) return;
+    const targetTab = /\.pdf$/i.test(initialFile.name) ? "pdf" : "csv";
+    setTab(targetTab);
+    handleFile(initialFile, targetTab);
+    onConsumeInitialFile?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFile]);
+
+  if (!isOpen) return null;
 
   const handlePdfFile = async (file: File) => {
     setIsPdfProcessing(true);

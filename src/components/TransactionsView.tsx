@@ -42,6 +42,8 @@ interface TransactionsViewProps {
   onShowToast?: (msg: string, type?: "success" | "error" | "info") => void;
   onOpenSmartRulesManager?: () => void;
   onNavigateToDebts?: (debtId?: string) => void;
+  pendingImportFile?: File | null;
+  onConsumePendingImportFile?: () => void;
 }
 
 export const TransactionsView = memo(function TransactionsView({
@@ -53,7 +55,9 @@ export const TransactionsView = memo(function TransactionsView({
   onApplySmartRulesBulk,
   onShowToast,
   onOpenSmartRulesManager,
-  onNavigateToDebts
+  onNavigateToDebts,
+  pendingImportFile,
+  onConsumePendingImportFile
 }: TransactionsViewProps) {
   const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
   const [paidByFilter, setPaidByFilter] = useState<"all" | "me" | "partner" | "joint">("all");
@@ -96,6 +100,15 @@ export const TransactionsView = memo(function TransactionsView({
   useEffect(() => {
     setItemsToShow(25);
   }, [filterType, paidByFilter, debouncedSearchTerm, selectedTag, dateFrom, dateTo, minAmount, maxAmount]);
+
+  // A statement file dropped on the OS window/Dock icon, or opened via
+  // "Open with Saldo", arrives here as a global signal — open the import
+  // modal to process it, same as clicking "Importuj" would.
+  useEffect(() => {
+    if (pendingImportFile) {
+      setIsCSVModalOpen(true);
+    }
+  }, [pendingImportFile]);
 
   // Compute all unique tags from expense transactions
   const allUniqueTags = useMemo(() => {
@@ -888,13 +901,24 @@ export const TransactionsView = memo(function TransactionsView({
       </AnimatePresence>
 
       {isCSVModalOpen && (
-        <ErrorBoundary onReset={() => setIsCSVModalOpen(false)} title="Nie udało się załadować modułu importu">
+        <ErrorBoundary
+          onReset={() => {
+            setIsCSVModalOpen(false);
+            onConsumePendingImportFile?.();
+          }}
+          title="Nie udało się załadować modułu importu"
+        >
           <Suspense fallback={<ModalFallback label="Ładowanie modułu importu..." />}>
             <ImportTransactionsModal
               isOpen={true}
-              onClose={() => setIsCSVModalOpen(false)}
+              onClose={() => {
+                setIsCSVModalOpen(false);
+                onConsumePendingImportFile?.();
+              }}
               onImport={onImportTransactions}
               onBeforeImport={onBeforeImport}
+              initialFile={pendingImportFile}
+              onConsumeInitialFile={onConsumePendingImportFile}
             />
           </Suspense>
         </ErrorBoundary>

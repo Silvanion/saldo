@@ -10,6 +10,7 @@ interface Window {
     onSystemLock: (callback: () => void) => () => void;
     onOpenAddExpense?: (callback: () => void) => () => void;
     onOpenPreferences?: (callback: () => void) => () => void;
+    onImportFileDropped?: (callback: (payload: { name: string; bytes: Uint8Array | number[] }) => void) => () => void;
     getLoginItem?: () => Promise<boolean>;
     setLoginItem?: (openAtLogin: boolean) => Promise<boolean>;
     setProgressBar?: (progress: number) => Promise<void>;
