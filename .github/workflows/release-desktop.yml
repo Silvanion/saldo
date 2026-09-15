@@ -8,15 +8,18 @@ on:
 permissions:
   contents: write
 
+# electron-builder --publish always creates the GitHub Release for this tag
+# if it doesn't exist yet. Running macOS and Windows as matrix jobs (the
+# previous setup) let both runners start that "does a release exist?" check
+# at nearly the same time, so both created their own separate draft release
+# for the same tag — assets split across two duplicates instead of landing
+# in one. Making windows depend on macos forces them to run in sequence:
+# macos creates the release, windows finds and uploads into the one that
+# already exists.
 jobs:
-  release:
-    name: Build & Publish (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest]
-
+  release-macos:
+    name: Build & Publish (macos-latest)
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,8 +45,6 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_SECRET: ${{ secrets.CSC_LINK }}
           CSC_KEY_SECRET: ${{ secrets.CSC_KEY_PASSWORD }}
-          WIN_CSC_SECRET: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_SECRET: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         run: |
           if [ -n "$CSC_SECRET" ]; then
             export CSC_LINK="$CSC_SECRET"
@@ -51,6 +52,35 @@ jobs:
           else
             export CSC_IDENTITY_AUTO_DISCOVERY=false
           fi
+          npx electron-builder --publish always
+
+  release-windows:
+    name: Build & Publish (windows-latest)
+    needs: release-macos
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets and embedded server
+        run: npm run build
+
+      - name: Build & Publish Electron Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIN_CSC_SECRET: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_SECRET: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: |
           if [ -n "$WIN_CSC_SECRET" ]; then
             export WIN_CSC_LINK="$WIN_CSC_SECRET"
             export WIN_CSC_KEY_PASSWORD="$WIN_CSC_KEY_SECRET"
