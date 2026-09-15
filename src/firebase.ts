@@ -556,6 +556,9 @@ export const loadUserStateFromFirestore = async (uid: string): Promise<AppState 
   }
 };
 
+// Kształt payloadu (jakie pola, jakie limity) musi zostać zsynchronizowany
+// ręcznie z regułą `match /bug_reports/{reportId}` w firestore.rules — nowe
+// pole dodane tylko tutaj zostanie po cichu odrzucone jako permission-denied.
 export const submitBugReport = async (report: { title: string; description: string; type: "bug" | "suggestion"; contactEmail?: string; appVersion?: string; screenshotBase64?: string }) => {
   const ready = await ensureFirebaseReady();
   if (!ready || !firestoreMod || !db) {
@@ -564,12 +567,23 @@ export const submitBugReport = async (report: { title: string; description: stri
   
   try {
     const reportsCollection = firestoreMod.collection(db, "bug_reports");
-    await firestoreMod.addDoc(reportsCollection, {
-      ...report,
+    // Firestore's SDK rejects any field whose value is `undefined` (unlike a
+    // missing key or `null`) — opcjonalne pola trzeba więc całkiem pominąć,
+    // a nie tylko ustawić na undefined, inaczej addDoc() rzuca invalid-argument
+    // nawet dla najprostszego zgłoszenia bez zrzutu ekranu/e-maila.
+    const payload: Record<string, unknown> = {
+      title: report.title,
+      description: report.description,
+      type: report.type,
       createdAt: new Date().toISOString(),
       userAgent: navigator.userAgent,
       status: "new"
-    });
+    };
+    if (report.contactEmail) payload.contactEmail = report.contactEmail;
+    if (report.appVersion) payload.appVersion = report.appVersion;
+    if (report.screenshotBase64) payload.screenshotBase64 = report.screenshotBase64;
+
+    await firestoreMod.addDoc(reportsCollection, payload);
   } catch (error) {
     console.error("Błąd podczas wysyłania zgłoszenia:", error);
     throw new Error("Nie udało się wysłać zgłoszenia.");

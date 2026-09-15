@@ -45,15 +45,19 @@ describe("UpdateManager - GitHub Releases & Semver Matching", () => {
   it("prawidłowo parsuje nowe wydanie i przechodzi w stan AVAILABLE", async () => {
     const manager = UpdateManager.getInstance();
 
+    // v9.9.9 zamiast realnego numeru wydania — CURRENT_VERSION jest teraz
+    // wyprowadzane z changelogData[0].version, więc sztywno wpisana "aktualna"
+    // wersja testowa prędzej czy później zrówna się z prawdziwą i test przestałby
+    // wykrywać "nowszą" wersję. Sentinel wyżej niż cokolwiek realnego jest stabilny.
     const mockRelease = {
-      tag_name: "v1.5.0",
-      name: "Wydanie 1.5.0",
+      tag_name: "v9.9.9",
+      name: "Wydanie 9.9.9",
       body: "Nowy moduł aktualizacji i biometrii",
       published_at: "2026-09-15T12:00:00Z",
       draft: false,
       prerelease: false,
       assets: [
-        { name: "Saldo-1.5.0.dmg", browser_download_url: "https://github.com/Silvanion/saldo/releases/download/v1.5.0/Saldo-1.5.0.dmg", size: 88000 }
+        { name: "Saldo-9.9.9.dmg", browser_download_url: "https://github.com/Silvanion/saldo/releases/download/v9.9.9/Saldo-9.9.9.dmg", size: 88000 }
       ]
     };
 
@@ -66,8 +70,8 @@ describe("UpdateManager - GitHub Releases & Semver Matching", () => {
 
     const res = await manager.checkForUpdates(true);
     expect(res).not.toBeNull();
-    expect(res?.version).toBe("v1.5.0");
+    expect(res?.version).toBe("v9.9.9");
     expect(manager.getState()).toBe("AVAILABLE");
-    expect(manager.getReleaseInfo()?.assetName).toBe("Saldo-1.5.0.dmg");
+    expect(manager.getReleaseInfo()?.assetName).toBe("Saldo-9.9.9.dmg");
   });
 });

@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { X, History } from "lucide-react";
+import { X, History, RefreshCw, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
 import { changelogData } from "../content/changelogData";
+import { UpdateManager } from "../services/UpdateManager";
 
 interface ChangelogModalProps {
   isOpen: boolean;
@@ -14,6 +15,32 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
+
+  const [checkState, setCheckState] = useState<"idle" | "checking" | "up-to-date" | "available" | "error">("idle");
+  const [checkMessage, setCheckMessage] = useState<string | null>(null);
+
+  const handleCheckForUpdates = async () => {
+    setCheckState("checking");
+    setCheckMessage(null);
+    const manager = UpdateManager.getInstance();
+    const result = await manager.checkForUpdates(true);
+    // UpdateToast (zamontowany globalnie w AppShell) nasłuchuje tego samego
+    // singletona UpdateManager i samodzielnie pokaże pełny widok "dostępna
+    // aktualizacja"/"błąd" z przyciskami pobierania/ponowienia — pokazujemy
+    // tutaj lokalny baner tylko dla stanu "brak aktualizacji", jedynego,
+    // którego UpdateToast celowo nie sygnalizuje (zostaje ukryty przy IDLE).
+    if (result) {
+      setCheckState("available");
+      setCheckMessage("Sprawdzono — zobacz szczegóły w powiadomieniu w rogu ekranu.");
+    } else if (manager.getErrorMessage()) {
+      setCheckState("error");
+      setCheckMessage("Sprawdzono — szczegóły błędu w powiadomieniu w rogu ekranu.");
+    } else {
+      setCheckState("up-to-date");
+      setCheckMessage("Masz najnowszą wersję Saldo.");
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -37,7 +64,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
       >
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border/70 shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
+        <div className="flex items-center justify-between gap-3 p-6 border-b border-border/70 shrink-0 bg-bg-base/95 backdrop-blur-2xl sticky top-0 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-brand-subtle border border-brand/20 flex items-center justify-center shrink-0">
               <History className="w-5 h-5 text-brand" />
@@ -47,14 +74,50 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
               <p className="text-sm text-text-muted truncate" title="Co nowego w Saldo?">Co nowego w Saldo?</p>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            aria-label="Zamknij"
-            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-all active:scale-[0.98] shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleCheckForUpdates}
+              disabled={checkState === "checking"}
+              id="btn-check-for-updates"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-text-main hover:bg-surface-offset active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-brand ${checkState === "checking" ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">
+                {checkState === "checking" ? "Sprawdzanie..." : `Wersja ${changelogData[0]?.version} • Sprawdź aktualizacje`}
+              </span>
+              <span className="sm:hidden">Sprawdź</span>
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Zamknij"
+              className="p-2 text-text-muted hover:text-text-main hover:bg-surface-offset rounded-xl transition-all active:scale-[0.98] shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
+
+        {checkMessage && (
+          <div
+            role="status"
+            className={`mx-6 mt-4 flex items-center gap-2 rounded-xl border p-3 text-xs font-medium shrink-0 ${
+              checkState === "error"
+                ? "border-danger/30 bg-danger-subtle text-danger"
+                : checkState === "available"
+                ? "border-brand/20 bg-brand-subtle text-brand"
+                : "border-success/20 bg-success-subtle text-success"
+            }`}
+          >
+            {checkState === "error" ? (
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+            ) : checkState === "available" ? (
+              <Sparkles className="w-4 h-4 shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            )}
+            <span>{checkMessage}</span>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 min-w-0 p-6 sm:p-8 overflow-y-auto custom-scrollbar flex flex-col gap-8">

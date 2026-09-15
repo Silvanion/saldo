@@ -37,6 +37,7 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
 let mainWindow;
 let localServer;
 let tray = null;
+let cachedBadgeOverlayIcon; // undefined = not attempted yet, null = attempted and failed
 
 function triggerAddExpense() {
   if (mainWindow) {
@@ -158,7 +159,28 @@ ipcMain.handle('show-notification', (event, title, body) => {
 
 ipcMain.handle('update-badge', (event, count) => {
   if (app.dock) {
+    // macOS: dock potrafi wyświetlić sam tekst/liczbę na ikonie
     app.dock.setBadge(count || '');
+    return;
+  }
+  // Windows: brak odpowiednika dock-badge — nakładka na ikonę paska zadań
+  // (bez konkretnej liczby, bo BrowserWindow.setOverlayIcon przyjmuje tylko
+  // statyczny obrazek, nie tekst)
+  if (mainWindow && typeof mainWindow.setOverlayIcon === 'function') {
+    if (count) {
+      if (cachedBadgeOverlayIcon === undefined) {
+        try {
+          const overlay = nativeImage.createFromPath(path.join(__dirname, "../build/badgeOverlay.png"));
+          cachedBadgeOverlayIcon = overlay.isEmpty() ? null : overlay;
+        } catch (err) {
+          log.error("[Badge] Błąd wczytywania ikony nakładki:", err);
+          cachedBadgeOverlayIcon = null;
+        }
+      }
+      mainWindow.setOverlayIcon(cachedBadgeOverlayIcon, `${count} zaległych płatności`);
+    } else {
+      mainWindow.setOverlayIcon(null, "");
+    }
   }
 });
 

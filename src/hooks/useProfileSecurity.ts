@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
 import { deriveKeyFromPin, activeKeys, decryptProfile, generateRandomSalt } from "../services/crypto";
+import { BiometricService } from "../services/BiometricService";
 
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
 const BASE_LOCKOUT_MS = 30_000; // 30 seconds
@@ -113,6 +114,13 @@ export function useProfileSecurity({
   const handleSetProfilePin = useCallback(
     async (pin: string | null) => {
       if (!activeProfile) return;
+      // Zmiana lub usunięcie PIN-u unieważnia to, co Touch ID/Windows Hello ma
+      // zapisane w Keychain/DPAPI — bez tego biometryczne odblokowanie po
+      // zmianie PIN-u po cichu się nie udaje (odszyfrowuje stary PIN, który
+      // przestał pasować do nowego pinHash) bez żadnego komunikatu dla
+      // użytkownika. Usunięcie jest bezpieczne domyślnie; jeśli biometria była
+      // włączona, trzeba ją świadomie włączyć ponownie w Ustawieniach.
+      await BiometricService.removeBiometrics(activeProfile.id).catch(() => {});
       if (pin) {
         const newSalt = generateRandomSalt();
         const newHash = await hashPin(pin, newSalt);

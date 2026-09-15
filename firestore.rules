@@ -37,5 +37,33 @@ service cloud.firestore {
                    && (!('localAiModel' in request.resource.data) || (request.resource.data.localAiModel is string && request.resource.data.localAiModel.size() <= 128))
                    && (!('autoLockMinutes' in request.resource.data) || (request.resource.data.autoLockMinutes is number && request.resource.data.autoLockMinutes >= 0 && request.resource.data.autoLockMinutes <= 1440));
     }
+
+    // Formularz zgłoszeń błędów/sugestii (src/components/BugReportModal.tsx).
+    // Celowo dostępny także bez logowania (Local-First — większość użytkowników
+    // nigdy nie łączy konta Google), więc same reguły muszą pilnować walidacji
+    // zamiast request.auth. Zapis jest jednokierunkowy: brak read/update/delete
+    // z klienta, więc nikt nie może odczytać cudzych zgłoszeń.
+    //
+    // UWAGA: lista pól (hasOnly) i limity rozmiaru poniżej są ręcznie
+    // zsynchronizowane z payloadem budowanym w src/firebase.ts (submitBugReport)
+    // i z limitem pliku w src/components/BugReportModal.tsx (500 * 1024 bajtów
+    // -> tu screenshotBase64 <= 700000 znaków base64). Dodanie nowego pola po
+    // stronie klienta bez dodania go tutaj = ciche permission-denied dla
+    // każdego zgłoszenia, które je wysyła.
+    match /bug_reports/{reportId} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasAll(['title', 'description', 'type', 'createdAt', 'userAgent', 'status'])
+                   && request.resource.data.keys().hasOnly(['title', 'description', 'type', 'contactEmail', 'appVersion', 'screenshotBase64', 'createdAt', 'userAgent', 'status'])
+                   && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200
+                   && request.resource.data.description is string && request.resource.data.description.size() > 0 && request.resource.data.description.size() <= 5000
+                   && request.resource.data.type in ['bug', 'suggestion']
+                   && request.resource.data.status == 'new'
+                   && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40
+                   && request.resource.data.userAgent is string && request.resource.data.userAgent.size() <= 512
+                   && (!('contactEmail' in request.resource.data) || (request.resource.data.contactEmail is string && request.resource.data.contactEmail.size() <= 320))
+                   && (!('appVersion' in request.resource.data) || (request.resource.data.appVersion is string && request.resource.data.appVersion.size() <= 32))
+                   // ~700KB base64 (~512KB obrazka) — bezpieczny margines pod limit 1MB/dokument w Firestore
+                   && (!('screenshotBase64' in request.resource.data) || (request.resource.data.screenshotBase64 is string && request.resource.data.screenshotBase64.size() <= 700000));
+    }
   }
 }

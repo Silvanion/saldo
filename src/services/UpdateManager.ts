@@ -3,6 +3,7 @@
  * Obsługuje optymalizację ETag (ochrona przed rate-limitami 60 req/h),
  * walidację semver, strumieniowe pobieranie ze wskaźnikiem MB/s oraz weryfikację sum SHA-256.
  */
+import { changelogData } from "../content/changelogData";
 
 export type UpdateState =
   | "IDLE"
@@ -44,7 +45,12 @@ export interface UpdateManagerListener {
 
 export class UpdateManager {
   private static instance: UpdateManager | null = null;
-  private static readonly CURRENT_VERSION = "1.4.0";
+  // Wersja bieżąco działającej aplikacji — wyprowadzana z pierwszego wpisu
+  // changelogData (ten sam plik, który i tak trzeba zaktualizować przy każdym
+  // wydaniu), żeby nie trzymać osobnej, łatwej do zapomnienia stałej tutaj.
+  static get CURRENT_VERSION(): string {
+    return (changelogData[0]?.version || "0.0.0").replace(/^v/, "");
+  }
   private static readonly GITHUB_REPO = "Silvanion/saldo";
   private static readonly ETAG_STORAGE_KEY = "saldo_release_etag";
   private static readonly CACHED_RELEASE_KEY = "saldo_cached_release";

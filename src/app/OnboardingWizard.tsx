@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { WalletCards, ShieldCheck, ArrowRight, ArrowLeft, Delete, Check } from "lucide-react";
+import { WalletCards, ShieldCheck, ArrowRight, ArrowLeft, Delete, Check, Fingerprint } from "lucide-react";
 import { AvatarPicker } from "../components/avatar/AvatarPicker";
 import { DEFAULT_AVATAR_ICON, DEFAULT_AVATAR_COLOR, type AvatarIconId, type AvatarColorId } from "../constants/avatars";
+import { BiometricService, type BiometricPlatformInfo } from "../services/BiometricService";
 import type { SupportedCurrency } from "../types";
 
 interface OnboardingWizardProps {
   onComplete: (data: {
+    id: string;
     name: string;
     kind: "personal" | "shared";
     partnerName: string;
@@ -18,7 +20,7 @@ interface OnboardingWizardProps {
   onEnterDemo: () => void;
 }
 
-type Step = "welcome" | "profile" | "pin" | "done";
+type Step = "welcome" | "profile" | "pin" | "biometric" | "done";
 
 const CURRENCIES: { value: SupportedCurrency; label: string }[] = [
   { value: "PLN", label: "PLN (Polski Złoty)" },
@@ -30,6 +32,7 @@ const CURRENCIES: { value: SupportedCurrency; label: string }[] = [
 const cardTransition = { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const };
 
 export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardProps) {
+  const [profileId] = useState(() => "profile-" + Date.now());
   const [step, setStep] = useState<Step>("welcome");
   const [name, setName] = useState("");
   const [kind, setKind] = useState<"personal" | "shared">("personal");
@@ -42,6 +45,21 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
   const [pinStage, setPinStage] = useState<"enter" | "confirm">("enter");
   const [pinError, setPinError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [biometricInfo, setBiometricInfo] = useState<BiometricPlatformInfo | null>(null);
+  const [biometricError, setBiometricError] = useState<string | null>(null);
+  const [isEnrollingBiometrics, setIsEnrollingBiometrics] = useState(false);
+
+  useEffect(() => {
+    BiometricService.checkHardwareStatus(profileId).then((status) => {
+      setBiometricInfo({
+        platform: status.platform,
+        label: status.label,
+        hardwareDescription: status.hardwareDescription,
+        storageBackend: status.storageBackend,
+        isSupported: status.available,
+      });
+    }).catch(() => {});
+  }, [profileId]);
 
   const handleProfileNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,21 +68,56 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
     setStep("pin");
   };
 
+  // handleAddProfile (który stoi za onComplete) połyka błędy zapisu wewnętrznie
+  // (setApiError, nigdy reject) — Promise zawsze się rozwiąże. Ta flaga istnieje
+  // wyłącznie po to, żeby nie wywołać go drugi raz z tym samym profileId, gdyby
+  // użytkownik najpierw spróbował włączyć biometrię (co samo w sobie musi zapisać
+  // profil, żeby nie zostawić w Keychain/DPAPI wpisu dla profilu, który nigdy
+  // nie powstał), a potem kliknął "Pomiń".
+  const [hasPersisted, setHasPersisted] = useState(false);
+
+  const persistProfileOnce = async (finalPin: string) => {
+    if (hasPersisted) return;
+    await onComplete({
+      id: profileId,
+      name: name.trim(),
+      kind,
+      partnerName: kind === "shared" ? partnerName.trim() : "",
+      pin: finalPin,
+      avatar,
+      color: avatarColor,
+      currency,
+    });
+    setHasPersisted(true);
+  };
+
   const finish = async (finalPin: string) => {
     setIsSubmitting(true);
     try {
-      await onComplete({
-        name: name.trim(),
-        kind,
-        partnerName: kind === "shared" ? partnerName.trim() : "",
-        pin: finalPin,
-        avatar,
-        color: avatarColor,
-        currency,
-      });
+      await persistProfileOnce(finalPin);
       setStep("done");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEnrollBiometrics = async () => {
+    setIsEnrollingBiometrics(true);
+    setBiometricError(null);
+    try {
+      // Profil musi istnieć, zanim cokolwiek zapiszemy dla niego w natywnym
+      // magazynie biometrycznym — inaczej błąd zapisu profilu (rzadki, ale
+      // możliwy: pełny dysk, zablokowane IndexedDB) zostawiałby osierocony
+      // wpis w Keychain/DPAPI dla profilu, który nigdy nie powstał.
+      await persistProfileOnce(pin);
+      const res = await BiometricService.enrollBiometrics(profileId, pin);
+      if (!res.success) {
+        setBiometricError(res.error || "Nie udało się włączyć logowania biometrycznego. Profil został już utworzony — możesz włączyć biometrię później w Ustawieniach.");
+        return;
+      }
+      setStep("done");
+    } finally {
+      setIsEnrollingBiometrics(false);
     }
   };
 
@@ -83,7 +136,11 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
       setPinConfirm(next);
       if (next.length === pin.length) {
         if (next === pin) {
-          finish(pin);
+          if (biometricInfo?.isSupported) {
+            setStep("biometric");
+          } else {
+            finish(pin);
+          }
         } else {
           setPinError("Kody PIN nie są zgodne. Spróbuj ponownie.");
           setPin("");
@@ -108,7 +165,7 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
   return (
     <div className="min-h-screen bg-bg-base flex items-center justify-center p-4" id="onboarding-wizard">
       <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-6 sm:p-10">
-        <AnimatePresence initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
           {step === "welcome" && (
             <motion.div
               key="welcome"
@@ -333,6 +390,52 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
                 className="w-full flex items-center justify-center gap-2 text-xs text-text-muted font-bold hover:text-text-main transition-colors disabled:opacity-50"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Wróć
+              </button>
+            </motion.div>
+          )}
+
+          {step === "biometric" && (
+            <motion.div
+              key="biometric"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={cardTransition}
+              className="text-center space-y-5"
+            >
+              <div className="flex justify-center">
+                <div className="bg-brand-subtle text-brand p-3.5 rounded-2xl">
+                  <Fingerprint className="w-8 h-8" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold text-text-main">Włączyć {biometricInfo?.label}?</h2>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Zamiast wpisywać PIN, będziesz mógł odblokować profil za pomocą {biometricInfo?.hardwareDescription}. Kod PIN zostaje zapisany wyłącznie lokalnie w {biometricInfo?.storageBackend} — nigdy poza tym urządzeniem.
+                </p>
+              </div>
+
+              {biometricError && (
+                <p role="alert" className="text-xs font-medium text-danger text-center">{biometricError}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={handleEnrollBiometrics}
+                disabled={isEnrollingBiometrics || isSubmitting}
+                className="w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
+                id="btn-onboarding-enable-biometrics"
+              >
+                {isEnrollingBiometrics ? "Włączanie…" : `Włącz ${biometricInfo?.label}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => finish(pin)}
+                disabled={isEnrollingBiometrics || isSubmitting}
+                className="text-xs font-medium text-text-muted hover:text-text-main transition-colors cursor-pointer disabled:opacity-50"
+                id="btn-onboarding-skip-biometrics"
+              >
+                Pomiń, zostanę przy PIN-ie
               </button>
             </motion.div>
           )}

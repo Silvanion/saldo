@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Fingerprint,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Profile } from "../../types";
 import { AuthService } from "../../services/authService";
+import { BiometricService } from "../../services/BiometricService";
 import { ModernAvatar } from "../avatar/ModernAvatar";
 
 interface ProfileSelectionScreenProps {
@@ -38,6 +39,38 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
   const [isShaking, setIsShaking] = useState<boolean>(false);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
   const [lockoutSeconds, setLockoutSeconds] = useState<number>(0);
+  const [biometricsEnrolled, setBiometricsEnrolled] = useState<Record<string, boolean>>({});
+
+  // Klucz stabilny po id profili z PIN-em (nie po referencji tablicy `profiles`,
+  // która jest przebudowywana .map()-em w useProfileSecurity/useAppActions przy
+  // niemal każdej niepowiązanej zmianie) — inaczej efekt poniżej odpalałby N
+  // synchronicznych odczytów pliku biometrics.json w procesie głównym Electrona
+  // (jeden na profil) przy każdej takiej niepowiązanej zmianie stanu.
+  const pinProtectedProfileIds = useMemo(
+    () => profiles.filter(p => p.pinHash).map(p => p.id).join(","),
+    [profiles]
+  );
+
+  // Sprawdzenie realnego stanu rejestracji Touch ID / Windows Hello dla każdego
+  // profilu z PIN-em — rejestracja (BiometricService.enrollBiometrics) jest
+  // przechowywana natywnie (Keychain/DPAPI), a nie w polach Profile.
+  useEffect(() => {
+    if (!pinProtectedProfileIds) return;
+    let cancelled = false;
+    Promise.all(
+      pinProtectedProfileIds.split(",").map(async (id) => {
+        try {
+          const status = await BiometricService.checkHardwareStatus(id);
+          return [id, status.available && status.isEnrolledForProfile] as const;
+        } catch {
+          return [id, false] as const;
+        }
+      })
+    ).then((entries) => {
+      if (!cancelled) setBiometricsEnrolled(Object.fromEntries(entries));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [pinProtectedProfileIds]);
 
   // Sprawdzanie i odliczanie blokady czasowej anti-bruteforce
   useEffect(() => {
@@ -70,7 +103,10 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
     setErrorMessage(null);
     setPinInput("");
 
-    // Jeśli profil jest bez hasła (np. demo lub niezabezpieczony)
+    // Jeśli profil jest bez hasła i bez żadnej rejestracji biometrii/passkey
+    // (np. demo lub niezabezpieczony) — zachowane jako obrona w głąb nawet
+    // po przejściu na BiometricService, bo te pola nadal istnieją w schemacie
+    // i mogły trafić do profilu z importu/backupu.
     if (!profile.pinHash && !profile.hasBiometrics && !profile.passkeyCredentialId) {
       onUnlockSuccess(profile);
       return;
@@ -78,9 +114,9 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
 
     setSelectedProfile(profile);
 
-    // Jeśli profil ma włączoną biometrię / Passkey i nie jest zablokowany, wywołaj od razu
+    // Jeśli profil ma włączony Touch ID / Windows Hello i nie jest zablokowany, wywołaj od razu
     const isLocked = profile.lockedUntil && new Date(profile.lockedUntil).getTime() > Date.now();
-    if ((profile.hasBiometrics || profile.passkeyCredentialId) && !isLocked) {
+    if (biometricsEnrolled[profile.id] && !isLocked) {
       handleBiometricAuth(profile);
     }
   };
@@ -90,10 +126,13 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
     setIsAuthenticating(true);
     setErrorMessage(null);
     try {
-      const result = await AuthService.authenticateBiometrics(profile.id, `Odblokuj profil: ${profile.name}`);
-      if (result.success) {
-        onUnlockSuccess(profile);
-      } else if (result.error) {
+      const result = await BiometricService.promptUnlock(profile.id, `Odblokuj profil: ${profile.name}`);
+      if (result.success && result.pin) {
+        // Przekazujemy realny PIN odzyskany z Keychain/DPAPI — onUnlockSuccess
+        // (handleSelectAndUnlockProfile) i tak weryfikuje go ponownie wobec
+        // pinHash i wyprowadza z niego klucz do odszyfrowania danych profilu.
+        onUnlockSuccess(profile, result.pin);
+      } else if (result.error && result.error !== "Weryfikacja anulowana.") {
         setErrorMessage(result.error);
         triggerShake();
       }
@@ -163,7 +202,7 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
       {/* Tło ozdobne z delikatnymi gradientami */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand/10 rounded-full blur-3xl pointer-events-none" />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout" initial={false}>
         {!selectedProfile ? (
           /* ========================================================================= */
           /* WIDOK SIATKI PROFILI (PROFILE GRID VIEW)                                   */
@@ -239,9 +278,9 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                     {/* Wskaźnik biometrii / blokady na dole karty */}
                     <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-text-muted">
                       <div className="flex items-center gap-1">
-                        {profile.hasBiometrics || profile.passkeyCredentialId ? (
+                        {biometricsEnrolled[profile.id] ? (
                           <span className="flex items-center gap-1 text-brand font-medium">
-                            <Fingerprint className="w-3.5 h-3.5" /> Biometria / Passkey
+                            <Fingerprint className="w-3.5 h-3.5" /> Touch ID / Windows Hello
                           </span>
                         ) : profile.pinHash ? (
                           <span className="flex items-center gap-1 text-text-muted">
@@ -374,8 +413,8 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                 {/* Lewy dolny przycisk: Biometria / Touch ID / Passkey */}
                 <button
                   onClick={() => handleBiometricAuth(selectedProfile)}
-                  disabled={lockoutSeconds > 0 || isAuthenticating || !isBiometricsSupported}
-                  title="Autoryzacja Biometryczna (Touch ID / Windows Hello / Passkey)"
+                  disabled={lockoutSeconds > 0 || isAuthenticating || !isBiometricsSupported || !biometricsEnrolled[selectedProfile.id]}
+                  title="Autoryzacja Biometryczna (Touch ID / Windows Hello)"
                   className="h-14 rounded-2xl bg-brand/10 hover:bg-brand/20 text-brand active:scale-95 transition-all flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Fingerprint className="w-6 h-6" />

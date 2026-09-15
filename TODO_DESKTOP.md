@@ -26,3 +26,12 @@
 - [x] 17. Windows 11: target `portable` obok `nsis`, plus `setProgressBar`/`setOverlayIcon`.
 - [x] 18. CI/CD: rozszerzenie `.github/workflows/ci.yml` o automatyczny build i publikację na GitHub Releases.
 - [x] 19. Logi do pliku (`electron-log`).
+
+## 🔧 Doprecyzowania po audycie (2026-09-15)
+
+Wpisy powyżej były technicznie zaimplementowane, ale nie w pełni podłączone/spójne. Naprawione:
+- **#11**: odznaka na Windows (`setOverlayIcon`) faktycznie nigdy nie była zaimplementowana mimo `[x]` przy #17 — dodano (bez liczby, bo Windows nie renderuje tekstu na nakładce jak macOS dock).
+- **#12**: ekran wyboru profilu (`ProfileSelectionScreen.tsx`) sprawdzał martwe pola `profile.hasBiometrics`/`passkeyCredentialId`, których prawdziwy proces rejestracji (`BiometricService`) nigdy nie ustawia — przycisk biometrii tam był permanentnie dead. Przełączono na `BiometricService.checkHardwareStatus`/`promptUnlock`, ten sam mechanizm co w Ustawieniach.
+- Kreator pierwszego uruchomienia (`OnboardingWizard.tsx`) dostał opcjonalny krok włączenia Touch ID/Windows Hello od razu po ustawieniu PIN-u.
+
+**Znana, świadomie nienaprawiona luka**: na Windows `biometrics-prompt-unlock` nie pokazuje realnego promptu Windows Hello (Electron nie ma na to publicznego API jak `systemPreferences.promptTouchID` na macOS) — odszyfrowanie PIN-u opiera się wyłącznie o DPAPI (czyli w praktyce o to, że użytkownik jest zalogowany na konto Windows). Naprawa wymagałaby natywnego modułu (np. `node-windows-hello`) i testów na realnym sprzęcie z Windows Hello, którego nie ma w tym środowisku.

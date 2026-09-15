@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.5.0",
+    date: "Wrzesień 2026",
+    title: "Local-First Onboarding, Nowoczesne Awatary, Działająca Biometria w Ekranie Wyboru Profilu i Naprawione Zgłoszenia Błędów",
+    icon: <Shield className="w-5 h-5 text-brand" />,
+    features: [
+      "[Kreator Pierwszego Uruchomienia] Aplikacja startuje teraz w 100% lokalnie — bez ekranu logowania Google/e-mail. Nowy profil, wektorowy awatar, waluta i opcjonalny PIN w jednym, płynnym kreatorze; logowanie Google zostało przeniesione do Ustawień jako w pełni opcjonalna synchronizacja.",
+      "[Nowoczesne Awatary] 14 ikon wektorowych × 6 kolorów zamiast emotikonów — działają w pełni offline (bez CDN), ze wsteczną kompatybilnością dla istniejących profili.",
+      "[Prawdziwie Działająca Biometria] Ekran wyboru profilu i kreator onboardingu podłączone do tego samego, natywnego mechanizmu Touch ID/Windows Hello co Ustawienia (Keychain/DPAPI) — wcześniej przycisk biometrii w ekranie wyboru profilu był martwy. Zmiana kodu PIN automatycznie unieważnia teraz stary zapis biometryczny.",
+      "[Prosty Przycisk Sprawdzania Aktualizacji] Dostępny bezpośrednio w Historii Zmian, z jasną informacją gdy masz już najnowszą wersję.",
+      "[Naprawione Zgłoszenia Błędów] Formularz zgłoszeń realnie zapisuje się teraz do bazy (brakowało reguły bezpieczeństwa Firestore); dodano odporny fallback e-mail + kopia do schowka, gdyby zapis się nie udał, żeby żadne zgłoszenie nie ginęło bez śladu.",
+      "[Audyt przed wydaniem] Znaleziono i naprawiono kilka błędów sprzed publikacji: lukę pozwalającą pominąć uwierzytelnienie na profilach z zarejestrowaną biometrią bez PIN-u, ryzyko osieroconego wpisu w Keychain przy nieudanym zapisie profilu oraz zbędne, powtarzające się odczyty dysku przy każdej zmianie stanu profili."
+    ]
+  },
+  {
     version: "v1.4.0",
     date: "Wrzesień 2026",
     title: "Zaawansowana Biometria (Touch ID / Windows Hello), Naprawa Menu Profilu, Skalowanie Okna i Auto-Update z Paskiem Postępu",

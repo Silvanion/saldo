@@ -5,6 +5,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { submitBugReport } from "../firebase";
 import { isFirebaseConfigured } from "../firebase";
+import { UpdateManager } from "../services/UpdateManager";
 
 export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const modalRef = React.useRef<HTMLDivElement>(null);
@@ -19,8 +20,19 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [usedMailFallback, setUsedMailFallback] = useState(false);
 
   if (!isOpen) return null;
+
+  const openMailFallback = () => {
+    const rawSubject = `[${type.toUpperCase()}] ${title}`;
+    const rawBody = `${description}\n\nKontakt: ${contactEmail || 'Brak'}\nWersja: ${UpdateManager.CURRENT_VERSION}`;
+    // mailto: nic nie robi, jeśli użytkownik nie ma skonfigurowanego domyślnego
+    // klienta pocztowego — bez kopii do schowka zgłoszenie przepadałoby wtedy
+    // bez śladu i bez żadnej informacji dla użytkownika.
+    navigator.clipboard?.writeText(`${rawSubject}\n\n${rawBody}`).catch(() => {});
+    window.location.href = `mailto:kontakt@saldo.app?subject=${encodeURIComponent(rawSubject)}&body=${encodeURIComponent(rawBody)}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +43,16 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
     setIsSubmitting(true);
     setError(null);
+    setUsedMailFallback(false);
 
-    try {
-      if (isFirebaseConfigured) {
+    if (isFirebaseConfigured) {
+      try {
         await submitBugReport({
           title: title.trim(),
           description: description.trim(),
           type,
           contactEmail: contactEmail.trim(),
+          appVersion: UpdateManager.CURRENT_VERSION,
           screenshotBase64: screenshot || undefined,
         });
         setSuccess(true);
@@ -46,22 +60,29 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
           onClose();
           resetForm();
         }, 2000);
-      } else {
-        // Fallback for offline or non-firebase mode
-        const subject = encodeURIComponent(`[${type.toUpperCase()}] ${title}`);
-        const body = encodeURIComponent(`${description}\n\nKontakt: ${contactEmail || 'Brak'}`);
-        window.location.href = `mailto:kontakt@saldo.app?subject=${subject}&body=${body}`;
+      } catch (err: any) {
+        // Baza danych zgłoszeń bywa czasem niedostępna (np. przerwa w połączeniu) —
+        // zamiast zostawiać użytkownika z samym komunikatem błędu, od razu otwieramy
+        // gotowy do wysłania e-mail, żeby zgłoszenie nie przepadło bezpowrotnie.
+        openMailFallback();
+        setUsedMailFallback(true);
         setSuccess(true);
         setTimeout(() => {
           onClose();
           resetForm();
-        }, 1500);
+        }, 2500);
       }
-    } catch (err: any) {
-      setError(err.message || "Wystąpił nieoczekiwany błąd.");
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      openMailFallback();
+      setUsedMailFallback(true);
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+        resetForm();
+      }, 1500);
     }
+
+    setIsSubmitting(false);
   };
 
   const resetForm = () => {
@@ -72,6 +93,7 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
     setType("bug");
     setSuccess(false);
     setError(null);
+    setUsedMailFallback(false);
   };
 
   return (
@@ -130,7 +152,11 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
                 <Send className="h-8 w-8" />
               </div>
               <h3 className="text-lg font-bold text-text-main">Dziękujemy!</h3>
-              <p className="mt-2 text-sm text-text-muted">Twoje zgłoszenie zostało wysłane.</p>
+              <p className="mt-2 text-sm text-text-muted">
+                {usedMailFallback
+                  ? "Otworzyliśmy gotowy e-mail z Twoim zgłoszeniem — wyślij go ze swojego programu pocztowego. Treść skopiowaliśmy też do schowka na wypadek, gdyby e-mail się nie otworzył."
+                  : "Twoje zgłoszenie zostało wysłane."}
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -231,8 +257,8 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (file.size > 2 * 1024 * 1024) {
-                            setError("Zdjęcie jest za duże (max 2MB).");
+                          if (file.size > 500 * 1024) {
+                            setError("Zdjęcie jest za duże (max 500KB) — dokumenty w bazie zgłoszeń mają twardy limit 1MB.");
                             return;
                           }
                           const reader = new FileReader();
