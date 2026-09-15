@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone, TrendingUp, BookOpen, Sliders, Globe, Landmark, Database } from "lucide-react";
+import { Sparkles, CheckCircle2, Cloud, Shield, Wallet, Smartphone, TrendingUp, BookOpen, Sliders, Globe, Landmark, Database, Laptop } from "lucide-react";
 
 export interface ChangelogEntry {
   version: string;
@@ -10,6 +10,20 @@ export interface ChangelogEntry {
 }
 
 export const changelogData: ChangelogEntry[] = [
+  {
+    version: "v1.3.1",
+    date: "Wrzesień 2026",
+    title: "Natywna Wersja Desktop (macOS & Windows), Auto-aktualizacje i Touch ID",
+    icon: <Laptop className="w-5 h-5 text-brand" />,
+    features: [
+      "[Natywne Wydanie Desktop] Oficjalne instalatory dla systemów macOS (Apple Silicon arm64 i Intel x64) oraz Windows (NSIS & Portable).",
+      "[Automatyczne Aktualizacje (electron-updater)] Ciche wykrywanie i pobieranie nowości w tle z GitHub Releases z promptem do natychmiastowego restartu.",
+      "[Logowanie Biometryczne (Touch ID)] Szybkie odblokowywanie profilu chronionego PIN-em za pomocą odcisku palca i bezpiecznego systemowego magazynu haseł.",
+      "[Zasobnik Systemowy i Skrót Klawiszowy] Dostęp z paska menu (Tray) oraz globalny skrót Cmd/Ctrl+Shift+E otwierający natychmiastowe okno dodawania wydatku.",
+      "[Ochrona Przed Podglądem] Automatyczne blokowanie profilu przy uśpieniu komputera lub zablokowaniu ekranu.",
+      "[Płynna Integracja z Systemem] Natywne okna dialogowe wyboru plików dla kopii zapasowej, odznaka w Docku macOS z liczbą zaległości oraz pasek postępu zadań w systemie."
+    ]
+  },
   {
     version: "v1.3.0",
     date: "Wrzesień 2026",
