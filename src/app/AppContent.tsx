@@ -5,7 +5,8 @@ import { AppViewRouter } from "./AppViewRouter";
 import { ModalManager } from "./ModalManager";
 import { UnlockModal } from "../components/Modals";
 import { checkAndNotifyPayments } from "../utils";
-import { AuthScreen } from "./AuthScreen";
+import { OnboardingWizard } from "./OnboardingWizard";
+import { ProfileSelectionScreen } from "../components/auth/ProfileSelectionScreen";
 import { SecurityInfoModal } from "../components/SecurityInfoModal";
 import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
@@ -19,6 +20,8 @@ export function AppContent() {
     isProfileLocked,
     modalState,
     handleUnlockProfile,
+    handleAddProfile,
+    handleSelectAndUnlockProfile,
     openModal,
     saveState,
     googleUser,
@@ -61,8 +64,24 @@ export function AppContent() {
     );
   }
 
-  if (!googleUser && !isDemoMode) {
-    return <AuthScreen onDemoClick={() => setIsDemoMode(true)} />;
+  if (!googleUser && !isDemoMode && state.profiles.length === 0) {
+    return (
+      <OnboardingWizard
+        onEnterDemo={() => setIsDemoMode(true)}
+        onComplete={handleAddProfile}
+      />
+    );
+  }
+
+  if (!googleUser && !isDemoMode && !activeProfile) {
+    return (
+      <ProfileSelectionScreen
+        profiles={state.profiles}
+        onUnlockSuccess={(profile, pin) => { handleSelectAndUnlockProfile(profile, pin); }}
+        onStartOnboarding={() => openModal("profile")}
+        onEnterDemo={() => setIsDemoMode(true)}
+      />
+    );
   }
 
   return (

@@ -9,6 +9,7 @@ import {
 } from "@simplewebauthn/browser";
 import { Profile } from "../types";
 import { deriveKeyFromPin, generateRandomSalt } from "./crypto";
+import { hashPin as realHashPin } from "../utils/security";
 
 export interface PinValidationResult {
   isValid: boolean;
@@ -230,29 +231,12 @@ export class AuthService {
    * Haszowanie kodu PIN przy użyciu PBKDF2 z SHA-256 i unikalnym per-profil saltem (100k iteracji)
    */
   static async hashPin(pin: string, providedSalt?: string): Promise<{ pinHash: string; salt: string }> {
+    // Musi delegować do tej samej implementacji co reszta apki (src/utils/security.ts,
+    // 310000 iteracji PBKDF2) — osobna, niezgodna implementacja tutaj (wcześniej: 100000
+    // iteracji) sprawiała, że żaden realny PIN ustawiony przez handleAddProfile/
+    // handleSetProfilePin nigdy nie przechodził weryfikacji w tym miejscu.
     const salt = providedSalt || generateRandomSalt();
-    const enc = new TextEncoder();
-    const cryptoObj = typeof window !== "undefined" && window.crypto ? window.crypto : globalThis.crypto;
-    const keyMaterial = await cryptoObj.subtle.importKey(
-      "raw",
-      enc.encode(pin),
-      { name: "PBKDF2" },
-      false,
-      ["deriveBits"]
-    );
-    const derivedBits = await cryptoObj.subtle.deriveBits(
-      {
-        name: "PBKDF2",
-        salt: enc.encode(salt),
-        iterations: 100000,
-        hash: "SHA-256"
-      },
-      keyMaterial,
-      256
-    );
-    const pinHash = Array.from(new Uint8Array(derivedBits))
-      .map(b => b.toString(16).padStart(2, "0"))
-      .join("");
+    const pinHash = await realHashPin(pin, salt);
     return { pinHash, salt };
   }
 

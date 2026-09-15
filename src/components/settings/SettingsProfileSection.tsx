@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Users, Edit2, Trash2, ArrowRight, Plus, X, AlertTriangle } from "lucide-react";
 import { Profile, SupportedCurrency } from "../../types";
+import { AvatarPicker } from "../avatar/AvatarPicker";
+import { ModernAvatar } from "../avatar/ModernAvatar";
+import { DEFAULT_AVATAR_ICON, DEFAULT_AVATAR_COLOR } from "../../constants/avatars";
 
 interface SettingsProfileSectionProps {
   profiles: Profile[];
@@ -13,6 +16,7 @@ interface SettingsProfileSectionProps {
       kind: "personal" | "shared";
       partnerName: string;
       avatar: string;
+      color: string;
       currency: SupportedCurrency;
     }
   ) => void;
@@ -36,6 +40,7 @@ export function SettingsProfileSection({
     kind: "personal" | "shared";
     partnerName: string;
     avatar: string;
+    color: string;
     currency: SupportedCurrency;
   } | null>(null);
   const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
@@ -46,7 +51,8 @@ export function SettingsProfileSection({
       name: profile.name,
       kind: profile.kind,
       partnerName: profile.partnerName || "",
-      avatar: profile.avatar || "👤",
+      avatar: profile.avatar || DEFAULT_AVATAR_ICON,
+      color: profile.color || DEFAULT_AVATAR_COLOR,
       currency: profile.currency || "PLN"
     });
   };
@@ -70,6 +76,7 @@ export function SettingsProfileSection({
       kind: editProfileData.kind,
       partnerName: editProfileData.kind === "shared" ? editProfileData.partnerName.trim() : "",
       avatar: editProfileData.avatar,
+      color: editProfileData.color,
       currency: editProfileData.currency
     });
     setEditingProfileId(null);
@@ -127,37 +134,12 @@ export function SettingsProfileSection({
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-text-main mb-1">Ikona profilu</label>
-                        <details className="group border border-border rounded-xl relative">
-                          <summary className="p-2.5 text-xs font-bold text-text-muted cursor-pointer bg-surface hover:bg-surface-2 flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border focus-visible:ring-2 focus-visible:ring-focus-ring">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <span className="text-xl leading-none">{editProfileData.avatar}</span>
-                              <span>Zmień ikonę</span>
-                            </div>
-                            <span className="group-open:rotate-180 transition-transform mr-2 text-text-muted">▼</span>
-                          </summary>
-                          <div className="p-3 border-t border-border bg-surface absolute w-full z-10 shadow-lg rounded-b-xl">
-                            <div className="grid grid-cols-6 gap-2">
-                              {["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"].map(emoji => (
-                                <button
-                                  key={emoji}
-                                  type="button"
-                                  onClick={() => {
-                                    setEditProfileData(prev => prev ? { ...prev, avatar: emoji } : null);
-                                    if (document.activeElement instanceof HTMLElement) {
-                                      document.activeElement.blur();
-                                    }
-                                  }}
-                                  className={`text-xl p-1.5 rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-focus-ring ${editProfileData.avatar === emoji ? 'bg-brand-subtle border-brand/20 shadow-sm' : 'bg-surface border-border/30 hover:bg-surface-2 grayscale hover:grayscale-0'}`}
-                                >
-                                  {emoji}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </details>
-                      </div>
+                      <AvatarPicker
+                        label="Ikona profilu"
+                        iconId={editProfileData.avatar}
+                        colorId={editProfileData.color}
+                        onChange={(iconId, colorId) => setEditProfileData(prev => prev ? { ...prev, avatar: iconId, color: colorId } : null)}
+                      />
                     </div>
 
                     <div>
@@ -216,7 +198,8 @@ export function SettingsProfileSection({
                           editProfileData.name === p.name &&
                           editProfileData.kind === p.kind &&
                           editProfileData.partnerName === (p.partnerName || "") &&
-                          editProfileData.avatar === (p.avatar || "👤") &&
+                          editProfileData.avatar === (p.avatar || DEFAULT_AVATAR_ICON) &&
+                          editProfileData.color === (p.color || DEFAULT_AVATAR_COLOR) &&
                           editProfileData.currency === (p.currency || "PLN")
                         }
                         className="bg-brand-subtle text-brand border border-brand/20 hover:bg-brand-subtle font-bold py-2.5 px-6 rounded-xl text-xs active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
@@ -240,9 +223,7 @@ export function SettingsProfileSection({
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center border border-border/70 shadow-xs">
-                      {p.avatar || "👤"}
-                    </div>
+                    <ModernAvatar iconId={p.avatar} colorId={p.color} size="md" className="border border-border/70 shadow-xs" />
                     <div>
                       <div className="flex items-center gap-2">
                         <strong className="text-sm font-bold text-text-main">{p.name}</strong>

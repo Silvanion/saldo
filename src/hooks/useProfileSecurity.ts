@@ -65,7 +65,11 @@ export function useProfileSecurity({
         const hashed = await hashPin(pin, salt);
         if (hashed === activeProfile.pinHash) {
           const key = await deriveKeyFromPin(pin, salt);
-          
+          // Bez tego kolejny zapis/backup zaraz po odblokowaniu profilu widział brak
+          // klucza w activeKeys i pokazywał komunikat "profil zablokowany", mimo że
+          // użytkownik przed chwilą poprawnie podał PIN.
+          activeKeys[activeProfile.id] = key;
+
           let decrypted = activeProfile;
           if (activeProfile.encryptedPayload) {
             try {
@@ -113,6 +117,7 @@ export function useProfileSecurity({
         const newSalt = generateRandomSalt();
         const newHash = await hashPin(pin, newSalt);
         const key = await deriveKeyFromPin(pin, newSalt);
+        activeKeys[activeProfile.id] = key;
         const updatedProfiles = state.profiles.map((p) => {
           if (p.id === activeProfile.id) {
             return { ...p, pinHash: newHash, salt: newSalt };
@@ -140,6 +145,41 @@ export function useProfileSecurity({
     [activeProfile, state, saveState, unlockProfile]
   );
 
+  // Aktywuje i (jeśli podano PIN) odszyfrowuje wskazany profil w jednym kroku —
+  // używane przez ekran wyboru profilu, gdzie w momencie wywołania profil nie jest
+  // jeszcze "activeProfile" z kontekstu, więc handleUnlockProfile (który operuje na
+  // activeProfile z domknięcia) nie może być użyty bezpośrednio.
+  const handleSelectAndUnlockProfile = useCallback(
+    async (profile: Profile, pin?: string): Promise<boolean> => {
+      if (!profile.pinHash || !pin) {
+        await saveState({ ...state, activeProfileId: profile.id }, true);
+        if (!profile.pinHash) unlockProfile(profile.id);
+        return !profile.pinHash;
+      }
+
+      try {
+        const salt = profile.salt || profile.id;
+        const hashed = await hashPin(pin, salt);
+        if (hashed !== profile.pinHash) return false;
+
+        const key = await deriveKeyFromPin(pin, salt);
+        activeKeys[profile.id] = key;
+        let decrypted = profile;
+        if (profile.encryptedPayload) {
+          decrypted = await decryptProfile(profile, key);
+        }
+        const updatedProfiles = state.profiles.map(p => p.id === profile.id ? decrypted : p);
+        await saveState({ ...state, profiles: updatedProfiles, activeProfileId: profile.id }, true);
+        unlockProfile(profile.id);
+        return true;
+      } catch (err) {
+        console.error("Select+unlock profile error:", err);
+        return false;
+      }
+    },
+    [state, saveState, unlockProfile]
+  );
+
   return {
     unlockedProfileId,
     unlockProfile,
@@ -150,6 +190,7 @@ export function useProfileSecurity({
     isProfileLocked,
     handleUnlockProfile,
     handleSetProfilePin,
+    handleSelectAndUnlockProfile,
     failedAttempts,
     lockoutUntil,
   };

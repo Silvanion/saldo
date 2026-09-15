@@ -14,11 +14,12 @@ import {
 } from "lucide-react";
 import { Profile } from "../../types";
 import { AuthService } from "../../services/authService";
+import { ModernAvatar } from "../avatar/ModernAvatar";
 
 interface ProfileSelectionScreenProps {
   profiles: Profile[];
   onSelectProfile?: (profile: Profile) => void;
-  onUnlockSuccess: (profile: Profile) => void;
+  onUnlockSuccess: (profile: Profile, pin?: string) => void;
   onStartOnboarding: () => void;
   onEnterDemo: () => void;
   isBiometricsSupported?: boolean;
@@ -116,7 +117,7 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
           ...selectedProfile,
           failedAttempts: 0,
           lockedUntil: null
-        });
+        }, pinToVerify);
       } else {
         // Aktualizacja lokalnego stanu profilu o nowe próby
         setSelectedProfile(prev => prev ? {
@@ -207,9 +208,7 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                   >
                     {/* Górna belka profilu */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
-                        {profile.avatar || "👤"}
-                      </div>
+                      <ModernAvatar iconId={profile.avatar} colorId={profile.color} size="lg" className="shadow-inner group-hover:scale-105 transition-transform" />
                       <div className="flex items-center gap-1.5">
                         {profile.is_demo ? (
                           <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
@@ -325,9 +324,7 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
               className="w-full bg-surface border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col items-center"
             >
               {/* Awatar i nazwa */}
-              <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center text-3xl shadow-inner mb-3">
-                {selectedProfile.avatar || "👤"}
-              </div>
+              <ModernAvatar iconId={selectedProfile.avatar} colorId={selectedProfile.color} size="lg" className="shadow-inner mb-3" />
               <h2 className="text-xl font-extrabold text-text-main text-center">
                 {selectedProfile.name}
               </h2>

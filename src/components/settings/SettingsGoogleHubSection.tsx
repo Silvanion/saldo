@@ -157,9 +157,16 @@ export function SettingsGoogleHubSection({
 
         {!googleUser ? (
           <div className="bg-surface-2/60 border border-border/60 rounded-xl p-5 text-center space-y-4">
-            <p className="text-xs text-text-muted max-w-md mx-auto leading-relaxed">
-              Saldo działa w architekturze <strong>Local-First</strong> (Twoje finanse należą wyłącznie do Ciebie). Połączenie konta Google umożliwia synchronizację danych między urządzeniami przez prywatny Dysk Google.
-            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto text-left">
+              <div className="rounded-xl border border-border/70 bg-surface p-3.5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-text-main mb-1">Lokalnie (obecnie)</p>
+                <p className="text-xs text-text-muted leading-relaxed">Dane tylko na tym urządzeniu, pełna prywatność, brak logowania.</p>
+              </div>
+              <div className="rounded-xl border border-brand/20 bg-brand-subtle/40 p-3.5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-brand mb-1">Z kontem Google</p>
+                <p className="text-xs text-text-muted leading-relaxed">Kopia w chmurze i synchronizacja między urządzeniami — w pełni opcjonalne.</p>
+              </div>
+            </div>
             <button
               onClick={onConnectGoogle}
               disabled={isGoogleLoading}

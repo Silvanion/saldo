@@ -420,6 +420,8 @@ async function createWindow(port) {
     y: mainWindowState.y,
     width: mainWindowState.width,
     height: mainWindowState.height,
+    minWidth: 800,
+    minHeight: 600,
     title: "Saldo",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 20, y: 20 },

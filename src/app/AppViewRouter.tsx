@@ -6,6 +6,7 @@ import { Profile, Payment, Goal } from "../types";
 import { AppView } from "../uiTypes";
 import { DashboardView } from "../components/DashboardView";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ModernAvatar } from "../components/avatar/ModernAvatar";
 
 const TransactionsView = lazy(() => import("../components/TransactionsView").then(m => ({ default: m.TransactionsView })));
 const PaymentsView = lazy(() => import("../components/PaymentsView").then(m => ({ default: m.PaymentsView })));
@@ -201,9 +202,7 @@ export function AppViewRouter({
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-subtle text-brand flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
-                      {p.avatar || "👤"}
-                    </div>
+                    <ModernAvatar iconId={p.avatar} colorId={p.color} size="md" className="group-hover:scale-105 transition-transform" />
                     <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       {hasPin && (
                         <span className="px-2 py-0.5 bg-surface-2 border border-border rounded-lg text-xs font-medium text-text-muted flex items-center gap-1">
@@ -270,6 +269,8 @@ export function AppViewRouter({
             recurringRules={activeProfile?.recurringRules || []}
             onAddSettlement={handleAddSettlement}
             onDeleteSettlement={handleDeleteSettlement}
+            googleUser={googleUser}
+            onConnectGoogle={() => { onChangeView("settings"); }}
           />
         );
       case "transactions":

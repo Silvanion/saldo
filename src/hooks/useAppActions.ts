@@ -1,4 +1,4 @@
-import { activeKeys, generateRandomSalt } from "../services/crypto";
+import { activeKeys, generateRandomSalt, deriveKeyFromPin } from "../services/crypto";
 import { useCallback } from "react";
 import { AppState, Profile, Transaction, Payment, Goal, Investment, RecurringRule, TransactionRule, SmartRule, BankAccount, SettlementEntry, SupportedCurrency, DebtItem, DebtPayoffScenario, FinancialActionPlan } from "../types";
 import { autoCategorizeTransaction, hashPin, getLocalDateIso } from "../utils";
@@ -493,7 +493,7 @@ export function useAppActions({
   );
 
   const handleUpdateProfile = useCallback(
-    async (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string; currency: SupportedCurrency }) => {
+    async (profileId: string, data: { name: string; kind: "personal" | "shared"; partnerName: string; avatar: string; color?: string; currency: SupportedCurrency }) => {
       const profileIndex = state.profiles.findIndex((p) => p.id === profileId);
       if (profileIndex === -1) return;
 
@@ -502,6 +502,7 @@ export function useAppActions({
       updatedProfile.kind = data.kind;
       updatedProfile.partnerName = data.partnerName;
       updatedProfile.avatar = data.avatar;
+      updatedProfile.color = data.color;
       updatedProfile.currency = data.currency;
 
       const updatedProfiles = [...state.profiles];
@@ -522,8 +523,11 @@ export function useAppActions({
   );
 
   const handleAddProfile = useCallback(
-    async (data: { name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string }) => {
-      const newId = "profile-" + Date.now();
+    async (data: {
+      name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string;
+      color?: string; currency?: SupportedCurrency; hasBiometrics?: boolean; passkeyCredentialId?: string; id?: string;
+    }) => {
+      const newId = data.id || "profile-" + Date.now();
       const newSalt = generateRandomSalt();
       const newProfile: Profile = {
         id: newId,
@@ -531,13 +535,16 @@ export function useAppActions({
         kind: data.kind,
         partnerName: data.partnerName,
         avatar: data.avatar,
+        color: data.color,
         pinHash: "",
         salt: newSalt,
         transactions: [],
         payments: [],
         goals: [],
         investments: [],
-        currency: "PLN",
+        currency: data.currency ?? "PLN",
+        hasBiometrics: data.hasBiometrics,
+        passkeyCredentialId: data.passkeyCredentialId,
         budgets: {
           "Żywność": 0,
           "Dom i rachunki": 0,
@@ -548,6 +555,10 @@ export function useAppActions({
 
       if (data.pin) {
         newProfile.pinHash = await hashPin(data.pin, newSalt);
+        // Bez tego świeżo utworzony profil z PIN-em wyglądał jak "zablokowany" przy
+        // pierwszym zapisie (brak klucza w activeKeys), mimo że użytkownik dopiero
+        // co podał PIN i logicznie profil powinien być odblokowany.
+        activeKeys[newId] = await deriveKeyFromPin(data.pin, newSalt);
       }
 
       const updatedState: AppState = {

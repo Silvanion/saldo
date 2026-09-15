@@ -81,7 +81,8 @@ describe('ProfileModal', () => {
       kind: 'personal',
       partnerName: '',
       pin: '',
-      avatar: '👤'
+      avatar: 'wallet',
+      color: 'brand'
     });
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(alertSpy).not.toHaveBeenCalled();

@@ -4,15 +4,15 @@ import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import { X } from "lucide-react";
+import { AvatarPicker } from "./avatar/AvatarPicker";
+import { DEFAULT_AVATAR_ICON, DEFAULT_AVATAR_COLOR, type AvatarIconId, type AvatarColorId } from "../constants/avatars";
 
 export interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string }) => void;
+  onSave: (data: { name: string; kind: "personal" | "shared"; partnerName: string; pin: string; avatar: string; color: string }) => void;
   showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
-
-const AVATAR_OPTIONS = ["👤", "👨‍💻", "👩‍💻", "🏠", "💼", "💰", "💎", "🌟", "✨", "🚀", "🐶", "🐱"];
 
 export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -22,7 +22,8 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
   const [kind, setKind] = useState<"personal" | "shared">("personal");
   const [partnerName, setPartnerName] = useState("");
   const [pin, setPin] = useState("");
-  const [avatar, setAvatar] = useState("👤");
+  const [avatar, setAvatar] = useState<AvatarIconId>(DEFAULT_AVATAR_ICON);
+  const [avatarColor, setAvatarColor] = useState<AvatarColorId>(DEFAULT_AVATAR_COLOR);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -42,13 +43,14 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
       return;
     }
     setIsSubmitting(true);
-    onSave({ name: name.trim(), kind, partnerName: kind === "shared" ? partnerName.trim() : "", pin, avatar });
+    onSave({ name: name.trim(), kind, partnerName: kind === "shared" ? partnerName.trim() : "", pin, avatar, color: avatarColor });
     onClose();
     setName("");
     setKind("personal");
     setPartnerName("");
     setPin("");
-    setAvatar("👤");
+    setAvatar(DEFAULT_AVATAR_ICON);
+    setAvatarColor(DEFAULT_AVATAR_COLOR);
   };
 
   return (
@@ -92,38 +94,11 @@ export function ProfileModal({ isOpen, onClose, onSave, showToast }: ProfileModa
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Ikona profilu</label>
-            <details className="group border border-border rounded-xl relative">
-              <summary className="p-2.5 text-xs font-semibold text-text-main cursor-pointer bg-surface hover:bg-surface-offset transition-colors flex items-center justify-between list-none select-none rounded-xl group-open:rounded-b-none group-open:border-b group-open:border-border focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl leading-none">{avatar}</span>
-                  <span>Wybierz ikonę profilu</span>
-                </div>
-                <span className="group-open:rotate-180 transition-transform mr-2 text-text-muted">▼</span>
-              </summary>
-              <div className="p-3 border-t border-border bg-bg-base/95 backdrop-blur-2xl absolute w-full z-10 shadow-lg rounded-b-lg">
-                <div className="grid grid-cols-6 gap-2">
-                  {AVATAR_OPTIONS.map(emoji => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => {
-                        setAvatar(emoji);
-                        if (document.activeElement instanceof HTMLElement) {
-                          document.activeElement.blur();
-                        }
-                      }}
-                      className={`text-2xl p-2 rounded-xl border transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-focus-ring ${avatar === emoji ? 'bg-brand-subtle border-brand text-brand shadow-sm' : 'bg-surface border-border hover:bg-surface-offset grayscale hover:grayscale-0'}`}
-                      aria-label={`Wybierz ikonę ${emoji}`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </details>
-          </div>
+          <AvatarPicker
+            iconId={avatar}
+            colorId={avatarColor}
+            onChange={(iconId, colorId) => { setAvatar(iconId); setAvatarColor(colorId); }}
+          />
 
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1" htmlFor="select-profile-kind">Rodzaj profilu</label>

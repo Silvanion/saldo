@@ -27,6 +27,7 @@ import {
   SettingsGoogleHubSection
 } from "./settings";
 import { DriveIntegrityReport } from "../hooks/useDriveSync";
+import { ModernAvatar } from "./avatar/ModernAvatar";
 
 export { BankAccountsManager, TransactionRulesManager, RECOMMENDED_AI_MODELS };
 export type { RecommendedAiModel } from "./settings";
@@ -171,7 +172,7 @@ export function SettingsView({
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           {activeProfile && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-border/70 text-xs shadow-xs">
-              <span className="text-base leading-none">{activeProfile.avatar || "👤"}</span>
+              <ModernAvatar iconId={activeProfile.avatar} colorId={activeProfile.color} size="sm" />
               <span className="font-bold text-text-main">{activeProfile.name}</span>
               <span className="text-text-muted text-[11px]">({activeProfile.currency || "PLN"})</span>
             </div>

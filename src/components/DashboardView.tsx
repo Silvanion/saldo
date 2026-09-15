@@ -38,6 +38,8 @@ import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { runDataAudit } from "../services/dataAuditor";
+import { useGoogleSyncPromo } from "../hooks/useGoogleSyncPromo";
+import { GoogleSyncPromoCard } from "./dashboard/GoogleSyncPromoCard";
 
 interface Widget {
   id: string;
@@ -107,6 +109,8 @@ interface DashboardViewProps {
   recurringRules?: RecurringRule[];
   onAddSettlement?: (entry: { amount: number; isoDate: string; note?: string }) => void;
   onDeleteSettlement?: (settlementId: string) => void;
+  googleUser?: unknown;
+  onConnectGoogle?: () => void;
 }
 
 export function DashboardView({
@@ -126,10 +130,13 @@ export function DashboardView({
   onChangeView,
   recurringRules = [],
   onAddSettlement,
-  onDeleteSettlement
+  onDeleteSettlement,
+  googleUser,
+  onConnectGoogle
 }: DashboardViewProps) {
   
   const metrics = useDashboardMetrics(profile, selectedDate, recurringRules);
+  const googleSyncPromo = useGoogleSyncPromo(profile, googleUser);
 
   const auditReport = useMemo(() => {
     return runDataAudit(profile);
@@ -400,6 +407,10 @@ export function DashboardView({
             )}
           </div>
         </div>
+      )}
+
+      {googleSyncPromo.eligible && onConnectGoogle && (
+        <GoogleSyncPromoCard onConnect={onConnectGoogle} onDismiss={googleSyncPromo.dismiss} />
       )}
 
       {isEditMode && (

@@ -10,6 +10,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { Profile } from "../../types";
+import { ModernAvatar } from "../avatar/ModernAvatar";
 
 export interface ProfileDropdownProps {
   activeProfile: Profile;
@@ -113,15 +114,13 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const initials =
-    activeProfile.avatar ||
-    activeProfile.name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
+  const initials = activeProfile.name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="relative inline-block [-webkit-app-region:no-drag]">
@@ -136,9 +135,13 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         aria-expanded={isOpen}
         aria-label="Menu profilu i akcji"
       >
-        <span className="w-6 h-6 rounded-full bg-brand-subtle text-brand text-xs font-bold flex items-center justify-center select-none shadow-2xs shrink-0 border border-brand/20">
-          {initials}
-        </span>
+        {activeProfile.avatar ? (
+          <ModernAvatar iconId={activeProfile.avatar} colorId={activeProfile.color} size="sm" className="border border-brand/20 shadow-2xs" />
+        ) : (
+          <span className="w-6 h-6 rounded-full bg-brand-subtle text-brand text-xs font-bold flex items-center justify-center select-none shadow-2xs shrink-0 border border-brand/20">
+            {initials}
+          </span>
+        )}
         <span className="text-xs font-semibold text-text-main max-w-[85px] truncate hidden md:inline">
           {activeProfile.name}
         </span>
