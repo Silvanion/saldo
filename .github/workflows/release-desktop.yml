@@ -8,14 +8,22 @@ on:
 permissions:
   contents: write
 
-# electron-builder --publish always creates the GitHub Release for this tag
-# if it doesn't exist yet. Running macOS and Windows as matrix jobs (the
-# previous setup) let both runners start that "does a release exist?" check
-# at nearly the same time, so both created their own separate draft release
-# for the same tag — assets split across two duplicates instead of landing
-# in one. Making windows depend on macos forces them to run in sequence:
-# macos creates the release, windows finds and uploads into the one that
-# already exists.
+# electron-builder's own `--publish always` GitHub integration has two
+# distinct races that both produced duplicate draft releases for the same
+# tag in practice:
+#   1. Cross-job: macOS and Windows running as parallel matrix jobs each
+#      independently checked "does a release exist yet?" at nearly the same
+#      time. Fixed by making windows depend on macos (sequential `needs:`).
+#   2. Intra-job: even within a single job, electron-builder uploads an
+#      artifact and its .blockmap in parallel; on the very first upload for
+#      a tag (no release exists yet), both parallel uploads raced the same
+#      "create release" check and created two separate releases anyway —
+#      this recurred despite fix #1.
+# Root cause of #2 is inside electron-builder's own publish step, not this
+# workflow, so instead of chasing more scheduling tweaks we sidestep it
+# entirely: electron-builder only builds (`--publish never`), and release
+# creation/upload is done ourselves via `gh release`, one deterministic
+# step at a time — no hidden concurrency left to race.
 jobs:
   release-macos:
     name: Build & Publish (macos-latest)
@@ -36,10 +44,9 @@ jobs:
       - name: Build web assets and embedded server
         run: npm run build
 
-      - name: Build & Publish Electron Release
+      - name: Build Electron App
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -52,7 +59,21 @@ jobs:
           else
             export CSC_IDENTITY_AUTO_DISCOVERY=false
           fi
-          npx electron-builder --publish always
+          npx electron-builder --publish never
+
+      - name: Create GitHub Release and upload macOS artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --draft --title "Saldo ${{ github.ref_name }}" \
+            --notes "Automatyczny build — opis wydania zostanie zaktualizowany ręcznie." \
+            --repo "${{ github.repository }}" \
+            || echo "Release for this tag already exists, continuing"
+          gh release upload "${{ github.ref_name }}" \
+            dist-electron/*.dmg dist-electron/*.zip dist-electron/*.blockmap dist-electron/latest-mac.yml \
+            --repo "${{ github.repository }}" --clobber
 
   release-windows:
     name: Build & Publish (windows-latest)
@@ -74,10 +95,9 @@ jobs:
       - name: Build web assets and embedded server
         run: npm run build
 
-      - name: Build & Publish Electron Release
+      - name: Build Electron App
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WIN_CSC_SECRET: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_SECRET: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         run: |
@@ -85,4 +105,13 @@ jobs:
             export WIN_CSC_LINK="$WIN_CSC_SECRET"
             export WIN_CSC_KEY_PASSWORD="$WIN_CSC_KEY_SECRET"
           fi
-          npx electron-builder --publish always
+          npx electron-builder --publish never
+
+      - name: Upload Windows artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            dist-electron/*.exe dist-electron/*.blockmap dist-electron/latest.yml \
+            --repo "${{ github.repository }}" --clobber
