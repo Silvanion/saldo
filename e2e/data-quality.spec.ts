@@ -27,12 +27,12 @@ test.describe("Data Quality & Encryption E2E Flows", () => {
     await page.locator("#btn-pin-submit").click();
     await expect(pinModal).not.toBeVisible();
 
-    // Reload — offline mode is not persisted, so we have to re-enter it. This forces
-    // a real re-decrypt from IndexedDB (not just an in-memory unlocked state).
+    // Reload — this forces a real re-decrypt from IndexedDB (not just an
+    // in-memory unlocked state). activeProfileId persists across reload, so
+    // the app goes straight to the PIN-unlock gate for that profile — no
+    // demo/offline re-entry step needed (isDemoMode resetting to false no
+    // longer matters once there's already an active profile on disk).
     await page.reload();
-    const offlineBtn = page.getByRole("button", { name: /Używaj offline/i });
-    await expect(offlineBtn).toBeVisible({ timeout: 15000 });
-    await offlineBtn.click();
 
     // Profile is now locked behind PIN — unlock it
     const unlockModal = page.locator("#unlock-modal");

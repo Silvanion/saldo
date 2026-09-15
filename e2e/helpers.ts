@@ -14,7 +14,10 @@ export type E2EView =
 export async function setupApp(page: Page, options?: { profileName?: string }) {
   await page.goto("/");
 
-  const offlineBtn = page.getByRole("button", { name: /Używaj offline/i });
+  // Ekran startowy to teraz OnboardingWizard (Local-First) zamiast dawnego
+  // AuthScreen — link trybu demo ma inny tekst/id niż stary przycisk "Używaj
+  // offline".
+  const offlineBtn = page.locator("#btn-onboarding-demo");
   await expect(offlineBtn).toBeVisible({ timeout: 15000 });
   await offlineBtn.click();
 
