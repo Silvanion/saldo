@@ -3,7 +3,16 @@ import type { Auth, User } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
 import { AppState } from "./types";
 
-const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBBsBsPAJ0vt_s8hsUVf2b6DBy0Vl56nCA",
+  authDomain: "saldoapp-70f93.firebaseapp.com",
+  projectId: "saldoapp-70f93",
+  storageBucket: "saldoapp-70f93.firebasestorage.app",
+  messagingSenderId: "773510198391",
+  appId: "1:773510198391:web:aa9a3f31fb0497aefec272"
+};
+
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || DEFAULT_FIREBASE_CONFIG.apiKey;
 const isValidApiKey = Boolean(
   apiKey &&
   apiKey !== "your-public-firebase-api-key" &&
@@ -48,12 +57,12 @@ async function ensureFirebaseReady(): Promise<boolean> {
         ]);
 
         const firebaseConfig = {
-          apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-          authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-          projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-          storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-          messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-          appId: import.meta.env.VITE_FIREBASE_APP_ID
+          apiKey: import.meta.env.VITE_FIREBASE_API_KEY || DEFAULT_FIREBASE_CONFIG.apiKey,
+          authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || DEFAULT_FIREBASE_CONFIG.authDomain,
+          projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_CONFIG.projectId,
+          storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || DEFAULT_FIREBASE_CONFIG.storageBucket,
+          messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || DEFAULT_FIREBASE_CONFIG.messagingSenderId,
+          appId: import.meta.env.VITE_FIREBASE_APP_ID || DEFAULT_FIREBASE_CONFIG.appId
         };
 
         app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
