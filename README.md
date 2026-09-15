@@ -22,6 +22,8 @@ Lokalna, prywatna aplikacja do zarządzania finansami osobistymi i domowymi — 
 - Podpisywanie kodu i notaryzacja (macOS) / code-signing (Windows) skonfigurowane w CI.
 - Ikona w tray z szybkim dodawaniem wydatku, dock badge, natywne powiadomienia, autostart z systemem.
 - Zapamiętywanie rozmiaru/pozycji okna, natywne okna dialogowe zapisu/odczytu kopii zapasowej.
+- Natywne menu kontekstowe (Wytnij/Kopiuj/Wklej, podpowiedzi pisowni) na każdym polu tekstowym, branded panel "O Programie".
+- Przeciąganie wyciągu (CSV/PDF) z Findera/Eksploratora bezpośrednio na okno lub ikonę Docka/paska zadań — automatycznie otwiera import, nawet gdy aplikacja jeszcze go nie pokazuje.
 
 Pełna lista i status wdrożenia: [TODO_DESKTOP.md](TODO_DESKTOP.md).
 

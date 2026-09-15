@@ -26,6 +26,10 @@
 - [x] 17. Windows 11: target `portable` obok `nsis`, plus `setProgressBar`/`setOverlayIcon`.
 - [x] 18. CI/CD: rozszerzenie `.github/workflows/ci.yml` o automatyczny build i publikację na GitHub Releases.
 - [x] 19. Logi do pliku (`electron-log`).
+- [x] 20. Natywne menu kontekstowe (Wytnij/Kopiuj/Wklej, podpowiedzi pisowni) na polach tekstowych (`webContents.on('context-menu', ...)`).
+- [x] 21. Branded panel "O Programie" (`app.setAboutPanelOptions`).
+- [x] 22. Przeciąganie pliku wyciągu (CSV/PDF) z Findera/Eksploratora na okno lub ikonę Docka/paska zadań, oraz otwieranie przez "Otwórz za pomocą Saldo" — działa nawet gdy moduł importu nie jest jeszcze otwarty.
+- [x] 23. Dopasowanie tła okna do spodziewanego motywu (jasny/ciemny) przy starcie, żeby zlikwidować biały błysk przed załadowaniem SPA.
 
 ## 🔧 Doprecyzowania po audycie (2026-09-15)
 
