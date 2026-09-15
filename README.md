@@ -1,11 +1,12 @@
 # Saldo
 
-Aplikacja do zarządzania finansami osobistymi i domowymi — budżet, płatności cykliczne, cele oszczędnościowe, portfel długów (w tym Kredyt Hipoteczny Pro) i doradca AI działający lokalnie (Ollama). Dostępna jako aplikacja webowa (PWA) oraz natywna aplikacja desktopowa na macOS i Windows.
+Lokalna, prywatna aplikacja do zarządzania finansami osobistymi i domowymi — budżet, płatności cykliczne, cele oszczędnościowe, portfel długów (w tym Kredyt Hipoteczny Pro) i doradca AI działający lokalnie (Ollama). Startuje w 100% offline, bez wymuszania logowania Google/e-mail — synchronizacja w chmurze jest w pełni opcjonalna. Dostępna jako aplikacja webowa (PWA) oraz natywna aplikacja desktopowa na macOS i Windows.
 
 ![Pulpit Saldo](public/assets/help/02-dashboard.png)
 
 ## Funkcje
 
+- **Local-First od pierwszego uruchomienia** — kreator onboardingu tworzy lokalny profil (nazwa, wektorowy awatar, waluta, opcjonalny PIN) bez konta Google czy e-maila; logowanie w chmurze jest dostępne później, wyłącznie w Ustawieniach, jako opcja.
 - **Pulpit** — bieżący bilans, trendy wydatków, skrócony przegląd nadchodzących płatności i celów.
 - **Transakcje i budżet** — kategorie z limitami, import wyciągów (CSV/PDF, w tym mBank), wykrywanie duplikatów.
 - **Płatności cykliczne** — przypomnienia o terminach, natywne powiadomienia systemowe.
@@ -13,11 +14,11 @@ Aplikacja do zarządzania finansami osobistymi i domowymi — budżet, płatnoś
 - **Portfel długów** — strategie spłaty (lawina/kula śnieżna), Kredyt Hipoteczny Pro (test warunków skrajnych KNF, wakacje kredytowe, raty malejące, monitoring LTV).
 - **Doradca AI (lokalny, Ollama)** — czat uziemiony w deterministycznym silniku finansowym aplikacji, może zaproponować i zapisać konkretny plan działania.
 - **Synchronizacja** — kopia zapasowa i synchronizacja przez Google Drive, eksport/import JSON.
-- **Bezpieczeństwo** — szyfrowanie profilu kluczem z PIN-u, odblokowanie Touch ID / Windows Hello na desktopie, automatyczna blokada po zablokowaniu ekranu.
+- **Bezpieczeństwo** — szyfrowanie profilu kluczem z PIN-u, prawdziwe odblokowanie Touch ID / Windows Hello (Keychain/DPAPI) na desktopie — dostępne od razu w kreatorze onboardingu i w ekranie wyboru profilu, automatyczna blokada po zablokowaniu ekranu.
 
 ### Aplikacja desktopowa (Electron)
 
-- Auto-aktualizacja w tle (`electron-updater`), z ręcznym sprawdzaniem z poziomu menu.
+- Auto-aktualizacja w tle (`electron-updater`) — z ręcznym sprawdzaniem zarówno z poziomu menu, jak i prostym przyciskiem w widoku "Historia Zmian" w aplikacji.
 - Podpisywanie kodu i notaryzacja (macOS) / code-signing (Windows) skonfigurowane w CI.
 - Ikona w tray z szybkim dodawaniem wydatku, dock badge, natywne powiadomienia, autostart z systemem.
 - Zapamiętywanie rozmiaru/pozycji okna, natywne okna dialogowe zapisu/odczytu kopii zapasowej.
