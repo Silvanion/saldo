@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.3.2",
+    date: "Wrzesień 2026",
+    title: "Poprawka Uruchamiania Wersji Desktop & Izolacja Zależności Serwera",
+    icon: <Laptop className="w-5 h-5 text-brand" />,
+    features: [
+      "[Poprawka Startu Desktop] Wyeliminowano błąd braku modułu Vite w paczce produkcyjnej poprzez leniwy import w trybie deweloperskim.",
+      "[Ścieżki Statyczne Asar] Zabezpieczono ładowanie zasobów aplikacji webowej niezależnie od katalogu roboczego systemu operacyjnego.",
+      "[Obsługa CORS i Zmiennych Środowiskowych] Dostosowano weryfikację CORS oraz Firebase Admin do wbudowanego serwera desktopowego bez wymagania zewnętrznych zmiennych w środowisku użytkownika.",
+      "[Zasoby Ikony i Paska Menu] Dołączono szablony ikon zasobnika i okna do archiwum produkcyjnego oraz dodano natywne okno błędu w razie problemów z inicjalizacją."
+    ]
+  },
+  {
     version: "v1.3.1",
     date: "Wrzesień 2026",
     title: "Natywna Wersja Desktop (macOS & Windows), Auto-aktualizacje i Touch ID",

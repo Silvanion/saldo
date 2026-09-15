@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
+import fs from "fs";
 import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
 import aiRouter from "./src/server/routes/ai";
@@ -15,7 +15,7 @@ const PORT = Number(process.env.PORT ?? 3000);
 // Initialize Firebase Admin safely
 if (getApps().length === 0) {
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
-  if (process.env.NODE_ENV === "production" && !projectId) {
+  if (process.env.NODE_ENV === "production" && !projectId && process.env.IS_ELECTRON !== "true") {
     console.error("FIREBASE_PROJECT_ID missing");
     process.exit(1);
   }
@@ -35,7 +35,7 @@ export async function startServer(customPort?: number) {
 
   // Security Middleware
   app.set("trust proxy", 1); // For express-rate-limit to work correctly behind proxy
-  if (process.env.NODE_ENV === "production" && !process.env.ALLOWED_ORIGINS) {
+  if (process.env.NODE_ENV === "production" && !process.env.ALLOWED_ORIGINS && process.env.IS_ELECTRON !== "true") {
     console.error("ALLOWED_ORIGINS environment variable missing in production");
     process.exit(1);
   }
@@ -78,13 +78,18 @@ export async function startServer(customPort?: number) {
   // CORS configuration
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
-    : [];
+    : (process.env.IS_ELECTRON === "true" ? ["http://localhost", "http://127.0.0.1"] : []);
 
   app.use(cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like health checks, same-origin, curl)
       if (!origin) {
         return callback(null, true);
+      }
+      if (process.env.IS_ELECTRON === "true") {
+        if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:") || origin === "null") {
+          return callback(null, true);
+        }
       }
       if (process.env.NODE_ENV === "production" && allowedOrigins.length > 0) {
         if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
@@ -125,14 +130,18 @@ export async function startServer(customPort?: number) {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    // Production static files
-    const distPath = path.join(process.cwd(), "dist");
+    // Production static files: in bundled CJS dist/server.cjs, __dirname is the dist directory.
+    // Fall back to process.cwd()/dist if running outside the dist directory.
+    const distPath = fs.existsSync(path.join(__dirname, "index.html"))
+      ? __dirname
+      : path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get(/.*/, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

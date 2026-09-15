@@ -557,6 +557,11 @@ app.whenReady().then(async () => {
     });
   } catch (err) {
     console.error("Failed to start embedded server:", err);
+    log.error("[Startup] Failed to start embedded server:", err);
+    dialog.showErrorBox(
+      "Błąd uruchamiania Saldo",
+      `Wystąpił błąd podczas uruchamiania aplikacji:\n\n${err && err.stack ? err.stack : err}`
+    );
     app.quit();
   }
 });
