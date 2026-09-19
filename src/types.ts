@@ -235,11 +235,6 @@ export interface AppState {
   updatedAt?: string;
   lastModifiedBy?: string;
   driveFileId?: string | null;
-  recurringRules?: RecurringRule[];
-  transactionRules?: TransactionRule[];
-  smartRules?: SmartRule[];
-  debts?: DebtItem[];
-  debtPayoffScenarios?: DebtPayoffScenario[];
   aiMode?: "none" | "local";
   localAiEndpoint?: string;
   localAiModel?: string;

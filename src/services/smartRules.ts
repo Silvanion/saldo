@@ -1,5 +1,6 @@
 import { Transaction, SmartRule, SmartRuleCondition, TransactionRule } from "../types";
 import { parseAmountInput } from "../utils/format";
+import { normalizeSmartRuleText } from "../utils/text";
 
 export interface SmartRuleMatchPreview {
   transactionId: string;
@@ -15,16 +16,6 @@ export interface SmartRuleMatchPreview {
 export interface SmartRulesPreviewResult {
   matchesCount: number;
   proposedChanges: SmartRuleMatchPreview[];
-}
-
-export function normalizeSmartRuleText(text: string): string {
-  if (!text) return "";
-  return text
-    .toLowerCase()
-    .replace(/ł/g, "l")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
 }
 
 export function evaluateRuleCondition(tx: Transaction, condition: SmartRuleCondition): boolean {

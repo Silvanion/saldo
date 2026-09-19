@@ -5,11 +5,11 @@ import {
   previewSmartRules,
   applySmartRulesToTransactions,
   convertLegacyRulesToSmartRules,
-  normalizeSmartRuleText,
   extractSmartRuleKeyword,
   isRuleCoveringTransaction,
   generateSmartRuleSuggestion,
 } from "./smartRules";
+import { normalizeSmartRuleText } from "../utils/text";
 import { Transaction, SmartRule, TransactionRule } from "../types";
 
 describe("smartRules service", () => {

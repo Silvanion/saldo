@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { Profile, DebtItem } from "../types";
-import { getMonthName, cleanPolishChars, expenseCategories, iconByCategory } from "../utils";
+import { getMonthName, expenseCategories, iconByCategory, cleanPolishChars } from "../utils";
 import { formatMoney } from "../utils/format";
 import {
   calculate503020,
@@ -1479,8 +1479,8 @@ export function generateMortgageReportPdf(
     doc.text(cleanStr("Wymaga uzupelnienia wartosci nieruchomosci."), 18, y + 21);
   }
 
-  // Card 2: KNF Stress Test (+300 pb)
-  const monthlyRate = (debt.interestRate + 3.0) / 100 / 12;
+  // Card 2: KNF Stress Test (+250 pb — Rekomendacja S minimum since X 2022)
+  const monthlyRate = (debt.interestRate + 2.5) / 100 / 12;
   const months = debt.remainingMonths || 240;
   const pow = Math.pow(1 + monthlyRate, months);
   const knfPayment = Math.round(((debt.balance * monthlyRate * pow) / (pow - 1)) * 100) / 100;
@@ -1494,7 +1494,7 @@ export function generateMortgageReportPdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(...colors.expenseCoral);
-  doc.text(cleanStr("TEST ODPORNOSCI KNF (+3.00 P.P.)"), 112, y + 6);
+  doc.text(cleanStr("TEST ODPORNOSCI KNF (+2.50 P.P.)"), 112, y + 6);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);

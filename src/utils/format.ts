@@ -1,4 +1,7 @@
 import { AppLanguage, SupportedCurrency } from "../types";
+import { cleanPolishChars } from "./text";
+
+export { cleanPolishChars };
 
 /**
  * Parsuje kwotę wpisaną przez użytkownika (przecinek lub kropka jako separator
@@ -36,15 +39,6 @@ export function parseAmountInput(raw: string | undefined | null): number | null 
 
 
 
-
-export function cleanPolishChars(text: string): string {
-  if (!text) return "";
-  const map: Record<string, string> = {
-    'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
-    'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
-  };
-  return text.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, match => map[match] || match);
-}
 
 export function roundCurrency(value: number): number {
   if (!Number.isFinite(value)) return 0;

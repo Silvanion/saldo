@@ -1,6 +1,7 @@
 import { Profile, Transaction, Payment, Goal, BankAccount } from "../types";
 import { checkDuplicate } from "./duplicateDetector";
 import { findMatchingRule } from "./smartRules";
+import { generateEntityId } from "../utils/id";
 
 export type AuditIssueType =
   | "duplicate"
@@ -328,7 +329,7 @@ export function repairAuditIssue(profile: Profile, issueId: string): Profile {
     const payment = newPayments.find((p) => p.id === issue.targetEntityId);
     if (payment) {
       const newTx: Transaction = {
-        id: `tx-heal-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        id: generateEntityId('heal'),
         name: `Opłata: ${payment.name}`,
         amount: Math.abs(Number(payment.amount)) || 0,
         type: "expense",

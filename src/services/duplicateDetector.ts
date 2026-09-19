@@ -1,4 +1,5 @@
 import { Transaction } from "../types";
+import { normalizeText } from "../utils/text";
 
 export interface DuplicateCheckResult {
   isLikelyDuplicate: boolean;
@@ -7,40 +8,47 @@ export interface DuplicateCheckResult {
   reason?: string;
 }
 
-function normalizeText(text: string): string {
-  if (!text) return "";
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents
-    .replace(/[^a-z0-9\s]/g, "") // remove punctuation
-    .replace(/\s+/g, " ")
-    .trim();
+// Pre-filter candidates by currency, type, amount (within 0.01), and date (within 1.1 days)
+// This reduces O(n²) to O(n) for the common case where most transactions don't match
+function filterCandidates(
+  newTx: Omit<Transaction, "id">,
+  existingTransactions: Transaction[]
+): Transaction[] {
+  const newAmount = Math.abs(Number(newTx.amount) || 0);
+  const newDate = new Date(newTx.isoDate).getTime();
+
+  return existingTransactions.filter((tx) => {
+    if (tx.type !== newTx.type) return false;
+    if (tx.currency !== newTx.currency) return false;
+    
+    const existingAmount = Math.abs(Number(tx.amount) || 0);
+    if (Math.abs(existingAmount - newAmount) > 0.01) return false;
+    
+    const existingDate = new Date(tx.isoDate).getTime();
+    const diffDays = Math.abs(existingDate - newDate) / (1000 * 60 * 60 * 24);
+    if (diffDays > 1.1) return false;
+    
+    return true;
+  });
 }
 
 export function checkDuplicate(
   newTx: Omit<Transaction, "id">,
   existingTransactions: Transaction[]
 ): DuplicateCheckResult {
-  const newAmount = Math.abs(Number(newTx.amount) || 0);
-  const newDate = new Date(newTx.isoDate).getTime();
   const newNameNorm = normalizeText(newTx.name);
 
-  for (const existingTx of existingTransactions) {
-    if (existingTx.type !== newTx.type) continue;
-    
-    const existingAmount = Math.abs(Number(existingTx.amount) || 0);
-    if (Math.abs(existingAmount - newAmount) > 0.01) continue;
+  // Pre-filter to reduce comparisons
+  const candidates = filterCandidates(newTx, existingTransactions);
 
-    const existingDate = new Date(existingTx.isoDate).getTime();
-    const diffDays = Math.abs(existingDate - newDate) / (1000 * 60 * 60 * 24);
-    
-    if (diffDays > 1.1) continue; // 1 day tolerance, adding 0.1 for daylight savings / timezone jitter if any
-
+  for (const existingTx of candidates) {
     const existingNameNorm = normalizeText(existingTx.name);
 
     // Exact match
     if (newNameNorm === existingNameNorm) {
+      const existingDate = new Date(existingTx.isoDate).getTime();
+      const newDate = new Date(newTx.isoDate).getTime();
+      const diffDays = Math.abs(existingDate - newDate) / (1000 * 60 * 60 * 24);
       return {
         isLikelyDuplicate: true,
         confidence: "high",
@@ -54,16 +62,24 @@ export function checkDuplicate(
     // Partial match (one contains another or strong word overlap)
     const newWords = newNameNorm.split(" ").filter(w => w.length > 2);
     const existingWords = existingNameNorm.split(" ").filter(w => w.length > 2);
-    
+
+    const genericWords = new Set([
+      "zakupy", "zakup", "platnosc", "platnosci", "przelew", "przelewy",
+      "oplata", "oplaty", "transakcja", "operacja", "rachunek", "faktura",
+      "towary", "uslugi", "usluga"
+    ]);
+    const newDistinctive = newWords.filter(w => !genericWords.has(w));
+    const existingDistinctive = existingWords.filter(w => !genericWords.has(w));
+
     let matchCount = 0;
-    for (const nw of newWords) {
-      if (existingWords.includes(nw)) matchCount++;
+    for (const nw of newDistinctive) {
+      if (existingDistinctive.includes(nw)) matchCount++;
     }
 
-    const isPartial = 
-      (newNameNorm && existingNameNorm.includes(newNameNorm)) || 
+    const isPartial =
+      (newNameNorm && existingNameNorm.includes(newNameNorm)) ||
       (existingNameNorm && newNameNorm.includes(existingNameNorm)) ||
-      (matchCount > 0 && matchCount >= Math.min(newWords.length, existingWords.length) / 2);
+      (matchCount > 0 && matchCount >= Math.min(newDistinctive.length, existingDistinctive.length) / 2);
 
     if (isPartial) {
       return {

@@ -6,6 +6,7 @@ import { applyGoalTransferToProfile } from "../services/goalTransfers";
 import { applySmartRulesToTransactions } from "../services/smartRules";
 import { useTransactionActions } from "./actions/useTransactionActions";
 import { useDataSyncActions } from "./actions/useDataSyncActions";
+import { generateEntityId } from "../utils/id";
 
 interface UseAppActionsProps {
   state: AppState;
@@ -98,7 +99,7 @@ export function useAppActions({
   const handleAddGoal = useCallback(
     (data: { name: string; target: number }) => {
       const newGoal: Goal = {
-        id: "goal-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('goal'),
         name: data.name,
         target: data.target,
         saved: 0
@@ -138,7 +139,7 @@ export function useAppActions({
   const handleAddInvestment = useCallback(
     (name: string, amount: number, type?: string, notes?: string) => {
       const newInv: Investment = {
-        id: "inv-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('investment'),
         name,
         amount,
         isoDate: getLocalDateIso(),
@@ -183,7 +184,7 @@ export function useAppActions({
     (ruleData: Omit<SmartRule, "id" | "createdAt">) => {
       const newRule: SmartRule = {
         ...ruleData,
-        id: "rule-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('rule'),
         createdAt: new Date().toISOString()
       };
       updateActiveProfile((p) => ({
@@ -241,7 +242,7 @@ export function useAppActions({
     (debtData: Omit<DebtItem, "id" | "createdAt">) => {
       const newDebt: DebtItem = {
         ...debtData,
-        id: "debt-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('debt'),
         createdAt: new Date().toISOString()
       };
       updateActiveProfile((p) => ({
@@ -323,7 +324,7 @@ export function useAppActions({
 
         const newScenario: DebtPayoffScenario = {
           ...scenarioData,
-          id: "scenario-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+          id: generateEntityId('scenario'),
           createdAt: new Date().toISOString()
         };
 
@@ -356,7 +357,7 @@ export function useAppActions({
   const handleAddSettlement = useCallback(
     (entry: { amount: number; isoDate: string; note?: string }) => {
       const newSettlement: SettlementEntry = {
-        id: "set-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('settlement'),
         amount: entry.amount,
         isoDate: entry.isoDate,
         note: entry.note,

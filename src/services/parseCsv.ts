@@ -8,6 +8,7 @@ import {
   looksLikeDirectionColumn,
   type ImportDirectionInfo
 } from "./directionDetector";
+import { generateEntityId } from "../utils/id";
 
 export type BankPresetId =
   | "generic"
@@ -678,7 +679,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
 
     detectedCurrencies[rowCurrency] = (detectedCurrencies[rowCurrency] || 0) + 1;
 
-    const transactionId = `tx-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`;
+    const transactionId = generateEntityId('csv');
     transactions.push({
       id: transactionId,
       name: rawName,

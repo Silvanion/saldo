@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { Profile, Transaction, Payment } from "../../types";
 import { autoCategorizeTransaction, getLocalDateIso } from "../../utils";
 import { calculateDebtPaymentBreakdown, calculateDebtPaymentReversal } from "../../services/debtCalculations";
+import { generateEntityId } from "../../utils/id";
 
 interface UseTransactionActionsProps {
   activeProfile: Profile | null;
@@ -37,7 +38,7 @@ export function useTransactionActions({
       const categorized = autoCategorizeTransaction(data.name, rules, data.category);
 
       const newTx: Transaction = {
-        id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('transaction'),
         ...data,
         category: categorized.category,
         categoryIcon: categorized.categoryIcon,
@@ -203,7 +204,7 @@ export function useTransactionActions({
   const handleAddPayment = useCallback(
     (data: { name: string; amount: number; dueDate: string; paidBy?: "me" | "partner" | "joint"; splitMode?: "none" | "equal"; currency?: import("../../types").SupportedCurrency }) => {
       const newPayment: Payment = {
-        id: "pay-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        id: generateEntityId('payment'),
         name: data.name,
         amount: data.amount,
         dueDate: data.dueDate,
@@ -289,7 +290,7 @@ export function useTransactionActions({
         }
 
         const newTx: Transaction = {
-          id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+          id: generateEntityId('transaction'),
           name: payment.name,
           amount: payment.amount,
           category: payment.category || "Rachunki",

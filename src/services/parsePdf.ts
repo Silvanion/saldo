@@ -3,6 +3,19 @@ import { autoCategorizeTransaction, iconByCategory } from "../utils";
 import { checkDuplicate } from "./duplicateDetector";
 import { parseCsvAmount, parseCsvDate } from "./parseCsv";
 import { detectDirection, matchDirectionValue, type ImportDirectionInfo } from "./directionDetector";
+import { generateEntityId } from "../utils/id";
+
+// A too-large or too-long PDF (an adversarial file, or a merged multi-year
+// statement) could otherwise hang the import UI indefinitely with no
+// progress indicator or cancel button.
+const MAX_PDF_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
+const MAX_TEXT_EXTRACTION_PAGES = 100;
+
+function assertPdfFileSizeOk(file: File): void {
+  if (file.size > MAX_PDF_FILE_SIZE_BYTES) {
+    throw new Error(`Plik PDF jest za duży (maks. ${MAX_PDF_FILE_SIZE_BYTES / (1024 * 1024)}MB). Podziel wyciąg na mniejsze części.`);
+  }
+}
 
 const DATE_IN_ROW = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/;
 const DATE_IN_ROW_GLOBAL = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/g;
@@ -74,40 +87,66 @@ function reconstructPageLines(items: unknown[]): string {
 }
 
 export async function extractPdfText(file: File): Promise<string> {
+  assertPdfFileSizeOk(file);
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const data = new Uint8Array(await file.arrayBuffer());
-  const pdfDocument = await pdfjsLib.getDocument({
-    data,
-    useWorkerFetch: false
-  }).promise;
-  const pages: string[] = [];
+  // Cleanup lives on the loading task (task.destroy()), not on the resolved
+  // PDFDocumentProxy — it has no destroy() of its own.
+  const loadingTask = pdfjsLib.getDocument({ data, useWorkerFetch: false });
+  const pdfDocument = await loadingTask.promise;
 
-  for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-    const page = await pdfDocument.getPage(pageNumber);
-    const content = await page.getTextContent();
-    pages.push(reconstructPageLines(content.items));
+  try {
+    const pages: string[] = [];
+    const pageCount = Math.min(pdfDocument.numPages, MAX_TEXT_EXTRACTION_PAGES);
+
+    for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+      const page = await pdfDocument.getPage(pageNumber);
+      try {
+        const content = await page.getTextContent();
+        pages.push(reconstructPageLines(content.items));
+      } finally {
+        page.cleanup();
+      }
+    }
+
+    return pages.join("\n").trim();
+  } finally {
+    // pdf.js keeps the document's internal font/image caches and worker-side
+    // buffers alive until explicitly destroyed — without this, importing
+    // several PDF statements in one session (e.g. splitting a big statement
+    // into monthly files) grows memory usage across the session instead of
+    // releasing it promptly.
+    await loadingTask.destroy();
   }
-
-  return pages.join("\n").trim();
 }
 
 export async function renderPdfPages(file: File, maxPages = 10): Promise<string[]> {
+  assertPdfFileSizeOk(file);
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const pdfDocument = await pdfjsLib.getDocument({
+  const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(await file.arrayBuffer()),
     useWorkerFetch: false
-  }).promise;
-  const images: string[] = [];
-  for (let pageNumber = 1; pageNumber <= Math.min(pdfDocument.numPages, maxPages); pageNumber++) {
-    const page = await pdfDocument.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 2 });
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
-    images.push(canvas.toDataURL("image/png").split(",", 2)[1]);
+  });
+  const pdfDocument = await loadingTask.promise;
+  try {
+    const images: string[] = [];
+    for (let pageNumber = 1; pageNumber <= Math.min(pdfDocument.numPages, maxPages); pageNumber++) {
+      const page = await pdfDocument.getPage(pageNumber);
+      try {
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
+        images.push(canvas.toDataURL("image/png").split(",", 2)[1]);
+      } finally {
+        page.cleanup();
+      }
+    }
+    return images;
+  } finally {
+    await loadingTask.destroy();
   }
-  return images;
 }
 
 function buildTransaction(
@@ -121,7 +160,7 @@ function buildTransaction(
 ): Transaction {
   const categorized = autoCategorizeTransaction(name, rules, "Inne");
   return {
-    id: `tx-pdf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: generateEntityId('pdf'),
     name: name.trim(),
     amount,
     type,
