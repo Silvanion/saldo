@@ -5,6 +5,15 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.0] - Wrzesień 2026
+### Refaktoryzacja i Optymalizacja Kodu
+- **Usunięto duplikowane pola z AppState** — `recurringRules`, `transactionRules`, `smartRules`, `debts`, `debtPayoffScenarios` przeniesiono wyłącznie do `Profile`, eliminując ryzyko niespójności danych.
+- **Centralne generowanie ID** (`src/utils/id.ts`) — wyeliminowano 10+ powtórzonych wzorców generowania identyfikatorów. Nowe API: `generateEntityId('transaction')` → `tx-...`, `generateEntityId('payment')` → `pay-...`, itd.
+- **Centralna normalizacja tekstu** (`src/utils/text.ts`) — 3 ujednolicone funkcje: `normalizeText()` (dla deduplikacji), `cleanPolishChars()` (dla wyświetlania), `normalizeSmartRuleText()` (dla reguł Smart Rules, z obsługą `ł`→`l`).
+- **Zoptymalizowano `duplicateDetector`** — dodano pre-filtrowanie kandydatów (waluta, typ, kwota ±0.01, data ±1.1 dnia) redukujące złożoność z O(n²) do O(n) przy dużych profilach.
+- **Zaktualizowano 8 plików źródłowych** do używania nowych centralnych narzędzi: `useAppActions`, `useTransactionActions`, `parseCsv`, `parsePdf`, `dataAuditor`, `smartRules`, `duplicateDetector`, `pdfGenerator`.
+- Wszystkie 1172 testy przechodzą.
+
 ## [v0.8.7] - Lipiec 2026
 ### Ochrona Rezerw i Bezpieczny Import Transakcji
 - Blokada usuwania celów oszczędnościowych ze zgromadzonymi środkami (saved > 0) chroniąca rezerwy finansowe.
