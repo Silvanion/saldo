@@ -79,6 +79,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [mapDate, setMapDate] = useState("");
   const [mapCategory, setMapCategory] = useState("");
   const [mapCurrency, setMapCurrency] = useState("");
+  const [mapDirection, setMapDirection] = useState("");
   const [defaultCategory, setDefaultCategory] = useState("Inne");
   const [defaultAccount, setDefaultAccount] = useState("Konto główne");
   const [typeStrategy, setTypeStrategy] = useState<"auto" | "expense" | "income">("auto");
@@ -88,6 +89,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [isTextProcessing, setIsTextProcessing] = useState(false);
   const [textError, setTextError] = useState("");
   const [pdfError, setPdfError] = useState("");
+  const [csvError, setCsvError] = useState("");
   const [isPdfProcessing, setIsPdfProcessing] = useState(false);
 
   // Lokalne AI: alternatywna ekstrakcja tekstu + sugestie kategorii w podglądzie
@@ -158,27 +160,35 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const processRawCsvString = (text: string, name: string = "Wklejony tekst CSV") => {
     setFileName(name);
     setCsvText(text);
+    setCsvError("");
 
-    const cleaned = cleanCsvBomAndEncoding(text);
-    const result = parseAndMapCsv({
-      rawCsvText: cleaned,
-      presetId: selectedPresetId,
-      currency: activeProfile?.currency || "PLN",
-      rules: activeProfile?.transactionRules || []
-    });
+    // Ta ścieżka nie miała żadnego zabezpieczenia: wyjątek z parsera leciał do
+    // ErrorBoundary i wywalał cały modal.
+    try {
+      const cleaned = cleanCsvBomAndEncoding(text);
+      const result = parseAndMapCsv({
+        rawCsvText: cleaned,
+        presetId: selectedPresetId,
+        currency: activeProfile?.currency || "PLN",
+        rules: activeProfile?.transactionRules || []
+      });
 
-    setHeaders(result.headers);
-    setParsedRows(result.parsedRows);
-    setDetectedDelimiter(result.detectedSeparator);
+      setHeaders(result.headers);
+      setParsedRows(result.parsedRows);
+      setDetectedDelimiter(result.detectedSeparator);
 
-    const autoCols = autoDetectBankColumns(result.headers, selectedPresetId);
-    setMapName(autoCols.mapName);
-    setMapAmount(autoCols.mapAmount);
-    setMapDate(autoCols.mapDate);
-    setMapCategory(autoCols.mapCategory);
-    setMapCurrency(autoCols.mapCurrency);
+      const autoCols = autoDetectBankColumns(result.headers, selectedPresetId);
+      setMapName(autoCols.mapName);
+      setMapAmount(autoCols.mapAmount);
+      setMapDate(autoCols.mapDate);
+      setMapCategory(autoCols.mapCategory);
+      setMapCurrency(autoCols.mapCurrency);
+      setMapDirection(autoCols.mapDirection);
 
-    setStep(2);
+      setStep(2);
+    } catch (err: any) {
+      setCsvError(err?.message || "Nie udało się odczytać pliku CSV.");
+    }
   };
 
   // --- CSV Handlers ---
@@ -315,44 +325,67 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   };
 
   const handleGenerateCsvPreview = () => {
-    const result = parseAndMapCsv({
-      rawCsvText: csvText,
-      presetId: selectedPresetId,
-      mapName,
-      mapAmount,
-      mapDate,
-      mapCategory,
-      mapCurrency,
-      defaultCategory,
-      defaultAccount,
-      typeStrategy,
-      currency: activeProfile?.currency || "PLN",
-      rules: activeProfile?.transactionRules || []
-    });
+    setCsvError("");
 
-    setMappedTransactions(result.transactions);
-    setAiInconsistentIds(new Set());
-    setRejectedRows(result.rejectedRows || []);
-    setDetectedCurrencies(result.detectedCurrencies || { PLN: 0, EUR: 0, USD: 0, GBP: 0 });
+    // Bez tego zabezpieczenia każdy wyjątek parsera CSV kończył się wywaleniem
+    // modala przez ErrorBoundary (ścieżka PDF miała try/catch, CSV nie).
+    try {
+      const result = parseAndMapCsv({
+        rawCsvText: csvText,
+        presetId: selectedPresetId,
+        mapName,
+        mapAmount,
+        mapDate,
+        mapCategory,
+        mapCurrency,
+        mapDirection,
+        defaultCategory,
+        defaultAccount,
+        typeStrategy,
+        currency: activeProfile?.currency || "PLN",
+        rules: activeProfile?.transactionRules || []
+      });
 
-    // Pre-select all non-duplicate transactions by default (jeden skan, patrz scanForDuplicates)
-    const { warningsMap, nonDuplicateIds } = scanForDuplicates(result.transactions);
-    setDuplicateWarningsByTxId(warningsMap);
+      // Struktury pliku nie da się rozpoznać — zostajemy w mapowaniu kolumn, żeby
+      // użytkownik mógł wskazać kolumnę ręcznie, zamiast oglądać setki odrzuconych
+      // wierszy z komunikatem "Nieprawidłowy format kwoty: puste".
+      if (result.structureError) {
+        setCsvError(result.structureError);
+        setMappedTransactions([]);
+        setRejectedRows([]);
+        setSelectedTxIds(new Set());
+        setImportStats({ invalidAmount: 0, invalidDate: 0, skippedEmpty: 0, tooMany: false, truncated: 0 });
+        return;
+      }
 
-    // If all were duplicates or 0 non-duplicates, default to select all so user can choose
-    const initialSelection = nonDuplicateIds.size > 0
-      ? nonDuplicateIds
-      : new Set(result.transactions.map((tx) => tx.id));
-    setSelectedTxIds(initialSelection);
+      setMappedTransactions(result.transactions);
+      setAiInconsistentIds(new Set());
+      setRejectedRows(result.rejectedRows || []);
+      setDetectedCurrencies(result.detectedCurrencies || { PLN: 0, EUR: 0, USD: 0, GBP: 0 });
 
-    setImportStats({
-      invalidAmount: result.stats.invalidAmountCount,
-      invalidDate: result.stats.invalidDateCount,
-      skippedEmpty: result.stats.skippedEmptyCount,
-      tooMany: result.stats.truncatedCount > 0,
-      truncated: result.stats.truncatedCount
-    });
-    setStep(3);
+      // Pre-select all non-duplicate transactions by default (jeden skan, patrz scanForDuplicates)
+      const { warningsMap, nonDuplicateIds } = scanForDuplicates(result.transactions);
+      setDuplicateWarningsByTxId(warningsMap);
+
+      // If all were duplicates or 0 non-duplicates, default to select all so user can choose
+      const initialSelection = nonDuplicateIds.size > 0
+        ? nonDuplicateIds
+        : new Set(result.transactions.map((tx) => tx.id));
+      setSelectedTxIds(initialSelection);
+
+      setImportStats({
+        invalidAmount: result.stats.invalidAmountCount,
+        invalidDate: result.stats.invalidDateCount,
+        skippedEmpty: result.stats.skippedEmptyCount,
+        tooMany: result.stats.truncatedCount > 0,
+        truncated: result.stats.truncatedCount
+      });
+      setStep(3);
+    } catch (err: any) {
+      setCsvError(
+        err?.message || "Nie udało się przetworzyć pliku CSV. Sprawdź, czy to poprawny eksport z banku."
+      );
+    }
   };
 
   // --- Wklejony tekst wyciągu (parser lokalny, bez sieci) ---
@@ -808,6 +841,20 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                     ))}
                   </select>
                 </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna kierunku (opcjonalnie)</label>
+                  <select value={mapDirection} onChange={(e) => setMapDirection(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
+                    <option value="">-- Wykryj automatycznie --</option>
+                    {headers.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-text-muted mt-0.5">
+                    Wskaż kolumnę, która mówi wprost, czy operacja jest wpływem czy wydatkiem.
+                  </p>
+                </div>
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
                   <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
@@ -824,6 +871,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
               {activeProfile?.transactionRules && activeProfile.transactionRules.length > 0 && (
                 <p className="text-xs text-text-main bg-surface-2 border border-border p-2.5 rounded-xl">
                   ✨ Szybka automatyzacja przypisze kategorie w tle (wykryto <strong>{activeProfile.transactionRules.length} zapisanych reguł</strong>).
+                </p>
+              )}
+
+              {csvError && (
+                <p className="text-xs text-danger bg-danger-subtle border border-danger/30 p-2.5 rounded-xl flex items-start gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>{csvError}</span>
                 </p>
               )}
 

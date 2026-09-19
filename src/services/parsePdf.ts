@@ -2,11 +2,18 @@ import { SupportedCurrency, Transaction, TransactionRule } from "../types";
 import { autoCategorizeTransaction, iconByCategory } from "../utils";
 import { checkDuplicate } from "./duplicateDetector";
 import { parseCsvAmount, parseCsvDate } from "./parseCsv";
+import { detectDirection, matchDirectionValue, type ImportDirectionInfo } from "./directionDetector";
+
+const DATE_IN_ROW = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/;
+const DATE_IN_ROW_GLOBAL = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/g;
+const AMOUNT_IN_ROW = /(?<![\d-])(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi;
 
 export interface PdfImportResult {
   transactions: Transaction[];
   rejectedRows: Array<{ row: number; reason: string; raw: string }>;
   extractedText: string;
+  /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
+  directions: ImportDirectionInfo[];
 }
 
 export interface AiPdfTransaction {
@@ -16,6 +23,54 @@ export interface AiPdfTransaction {
   isoDate?: unknown;
   category?: unknown;
   account?: unknown;
+}
+
+/**
+ * Odtwarza wiersze strony z fragmentów tekstu zwracanych przez pdfjs.
+ *
+ * Wcześniej wszystkie fragmenty strony były sklejane spacją w jeden ciąg, więc
+ * podział na wiersze ginął — z całej strony powstawała JEDNA transakcja o nazwie
+ * zawierającej resztę wyciągu. Wiersz wyznaczamy po współrzędnej Y fragmentu,
+ * a hasEOL domyka go tam, gdzie PDF wprost kończy linię.
+ */
+function reconstructPageLines(items: unknown[]): string {
+  const chunks: Array<{ str: string; y: number; hasEOL: boolean }> = [];
+
+  for (const item of items) {
+    const candidate = item as { str?: unknown; transform?: unknown; hasEOL?: unknown };
+    if (typeof candidate.str !== "string") continue;
+    const transform = Array.isArray(candidate.transform) ? candidate.transform : [];
+    chunks.push({
+      str: candidate.str,
+      y: typeof transform[5] === "number" ? transform[5] : 0,
+      hasEOL: candidate.hasEOL === true
+    });
+  }
+
+  const lines: string[] = [];
+  let currentY: number | null = null;
+  let currentLine = "";
+
+  const flush = () => {
+    const line = currentLine.replace(/\s+/g, " ").trim();
+    if (line) lines.push(line);
+    currentLine = "";
+  };
+
+  for (const chunk of chunks) {
+    if (currentY === null || Math.abs(chunk.y - currentY) > 2) {
+      flush();
+      currentY = chunk.y;
+    }
+    currentLine += `${currentLine ? " " : ""}${chunk.str}`;
+    if (chunk.hasEOL) {
+      flush();
+      currentY = null;
+    }
+  }
+
+  flush();
+  return lines.join("\n");
 }
 
 export async function extractPdfText(file: File): Promise<string> {
@@ -30,10 +85,7 @@ export async function extractPdfText(file: File): Promise<string> {
   for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
     const page = await pdfDocument.getPage(pageNumber);
     const content = await page.getTextContent();
-    pages.push(content.items
-      .map((item) => "str" in item ? item.str : "")
-      .filter(Boolean)
-      .join(" "));
+    pages.push(reconstructPageLines(content.items));
   }
 
   return pages.join("\n").trim();
@@ -61,7 +113,7 @@ export async function renderPdfPages(file: File, maxPages = 10): Promise<string[
 function buildTransaction(
   name: string,
   amount: number,
-  isNegative: boolean,
+  type: Transaction["type"],
   date: string,
   currency: SupportedCurrency,
   account: string,
@@ -72,7 +124,7 @@ function buildTransaction(
     id: `tx-pdf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     name: name.trim(),
     amount,
-    type: isNegative ? "expense" : "income",
+    type,
     isoDate: date,
     category: categorized.category,
     categoryIcon: categorized.categoryIcon || iconByCategory[categorized.category] || "✨",
@@ -88,9 +140,10 @@ export function normalizeAiPdfTransactions(
     account: string;
     rules: TransactionRule[];
   }
-): Pick<PdfImportResult, "transactions" | "rejectedRows"> {
+): Pick<PdfImportResult, "transactions" | "rejectedRows" | "directions"> {
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
+  const directions: ImportDirectionInfo[] = [];
   const seen = new Set<string>();
 
   rawTransactions.forEach((raw, index) => {
@@ -98,16 +151,28 @@ export function normalizeAiPdfTransactions(
     const name = typeof candidate.name === "string" ? candidate.name.trim() : "";
     const amount = typeof candidate.amount === "number" ? candidate.amount : Number(candidate.amount);
     const date = typeof candidate.isoDate === "string" ? parseCsvDate(candidate.isoDate) : null;
-    const type = candidate.type === "income" || candidate.type === "expense" ? candidate.type : null;
 
-    if (!name || name.length < 2 || !Number.isFinite(amount) || amount <= 0 || !date || !type) {
+    if (!name || name.length < 2 || !Number.isFinite(amount) || amount === 0 || !date) {
       rejectedRows.push({
         row: index + 1,
-        reason: "AI zwróciło niepełną lub nieprawidłową transakcję. Sprawdź opis, datę, kwotę i typ.",
+        reason: "AI zwróciło niepełną lub nieprawidłową transakcję. Sprawdź opis, datę i kwotę.",
         raw: JSON.stringify(raw)
       });
       return;
     }
+
+    // Model potrafi pominąć "type" albo nazwać go po polsku ("Wydatek", "Debit").
+    // Brak typu nie jest powodem do wyrzucenia całego wiersza — kierunek da się
+    // wywnioskować, a gdy się nie da, rekord trafia do potwierdzenia, nie do kosza.
+    const explicitDirection = typeof candidate.type === "string" ? candidate.type : "";
+    const amountMagnitude = Math.abs(amount);
+    const decision = matchDirectionValue(explicitDirection)
+      ? { type: matchDirectionValue(explicitDirection)!, source: "direction-column" as const, confident: true }
+      : detectDirection(
+          { amountNegative: amount < 0, description: name },
+          { hasNegativeAmounts: false }
+        );
+    const type = decision.type;
 
     const categorized = autoCategorizeTransaction(
       name,
@@ -116,7 +181,7 @@ export function normalizeAiPdfTransactions(
     );
     const duplicateKey = [
       name.toLocaleLowerCase(),
-      amount.toFixed(2),
+      amountMagnitude.toFixed(2),
       type,
       date
     ].join("|");
@@ -129,14 +194,16 @@ export function normalizeAiPdfTransactions(
       return;
     }
     seen.add(duplicateKey);
-    transactions.push({
-      ...buildTransaction(name, amount, type === "expense", date, options.currency, options.account, options.rules),
+    const transaction = {
+      ...buildTransaction(name, amountMagnitude, type, date, options.currency, options.account, options.rules),
       category: categorized.category,
       categoryIcon: categorized.categoryIcon
-    });
+    };
+    transactions.push(transaction);
+    directions.push({ transactionId: transaction.id, source: decision.source, confident: decision.confident });
   });
 
-  return { transactions, rejectedRows };
+  return { transactions, rejectedRows, directions };
 }
 
 export function parsePdfTransactions(
@@ -149,6 +216,7 @@ export function parsePdfTransactions(
 ): PdfImportResult {
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
+  const directions: ImportDirectionInfo[] = [];
   const operationsIndex = text.search(/\bOperacje\b/i);
   const statementText = operationsIndex >= 0 ? text.slice(operationsIndex) : text;
   const dateAtLineStart = /^\s*(?:\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\d{4}[./-]\d{1,2}[./-]\d{1,2}\b)/;
@@ -163,40 +231,70 @@ export function parsePdfTransactions(
   });
   if (currentLine.trim()) lines.push(currentLine);
 
-  lines.forEach((raw, index) => {
-    const row = raw.replace(/\s+/g, " ").trim();
-    if (!row) return;
-    const dateMatch = row.match(/\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/);
-    if (!dateMatch) return;
+  // Rozpoznanie wiersza rozdzielamy od decyzji o kierunku: najpierw zbieramy
+  // wszystkich kandydatów, żeby wiedzieć, czy w dokumencie w ogóle występują
+  // kwoty ujemne. Bez tego znak kwoty nie mówi nic o kierunku i nie wolno na
+  // jego podstawie po cichu zakładać przychodu.
+  const candidates = lines
+    .map((raw, index) => {
+      const row = raw.replace(/\s+/g, " ").trim();
+      if (!row) return null;
+      const dateMatch = row.match(DATE_IN_ROW);
+      if (!dateMatch) return null;
 
-    const date = parseCsvDate(dateMatch[0]);
-    const rowWithoutDate = row.replace(dateMatch[0], " ");
-    const amountSearchRow = rowWithoutDate.replace(/\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/g, " ");
-    const amountMatches = [...amountSearchRow.matchAll(/(?<![\d-])(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi)];
-    const amountMatch = amountMatches[0]?.[0];
-    const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
-    const name = row
-      .replace(dateMatch[0], "")
-      .replace(amountMatch || "", "")
-      .replace(/\s+/g, " ")
-      .replace(/^[\s|;:-]+|[\s|;:-]+$/g, "");
+      const date = parseCsvDate(dateMatch[0]);
+      const amountSearchRow = row
+        .replace(dateMatch[0], " ")
+        .replace(DATE_IN_ROW_GLOBAL, " ");
+      const amountMatches = [...amountSearchRow.matchAll(AMOUNT_IN_ROW)];
+      const amountMatch = amountMatches[0]?.[0];
+      const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
+      const name = row
+        .replace(dateMatch[0], "")
+        .replace(amountMatch || "", "")
+        .replace(/\s+/g, " ")
+        .replace(/^[\s|;:-]+|[\s|;:-]+$/g, "");
 
+      return { index, row, date, parsedAmount, name };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+
+  const hasNegativeAmounts = candidates.some(
+    (candidate) => candidate.parsedAmount !== null && candidate.parsedAmount.isNegative
+  );
+
+  candidates.forEach(({ index, row, date, parsedAmount, name }) => {
     if (!date || !parsedAmount || name.length < 2) {
-      rejectedRows.push({ row: index + 1, reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.", raw: row });
+      rejectedRows.push({
+        row: index + 1,
+        reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.",
+        raw: row
+      });
       return;
     }
-    transactions.push(buildTransaction(
+
+    const decision = detectDirection(
+      { amountNegative: parsedAmount.isNegative, description: name },
+      { hasNegativeAmounts }
+    );
+    const transaction = buildTransaction(
       name,
       parsedAmount.amount,
-      parsedAmount.isNegative,
+      decision.type,
       date,
       options.currency,
       options.account,
       options.rules
-    ));
+    );
+    transactions.push(transaction);
+    directions.push({
+      transactionId: transaction.id,
+      source: decision.source,
+      confident: decision.confident
+    });
   });
 
-  return { transactions, rejectedRows, extractedText: text };
+  return { transactions, rejectedRows, extractedText: text, directions };
 }
 
 export function findPdfDuplicates(

@@ -1,6 +1,13 @@
 import Papa from "papaparse";
 import { SupportedCurrency, Transaction, TransactionRule } from "../types";
 import { autoCategorizeTransaction, iconByCategory } from "../utils";
+import {
+  detectDirection,
+  looksLikeCreditColumn,
+  looksLikeDebitColumn,
+  looksLikeDirectionColumn,
+  type ImportDirectionInfo
+} from "./directionDetector";
 
 export type BankPresetId =
   | "generic"
@@ -90,17 +97,32 @@ export function cleanCsvBomAndEncoding(text: string): string {
   return cleaned;
 }
 
+// Separatory wewnątrz pól w cudzysłowie nie opisują struktury pliku — opis
+// "Opłata, prowizja" nie czyni z pliku CSV rozdzielanego przecinkiem. Tabulator
+// jest uwzględniony, bo część eksportów bankowych to de facto TSV.
 export function detectCsvSeparator(text: string): string {
+  const candidates = [";", ",", "\t", "|"];
   const sampleLines = text.split(/\r?\n/).slice(0, 15).filter((l) => l.trim().length > 0);
-  let semicolonCount = 0;
-  let commaCount = 0;
+  const counts = new Map<string, number>(candidates.map((c) => [c, 0]));
 
   for (const line of sampleLines) {
-    semicolonCount += (line.match(/;/g) || []).length;
-    commaCount += (line.match(/,/g) || []).length;
+    const structural = line.replace(/"[^"]*"/g, "");
+    for (const candidate of candidates) {
+      counts.set(candidate, (counts.get(candidate) || 0) + structural.split(candidate).length - 1);
+    }
   }
 
-  return semicolonCount >= commaCount ? ";" : ",";
+  let best = ";";
+  let bestCount = 0;
+  for (const candidate of candidates) {
+    const count = counts.get(candidate) || 0;
+    if (count > bestCount) {
+      best = candidate;
+      bestCount = count;
+    }
+  }
+
+  return best;
 }
 
 export function parseCsvDate(rawDate: string): string | null {
@@ -119,6 +141,19 @@ export function parseCsvDate(rawDate: string): string | null {
     const day = dmyMatch[1].padStart(2, "0");
     const month = dmyMatch[2].padStart(2, "0");
     const year = dmyMatch[3];
+    const normalized = `${year}-${month}-${day}`;
+    const parsed = new Date(`${normalized}T00:00:00Z`);
+    return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === normalized ? normalized : null;
+  }
+
+  // DD.MM.YY lub DD/MM/YY — dwucyfrowy rok, częsty w eksportach bankowych
+  const dmyShortMatch = trimmed.match(/^(\d{1,2})[\.\-\/](\d{1,2})[\.\-\/](\d{2})$/);
+  if (dmyShortMatch) {
+    const day = dmyShortMatch[1].padStart(2, "0");
+    const month = dmyShortMatch[2].padStart(2, "0");
+    // Próg 70: "26" → 2026, "99" → 1999. Wyciągi bankowe nie sięgają roku 2070.
+    const shortYear = parseInt(dmyShortMatch[3], 10);
+    const year = String(shortYear >= 70 ? 1900 + shortYear : 2000 + shortYear);
     const normalized = `${year}-${month}-${day}`;
     const parsed = new Date(`${normalized}T00:00:00Z`);
     return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === normalized ? normalized : null;
@@ -189,7 +224,9 @@ export function parseCsvAmount(rawAmount: string): { amount: number; isNegative:
   const val = parseFloat(cleaned);
   // Number.isFinite, nie isNaN: isNaN(Infinity) === false, więc arkusze eksportujące
   // bardzo długie ciągi cyfr (bez notacji wykładniczej) też mogą przepełnić się do Infinity.
-  if (!Number.isFinite(val) || val === 0) {
+  // Kwota 0,00 jest legalna (korekty, przewalutowania, zniesione opłaty) —
+  // odrzucanie jej gubiło realne wiersze wyciągu jako "nieprawidłową kwotę".
+  if (!Number.isFinite(val)) {
     return null;
   }
 
@@ -208,6 +245,9 @@ export function autoDetectBankColumns(
   let mapDate = "";
   let mapCategory = "";
   let mapCurrency = "";
+  let mapDirection = "";
+  let mapDebit = "";
+  let mapCredit = "";
 
   if (presetId === "revolut") {
     const foundDesc = headers.find((h) => /description|opis/i.test(h.trim()));
@@ -324,8 +364,19 @@ export function autoDetectBankColumns(
     mapCurrency = foundWaluta || "";
   }
 
+  // Kolumna kierunku oraz kolumny obciążenia/uznania muszą zostać rozpoznane
+  // PRZED kolumną "kwota": inaczej "Kwota obciążenia" zostaje wybrana jako
+  // jedyna kolumna kwoty, a połowa wierszy trafia do odrzuconych z pustą kwotą.
+  for (const h of headers) {
+    if (!mapDirection && looksLikeDirectionColumn(h)) mapDirection = h;
+    if (!mapDebit && looksLikeDebitColumn(h)) mapDebit = h;
+    if (!mapCredit && looksLikeCreditColumn(h)) mapCredit = h;
+  }
+
   for (const h of headers) {
     const lower = h.toLowerCase().trim();
+
+    if (h === mapDebit || h === mapCredit) continue;
 
     if (!mapName && /#?tytuł|opis|nazwa|odbiorca|nadawca|treść|details|title|description|name|counterparty/.test(lower)) {
       mapName = h;
@@ -348,7 +399,7 @@ export function autoDetectBankColumns(
     }
   }
 
-  return { mapName, mapAmount, mapDate, mapCategory, mapCurrency };
+  return { mapName, mapAmount, mapDate, mapCategory, mapCurrency, mapDirection, mapDebit, mapCredit };
 }
 
 export interface ProcessCsvParams {
@@ -359,6 +410,9 @@ export interface ProcessCsvParams {
   mapDate?: string;
   mapCategory?: string;
   mapCurrency?: string;
+  mapDirection?: string;
+  mapDebit?: string;
+  mapCredit?: string;
   defaultCategory?: string;
   defaultAccount?: string;
   typeStrategy?: "auto" | "expense" | "income";
@@ -379,6 +433,10 @@ export interface ProcessCsvResult {
   transactions: Transaction[];
   detectedCurrencies: Record<SupportedCurrency, number>;
   rejectedRows: RejectedCsvRow[];
+  /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
+  directions: ImportDirectionInfo[];
+  /** Ustawione, gdy struktury pliku nie da się rozpoznać — zamiast lawiny odrzuceń. */
+  structureError?: string;
   stats: {
     totalRows: number;
     validCount: number;
@@ -417,6 +475,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       transactions: [],
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
+      directions: [],
       stats: { totalRows: 0, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount: 0 }
     };
   }
@@ -449,13 +508,49 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const catIdx = catCol ? headers.indexOf(catCol) : -1;
   const currIdx = currCol ? headers.indexOf(currCol) : -1;
 
+  const dirCol = params.mapDirection || autoCols.mapDirection;
+  const debitCol = params.mapDebit || autoCols.mapDebit;
+  const creditCol = params.mapCredit || autoCols.mapCredit;
+  const dirIdx = dirCol ? headers.indexOf(dirCol) : -1;
+  const debitIdx = debitCol ? headers.indexOf(debitCol) : -1;
+  const creditIdx = creditCol ? headers.indexOf(creditCol) : -1;
+
   const defaultCat = params.defaultCategory || "Inne";
   const defaultAcc = params.defaultAccount || "Konto główne";
   const typeStrat = params.typeStrategy || "auto";
   const rules = params.rules || [];
 
+  // Bez rozpoznanej kolumny kwoty lub daty nie ma czego importować. Wcześniej
+  // każdy wiersz leciał do odrzuconych z komunikatem 'Nieprawidłowy format
+  // kwoty: "puste"', więc użytkownik widział setki błędów zamiast jednej wskazówki.
+  const missingColumns: string[] = [];
+  if (amountIdx === -1 && debitIdx === -1 && creditIdx === -1) missingColumns.push("kwoty");
+  if (dateIdx === -1) missingColumns.push("daty");
+
+  if (missingColumns.length > 0) {
+    return {
+      headers,
+      parsedRows: rows,
+      detectedSeparator,
+      transactions: [],
+      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      rejectedRows: [],
+      directions: [],
+      structureError: `Nie rozpoznaliśmy kolumny: ${missingColumns.join(" i ")}. Wskaż ją ręcznie w mapowaniu kolumn.`,
+      stats: {
+        totalRows: rows.length,
+        validCount: 0,
+        invalidAmountCount: 0,
+        invalidDateCount: 0,
+        skippedEmptyCount: 0,
+        truncatedCount
+      }
+    };
+  }
+
   const transactions: Transaction[] = [];
   const rejectedRows: RejectedCsvRow[] = [];
+  const directions: ImportDirectionInfo[] = [];
   const detectedCurrencies: Record<SupportedCurrency, number> = {
     PLN: 0,
     EUR: 0,
@@ -466,6 +561,36 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   let invalidAmountCount = 0;
   let invalidDateCount = 0;
   let skippedEmptyCount = 0;
+
+  // Kolumna kwoty bywa pusta, gdy bank rozdziela obciążenia i uznania na dwie
+  // osobne kolumny — wtedy kwota wiersza siedzi w tej, która jest wypełniona.
+  const extractRowAmount = (row: string[]) => {
+    const debitParsed = debitIdx !== -1 ? parseCsvAmount(row[debitIdx]) : null;
+    const creditParsed = creditIdx !== -1 ? parseCsvAmount(row[creditIdx]) : null;
+    const hasDebit = debitParsed !== null && debitParsed.amount !== 0;
+    const hasCredit = creditParsed !== null && creditParsed.amount !== 0;
+
+    if (hasDebit || hasCredit) {
+      return {
+        raw: hasDebit ? row[debitIdx] : row[creditIdx],
+        fromDebitColumn: hasDebit,
+        fromCreditColumn: hasCredit
+      };
+    }
+
+    return {
+      raw: amountIdx !== -1 ? row[amountIdx] : "",
+      fromDebitColumn: false,
+      fromCreditColumn: false
+    };
+  };
+
+  // Czy w pliku w ogóle występują minusy. Bez tego znak kwoty nie niesie
+  // informacji o kierunku i nie wolno na jego podstawie cicho zakładać przychodu.
+  const hasNegativeAmounts = rows.some((row) => {
+    const parsed = parseCsvAmount(extractRowAmount(row).raw);
+    return parsed !== null && parsed.isNegative;
+  });
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -478,7 +603,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       continue;
     }
 
-    const rawAmountStr = amountIdx !== -1 ? row[amountIdx] : "";
+    const amountCell = extractRowAmount(row);
+    const rawAmountStr = amountCell.raw;
     const parsedAmount = parseCsvAmount(rawAmountStr);
     if (!parsedAmount) {
       invalidAmountCount++;
@@ -502,14 +628,31 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       continue;
     }
 
-    let type: "income" | "expense" = "expense";
+    const rawName = nameIdx !== -1 && row[nameIdx] ? row[nameIdx] : "Transakcja bankowa";
+
+    let type: "income" | "expense";
+    let directionSource: ImportDirectionInfo["source"];
+    let directionConfident: boolean;
+
     if (typeStrat === "auto") {
-      type = parsedAmount.isNegative ? "expense" : "income";
+      const direction = detectDirection(
+        {
+          explicitDirection: dirIdx !== -1 ? row[dirIdx] : "",
+          amountNegative: parsedAmount.isNegative,
+          fromDebitColumn: amountCell.fromDebitColumn,
+          fromCreditColumn: amountCell.fromCreditColumn,
+          description: rawName
+        },
+        { hasNegativeAmounts }
+      );
+      type = direction.type;
+      directionSource = direction.source;
+      directionConfident = direction.confident;
     } else {
       type = typeStrat;
+      directionSource = "manual";
+      directionConfident = true;
     }
-
-    const rawName = nameIdx !== -1 && row[nameIdx] ? row[nameIdx] : "Transakcja bankowa";
 
     // Rule-based categorization using activeProfile.transactionRules
     let category = defaultCat;
@@ -535,8 +678,9 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
 
     detectedCurrencies[rowCurrency] = (detectedCurrencies[rowCurrency] || 0) + 1;
 
+    const transactionId = `tx-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`;
     transactions.push({
-      id: `tx-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+      id: transactionId,
       name: rawName,
       amount: parsedAmount.amount,
       type,
@@ -547,6 +691,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       tags: [],
       currency: rowCurrency
     });
+    directions.push({ transactionId, source: directionSource, confident: directionConfident });
   }
 
   return {
@@ -556,6 +701,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     transactions,
     detectedCurrencies,
     rejectedRows,
+    directions,
     stats: {
       totalRows: rows.length,
       validCount: transactions.length,
