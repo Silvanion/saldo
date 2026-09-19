@@ -5,6 +5,15 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.1] - Wrzesień 2026
+### Refaktoryzacja i Optymalizacja Kodu (wersja stabilizująca)
+- **Naprawiono duplikację pól w typach** — usunięto z `AppState` pola `recurringRules`, `transactionRules`, `smartRules`, `debts`, `debtPayoffScenarios` (pozostają tylko w `Profile`), eliminując ryzyko niespójności danych między profilami.
+- **Nowe narzędzie generowania ID** (`src/utils/id.ts`) — funkcja `generateEntityId()` z predefiniowanymi prefiksami (`tx-`, `pay-`, `goal-`, `inv-`, `rule-`, `debt-`, `scenario-`, `set-`, `csv-`, `pdf-`, `heal-`). Wyeliminowano 10+ powtórzonych wzorców `Date.now() + Math.random()` w kodzie.
+- **Centralna normalizacja tekstu** (`src/utils/text.ts`) — 3 ujednolicone funkcje: `normalizeText()` (dla deduplikacji, usuwa interpunkcję), `cleanPolishChars()` (dla wyświetlania, zamienia polskie znaki), `normalizeSmartRuleText()` (dla Smart Rules, zachowuje interpunkcję, obsługuje `ł`→`l`).
+- **Optymalizacja detekcji duplikatów** — dodano pre-filtrowanie kandydatów (waluta, typ, kwota ±0.01, data ±1.1 dnia) przed kosztowną normalizacją tekstu, redukujące złożoność z O(n²) do O(n) przy dużych profilach.
+- **Zaktualizowano 8 plików źródłowych** do używania nowych centralnych narzędzi: `useAppActions`, `useTransactionActions`, `parseCsv`, `parsePdf`, `dataAuditor`, `smartRules`, `duplicateDetector`, `pdfGenerator`.
+- Wszystkie 1172 testy przechodzą, CI zielone.
+
 ## [v1.6.0] - Wrzesień 2026
 ### Refaktoryzacja i Optymalizacja Kodu
 - **Usunięto duplikowane pola z AppState** — `recurringRules`, `transactionRules`, `smartRules`, `debts`, `debtPayoffScenarios` przeniesiono wyłącznie do `Profile`, eliminując ryzyko niespójności danych.
