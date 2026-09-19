@@ -443,6 +443,9 @@ autoUpdater.on("error", (err) => {
       "Nie udało się sprawdzić aktualizacji",
       "Sprawdź połączenie z internetem i spróbuj ponownie później."
     );
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-error", err instanceof Error ? err.message : String(err));
+    }
   }
   isManualUpdateCheck = false;
 });
@@ -453,6 +456,7 @@ autoUpdater.on("update-downloaded", (info) => {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send("update-downloaded", { version: info.version });
   }
+  // Natywny dialog electron-updater z opcją restartu
   dialog.showMessageBox(mainWindow, {
     type: "info",
     title: "Dostępna nowa wersja",
@@ -462,7 +466,7 @@ autoUpdater.on("update-downloaded", (info) => {
     cancelId: 1
   }).then((result) => {
     if (result.response === 0) {
-      autoUpdater.quitAndInstall();
+      autoUpdater.quitAndInstall(false, true); // forceRun = true
     }
   });
 });
@@ -480,8 +484,17 @@ function checkForUpdates(manual = false) {
     return;
   }
   isManualUpdateCheck = manual;
+  // Na automacich checkach (manual=false) nie pokazujemy żadnych dialogów - 
+  // electron-updater wywoła eventy update-available / update-not-available / error
+  // a te eventy same decydują czy pokazać dialog (tylko gdy manual=true)
   autoUpdater.checkForUpdates().catch((err) => {
     log.error("[AutoUpdater] checkForUpdates() odrzucone:", err);
+    if (manual) {
+      dialog.showErrorBox(
+        "Nie udało się sprawdzić aktualizacji",
+        "Sprawdź połączenie z internetem i spróbuj ponownie później."
+      );
+    }
   });
 }
 

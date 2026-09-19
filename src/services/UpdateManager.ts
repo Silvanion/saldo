@@ -108,6 +108,12 @@ export class UpdateManager {
         };
         this.setState("READY_TO_INSTALL");
       });
+
+      // Nowy event - błąd autoUpdater (tylko dla manualnych)
+      window.electronAPI.onUpdateError?.((err) => {
+        this.errorMessage = err || "Nie udało się sprawdzić aktualizacji.";
+        this.setState("ERROR");
+      });
     }
   }
 

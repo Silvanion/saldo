@@ -35,7 +35,7 @@ export const UpdateToast: React.FC = () => {
       onStateChange: (newState) => {
         setState(newState);
         setReleaseInfo(manager.getReleaseInfo());
-        if (newState === "AVAILABLE" || newState === "DOWNLOADING") {
+        if (newState === "AVAILABLE" || newState === "DOWNLOADING" || newState === "READY_TO_INSTALL") {
           setIsDismissed(false);
         }
       },
@@ -47,13 +47,10 @@ export const UpdateToast: React.FC = () => {
       }
     });
 
-    // Sprawdź aktualizacje 5 sekund po załadowaniu aplikacji
-    const timer = setTimeout(() => {
-      manager.checkForUpdates().catch(() => {});
-    }, 5000);
+    // Nie robimy tutaj checkForUpdates() - to robi natywny electron-updater
+    // w main process (setTimeout 3s w main.cjs). Tutaj tylko subskrybujemy stany.
 
     return () => {
-      clearTimeout(timer);
       unsubscribe();
     };
   }, []);
