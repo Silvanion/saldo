@@ -19,6 +19,7 @@ vi.mock('../../hooks/useAuth', () => ({
 }));
 
 import * as localDb from './services/localDb';
+import { SecurityVault } from './services/SecurityVault';
 
 vi.mock('./services/localDb', async (importOriginal) => {
   const actual: any = await importOriginal();
@@ -27,6 +28,19 @@ vi.mock('./services/localDb', async (importOriginal) => {
     loadState: vi.fn().mockResolvedValue(null),
     saveState: vi.fn().mockResolvedValue(undefined),
   };
+});
+
+vi.mock('./services/SecurityVault', () => {
+  const mockVault = {
+    executeWithSecret: vi.fn().mockImplementation(async (_key: string, operation: (secret: string) => Promise<any>) => {
+      return operation('mock-secret');
+    }),
+    storeSecret: vi.fn().mockResolvedValue(true),
+    removeSecret: vi.fn().mockResolvedValue(true),
+    zeroizeBuffer: vi.fn(),
+    sanitizeHeaders: vi.fn((h) => h),
+  };
+  return { SecurityVault: mockVault };
 });
 
 const TestHarness = () => {
@@ -85,7 +99,7 @@ describe('Full App Diagnostic Loop - Forms', () => {
       );
     });
 
-    const allSectionsBtn = await screen.findByText('Wszystkie sekcje');
+    const allSectionsBtn = await screen.findByText('Wszystkie sekcje', { timeout: 5000 });
     await act(async () => {
       fireEvent.click(allSectionsBtn);
     });

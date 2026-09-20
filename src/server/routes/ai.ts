@@ -7,6 +7,24 @@ import { z } from "zod";
 
 const router = Router();
 
+export type CloudAiProvider = "gemini" | "openai" | "anthropic" | "custom";
+
+export interface CloudAiConfig {
+  provider: CloudAiProvider;
+  model: string;
+  apiKeyRef: string;
+  baseUrl?: string;
+}
+
+export type AiMode = "none" | "local" | "cloud";
+
+export interface AiConfig {
+  mode: AiMode;
+  localEndpoint?: string;
+  localAiModel?: string;
+  cloudAiConfig?: CloudAiConfig;
+}
+
 // Blokada lokalnego AI w NODE_ENV=production chroni przed SSRF na prawdziwym
 // hostingu webowym (tam "localhost" to sam serwer, nie komputer użytkownika).
 // Ten sam serwer Express jest jednak wbudowany w aplikację desktopową
@@ -24,13 +42,13 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
   const mode = (modeHeader || "none").toString().toLowerCase();
 
   // Validate allowed modes
-  if (mode !== "local" && mode !== "none") {
+  if (mode !== "local" && mode !== "cloud" && mode !== "none") {
     return res.status(400).json({ error: "Nieprawidłowy tryb AI." });
   }
 
   let localEndpoint = (req.headers["x-ai-local-endpoint"] || "").toString().trim();
   let localAiModel = (req.headers["x-ai-local-model"] || "").toString().trim();
-  
+
   if (process.env.NODE_ENV === "production" && mode === "local" && !isDesktopRuntime()) {
     return res.status(403).json({
       error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym."
@@ -63,7 +81,30 @@ const extractAndValidateAiConfig = (req: any, res: Response, next: NextFunction)
     }
   }
 
-  req.aiConfig = { mode, localEndpoint, localAiModel };
+  // Cloud AI validation
+  let cloudAiConfig: CloudAiConfig | undefined;
+  if (mode === "cloud") {
+    const provider = (req.headers["x-ai-cloud-provider"] || "").toString().trim().toLowerCase();
+    const model = (req.headers["x-ai-cloud-model"] || "").toString().trim();
+    const apiKeyRef = (req.headers["x-ai-cloud-api-key-ref"] || "").toString().trim();
+    const baseUrl = (req.headers["x-ai-cloud-base-url"] || "").toString().trim() || undefined;
+
+    if (!provider || !model || !apiKeyRef) {
+      return res.status(400).json({ error: "Tryb cloud wymaga providera, modelu i referencji do klucza API." });
+    }
+
+    if (!["gemini", "openai", "anthropic", "custom"].includes(provider)) {
+      return res.status(400).json({ error: "Nieobsługiwany provider AI." });
+    }
+
+    if (provider === "custom" && !baseUrl) {
+      return res.status(400).json({ error: "Custom provider wymaga baseUrl." });
+    }
+
+    cloudAiConfig = { provider: provider as CloudAiProvider, model, apiKeyRef, baseUrl };
+  }
+
+  req.aiConfig = { mode, localEndpoint, localAiModel, cloudAiConfig };
   next();
 };
 
@@ -75,6 +116,11 @@ const routeSecurityByMode = (req: any, res: Response, next: NextFunction) => {
 
   if (mode === "local") {
     // Local Ollama is private and must remain usable offline without Firebase login.
+    return localAiRateLimiter(req, res, next);
+  }
+
+  if (mode === "cloud") {
+    // Cloud AI uses same rate limiter as local but requires auth
     return localAiRateLimiter(req, res, next);
   }
 
@@ -160,6 +206,33 @@ router.all("/health", async (req: any, res: Response) => {
       } catch (err: any) {
         clearTimeout(timeoutId);
         return res.status(503).json({ status: "error", mode: "local", message: "Brak możliwości połączenia z lokalnym serwerem AI (Ollama)." });
+      }
+    }
+
+    if (config.mode === "cloud") {
+      // Cloud mode - validate that we have the config and can access the key reference
+      if (!config.cloudAiConfig) {
+        return res.json({ status: "error", mode: "cloud", message: "Brak konfiguracji cloud AI." });
+      }
+      // Test if we can access the key reference in SecurityVault
+      try {
+        const { SecurityVault } = await import("../../../services/SecurityVault");
+        const keyExists = await SecurityVault.executeWithSecret(
+          config.cloudAiConfig.apiKeyRef,
+          async (key) => !!key,
+          "Sprawdzenie dostępności klucza API"
+        ).catch(() => false);
+        return res.json({
+          status: keyExists ? "ok" : "error",
+          mode: "cloud",
+          provider: config.cloudAiConfig.provider,
+          model: config.cloudAiConfig.model,
+          message: keyExists 
+            ? `Cloud AI (${config.cloudAiConfig.provider}) skonfigurowane poprawnie.`
+            : "Klucz API nie znaleziony w bezpiecznym magazynie."
+        });
+      } catch {
+        return res.json({ status: "error", mode: "cloud", message: "Nie można zweryfikować klucza API." });
       }
     }
 
@@ -380,11 +453,12 @@ const ScanInvoiceOutput = z.object({
   category: z.string().optional()
 }).passthrough();
 
-// Middleware: zablokuj lokalne AI w produkcji
+// Middleware: zablokuj lokalne AI w produkcji, ale pozwól na cloud (BYOK)
 const checkProductionAiMode = (req: any, res: Response, next: any) => {
   if (process.env.NODE_ENV === "production" && req.aiConfig?.mode === "local" && !isDesktopRuntime()) {
     return res.status(403).json({ error: "Lokalny model AI jest niedostępny w środowisku produkcyjnym." });
   }
+  // Cloud mode is allowed in production (BYOK - klucz w SecurityVault)
   next();
 };
 

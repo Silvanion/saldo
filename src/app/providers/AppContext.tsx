@@ -38,7 +38,7 @@ export interface AppContextType extends ThemeData, AuthData, BudgetData, DriveSy
   isDriveAutoSyncEnabled: boolean;
   toggleAutoSync: (enabled: boolean) => void;
   autoSyncStatus: "idle" | "saving" | "synced" | "error";
-  aiMode: "none" | "local";
+  aiMode: "none" | "local" | "cloud";
   canUseCloudSync: boolean;
   isOfflineBudgetMode: boolean;
 }

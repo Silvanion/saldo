@@ -1,3 +1,16 @@
+export type CloudAiProvider = "gemini" | "openai" | "anthropic" | "custom";
+
+export interface CloudAiConfig {
+  provider: CloudAiProvider;
+  model: string;
+  /** Referencja do klucza API przechowywanego w SecurityVault */
+  apiKeyRef: string;
+  /** Custom base URL (dla providera "custom") */
+  baseUrl?: string;
+}
+
+export type AiMode = "none" | "local" | "cloud";
+
 export interface AiProvider {
   suggestEvent(payment: any, currentDate: string, uid?: string): Promise<any>;
   parseNatural(text: string, currentDate: string): Promise<any>;
@@ -10,7 +23,8 @@ export interface AiProvider {
 }
 
 export interface AiConfig {
-  mode: "none" | "local";
+  mode: AiMode;
   localEndpoint?: string;
   localAiModel?: string;
+  cloudAiConfig?: CloudAiConfig;
 }

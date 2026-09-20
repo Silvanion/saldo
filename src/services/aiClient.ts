@@ -1,25 +1,58 @@
 import { auth } from "../firebase";
 
+export type CloudAiProvider = "gemini" | "openai" | "anthropic" | "custom";
+
+export interface CloudAiConfig {
+  provider: CloudAiProvider;
+  model: string;
+  /** Referencja do klucza API przechowywanego w SecurityVault (np. "ai_gemini_key") */
+  apiKeyRef: string;
+  /** Custom base URL (dla providera "custom") */
+  baseUrl?: string;
+}
+
+export type AiMode = "none" | "local" | "cloud";
+
 export interface AiConfig {
-  aiMode: "none" | "local";
+  aiMode: AiMode;
   localAiEndpoint?: string;
   localAiModel?: string;
+  cloudAiConfig?: CloudAiConfig;
 }
 
 /**
  * Helper to construct a validated AiConfig from AppState or component state.
  */
-export function getAiConfig(state?: { aiMode?: string; localAiEndpoint?: string; localAiModel?: string }): AiConfig {
+export function getAiConfig(state?: {
+  aiMode?: string;
+  localAiEndpoint?: string;
+  localAiModel?: string;
+  cloudAiProvider?: string;
+  cloudAiModel?: string;
+  cloudAiApiKeyRef?: string;
+  cloudAiBaseUrl?: string;
+}): AiConfig {
   const rawMode = state?.aiMode?.toLowerCase();
-  const validMode = (rawMode === "local" || rawMode === "none")
-    ? (rawMode as "none" | "local")
+  const validMode = (rawMode === "local" || rawMode === "cloud" || rawMode === "none")
+    ? (rawMode as AiMode)
     : "none";
 
-  return {
+  const config: AiConfig = {
     aiMode: validMode,
     localAiEndpoint: state?.localAiEndpoint || "http://localhost:11434/api/generate",
     localAiModel: state?.localAiModel,
   };
+
+  if (validMode === "cloud" && state?.cloudAiProvider && state?.cloudAiModel && state?.cloudAiApiKeyRef) {
+    config.cloudAiConfig = {
+      provider: state.cloudAiProvider as CloudAiProvider,
+      model: state.cloudAiModel,
+      apiKeyRef: state.cloudAiApiKeyRef,
+      baseUrl: state.cloudAiBaseUrl,
+    };
+  }
+
+  return config;
 }
 
 /**
@@ -36,6 +69,15 @@ export async function callAiApi(endpoint: string, payload: any, config: AiConfig
     headers["x-ai-local-endpoint"] = config.localAiEndpoint;
     if (config.localAiModel) {
       headers["x-ai-local-model"] = config.localAiModel;
+    }
+  }
+
+  if (config.aiMode === "cloud" && config.cloudAiConfig) {
+    headers["x-ai-cloud-provider"] = config.cloudAiConfig.provider;
+    headers["x-ai-cloud-model"] = config.cloudAiConfig.model;
+    headers["x-ai-cloud-api-key-ref"] = config.cloudAiConfig.apiKeyRef;
+    if (config.cloudAiConfig.baseUrl) {
+      headers["x-ai-cloud-base-url"] = config.cloudAiConfig.baseUrl;
     }
   }
 
