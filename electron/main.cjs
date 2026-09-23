@@ -1,6 +1,7 @@
-const { app, BrowserWindow, shell, Menu, dialog, ipcMain, Notification, powerMonitor, Tray, globalShortcut, nativeImage, systemPreferences, safeStorage } = require("electron");
+const { app, BrowserWindow, shell, Menu, dialog, ipcMain, Notification, powerMonitor, Tray, globalShortcut, nativeImage, systemPreferences, safeStorage, session } = require("electron");
 const path = require("path");
 const net = require("net");
+const { execFile } = require("child_process");
 const { autoUpdater } = require("electron-updater");
 const windowStateKeeper = require("electron-window-state");
 const log = require("electron-log");
@@ -11,7 +12,13 @@ const fs = require("fs");
 log.transports.file.level = "info";
 log.transports.console.level = process.env.NODE_ENV === "production" ? false : "info";
 autoUpdater.logger = log;
+// The renderer (UpdateToast) asks before downloading — auto-downloading on
+// every startup check wasted bandwidth and produced a second, native
+// "restart and install" prompt on top of the in-app one.
+autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
+
+const RELEASES_URL = "https://github.com/Silvanion/saldo/releases/latest";
 
 // Set environment flags so our server knows it's running inside Electron
 process.env.IS_ELECTRON = "true";
@@ -83,6 +90,26 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
     openImportFile(filePath);
   }
 });
+
+function isAppUrl(url, port) {
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' && (u.hostname === 'localhost' || u.hostname === '127.0.0.1') && u.port === String(port);
+  } catch {
+    return false;
+  }
+}
+
+function isAuthPopupUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'https:') return false;
+    if (u.hostname.endsWith('.firebaseapp.com') && u.pathname.startsWith('/__/auth/')) return true;
+    return u.hostname === 'accounts.google.com' && u.pathname.startsWith('/o/oauth2');
+  } catch {
+    return false;
+  }
+}
 
 function triggerAddExpense() {
   if (mainWindow) {
@@ -164,12 +191,97 @@ function createTray() {
 function getFreePort() {
   return new Promise((resolve, reject) => {
     const srv = net.createServer();
-    srv.listen(0, () => {
+    srv.listen(0, "127.0.0.1", () => {
       const port = srv.address().port;
       srv.close(() => resolve(port));
     });
     srv.on("error", reject);
   });
+}
+
+function isPortFree(port) {
+  return new Promise((resolve) => {
+    const srv = net.createServer();
+    srv.once("error", () => resolve(false));
+    srv.listen(port, "127.0.0.1", () => srv.close(() => resolve(true)));
+  });
+}
+
+// The renderer keeps all data in IndexedDB/localStorage, which Chromium scopes
+// per origin — and the origin includes the port. A new random port on every
+// launch therefore meant a fresh, empty database each time (the old data was
+// still on disk, just orphaned under http_localhost_<oldPort>). The port is
+// now chosen once and persisted, so the origin stays stable across launches.
+const DEFAULT_SERVER_PORT = 47819;
+
+function serverPortFilePath() {
+  return path.join(app.getPath("userData"), "server-port.json");
+}
+
+function readSavedServerPort() {
+  try {
+    const { port } = JSON.parse(fs.readFileSync(serverPortFilePath(), "utf8"));
+    return Number.isInteger(port) && port > 0 && port < 65536 ? port : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveServerPort(port) {
+  try {
+    fs.writeFileSync(serverPortFilePath(), JSON.stringify({ port }), "utf8");
+  } catch (err) {
+    log.error("[Port] Błąd zapisu portu serwera:", err);
+  }
+}
+
+function dirSize(dir) {
+  let total = 0;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    total += entry.isDirectory() ? dirSize(full) : fs.statSync(full).size;
+  }
+  return total;
+}
+
+// One-time recovery for installs from before the port was persisted: reuse
+// the port of the largest existing IndexedDB origin (the one most likely to
+// hold the user's real data rather than an abandoned fresh onboarding).
+function findLegacyDataPort() {
+  try {
+    const idbDir = path.join(app.getPath("userData"), "IndexedDB");
+    let best = null;
+    for (const name of fs.readdirSync(idbDir)) {
+      const match = /^http_localhost_(\d+)\.indexeddb\.leveldb$/.exec(name);
+      if (!match) continue;
+      const size = dirSize(path.join(idbDir, name));
+      if (!best || size > best.size) best = { port: Number(match[1]), size };
+    }
+    return best ? best.port : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveServerPort() {
+  const saved = readSavedServerPort();
+  if (saved) {
+    if (await isPortFree(saved)) return saved;
+    // Don't overwrite the saved port — next launch should return to the
+    // origin that holds the user's data.
+    log.warn(`[Port] Zapisany port ${saved} jest zajęty — używam tymczasowego portu (dane lokalne mogą być niewidoczne w tej sesji).`);
+    return getFreePort();
+  }
+  const candidates = [findLegacyDataPort(), DEFAULT_SERVER_PORT].filter(Boolean);
+  for (const candidate of candidates) {
+    if (await isPortFree(candidate)) {
+      saveServerPort(candidate);
+      return candidate;
+    }
+  }
+  const port = await getFreePort();
+  saveServerPort(port);
+  return port;
 }
 
 // Set App User Model ID for Windows (required for native notifications)
@@ -321,20 +433,27 @@ ipcMain.handle('get-window-state', () => {
   };
 });
 
-ipcMain.handle('check-for-updates', async () => {
-  checkForUpdates(true);
+ipcMain.handle('check-for-updates', async (event, manual = true) => {
+  checkForUpdates(manual !== false);
 });
 
 ipcMain.handle('start-download-update', async () => {
-  if (autoUpdater && typeof autoUpdater.downloadUpdate === 'function') {
-    return await autoUpdater.downloadUpdate();
+  // Squirrel.Mac only installs an update whose code signature satisfies the
+  // running app's designated requirement — impossible for ad-hoc/unsigned
+  // builds. Send those users to the release page instead of letting them
+  // download ~100 MB only to have "restart and install" silently do nothing.
+  if (process.platform === 'darwin' && !(await isDeveloperIdSigned())) {
+    await shell.openExternal(RELEASES_URL);
+    return { manual: true };
   }
+  isUserInitiatedUpdate = true;
+  await autoUpdater.downloadUpdate();
+  return { manual: false };
 });
 
 ipcMain.handle('install-update', () => {
-  if (autoUpdater) {
-    autoUpdater.quitAndInstall();
-  }
+  isUserInitiatedUpdate = true;
+  autoUpdater.quitAndInstall(false, true);
 });
 
 ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
@@ -398,6 +517,24 @@ ipcMain.handle('biometrics-remove-pin', async (event, profileId) => {
 // check, so the event handlers below know whether to speak up when there's
 // nothing to report (silent on the automatic startup check, explicit on a manual one).
 let isManualUpdateCheck = false;
+// True once the user clicked download/install, so a later failure is reported
+// to the renderer instead of leaving the toast stuck on "Pobieranie...".
+let isUserInitiatedUpdate = false;
+
+let developerIdSignedPromise;
+function isDeveloperIdSigned() {
+  if (!developerIdSignedPromise) {
+    developerIdSignedPromise = new Promise((resolve) => {
+      if (process.platform !== 'darwin' || !app.isPackaged) return resolve(false);
+      // .../Saldo.app/Contents/MacOS/Saldo -> .../Saldo.app
+      const bundlePath = path.resolve(path.dirname(process.execPath), '..', '..');
+      execFile('/usr/bin/codesign', ['-dv', '--verbose=2', bundlePath], (err, stdout, stderr) => {
+        resolve(!err && /Authority=Developer ID Application/.test(String(stderr)));
+      });
+    });
+  }
+  return developerIdSignedPromise;
+}
 
 autoUpdater.on("checking-for-update", () => {
   log.info("[AutoUpdater] Sprawdzanie dostępności aktualizacji...");
@@ -443,21 +580,24 @@ autoUpdater.on("error", (err) => {
       "Nie udało się sprawdzić aktualizacji",
       "Sprawdź połączenie z internetem i spróbuj ponownie później."
     );
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send("update-error", err instanceof Error ? err.message : String(err));
-    }
+  }
+  if ((isManualUpdateCheck || isUserInitiatedUpdate) && mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update-error", err instanceof Error ? err.message : String(err));
   }
   isManualUpdateCheck = false;
+  isUserInitiatedUpdate = false;
 });
 
 autoUpdater.on("update-downloaded", (info) => {
   log.info(`[AutoUpdater] Pobrano aktualizację: ${info.version}`);
   isManualUpdateCheck = false;
   if (mainWindow && !mainWindow.isDestroyed()) {
+    // UpdateToast shows its own "restart and install" button.
     mainWindow.webContents.send("update-downloaded", { version: info.version });
+    return;
   }
-  // Natywny dialog electron-updater z opcją restartu
-  dialog.showMessageBox(mainWindow, {
+  // No window to show the in-app prompt in (e.g. closed to tray on macOS).
+  dialog.showMessageBox({
     type: "info",
     title: "Dostępna nowa wersja",
     message: `Wersja ${info.version} aplikacji Saldo została pobrana. Czy chcesz zainstalować ją teraz?`,
@@ -593,26 +733,32 @@ async function createWindow(port) {
 
   // Handle external links securely
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    // Pozwól na otwieranie pop-upów dla mechanizmu autoryzacji Google/Firebase
-    if (url.includes('firebaseapp.com/__/auth') || url.includes('accounts.google.com/o/oauth2')) {
+    // Pozwól na otwieranie pop-upów dla mechanizmu autoryzacji Google/Firebase.
+    // Sprawdzamy sparsowany host, nie podciąg adresu — "includes()" przepuszczał
+    // np. https://evil.example/?firebaseapp.com/__/auth, a okno potomne dziedziczy
+    // preload z pełnym electronAPI.
+    if (isAuthPopupUrl(url)) {
       return { action: 'allow' };
     }
 
     if (url.startsWith('http:') || url.startsWith('https:')) {
-      if (!url.startsWith(`http://localhost:${port}`)) {
+      if (!isAppUrl(url, port)) {
         shell.openExternal(url);
         return { action: 'deny' };
       }
+      return { action: 'allow' };
     }
-    return { action: 'allow' };
+    // Firebase otwiera popup najpierw jako about:blank; inne schematy (file:,
+    // javascript:, data:) nie mają powodu otwierać okna z dostępem do preloadu.
+    return { action: url === 'about:blank' ? 'allow' : 'deny' };
   });
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (url.startsWith('http:') || url.startsWith('https:')) {
-      if (!url.startsWith(`http://localhost:${port}`)) {
-        event.preventDefault();
-        shell.openExternal(url);
-      }
+    if (isAppUrl(url, port)) return;
+    event.preventDefault();
+    // mailto: — BugReportModal opens the mail client via location.href.
+    if (url.startsWith('http:') || url.startsWith('https:') || url.startsWith('mailto:')) {
+      shell.openExternal(url);
     }
   });
 
@@ -719,7 +865,18 @@ async function createWindow(port) {
 
 app.whenReady().then(async () => {
   try {
-    const freePort = await getFreePort();
+    const freePort = await resolveServerPort();
+
+    // Older builds registered the PWA service worker (PWABadge now skips it in
+    // Electron). With a stable origin, a leftover worker would keep serving
+    // the previous version's precached UI after an app update. Only service
+    // workers and Cache Storage are cleared — IndexedDB/localStorage (the
+    // user's data) are untouched.
+    try {
+      await session.defaultSession.clearStorageData({ storages: ['serviceworkers', 'cachestorage'] });
+    } catch (swErr) {
+      log.warn("[Startup] Nie udało się wyczyścić service workerów:", swErr);
+    }
     
     // Import the compiled server
     // Note: We expect the app to be built (npm run build) before running Electron in prod

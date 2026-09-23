@@ -3,10 +3,16 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig(() => {
   return {
     cacheDir: './.vite-cache',
+    // Single source of truth for the running app's version (UpdateManager,
+    // bug reports) — package.json is what electron-builder stamps into the app.
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     plugins: [
       react(),
       tailwindcss(),

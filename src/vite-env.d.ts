@@ -1,6 +1,9 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pwa/client" />
 
+// Injected by vite.config.ts (package.json version).
+declare const __APP_VERSION__: string | undefined;
+
 interface Window {
   electronAPI?: {
     exportData: (defaultPath: string, data: string) => Promise<string | null>;
@@ -21,11 +24,12 @@ interface Window {
     platform?: string;
     getWindowState?: () => Promise<{ isMaximized: boolean; isFullScreen: boolean }>;
     onWindowStateChange?: (callback: (state: { isMaximized: boolean; isFullScreen: boolean }) => void) => () => void;
-    checkForUpdates?: () => Promise<void>;
-    startDownloadUpdate?: () => Promise<void>;
+    checkForUpdates?: (manual?: boolean) => Promise<void>;
+    startDownloadUpdate?: () => Promise<{ manual: boolean } | unknown>;
     installUpdate?: () => Promise<void>;
     onUpdateProgress?: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
     onUpdateAvailable?: (callback: (info: { version: string; releaseNotes?: string }) => void) => () => void;
     onUpdateDownloaded?: (callback: (info: { version: string }) => void) => () => void;
+    onUpdateError?: (callback: (message: string) => void) => () => void;
   };
 }

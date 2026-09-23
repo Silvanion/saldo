@@ -45,11 +45,14 @@ export interface UpdateManagerListener {
 
 export class UpdateManager {
   private static instance: UpdateManager | null = null;
-  // Wersja bieżąco działającej aplikacji — wyprowadzana z pierwszego wpisu
-  // changelogData (ten sam plik, który i tak trzeba zaktualizować przy każdym
-  // wydaniu), żeby nie trzymać osobnej, łatwej do zapomnienia stałej tutaj.
+  // Wersja bieżąco działającej aplikacji — z package.json (wstrzykiwana przez
+  // Vite jako __APP_VERSION__). Wcześniej brana z changelogData[0], które
+  // w v1.6.1 wciąż wskazywało v1.6.0, więc aplikacja w kółko proponowała
+  // "aktualizację" do samej siebie. changelogData zostaje tylko jako fallback
+  // (np. w testach uruchamianych bez define).
   static get CURRENT_VERSION(): string {
-    return (changelogData[0]?.version || "0.0.0").replace(/^v/, "");
+    const injected = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "";
+    return (injected || changelogData[0]?.version || "0.0.0").replace(/^v/, "");
   }
   private static readonly GITHUB_REPO = "Silvanion/saldo";
   private static readonly ETAG_STORAGE_KEY = "saldo_release_etag";
@@ -146,8 +149,11 @@ export class UpdateManager {
     const isArm64 = ua.includes("arm") || ua.includes("apple silicon") || ua.includes("aarch64");
 
     let matchedAsset: ReleaseAsset | undefined;
-    let sha256Asset: ReleaseAsset | undefined = assets.find(
-      (a) => a.name.endsWith(".sha256") || a.name.includes("SHASUMS") || a.name.endsWith(".yml")
+    // Tylko pliki z sumami SHA-256 w hex. latest*.yml z electron-buildera
+    // zawierają SHA-512 w base64, więc porównanie z hashem SHA-256 zawsze
+    // kończyło się fałszywym "suma kontrolna nie zgadza się".
+    const sha256Asset: ReleaseAsset | undefined = assets.find(
+      (a) => a.name.endsWith(".sha256") || a.name.includes("SHASUMS")
     );
 
     if (platform === "win32" || ua.includes("windows")) {
@@ -187,6 +193,17 @@ export class UpdateManager {
     return null;
   }
 
+  private readCachedRelease(): ReleaseInfo | null {
+    const raw = this.safeGetStorage(UpdateManager.CACHED_RELEASE_KEY);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed.version === "string" ? (parsed as ReleaseInfo) : null;
+    } catch {
+      return null;
+    }
+  }
+
   private safeSetStorage(key: string, val: string): void {
     try {
       if (typeof localStorage !== "undefined" && typeof localStorage.setItem === "function") {
@@ -209,8 +226,11 @@ export class UpdateManager {
     this.errorMessage = null;
 
     // Jeśli jesteśmy w Electronie, uruchom również natywny sprawdzacz autoUpdater
+    // (po cichu — wynik pokazuje ten moduł/UpdateToast, a natywne okna dialogowe
+    // dublowałyby komunikaty). Pobieranie w Electronie i tak wymaga, żeby
+    // autoUpdater najpierw sam wykrył aktualizację.
     if (typeof window !== "undefined" && window.electronAPI?.checkForUpdates) {
-      window.electronAPI.checkForUpdates().catch(() => {});
+      window.electronAPI.checkForUpdates(false).catch(() => {});
     }
 
     try {
@@ -227,8 +247,15 @@ export class UpdateManager {
         { headers }
       );
 
-      // 304 Not Modified: brak zmian w wydaniach
+      // 304 Not Modified: brak zmian w wydaniach od ostatniego sprawdzenia —
+      // ale ostatnio widziane wydanie mogło być nowsze i nadal niezainstalowane.
       if (response.status === 304) {
+        const cached = this.readCachedRelease();
+        if (cached && UpdateManager.isNewerVersion(cached.version, UpdateManager.CURRENT_VERSION)) {
+          this.releaseInfo = cached;
+          this.setState("AVAILABLE");
+          return cached;
+        }
         this.setState("IDLE");
         return null;
       }
@@ -267,6 +294,7 @@ export class UpdateManager {
         assetSize: asset?.size,
         sha256Url: sha256Asset?.browser_download_url
       };
+      this.safeSetStorage(UpdateManager.CACHED_RELEASE_KEY, JSON.stringify(this.releaseInfo));
 
       this.setState("AVAILABLE");
       return this.releaseInfo;
@@ -291,13 +319,30 @@ export class UpdateManager {
    * Strumieniowe pobieranie pliku aktualizacji z aktywnym wskaźnikiem prędkości i postępu
    */
   async downloadAndVerifyUpdate(): Promise<boolean> {
-    if (!this.releaseInfo?.assetUrl) {
-      // W natywnym Electronie, deleguj pobieranie do autoUpdater
-      if (typeof window !== "undefined" && window.electronAPI?.startDownloadUpdate) {
-        this.setState("DOWNLOADING");
-        await window.electronAPI.startDownloadUpdate();
+    // W Electronie zawsze deleguj do autoUpdater. Wcześniej, gdy sprawdzenie
+    // przez GitHub API znalazło plik .dmg/.exe, był on pobierany do pamięci
+    // renderera, a "Uruchom ponownie i zainstaluj" wołało quitAndInstall()
+    // autoUpdatera, który niczego nie pobrał — instalacja nic nie robiła.
+    if (typeof window !== "undefined" && window.electronAPI?.startDownloadUpdate) {
+      this.errorMessage = null;
+      this.setState("DOWNLOADING");
+      try {
+        const result = await window.electronAPI.startDownloadUpdate();
+        if (result && typeof result === "object" && "manual" in result && result.manual) {
+          // Proces główny otworzył stronę wydania w przeglądarce (np. macOS
+          // bez podpisu Developer ID, gdzie automatyczna instalacja nie działa).
+          this.setState("IDLE");
+        }
         return true;
+      } catch (err: any) {
+        this.errorMessage = err?.message || "Nie udało się pobrać aktualizacji.";
+        this.setState("ERROR");
+        this.notifyError(this.errorMessage);
+        return false;
       }
+    }
+
+    if (!this.releaseInfo?.assetUrl) {
       this.errorMessage = "Brak pasującego pliku binarnego dla Twojego systemu.";
       this.setState("ERROR");
       return false;

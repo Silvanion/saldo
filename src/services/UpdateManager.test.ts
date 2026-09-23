@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { UpdateManager, ReleaseAsset } from "./UpdateManager";
 
@@ -20,13 +21,15 @@ describe("UpdateManager - GitHub Releases & Semver Matching", () => {
       { name: "Saldo-1.4.1-arm64.dmg", browser_download_url: "https://example.com/arm.dmg", size: 90000 },
       { name: "Saldo-1.4.1.dmg", browser_download_url: "https://example.com/intel.dmg", size: 95000 },
       { name: "Saldo Setup 1.4.1.exe", browser_download_url: "https://example.com/setup.exe", size: 85000 },
-      { name: "latest.yml", browser_download_url: "https://example.com/latest.yml", size: 200 }
+      { name: "latest.yml", browser_download_url: "https://example.com/latest.yml", size: 200 },
+      { name: "SHA256SUMS.sha256", browser_download_url: "https://example.com/SHA256SUMS.sha256", size: 300 }
     ];
 
     const result = UpdateManager.matchPlatformAsset(sampleAssets);
     expect(result.asset).toBeDefined();
     expect(result.sha256Asset).toBeDefined();
-    expect(result.sha256Asset?.name).toBe("latest.yml");
+    // latest.yml ma SHA-512 w base64 — nie może służyć do weryfikacji SHA-256.
+    expect(result.sha256Asset?.name).toBe("SHA256SUMS.sha256");
   });
 
   it("obsługuje odpowiedź 304 Not Modified bez zgłaszania błędu", async () => {
@@ -101,5 +104,56 @@ describe("UpdateManager - GitHub Releases & Semver Matching", () => {
     expect(manager.getState()).toBe("ERROR");
     expect(onError).toHaveBeenCalledWith("Failed to fetch");
     unsubscribe();
+  });
+
+  it("re-offers a cached newer release when GitHub answers 304", async () => {
+    const manager = UpdateManager.getInstance();
+    // Node 22+ exposes its own (disabled) localStorage global, so stub one.
+    const store = new Map<string, string>([
+      ["saldo_cached_release", JSON.stringify({ version: "v9.9.9", releaseNotes: "x", publishedAt: "2026-09-15T12:00:00Z" })]
+    ]);
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v)
+    });
+    globalThis.fetch = vi.fn().mockResolvedValue({ status: 304, ok: false });
+
+    const res = await manager.checkForUpdates();
+    expect(res?.version).toBe("v9.9.9");
+    expect(manager.getState()).toBe("AVAILABLE");
+    vi.unstubAllGlobals();
+  });
+
+  it("delegates downloads to the native autoUpdater in Electron instead of fetching the binary", async () => {
+    const manager = UpdateManager.getInstance();
+    const startDownloadUpdate = vi.fn().mockResolvedValue({ manual: false });
+    (window as any).electronAPI = { startDownloadUpdate };
+    globalThis.fetch = vi.fn();
+
+    const ok = await manager.downloadAndVerifyUpdate();
+    expect(ok).toBe(true);
+    expect(startDownloadUpdate).toHaveBeenCalledOnce();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    delete (window as any).electronAPI;
+  });
+
+  it("returns to IDLE when the main process falls back to the release page", async () => {
+    const manager = UpdateManager.getInstance();
+    (window as any).electronAPI = { startDownloadUpdate: vi.fn().mockResolvedValue({ manual: true }) };
+
+    await manager.downloadAndVerifyUpdate();
+    expect(manager.getState()).toBe("IDLE");
+    delete (window as any).electronAPI;
+  });
+
+  it("surfaces an ERROR when the native download fails", async () => {
+    const manager = UpdateManager.getInstance();
+    (window as any).electronAPI = { startDownloadUpdate: vi.fn().mockRejectedValue(new Error("boom")) };
+
+    const ok = await manager.downloadAndVerifyUpdate();
+    expect(ok).toBe(false);
+    expect(manager.getState()).toBe("ERROR");
+    expect(manager.getErrorMessage()).toBe("boom");
+    delete (window as any).electronAPI;
   });
 });
