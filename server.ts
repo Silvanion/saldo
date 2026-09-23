@@ -64,6 +64,8 @@ export async function startServer(customPort?: number) {
           "https://securetoken.googleapis.com",
           "https://firestore.googleapis.com",
           "https://identitytoolkit.googleapis.com",
+          // Kursy walut (src/services/currencyService.ts)
+          "https://api.nbp.pl",
           "http://localhost:11434",
           "http://127.0.0.1:11434",
           // Sprawdzanie/pobieranie aktualizacji (UpdateManager/UpdateToast) łączy
@@ -166,8 +168,12 @@ export async function startServer(customPort?: number) {
   });
 
   return new Promise((resolve, reject) => {
-    const server = app.listen(actualPort, "0.0.0.0", () => {
-      console.log(`Server running on http://0.0.0.0:${actualPort}`);
+    // Desktop: loopback only — binding 0.0.0.0 exposed the local API to the
+    // LAN and triggered the macOS firewall "accept incoming connections?"
+    // prompt on every launch of an unsigned build.
+    const host = process.env.IS_ELECTRON === "true" ? "127.0.0.1" : "0.0.0.0";
+    const server = app.listen(actualPort, host, () => {
+      console.log(`Server running on http://${host}:${actualPort}`);
       resolve(server);
     });
     server.on('error', reject);

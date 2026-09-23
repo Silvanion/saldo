@@ -4,7 +4,9 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // One retry on CI: the dev server compiles on first hit, which made cold
+  // runs occasionally time out (traces are captured on that retry).
+  retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: "list",
   use: {

@@ -69,9 +69,12 @@ export const aiPayloadLimiter = (req: any, res: any, next: any) => {
         return res.status(413).json({ error: "Rozmiar obrazu przekracza limit 3MB." });
       }
     } else {
-      const maxLength = 20000;
+      // /chat carries a trimmed profile snapshot (up to 100 transactions plus
+      // payments, goals, debts…), which routinely exceeds the 20KB text cap.
+      const isChat = req.path === "/chat";
+      const maxLength = isChat ? 150_000 : 20_000;
       if (JSON.stringify(req.body).length > maxLength) {
-        return res.status(413).json({ error: "Zbyt duży rozmiar tekstu (limit 20KB)." });
+        return res.status(413).json({ error: `Zbyt duży rozmiar tekstu (limit ${isChat ? 150 : 20}KB).` });
       }
     }
   }

@@ -235,6 +235,16 @@ export interface AppState {
   updatedAt?: string;
   lastModifiedBy?: string;
   driveFileId?: string | null;
+  /** @deprecated Starszy format (przed przeniesieniem do Profile) — czytane tylko przez stateMigration. */
+  recurringRules?: RecurringRule[];
+  /** @deprecated jw. */
+  transactionRules?: TransactionRule[];
+  /** @deprecated jw. */
+  smartRules?: SmartRule[];
+  /** @deprecated jw. */
+  debts?: DebtItem[];
+  /** @deprecated jw. */
+  debtPayoffScenarios?: DebtPayoffScenario[];
   aiMode?: "none" | "local";
   localAiEndpoint?: string;
   localAiModel?: string;

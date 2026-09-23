@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.2",
+    date: "Wrzesień 2026",
+    title: "Stabilny Start na macOS, Dane Zachowane po Restarcie i Naprawione Aktualizacje",
+    icon: <Shield className="w-5 h-5 text-brand" />,
+    features: [
+      "[Dane Nie Znikają po Restarcie] Aplikacja desktopowa przy każdym uruchomieniu losowała nowy port lokalnego serwera, przez co przeglądarka wbudowana w aplikację widziała za każdym razem pustą bazę — dane nie były kasowane, tylko niewidoczne. Port jest teraz stały, a przy pierwszym uruchomieniu aplikacja wraca do bazy z największą ilością Twoich danych.",
+      "[Start na macOS] Build macOS jest podpisywany (ad-hoc), więc zamiast komunikatu \"aplikacja jest uszkodzona\" można ją otworzyć przez Ustawienia → Prywatność i ochrona → \"Otwórz mimo to\". Lokalny serwer nasłuchuje wyłącznie na 127.0.0.1 — koniec z pytaniem zapory o połączenia przychodzące przy każdym starcie.",
+      "[Aktualizacje] Aplikacja nie proponuje już \"aktualizacji\" do wersji, którą ma zainstalowaną; przycisk \"Uruchom ponownie i zainstaluj\" faktycznie instaluje pobraną wersję; na macOS bez podpisu Apple otwiera się strona wydania do ręcznego pobrania.",
+      "[Czat AI] Czat działa także przy dużych profilach — wysyłany jest skrót ostatnich 100 transakcji zamiast całego profilu, który serwer odrzucał.",
+      "[Kursy Walut] Zasady bezpieczeństwa (CSP) nie blokują już pobierania kursów z API NBP.",
+      "[Bezpieczeństwo] Okna logowania Google/Firebase są dopuszczane po dokładnym sprawdzeniu adresu, a inne okna z dostępem do funkcji systemowych są blokowane."
+    ]
+  },
+  {
     version: "v1.6.0",
     date: "Wrzesień 2026",
     title: "Natywny Wygląd Desktopu: Menu Kontekstowe, Panel \"O Programie\", Przeciąganie Plików z Systemu",

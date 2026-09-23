@@ -39,7 +39,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('window-state-changed', handler);
     return () => ipcRenderer.removeListener('window-state-changed', handler);
   },
-  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  checkForUpdates: (manual = true) => ipcRenderer.invoke('check-for-updates', manual !== false),
   startDownloadUpdate: () => ipcRenderer.invoke('start-download-update'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
   onUpdateProgress: (callback) => {
