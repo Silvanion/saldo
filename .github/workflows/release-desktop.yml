@@ -56,10 +56,16 @@ jobs:
           if [ -n "$CSC_SECRET" ]; then
             export CSC_LINK="$CSC_SECRET"
             export CSC_KEY_PASSWORD="$CSC_KEY_SECRET"
+            npx electron-builder --publish never
           else
+            # No Developer ID certificate: ad-hoc sign instead of skipping
+            # signing entirely. A fully unsigned arm64 bundle is reported by
+            # Gatekeeper as "damaged and can't be opened" (no way around it
+            # without Terminal); an ad-hoc signed one can be opened via
+            # System Settings > Privacy & Security > "Open Anyway".
             export CSC_IDENTITY_AUTO_DISCOVERY=false
+            npx electron-builder --publish never -c.mac.identity=-
           fi
-          npx electron-builder --publish never
 
       - name: Create GitHub Release and upload macOS artifacts
         shell: bash

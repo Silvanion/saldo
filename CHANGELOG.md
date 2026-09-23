@@ -5,6 +5,17 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.2] - Wrzesień 2026
+### Stabilność desktopu (macOS), aktualizacje i poprawki audytu
+- **Krytyczne: dane „znikały” po restarcie** — `electron/main.cjs` losował port serwera przy każdym starcie, a IndexedDB/localStorage są izolowane per origin (z portem). Port jest teraz utrwalany w `userData/server-port.json`; przy pierwszym starcie wybierany jest port największej istniejącej bazy (odzyskanie danych). Przy starcie czyszczone są pozostałe service workery/Cache Storage (nie dane).
+- **Serwer desktopowy nasłuchuje na `127.0.0.1`** zamiast `0.0.0.0` (API niewidoczne w LAN, brak monitu zapory macOS).
+- **Release macOS podpisywany ad-hoc**, gdy brak certyfikatu Developer ID (wcześniej całkowicie niepodpisany → „aplikacja jest uszkodzona” na Apple Silicon).
+- **Aktualizacje**: wersja z `package.json` (`__APP_VERSION__`) zamiast `changelogData[0]` (v1.6.1 raportowała się jako 1.6.0); w Electronie pobieranie zawsze przez `electron-updater` (wcześniej .dmg trafiał do pamięci renderera, a instalacja nic nie robiła); `autoDownload` wyłączone, bez podwójnych okien; błędy pobierania przekazywane do UI; na niepodpisanym macOS otwierana jest strona wydania; plik `latest*.yml` nie jest już używany jako suma SHA-256; odpowiedź 304 pokazuje zapamiętane nowsze wydanie.
+- **Czat AI**: wysyłany skrócony profil (`src/services/aiChatPayload.ts`), limit body dla `/chat` 150 KB — wcześniej profile >100 transakcji / >20 KB dawały 400/413.
+- **CSP**: dodano `https://api.nbp.pl` (kursy walut były blokowane w produkcji).
+- **Bezpieczeństwo okien**: `setWindowOpenHandler`/`will-navigate` sprawdzają sparsowany host zamiast podciągu URL; nieznane schematy są blokowane.
+- **CI**: naprawiono 41 błędów `tsc` (pola legacy w `AppState` przywrócone jako `@deprecated` dla migracji, typ `onUpdateError`, ścieżka importu `SecurityVault`, test `App.test.tsx`).
+
 ## [v1.6.1] - Wrzesień 2026
 ### Refaktoryzacja i Optymalizacja Kodu (wersja stabilizująca)
 - **Naprawiono duplikację pól w typach** — usunięto z `AppState` pola `recurringRules`, `transactionRules`, `smartRules`, `debts`, `debtPayoffScenarios` (pozostają tylko w `Profile`), eliminując ryzyko niespójności danych między profilami.
