@@ -99,7 +99,7 @@ describe('Full App Diagnostic Loop - Forms', () => {
       );
     });
 
-    const allSectionsBtn = await screen.findByText('Wszystkie sekcje', { timeout: 5000 });
+    const allSectionsBtn = await screen.findByText('Wszystkie sekcje', {}, { timeout: 5000 });
     await act(async () => {
       fireEvent.click(allSectionsBtn);
     });

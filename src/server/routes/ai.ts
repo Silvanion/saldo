@@ -216,7 +216,7 @@ router.all("/health", async (req: any, res: Response) => {
       }
       // Test if we can access the key reference in SecurityVault
       try {
-        const { SecurityVault } = await import("../../../services/SecurityVault");
+        const { SecurityVault } = await import("../../services/SecurityVault");
         const keyExists = await SecurityVault.executeWithSecret(
           config.cloudAiConfig.apiKeyRef,
           async (key) => !!key,
