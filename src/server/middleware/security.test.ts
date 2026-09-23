@@ -47,3 +47,31 @@ describe("identifyUser", () => {
     expect(next).toHaveBeenCalledOnce();
   });
 });
+
+describe("aiPayloadLimiter", () => {
+  const makeRes = () => {
+    const res: any = {};
+    res.status = vi.fn(() => res);
+    res.json = vi.fn(() => res);
+    return res;
+  };
+  const bigText = "x".repeat(40_000);
+
+  it("rejects oversized text bodies on regular endpoints", async () => {
+    const { aiPayloadLimiter } = await import("./security");
+    const res = makeRes();
+    const next = vi.fn();
+    aiPayloadLimiter({ path: "/parse-natural", body: { text: bigText } }, res, next);
+    expect(res.status).toHaveBeenCalledWith(413);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("allows a larger profile snapshot on /chat", async () => {
+    const { aiPayloadLimiter } = await import("./security");
+    const res = makeRes();
+    const next = vi.fn();
+    aiPayloadLimiter({ path: "/chat", body: { message: "hi", profileData: { blob: bigText } } }, res, next);
+    expect(next).toHaveBeenCalledOnce();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+});

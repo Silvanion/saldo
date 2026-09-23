@@ -5,6 +5,7 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useApp } from "../app/providers/AppContext";
 import { callAiApi, getAiConfig } from "../services/aiClient";
+import { buildChatProfileData } from "../services/aiChatPayload";
 import { ReasonCard } from "./shared/ReasonCard";
 import type { FinancialActionPlan } from "../types";
 
@@ -42,10 +43,9 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     setLoading(true);
     try {
       // The server's ChatInput schema expects { activeProfileId, profiles: [...] }
-      // (see src/server/routes/ai.ts) — wrap the single active profile to match.
-      const profileData = activeProfile
-        ? { activeProfileId: activeProfile.id, profiles: [activeProfile] }
-        : undefined;
+      // (see src/server/routes/ai.ts) — send a trimmed copy of the active profile
+      // that fits its array caps and body-size limit.
+      const profileData = activeProfile ? buildChatProfileData(activeProfile) : undefined;
       const result = await callAiApi("chat", { message: text, profileData }, getAiConfig(state));
       
       const replyText = typeof result.reply === "string" ? result.reply : (typeof result === "string" ? result : "AI nie zwróciło poprawnej odpowiedzi.");
