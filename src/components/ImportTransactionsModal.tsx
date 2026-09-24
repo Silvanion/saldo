@@ -80,6 +80,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [mapCategory, setMapCategory] = useState("");
   const [mapCurrency, setMapCurrency] = useState("");
   const [mapDirection, setMapDirection] = useState("");
+  const [mapBalance, setMapBalance] = useState("");
   const [defaultCategory, setDefaultCategory] = useState("Inne");
   const [defaultAccount, setDefaultAccount] = useState("Konto główne");
   const [typeStrategy, setTypeStrategy] = useState<"auto" | "expense" | "income">("auto");
@@ -184,6 +185,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       setMapCategory(autoCols.mapCategory);
       setMapCurrency(autoCols.mapCurrency);
       setMapDirection(autoCols.mapDirection);
+      setMapBalance(autoCols.mapBalance || "");
 
       setStep(2);
     } catch (err: any) {
@@ -339,6 +341,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         mapCategory,
         mapCurrency,
         mapDirection,
+        mapBalance,
+        sourceFileName: fileName,
         defaultCategory,
         defaultAccount,
         typeStrategy,
@@ -855,6 +859,20 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                     Wskaż kolumnę, która mówi wprost, czy operacja jest wpływem czy wydatkiem.
                   </p>
                 </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-text-muted">Kolumna salda po operacji (opcjonalnie)</label>
+                  <select value={mapBalance} onChange={(e) => setMapBalance(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
+                    <option value="">-- Brak / Nie mapuj --</option>
+                    {headers.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-text-muted mt-0.5">
+                    Saldo po operacji zostanie zapisane osobno i nie wejdzie do sumy transakcji.
+                  </p>
+                </div>
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-xs font-semibold text-text-muted">Kategoria domyślna</label>
                   <select value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)} className="w-full text-xs rounded-xl border border-border p-2 focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors">
@@ -1070,6 +1088,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                       <th className="py-2.5 px-3">Konto</th>
                       <th className="py-2.5 px-3">Waluta</th>
                       <th className="py-2.5 px-3 text-right">Kwota</th>
+                      {mappedTransactions.some((t) => t.balanceAfter !== undefined) && (
+                        <th className="py-2.5 px-3 text-right">Saldo po operacji</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border bg-bg-base/95 backdrop-blur-2xl">
@@ -1132,9 +1153,30 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                                   <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
                                 </DelayedTooltip>
                               )}
+                              {tx.validationStatus === "VALIDATION_ERROR" && (
+                                <DelayedTooltip label="Błąd walidacji: niepoprawne lub uszkodzone dane rekordu">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-danger shrink-0" />
+                                </DelayedTooltip>
+                              )}
                               {tx.type === "income" ? "+" : "-"} {formatMoney(tx.amount, tx.currency || activeProfile?.currency || "PLN")}
                             </span>
                           </td>
+                          {mappedTransactions.some((t) => t.balanceAfter !== undefined) && (
+                            <td className="py-2 px-3 text-right font-mono text-xs text-text-muted">
+                              {tx.balanceAfter !== undefined ? (
+                                <span className="inline-flex items-center gap-1 justify-end">
+                                  {formatMoney(tx.balanceAfter, tx.currency || activeProfile?.currency || "PLN")}
+                                  {tx.balanceContinuity === "BALANCE_CONTINUITY_ERROR" && (
+                                    <DelayedTooltip label="Niespójność matematyczna salda w tym punkcie wyciągu">
+                                      <AlertTriangle className="w-3 h-3 text-danger shrink-0" />
+                                    </DelayedTooltip>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-text-muted/60" title="Brak salda (np. transakcja nierozliczona)">—</span>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}

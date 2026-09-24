@@ -5,6 +5,19 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.3] - Wrzesień 2026
+### Odporność parserów bankowych CSV/PDF, eliminacja anomalii i walidacja ciągłości salda
+- **Krytyczne usprawnienia parsera CSV (mBank i inne formaty)**:
+  - Inteligentne wykrywanie i pomijanie wieloliniowej preambuły bankowej (do 50 wierszy metadanych banku) — wyeliminowano powstawanie fałszywych transakcji z tekstu adresu banku (np. „Skrytka Pocztowa 2108”).
+  - Rygorystyczna ochrona przed traktowaniem dat jako kwot (`DATE_AS_AMOUNT`, np. 20260904 jako 20 260 904,00 PLN) oraz odrzucanie numerów rachunków bankowych (NRB/IBAN) i identyfikatorów z pól kwotowych.
+  - Precyzyjne wykrywanie separatorów dziesiętnych i tysięcy ze spacjami (`1 234,56 PLN`).
+- **Uodpornienie parsera PDF**:
+  - Prawidłowe ignorowanie zakresów dat w tytułach przelewów (np. świadczenia ZUS `01.10-04.11.2025` nie generują już fałszywych kwot 1,10 PLN).
+  - Automatyczne rozpoznawanie układu tabeli transakcji i kolejności kolumn (Kwota vs Saldo).
+  - Rozdzielenie walidacji poprawności transakcji (`VALID`) od ciągłości salda — nierozliczone transakcje kartowe bez salda po operacji (`-`) zachowują pełny status `VALID` zamiast błędnego `VALIDATION_ERROR`.
+- **Audytor danych i bezpieczny reimport**:
+  - Nowe narzędzia audytorskie (`corruptedDataAuditor`, `reimportAuditor`, `balanceValidator`) umożliwiające bezpieczną inspekcję, diagnostykę rozbieżności oraz podgląd reimportu (Dry-Run) ze źródeł wyciągowych.
+
 ## [v1.6.2] - Wrzesień 2026
 ### Stabilność desktopu (macOS), aktualizacje i poprawki audytu
 - **Krytyczne: dane „znikały” po restarcie** — `electron/main.cjs` losował port serwera przy każdym starcie, a IndexedDB/localStorage są izolowane per origin (z portem). Port jest teraz utrwalany w `userData/server-port.json`; przy pierwszym starcie wybierany jest port największej istniejącej bazy (odzyskanie danych). Przy starcie czyszczone są pozostałe service workery/Cache Storage (nie dane).

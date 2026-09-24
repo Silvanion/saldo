@@ -93,3 +93,24 @@ export function checkDuplicate(
 
   return { isLikelyDuplicate: false };
 }
+
+/**
+ * Wyznacza deterministyczny fingerprint transakcji do bezpiecznej idempotencji importu.
+ * Ten sam wiersz wyciągu zawsze da ten sam fingerprint.
+ * WAŻNE: balanceAfter NIE jest częścią fingerprintu, ponieważ ten sam przelew może mieć
+ * inne lub brakujące saldo po operacji przy nachodzących na siebie wyciągach lub różnych źródłach.
+ */
+export function computeTransactionFingerprint(tx: {
+  name: string;
+  amount: number;
+  type: string;
+  isoDate: string;
+  currency?: string;
+  account?: string;
+  balanceAfter?: number;
+}): string {
+  const normName = normalizeText(tx.name || "").trim();
+  const amt = Math.abs(Number(tx.amount) || 0).toFixed(2);
+  return `${tx.isoDate}|${tx.account || ""}|${tx.currency || "PLN"}|${tx.type}|${amt}|${normName}`;
+}
+

@@ -16,17 +16,61 @@
 
 ---
 
+## 🎯 NOWE ZADANIA (v1.7.0) - Onboarding, Google Sync, UI Polish
+
+### Onboarding Wizard v2.0 (Profesjonalny First-Run Experience)
+- [ ] Nowy styl wizualny: gradientowe tło, animowane karty, micro-interactions
+- [ ] Krok 1: Welcome z ilustracją Lottie/SVG, tagline, CTA
+- [ ] Krok 2: Profil (nazwa, awatar, waluta, typ profilu) - lepszy UX
+- [ ] Krok 3: Bezpieczeństwo - PIN (4-6 cyfr) LUB Hasło (min 8 znaków, strength meter)
+- [ ] Krok 4: Biometria (opcjonalna) - upsell z wyjaśnieniem
+- [ ] **Nowość:** Krok 5: Backup lokalny - eksport zaszyfrowany na dysk (AES-GCM, plik .saldo)
+- [ ] **Nowość:** Krok 6: Google Sync - opcjonalne łączenie z Google Drive + Calendar
+- [ ] **Nowość:** Krok 6b: Google Calendar - uprawnienia do wydarzeń/płatności
+- [ ] Progress bar / stepper z animacją
+- [ ] Dark/Light mode awareness w onboardingzie
+- [ ] Testy E2E dla nowego flow
+
+### Google Integration v2.0 (Optymalizacja & Naprawa)
+- [ ] **Google Auth:** Lepsze obsługa popup blocking / redirect fallback
+- [ ] **Token Management:** Automatyczne odświeżanie tokenów (refresh token rotation)
+- [ ] **Google Drive:** Retry logic (exponential backoff), lepsze error handling
+- [ ] **Google Calendar:** Pełna integracja - sync płatności jako wydarzeń, remindery
+- [ ] **Conflict Resolution:** Lepszy UI konfliktów (diff viewer, merge options)
+- [ ] **Offline Queue:** Kolejka operacji do Google Drive/Calendar przy braku sieci
+- [ ] **Token Storage:** Bezpieczne przechowywanie refresh tokenów w SecurityVault
+- [ ] **Multi-account:** Wsparcie dla wielu kont Google (osobiste/służbowe)
+
+### UI/UX Polish (Ogólne Poprawki)
+- [ ] Design System: spójne spacing, typografia, kolory, cienie
+- [ ] Micro-interactions: hover/tap states, loading skeletons, transitions
+- [ ] Dark mode: poprawne kontrasty, wsparcie system preferences
+- [ ] Accessibility: ARIA labels, focus management, keyboard navigation
+- [ ] Mobile-first: touch-friendly targets, swipe gestures, responsive breakpoints
+- [ ] Performance: lazy loading, code splitting, memoization
+- [ ] Error Boundaries: ładne error UI z retry
+- [ ] Loading states: skeleton loaders, progress indicators
+- [ ] Toast/Notification system: spójne, animowane, dostępne
+
+### Testy i Jakość
+- [ ] E2E Playwright: onboarding flow, google sync, conflict resolution
+- [ ] Visual regression tests (Chromatic/Percy)
+- [ ] Accessibility audit (axe-core)
+- [ ] Performance budgets (Lighthouse CI)
+
+---
+
 ## 📋 BACKLOG PRIORYTETOWY
 
 ### P0 — KRYTYCZNE (Fundamenty)
 
 #### 1. External AI Providers (BYOK) — **CLOUD API** ⚠️
 > **Oznaczenie:** ☁️ **CLOUD API** — wymaga klucza API użytkownika, przechowywanego w SecurityVault
-- [ ] Rozszerzenie `AiConfig` o `cloudProvider`, `cloudModel`, `cloudApiKeyRef`
-- [ ] Nowy provider `CloudProvider` (Gemini, OpenAI, Anthropic, Custom)
-- [ ] UI w Ustawieniach → AI: wybór providera + input klucza (zapis do SecurityVault)
-- [ ] Sanityzacja nagłówków (`SecurityVault.sanitizeHeaders`)
-- [ ] Testy jednostkowe i integracyjne
+- [x] Rozszerzenie `AiConfig` o `cloudProvider`, `cloudModel`, `cloudApiKeyRef`
+- [x] Nowy provider `CloudProvider` (Gemini, OpenAI, Anthropic, Custom)
+- [x] UI w Ustawieniach → AI: wybór providera + input klucza (zapis do SecurityVault)
+- [x] Sanityzacja nagłówków (`SecurityVault.sanitizeHeaders`)
+- [x] Testy jednostkowe i integracyjne
 
 #### 2. End-to-End Encryption (E2EE) dla Sync
 - [ ] Klucz szyfrowania z PIN-u (PBKDF2 100k, AES-GCM)

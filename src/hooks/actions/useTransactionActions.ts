@@ -3,6 +3,7 @@ import { Profile, Transaction, Payment } from "../../types";
 import { autoCategorizeTransaction, getLocalDateIso } from "../../utils";
 import { calculateDebtPaymentBreakdown, calculateDebtPaymentReversal } from "../../services/debtCalculations";
 import { generateEntityId } from "../../utils/id";
+import { computeTransactionFingerprint } from "../../services/duplicateDetector";
 
 interface UseTransactionActionsProps {
   activeProfile: Profile | null;
@@ -134,6 +135,7 @@ export function useTransactionActions({
     (newTransactions: Transaction[]) => {
       updateActiveProfile((p) => {
         const existingIds = new Set(p.transactions.map((t) => t.id));
+        const existingFingerprints = new Set(p.transactions.map(computeTransactionFingerprint));
         const validAndUnique: Transaction[] = [];
 
         for (const tx of newTransactions) {
@@ -142,6 +144,12 @@ export function useTransactionActions({
           }
           const numAmount = Number(tx.amount);
           if (!Number.isFinite(numAmount)) {
+            continue;
+          }
+
+          const fp = computeTransactionFingerprint(tx);
+          if (existingFingerprints.has(fp)) {
+            // Idempotencja: transakcja o identycznych danych już istnieje w profilu
             continue;
           }
 
@@ -155,6 +163,7 @@ export function useTransactionActions({
           }
 
           existingIds.add(tx.id);
+          existingFingerprints.add(fp);
           validAndUnique.push(enrichedTx);
         }
 

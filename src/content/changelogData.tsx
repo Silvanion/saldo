@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.3",
+    date: "Wrzesień 2026",
+    title: "Odporność Parserów Bankowych CSV i PDF, Eliminacja Anomalii oraz Audytor Danych",
+    icon: <Database className="w-5 h-5 text-brand" />,
+    features: [
+      "[Nowy Odporny Parser CSV] Wprowadzono inteligentne rozpoznawanie struktury plików CSV mBanku oraz innych banków. Aplikacja automatycznie pomija preambułę bankową (nagłówki z danymi banku), co trwale wyeliminowało powstawanie fałszywych transakcji z adresu siedziby banku (np. \"Skrytka Pocztowa 2108\").",
+      "[Ochrona Przed Błędami Kwotowymi] Rygorystyczny filtr uniemożliwia potraktowanie dat (np. 2026-09-04 jako 20 260 904,00 PLN), numerów rachunków bankowych (NRB/IBAN) ani identyfikatorów przelewów jako kwot finansowych.",
+      "[Precyzyjny Parser PDF] Uodporniono rozpoznawanie tytułów operacji zawierających zakresy dat (np. świadczenia ZUS \"01.10-04.11.2025\" nie są już dzielone na fałszywe kwoty 1,10 PLN). Usprawniono automatyczną detekcję kolejności kolumn Kwota vs Saldo.",
+      "[Nierozliczone Transakcje Kartowe] Transakcje kartowe bez podanego salda księgowego (\"-\") nie są już oznaczane jako błędne (VALIDATION_ERROR). Są w 100% poprawnie wczytywane z zachowaniem pełnej spójności budżetu.",
+      "[Narzędzia Audytu i Bezpieczeństwo Reimportu] Dodano wbudowane mechanizmy audytu integralności danych (corruptedDataAuditor), walidator ciągłości salda oraz tryb bezpiecznego podglądu (Dry-Run), gwarantujący stuprocentową zgodność sum wpływów i wydatków z wyciągiem bankowym."
+    ]
+  },
+  {
     version: "v1.6.2",
     date: "Wrzesień 2026",
     title: "Stabilny Start na macOS, Dane Zachowane po Restarcie i Naprawione Aktualizacje",

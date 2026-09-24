@@ -156,6 +156,7 @@ export interface ParsedStatementRow {
   category: string;
   categoryIcon: string;
   account: string;
+  balanceAfter?: number;
 }
 
 /** Komórka wygląda na datę tylko wtedy, gdy ma kształt daty — inaczej new Date("2026") zjadłoby kwotę. */
@@ -185,14 +186,25 @@ export function parseStatementText(
   const separator = detectCsvSeparator(cleaned);
   const rows: ParsedStatementRow[] = [];
 
+  // Wykrycie kolejności kolumn Saldo vs Kwota z ewentualnego wiersza nagłówka
+  let saldoBeforeKwota = false;
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    const kwotaPos = lower.search(/kwota|wartość|amount/i);
+    const saldoPos = lower.search(/saldo|stan konta|balance/i);
+    if (kwotaPos !== -1 && saldoPos !== -1) {
+      saldoBeforeKwota = saldoPos < kwotaPos;
+      break;
+    }
+  }
+
   for (const line of lines) {
     const parts = line.split(separator).map((p) => p.trim()).filter(Boolean);
     if (parts.length < 2) continue;
 
-    let name = "";
-    let amount: number | null = null;
-    let isNegative = false;
     let isoDate = referenceDate;
+    const nonAmountParts: string[] = [];
+    const amountCandidates: Array<{ raw: string; amount: number; isNegative: boolean }> = [];
 
     for (const part of parts) {
       if (DATE_CELL.test(part)) {
@@ -203,23 +215,48 @@ export function parseStatementText(
         }
       }
 
-      if (amount === null && AMOUNT_CELL.test(part)) {
+      if (HEADER_CELL.test(part)) continue;
+
+      if (AMOUNT_CELL.test(part)) {
         const parsedAmount = parseCsvAmount(part);
-        // Number.isFinite odsiewa "1e999" → Infinity, którego parseCsvAmount nie blokuje.
         if (parsedAmount && Number.isFinite(parsedAmount.amount) && parsedAmount.amount > 0) {
-          amount = parsedAmount.amount;
-          isNegative = parsedAmount.isNegative;
+          amountCandidates.push({ raw: part, amount: parsedAmount.amount, isNegative: parsedAmount.isNegative });
           continue;
         }
       }
 
-      if (HEADER_CELL.test(part)) continue;
-      if (part.length > 2 && !name) name = part;
+      nonAmountParts.push(part);
     }
 
-    if (amount === null) continue;
+    if (amountCandidates.length === 0) continue;
 
-    const finalName = name || "Transakcja";
+    let amount = 0;
+    let isNegative = false;
+    let balanceAfter: number | undefined = undefined;
+
+    if (amountCandidates.length >= 2) {
+      const signedIdx = amountCandidates.findIndex((c) => c.isNegative || c.raw.startsWith("+") || c.raw.startsWith("-"));
+      if (signedIdx !== -1) {
+        amount = amountCandidates[signedIdx].amount;
+        isNegative = amountCandidates[signedIdx].isNegative;
+        const otherIdx = signedIdx === 0 ? amountCandidates.length - 1 : 0;
+        balanceAfter = amountCandidates[otherIdx].amount;
+      } else if (saldoBeforeKwota) {
+        balanceAfter = amountCandidates[0].amount;
+        amount = amountCandidates[amountCandidates.length - 1].amount;
+        isNegative = amountCandidates[amountCandidates.length - 1].isNegative;
+      } else {
+        amount = amountCandidates[0].amount;
+        isNegative = amountCandidates[0].isNegative;
+        balanceAfter = amountCandidates[amountCandidates.length - 1].amount;
+      }
+    } else {
+      amount = amountCandidates[0].amount;
+      isNegative = amountCandidates[0].isNegative;
+    }
+
+    // Wybieramy opis wyłącznie z fragmentów niebędących kwotą, żeby saldo nigdy nie wyciekło do nazwy
+    const finalName = nonAmountParts.find((p) => p.length > 2) || "Transakcja";
     const type: "income" | "expense" = isNegative ? "expense" : "income";
     const fallbackCategory = type === "income" ? "Wynagrodzenie" : "Inne";
     const { category, categoryIcon } = autoCategorizeTransaction(finalName, rules, fallbackCategory);
@@ -231,7 +268,8 @@ export function parseStatementText(
       isoDate,
       category,
       categoryIcon,
-      account: defaultAccount
+      account: defaultAccount,
+      balanceAfter
     });
   }
 

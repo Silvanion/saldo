@@ -22,7 +22,20 @@ export interface Transaction {
   paidBy?: "me" | "partner" | "joint";
   splitMode?: "none" | "equal";
   currency: SupportedCurrency;
+  balanceAfter?: number;
+  rawSource?: string;
+  sourceFile?: string;
+  sourceRow?: number;
+  validationStatus?: "VALID" | "NEEDS_REVIEW" | "VALIDATION_ERROR";
+  balanceContinuity?: BalanceContinuityStatus;
 }
+
+export type BalanceContinuityStatus =
+  | "VALID"
+  | "UNKNOWN"
+  | "CONTINUITY_UNVERIFIABLE"
+  | "BALANCE_CONTINUITY_WARNING"
+  | "BALANCE_CONTINUITY_ERROR";
 
 export interface Payment {
   id: string;

@@ -4,6 +4,7 @@ import { checkDuplicate } from "./duplicateDetector";
 import { parseCsvAmount, parseCsvDate } from "./parseCsv";
 import { detectDirection, matchDirectionValue, type ImportDirectionInfo } from "./directionDetector";
 import { generateEntityId } from "../utils/id";
+import { validateTransactionsBalanceContinuity } from "./balanceValidator";
 
 // A too-large or too-long PDF (an adversarial file, or a merged multi-year
 // statement) could otherwise hang the import UI indefinitely with no
@@ -19,7 +20,24 @@ function assertPdfFileSizeOk(file: File): void {
 
 const DATE_IN_ROW = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/;
 const DATE_IN_ROW_GLOBAL = /\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b/g;
-const AMOUNT_IN_ROW = /(?<![\d-])(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?\s?[-−]?/gi;
+
+/** Zakresy dat: np. "01.10-04.11.2025", "01.10–04.11", "01.10 - 04.11.2025", "od 01.10 do 04.11" */
+const DATE_RANGE_REGEX = /(?:\bod\s+)?\b\d{1,2}[./-]\d{1,2}(?:[./-]\d{2,4})?\s*(?:[-–—]|(?:\bdo\b))\s*\d{1,2}[./-]\d{1,2}(?:[./-]\d{2,4})?\b/gi;
+
+/** Okresy miesięczne: np. "za 08.2025", "10.2025" */
+const MONTH_YEAR_REGEX = /(?:\bza\s+)?\b(?:0?[1-9]|1[0-2])[./]\d{4}\b/gi;
+
+/** Pozostałości po zakresach dat ze znakiem myślnika: np. "01.10-", "-04.11" */
+const DANGLING_DATE_HYPHEN_REGEX = /\b\d{1,2}[./]\d{1,2}\s*[-–—]|[-–—]\s*\d{1,2}[./]\d{1,2}\b/g;
+
+/**
+ * Regex kwoty transakcji w wierszu wyciągu.
+ * Wymaga granicy liczbowej/datowej przed i po kwocie:
+ * - Nie dopasowuje fragmentu 4-cyfrowego roku (np. 2025 nie staje się 20,25)
+ * - Wymaga (?!\d) po groszach, aby nie dopasować daty jako kwoty z uciętą końcówką
+ */
+const AMOUNT_IN_ROW = /(?<![\d./-])(?:[-−]?\(?\d[\d\s]*(?:[.,]\d{3})*(?:[.,]\d{2})\)?)(?:\s?(?:PLN|EUR|USD|GBP|zł))?(?:\s?[-−](?!\d))?(?![./\d])/gi;
+
 
 export interface PdfImportResult {
   transactions: Transaction[];
@@ -27,6 +45,11 @@ export interface PdfImportResult {
   extractedText: string;
   /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
   directions: ImportDirectionInfo[];
+  balanceStats?: {
+    validContinuity: number;
+    warningContinuity: number;
+    errorContinuity: number;
+  };
 }
 
 export interface AiPdfTransaction {
@@ -47,7 +70,7 @@ export interface AiPdfTransaction {
  * a hasEOL domyka go tam, gdzie PDF wprost kończy linię.
  */
 function reconstructPageLines(items: unknown[]): string {
-  const chunks: Array<{ str: string; y: number; hasEOL: boolean }> = [];
+  const chunks: Array<{ str: string; x: number; y: number; hasEOL: boolean }> = [];
 
   for (const item of items) {
     const candidate = item as { str?: unknown; transform?: unknown; hasEOL?: unknown };
@@ -55,34 +78,41 @@ function reconstructPageLines(items: unknown[]): string {
     const transform = Array.isArray(candidate.transform) ? candidate.transform : [];
     chunks.push({
       str: candidate.str,
+      x: typeof transform[4] === "number" ? transform[4] : 0,
       y: typeof transform[5] === "number" ? transform[5] : 0,
       hasEOL: candidate.hasEOL === true
     });
   }
 
-  const lines: string[] = [];
-  let currentY: number | null = null;
-  let currentLine = "";
-
-  const flush = () => {
-    const line = currentLine.replace(/\s+/g, " ").trim();
-    if (line) lines.push(line);
-    currentLine = "";
-  };
-
+  // Grupujemy wiersze według współrzędnej pionowej Y (tolerancja ~3px)
+  const lineGroups: Array<{ y: number; chunks: typeof chunks }> = [];
   for (const chunk of chunks) {
-    if (currentY === null || Math.abs(chunk.y - currentY) > 2) {
-      flush();
-      currentY = chunk.y;
+    let group = lineGroups.find((g) => Math.abs(g.y - chunk.y) <= 3);
+    if (!group) {
+      group = { y: chunk.y, chunks: [] };
+      lineGroups.push(group);
     }
-    currentLine += `${currentLine ? " " : ""}${chunk.str}`;
-    if (chunk.hasEOL) {
-      flush();
-      currentY = null;
+    group.chunks.push(chunk);
+  }
+
+  // Sortujemy linie z góry na dół (Y malejąco w układzie współrzędnych PDF)
+  lineGroups.sort((a, b) => b.y - a.y);
+
+  const lines: string[] = [];
+  for (const group of lineGroups) {
+    // W ramach jednego wiersza sortujemy kolumny ściśle od lewej do prawej (X rosnąco),
+    // co eliminuje przesunięcia kolumn spowodowane kolejnością renderowania w PDF.
+    group.chunks.sort((a, b) => a.x - b.x);
+    const lineText = group.chunks
+      .map((c) => c.str)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (lineText) {
+      lines.push(lineText);
     }
   }
 
-  flush();
   return lines.join("\n");
 }
 
@@ -156,7 +186,10 @@ function buildTransaction(
   date: string,
   currency: SupportedCurrency,
   account: string,
-  rules: TransactionRule[]
+  rules: TransactionRule[],
+  balanceAfter?: number,
+  rawSource?: string,
+  validationStatus: "VALID" | "NEEDS_REVIEW" | "VALIDATION_ERROR" = "VALID"
 ): Transaction {
   const categorized = autoCategorizeTransaction(name, rules, "Inne");
   return {
@@ -168,7 +201,10 @@ function buildTransaction(
     category: categorized.category,
     categoryIcon: categorized.categoryIcon || iconByCategory[categorized.category] || "✨",
     account,
-    currency
+    currency,
+    balanceAfter,
+    rawSource,
+    validationStatus
   };
 }
 
@@ -245,6 +281,67 @@ export function normalizeAiPdfTransactions(
   return { transactions, rejectedRows, directions };
 }
 
+export type PdfTableLayout =
+  | "KWOTA_THEN_SALDO"
+  | "SALDO_THEN_KWOTA"
+  | "DEBIT_CREDIT_SALDO"
+  | "CREDIT_DEBIT_SALDO"
+  | "KWOTA_ONLY"
+  | "UNKNOWN";
+
+/**
+ * Rozpoznaje układ kolumn w tabeli wyciągu PDF na podstawie wiersza nagłówka.
+ * Eliminuje zgadywanie kolejności kolumn (Kwota vs Saldo).
+ */
+export function detectPdfTableLayout(text: string): {
+  layout: PdfTableLayout;
+  headerLine?: string;
+} {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    const hasDate = /data|date/i.test(lower);
+    const hasKwota = /kwota|wartość|amount/i.test(lower);
+    const hasSaldo = /saldo|stan konta|balance/i.test(lower);
+    const hasDebit = /obciążen|wydatek|wydatki|debit/i.test(lower);
+    const hasCredit = /uznan|wpływ|wpływy|credit/i.test(lower);
+    const hasDesc = /opis|tytuł|szczegóły|treść|details|description/i.test(lower);
+
+    if ((hasDate || hasDesc) && (hasKwota || hasSaldo || (hasDebit && hasCredit))) {
+      // 1. Osobne kolumny obciążeń i uznań
+      if (hasDebit && hasCredit) {
+        const debitPos = lower.search(/obciążen|wydatek|wydatki|debit/i);
+        const creditPos = lower.search(/uznan|wpływ|wpływy|credit/i);
+        if (debitPos !== -1 && creditPos !== -1) {
+          return {
+            layout: debitPos < creditPos ? "DEBIT_CREDIT_SALDO" : "CREDIT_DEBIT_SALDO",
+            headerLine: line
+          };
+        }
+      }
+
+      // 2. Kolumny Kwota oraz Saldo
+      if (hasKwota && hasSaldo) {
+        const kwotaPos = lower.search(/kwota|wartość|amount/i);
+        const saldoPos = lower.search(/saldo|stan konta|balance/i);
+        if (kwotaPos !== -1 && saldoPos !== -1) {
+          return {
+            layout: kwotaPos < saldoPos ? "KWOTA_THEN_SALDO" : "SALDO_THEN_KWOTA",
+            headerLine: line
+          };
+        }
+      }
+
+      // 3. Tylko kwota
+      if (hasKwota && !hasSaldo) {
+        return { layout: "KWOTA_ONLY", headerLine: line };
+      }
+    }
+  }
+
+  return { layout: "UNKNOWN" };
+}
+
 export function parsePdfTransactions(
   text: string,
   options: {
@@ -258,6 +355,14 @@ export function parsePdfTransactions(
   const directions: ImportDirectionInfo[] = [];
   const operationsIndex = text.search(/\bOperacje\b/i);
   const statementText = operationsIndex >= 0 ? text.slice(operationsIndex) : text;
+  
+  // Rozpoznanie układu tabeli (pozycja kolumn Kwota vs Saldo w nagłówku)
+  let detectedLayout = detectPdfTableLayout(statementText);
+  if (detectedLayout.layout === "UNKNOWN" && operationsIndex >= 0) {
+    detectedLayout = detectPdfTableLayout(text);
+  }
+  const isLayoutKnown = detectedLayout.layout !== "UNKNOWN";
+
   const dateAtLineStart = /^\s*(?:\d{1,2}[./-]\d{1,2}[./-]\d{4}\b|\d{4}[./-]\d{1,2}[./-]\d{1,2}\b)/;
   const lines: string[] = [];
   let currentLine = "";
@@ -270,10 +375,6 @@ export function parsePdfTransactions(
   });
   if (currentLine.trim()) lines.push(currentLine);
 
-  // Rozpoznanie wiersza rozdzielamy od decyzji o kierunku: najpierw zbieramy
-  // wszystkich kandydatów, żeby wiedzieć, czy w dokumencie w ogóle występują
-  // kwoty ujemne. Bez tego znak kwoty nie mówi nic o kierunku i nie wolno na
-  // jego podstawie po cichu zakładać przychodu.
   const candidates = lines
     .map((raw, index) => {
       const row = raw.replace(/\s+/g, " ").trim();
@@ -283,18 +384,82 @@ export function parsePdfTransactions(
 
       const date = parseCsvDate(dateMatch[0]);
       const amountSearchRow = row
+        .replace(DATE_RANGE_REGEX, " ")
+        .replace(MONTH_YEAR_REGEX, " ")
+        .replace(DANGLING_DATE_HYPHEN_REGEX, " ")
         .replace(dateMatch[0], " ")
         .replace(DATE_IN_ROW_GLOBAL, " ");
-      const amountMatches = [...amountSearchRow.matchAll(AMOUNT_IN_ROW)];
-      const amountMatch = amountMatches[0]?.[0];
+      const amountMatches = [...amountSearchRow.matchAll(AMOUNT_IN_ROW)]
+        .map((m) => m[0].trim())
+        .filter((m) => parseCsvAmount(m) !== null);
+
+      let amountMatch: string | undefined = undefined;
+      let balanceMatch: string | undefined = undefined;
+      let rowStatus: "VALID" | "NEEDS_REVIEW" | "VALIDATION_ERROR" = isLayoutKnown ? "VALID" : "NEEDS_REVIEW";
+
+      const currencyMatches = amountMatches.filter((m) => /(?:PLN|EUR|USD|GBP|zł)/i.test(m));
+
+      if (detectedLayout.layout === "KWOTA_ONLY") {
+        // Tabela BEZ kolumny saldo: Nigdy nie twórz balanceAfter!
+        balanceMatch = undefined;
+        if (currencyMatches.length === 1) {
+          amountMatch = currencyMatches[0];
+          rowStatus = "VALID";
+        } else if (amountMatches.length === 1) {
+          amountMatch = amountMatches[0];
+          rowStatus = "VALID";
+        } else if (currencyMatches.length > 1) {
+          // Więcej niż jedno dopasowanie z walutą w KWOTA_ONLY: bierzemy pierwsze, ale oznaczamy do weryfikacji
+          amountMatch = currencyMatches[0];
+          rowStatus = "NEEDS_REVIEW";
+        } else if (amountMatches.length > 1) {
+          // Brak waluty, wiele liczb: niejednoznaczne
+          amountMatch = amountMatches[0];
+          rowStatus = "NEEDS_REVIEW";
+        }
+      } else if (amountMatches.length >= 2) {
+        if (detectedLayout.layout === "SALDO_THEN_KWOTA") {
+          // Układ: Saldo znajduje się PRZED kwotą transakcji
+          balanceMatch = amountMatches[0];
+          amountMatch = amountMatches[amountMatches.length - 1];
+          rowStatus = "VALID";
+        } else if (detectedLayout.layout === "KWOTA_THEN_SALDO") {
+          // Układ standardowy: Kwota transakcji znajduje się PRZED saldem
+          amountMatch = amountMatches[0];
+          balanceMatch = amountMatches[amountMatches.length - 1];
+          rowStatus = "VALID";
+        } else {
+          // Układ nieznany (UNKNOWN):
+          // Jeśli dokładnie jedno dopasowanie ma walutę, to jest to kwota
+          if (currencyMatches.length === 1) {
+            amountMatch = currencyMatches[0];
+            const other = amountMatches.find((m) => m !== amountMatch);
+            balanceMatch = other;
+          } else {
+            amountMatch = amountMatches[0];
+            balanceMatch = amountMatches[amountMatches.length - 1];
+          }
+          rowStatus = "NEEDS_REVIEW";
+        }
+      } else if (amountMatches.length === 1) {
+        amountMatch = amountMatches[0];
+        rowStatus = isLayoutKnown ? "VALID" : "NEEDS_REVIEW";
+      }
+
       const parsedAmount = amountMatch ? parseCsvAmount(amountMatch) : null;
-      const name = row
-        .replace(dateMatch[0], "")
-        .replace(amountMatch || "", "")
+      const parsedBalance = balanceMatch ? parseCsvAmount(balanceMatch) : null;
+      const balanceAfter = parsedBalance ? (parsedBalance.isNegative ? -parsedBalance.amount : parsedBalance.amount) : undefined;
+
+      // Usuwamy datę oraz WSZYSTKIE dopasowane kwoty/salda z nazwy transakcji
+      let name = row.replace(dateMatch[0], "");
+      for (const m of amountMatches) {
+        name = name.replace(m, " ");
+      }
+      name = name
         .replace(/\s+/g, " ")
         .replace(/^[\s|;:-]+|[\s|;:-]+$/g, "");
 
-      return { index, row, date, parsedAmount, name };
+      return { index, row, date, parsedAmount, balanceAfter, name, rowStatus };
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 
@@ -302,7 +467,7 @@ export function parsePdfTransactions(
     (candidate) => candidate.parsedAmount !== null && candidate.parsedAmount.isNegative
   );
 
-  candidates.forEach(({ index, row, date, parsedAmount, name }) => {
+  candidates.forEach(({ index, row, date, parsedAmount, balanceAfter, name, rowStatus }) => {
     if (!date || !parsedAmount || name.length < 2) {
       rejectedRows.push({
         row: index + 1,
@@ -323,17 +488,25 @@ export function parsePdfTransactions(
       date,
       options.currency,
       options.account,
-      options.rules
+      options.rules,
+      balanceAfter,
+      row,
+      rowStatus
     );
     transactions.push(transaction);
     directions.push({
       transactionId: transaction.id,
       source: decision.source,
-      confident: decision.confident
+      confident: decision.confident && rowStatus === "VALID"
     });
   });
 
-  return { transactions, rejectedRows, extractedText: text, directions };
+  // Walidacja ciągłości salda (Balance Continuity)
+  // WAŻNE: Nie modyfikuje validationStatus (kwota, data i typ pozostają VALID).
+  // Status ciągłości salda zapisywany jest w odrębnym polu balanceContinuity.
+  const { stats: balanceStats } = validateTransactionsBalanceContinuity(transactions);
+
+  return { transactions, rejectedRows, extractedText: text, directions, balanceStats };
 }
 
 export function findPdfDuplicates(

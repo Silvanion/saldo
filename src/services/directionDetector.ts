@@ -73,12 +73,12 @@ function normalize(value: string): string {
  */
 const DIRECTION_VALUE_RULES: ReadonlyArray<readonly [RegExp, TransactionDirection]> = [
   [
-    /\b(expense|wydat\w*|obciaz\w*|wyplat\w*|payment|platn\w*|withdrawal|debit|wychodzac\w*)\b/,
+    /\b(expense|wydat\w*|obciaz\w*|wyplat\w*|payment|platn\w*|withdrawal|debit|wychodzac\w*|winien|wn)\b/,
     "expense"
   ],
   [/\bfee\b/, "expense"],
   [
-    /\b(income|przychod\w*|wplyw\w*|uznanie|uznania|deposit|credit|przychodzac\w*)\b/,
+    /\b(income|przychod\w*|wplyw\w*|uznanie|uznania|deposit|credit|przychodzac\w*|ma)\b/,
     "income"
   ],
   [/\btop\s?up\b/, "income"]
@@ -124,6 +124,7 @@ export function looksLikeDirectionColumn(header: string): boolean {
   return (
     /^(typ|kierunek|rodzaj|direction|type)( (operacji|transakcji))?$/.test(h) ||
     /^(cr|dr) ?\/ ?(cr|dr)$/.test(h) ||
+    /^(wn|ma) ?\/ ?(wn|ma)$/.test(h) ||
     /^debit ?\/ ?credit$/.test(h)
   );
 }
@@ -131,13 +132,13 @@ export function looksLikeDirectionColumn(header: string): boolean {
 /** Nagłówki kolumn zawierających wyłącznie obciążenia (wydatki). */
 export function looksLikeDebitColumn(header: string): boolean {
   const h = normalize(header).replace(/^#\s*/, "").trim();
-  return /^(kwota )?(obciazenia|obciazenie|wydatki|debit|wyplaty)$/.test(h);
+  return /^(kwota )?(obciazenia|obciazenie|wydatki|debit|wyplaty|winien|wn)$/.test(h);
 }
 
 /** Nagłówki kolumn zawierających wyłącznie uznania (wpływy). */
 export function looksLikeCreditColumn(header: string): boolean {
   const h = normalize(header).replace(/^#\s*/, "").trim();
-  return /^(kwota )?(uznania|uznanie|wplywy|credit|wplaty)$/.test(h);
+  return /^(kwota )?(uznania|uznanie|wplywy|credit|wplaty|ma)$/.test(h);
 }
 
 /**
