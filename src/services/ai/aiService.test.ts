@@ -66,7 +66,7 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
       expect(gemini.availableModels.some(m => m.recommended)).toBe(true);
 
       const anthropic = providerRegistry.getAdapter("anthropic")!;
-      expect(anthropic.defaultModel).toBe("claude-3-5-sonnet-latest");
+      expect(anthropic.defaultModel).toBe("claude-3-7-sonnet-latest");
       expect(anthropic.availableModels.some(m => m.recommended)).toBe(true);
     });
   });

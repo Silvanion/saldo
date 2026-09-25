@@ -11,14 +11,19 @@ import {
 export class AnthropicProvider implements AIProviderAdapter {
   readonly name: AIProviderType = "anthropic";
   readonly displayName = "Anthropic (Claude)";
-  readonly defaultModel = "claude-3-5-sonnet-latest";
+  readonly defaultModel = "claude-3-7-sonnet-latest";
 
   readonly availableModels: AIModelDefinition[] = [
     {
+      id: "claude-3-7-sonnet-latest",
+      name: "Claude 3.7 Sonnet",
+      description: "Flagowy model z hybrydowym wnioskowaniem i trybem myślenia (zalecany)",
+      recommended: true
+    },
+    {
       id: "claude-3-5-sonnet-latest",
       name: "Claude 3.5 Sonnet",
-      description: "Najwyższy poziom wnioskowania i analizy finansowej (zalecany)",
-      recommended: true
+      description: "Sprawdzony model o wysokim poziomie wnioskowania i analizy finansowej"
     },
     {
       id: "claude-3-5-haiku-latest",
@@ -26,9 +31,39 @@ export class AnthropicProvider implements AIProviderAdapter {
       description: "Błyskawiczny, lekki i bardzo ekonomiczny model"
     },
     {
+      id: "claude-sonnet-5",
+      name: "Claude Sonnet 5",
+      description: "Nowa generacja do zaawansowanych i długich zadań analitycznych"
+    },
+    {
+      id: "claude-opus-5-5",
+      name: "Claude Opus 5.5",
+      description: "Flagowy model nowej generacji do najgłębszych analiz"
+    },
+    {
+      id: "claude-haiku-4-5",
+      name: "Claude Haiku 4.5",
+      description: "Ultraszybki i oszczędny model nowej generacji"
+    },
+    {
       id: "claude-3-opus-latest",
       name: "Claude 3 Opus",
-      description: "Model do głębokiej i złożonej analizy długich kontekstów"
+      description: "Model do złożonej analizy bardzo długich kontekstów"
+    },
+    {
+      id: "claude-3-7-sonnet-20250219",
+      name: "Claude 3.7 Sonnet (2025-02-19)",
+      description: "Wersja ze stałym identyfikatorem daty"
+    },
+    {
+      id: "claude-3-5-sonnet-20241022",
+      name: "Claude 3.5 Sonnet v2 (2024-10-22)",
+      description: "Wersja ze stałym identyfikatorem daty"
+    },
+    {
+      id: "claude-3-5-haiku-20241022",
+      name: "Claude 3.5 Haiku (2024-10-22)",
+      description: "Wersja ze stałym identyfikatorem daty"
     }
   ];
 

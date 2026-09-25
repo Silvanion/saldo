@@ -1153,7 +1153,7 @@ export const faqData: FaqEntry[] = [
   },
   {
     question: "Czy mogę używać modeli AI z chmury jak Gemini lub Claude (BYOK)?",
-    answer: "Tak. Aplikacja wspiera najnowsze modele Google Gemini (w tym Gemini 3.8 Flash, 3.7 Flash, 3.5 Flash, 3.1 Pro, a także powszechnie dostępne 2.0 Flash i 1.5 Pro) oraz Anthropic Claude (Claude 3.5 Sonnet, 3.5 Haiku) poprzez integrację własnego klucza API (Bring Your Own Key). Twój klucz jest bezpiecznie szyfrowany w magazynie kluczy (macOS Keychain lub WebCrypto) i nigdy nie opuszcza urządzenia. AI otrzymuje jedynie zagregowane podsumowania bez historii transakcji, gwarantując maksymalną prywatność."
+    answer: "Tak. Aplikacja wspiera najnowsze modele Google Gemini (w tym Gemini 3.8 Flash, 3.7 Flash, 3.5 Flash, 3.1 Pro, a także 2.0 Flash i 1.5 Pro) oraz Anthropic Claude (w tym Claude 3.7 Sonnet z trybem myślenia, Claude 3.5 Sonnet, 3.5 Haiku, Sonnet 5) poprzez integrację własnego klucza API (Bring Your Own Key). Twój klucz jest bezpiecznie szyfrowany w magazynie kluczy (macOS Keychain lub WebCrypto) i nigdy nie opuszcza urządzenia. AI otrzymuje jedynie zagregowane podsumowania bez historii transakcji, gwarantując maksymalną prywatność."
   },
   {
     question: "Dlaczego mój profil ma status Kondycji 'Brak wystarczających danych'?",
