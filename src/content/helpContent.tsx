@@ -896,7 +896,15 @@ export const helpSectionsData: HelpSectionData[] = [
             Gdy wbudowany parser nie poradzi sobie z nietypowym formatem wyciągu, możesz włączyć w Ustawieniach dodatkową warstwę rozpoznawania opartą o model językowy uruchomiony lokalnie na Twoim komputerze przez <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium">Ollama</a>. Przeglądarka łączy się bezpośrednio z <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">localhost</code> — nic nie opuszcza urządzenia.
           </p>
 
-          <MockScreenShot title="Lokalne AI — sugestia kategorii z wyciągu" badge="Ollama · Offline">
+          <h5 className="font-bold text-text-main text-xs sm:text-sm flex items-center gap-2 mb-2 mt-4">
+            <ShieldCheck className="w-4 h-4 text-brand" />
+            Zewnętrzne modele AI (Gemini, Claude) i Bring Your Own Key
+          </h5>
+          <p className="text-xs text-text-muted leading-relaxed mb-3">
+            Możesz podłączyć zaawansowane modele <strong>Google Gemini</strong> lub <strong>Anthropic Claude</strong>, podając własny klucz API w Ustawieniach. Klucz jest bezpiecznie szyfrowany na Twoim urządzeniu. Co ważne, z modelem wymieniane są jedynie zagregowane statystyki – aplikacja chroni Twoją prywatność i ukrywa historię transakcji, PESEL czy dokładne numery kont.
+          </p>
+
+          <MockScreenShot title="Lokalne AI — sugestia kategorii z wyciągu" badge="Ollama / API">
             <MockLocalAiVisual />
           </MockScreenShot>
 
@@ -1142,6 +1150,14 @@ export const faqData: FaqEntry[] = [
   {
     question: "Jak działa samonaprawa (Self-Healing) w Doktorze Saldo?",
     answer: "Doktor Saldo analizuje bazę pod kątem 6 typów anomalii (np. przypadkowe duplikaty po imporcie CSV czy desynchronizacja kwot celów). Kliknięcie przycisku 'Napraw wszystko automatycznie' koryguje znalezione problemy w ułamku sekundy, a system automatycznie zapisuje kopię cofania (Undo), dzięki czemu możesz odwrócić operację w dowolnym momencie."
+  },
+  {
+    question: "Czy mogę używać modeli AI z chmury jak Gemini lub Claude (BYOK)?",
+    answer: "Tak. Aplikacja wspiera modele Google Gemini oraz Anthropic Claude poprzez integrację własnego klucza API (Bring Your Own Key). Twój klucz jest bezpiecznie szyfrowany w magazynie kluczy (macOS Keychain lub WebCrypto) i nigdy nie opuszcza urządzenia. AI otrzymuje jedynie zagregowane podsumowania bez historii transakcji, gwarantując maksymalną prywatność."
+  },
+  {
+    question: "Dlaczego mój profil ma status Kondycji 'Brak wystarczających danych'?",
+    answer: "Dla nowych profilów bez historii transakcji wskaźnik Kondycji Finansowej (Financial Health) zwraca specjalny status, aby uniknąć sugerowania sztucznych wyników. Wystarczy dodać pierwsze transakcje, a aplikacja od razu zacznie wyliczać odpowiedni wskaźnik zdrowia finansowego."
   }
 ];
 
