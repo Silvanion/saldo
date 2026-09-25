@@ -28,7 +28,9 @@ export function FinancialHealthSection({
   }, [profile, recurringRules, selectedDate]);
 
   const gradeBadgeClass =
-    health.grade === "excellent"
+    health.status === "INSUFFICIENT_DATA" || health.score === null
+      ? "bg-surface-2 text-text-muted border-border"
+      : health.grade === "excellent"
       ? "bg-brand-subtle text-brand border-brand/30"
       : health.grade === "good"
       ? "bg-success-subtle text-success border-success/30"
@@ -56,7 +58,10 @@ export function FinancialHealthSection({
     if (status === "fair") {
       return "bg-warning-subtle text-warning border-warning/20";
     }
-    return "bg-danger-subtle text-danger border-danger/20";
+    if (status === "poor") {
+      return "bg-danger-subtle text-danger border-danger/20";
+    }
+    return "bg-surface-3 text-text-muted border-border";
   };
 
   const pillarsList: HealthPillar[] = [
@@ -93,10 +98,10 @@ export function FinancialHealthSection({
         <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0 bg-surface-2 p-2.5 px-4 rounded-xl sm:rounded-2xl border border-border shadow-xs">
           <div className="text-left sm:text-right">
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-faint block">Wynik</span>
-            <span className="text-xs font-bold text-text-muted">na 100 pkt</span>
+            <span className="text-xs font-bold text-text-muted">{health.score !== null ? "na 100 pkt" : "Brak danych"}</span>
           </div>
           <span className="text-2xl sm:text-3xl font-black text-text-main tabular-nums tracking-tight" id="financial-health-score">
-            {health.score}
+            {health.score !== null ? health.score : "—"}
           </span>
         </div>
       </div>
@@ -114,7 +119,7 @@ export function FinancialHealthSection({
                 <span className="text-xs font-bold text-text-main truncate">{pillar.name}</span>
               </div>
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${getPillarPill(pillar.status)}`}>
-                {pillar.score}/{pillar.maxScore}
+                {pillar.score !== null ? `${pillar.score}/${pillar.maxScore}` : "— / 25"}
               </span>
             </div>
             <p className="text-[11px] text-text-muted leading-tight line-clamp-2" title={pillar.summary}>
@@ -124,8 +129,18 @@ export function FinancialHealthSection({
         ))}
       </div>
 
-      {/* Low-data advisory */}
-      {health.isLowData && (
+      {/* Insufficient-data or Low-data advisory */}
+      {health.status === "INSUFFICIENT_DATA" ? (
+        <div className="flex items-start gap-2.5 p-3.5 sm:p-4 bg-surface-2 rounded-xl border border-border text-xs text-text-main">
+          <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-text-main">Brak wystarczających danych do oceny</p>
+            <p className="text-text-muted leading-relaxed">
+              Ocena wstępna. <strong>Dodaj płatności, budżety lub historię wydatków</strong>, aby uzyskać pełniejszą analizę kondycji.
+            </p>
+          </div>
+        </div>
+      ) : health.isLowData && (
         <div className="flex items-start gap-2.5 p-3 sm:p-3.5 bg-brand-subtle/50 rounded-xl border border-brand/20 text-xs text-text-main">
           <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
           <p className="leading-relaxed">

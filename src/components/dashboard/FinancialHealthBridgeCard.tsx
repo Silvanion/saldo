@@ -10,15 +10,18 @@ interface FinancialHealthBridgeCardProps {
   onChangeView: (view: string) => void;
 }
 
-function HealthProgressCircle({ score, grade }: { score: number; grade: string }) {
+function HealthProgressCircle({ score, grade }: { score: number | null; grade: string }) {
   const radius = 22;
   const strokeWidth = 3.5;
   const normalizedRadius = radius - strokeWidth / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDashoffset = circumference - (Math.min(Math.max(score, 0), 100) / 100) * circumference;
+  const numericScore = typeof score === "number" ? Math.min(Math.max(score, 0), 100) : 0;
+  const strokeDashoffset = score === null ? circumference : circumference - (numericScore / 100) * circumference;
 
   const colorClass =
-    grade === "excellent"
+    score === null
+      ? "text-border/60 stroke-current"
+      : grade === "excellent"
       ? "text-brand stroke-current"
       : grade === "good"
       ? "text-emerald-500 stroke-current"
@@ -53,7 +56,7 @@ function HealthProgressCircle({ score, grade }: { score: number; grade: string }
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
         <span className="text-xs font-bold text-text-main tabular-nums leading-none">
-          {score}
+          {score !== null ? score : "—"}
         </span>
       </div>
     </div>
@@ -76,7 +79,9 @@ export function FinancialHealthBridgeCard({
   );
 
   const gradeBadgeClass =
-    health.grade === "excellent"
+    health.status === "INSUFFICIENT_DATA" || health.score === null
+      ? "bg-surface-2 text-text-muted border-border"
+      : health.grade === "excellent"
       ? "bg-brand-subtle text-brand border-brand/30"
       : health.grade === "good"
       ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40"
@@ -103,7 +108,10 @@ export function FinancialHealthBridgeCard({
               </span>
             </div>
             <span className="text-xs text-text-muted tabular-nums block mt-0.5" id="dashboard-health-score">
-              Wynik: <strong className="font-semibold text-text-main">{health.score}/100</strong>
+              Wynik:{" "}
+              <strong className="font-semibold text-text-main">
+                {health.score !== null ? `${health.score}/100` : "Brak danych"}
+              </strong>
             </span>
           </div>
         </div>
@@ -121,7 +129,12 @@ export function FinancialHealthBridgeCard({
       </div>
 
       <div className="pt-2 border-t border-border/50 text-xs">
-        {health.isLowData ? (
+        {health.status === "INSUFFICIENT_DATA" ? (
+          <p className="text-text-muted flex items-center gap-1.5 truncate">
+            <Info className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
+            <span>Dodaj pierwsze transakcje, aby obliczyć kondycję finansową.</span>
+          </p>
+        ) : health.isLowData ? (
           <p className="text-text-muted flex items-center gap-1.5 truncate">
             <Info className="w-3.5 h-3.5 text-brand shrink-0" strokeWidth={1.75} />
             <span>Ocena wstępna — dodaj więcej transakcji dla pełnej analizy.</span>

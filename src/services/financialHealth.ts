@@ -5,6 +5,8 @@ import { calculateCashflowForecast } from "./cashflowForecast";
 import { getFixedCostHubData } from "./subscriptionHub";
 
 export type AlertSeverity = "critical" | "warning" | "positive";
+export type HealthScoreStatus = "ACTIVE" | "INSUFFICIENT_DATA";
+export type HealthGrade = "excellent" | "good" | "fair" | "warning" | "danger" | "insufficient_data";
 
 export interface FinancialAlert {
   id: string;
@@ -17,15 +19,16 @@ export interface FinancialAlert {
 export interface HealthPillar {
   key: "budget" | "payments" | "liquidity" | "fixed_costs";
   name: string;
-  score: number; // 0..25
+  score: number | null; // 0..25 or null
   maxScore: 25;
-  status: "good" | "fair" | "poor";
+  status: "good" | "fair" | "poor" | "insufficient_data";
   summary: string;
 }
 
 export interface FinancialHealthResult {
-  score: number; // 0..100
-  grade: "excellent" | "good" | "fair" | "warning" | "danger";
+  score: number | null; // 0..100 or null when INSUFFICIENT_DATA
+  status: HealthScoreStatus;
+  grade: HealthGrade;
   gradeLabel: string;
   pillars: {
     budget: HealthPillar;
@@ -51,25 +54,29 @@ export function getFinancialHealthSummary(
 ): FinancialHealthResult {
   const todayStr = options.todayIsoStr || getLocalDateIso();
 
-  if (!profile) {
-    const emptyPillar = (key: HealthPillar["key"], name: string): HealthPillar => ({
+  const transactions = Array.isArray(profile?.transactions) ? profile.transactions : [];
+  const hasTransactions = transactions.length > 0;
+
+  if (!profile || !hasTransactions) {
+    const emptyPillar = (key: HealthPillar["key"], name: string, summary: string): HealthPillar => ({
       key,
       name,
-      score: 20,
+      score: null,
       maxScore: 25,
-      status: "fair",
-      summary: "Brak danych profilu",
+      status: "insufficient_data",
+      summary,
     });
 
     return {
-      score: 80,
-      grade: "good",
-      gradeLabel: "Dobra kondycja",
+      score: null,
+      status: "INSUFFICIENT_DATA",
+      grade: "insufficient_data",
+      gradeLabel: "Brak wystarczających danych",
       pillars: {
-        budget: emptyPillar("budget", "Budżet"),
-        payments: emptyPillar("payments", "Płatności"),
-        liquidity: emptyPillar("liquidity", "Płynność"),
-        fixedCosts: emptyPillar("fixed_costs", "Koszty stałe"),
+        budget: emptyPillar("budget", "Budżet", "Brak historii wydatków"),
+        payments: emptyPillar("payments", "Płatności", "Brak historii płatności"),
+        liquidity: emptyPillar("liquidity", "Płynność", "Brak danych o saldzie"),
+        fixedCosts: emptyPillar("fixed_costs", "Koszty stałe", "Brak danych o dochodach"),
       },
       alerts: [],
       positiveDrivers: [],
@@ -82,10 +89,9 @@ export function getFinancialHealthSummary(
   const positiveDrivers: string[] = [];
   const negativeDrivers: string[] = [];
 
-  const hasTransactions = Array.isArray(profile.transactions) && profile.transactions.length > 0;
   const hasPayments = Array.isArray(profile.payments) && profile.payments.length > 0;
-  const hasBudgets = profile.budgets && Object.keys(profile.budgets).length > 0;
-  const isLowData = !hasTransactions && !hasPayments && !hasBudgets;
+  const hasBudgets = !!profile.budgets && Object.values(profile.budgets).some(limit => (Number(limit) || 0) > 0);
+  const isLowData = false;
 
   // ==========================================
   // 1. PILLAR: Dyscyplina Budżetowa (0-25 pts)
@@ -224,7 +230,7 @@ export function getFinancialHealthSummary(
       description: `W horyzoncie 30 dni prognozowane saldo spada do ${summary30.lowestPoint.amount} zł (${summary30.lowestPoint.date}).`,
       pillar: "liquidity",
     });
-  } else if (summary30.riskDaysCount > 0) {
+  } else if (summary30.riskDaysCount > 0 && hasTransactions) {
     liquidityScore = Math.max(8, 25 - summary30.riskDaysCount * 2);
     liquiditySummary = `Saldo spada poniżej bufora przez ${summary30.riskDaysCount} dni`;
     negativeDrivers.push(`Zagrożenie bufora płynności (${summary30.riskDaysCount} dni)`);
@@ -360,6 +366,7 @@ export function getFinancialHealthSummary(
 
   return {
     score: totalScore,
+    status: "ACTIVE",
     grade,
     gradeLabel,
     pillars: {

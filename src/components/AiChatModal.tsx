@@ -7,6 +7,7 @@ import { useApp } from "../app/providers/AppContext";
 import { callAiApi, getAiConfig } from "../services/aiClient";
 import { buildChatProfileData } from "../services/aiChatPayload";
 import { ReasonCard } from "./shared/ReasonCard";
+import { AIService } from "../services/ai/aiService";
 import type { FinancialActionPlan } from "../types";
 
 interface ChatMessage {
@@ -42,9 +43,54 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     setMessages((current) => [...current, { id: `${Date.now()}-user`, sender: "user", text }]);
     setLoading(true);
     try {
-      // The server's ChatInput schema expects { activeProfileId, profiles: [...] }
-      // (see src/server/routes/ai.ts) — send a trimmed copy of the active profile
-      // that fits its array caps and body-size limit.
+      // 1. Sprawdź, czy użytkownik skonfigurował bezpieczny klucz BYOK (Gemini lub Anthropic)
+      const activeMeta = AIService.getActiveKeyMetadata();
+      if (activeMeta && activeMeta.keyPresent) {
+        const financialContext = activeProfile
+          ? AIService.buildStructuredFinancialContext(activeProfile)
+          : undefined;
+
+        const aiResponse = await AIService.sendChatMessage(
+          activeMeta.provider,
+          text,
+          financialContext,
+          activeMeta.model
+        );
+
+        let planProposal: FinancialActionPlan | undefined;
+        if (aiResponse.actionProposal) {
+          const action = aiResponse.actionProposal;
+          if (action.isMutating && action.requiresConfirmation) {
+            switch (action.type) {
+              case "addTransaction":
+                openModal("transaction", action.payload);
+                break;
+              case "addPayment":
+                openModal("payment", action.payload);
+                break;
+              case "addGoal":
+                openModal("goal", action.payload);
+                break;
+              case "createFinancialPlan":
+                planProposal = action.payload;
+                break;
+            }
+          }
+        }
+
+        setMessages((current) => [
+          ...current,
+          {
+            id: `${Date.now()}-ai`,
+            sender: "ai",
+            text: aiResponse.reply,
+            planProposal
+          }
+        ]);
+        return;
+      }
+
+      // 2. Fallback do lokalnego modelu Ollama lub serwera Saldo
       const profileData = activeProfile ? buildChatProfileData(activeProfile) : undefined;
       const result = await callAiApi("chat", { message: text, profileData }, getAiConfig(state));
       

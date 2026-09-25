@@ -22,7 +22,6 @@ import { DebtItem } from "../../types";
 import { formatMoney, parseAmountInput } from "../../utils/format";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
-import { generateMortgageReportPdf } from "../../services/pdfGenerator";
 import {
   calculateLtvMetrics,
   calculateInterestRateStressTest,
@@ -143,6 +142,12 @@ export function MortgageProModal({
     return calculateLtvMetrics(currentDebt.balance, currentDebt.propertyValue);
   }, [currentDebt]);
 
+  const handleDownloadPdf = async () => {
+    if (!currentDebt) return;
+    const { generateMortgageReportPdf } = await import("../../services/pdfGenerator");
+    generateMortgageReportPdf(currentDebt, currency);
+  };
+
   if (!isOpen || typeof document === "undefined") return null;
 
   const currency = currentDebt?.currency || "PLN";
@@ -194,7 +199,8 @@ export function MortgageProModal({
             <div className="flex items-center gap-2 shrink-0">
               {currentDebt && (
                 <button
-                  onClick={() => generateMortgageReportPdf(currentDebt, currency)}
+                  type="button"
+                  onClick={handleDownloadPdf}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-2 border border-border/80 text-text-main text-xs font-bold active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shadow-xs"
                   id="btn-export-mortgage-pdf"
                   title="Pobierz pełny raport PDF dla doradcy lub banku"
@@ -843,7 +849,8 @@ export function MortgageProModal({
             <div className="flex items-center gap-2 shrink-0">
               {currentDebt && (
                 <button
-                  onClick={() => generateMortgageReportPdf(currentDebt, currency)}
+                  type="button"
+                  onClick={handleDownloadPdf}
                   className="flex items-center gap-1.5 px-3.5 py-2 bg-surface hover:bg-surface-2 border border-border text-text-main rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                   id="btn-export-mortgage-pdf-footer"
                 >

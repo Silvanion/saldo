@@ -21,3 +21,6 @@ experiments/ai-eval/data/descriptors.csv
 experiments/ai-eval/data/unstructured-samples/*.txt
 experiments/ai-eval/data/*report*.md
 dist-electron/
+.tmp/
+.cache/
+scratch/

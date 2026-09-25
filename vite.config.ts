@@ -85,6 +85,9 @@ export default defineConfig(() => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('vite/') || id.includes('preload-helper')) {
+              return 'vendor-framework';
+            }
             if (id.includes('node_modules')) {
               if (id.includes('@firebase/auth')) {
                 return 'vendor-firebase-auth';

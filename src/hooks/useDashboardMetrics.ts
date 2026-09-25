@@ -83,30 +83,33 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
   const safeBreakdown = calculateSafeToSpend(profile, recurringRules);
 
   const targetMonths = [];
+  const targetMonthsMap = new Map<string, { year: number; month: number; label: string; income: number; expense: number; isCurrent: boolean }>();
   const todayDate = new Date(selectedDate);
   for (let i = 5; i >= 0; i--) {
     const d = new Date(todayDate.getFullYear(), todayDate.getMonth() - i, 1);
-    targetMonths.push({
+    const tm = {
       year: d.getFullYear(),
       month: d.getMonth(),
       label: monthsPl[d.getMonth()].slice(0, 3),
       income: 0,
       expense: 0,
       isCurrent: i === 0
-    });
+    };
+    targetMonths.push(tm);
+    const key = `${tm.year}-${String(tm.month + 1).padStart(2, "0")}`;
+    targetMonthsMap.set(key, tm);
   }
 
-  transactions.forEach((t) => {
-    const txDate = new Date(`${t.isoDate}T12:00:00`);
-    const y = txDate.getFullYear();
-    const m = txDate.getMonth();
-    
-    const target = targetMonths.find(tm => tm.year === y && tm.month === m);
+  for (let i = 0; i < transactions.length; i++) {
+    const t = transactions[i];
+    if (!t.isoDate) continue;
+    const key = t.isoDate.slice(0, 7);
+    const target = targetMonthsMap.get(key);
     if (target) {
       if (t.type === "income") target.income += t.amount;
       else if (t.type === "expense") target.expense += t.amount;
     }
-  });
+  }
 
   const maxVal = Math.max(...targetMonths.map(d => Math.max(d.income, d.expense, 1000)));
   const mappedChartData = targetMonths.map(d => ({
@@ -115,9 +118,27 @@ export function calculateDashboardMetrics(profile: Profile, selectedDate: Date, 
     expenseHeight: Math.max(5, Math.round((d.expense / maxVal) * 100))
   }));
 
-  const recentTransactions = [...transactions]
-    .sort((a, b) => (b.isoDate || "").localeCompare(a.isoDate || ""))
-    .slice(0, 4);
+  // Single-pass top-4 recent transactions: O(N) instead of O(N log N) full array clone
+  const recentTransactions: DashboardRecentTransaction[] = [];
+  if (transactions.length <= 4) {
+    recentTransactions.push(
+      ...[...transactions].sort((a, b) => ((b.isoDate || "") > (a.isoDate || "") ? 1 : (b.isoDate || "") < (a.isoDate || "") ? -1 : 0))
+    );
+  } else {
+    const top4: typeof transactions[0][] = [];
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = transactions[i];
+      const d = tx.isoDate || "";
+      if (top4.length < 4) {
+        top4.push(tx);
+        top4.sort((a, b) => ((b.isoDate || "") > (a.isoDate || "") ? 1 : (b.isoDate || "") < (a.isoDate || "") ? -1 : 0));
+      } else if (d > (top4[3].isoDate || "")) {
+        top4[3] = tx;
+        top4.sort((a, b) => ((b.isoDate || "") > (a.isoDate || "") ? 1 : (b.isoDate || "") < (a.isoDate || "") ? -1 : 0));
+      }
+    }
+    recentTransactions.push(...top4);
+  }
 
   const runway = calculateRunway(profile, 3);
   const momTrends = calculateMoMTrends(transactions, selectedDate);

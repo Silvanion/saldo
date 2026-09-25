@@ -243,6 +243,8 @@ export function calculateCashflowForecast(
   let runningBalance = currentBalance;
   const allDiscreteEvents: CashflowEvent[] = [];
 
+  const hasAnyActivity = transactions.length > 0 || eventsByDate.size > 0 || dailyBurnRate > 0;
+
   for (let day = 1; day <= maxDays; day++) {
     const dateStr = addDaysToIso(todayStr, day);
     const dayEvents = eventsByDate.get(dateStr) || [];
@@ -270,7 +272,7 @@ export function calculateCashflowForecast(
       expenses: totalDayExpenses,
       netChange,
       projectedBalance: runningBalance,
-      isRiskDip: runningBalance < safetyBuffer,
+      isRiskDip: hasAnyActivity && runningBalance < safetyBuffer,
       events: dayEvents
     });
   }

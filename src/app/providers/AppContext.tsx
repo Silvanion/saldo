@@ -154,7 +154,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 15));
   };
 
-  const aiMode: "none" | "local" = budgetData.state.aiMode === "local" ? "local" : "none";
+  const aiMode: "none" | "local" | "cloud" = budgetData.state.aiMode === "local" ? "local" : budgetData.state.aiMode === "cloud" ? "cloud" : "none";
   const canUseCloudSync = authData.isGoogleAuthenticated;
   const isOfflineBudgetMode = !authData.googleUser;
 

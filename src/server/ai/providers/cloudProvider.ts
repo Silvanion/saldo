@@ -55,11 +55,14 @@ export class CloudProvider implements AiProvider {
 
     switch (provider) {
       case "gemini": {
-        const url = baseUrl || `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const url = baseUrl || `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
         return {
           endpoint: url,
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
           body: {
             contents: [
               ...(systemPrompt ? [{ role: "user", parts: [{ text: systemPrompt }] }, { role: "model", parts: [{ text: "Rozumiem." }] }] : []),

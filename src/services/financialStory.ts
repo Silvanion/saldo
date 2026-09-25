@@ -64,9 +64,9 @@ export interface StorySlideWealth extends StorySlideBase {
 
 export interface StorySlideHealth extends StorySlideBase {
   type: "health";
-  healthScore: number;
+  healthScore: number | null;
   gradeLabel: string;
-  grade: "excellent" | "good" | "fair" | "warning" | "danger";
+  grade: "excellent" | "good" | "fair" | "warning" | "danger" | "insufficient_data";
   mainPositive: string;
   mainRecommendation: string;
 }
@@ -78,7 +78,7 @@ export interface StorySlideExecutive extends StorySlideBase {
   balance: number;
   savingsRate: number | null;
   topCategory: string | null;
-  healthScore: number;
+  healthScore: number | null;
   currency: string;
   summaryQuote: string;
 }
@@ -140,16 +140,18 @@ export function generateFinancialStory(
   let prevTotalExpenses = 0;
   let hasPrevData = false;
 
+  const currPrefix = `${year}-${String(monthIdx + 1).padStart(2, "0")}`;
+  const prevPrefix = `${prevYear}-${String(prevMonthIdx + 1).padStart(2, "0")}`;
+
   for (const tx of transactions) {
     if (!tx.isoDate) continue;
-    const d = new Date(`${tx.isoDate}T12:00:00`);
-    if (isNaN(d.getTime())) continue;
+    const isCur = tx.isoDate.startsWith(currPrefix);
+    const isPrev = !isCur && tx.isoDate.startsWith(prevPrefix);
+    if (!isCur && !isPrev) continue;
 
-    const txYear = d.getFullYear();
-    const txMonth = d.getMonth();
     const amount = Math.abs(Number(tx.amount)) || 0;
 
-    if (txYear === year && txMonth === monthIdx) {
+    if (isCur) {
       currentMonthTxCount++;
       if (tx.type === "income") {
         totalIncome += amount;
@@ -158,7 +160,8 @@ export function generateFinancialStory(
         const cat = tx.category?.trim() || "Inne";
         categoryExpenses[cat] = (categoryExpenses[cat] || 0) + amount;
 
-        const dayOfWeek = d.getDay();
+        const d = new Date(`${tx.isoDate}T12:00:00`);
+        const dayOfWeek = isNaN(d.getTime()) ? 0 : d.getDay();
         dayOfWeekExpenses[dayOfWeek] = (dayOfWeekExpenses[dayOfWeek] || 0) + amount;
 
         if (!biggestExpenseTx || amount > biggestExpenseTx.amount) {
@@ -170,7 +173,7 @@ export function generateFinancialStory(
           };
         }
       }
-    } else if (txYear === prevYear && txMonth === prevMonthIdx) {
+    } else if (isPrev) {
       hasPrevData = true;
       if (tx.type === "expense") {
         prevTotalExpenses += amount;
@@ -266,7 +269,9 @@ export function generateFinancialStory(
   }
 
   let quoteText = "";
-  if (health.score >= 80) {
+  if (health.score === null) {
+    quoteText = "„Dodaj transakcje, aby odblokować pełną analizę kondycji finansowej.”";
+  } else if (health.score >= 80) {
     quoteText = "„Znakomita kontrola finansów – Twoja płynność i budżet są w świetnej formie.”";
   } else if (health.score >= 60) {
     quoteText = "„Dobra i stabilna baza finansowa. Kilka drobnych korekt wystarczy do poziomu mistrzowskiego.”";
@@ -363,7 +368,7 @@ export function generateFinancialStory(
     `📊 Mój ${monthName} ${year} w Saldo:`,
     `💰 Bilans: ${balance >= 0 ? "+" : ""}${Math.round(balance)} ${currency} ${savingsRate !== null ? `(Stopa oszczędności: ${Math.round(savingsRate)}%)` : ""}`,
     topCategory ? `🏆 Główny wydatek: ${topCategory}` : null,
-    `⭐️ Financial Health Score: ${health.score}/100 (${health.gradeLabel})`,
+    `⭐️ Financial Health Score: ${health.score !== null ? `${health.score}/100` : "Brak danych"} (${health.gradeLabel})`,
     `#SaldoApp #FinanseOsobiste #SaldoWrapped`
   ].filter(Boolean).join("\n");
 

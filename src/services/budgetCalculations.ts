@@ -27,14 +27,12 @@ export function calculateBudgetWarnings(
 
   const todayStr = todayIsoStr || getLocalDateIso();
   const todayParts = todayStr.split("-");
-  const currentYear = parseInt(todayParts[0], 10);
-  const currentMonthIdx = parseInt(todayParts[1], 10) - 1;
+  const currentMonthPrefix = `${todayParts[0]}-${todayParts[1]}`;
 
   const thisMonthExpenses = (profile.transactions || []).filter((t) => {
     if (t.type !== "expense") return false;
     if (!t.isoDate) return false;
-    const d = new Date(`${t.isoDate}T12:00:00`);
-    return d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx;
+    return t.isoDate.startsWith(currentMonthPrefix);
   });
 
   const categorySpentMap: Record<string, number> = {};
@@ -325,24 +323,24 @@ export interface MonthlyTotals {
 export function calculateMonthlyTotals(transactions: Transaction[] = [], selectedDate: Date): MonthlyTotals {
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
+  const targetPrefix = `${currentYear}-${String(currentMonthIdx + 1).padStart(2, "0")}`;
 
   let totalIncome = 0;
   let totalExpense = 0;
   const categorySpentMap: Record<string, number> = {};
 
-  (transactions || []).forEach((t) => {
-    if (!t.isoDate) return;
-    const d = new Date(`${t.isoDate}T12:00:00`);
-    if (d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx) {
-      if (t.type === "income") {
-        totalIncome += Number(t.amount) || 0;
-      } else if (t.type === "expense") {
-        const amt = Number(t.amount) || 0;
-        totalExpense += amt;
-        categorySpentMap[t.category] = (categorySpentMap[t.category] || 0) + amt;
-      }
+  const txs = transactions || [];
+  for (let i = 0; i < txs.length; i++) {
+    const t = txs[i];
+    if (!t.isoDate || !t.isoDate.startsWith(targetPrefix)) continue;
+    if (t.type === "income") {
+      totalIncome += Number(t.amount) || 0;
+    } else if (t.type === "expense") {
+      const amt = Number(t.amount) || 0;
+      totalExpense += amt;
+      categorySpentMap[t.category] = (categorySpentMap[t.category] || 0) + amt;
     }
-  });
+  }
 
   return {
     totalIncome,
@@ -500,6 +498,9 @@ export function calculateMoMTrends(transactions: Transaction[] = [], referenceDa
   const prevYear = prevDate.getFullYear();
   const prevMonth = prevDate.getMonth();
 
+  const curPrefix = `${curYear}-${String(curMonth + 1).padStart(2, "0")}`;
+  const prevPrefix = `${prevYear}-${String(prevMonth + 1).padStart(2, "0")}`;
+
   let curExpenses = 0;
   let curIncome = 0;
   let prevExpenses = 0;
@@ -507,15 +508,15 @@ export function calculateMoMTrends(transactions: Transaction[] = [], referenceDa
 
   for (const tx of transactions) {
     if (!tx.isoDate) continue;
-    const d = new Date(`${tx.isoDate}T12:00:00`);
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    const amt = Number(tx.amount) || 0;
+    const isCur = tx.isoDate.startsWith(curPrefix);
+    const isPrev = !isCur && tx.isoDate.startsWith(prevPrefix);
+    if (!isCur && !isPrev) continue;
 
-    if (y === curYear && m === curMonth) {
+    const amt = Number(tx.amount) || 0;
+    if (isCur) {
       if (tx.type === "expense") curExpenses += amt;
       if (tx.type === "income") curIncome += amt;
-    } else if (y === prevYear && m === prevMonth) {
+    } else {
       if (tx.type === "expense") prevExpenses += amt;
       if (tx.type === "income") prevIncome += amt;
     }
@@ -549,6 +550,7 @@ export interface Breakdown503020 {
 export function calculate503020(transactions: Transaction[] = [], selectedDate: Date = new Date()): Breakdown503020 {
   const curYear = selectedDate.getFullYear();
   const curMonth = selectedDate.getMonth();
+  const curPrefix = `${curYear}-${String(curMonth + 1).padStart(2, "0")}`;
 
   let needsAmount = 0;
   let wantsAmount = 0;
@@ -558,9 +560,7 @@ export function calculate503020(transactions: Transaction[] = [], selectedDate: 
   const SAVINGS_PATTERN = /kredyt|raty|spłata|pożyczka|oszczędn|inwestycj|lokata|emerytur/i;
 
   for (const tx of transactions) {
-    if (!tx.isoDate || tx.type !== "expense") continue;
-    const d = new Date(`${tx.isoDate}T12:00:00`);
-    if (d.getFullYear() !== curYear || d.getMonth() !== curMonth) continue;
+    if (!tx.isoDate || tx.type !== "expense" || !tx.isoDate.startsWith(curPrefix)) continue;
 
     const amt = Number(tx.amount) || 0;
     const cat = (tx.category || "").toLowerCase();
@@ -716,15 +716,11 @@ export function calculateRollingTrends(
   const currentMonthIdx = selectedDate.getMonth();
 
   const getMonthExpenseData = (year: number, monthIdx: number) => {
-    const txs = transactions.filter((t) => {
-      if (t.type !== "expense" || !t.isoDate) return false;
-      const d = new Date(`${t.isoDate}T12:00:00`);
-      return d.getFullYear() === year && d.getMonth() === monthIdx;
-    });
-
+    const targetPrefix = `${year}-${String(monthIdx + 1).padStart(2, "0")}`;
     const categoryMap: Record<string, number> = {};
     let total = 0;
-    for (const t of txs) {
+    for (const t of transactions) {
+      if (t.type !== "expense" || !t.isoDate || !t.isoDate.startsWith(targetPrefix)) continue;
       total += t.amount;
       const cat = t.category || "Inne";
       categoryMap[cat] = (categoryMap[cat] || 0) + t.amount;
@@ -827,19 +823,26 @@ export function calculateEmergencySimulator(
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
 
-  const thisMonthTransactions = (profile.transactions || []).filter((t) => {
-    if (!t.isoDate) return false;
-    const d = new Date(`${t.isoDate}T12:00:00`);
-    return d.getFullYear() === currentYear && d.getMonth() === currentMonthIdx;
-  });
+  const targetPrefix = `${currentYear}-${String(currentMonthIdx + 1).padStart(2, "0")}`;
+  let thisMonthIncome = 0;
+  let thisMonthExpense = 0;
+  let allIncomes = 0;
+  let allExpenses = 0;
 
-  const thisMonthIncome = thisMonthTransactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const txs = profile.transactions || [];
+  for (let i = 0; i < txs.length; i++) {
+    const t = txs[i];
+    const amt = Number(t.amount) || 0;
+    const isThisMonth = Boolean(t.isoDate && t.isoDate.startsWith(targetPrefix));
 
-  const thisMonthExpense = thisMonthTransactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
+    if (t.type === "income") {
+      allIncomes += amt;
+      if (isThisMonth) thisMonthIncome += amt;
+    } else if (t.type === "expense") {
+      allExpenses += amt;
+      if (isThisMonth) thisMonthExpense += amt;
+    }
+  }
 
   const currentMonthlySavings = roundCurrency(thisMonthIncome - thisMonthExpense);
 
@@ -847,13 +850,6 @@ export function calculateEmergencySimulator(
   const monthlyBurnRate = rolling.avg3MonthExpense > 0 ? rolling.avg3MonthExpense : (thisMonthExpense > 0 ? thisMonthExpense : 3000);
 
   const requiredCapital = roundCurrency(monthlyBurnRate * targetMonths);
-
-  const allIncomes = (profile.transactions || [])
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const allExpenses = (profile.transactions || [])
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
   const liquidFunds = Math.max(0, allIncomes - allExpenses);
 
   const goalsSavings = (profile.goals || []).reduce((sum, g) => sum + (Number(g.saved) || 0), 0);
@@ -936,22 +932,20 @@ export function calculatePeriodComparison(
   }
 
   const getPeriodData = (year: number, month: number) => {
+    const targetPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
     let income = 0;
     let expense = 0;
     const catExpenses: Record<string, number> = {};
 
     for (const t of transactions || []) {
-      if (!t.isoDate || !Number.isFinite(Number(t.amount))) continue;
-      const d = new Date(`${t.isoDate}T12:00:00`);
-      if (d.getFullYear() === year && d.getMonth() === month) {
-        const amt = Number(t.amount);
-        if (t.type === "income") {
-          income += amt;
-        } else if (t.type === "expense") {
-          expense += amt;
-          const cat = t.category || "Inne";
-          catExpenses[cat] = (catExpenses[cat] || 0) + amt;
-        }
+      if (!t.isoDate || !t.isoDate.startsWith(targetPrefix) || !Number.isFinite(Number(t.amount))) continue;
+      const amt = Number(t.amount);
+      if (t.type === "income") {
+        income += amt;
+      } else if (t.type === "expense") {
+        expense += amt;
+        const cat = t.category || "Inne";
+        catExpenses[cat] = (catExpenses[cat] || 0) + amt;
       }
     }
     return {

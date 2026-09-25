@@ -110,16 +110,20 @@ export const TransactionsView = memo(function TransactionsView({
     }
   }, [pendingImportFile]);
 
-  // Compute all unique tags from expense transactions
+  // Compute all unique tags from transactions without flatMap/intermediate arrays
   const allUniqueTags = useMemo(() => {
-    return Array.from(
-      new Set(
-        profile.transactions
-          .flatMap((tx) => tx.tags || [])
-          .map((tag) => tag.trim().toLowerCase())
-          .filter(Boolean)
-      )
-    ).sort();
+    const tagsSet = new Set<string>();
+    const txs = profile.transactions || [];
+    for (let i = 0; i < txs.length; i++) {
+      const tags = txs[i].tags;
+      if (tags && tags.length > 0) {
+        for (let j = 0; j < tags.length; j++) {
+          const t = tags[j].trim().toLowerCase();
+          if (t) tagsSet.add(t);
+        }
+      }
+    }
+    return Array.from(tagsSet).sort();
   }, [profile.transactions]);
 
   const smartRules = useMemo(() => {
@@ -144,6 +148,7 @@ export const TransactionsView = memo(function TransactionsView({
   };
 
   const filteredTransactions = useMemo(() => {
+    const sTerm = debouncedSearchTerm ? debouncedSearchTerm.toLowerCase() : "";
     return [...profile.transactions]
       .filter((tx) => {
         if (filterType === "expense" && tx.type !== "expense") return false;
@@ -154,8 +159,8 @@ export const TransactionsView = memo(function TransactionsView({
         }
         
         if (selectedTag) {
-          const txTags = (tx.tags || []).map((t) => t.toLowerCase());
-          if (!txTags.includes(selectedTag.toLowerCase())) return false;
+          const txTags = tx.tags;
+          if (!txTags || !txTags.some((t) => t.toLowerCase() === selectedTag.toLowerCase())) return false;
         }
         
         if (dateFrom && tx.isoDate < dateFrom) return false;
@@ -170,15 +175,18 @@ export const TransactionsView = memo(function TransactionsView({
           if (!isNaN(max) && tx.amount > max) return false;
         }
 
-        if (debouncedSearchTerm) {
-          const sTerm = debouncedSearchTerm.toLowerCase();
-          const searchStr = `${tx.name} ${tx.category} ${tx.account} ${tx.tags ? tx.tags.join(" ") : ""}`.toLowerCase();
-          return searchStr.includes(sTerm);
+        if (sTerm) {
+          const matches =
+            (tx.name && tx.name.toLowerCase().includes(sTerm)) ||
+            (tx.category && tx.category.toLowerCase().includes(sTerm)) ||
+            (tx.account && tx.account.toLowerCase().includes(sTerm)) ||
+            (tx.tags && tx.tags.some((t) => t.toLowerCase().includes(sTerm)));
+          if (!matches) return false;
         }
         
         return true;
       })
-      .sort((a, b) => b.isoDate.localeCompare(a.isoDate));
+      .sort((a, b) => ((b.isoDate || "") > (a.isoDate || "") ? 1 : (b.isoDate || "") < (a.isoDate || "") ? -1 : 0));
   }, [profile.transactions, filterType, paidByFilter, selectedTag, debouncedSearchTerm, dateFrom, dateTo, minAmount, maxAmount]);
 
   // Paginated chunk of transactions

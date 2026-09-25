@@ -53,30 +53,56 @@ export function runDataAudit(profile: Profile): DataAuditReport {
   const seenTxIds = new Set<string>();
   const duplicatePairIds = new Set<string>();
 
+  // Pre-index transactions by currency, type, and rounded amount to eliminate O(N^2) full-array scans
+  interface IndexedTx {
+    tx: Transaction;
+    index: number;
+  }
+  const txCandidatesByBucket = new Map<string, IndexedTx[]>();
+  for (let idx = 0; idx < transactions.length; idx++) {
+    const t = transactions[idx];
+    const amt = Math.round((Number(t.amount) || 0) * 100);
+    const bucketKey = `${t.currency || "PLN"}_${t.type}_${amt}`;
+    const list = txCandidatesByBucket.get(bucketKey);
+    if (!list) {
+      txCandidatesByBucket.set(bucketKey, [{ tx: t, index: idx }]);
+    } else {
+      list.push({ tx: t, index: idx });
+    }
+  }
+
   for (let i = 0; i < transactions.length; i++) {
     const tx = transactions[i];
     seenTxIds.add(tx.id);
 
-    // Duplicate check
+    // Duplicate check using O(1) bucket candidates
     if (!duplicatePairIds.has(tx.id)) {
-      const otherTxs = transactions.filter((t, idx) => idx > i);
-      const dupResult = checkDuplicate(tx, otherTxs);
-      if (dupResult.isLikelyDuplicate && dupResult.matchedTransactionId) {
-        duplicatePairIds.add(dupResult.matchedTransactionId);
-        issues.push({
-          id: `dup-${tx.id}-${dupResult.matchedTransactionId}`,
-          type: "duplicate",
-          severity: "warning",
-          title: `Prawdopodobny duplikat: ${tx.name}`,
-          description: `Wykryto zdublowaną transakcję na kwotę ${tx.amount} ${tx.currency} (${tx.isoDate}). ${dupResult.reason || ""}`,
-          suggestedActionLabel: "Usuń duplikat",
-          targetEntityId: dupResult.matchedTransactionId,
-          metadata: {
-            originalTxId: tx.id,
-            duplicateTxId: dupResult.matchedTransactionId,
-            amount: tx.amount
+      const amt = Math.round((Number(tx.amount) || 0) * 100);
+      const bucketKey = `${tx.currency || "PLN"}_${tx.type}_${amt}`;
+      const bucket = txCandidatesByBucket.get(bucketKey);
+
+      if (bucket && bucket.length > 1) {
+        const remaining = bucket.filter(item => item.index > i).map(item => item.tx);
+        if (remaining.length > 0) {
+          const dupResult = checkDuplicate(tx, remaining);
+          if (dupResult.isLikelyDuplicate && dupResult.matchedTransactionId) {
+            duplicatePairIds.add(dupResult.matchedTransactionId);
+            issues.push({
+              id: `dup-${tx.id}-${dupResult.matchedTransactionId}`,
+              type: "duplicate",
+              severity: "warning",
+              title: `Prawdopodobny duplikat: ${tx.name}`,
+              description: `Wykryto zdublowaną transakcję na kwotę ${tx.amount} ${tx.currency} (${tx.isoDate}). ${dupResult.reason || ""}`,
+              suggestedActionLabel: "Usuń duplikat",
+              targetEntityId: dupResult.matchedTransactionId,
+              metadata: {
+                originalTxId: tx.id,
+                duplicateTxId: dupResult.matchedTransactionId,
+                amount: tx.amount
+              }
+            });
           }
-        });
+        }
       }
     }
 

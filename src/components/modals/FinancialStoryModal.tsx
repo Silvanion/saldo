@@ -272,7 +272,7 @@ export function FinancialStoryModal({
       } else if (currentSlide.type === "health") {
         ctx.fillStyle = "#38bdf8";
         ctx.font = "bold 130px sans-serif";
-        ctx.fillText(`${currentSlide.healthScore}/100`, 540, 740);
+        ctx.fillText(currentSlide.healthScore !== null ? `${currentSlide.healthScore}/100` : "Brak danych", 540, 740);
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 56px sans-serif";
@@ -671,10 +671,10 @@ export function FinancialStoryModal({
                     <div className="relative flex items-center justify-center w-36 h-36 rounded-full bg-black/40 border-4 border-indigo-400/40 shadow-xl">
                       <div className="flex flex-col items-center">
                         <span className="text-4xl font-extrabold text-indigo-300">
-                          {currentSlide.healthScore}
+                          {currentSlide.healthScore !== null ? currentSlide.healthScore : "—"}
                         </span>
                         <span className="text-[11px] text-white/60 uppercase font-semibold">
-                          / 100 pkt
+                          {currentSlide.healthScore !== null ? "/ 100 pkt" : "Brak danych"}
                         </span>
                       </div>
                     </div>
@@ -736,7 +736,7 @@ export function FinancialStoryModal({
                         <div className="p-2 rounded-lg bg-white/5">
                           <span className="text-[11px] text-white/50 block">Health Score</span>
                           <span className="text-base font-bold text-indigo-300">
-                            {currentSlide.healthScore}/100
+                            {currentSlide.healthScore !== null ? `${currentSlide.healthScore}/100` : "Brak danych"}
                           </span>
                         </div>
                       </div>

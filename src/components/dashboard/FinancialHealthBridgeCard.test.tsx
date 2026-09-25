@@ -23,9 +23,12 @@ describe("FinancialHealthBridgeCard", () => {
     budgets: {}
   };
 
-  it("pokazuje komunikat o wstępnej ocenie dla profilu bez danych (isLowData)", () => {
+  it("pokazuje komunikat o braku danych dla profilu bez transakcji (INSUFFICIENT_DATA)", () => {
     render(<FinancialHealthBridgeCard profile={emptyProfile} onChangeView={vi.fn()} />);
-    expect(screen.getByText(/Ocena wstępna/i)).toBeTruthy();
+    expect(screen.getByText(/Brak wystarczających danych/i)).toBeTruthy();
+    expect(screen.getByText(/Dodaj pierwsze transakcje/i)).toBeTruthy();
+    expect(screen.queryByText(/83\/100/)).toBeNull();
+    expect(screen.queryByText(/Niski bufor gotówkowy/i)).toBeNull();
   });
 
   it("pokazuje najwyżej priorytetowy alert (nawet pozytywny), gdy dane są wystarczające", () => {
@@ -45,6 +48,7 @@ describe("FinancialHealthBridgeCard", () => {
     vi.doMock("../../services/financialHealth", () => ({
       getFinancialHealthSummary: () => ({
         score: 80,
+        status: "ACTIVE",
         grade: "good",
         gradeLabel: "Dobra",
         pillars: {} as any,
@@ -82,8 +86,14 @@ describe("FinancialHealthBridgeCard", () => {
     expect(onChangeView).toHaveBeenCalledWith("analysis");
   });
 
-  it("pokazuje wynik liczbowy w formacie X/100", () => {
-    render(<FinancialHealthBridgeCard profile={emptyProfile} onChangeView={vi.fn()} />);
+  it("pokazuje wynik liczbowy w formacie X/100 dla profilu z transakcjami", () => {
+    const profileWithTx: Profile = {
+      ...emptyProfile,
+      transactions: [
+        { id: "t1", name: "Pensja", amount: 5000, type: "income", category: "Wynagrodzenie", isoDate: getLocalDateIso(), account: "Konto", currency: "PLN" }
+      ]
+    };
+    render(<FinancialHealthBridgeCard profile={profileWithTx} onChangeView={vi.fn()} />);
     expect(screen.getByText(/\/100/)).toBeTruthy();
   });
 });

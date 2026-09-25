@@ -10,6 +10,7 @@ import {
   isLocalAiLikelyUnsupported,
   isLocalEndpointSafe
 } from "../../services/localAi";
+import { AiProviderSettingsCard } from "./AiProviderSettingsCard";
 
 export interface RecommendedAiModel {
   tag: string;
@@ -405,6 +406,9 @@ export function SettingsAutomationSection({
         transactionRules={transactionRules}
         onSaveTransactionRules={onSaveTransactionRules}
       />
+
+      {/* Model AI / Dostawca AI (BYOK - Gemini / Claude) */}
+      <AiProviderSettingsCard showToast={showToast} />
 
       {/* Local AI (Ollama) */}
       <div className="bg-surface rounded-2xl border border-border/70 shadow-xs p-5 sm:p-6" id="settings-local-ai-card">

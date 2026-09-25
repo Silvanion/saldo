@@ -1,0 +1,1220 @@
+{
+  "microbenchmarks": {
+    "calculateMonthlyTotals": {
+      "100": {
+        "min": 0.00333299999999781,
+        "max": 0.008333000000021684,
+        "median": 0.003542000000010148,
+        "mean": 0.00448740000000214,
+        "stddev": 0.0016040187156063038,
+        "runs": 10
+      },
+      "1000": {
+        "min": 0.00858299999998735,
+        "max": 0.008791999999999689,
+        "median": 0.008624999999994998,
+        "mean": 0.008633399999996526,
+        "stddev": 0.00006657657246100786,
+        "runs": 10
+      },
+      "5000": {
+        "min": 0.042124999999998636,
+        "max": 0.04783299999999713,
+        "median": 0.04283399999999915,
+        "mean": 0.043183500000000666,
+        "stddev": 0.00164947975131292,
+        "runs": 10
+      },
+      "10000": {
+        "min": 0.10891700000001947,
+        "max": 0.12362500000000409,
+        "median": 0.10920800000002373,
+        "mean": 0.11060019999999895,
+        "stddev": 0.004342920372285628,
+        "runs": 10
+      },
+      "25000": {
+        "min": 0.20474999999999,
+        "max": 0.25445799999999963,
+        "median": 0.2157079999999496,
+        "mean": 0.221387500000003,
+        "stddev": 0.015577979408437043,
+        "runs": 10
+      },
+      "50000": {
+        "min": 0.38716699999986304,
+        "max": 0.625041999999894,
+        "median": 0.42679199999997763,
+        "mean": 0.4425583999999844,
+        "stddev": 0.06272913502700764,
+        "runs": 10
+      }
+    },
+    "calculateRunway": {
+      "100": {
+        "min": 0.007584000000008473,
+        "max": 0.022041999999999007,
+        "median": 0.010000000000019327,
+        "mean": 0.01195419999999956,
+        "stddev": 0.004628516194199196,
+        "runs": 10
+      },
+      "1000": {
+        "min": 0.0437909999999988,
+        "max": 0.0901670000000081,
+        "median": 0.07637499999998454,
+        "mean": 0.06531260000000146,
+        "stddev": 0.017647586929666698,
+        "runs": 10
+      },
+      "5000": {
+        "min": 0.19974999999999454,
+        "max": 0.22541700000002152,
+        "median": 0.21283400000001507,
+        "mean": 0.21209590000000275,
+        "stddev": 0.007630061473549471,
+        "runs": 10
+      },
+      "10000": {
+        "min": 0.35199999999997544,
+        "max": 0.4367499999999609,
+        "median": 0.3639580000000251,
+        "mean": 0.37081669999998895,
+        "stddev": 0.024433389462157954,
+        "runs": 10
+      },
+      "25000": {
+        "min": 0.7214159999999765,
+        "max": 0.7627079999999751,
+        "median": 0.7300420000000258,
+        "mean": 0.7328205999999909,
+        "stddev": 0.01183762072547066,
+        "runs": 10
+      },
+      "50000": {
+        "min": 1.3553329999999733,
+        "max": 1.7887089999999262,
+        "median": 1.389917000000196,
+        "mean": 1.4299541999999974,
+        "stddev": 0.1231707305870716,
+        "runs": 10
+      }
+    },
+    "calculateEmergencySimulator": {
+      "100": {
+        "min": 0.02895899999998619,
+        "max": 0.0493330000000185,
+        "median": 0.03408299999998121,
+        "mean": 0.03474989999999991,
+        "stddev": 0.005892607664697057,
+        "runs": 10
+      },
+      "1000": {
+        "min": 0.10525000000001228,
+        "max": 0.14374999999998295,
+        "median": 0.11116699999999469,
+        "mean": 0.11651669999999967,
+        "stddev": 0.013006973729879193,
+        "runs": 10
+      },
+      "5000": {
+        "min": 0.333958999999993,
+        "max": 0.3652500000000032,
+        "median": 0.3400000000000034,
+        "mean": 0.34322109999999667,
+        "stddev": 0.008813371925094203,
+        "runs": 10
+      },
+      "10000": {
+        "min": 0.6069580000000201,
+        "max": 0.7545000000000073,
+        "median": 0.7215000000000487,
+        "mean": 0.6911997999999983,
+        "stddev": 0.05286658464247761,
+        "runs": 10
+      },
+      "25000": {
+        "min": 1.4931659999999738,
+        "max": 1.7893340000000535,
+        "median": 1.7050419999999349,
+        "mean": 1.6649999999999978,
+        "stddev": 0.09937256421971506,
+        "runs": 10
+      },
+      "50000": {
+        "min": 3.097582999999986,
+        "max": 3.688250000000153,
+        "median": 3.4293749999999363,
+        "mean": 3.36752919999999,
+        "stddev": 0.2117752398283596,
+        "runs": 10
+      }
+    },
+    "getFinancialHealthSummary": {
+      "100": {
+        "min": 0.0855410000000063,
+        "max": 0.7818749999999852,
+        "median": 0.1049589999999796,
+        "mean": 0.17396679999999662,
+        "stddev": 0.20367350993872166,
+        "runs": 10
+      },
+      "1000": {
+        "min": 0.1094590000000153,
+        "max": 0.12783300000000963,
+        "median": 0.11662499999999909,
+        "mean": 0.1159543000000042,
+        "stddev": 0.00507497446397807,
+        "runs": 10
+      },
+      "5000": {
+        "min": 0.168042000000014,
+        "max": 0.2826249999999959,
+        "median": 0.1777919999999824,
+        "mean": 0.18715840000000128,
+        "stddev": 0.03247732625447735,
+        "runs": 10
+      },
+      "10000": {
+        "min": 0.2713749999999777,
+        "max": 0.2892500000000382,
+        "median": 0.2795419999999922,
+        "mean": 0.27880420000000755,
+        "stddev": 0.005917919816971025,
+        "runs": 10
+      },
+      "25000": {
+        "min": 0.6039580000000342,
+        "max": 0.7176670000000058,
+        "median": 0.6297499999999445,
+        "mean": 0.6411000999999829,
+        "stddev": 0.039434366140337254,
+        "runs": 10
+      },
+      "50000": {
+        "min": 1.1279589999999189,
+        "max": 1.2916669999999613,
+        "median": 1.2130409999999756,
+        "mean": 1.2033625999999686,
+        "stddev": 0.04922274948881556,
+        "runs": 10
+      }
+    },
+    "runDataAudit": {
+      "100": {
+        "min": 0.07975000000001842,
+        "max": 0.103999999999985,
+        "median": 0.08591599999999744,
+        "mean": 0.08736239999999781,
+        "stddev": 0.007161732097748313,
+        "runs": 10
+      },
+      "1000": {
+        "min": 0.8615419999999858,
+        "max": 1.0099170000000015,
+        "median": 0.9068749999999852,
+        "mean": 0.9193957999999981,
+        "stddev": 0.049648651089027725,
+        "runs": 10
+      },
+      "5000": {
+        "min": 6.756583000000035,
+        "max": 8.182500000000005,
+        "median": 7.617040999999972,
+        "mean": 7.570191800000001,
+        "stddev": 0.39507372674344865,
+        "runs": 10
+      },
+      "10000": {
+        "min": 18.85558400000002,
+        "max": 20.324332999999967,
+        "median": 19.201666999999986,
+        "mean": 19.251108299999977,
+        "stddev": 0.41865259325365073,
+        "runs": 10
+      },
+      "25000": {
+        "min": 89.02850000000012,
+        "max": 90.8581670000001,
+        "median": 90.43616599999996,
+        "mean": 90.17977910000006,
+        "stddev": 0.57982311926112,
+        "runs": 10
+      },
+      "50000": {
+        "min": 337.7660829999995,
+        "max": 347.634458,
+        "median": 338.97358299999996,
+        "mean": 339.82531670000003,
+        "stddev": 2.682820905230177,
+        "runs": 10
+      }
+    },
+    "parsePdfTransactions": {
+      "100": {
+        "min": 0.6077500000001237,
+        "max": 0.7044999999998254,
+        "median": 0.641208000000006,
+        "mean": 0.6432707999998456,
+        "stddev": 0.02888554962534329,
+        "runs": 10
+      },
+      "500": {
+        "min": 2.827792000000045,
+        "max": 3.2678329999998823,
+        "median": 2.98491599999943,
+        "mean": 2.9814166999998633,
+        "stddev": 0.1205557645523408,
+        "runs": 10
+      },
+      "1000": {
+        "min": 5.82654199999979,
+        "max": 6.270625000000109,
+        "median": 5.919667000000118,
+        "mean": 5.927062500000011,
+        "stddev": 0.12134952118762583,
+        "runs": 10
+      },
+      "5000": {
+        "min": 29.312667000000147,
+        "max": 36.160249999999905,
+        "median": 29.740375000000313,
+        "mean": 30.314208299999972,
+        "stddev": 1.95864735088121,
+        "runs": 10
+      },
+      "10000": {
+        "min": 59.224583999999595,
+        "max": 66.23870800000077,
+        "median": 59.535375000000386,
+        "mean": 60.168295899999976,
+        "stddev": 2.0343158864178377,
+        "runs": 10
+      }
+    },
+    "parseAndMapCsv": {
+      "1000": {
+        "min": 2.2222499999998035,
+        "max": 3.0295420000002196,
+        "median": 2.4567919999999503,
+        "mean": 2.4947501000000556,
+        "stddev": 0.2072514000023364,
+        "runs": 10
+      },
+      "5000": {
+        "min": 5.617291999999907,
+        "max": 6.743999999999687,
+        "median": 6.250084000000243,
+        "mean": 6.069408399999975,
+        "stddev": 0.41381563157017776,
+        "runs": 10
+      },
+      "10000": {
+        "min": 7.965957999999773,
+        "max": 9.185292000000118,
+        "median": 8.871291999999812,
+        "mean": 8.598853999999937,
+        "stddev": 0.4581900156346366,
+        "runs": 10
+      },
+      "25000": {
+        "min": 14.726458000000093,
+        "max": 17.191417,
+        "median": 14.992582999999286,
+        "mean": 15.351516700000047,
+        "stddev": 0.7135836896367221,
+        "runs": 10
+      },
+      "50000": {
+        "min": 23.744916999999987,
+        "max": 30.01995800000077,
+        "median": 25.808208000000377,
+        "mean": 25.93636680000018,
+        "stddev": 1.7005628068458873,
+        "runs": 10
+      },
+      "100000": {
+        "min": 43.66204199999993,
+        "max": 62.96537499999977,
+        "median": 45.928499999999985,
+        "mean": 48.58225849999981,
+        "stddev": 6.103722147348729,
+        "runs": 10
+      }
+    }
+  },
+  "flowPassAudit": [
+    {
+      "function": "calculateMonthlyTotals",
+      "inputSize": "N (profile.transactions)",
+      "passes": 1,
+      "calledFrom": "useDashboardMetrics line 72",
+      "description": "Full single-pass reduce summing income, expense, balance, categorySpentMap"
+    },
+    {
+      "function": "calculateBudgetWarnings",
+      "inputSize": "N (profile.transactions)",
+      "passes": 1,
+      "calledFrom": "useDashboardMetrics line 80",
+      "description": "Filters transactions matching target month prefix, then aggregates per budget category"
+    },
+    {
+      "function": "calculateSafeToSpend",
+      "inputSize": "N (profile.transactions)",
+      "passes": 2,
+      "calledFrom": "useDashboardMetrics line 83",
+      "description": "1 pass in calculateMonthlyTotals + 1 pass for current month expense breakdown"
+    },
+    {
+      "function": "targetMonths (6-month chart loop)",
+      "inputSize": "N (profile.transactions)",
+      "passes": 1,
+      "calledFrom": "useDashboardMetrics lines 103-112",
+      "description": "Single pass over all transactions matching 6-month prefix map"
+    },
+    {
+      "function": "recentTransactions sort & slice",
+      "inputSize": "N (profile.transactions)",
+      "passes": "O(N log N) comparison pass",
+      "calledFrom": "useDashboardMetrics line 121",
+      "description": "Full array shallow clone + sort(localeCompare) across all N items to take top 4"
+    },
+    {
+      "function": "calculateRunway",
+      "inputSize": "N (profile.transactions)",
+      "passes": 3,
+      "calledFrom": "useDashboardMetrics line 125",
+      "description": "Calls calculateMonthlyTotals for each of the last 3 months (3 separate full passes)"
+    },
+    {
+      "function": "calculateMoMTrends",
+      "inputSize": "N (profile.transactions)",
+      "passes": 2,
+      "calledFrom": "useDashboardMetrics line 126",
+      "description": "Calls calculateMonthlyTotals for current month and previous month (2 full passes)"
+    },
+    {
+      "function": "FinancialHealthBridgeCard -> getFinancialHealthSummary",
+      "inputSize": "N (profile.transactions)",
+      "passes": 3,
+      "calledFrom": "FinancialHealthBridgeCard line 77",
+      "description": "1 pass in calculateBudgetWarnings + 1 pass in calculateCashflowForecast (starting balance) + 1 pass for thisMonthIncome filter"
+    },
+    {
+      "function": "DashboardView -> runDataAudit",
+      "inputSize": "N (profile.transactions)",
+      "passes": 1,
+      "calledFrom": "DashboardView line 141 (useMemo [profile])",
+      "description": "Audits profile transactions for duplicates, date issues, negative formats"
+    }
+  ],
+  "dashboardTotalTimings": {
+    "100": {
+      "min": 0.12550000000010186,
+      "max": 0.20908400000007532,
+      "median": 0.14679200000136916,
+      "mean": 0.15172509999993053,
+      "stddev": 0.02753349146555359,
+      "runs": 10
+    },
+    "1000": {
+      "min": 0.23762499999975262,
+      "max": 0.3162499999998545,
+      "median": 0.2510419999998703,
+      "mean": 0.25882499999988795,
+      "stddev": 0.023282178033597976,
+      "runs": 10
+    },
+    "5000": {
+      "min": 0.8163749999985157,
+      "max": 0.9960829999999987,
+      "median": 0.8424999999988358,
+      "mean": 0.8513957999997729,
+      "stddev": 0.049911141174761385,
+      "runs": 10
+    },
+    "10000": {
+      "min": 1.441000000000713,
+      "max": 1.7125410000007832,
+      "median": 1.5356250000004366,
+      "mean": 1.5322040000000925,
+      "stddev": 0.07725493604843205,
+      "runs": 10
+    },
+    "25000": {
+      "min": 3.382499999999709,
+      "max": 3.95245900000009,
+      "median": 3.746624999999767,
+      "mean": 3.6859166000002004,
+      "stddev": 0.1752400663302636,
+      "runs": 10
+    },
+    "50000": {
+      "min": 6.593667000001005,
+      "max": 7.100207999999839,
+      "median": 6.9429999999993015,
+      "mean": 6.888508300000103,
+      "stddev": 0.17913758406772035,
+      "runs": 10
+    }
+  },
+  "historia": {
+    "100": {
+      "filterOnly": {
+        "min": 0.0014580000006390037,
+        "max": 0.010250000001178705,
+        "median": 0.001540999999633641,
+        "mean": 0.0025040000004082686,
+        "stddev": 0.0025973532300029075,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 0.003957999999329331,
+        "max": 0.012124999999286956,
+        "median": 0.0040829999998095445,
+        "mean": 0.004878999999709777,
+        "stddev": 0.0024191302154362524,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 0.01825000000098953,
+        "max": 0.02599999999983993,
+        "median": 0.019500000000334694,
+        "mean": 0.020029300000169316,
+        "stddev": 0.0023834134364317033,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004199999966658652,
+        "max": 0.0005419999997684499,
+        "median": 0.00008400000115216244,
+        "mean": 0.00015420000036101556,
+        "stddev": 0.00014438199316477932,
+        "runs": 10
+      }
+    },
+    "1000": {
+      "filterOnly": {
+        "min": 0.006333999999696971,
+        "max": 0.013499999999112333,
+        "median": 0.006708000000799075,
+        "mean": 0.007358299999759765,
+        "stddev": 0.002066192587614984,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 0.036250000001018634,
+        "max": 0.05029199999989942,
+        "median": 0.03749999999854481,
+        "mean": 0.03902919999982259,
+        "stddev": 0.004019699610624489,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 0.15058399999907124,
+        "max": 0.17433400000118127,
+        "median": 0.16058300000076997,
+        "mean": 0.16171269999995275,
+        "stddev": 0.005758711211192591,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004099999932805076,
+        "max": 0.00008300000081362668,
+        "median": 0.00004199999966658652,
+        "mean": 0.00004580000040732557,
+        "stddev": 0.000012408062041085907,
+        "runs": 10
+      }
+    },
+    "5000": {
+      "filterOnly": {
+        "min": 0.02899999999863212,
+        "max": 0.03691600000092876,
+        "median": 0.03070800000023155,
+        "mean": 0.030933299999742304,
+        "stddev": 0.0021503613678466264,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 0.31508299999950395,
+        "max": 0.3553749999991851,
+        "median": 0.32062500000029104,
+        "mean": 0.32347900000004304,
+        "stddev": 0.011047177213762615,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 0.6757079999988491,
+        "max": 0.7040410000008706,
+        "median": 0.6841249999997672,
+        "mean": 0.685233299999527,
+        "stddev": 0.00885092409965727,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004099999932805076,
+        "max": 0.00008400000115216244,
+        "median": 0.00004199999966658652,
+        "mean": 0.000045900000259280205,
+        "stddev": 0.000012707871864767654,
+        "runs": 10
+      }
+    },
+    "10000": {
+      "filterOnly": {
+        "min": 0.05945800000154122,
+        "max": 0.06683299999895098,
+        "median": 0.05979200000001583,
+        "mean": 0.061337400000047636,
+        "stddev": 0.00252958032860244,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 0.6840420000007725,
+        "max": 0.7745000000013533,
+        "median": 0.6947909999998956,
+        "mean": 0.7013667000001078,
+        "stddev": 0.02539438593142263,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 1.336750000000393,
+        "max": 1.4321660000005068,
+        "median": 1.3704170000000886,
+        "mean": 1.3748582000001988,
+        "stddev": 0.026660392982375342,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004099999932805076,
+        "max": 0.00008300000081362668,
+        "median": 0.00004199999966658652,
+        "mean": 0.000054099999761092474,
+        "stddev": 0.00001892326599375315,
+        "runs": 10
+      }
+    },
+    "25000": {
+      "filterOnly": {
+        "min": 0.15762499999982538,
+        "max": 0.19845799999893643,
+        "median": 0.1727919999993901,
+        "mean": 0.17661249999982828,
+        "stddev": 0.015853397751039902,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 1.9130419999983133,
+        "max": 1.975958000000901,
+        "median": 1.9462920000005397,
+        "mean": 1.9378127000003587,
+        "stddev": 0.01960680361582773,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 3.2802499999997963,
+        "max": 3.460291999999754,
+        "median": 3.3482500000009168,
+        "mean": 3.3549248000001173,
+        "stddev": 0.0532275644506864,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004099999932805076,
+        "max": 0.00008299999899463728,
+        "median": 0.00004199999966658652,
+        "mean": 0.00004579999986162875,
+        "stddev": 0.000012408061592497897,
+        "runs": 10
+      }
+    },
+    "50000": {
+      "filterOnly": {
+        "min": 0.32866699999976845,
+        "max": 0.42966599999999744,
+        "median": 0.3770830000012211,
+        "mean": 0.3749040999999124,
+        "stddev": 0.026965680282535688,
+        "runs": 10
+      },
+      "sortAll": {
+        "min": 3.869125000001077,
+        "max": 4.078874999999243,
+        "median": 3.949749999999767,
+        "mean": 3.945812599999954,
+        "stddev": 0.05824475958240281,
+        "runs": 10
+      },
+      "searchTemplateAlloc": {
+        "min": 6.548040999998193,
+        "max": 6.897499999999127,
+        "median": 6.687207999999373,
+        "mean": 6.703345799999624,
+        "stddev": 0.08566314776490777,
+        "runs": 10
+      },
+      "paginationSlice": {
+        "min": 0.00004099999932805076,
+        "max": 0.00008400000115216244,
+        "median": 0.00008299999899463728,
+        "mean": 0.00006260000027396018,
+        "stddev": 0.000020804807089313583,
+        "runs": 10
+      }
+    }
+  },
+  "statystyki": {
+    "100": {
+      "categoryAggregation": {
+        "min": 0.0033750000002328306,
+        "max": 0.01204199999847333,
+        "median": 0.0034999999988940544,
+        "mean": 0.004408299999704468,
+        "stddev": 0.00255446605144927,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 0.007541000000856002,
+        "max": 0.011125000000902219,
+        "median": 0.007666999999855761,
+        "mean": 0.008020700000270154,
+        "stddev": 0.0010401099030558074,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.002541999998356914,
+        "max": 0.005666999999448308,
+        "median": 0.00258399999984249,
+        "mean": 0.0031292999996367144,
+        "stddev": 0.0010945038191651477,
+        "runs": 10
+      }
+    },
+    "1000": {
+      "categoryAggregation": {
+        "min": 0.012541999998575193,
+        "max": 0.03049999999893771,
+        "median": 0.012874999998530257,
+        "mean": 0.016304199999649428,
+        "stddev": 0.006250597519911534,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 0.02845800000068266,
+        "max": 0.03208300000005693,
+        "median": 0.028874999999970896,
+        "mean": 0.029287400000248452,
+        "stddev": 0.0010351180802089593,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.00204200000007404,
+        "max": 0.02091600000130711,
+        "median": 0.0020830000012210803,
+        "mean": 0.007199900000341586,
+        "stddev": 0.007812241720055534,
+        "runs": 10
+      }
+    },
+    "5000": {
+      "categoryAggregation": {
+        "min": 0.05908399999862013,
+        "max": 0.07479099999909522,
+        "median": 0.060292000000117696,
+        "mean": 0.062233399999786346,
+        "stddev": 0.004636822083909111,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 0.1461669999989681,
+        "max": 0.15545799999927112,
+        "median": 0.14733300000079907,
+        "mean": 0.14901649999992514,
+        "stddev": 0.0033943232979285263,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.009958000000551692,
+        "max": 0.015750000000480213,
+        "median": 0.010125000000698492,
+        "mean": 0.010729100000207836,
+        "stddev": 0.0016875568406351878,
+        "runs": 10
+      }
+    },
+    "10000": {
+      "categoryAggregation": {
+        "min": 0.12833400000090478,
+        "max": 0.17475000000013097,
+        "median": 0.13004200000068522,
+        "mean": 0.13552520000012008,
+        "stddev": 0.013397942467403294,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 0.28800000000046566,
+        "max": 0.30291700000088895,
+        "median": 0.2993749999986903,
+        "mean": 0.2967625000002954,
+        "stddev": 0.005361181273665551,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.014957999999751337,
+        "max": 0.015208000000711763,
+        "median": 0.015124999999898137,
+        "mean": 0.015083200000117359,
+        "stddev": 0.00007446180217649414,
+        "runs": 10
+      }
+    },
+    "25000": {
+      "categoryAggregation": {
+        "min": 0.30737500000032014,
+        "max": 0.5275419999998121,
+        "median": 0.3264999999992142,
+        "mean": 0.3445291999996698,
+        "stddev": 0.06196096178210321,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 0.7484169999988808,
+        "max": 0.7718750000003638,
+        "median": 0.7619169999998121,
+        "mean": 0.7597165999995923,
+        "stddev": 0.007038968209024214,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.03424999999879219,
+        "max": 0.03816700000061246,
+        "median": 0.034541999999419204,
+        "mean": 0.035225099999843225,
+        "stddev": 0.0013977052949231603,
+        "runs": 10
+      }
+    },
+    "50000": {
+      "categoryAggregation": {
+        "min": 0.6266660000001139,
+        "max": 0.6462920000012673,
+        "median": 0.6320829999986017,
+        "mean": 0.6336835000003702,
+        "stddev": 0.006755387779603331,
+        "runs": 10
+      },
+      "monthAggregation": {
+        "min": 1.4282920000005106,
+        "max": 1.5690840000006574,
+        "median": 1.4546669999999722,
+        "mean": 1.4669294000002993,
+        "stddev": 0.040353014247320136,
+        "runs": 10
+      },
+      "typeAggregation": {
+        "min": 0.05500000000029104,
+        "max": 0.05800000000090222,
+        "median": 0.0559159999993426,
+        "mean": 0.05614980000009382,
+        "stddev": 0.0008654954420740797,
+        "runs": 10
+      }
+    }
+  },
+  "pdfStages": {
+    "100": {
+      "lineSplittingMs": 0.06291600000076869,
+      "parsingAndRowDetectionMs": 1.5048340000012104,
+      "deduplicationMs": 1.1842500000002474,
+      "parsedTransactionsCount": 100,
+      "rejectedRowsCount": 0,
+      "duplicatesDetected": 0
+    },
+    "500": {
+      "lineSplittingMs": 0.06083299999954761,
+      "parsingAndRowDetectionMs": 3.5335419999992155,
+      "deduplicationMs": 3.4369580000002316,
+      "parsedTransactionsCount": 500,
+      "rejectedRowsCount": 0,
+      "duplicatesDetected": 1
+    },
+    "1000": {
+      "lineSplittingMs": 0.13345900000058464,
+      "parsingAndRowDetectionMs": 6.940041000001656,
+      "deduplicationMs": 6.679708000001483,
+      "parsedTransactionsCount": 1000,
+      "rejectedRowsCount": 0,
+      "duplicatesDetected": 1
+    },
+    "5000": {
+      "lineSplittingMs": 0.6166250000005675,
+      "parsingAndRowDetectionMs": 33.00379200000134,
+      "deduplicationMs": 33.170915999999124,
+      "parsedTransactionsCount": 5000,
+      "rejectedRowsCount": 0,
+      "duplicatesDetected": 7
+    },
+    "10000": {
+      "lineSplittingMs": 1.353916999998546,
+      "parsingAndRowDetectionMs": 63.76645800000006,
+      "deduplicationMs": 66.3418330000004,
+      "parsedTransactionsCount": 10000,
+      "rejectedRowsCount": 0,
+      "duplicatesDetected": 14
+    }
+  },
+  "csvStages": {
+    "1000": {
+      "separatorDetectMs": 0.1571669999993901,
+      "parseAndMapMs": 2.952541000000565,
+      "deduplicationSample500Ms": 4.918250000000626,
+      "parsedTransactionsCount": 1000,
+      "truncatedCount": 0,
+      "detectedSeparator": ";"
+    },
+    "5000": {
+      "separatorDetectMs": 0.4989580000001297,
+      "parseAndMapMs": 6.05133300000125,
+      "deduplicationSample500Ms": 3.904540999999881,
+      "parsedTransactionsCount": 2000,
+      "truncatedCount": 3000,
+      "detectedSeparator": ";"
+    },
+    "10000": {
+      "separatorDetectMs": 1.1315409999988333,
+      "parseAndMapMs": 8.52112500000112,
+      "deduplicationSample500Ms": 3.673416999999972,
+      "parsedTransactionsCount": 2000,
+      "truncatedCount": 8000,
+      "detectedSeparator": ";"
+    },
+    "25000": {
+      "separatorDetectMs": 2.5987499999991996,
+      "parseAndMapMs": 13.836250000000291,
+      "deduplicationSample500Ms": 3.9506670000009763,
+      "parsedTransactionsCount": 2000,
+      "truncatedCount": 23000,
+      "detectedSeparator": ";"
+    },
+    "50000": {
+      "separatorDetectMs": 5.842999999998938,
+      "parseAndMapMs": 22.33416699999907,
+      "deduplicationSample500Ms": 3.3344170000000304,
+      "parsedTransactionsCount": 2000,
+      "truncatedCount": 48000,
+      "detectedSeparator": ";"
+    },
+    "100000": {
+      "separatorDetectMs": 10.799208000000363,
+      "parseAndMapMs": 46.45979199999965,
+      "deduplicationSample500Ms": 4.3755830000009155,
+      "parsedTransactionsCount": 2000,
+      "truncatedCount": 98000,
+      "detectedSeparator": ";"
+    }
+  },
+  "memoryProfile": {
+    "1000": {
+      "before": {
+        "heapUsedMb": "53.25 MB",
+        "rssMb": "504.70 MB"
+      },
+      "afterParse": {
+        "heapUsedMb": "58.94 MB",
+        "rssMb": "504.70 MB"
+      },
+      "afterNorm": {
+        "heapUsedMb": "58.94 MB",
+        "rssMb": "504.70 MB"
+      },
+      "afterDedup": {
+        "heapUsedMb": "63.11 MB",
+        "rssMb": "504.70 MB"
+      },
+      "afterStorage": {
+        "heapUsedMb": "64.32 MB",
+        "rssMb": "505.16 MB"
+      },
+      "afterGc": {
+        "heapUsedMb": "54.93 MB",
+        "rssMb": "504.98 MB"
+      },
+      "retainedOverheadMb": "1.68 MB"
+    },
+    "10000": {
+      "before": {
+        "heapUsedMb": "54.92 MB",
+        "rssMb": "504.98 MB"
+      },
+      "afterParse": {
+        "heapUsedMb": "78.30 MB",
+        "rssMb": "506.61 MB"
+      },
+      "afterNorm": {
+        "heapUsedMb": "78.30 MB",
+        "rssMb": "506.61 MB"
+      },
+      "afterDedup": {
+        "heapUsedMb": "82.46 MB",
+        "rssMb": "506.61 MB"
+      },
+      "afterStorage": {
+        "heapUsedMb": "63.51 MB",
+        "rssMb": "508.17 MB"
+      },
+      "afterGc": {
+        "heapUsedMb": "58.66 MB",
+        "rssMb": "508.00 MB"
+      },
+      "retainedOverheadMb": "3.75 MB"
+    },
+    "50000": {
+      "before": {
+        "heapUsedMb": "58.66 MB",
+        "rssMb": "508.00 MB"
+      },
+      "afterParse": {
+        "heapUsedMb": "90.42 MB",
+        "rssMb": "516.17 MB"
+      },
+      "afterNorm": {
+        "heapUsedMb": "90.42 MB",
+        "rssMb": "516.17 MB"
+      },
+      "afterDedup": {
+        "heapUsedMb": "94.64 MB",
+        "rssMb": "516.17 MB"
+      },
+      "afterStorage": {
+        "heapUsedMb": "96.50 MB",
+        "rssMb": "516.19 MB"
+      },
+      "afterGc": {
+        "heapUsedMb": "66.81 MB",
+        "rssMb": "513.59 MB"
+      },
+      "retainedOverheadMb": "8.15 MB"
+    },
+    "100000": {
+      "before": {
+        "heapUsedMb": "66.81 MB",
+        "rssMb": "513.59 MB"
+      },
+      "afterParse": {
+        "heapUsedMb": "176.37 MB",
+        "rssMb": "533.80 MB"
+      },
+      "afterNorm": {
+        "heapUsedMb": "176.37 MB",
+        "rssMb": "533.80 MB"
+      },
+      "afterDedup": {
+        "heapUsedMb": "180.49 MB",
+        "rssMb": "533.80 MB"
+      },
+      "afterStorage": {
+        "heapUsedMb": "167.08 MB",
+        "rssMb": "533.80 MB"
+      },
+      "afterGc": {
+        "heapUsedMb": "76.61 MB",
+        "rssMb": "520.84 MB"
+      },
+      "retainedOverheadMb": "9.80 MB"
+    }
+  },
+  "memoryLeakAudit": {
+    "baselineHeapMb": "76.61 MB",
+    "cycles": [
+      {
+        "cycle": 1,
+        "heapAfterImportMb": "86.28 MB",
+        "heapAfterClearMb": "79.85 MB",
+        "heapDeltaVsBaselineMb": "3.246 MB"
+      },
+      {
+        "cycle": 2,
+        "heapAfterImportMb": "88.86 MB",
+        "heapAfterClearMb": "80.00 MB",
+        "heapDeltaVsBaselineMb": "3.396 MB"
+      },
+      {
+        "cycle": 3,
+        "heapAfterImportMb": "88.90 MB",
+        "heapAfterClearMb": "80.03 MB",
+        "heapDeltaVsBaselineMb": "3.422 MB"
+      }
+    ],
+    "flagMemoryLeak": "NO LEAK DETECTED (Heap stabilizes cleanly)"
+  },
+  "persistence": {
+    "1000": {
+      "writeMs": "0.80",
+      "readMs": "0.77",
+      "updateMs": "0.76",
+      "bulkImport500Ms": "1.24"
+    },
+    "5000": {
+      "writeMs": "3.74",
+      "readMs": "3.88",
+      "updateMs": "3.78",
+      "bulkImport500Ms": "4.21"
+    },
+    "10000": {
+      "writeMs": "7.57",
+      "readMs": "8.24",
+      "updateMs": "7.49",
+      "bulkImport500Ms": "8.12"
+    }
+  },
+  "bundle": {
+    "totalJsKb": 4466,
+    "totalCssKb": 122,
+    "totalChunksCount": 44,
+    "initialJsKb": 1514,
+    "lazyChunksCount": 38,
+    "top10Chunks": [
+      {
+        "name": "vendor-firebase-firestore-DNX1EH8r.js",
+        "sizeKb": 657,
+        "type": "js",
+        "isLazy": false
+      },
+      {
+        "name": "vendor-pdfjs-B5ZmZFk6.js",
+        "sizeKb": 529,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "index-DecIncSi.js",
+        "sizeKb": 426,
+        "type": "js",
+        "isLazy": false
+      },
+      {
+        "name": "vendor-charts-wKRG8nxS.js",
+        "sizeKb": 378,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "vendor-jspdf-SQVvKoKr.js",
+        "sizeKb": 375,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "DebtsView-DCmye_jZ.js",
+        "sizeKb": 355,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "vendor-framework-AMVHQHCK.js",
+        "sizeKb": 324,
+        "type": "js",
+        "isLazy": false
+      },
+      {
+        "name": "vendor-html2canvas-QH1iLAAe.js",
+        "sizeKb": 198,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "vendor-firebase-auth-CJGsLsMK.js",
+        "sizeKb": 190,
+        "type": "js",
+        "isLazy": true
+      },
+      {
+        "name": "vendor-canvg-BHmL4C6o.js",
+        "sizeKb": 156,
+        "type": "js",
+        "isLazy": true
+      }
+    ],
+    "heavyLibrariesAudit": {
+      "pdfjsDist": {
+        "name": "vendor-pdfjs-B5ZmZFk6.js",
+        "sizeKb": 529,
+        "type": "js",
+        "isLazy": true
+      },
+      "charts": {
+        "name": "vendor-charts-wKRG8nxS.js",
+        "sizeKb": 378,
+        "type": "js",
+        "isLazy": true
+      },
+      "jspdf": {
+        "name": "vendor-jspdf-SQVvKoKr.js",
+        "sizeKb": 375,
+        "type": "js",
+        "isLazy": true
+      },
+      "csvPapa": {
+        "name": "vendor-csv-CVsYjide.js",
+        "sizeKb": 19,
+        "type": "js",
+        "isLazy": true
+      },
+      "aiService": {
+        "name": "aiService-DAy8uwMR.js",
+        "sizeKb": 19,
+        "type": "js",
+        "isLazy": true
+      },
+      "aiModal": {
+        "name": "AiChatModal-dax6dN3-.js",
+        "sizeKb": 9,
+        "type": "js",
+        "isLazy": true
+      }
+    }
+  },
+  "coldProcessStartup": {
+    "processEntryToModuleLoadStartMs": 0.057541999999997984,
+    "moduleLoadDurationMs": 14.831291000000007,
+    "idbEnvSetupMs": 18.922124999999994,
+    "storageInitialLoadMs": 2.1300000000000097,
+    "storageRealProfileLoadMs": 1.3307920000000024,
+    "dashboardReadyCalculationMs": 2.7382089999999977,
+    "totalColdStartupMs": 41.451042
+  },
+  "browserStartup": {
+    "runs": 5,
+    "ttfbMs": {
+      "min": 0.40000003576278687,
+      "max": 1,
+      "median": 0.5,
+      "mean": 0.5800000071525574
+    },
+    "domContentLoadedMs": {
+      "min": 95.90000003576279,
+      "max": 117.5,
+      "median": 99.29999995231628,
+      "mean": 104.71999999284745
+    },
+    "firstContentfulPaintMs": {
+      "min": 0,
+      "max": 156,
+      "median": 0,
+      "mean": 60.8
+    },
+    "domCompleteMs": {
+      "min": 96.70000004768372,
+      "max": 118.39999997615814,
+      "median": 100.29999995231628,
+      "mean": 105.6
+    },
+    "rootReadyMs": {
+      "min": 122.622208,
+      "max": 161.681916,
+      "median": 126.59904199999983,
+      "mean": 135.84469159999995
+    }
+  }
+}
