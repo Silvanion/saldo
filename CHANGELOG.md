@@ -5,6 +5,25 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.4] - Wrzesień 2026
+### Optymalizacja Wydajności, Bezpieczna Warstwa AI (BYOK: Gemini & Claude) i Nowy Wskaźnik Kondycji Finansowej
+- **Bezpieczna warstwa AI (Bring Your Own Key — BYOK)**:
+  - Pełne wsparcie dla własnych kluczy API użytkownika dla modeli **Google Gemini** (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`) oraz **Anthropic Claude** (`claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest`, `claude-3-opus-latest`).
+  - Bezpieczny magazyn kluczy `SecurityVault`: natywna ochrona z użyciem **macOS Keychain** (`safeStorage` w wersji Electron desktop) oraz `WebCrypto AES-GCM-256` z `PBKDF2` (100 000 iteracji SHA-256) w wersji przeglądarkowej. Surowy klucz API nigdy nie jest zapisywany w postaci jawnej w `localStorage` ani przesyłany do zewnętrznych baz danych.
+  - Natychmiastowe zerowanie buforów pamięci RAM (`zeroizeBuffer`) po wykonaniu operacji kryptograficznych.
+  - Zabezpieczenie prywatności i minimalizacja danych (`FinancialSummaryContext`): do modeli AI przesyłane są wyłącznie zagregowane wskaźniki miesięczne i podsumowania top 5 kategorii. Żadne numery kont (IBAN), numery PESEL, adresy, nazwiska, tytuły przelewów ani pełna historia transakcji nie są udostępniane modelom.
+  - Pełna kontrola nad mutacjami: AI posiada uprawnienia wyłącznie READ-ONLY. Wszelkie sugestie operacji (np. utworzenie reguły, dodanie transakcji) wymagają jawnej akceptacji użytkownika w interfejsie.
+  - Lazy loading: kod AI oraz komponenty czatu zostały wydzielone do asynchronicznych chunków (brak narzutu na rozmiar początkowego pakietu aplikacji).
+- **Zabezpieczenie Kondycji Finansowej (Financial Health)**:
+  - Pusty lub nowo utworzony profil bez historii transakcji zwraca teraz deterministyczny status `INSUFFICIENT_DATA` z wartością `score: null` (wyświetlaną w UI jako neutralny znak `—` i etykieta „Brak wystarczających danych”) zamiast mylącego domyślnego wyniku 83/100.
+  - Wyeliminowano fałszywy alert „Niski bufor gotówkowy +1” na profilach bez zarejestrowanych wpływów i wydatków.
+  - Prawidłowa obsługa filtrowania i kalkulacji płynności we wszystkich widokach (Dashboard, Financial Story, analiza kondycji).
+- **Optymalizacja wydajności i redukcja obciążenia CPU/RAM**:
+  - `dataAuditor`: Wprowadzono indeksowanie kubełkowe $O(1)$ dla detekcji duplikatów (redukcja czasu audytu 50 000 transakcji z 5,8 s do 0,33 s — przyspieszenie o 94%).
+  - `useDashboardMetrics`: Agregacja 6-miesięcznego wykresu zredukowana do pojedynczego przejścia $O(N)$ z mapą prefiksów oraz algorytm jednoprzebiegowy dla top-4 ostatnich transakcji zamiast pełnego klonowania i sortowania $O(N \log N)$.
+  - `budgetCalculations`: Wyeliminowano setki tysięcy niepotrzebnych alokacji obiektów `new Date()` w pętlach kalkulacyjnych na rzecz natywnego dopasowywania prefiksów stringów ISO (`YYYY-MM`).
+  - `MortgageProModal`: Dynamiczny import generatora raportów PDF (`lazy loading`), redukujący rozmiar głównego chunka aplikacji.
+
 ## [v1.6.3] - Wrzesień 2026
 ### Odporność parserów bankowych CSV/PDF, eliminacja anomalii i walidacja ciągłości salda
 - **Krytyczne usprawnienia parsera CSV (mBank i inne formaty)**:

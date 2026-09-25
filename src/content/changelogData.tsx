@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.4",
+    date: "Wrzesień 2026",
+    title: "Optymalizacja Wydajności, Bezpieczna Warstwa AI (BYOK: Gemini & Claude) i Nowy Wskaźnik Kondycji Finansowej",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Bezpieczne AI — Bring Your Own Key] Pełna integracja własnych kluczy API dla Google Gemini (2.5 Flash, 2.0 Flash, 1.5 Flash, Pro) oraz Anthropic Claude (3.5 Sonnet, 3.5 Haiku, Opus). Bezpośrednie szyfrowane połączenie HTTPS z poziomu Twojej aplikacji.",
+      "[Maksymalna Ochrona Prywatności] Klucze API są zabezpieczone w macOS Keychain (wersja desktopowa) lub WebCrypto AES-GCM-256 z PBKDF2 (przeglądarka) — surowy klucz nigdy nie trafia do localStorage ani do bazy danych. Do modelu AI wysyłany jest wyłącznie zminimalizowany, zagregowany kontekst bez historii transakcji, numerów kont, PESEL czy danych osobowych.",
+      "[Bezpieczne Mutacje AI] Doradca AI działa wyłącznie w trybie analizy i porad. Żadna transakcja ani reguła nie może zostać zmodyfikowana bez Twojego jawnego kliknięcia przycisku akceptacji w interfejsie.",
+      "[Rzetelna Kondycja Finansowa] Pusty lub nowo utworzony profil bez transakcji nie pokazuje już fałszywego wyniku 83/100 ani alertu o niskim buforze. Wskaźnik uczciwie informuje o braku wystarczających danych do czasu dodania pierwszych wpływów lub wydatków.",
+      "[Skok Wydajnościowy i Lżejsza Aplikacja] Nowy algorytm audytu duplikatów skrócił czas analizy z 5,8 s do 0,33 s (przyspieszenie o 94%). Zoptymalizowano kalkulacje budżetowe i wykresy, a moduły AI oraz generator PDF ładują się dynamicznie (lazy loading), nie obciążając startu aplikacji."
+    ]
+  },
+  {
     version: "v1.6.3",
     date: "Wrzesień 2026",
     title: "Odporność Parserów Bankowych CSV i PDF, Eliminacja Anomalii oraz Audytor Danych",
