@@ -14,7 +14,9 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
   onConfigChange
 }) => {
   const [provider, setProvider] = useState<AIProviderType>("gemini");
-  const [model, setModel] = useState<string>("gemini-2.5-flash");
+  const [model, setModel] = useState<string>(() => ProviderRegistry.getDefaultModel("gemini") || "gemini-3.8-flash");
+  const [isCustomModel, setIsCustomModel] = useState(false);
+  const [customModelInput, setCustomModelInput] = useState("");
   const [inputApiKey, setInputApiKey] = useState("");
   const [showPlainKey, setShowPlainKey] = useState(false);
   const [isEditingKey, setIsEditingKey] = useState(false);
@@ -31,23 +33,53 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
     setTestResult(null);
 
     const availableModels = ProviderRegistry.getModelsForProvider(provider);
-    if (meta.model && availableModels.some(m => m.id === meta.model)) {
-      setModel(meta.model);
+    if (meta.model) {
+      if (availableModels.some(m => m.id === meta.model)) {
+        setModel(meta.model);
+        setIsCustomModel(false);
+      } else {
+        setModel("__custom__");
+        setIsCustomModel(true);
+        setCustomModelInput(meta.model);
+      }
     } else {
       setModel(ProviderRegistry.getDefaultModel(provider));
+      setIsCustomModel(false);
     }
   }, [provider]);
 
   const handleProviderChange = (newProvider: AIProviderType) => {
     setProvider(newProvider);
+    setIsCustomModel(false);
     const defaultM = ProviderRegistry.getDefaultModel(newProvider);
     setModel(defaultM);
     onConfigChange?.(newProvider, defaultM);
   };
 
   const handleModelChange = (newModel: string) => {
-    setModel(newModel);
-    onConfigChange?.(provider, newModel);
+    if (newModel === "__custom__") {
+      setIsCustomModel(true);
+      const effective = customModelInput.trim() || ProviderRegistry.getDefaultModel(provider);
+      onConfigChange?.(provider, effective);
+    } else {
+      setIsCustomModel(false);
+      setModel(newModel);
+      onConfigChange?.(provider, newModel);
+    }
+  };
+
+  const handleCustomModelChange = (val: string) => {
+    setCustomModelInput(val);
+    if (val.trim()) {
+      onConfigChange?.(provider, val.trim());
+    }
+  };
+
+  const getEffectiveModel = (): string => {
+    if (isCustomModel) {
+      return customModelInput.trim() || ProviderRegistry.getDefaultModel(provider);
+    }
+    return model;
   };
 
   const handleSaveKey = async () => {
@@ -56,14 +88,16 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
       return;
     }
 
+    const effectiveModel = getEffectiveModel();
+
     try {
-      await AIService.storeApiKey(provider, inputApiKey.trim(), model);
+      await AIService.storeApiKey(provider, inputApiKey.trim(), effectiveModel);
       const meta = AIService.getKeyMetadata(provider);
       setMetadata(meta);
       setIsEditingKey(false);
       setInputApiKey("");
       showToast(`Klucz API dla ${ProviderRegistry.getProviderLabel(provider)} został bezpiecznie zapisany.`, "success");
-      onConfigChange?.(provider, model);
+      onConfigChange?.(provider, effectiveModel);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Błąd podczas zapisywania klucza.", "error");
     }
@@ -86,10 +120,12 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
     setIsTesting(true);
     setTestResult(null);
 
+    const effectiveModel = getEffectiveModel();
+
     try {
       // Jeśli użytkownik wpisuje nowy klucz, przetestuj go bezpośrednio
       const keyToTest = inputApiKey.trim() || undefined;
-      const result = await AIService.testConnection(provider, model, keyToTest);
+      const result = await AIService.testConnection(provider, effectiveModel, keyToTest);
       setTestResult(result);
 
       if (result.status === "SUCCESS") {
@@ -173,7 +209,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
           </label>
           <select
             id="ai-model-select"
-            value={model}
+            value={isCustomModel ? "__custom__" : model}
             onChange={(e) => handleModelChange(e.target.value)}
             className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
           >
@@ -182,7 +218,24 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
                 {m.name} {m.recommended ? "★ (Rekomendowany)" : ""}
               </option>
             ))}
+            <option value="__custom__">Inny model (wpisz ręcznie)...</option>
           </select>
+
+          {isCustomModel && (
+            <div className="pt-1.5">
+              <input
+                type="text"
+                id="ai-custom-model-input"
+                value={customModelInput}
+                onChange={(e) => handleCustomModelChange(e.target.value)}
+                placeholder="np. gemini-3.8-flash, claude-3-5-sonnet-20241022"
+                className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring font-mono"
+              />
+              <p className="text-[11px] text-text-muted mt-1">
+                Wpisz dokładny identyfikator modelu API (np. z dokumentacji Google lub Anthropic).
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Klucz API */}

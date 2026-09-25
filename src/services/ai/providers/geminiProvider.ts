@@ -11,29 +11,64 @@ import {
 export class GeminiProvider implements AIProviderAdapter {
   readonly name: AIProviderType = "gemini";
   readonly displayName = "Google Gemini";
-  readonly defaultModel = "gemini-2.5-flash";
+  readonly defaultModel = "gemini-3.8-flash";
 
   readonly availableModels: AIModelDefinition[] = [
     {
-      id: "gemini-2.5-flash",
-      name: "Gemini 2.5 Flash",
-      description: "Najszybszy i najbardziej wszechstronny model Google (zalecany)",
+      id: "gemini-3.8-flash",
+      name: "Gemini 3.8 Flash",
+      description: "Najnowszy, flagowy i najszybszy model Google (zalecany)",
       recommended: true
+    },
+    {
+      id: "gemini-3.7-flash",
+      name: "Gemini 3.7 Flash",
+      description: "Zaawansowane wnioskowanie, analityka wielokrokowa i wysoka precyzja"
+    },
+    {
+      id: "gemini-3.5-flash",
+      name: "Gemini 3.5 Flash",
+      description: "Nowoczesny, stabilny i szybki model roboczy nowej generacji"
+    },
+    {
+      id: "gemini-3.5-flash-lite",
+      name: "Gemini 3.5 Flash-Lite",
+      description: "Ultraszybki i zoptymalizowany pod kątem oszczędności tokenów"
+    },
+    {
+      id: "gemini-3.1-pro-preview",
+      name: "Gemini 3.1 Pro (Preview)",
+      description: "Najwyższy poziom wnioskowania logicznego i głęboka analiza finansowa"
+    },
+    {
+      id: "gemini-3.1-flash-lite",
+      name: "Gemini 3.1 Flash-Lite",
+      description: "Wysoka wydajność i niskie opóźnienia w ekonomicznej cenie"
     },
     {
       id: "gemini-2.0-flash",
       name: "Gemini 2.0 Flash",
-      description: "Nowoczesny, szybki model nowej generacji"
+      description: "Powszechnie wspierany i stabilny model generacji 2.0"
+    },
+    {
+      id: "gemini-2.0-flash-lite",
+      name: "Gemini 2.0 Flash-Lite",
+      description: "Lekki i ekonomiczny model generacji 2.0"
     },
     {
       id: "gemini-1.5-flash",
       name: "Gemini 1.5 Flash",
-      description: "Lekki i bardzo ekonomiczny model"
+      description: "Sprawdzony i stabilny model generacji 1.5"
     },
     {
       id: "gemini-1.5-pro",
       name: "Gemini 1.5 Pro",
       description: "Model o zwiększonej pojemności wnioskowania i głębszej analizy"
+    },
+    {
+      id: "gemini-2.5-flash",
+      name: "Gemini 2.5 Flash",
+      description: "Model dostępny na wybranych kontach i poziomach subskrypcji"
     }
   ];
 

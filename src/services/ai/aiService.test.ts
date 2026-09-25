@@ -62,7 +62,7 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
 
     it("udostępnia domyślne i rekomendowane modele", () => {
       const gemini = providerRegistry.getAdapter("gemini")!;
-      expect(gemini.defaultModel).toBe("gemini-2.5-flash");
+      expect(gemini.defaultModel).toBe("gemini-3.8-flash");
       expect(gemini.availableModels.some(m => m.recommended)).toBe(true);
 
       const anthropic = providerRegistry.getAdapter("anthropic")!;
