@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.6",
+    date: "Wrzesień 2026",
+    title: "Poprawki Menu na macOS i Stabilniejsze AI z Własnym Kluczem",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Menu Boczne na macOS] Zwinięte menu nie zasłania już przycisków zamykania i minimalizowania okna.",
+      "[Przeciążony Dostawca AI] Gdy Gemini lub Claude chwilowo zwraca błąd przeciążenia (np. „high demand”), aplikacja ponawia zapytanie kilka razy, a gdy to nie pomoże, wyświetla czytelny komunikat po polsku z podpowiedzią zmiany modelu.",
+      "[Doradca AI — Właściwy Tryb] Okno doradcy nie twierdzi już, że AI jest wyłączone, gdy masz skonfigurowany własny klucz Gemini lub Claude — pokazuje aktywnego dostawcę."
+    ]
+  },
+  {
     version: "v1.6.5",
     date: "Wrzesień 2026",
     title: "Nowe Menu Boczne, Folder z Wyciągami i Poprawiony Import z Polskich Banków",
