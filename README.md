@@ -16,8 +16,8 @@ Najnowsza wersja: **[GitHub Releases → Latest](https://github.com/Silvanion/sa
 | --- | --- |
 | macOS — Apple Silicon (M1–M4) | `Saldo-<wersja>-arm64.dmg` |
 | macOS — Intel | `Saldo-<wersja>.dmg` |
-| Windows — instalator | `Saldo.Setup.<wersja>.exe` |
-| Windows — wersja przenośna | `Saldo.<wersja>.exe` |
+| Windows — instalator | `Saldo-Setup-<wersja>.exe` |
+| Windows — wersja przenośna | `Saldo-<wersja>-portable.exe` |
 
 ### Pierwsze uruchomienie na macOS
 
@@ -27,11 +27,11 @@ Wydania nie są jeszcze notaryzowane przez Apple (podpis ad-hoc), dlatego przy p
 
 - **Local-First od pierwszego uruchomienia** — kreator onboardingu tworzy lokalny profil (nazwa, wektorowy awatar, waluta, opcjonalny PIN) bez konta Google czy e-maila; logowanie w chmurze jest dostępne później, wyłącznie w Ustawieniach, jako opcja.
 - **Pulpit** — bieżący bilans, trendy wydatków, skrócony przegląd nadchodzących płatności i celów.
-- **Transakcje i budżet** — kategorie z limitami, import wyciągów (CSV/PDF, w tym mBank), wykrywanie duplikatów.
+- **Transakcje i budżet** — kategorie z limitami, import wyciągów CSV/PDF (dedykowane parsery Alior Banku i Zen sprawdzone na prawdziwych wyciągach, ogólne mapowanie kolumn dla pozostałych banków, m.in. mBank), ostrzeżenia o przelewach własnych i operacjach na koncie kredytowym, wykrywanie duplikatów.
 - **Płatności cykliczne** — przypomnienia o terminach, natywne powiadomienia systemowe.
 - **Cele oszczędnościowe** — śledzenie postępu, scenariusze dojścia do celu.
 - **Portfel długów** — strategie spłaty (lawina/kula śnieżna), Kredyt Hipoteczny Pro (test warunków skrajnych KNF, wakacje kredytowe, raty malejące, monitoring LTV).
-- **Doradca AI (lokalny, Ollama)** — czat uziemiony w deterministycznym silniku finansowym aplikacji, może zaproponować i zapisać konkretny plan działania.
+- **Doradca AI (lokalny Ollama lub własny klucz Gemini/Claude)** — czat uziemiony w deterministycznym silniku finansowym aplikacji, może zaproponować i zapisać konkretny plan działania.
 - **Synchronizacja** — kopia zapasowa i synchronizacja przez Google Drive, eksport/import JSON.
 - **Bezpieczeństwo** — szyfrowanie profilu kluczem z PIN-u, prawdziwe odblokowanie Touch ID / Windows Hello (Keychain/DPAPI) na desktopie — dostępne od razu w kreatorze onboardingu i w ekranie wyboru profilu, automatyczna blokada po zablokowaniu ekranu.
 
@@ -39,7 +39,7 @@ Wydania nie są jeszcze notaryzowane przez Apple (podpis ad-hoc), dlatego przy p
 
 - Obserwowanie folderu z wyciągami (Ustawienia → Kopia i raporty): nowy plik CSV/PDF wywołuje powiadomienie systemowe, a import wymaga potwierdzenia w podglądzie.
 - Aktualizacje przez `electron-updater` — powiadomienie w aplikacji, pobranie dopiero po potwierdzeniu, ręczne sprawdzanie z menu i z widoku "Historia Zmian". Na macOS bez notaryzacji — przekierowanie do strony wydania.
-- Podpisywanie kodu w CI: Developer ID + notaryzacja (macOS) i code-signing (Windows) po dodaniu sekretów; bez nich build macOS jest podpisywany ad-hoc.
+- Podpisywanie kodu w CI: Developer ID + notaryzacja (macOS) po dodaniu sekretów; bez nich build macOS jest podpisywany ad-hoc. Podpisywanie wydań Windows jest na razie wstrzymane (instalator niepodpisany — SmartScreen może pokazać ostrzeżenie).
 - Ikona w tray z szybkim dodawaniem wydatku, dock badge, natywne powiadomienia, autostart z systemem.
 - Zapamiętywanie rozmiaru/pozycji okna, natywne okna dialogowe zapisu/odczytu kopii zapasowej.
 - Natywne menu kontekstowe (Wytnij/Kopiuj/Wklej, podpowiedzi pisowni) na każdym polu tekstowym, branded panel "O Programie".
