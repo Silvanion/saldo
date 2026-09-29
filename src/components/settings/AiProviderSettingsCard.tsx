@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, Key, CheckCircle2, XCircle, Loader2, Trash2, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Key, CheckCircle2, XCircle, Loader2, Trash2, ShieldCheck, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { AIService } from "../../services/ai/aiService";
 import { ProviderRegistry } from "../../services/ai/providerRegistry";
 import { AIProviderType, TestConnectionResult } from "../../services/ai/types";
@@ -360,6 +360,18 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
           <p>
             Klucz API jest przechowywany wyłącznie lokalnie na Twoim urządzeniu w bezpiecznym magazynie (Keychain/Vault).
             Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na zewnętrzne serwery Saldo.
+          </p>
+        </div>
+
+        {/* Co opuszcza komputer */}
+        <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-2.5 text-[11px] text-text-muted" id="ai-cloud-data-disclosure">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <p>
+            <strong className="text-text-main">Co trafia do dostawcy ({ProviderRegistry.getProviderLabel(provider)}):</strong>{" "}
+            treść pytania, które wpiszesz w czacie, oraz zagregowane podsumowanie bieżącego miesiąca (przychody, wydatki, bilans,
+            stopa oszczędności, 5 największych kategorii, liczba celów i nieopłaconych rachunków). Pojedyncze transakcje, numery kont
+            i imiona nie są dołączane — ale wszystko, co wpiszesz w pytaniu, zostanie wysłane. Dane trafiają bezpośrednio do dostawcy
+            i podlegają jego polityce prywatności. Jeśli nie chcesz, żeby cokolwiek opuszczało komputer, użyj lokalnego AI (Ollama) poniżej.
           </p>
         </div>
       </div>
