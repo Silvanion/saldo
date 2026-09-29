@@ -63,6 +63,12 @@
       ],
       "icon": "build/icon.png"
     },
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    },
     "publish": {
       "provider": "github",
       "owner": "Silvanion",
