@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.5",
+    date: "Wrzesień 2026",
+    title: "Nowe Menu Boczne, Folder z Wyciągami i Poprawiony Import z Polskich Banków",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Nowe Menu Boczne] Pozycje są pogrupowane (Codzienne, Planowanie, Majątek), a menu można zwinąć do samych ikon — aplikacja zapamięta Twój wybór. Majątek netto ma teraz własny widok w menu, a nie tylko okno dialogowe.",
+      "[Import z Banków — Polskie Znaki] Pliki CSV zapisane w kodowaniu Windows-1250 (m.in. eksport z mBanku) były wcześniej czytane jako UTF-8, przez co polskie litery zamieniały się w znaki zapytania. Aplikacja sama rozpoznaje kodowanie pliku.",
+      "[Folder z Wyciągami — Aplikacja Desktopowa] W Ustawieniach → Kopia i raporty możesz wskazać folder, do którego zapisujesz wyciągi z banku. Gdy pojawi się w nim nowy plik CSV lub PDF, dostaniesz powiadomienie; po jego kliknięciu zobaczysz zwykły podgląd importu. Nic nie jest importowane automatycznie.",
+      "[Sugestie Kategorii Lokalnego AI] Kategorie zaproponowane przez lokalny model (Ollama) w podglądzie importu są teraz oznaczone ikoną, abyś wiedział, które wiersze sprawdzić przed zatwierdzeniem.",
+      "[Przejrzysta Informacja o Danych AI] Karta kluczy Gemini/Claude wyjaśnia, co dokładnie trafia do dostawcy (Twoje pytanie oraz zagregowane podsumowanie miesiąca) i wskazuje lokalne AI jako opcję, przy której nic nie opuszcza komputera.",
+      "[Stabilność Aplikacji Desktopowej] Po awarii okna aplikacja próbuje się sama odświeżyć zamiast zostawiać puste okno, a zdarzenia diagnostyczne trafiają do dziennika aplikacji."
+    ]
+  },
+  {
     version: "v1.6.4",
     date: "Wrzesień 2026",
     title: "Optymalizacja Wydajności, Bezpieczna Warstwa AI (BYOK: Gemini & Claude) i Nowy Wskaźnik Kondycji Finansowej",
