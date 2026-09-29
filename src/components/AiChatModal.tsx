@@ -28,6 +28,11 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     { id: "welcome", sender: "ai", text: "Cześć! Zapytaj mnie o wydatki, cele albo sposoby na oszczędzanie." }
   ]);
 
+  // Klucz BYOK ma pierwszeństwo przed Ollamą (patrz sendMessage), więc to on decyduje o trybie.
+  const activeKey = isOpen ? AIService.getActiveKeyMetadata() : null;
+  const byokLabel =
+    activeKey?.keyPresent ? `${activeKey.provider === "gemini" ? "Google Gemini" : "Anthropic Claude"} (własny klucz)` : null;
+
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
 
@@ -157,13 +162,13 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             <Sparkles className="h-5 w-5 text-brand" />
             <div>
               <h2 id="ai-chat-title" className="font-bold text-text-main">Doradca finansowy AI</h2>
-              <p className="text-xs text-text-muted">Tryb: {state.aiMode === "local" ? "Ollama" : "wyłączony"}</p>
+              <p className="text-xs text-text-muted">Tryb: {byokLabel ?? (state.aiMode === "local" ? "Ollama" : "wyłączony")}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Zamknij" className="rounded-lg p-2 text-text-muted hover:bg-surface-2"><X className="h-5 w-5" /></button>
         </header>
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          {state.aiMode !== "local" && (
+          {state.aiMode !== "local" && !byokLabel && (
             <ReasonCard
               reason={{
                 code: "ai-chat-disabled",

@@ -174,7 +174,7 @@ export function Sidebar({ isElectron }: { isElectron: boolean }) {
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-bg-base/95 backdrop-blur-2xl border-r border-border/50 p-6 transition-[transform,width,padding] duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } ${collapsed ? "lg:w-[76px] lg:p-3" : "lg:w-64"} ${isElectron ? "pt-12" : ""}`}
+        } ${collapsed ? "lg:w-[76px] lg:p-3" : "lg:w-64"} ${isElectron ? "pt-12 lg:pt-12" : ""}`}
         id="sidebar-panel"
         data-collapsed={collapsed}
       >

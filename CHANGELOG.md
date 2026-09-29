@@ -5,6 +5,13 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.6] - Wrzesień 2026
+### Poprawki: menu na macOS, przeciążenie dostawców AI, tryb doradcy
+- **Interfejs (macOS)**: zwinięte menu boczne wjeżdżało pod przyciski zamykania/minimalizowania okna — `lg:p-3` (zwinięte) nadpisywało `pt-12`. Dodano `lg:pt-12` dla Electrona i test regresyjny.
+- **AI (BYOK)**:
+  - Przejściowe błędy dostawców (HTTP 500/502/503/504/529, np. Gemini „high demand”) są ponawiane dwukrotnie z rosnącą przerwą (`services/ai/fetchRetry.ts`); po wyczerpaniu prób użytkownik dostaje polski komunikat z podpowiedzią zmiany modelu zamiast surowego błędu API. Błędy klucza, limitów i nieistniejącego modelu nie są ponawiane.
+  - Naprawa: nagłówek doradcy i ostrzeżenie „Doradca AI jest wyłączony” patrzyły tylko na Ollamę, choć skonfigurowany klucz BYOK ma pierwszeństwo i wiadomość szła do Gemini/Claude. Teraz tryb pokazuje aktywnego dostawcę.
+
 ## [v1.6.5] - Wrzesień 2026
 ### Nowe menu boczne, folder z wyciągami i poprawiony import z polskich banków
 - **Interfejs**:

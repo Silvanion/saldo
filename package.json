@@ -1,7 +1,7 @@
 {
   "name": "saldo-app",
   "private": true,
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Aplikacja do zarządzania finansami osobistymi i domowymi.",
   "author": "Silvanion",
   "type": "module",

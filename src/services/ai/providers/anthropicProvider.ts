@@ -7,6 +7,7 @@ import {
   AIResponse,
   AIError
 } from "../types";
+import { fetchWithRetry, isTransientStatus } from "../fetchRetry";
 
 export class AnthropicProvider implements AIProviderAdapter {
   readonly name: AIProviderType = "anthropic";
@@ -206,17 +207,19 @@ export class AnthropicProvider implements AIProviderAdapter {
     }
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey.trim(),
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal
-      });
+      const response = await fetchWithRetry(() =>
+        fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey.trim(),
+            "anthropic-version": "2023-06-01",
+            "anthropic-dangerous-direct-browser-access": "true"
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        })
+      );
 
       clearTimeout(timeout);
 
@@ -238,6 +241,14 @@ export class AnthropicProvider implements AIProviderAdapter {
         }
         if (response.status === 429) {
           throw new AIError("Przekroczono limit zapytań Anthropic API.", "RATE_LIMITED", this.name, response.status);
+        }
+        if (isTransientStatus(response.status)) {
+          throw new AIError(
+            "Serwer Anthropic jest chwilowo przeciążony (po 3 próbach). Spróbuj ponownie za moment albo wybierz inny model w Ustawieniach → Automatyzacja & AI.",
+            "PROVIDER_ERROR",
+            this.name,
+            response.status
+          );
         }
         throw new AIError(`Błąd Anthropic API: ${errorMsg}`, "PROVIDER_ERROR", this.name, response.status);
       }

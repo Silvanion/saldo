@@ -72,4 +72,13 @@ describe("Sidebar", () => {
     render(<Sidebar isElectron={false} />);
     expect(document.getElementById("sidebar-panel")!.getAttribute("data-collapsed")).toBe("true");
   });
+
+  it("w Electronie zostawia miejsce na przyciski okna także po zwinięciu menu", () => {
+    // lg:p-3 (zwinięte) nadpisywało pt-12 i logo wjeżdżało pod przyciski zamknij/minimalizuj macOS.
+    localStorage.setItem("saldo.sidebarCollapsed", "1");
+    render(<Sidebar isElectron={true} />);
+    const aside = document.getElementById("sidebar-panel")!;
+    expect(aside.className).toContain("lg:p-3");
+    expect(aside.className).toContain("lg:pt-12");
+  });
 });

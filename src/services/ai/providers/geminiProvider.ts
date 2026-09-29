@@ -7,6 +7,7 @@ import {
   AIResponse,
   AIError
 } from "../types";
+import { fetchWithRetry, isTransientStatus } from "../fetchRetry";
 
 export class GeminiProvider implements AIProviderAdapter {
   readonly name: AIProviderType = "gemini";
@@ -224,15 +225,17 @@ export class GeminiProvider implements AIProviderAdapter {
     }
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey.trim()
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal
-      });
+      const response = await fetchWithRetry(() =>
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey.trim()
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        })
+      );
 
       clearTimeout(timeout);
 
@@ -254,6 +257,14 @@ export class GeminiProvider implements AIProviderAdapter {
         }
         if (response.status === 429) {
           throw new AIError("Przekroczono limit zapytań Gemini API.", "RATE_LIMITED", this.name, response.status);
+        }
+        if (isTransientStatus(response.status)) {
+          throw new AIError(
+            "Serwer Google Gemini jest chwilowo przeciążony (po 3 próbach). Spróbuj ponownie za moment albo wybierz inny model w Ustawieniach → Automatyzacja & AI.",
+            "PROVIDER_ERROR",
+            this.name,
+            response.status
+          );
         }
         throw new AIError(`Błąd Gemini API: ${errorMsg}`, "PROVIDER_ERROR", this.name, response.status);
       }
