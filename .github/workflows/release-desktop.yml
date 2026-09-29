@@ -67,6 +67,22 @@ jobs:
             npx electron-builder --publish never -c.mac.identity=-
           fi
 
+      # electron-updater pobiera plik dokładnie pod nazwą z latest*.yml. GitHub zamienia spacje w nazwach
+      # assetów na kropki, a electron-builder w yml na myślniki — w v1.6.4 dawało to 404 i zepsutą
+      # autoaktualizację na Windows. Zatrzymaj wydanie, gdy yml wskazuje plik, którego nie ma.
+      - name: Verify update manifest matches built files
+        shell: bash
+        run: |
+          for yml in dist-electron/latest*.yml; do
+            for f in $(grep -E '^\s*(- )?(url|path):' "$yml" | sed -E 's/.*(url|path): *//' | sort -u); do
+              if [ ! -f "dist-electron/$f" ]; then
+                echo "::error::$yml wskazuje '$f', którego nie ma w dist-electron"
+                ls dist-electron
+                exit 1
+              fi
+            done
+          done
+
       - name: Create GitHub Release and upload macOS artifacts
         shell: bash
         env:
@@ -112,6 +128,22 @@ jobs:
             export WIN_CSC_KEY_PASSWORD="$WIN_CSC_KEY_SECRET"
           fi
           npx electron-builder --publish never
+
+      # electron-updater pobiera plik dokładnie pod nazwą z latest*.yml. GitHub zamienia spacje w nazwach
+      # assetów na kropki, a electron-builder w yml na myślniki — w v1.6.4 dawało to 404 i zepsutą
+      # autoaktualizację na Windows. Zatrzymaj wydanie, gdy yml wskazuje plik, którego nie ma.
+      - name: Verify update manifest matches built files
+        shell: bash
+        run: |
+          for yml in dist-electron/latest*.yml; do
+            for f in $(grep -E '^\s*(- )?(url|path):' "$yml" | sed -E 's/.*(url|path): *//' | sort -u); do
+              if [ ! -f "dist-electron/$f" ]; then
+                echo "::error::$yml wskazuje '$f', którego nie ma w dist-electron"
+                ls dist-electron
+                exit 1
+              fi
+            done
+          done
 
       - name: Upload Windows artifacts
         shell: bash

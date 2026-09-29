@@ -13,6 +13,7 @@ const PaymentsView = lazy(() => import("../components/PaymentsView").then(m => (
 const BudgetView = lazy(() => import("../components/BudgetView").then(m => ({ default: m.BudgetView })));
 const GoalsView = lazy(() => import("../components/GoalsView").then(m => ({ default: m.GoalsView })));
 const DebtsView = lazy(() => import("../components/DebtsView").then(m => ({ default: m.DebtsView })));
+const NetWorthView = lazy(() => import("../components/wealth/NetWorthView").then(m => ({ default: m.NetWorthView })));
 const AnalysisView = lazy(() => import("../components/AnalysisView").then(m => ({ default: m.AnalysisView })));
 const SettingsView = lazy(() => import("../components/SettingsView").then(m => ({ default: m.SettingsView })));
 const HelpView = lazy(() => import("../components/HelpView").then(m => ({ default: m.HelpView })));
@@ -262,7 +263,7 @@ export function AppViewRouter({
             onOpenTxModal={onOpenTxModal}
             onOpenBudgetModal={onOpenBudgetModal}
             onOpenPaymentModal={onOpenPaymentModal}
-            onOpenNetWorthModal={() => openModal("netWorth")}
+            onOpenNetWorthModal={() => onChangeView("netWorth")}
             onOpenDataAuditor={() => openModal("dataAuditor")}
             onOpenFinancialSkills={() => openModal("financialSkills")}
             onTogglePlanItem={handleTogglePlanItem}
@@ -343,6 +344,8 @@ export function AppViewRouter({
             showToast={showToast}
           />
         );
+      case "netWorth":
+        return activeProfile ? <NetWorthView profile={activeProfile} onChangeView={onChangeView} /> : null;
       case "analysis":
         return (
           <AnalysisView

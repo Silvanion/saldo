@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { StatementFolderWatchCard } from "./StatementFolderWatchCard";
 import type { User } from "firebase/auth";
 import {
   Cloud,
@@ -164,6 +165,8 @@ export function SettingsBackupSection({
 
   return (
     <div className="space-y-6">
+      <StatementFolderWatchCard />
+
       {/* QUICK CLOUD BANNER */}
       <div className="bg-brand-subtle/40 border border-brand/20 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-3">

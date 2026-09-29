@@ -22,7 +22,6 @@ const DriveConflictModal = lazy(() => import("../components/DriveConflictModal")
 const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
 const ExportReportsModal = lazy(() => import("../components/modals/ExportReportsModal").then(m => ({ default: m.ExportReportsModal })));
 const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
-const NetWorthModal = lazy(() => import("../components/modals/NetWorthModal").then(m => ({ default: m.NetWorthModal })));
 const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
 const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
 const DataAuditorModal = lazy(() => import("../components/modals/DataAuditorModal").then(m => ({ default: m.DataAuditorModal })));
@@ -214,18 +213,6 @@ export function ModalManager() {
               initialTab={modalState.payload?.initialTab}
               onExportData={handleExportData}
               showToast={showToast}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {modalState.type === "netWorth" && activeProfile && (
-        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować bilansu majątku netto">
-          <Suspense fallback={<ModalFallback />}>
-            <NetWorthModal
-              isOpen={true}
-              onClose={closeModal}
-              profile={activeProfile}
-              onChangeView={(v) => setActiveView(v as any)}
             />
           </Suspense>
         </ErrorBoundary>

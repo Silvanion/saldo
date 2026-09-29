@@ -11,6 +11,25 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.5",
+    date: "Wrzesień 2026",
+    title: "Nowe Menu Boczne, Folder z Wyciągami i Poprawiony Import z Polskich Banków",
+    icon: <Sparkles className="w-5 h-5 text-brand" />,
+    features: [
+      "[Nowe Menu Boczne] Pozycje są pogrupowane (Codzienne, Planowanie, Majątek), a menu można zwinąć do samych ikon — aplikacja zapamięta Twój wybór. Majątek netto ma teraz własny widok w menu, a nie tylko okno dialogowe.",
+      "[Import z Banków — Polskie Znaki] Pliki CSV zapisane w kodowaniu Windows-1250 (m.in. eksport z mBanku) były wcześniej czytane jako UTF-8, przez co polskie litery zamieniały się w znaki zapytania. Aplikacja sama rozpoznaje kodowanie pliku.",
+      "[Folder z Wyciągami — Aplikacja Desktopowa] W Ustawieniach → Kopia i raporty możesz wskazać folder, do którego zapisujesz wyciągi z banku. Gdy pojawi się w nim nowy plik CSV lub PDF, dostaniesz powiadomienie; po jego kliknięciu zobaczysz zwykły podgląd importu. Nic nie jest importowane automatycznie.",
+      "[Import z Aliora — CSV i PDF] Nazwą transakcji jest teraz kontrahent (przy braku — opis operacji, np. opłaty i odsetki), a nie własne imię z kolumny nadawcy. Wyciąg PDF w układzie blokowym jest czytany poprawnie i daje te same sumy co CSV. Operacje na koncie limitu/kredytu, które dublują inne wiersze, są oznaczone i domyślnie niezaznaczone, a przelewy między własnymi rachunkami mają ostrzeżenie.",
+      "[Autoaktualizacja na Windows] W poprzednim wydaniu instalator miał na GitHubie inną nazwę, niż wskazywał plik aktualizacji, więc pobranie aktualizacji kończyło się błędem 404. Nazwy plików są ujednolicone, a proces wydania sprawdza zgodność przed publikacją.",
+      "[Import PDF Znów Działa] W wersji przeglądarkowej i desktopowej każdy import PDF kończył się błędem („No GlobalWorkerOptions.workerSrc specified”), więc wyciągi PDF nie dawały się wczytać. Naprawione.",
+      "[Import z Zen — CSV i PDF] Rozpoznawany jest eksport „Account Statement” Zen (angielska preambuła, daty typu „1 Sep 2026”). Nazwy transakcji są czyste (bez końcówek kart i adresu), a zasilenia konta kartą, przelewy z własnego rachunku i wymiany walut są oznaczone ostrzeżeniem, bo w wyciągu drugiego banku widać je jako wydatek lub wpływ.",
+      "[Poprawne Daty] Daty w formacie „1 Sep 2026” mogły w Polsce cofać się o jeden dzień. Naprawione, a wykrywanie separatora CSV nie myli się już przy długiej preambule banku.",
+      "[Sugestie Kategorii Lokalnego AI] Kategorie zaproponowane przez lokalny model (Ollama) w podglądzie importu są teraz oznaczone ikoną, abyś wiedział, które wiersze sprawdzić przed zatwierdzeniem.",
+      "[Przejrzysta Informacja o Danych AI] Karta kluczy Gemini/Claude wyjaśnia, co dokładnie trafia do dostawcy (Twoje pytanie oraz zagregowane podsumowanie miesiąca) i wskazuje lokalne AI jako opcję, przy której nic nie opuszcza komputera.",
+      "[Stabilność Aplikacji Desktopowej] Po awarii okna aplikacja próbuje się sama odświeżyć zamiast zostawiać puste okno, a zdarzenia diagnostyczne trafiają do dziennika aplikacji."
+    ]
+  },
+  {
     version: "v1.6.4",
     date: "Wrzesień 2026",
     title: "Optymalizacja Wydajności, Bezpieczna Warstwa AI (BYOK: Gemini & Claude) i Nowy Wskaźnik Kondycji Finansowej",

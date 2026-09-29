@@ -1,42 +1,32 @@
 
 import { useApp } from "./providers/AppContext";
 import React, { useState, useEffect, Suspense, lazy } from "react";
-import { motion } from "motion/react";
 import { Profile } from "../types";
 import { AppView } from "../uiTypes";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { ModalFallback } from "../components/ModalFallback";
 import { ProfileDropdown } from "../components/profile/ProfileDropdown";
 import { UpdateToast } from "../components/update/UpdateToast";
+import { Sidebar } from "./Sidebar";
 import { useWindowScale } from "../services/WindowScaleManager";
 
 const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
-  LayoutDashboard,
-  History,
-  Clock,
-  WalletCards,
-  Target,
-  LineChart,
-  Settings,
   Menu,
   X,
   RefreshCw,
   Sparkles,
-  Landmark,
   Wifi,
   WifiOff,
   ShieldCheck,
   Database,
-  Info,
   ArrowLeftRight,
   LogOut,
   Search,
   FileSpreadsheet,
   Plus,
   ChevronDown,
-  AlertTriangle,
-  Bug
+  AlertTriangle
 } from "lucide-react";
 
 
@@ -193,288 +183,7 @@ export function AppShell({
         Przejdź do głównej treści
       </a>
 
-      {/* Mobile Drawer Backdrop */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* SIDEBAR CONTAINER */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-bg-base/95 backdrop-blur-2xl border-r border-border/50 p-6 transition-transform lg:static lg:translate-x-0 ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isElectron ? "pt-12" : ""}`}
-        id="sidebar-panel"
-      >
-        {/* Brand */}
-        <div className={`flex items-center justify-between mb-8 ${isElectron ? "[-webkit-app-region:drag]" : ""}`}>
-          <div className="flex items-center gap-2 text-2xl font-black text-text-main tracking-tight">
-            <span className="flex items-center justify-center bg-brand-subtle text-brand rounded-xl w-8 h-8 shadow-sm border border-brand/20">
-              <WalletCards className="w-5 h-5" />
-            </span>
-            <span>saldo</span>
-          </div>
-          <button
-            className="lg:hidden p-1 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
-            onClick={() => setIsMobileMenuOpen(false)}
-            aria-label="Zamknij menu"
-          >
-            <X className="w-5 h-5 text-text-muted" />
-          </button>
-        </div>
-
-
-        {/* Navigation Items */}
-        <nav className="flex-1 space-y-1" aria-label="Główna nawigacja">
-          <button
-            onClick={() => {
-              setActiveView("dashboard");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "dashboard" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-dashboard"
-          >
-            {activeView === "dashboard" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <LayoutDashboard className="w-4 h-4 shrink-0" />
-              {"Przegląd"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("transactions");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "transactions" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-transactions"
-          >
-            {activeView === "transactions" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <History className="w-4 h-4 shrink-0" />
-              {"Historia"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("payments");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center justify-between w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "payments" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-payments"
-          >
-            {activeView === "payments" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <Clock className="w-4 h-4 shrink-0" />
-              {"Płatności"}
-            </span>
-            {activeProfile && activeProfile.payments.filter((p) => p.status !== "Opłacono").length > 0 && (
-              <span className="relative z-10 bg-danger-subtle text-danger text-xs font-black px-2 py-0.5 rounded-full shrink-0">
-                {activeProfile.payments.filter((p) => p.status !== "Opłacono").length}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("budget");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "budget" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-budget"
-          >
-            {activeView === "budget" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <WalletCards className="w-4 h-4 shrink-0" />
-              {"Budżet"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("goals");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "goals" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-goals"
-          >
-            {activeView === "goals" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <Target className="w-4 h-4 shrink-0" />
-              {"Cele i oszczędności"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("analysis");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "analysis" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-analysis"
-          >
-            {activeView === "analysis" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <LineChart className="w-4 h-4 shrink-0" />
-              {"Analiza"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("debts");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "debts" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-debts"
-          >
-            {activeView === "debts" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <Landmark className="w-4 h-4 shrink-0" />
-              {"Kredyty i Hipoteka"}
-            </span>
-          </button>
-        </nav>
-
-        {/* Sidebar Footer */}
-        <div className="border-t border-border pt-4 mt-auto">
-          <button
-            onClick={() => {
-              setActiveView("help");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "help" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-help"
-          >
-            {activeView === "help" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <Info className="w-4 h-4 shrink-0" />
-              {"Pomoc"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView("settings");
-              setIsMobileMenuOpen(false);
-            }}
-            className={`relative flex items-center gap-3 w-full px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-bold mb-3 active:scale-[0.98] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring ${
-              activeView === "settings" ? "text-brand" : "text-text-muted hover:text-text-main hover:bg-surface-2"
-            }`}
-            id="nav-settings"
-          >
-            {activeView === "settings" && (
-              <motion.span
-                layoutId="activeSidebarPill"
-                className="absolute inset-0 bg-brand-subtle rounded-xl border border-brand/20 -z-0"
-                transition={{ type: "spring", stiffness: 420, damping: 35 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-3">
-              <Settings className="w-4 h-4 shrink-0" />
-              {"Ustawienia"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              openModal("bugReport");
-              setIsMobileMenuOpen(false);
-            }}
-            className="flex items-center justify-between w-full px-3.5 py-2 mb-3 bg-surface-2/60 border border-border/70 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all group cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20">
-                <Bug className="w-3.5 h-3.5" strokeWidth={1.75} />
-              </span>
-              <span className="text-xs font-semibold text-text-main group-hover:text-orange-500">Zgłoś błąd / Sugestię</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => {
-              openModal("changelog");
-              setIsMobileMenuOpen(false);
-            }}
-            className="flex items-center justify-between w-full px-3.5 py-2 mb-3 bg-surface-2/60 border border-border/70 rounded-xl hover:bg-surface-2 active:scale-[0.98] transition-all group cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-brand-subtle text-brand flex items-center justify-center border border-brand/20">
-                <Sparkles className="w-3.5 h-3.5" strokeWidth={1.75} />
-              </span>
-              <span className="text-xs font-semibold text-text-main group-hover:text-brand">Co nowego?</span>
-            </div>
-          </button>
-
-        </div>
-      </aside>
+      <Sidebar isElectron={isElectron} />
 
       {/* MAIN VIEWPORT PANEL */}
       <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0" id="main-viewport-panel">
@@ -526,6 +235,8 @@ export function AppShell({
                   {activeView === "payments" && "Zaplanowane Opłaty"}
                   {activeView === "budget" && "Twoje Budżety"}
                   {activeView === "goals" && "Cele Finansowe i Inwestycje"}
+                  {activeView === "netWorth" && "Majątek Netto"}
+                  {activeView === "debts" && "Kredyty i Hipoteka"}
                   {activeView === "analysis" && "Twoje Finanse w Liczbach"}
                   {activeView === "settings" && "Konfiguracja Systemu"}
                   {activeView === "help" && "Centrum Pomocy"}

@@ -37,6 +37,7 @@ Wydania nie są jeszcze notaryzowane przez Apple (podpis ad-hoc), dlatego przy p
 
 ### Aplikacja desktopowa (Electron)
 
+- Obserwowanie folderu z wyciągami (Ustawienia → Kopia i raporty): nowy plik CSV/PDF wywołuje powiadomienie systemowe, a import wymaga potwierdzenia w podglądzie.
 - Aktualizacje przez `electron-updater` — powiadomienie w aplikacji, pobranie dopiero po potwierdzeniu, ręczne sprawdzanie z menu i z widoku "Historia Zmian". Na macOS bez notaryzacji — przekierowanie do strony wydania.
 - Podpisywanie kodu w CI: Developer ID + notaryzacja (macOS) i code-signing (Windows) po dodaniu sekretów; bez nich build macOS jest podpisywany ad-hoc.
 - Ikona w tray z szybkim dodawaniem wydatku, dock badge, natywne powiadomienia, autostart z systemem.

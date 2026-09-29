@@ -335,5 +335,31 @@ Data;Kwota;Tytuł;Waluta
 
     await screen.findByText("Żywność");
     expect(categorizeDescriptionsWithLocalAi).toHaveBeenCalledWith(["Tajemniczy Sklep"], expect.any(Object));
+    // Zmieniony przez AI wiersz jest oznaczony do sprawdzenia
+    expect(screen.getByLabelText("Sugestia lokalnego AI")).toBeTruthy();
+  });
+
+  it("Alior: wiersze konta kredytowego są domyślnie niezaznaczone i oznaczone ostrzeżeniem", async () => {
+    const H = "Data transakcji;Data księgowania;Nazwa nadawcy;Nazwa odbiorcy;Szczegóły transakcji;Kwota operacji;Waluta operacji;Kwota w walucie rachunku;Waluta rachunku;Numer rachunku nadawcy;Numer rachunku odbiorcy";
+    const ALIOR_CSV = [
+      H,
+      "05-01-2026;05-01-2026;Jan Marek Kowalski;Autopay S.A.;app.example.pl;-229,00;PLN;-229,00;PLN;11 2222;",
+      "05-01-2026;05-01-2026;;Jan Marek Kowalski;Nr transakcji: 4 Tytuł transakcji: Autopay S.A. Kapitał: PLN 229.00;229,00;PLN;229,00;PLN;;11 2222",
+      "05-01-2026;05-01-2026;Jan Marek Kowalski;;Nr transakcji: 4 Tytuł transakcji: Autopay S.A. Kapitał: PLN 229.00;-229,00;PLN;-229,00;PLN;22 3333;11 2222"
+    ].join("\n");
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
+      target: { value: ALIOR_CSV }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
+
+    // 3 wiersze w podglądzie, ale zaznaczony tylko prawdziwy zakup
+    expect(screen.getByRole("button", { name: /Zaimportuj wybrane \(1\)/i })).toBeTruthy();
+    expect(screen.getAllByLabelText("Operacja na koncie kredytowym")).toHaveLength(2);
+    // nazwą jest kontrahent, a nie własne imię z kolumny nadawcy
+    expect(screen.getByText("Autopay S.A.")).toBeTruthy();
   });
 });
+

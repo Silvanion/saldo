@@ -3,7 +3,7 @@
 ## 🔴 Krytyczne — blokują "prawdziwe" wydanie
 - [x] 1. Auto-aktualizacja (`electron-updater`, `latest-mac.yml`).
 - [x] 2. Podpisywanie kodu i notaryzacja na macOS (hardenedRuntime, entitlements, notarize) - *wymaga konta Apple Developer*.
-- [x] 3. Podpisywanie kodu na Windows (certyfikat code-signing).
+- [ ] 3. Podpisywanie kodu na Windows — WSTRZYMANE (decyzja: na razie porzucone). Jeszcze NIE działa (brak certyfikatu). Plan: SignPath Foundation (wymaga licencji OSI w repo). Wpis w winget: `.github/workflows/winget.yml` (wymaga pierwszego ręcznego PR do microsoft/winget-pkgs).
 - [x] 4. Blokada pojedynczej instancji (`app.requestSingleInstanceLock()`).
 - [x] 5. Ikona okna (odkomentowana w `main.cjs`).
 

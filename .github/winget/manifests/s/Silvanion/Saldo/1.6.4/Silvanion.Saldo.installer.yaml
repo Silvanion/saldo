@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+PackageIdentifier: Silvanion.Saldo
+PackageVersion: 1.6.4
+InstallerType: nsis
+Scope: user
+InstallModes:
+- interactive
+- silent
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/Silvanion/saldo/releases/download/v1.6.4/Saldo.Setup.1.6.4.exe
+  InstallerSha256: 271B2AEC8A48888FE3E982A4EB366DBB11941DAE206ED9B685B40D0ACC480A40
+ManifestType: installer
+ManifestVersion: 1.6.0

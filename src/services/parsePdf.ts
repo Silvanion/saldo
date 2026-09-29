@@ -5,6 +5,9 @@ import { parseCsvAmount, parseCsvDate } from "./parseCsv";
 import { detectDirection, matchDirectionValue, type ImportDirectionInfo } from "./directionDetector";
 import { generateEntityId } from "../utils/id";
 import { validateTransactionsBalanceContinuity } from "./balanceValidator";
+import { parseAliorPdfText } from "./aliorImport";
+import { parseZenPdfText, zenName, zenImportHint, zenOwnerFromText } from "./zenImport";
+import type { ImportHint } from "./importHints";
 
 // A too-large or too-long PDF (an adversarial file, or a merged multi-year
 // statement) could otherwise hang the import UI indefinitely with no
@@ -43,6 +46,8 @@ export interface PdfImportResult {
   transactions: Transaction[];
   rejectedRows: Array<{ row: number; reason: string; raw: string }>;
   extractedText: string;
+  /** Ostrzeżenia dla wierszy wyglądających na operacje pomocnicze/przelewy własne (klucz: id transakcji). */
+  importHints?: Record<string, ImportHint>;
   /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
   directions: ImportDirectionInfo[];
   balanceStats?: {
@@ -116,9 +121,21 @@ function reconstructPageLines(items: unknown[]): string {
   return lines.join("\n");
 }
 
+// pdf.js 6 w przeglądarce wymaga jawnego workerSrc — bez niego każdy import PDF kończył się błędem
+// 'No "GlobalWorkerOptions.workerSrc" specified'. W Node/jsdom (testy) nie ma Worker i pdf.js
+// korzysta z wbudowanego zastępczego workera, więc tam niczego nie ustawiamy.
+export async function loadPdfjs() {
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  if (typeof Worker !== "undefined" && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    const { default: workerSrc } = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+  }
+  return pdfjsLib;
+}
+
 export async function extractPdfText(file: File): Promise<string> {
   assertPdfFileSizeOk(file);
-  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjsLib = await loadPdfjs();
   const data = new Uint8Array(await file.arrayBuffer());
   // Cleanup lives on the loading task (task.destroy()), not on the resolved
   // PDFDocumentProxy — it has no destroy() of its own.
@@ -152,7 +169,7 @@ export async function extractPdfText(file: File): Promise<string> {
 
 export async function renderPdfPages(file: File, maxPages = 10): Promise<string[]> {
   assertPdfFileSizeOk(file);
-  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjsLib = await loadPdfjs();
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(await file.arrayBuffer()),
     useWorkerFetch: false
@@ -353,6 +370,71 @@ export function parsePdfTransactions(
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
   const directions: ImportDirectionInfo[] = [];
+  // Wyciąg Aliora ma układ blokowy (Nadawca/Odbiorca/Opis w osobnych liniach) — ogólny parser
+  // wierszowy sklejał go w nazwy typu "Nadawca: … Numer rachunku …", więc ten układ ma własną ścieżkę.
+  const aliorRows = parseAliorPdfText(text);
+  if (aliorRows) {
+    const importHints: Record<string, ImportHint> = {};
+    aliorRows.forEach((row, index) => {
+      const isoDate = parseCsvDate(row.date);
+      if (!isoDate || row.name.length < 2) {
+        rejectedRows.push({ row: index + 1, reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.", raw: row.raw });
+        return;
+      }
+      const transaction = buildTransaction(
+        row.name,
+        Math.abs(row.amount),
+        row.amount < 0 ? "expense" : "income",
+        isoDate,
+        options.currency,
+        options.account,
+        options.rules,
+        undefined,
+        row.raw,
+        "VALID"
+      );
+      transactions.push(transaction);
+      directions.push({ transactionId: transaction.id, source: "amount-sign", confident: true });
+      if (row.hint) importHints[transaction.id] = row.hint;
+    });
+    return { transactions, rejectedRows, extractedText: text, directions, importHints };
+  }
+
+  // Zen: dwie linie na transakcję (data księgowania + typ + kwota + saldo, potem data transakcji + opis).
+  const zenRows = parseZenPdfText(text);
+  if (zenRows) {
+    const importHints: Record<string, ImportHint> = {};
+    const owner = zenOwnerFromText(text);
+    const supported: SupportedCurrency[] = ["PLN", "EUR", "USD", "GBP"];
+    zenRows.forEach((row, index) => {
+      const isoDate = parseCsvDate(row.date);
+      const name = zenName(row.description, row.type);
+      if (!isoDate || name.length < 2) {
+        rejectedRows.push({ row: index + 1, reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.", raw: row.raw });
+        return;
+      }
+      const currency = supported.includes(row.currency as SupportedCurrency) ? (row.currency as SupportedCurrency) : options.currency;
+      const transaction = buildTransaction(
+        name,
+        Math.abs(row.amount),
+        row.amount < 0 ? "expense" : "income",
+        isoDate,
+        currency,
+        options.account,
+        options.rules,
+        row.balance,
+        row.raw,
+        "VALID"
+      );
+      transactions.push(transaction);
+      directions.push({ transactionId: transaction.id, source: "amount-sign", confident: true });
+      const hint = zenImportHint(row.type, row.description, owner);
+      if (hint) importHints[transaction.id] = hint;
+    });
+    const { stats: balanceStats } = validateTransactionsBalanceContinuity(transactions);
+    return { transactions, rejectedRows, extractedText: text, directions, importHints, balanceStats };
+  }
+
   const operationsIndex = text.search(/\bOperacje\b/i);
   const statementText = operationsIndex >= 0 ? text.slice(operationsIndex) : text;
   

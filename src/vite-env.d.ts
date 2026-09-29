@@ -14,6 +14,9 @@ interface Window {
     onOpenAddExpense?: (callback: () => void) => () => void;
     onOpenPreferences?: (callback: () => void) => () => void;
     onImportFileDropped?: (callback: (payload: { name: string; bytes: Uint8Array | number[] }) => void) => () => void;
+    getImportWatchFolder?: () => Promise<string | null>;
+    chooseImportWatchFolder?: () => Promise<string | null>;
+    clearImportWatchFolder?: () => Promise<null>;
     getLoginItem?: () => Promise<boolean>;
     setLoginItem?: (openAtLogin: boolean) => Promise<boolean>;
     setProgressBar?: (progress: number) => Promise<void>;

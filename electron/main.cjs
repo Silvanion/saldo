@@ -3,6 +3,7 @@ const path = require("path");
 const net = require("net");
 const { execFile } = require("child_process");
 const { autoUpdater } = require("electron-updater");
+const { createStatementWatcher } = require("./statementWatcher.cjs");
 const windowStateKeeper = require("electron-window-state");
 const log = require("electron-log");
 const fs = require("fs");
@@ -12,6 +13,10 @@ const fs = require("fs");
 log.transports.file.level = "info";
 log.transports.console.level = process.env.NODE_ENV === "production" ? false : "info";
 autoUpdater.logger = log;
+
+process.on('unhandledRejection', (reason) => {
+  log.error('[Main] Nieobsłużone odrzucenie obietnicy:', reason instanceof Error ? reason.stack : reason);
+});
 // The renderer (UpdateToast) asks before downloading — auto-downloading on
 // every startup check wasted bandwidth and produced a second, native
 // "restart and install" prompt on top of the in-app one.
@@ -65,6 +70,51 @@ async function openImportFile(filePath) {
   } catch (err) {
     log.error("[OpenFile] Błąd odczytu pliku do zaimportowania:", err);
   }
+}
+
+// Optional: watch one user-chosen folder (e.g. where the browser saves bank
+// exports) and offer new statements via a system notification. Nothing is
+// imported automatically — clicking the notification opens the normal import
+// preview, so the user still confirms every import.
+const importWatchConfigPath = () => path.join(app.getPath('userData'), 'import-watch.json');
+const activeNotifications = new Set();
+
+function readImportWatchFolder() {
+  try {
+    const { folder } = JSON.parse(fs.readFileSync(importWatchConfigPath(), 'utf8'));
+    return typeof folder === 'string' && folder ? folder : null;
+  } catch {
+    return null;
+  }
+}
+
+function notifyNewStatement(filePath) {
+  if (!Notification.isSupported()) return;
+  const notification = new Notification({
+    title: 'Nowy wyciąg bankowy',
+    body: `${path.basename(filePath)} — kliknij, aby przejrzeć i zaimportować`
+  });
+  activeNotifications.add(notification); // held so it isn't GC'd before the click
+  notification.on('click', () => openImportFile(filePath));
+  notification.on('close', () => activeNotifications.delete(notification));
+  notification.show();
+}
+
+const statementWatcher = createStatementWatcher({ onNewFile: notifyNewStatement });
+
+function applyImportWatchFolder(folder) {
+  statementWatcher.stop();
+  if (!folder) return;
+  try {
+    statementWatcher.start(folder);
+  } catch (err) {
+    log.error("[ImportWatch] Nie udało się obserwować folderu:", err);
+  }
+}
+
+function saveImportWatchFolder(folder) {
+  fs.writeFileSync(importWatchConfigPath(), JSON.stringify({ folder }));
+  applyImportWatchFolder(folder);
 }
 
 // Registered before app.whenReady() — required on macOS to catch a file
@@ -348,6 +398,23 @@ ipcMain.handle('update-badge', (event, count) => {
       mainWindow.setOverlayIcon(null, "");
     }
   }
+});
+
+ipcMain.handle('get-import-watch-folder', () => readImportWatchFolder());
+
+ipcMain.handle('choose-import-watch-folder', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: 'Wybierz folder z wyciągami bankowymi',
+    properties: ['openDirectory']
+  });
+  if (canceled || !filePaths[0]) return readImportWatchFolder();
+  saveImportWatchFolder(filePaths[0]);
+  return filePaths[0];
+});
+
+ipcMain.handle('clear-import-watch-folder', () => {
+  saveImportWatchFolder(null);
+  return null;
 });
 
 ipcMain.handle('get-login-item', () => {
@@ -847,6 +914,34 @@ async function createWindow(port) {
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
+  // Without these handlers a crashed renderer leaves a blank, dead window with
+  // nothing in the logs. Reload it, but give up after repeated crashes so a
+  // deterministic crash can't loop forever.
+  const rendererCrashTimes = [];
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    log.error(`[Renderer] Proces renderera zakończył się: ${details.reason} (kod ${details.exitCode})`);
+    if (details.reason === 'clean-exit' || details.reason === 'killed') return;
+    const now = Date.now();
+    rendererCrashTimes.push(now);
+    while (rendererCrashTimes.length && now - rendererCrashTimes[0] > 60000) rendererCrashTimes.shift();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (rendererCrashTimes.length <= 3) {
+        mainWindow.webContents.reload();
+      } else {
+        dialog.showErrorBox(
+          'Saldo przestało odpowiadać',
+          'Aplikacja wielokrotnie uległa awarii. Zamknij ją i uruchom ponownie. Szczegóły zapisano w dzienniku aplikacji.'
+        );
+      }
+    }
+  });
+  mainWindow.webContents.on('unresponsive', () => {
+    log.warn('[Renderer] Okno przestało odpowiadać.');
+  });
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    if (isMainFrame) log.error(`[Renderer] Błąd ładowania ${validatedURL}: ${errorDescription} (${errorCode})`);
+  });
+
   mainWindow.webContents.on('did-finish-load', () => {
     if (pendingImportFilePath) {
       const filePath = pendingImportFilePath;
@@ -901,6 +996,8 @@ app.whenReady().then(async () => {
 
     // Initialize System Tray
     createTray();
+
+    applyImportWatchFolder(readImportWatchFolder());
 
     // Register global shortcut for quick expense
     try {

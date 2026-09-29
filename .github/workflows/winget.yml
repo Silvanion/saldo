@@ -1,0 +1,23 @@
+name: Publish to winget
+
+# Runs when a (draft) release is published. Requires:
+#   1. A first manifest already merged into microsoft/winget-pkgs
+#      (winget-releaser only updates existing packages — see README).
+#   2. A classic PAT with `public_repo` scope stored as WINGET_TOKEN and
+#      a fork of microsoft/winget-pkgs under the same account.
+on:
+  release:
+    types: [released]
+
+jobs:
+  winget:
+    name: Submit update to winget-pkgs
+    runs-on: windows-latest
+    if: ${{ vars.WINGET_ENABLED == 'true' }}
+    steps:
+      - uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: Silvanion.Saldo
+          # Only the NSIS installer ("Saldo-Setup-x.y.z.exe"), not the portable build.
+          installers-regex: 'Setup.*\.exe$'
+          token: ${{ secrets.WINGET_TOKEN }}

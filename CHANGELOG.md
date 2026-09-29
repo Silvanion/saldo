@@ -5,6 +5,27 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.5] - Wrzesień 2026
+### Nowe menu boczne, folder z wyciągami i poprawiony import z polskich banków
+- **Interfejs**:
+  - Nowy sidebar (`src/app/Sidebar.tsx`): nawigacja generowana z jednej listy, grupy (Codzienne / Planowanie / Majątek), zwijanie do ikon z zapamiętaniem stanu (`localStorage`), animowana zmiana szerokości. Zachowane identyfikatory `#nav-<widok>` używane przez testy e2e.
+  - Majątek netto jest osobnym widokiem (`wealth/NetWorthView`) zamiast modalu; usunięto `NetWorthModal` i typ modalu `netWorth`. Podatki B2B pozostają modalem (kalkulator przyjmujący dane z Analizy).
+- **Import z banków**:
+  - Naprawa: `FileReader.readAsText` zawsze czytał plik jako UTF-8, więc eksporty w Windows-1250 traciły polskie znaki. Nowe `decodeCsvBytes`: ścisłe UTF-8, a przy błędnych bajtach fallback do Windows-1250.
+  - Alior Bank (CSV „Historia operacji” i PDF „Historia transakcji”), zweryfikowane na prawdziwym eksporcie: nazwą jest druga strona operacji (przy braku kontrahenta — „Szczegóły transakcji”); dedykowany parser bloków PDF (`aliorImport.ts`) zamiast sklejania linii; ostrzeżenia `credit-line` (wiersze `Nr transakcji:` / „Spłata kredytu”, domyślnie niezaznaczone) i `own-transfer` (nadawca = odbiorca). CSV i PDF dają identyczne sumy.
+- **Wydanie / autoaktualizacja**:
+  - Naprawa: w v1.6.4 `latest.yml` wskazywał `Saldo-Setup-1.6.4.exe` (electron-builder zamienia spacje na myślniki), a `gh release upload` publikował plik jako `Saldo.Setup.1.6.4.exe` (GitHub zamienia spacje na kropki) — pobranie aktualizacji na Windows dawało 404. `nsis.artifactName` i `portable.artifactName` nie zawierają teraz spacji, a workflow przed uploadem sprawdza, czy każdy `url`/`path` z `latest*.yml` istnieje w `dist-electron`. Klienci v1.6.4 zaktualizują się do v1.6.5, bo adres pobierania czytają z `latest.yml` nowego wydania.
+  - **Naprawa krytyczna: import PDF nie działał w przeglądarce/Electronie** — pdf.js 6 wymaga `GlobalWorkerOptions.workerSrc`, którego nigdy nie ustawiono (w Node/Vitest działa zastępczy worker, więc testy tego nie łapały). Nowe `loadPdfjs()` ustawia worker z `?url`; test regresyjny w `pdfWorker.test.ts`.
+  - Zen (CSV „PLN – Account Statement” i PDF), zweryfikowane na prawdziwym eksporcie (`zenImport.ts`): czyste nazwy, ostrzeżenia `own-transfer` (zasilenie kartą, przelew od właściciela konta, wymiana walut), saldo z PDF do kontroli ciągłości. Sumy zgadzają się z podsumowaniem banku, CSV = PDF.
+  - Naprawa: `parseCsvDate("1 Sep 2026")` przechodziło przez `new Date().toISOString()` i w strefie +01/+02 dawało dzień wcześniej; fallback używa teraz składników lokalnych, a formaty „D Mon YYYY” są parsowane jawnie. `detectCsvSeparator` próbkuje 60 linii zamiast 15 (preambuła Zen ma 24 linie bez separatora).
+  - Wspólne typy ostrzeżeń w `importHints.ts`.
+  - Wiersze z kategorią zaproponowaną przez lokalne AI (Ollama) są oznaczone w podglądzie importu.
+- **Aplikacja desktopowa**:
+  - Obserwowanie wskazanego folderu z wyciągami (`electron/statementWatcher.cjs`, `fs.watch`, bez nowych zależności): nowy CSV/PDF po ustabilizowaniu rozmiaru wywołuje powiadomienie systemowe; import nadal wymaga potwierdzenia w podglądzie.
+  - Obsługa `render-process-gone` (automatyczny reload, maks. 3 razy na minutę), `unresponsive`, `did-fail-load` oraz `unhandledRejection` z logowaniem.
+- **AI (BYOK)**: karta ustawień opisuje, jakie dane trafiają do Google/Anthropic, i wskazuje Ollamę jako opcję w pełni lokalną.
+- **CI**: dodano workflow `winget.yml` (wyłączony do czasu ustawienia `WINGET_ENABLED` i sekretu `WINGET_TOKEN`) oraz manifest `.github/winget/` do pierwszego zgłoszenia w `winget-pkgs`. Podpisywanie kodu na Windows nadal nie działa (brak certyfikatu) — poprawiono status w `TODO_DESKTOP.md`.
+
 ## [v1.6.4] - Wrzesień 2026
 ### Optymalizacja Wydajności, Bezpieczna Warstwa AI (BYOK: Gemini & Claude) i Nowy Wskaźnik Kondycji Finansowej
 - **Bezpieczna warstwa AI (Bring Your Own Key — BYOK)**:
