@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   parseAndMapCsv,
   cleanCsvBomAndEncoding,
+  decodeCsvBytes,
   detectCsvSeparator,
   parseCsvDate,
   parseCsvAmount,
@@ -327,5 +328,17 @@ Data transakcji;Data rozliczenia;Opis transakcji;Kwota transakcji;Waluta
     });
 
     expect(result.stats.truncatedCount).toBe(0);
+  });
+
+  it("17. dekoduje eksport w Windows-1250 (mBank) bez psucia polskich znaków, a UTF-8 zostawia bez zmian", () => {
+    const text = "Tytuł;Kwota\nZażółć gęślą jaźń;-10,00";
+    // Bajty Windows-1250: ż=0xBF, ó=0xF3, ł=0xB3, ć=0xE6, ę=0xEA, ą=0xB9, ś=0x9C, ź=0x9F, ń=0xF1
+    const cp1250 = Uint8Array.from([
+      0x54, 0x79, 0x74, 0x75, 0xB3, 0x3B, 0x4B, 0x77, 0x6F, 0x74, 0x61, 0x0A,
+      0x5A, 0x61, 0xBF, 0xF3, 0xB3, 0xE6, 0x20, 0x67, 0xEA, 0x9C, 0x6C, 0xB9, 0x20, 0x6A, 0x61, 0x9F, 0xF1,
+      0x3B, 0x2D, 0x31, 0x30, 0x2C, 0x30, 0x30
+    ]);
+    expect(decodeCsvBytes(cp1250.buffer)).toBe(text);
+    expect(decodeCsvBytes(new TextEncoder().encode(text).buffer)).toBe(text);
   });
 });

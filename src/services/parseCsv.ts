@@ -92,6 +92,17 @@ export const BANK_PRESETS: BankPreset[] = [
   }
 ];
 
+// Polskie banki (m.in. mBank) eksportują CSV w Windows-1250. Odczyt takiego pliku
+// jako UTF-8 zamienia polskie litery na U+FFFD, więc najpierw próbujemy ścisłego
+// UTF-8 (fatal), a przy niepoprawnych bajtach wracamy do Windows-1250.
+export function decodeCsvBytes(buffer: ArrayBuffer): string {
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+  } catch {
+    return new TextDecoder("windows-1250").decode(buffer);
+  }
+}
+
 export function cleanCsvBomAndEncoding(text: string): string {
   if (!text) return "";
   // Strip UTF-8 BOM if present

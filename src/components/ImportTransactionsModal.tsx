@@ -36,6 +36,7 @@ import {
   parseAndMapCsv,
   autoDetectBankColumns,
   cleanCsvBomAndEncoding,
+  decodeCsvBytes,
   detectCsvSeparator,
   RejectedCsvRow
 } from "../services/parseCsv";
@@ -227,10 +228,10 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const text = e.target?.result as string;
+      const text = decodeCsvBytes(e.target?.result as ArrayBuffer);
       processRawCsvString(text, file.name);
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   // A file supplied from outside the dropzone (OS-level drag & drop onto the
