@@ -4,7 +4,7 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { NetWorthModal } from "./NetWorthModal";
+import { NetWorthView } from "./NetWorthView";
 import { Profile } from "../../types";
 
 // Mock Recharts to avoid jsdom SVG sizing issues
@@ -18,7 +18,7 @@ vi.mock("recharts", () => ({
   Tooltip: () => null,
 }));
 
-describe("NetWorthModal", () => {
+describe("NetWorthView", () => {
   afterEach(() => cleanup());
 
   const mockProfile: Profile = {
@@ -68,13 +68,8 @@ describe("NetWorthModal", () => {
     ],
   };
 
-  it("nie renderuje się gdy isOpen jest false", () => {
-    render(<NetWorthModal isOpen={false} onClose={vi.fn()} profile={mockProfile} />);
-    expect(screen.queryByText("Bilans Majątku Netto")).toBeNull();
-  });
-
-  it("renderuje się poprawnie z wszystkimi sekcjami gdy isOpen jest true", () => {
-    render(<NetWorthModal isOpen={true} onClose={vi.fn()} profile={mockProfile} />);
+  it("renderuje się poprawnie z wszystkimi sekcjami", () => {
+    render(<NetWorthView profile={mockProfile} />);
     expect(screen.getByText("Bilans Majątku Netto")).toBeTruthy();
     expect(screen.getByText("Struktura Aktywów")).toBeTruthy();
     expect(screen.getByText("Struktura Zobowiązań")).toBeTruthy();
@@ -82,14 +77,14 @@ describe("NetWorthModal", () => {
   });
 
   it("pozwala zmienić okres na osi czasu (3M, 6M, 12M)", () => {
-    render(<NetWorthModal isOpen={true} onClose={vi.fn()} profile={mockProfile} />);
+    render(<NetWorthView profile={mockProfile} />);
     const btn12m = screen.getByRole("button", { name: "12M" });
     fireEvent.click(btn12m);
     expect(btn12m.className).toContain("bg-brand");
   });
 
   it("działa symulator spłaty długu", () => {
-    render(<NetWorthModal isOpen={true} onClose={vi.fn()} profile={mockProfile} />);
+    render(<NetWorthView profile={mockProfile} />);
     const select = screen.getByLabelText(/Wybierz dług do symulacji/i);
     expect(select).toBeTruthy();
 
@@ -98,11 +93,10 @@ describe("NetWorthModal", () => {
     expect(screen.getByText(/Wskaźnik długu spadnie/i)).toBeTruthy();
   });
 
-  it("wywołuje onClose po kliknięciu przycisku zamknięcia", () => {
-    const handleClose = vi.fn();
-    render(<NetWorthModal isOpen={true} onClose={handleClose} profile={mockProfile} />);
-    const closeBtn = screen.getByRole("button", { name: /Zamknij modal majątku netto/i });
-    fireEvent.click(closeBtn);
-    expect(handleClose).toHaveBeenCalledTimes(1);
+  it("przekierowuje do widoku długów z karty zobowiązań", () => {
+    const onChangeView = vi.fn();
+    render(<NetWorthView profile={mockProfile} onChangeView={onChangeView} />);
+    fireEvent.click(screen.getByText("Zarządzaj długami i strategią spłat"));
+    expect(onChangeView).toHaveBeenCalledWith("debts");
   });
 });

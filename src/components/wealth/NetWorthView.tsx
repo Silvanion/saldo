@@ -1,12 +1,9 @@
-import React, { useState, useMemo, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useState, useMemo } from "react";
 import {
-  X,
   Landmark,
   TrendingUp,
   TrendingDown,
   ShieldCheck,
-  AlertTriangle,
   Flame,
   ArrowRight,
   PiggyBank,
@@ -32,26 +29,14 @@ import {
   generateNetWorthTimeline,
 } from "../../services/netWorthCalculations";
 import { formatMoney } from "../../utils";
-import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
-export interface NetWorthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+export interface NetWorthViewProps {
   profile: Profile;
   onChangeView?: (view: string) => void;
 }
 
-export function NetWorthModal({
-  isOpen,
-  onClose,
-  profile,
-  onChangeView,
-}: NetWorthModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  useScrollLock(isOpen);
-  useFocusTrap(modalRef, isOpen, onClose);
-
+export function NetWorthView({ profile, onChangeView }: NetWorthViewProps) {
   const [periodMonths, setPeriodMonths] = useState<3 | 6 | 12>(6);
   const [simulatedPayoffDebtId, setSimulatedPayoffDebtId] = useState<string>("");
 
@@ -90,63 +75,31 @@ export function NetWorthModal({
     };
   }, [simulatedPayoffDebtId, activeDebts, summary]);
 
-  if (!isOpen) return null;
 
   const isNetPositive = summary.netWorth >= 0;
   const debtRatio = summary.debtToAssetsRatio;
 
   return (
-    <AnimatePresence>
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs overflow-y-auto"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="net-worth-modal-title"
-      >
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.2 }}
-          className="relative w-full max-w-4xl bg-surface border border-border/70 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden my-auto"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-border/60 bg-surface-2/30 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-brand-subtle text-brand border border-brand/20">
-                <Landmark className="w-6 h-6" strokeWidth={1.75} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2
-                    id="net-worth-modal-title"
-                    className="text-lg sm:text-xl font-bold text-text-main tracking-tight"
-                  >
-                    Bilans Majątku Netto
-                  </h2>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    Wealthfolio Core
-                  </span>
-                </div>
-                <p className="text-xs text-text-muted mt-0.5">
-                  Kompletne zestawienie Twoich aktywów, pasywów oraz trajektoria wzrostu
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
-              aria-label="Zamknij modal majątku netto"
-            >
-              <X className="w-5 h-5" />
-            </button>
+    <div className="max-w-5xl mx-auto w-full p-4 sm:p-6 space-y-6" id="net-worth-view">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 rounded-xl bg-brand-subtle text-brand border border-brand/20">
+          <Landmark className="w-6 h-6" strokeWidth={1.75} />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 id="net-worth-title" className="text-lg sm:text-xl font-bold text-text-main tracking-tight">
+              Bilans Majątku Netto
+            </h2>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              Wealthfolio Core
+            </span>
           </div>
+          <p className="text-xs text-text-muted mt-0.5">
+            Kompletne zestawienie Twoich aktywów, pasywów oraz trajektoria wzrostu
+          </p>
+        </div>
+      </div>
 
-          {/* Scrollable Content */}
-          <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
             {/* Hero Net Worth Card */}
             <div className="bg-gradient-to-br from-surface-2/80 to-surface border border-border/70 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
@@ -384,7 +337,6 @@ export function NetWorthModal({
                     <button
                       type="button"
                       onClick={() => {
-                        onClose();
                         onChangeView("goals");
                       }}
                       className="text-xs font-semibold text-brand hover:underline inline-flex items-center gap-1 cursor-pointer"
@@ -439,7 +391,6 @@ export function NetWorthModal({
                     <button
                       type="button"
                       onClick={() => {
-                        onClose();
                         onChangeView("debts");
                       }}
                       className="text-xs font-semibold text-rose-500 hover:underline inline-flex items-center gap-1 cursor-pointer"
@@ -500,9 +451,6 @@ export function NetWorthModal({
                 </div>
               </div>
             )}
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+    </div>
   );
 }

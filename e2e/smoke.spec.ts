@@ -90,7 +90,7 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#budget-view-container")).toBeVisible();
   });
 
-  test("D. Net Worth Tracker (Wealthfolio): displays Net Worth widget and opens detail modal", async ({ page }) => {
+  test("D. Net Worth Tracker (Wealthfolio): displays Net Worth widget and opens the Net Worth view", async ({ page }) => {
     await setupApp(page);
 
     // Verify Net Worth widget is present on Dashboard
@@ -99,21 +99,20 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(netWorthWidget).toBeVisible({ timeout: 5000 });
     await expect(netWorthWidget.getByText("Majątek Netto")).toBeVisible();
 
-    // Click Szczegóły button to open NetWorthModal
+    // Szczegóły przenoszą do widoku Majątku netto (nie ma już modalu)
     const detailsBtn = page.locator("#btn-open-net-worth-modal");
     await expect(detailsBtn).toBeVisible();
     await detailsBtn.click();
 
-    // Verify modal elements
-    await expect(page.locator("#net-worth-modal-title")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#net-worth-title")).toBeVisible({ timeout: 5000 });
     await expect(page.getByText("Struktura Aktywów")).toBeVisible();
     await expect(page.getByText("Struktura Zobowiązań")).toBeVisible();
     await expect(page.getByText("Trajektoria Majątku Netto")).toBeVisible();
 
-    // Close modal
-    const closeBtn = page.getByRole("button", { name: /Zamknij modal majątku netto/i });
-    await closeBtn.click();
-    await expect(page.locator("#net-worth-modal-title")).not.toBeVisible({ timeout: 5000 });
+    // Ten sam widok jest osiągalny z menu bocznego
+    await page.locator("#nav-dashboard").click();
+    await page.locator("#nav-networth").click();
+    await expect(page.locator("#net-worth-title")).toBeVisible({ timeout: 5000 });
   });
 
   test("E. Financial Skills & Action Planner (Claude Skills): generates multi-step plan from skills catalog", async ({ page }) => {

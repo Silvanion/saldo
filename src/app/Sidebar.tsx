@@ -57,7 +57,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Majątek",
     items: [
-      { id: "nav-networth", label: "Majątek netto", icon: PiggyBank, modal: "netWorth" },
+      { id: "nav-networth", label: "Majątek netto", icon: PiggyBank, view: "netWorth" },
       { id: "nav-debts", label: "Kredyty i Hipoteka", icon: Landmark, view: "debts" },
       { id: "nav-b2b-tax", label: "Podatki B2B", icon: Calculator, modal: "b2bTax" }
     ]

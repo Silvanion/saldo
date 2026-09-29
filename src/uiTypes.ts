@@ -7,6 +7,7 @@ export type AppView =
   | "budget"
   | "goals"
   | "debts"
+  | "netWorth"
   | "analysis"
   | "settings"
   | "help";
@@ -34,7 +35,6 @@ export type ModalType =
   | "confirm"
   | "smartRulesManager"
   | "exportReports"
-  | "netWorth"
   | "financialSkills"
   | "financialStory"
   | "dataAuditor"
@@ -57,7 +57,6 @@ export type ModalState =
   | { type: "confirm"; payload: ConfirmPayload }
   | { type: "smartRulesManager" }
   | { type: "exportReports"; payload?: { initialTab?: "pdf" | "csv" | "backup" } }
-  | { type: "netWorth" }
   | { type: "financialSkills" }
   | { type: "financialStory"; payload?: { year?: number; monthIdx?: number } }
   | { type: "dataAuditor" }

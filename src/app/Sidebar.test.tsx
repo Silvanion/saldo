@@ -46,8 +46,11 @@ describe("Sidebar", () => {
     expect(setActiveView).toHaveBeenCalledWith("budget");
 
     fireEvent.click(document.getElementById("nav-networth")!);
-    expect(openModal).toHaveBeenCalledWith("netWorth");
-    expect(setActiveView).toHaveBeenCalledTimes(1);
+    expect(setActiveView).toHaveBeenLastCalledWith("netWorth");
+
+    fireEvent.click(document.getElementById("nav-b2b-tax")!);
+    expect(openModal).toHaveBeenCalledWith("b2bTax");
+    expect(setActiveView).toHaveBeenCalledTimes(2);
   });
 
   it("pokazuje licznik nieopłaconych płatności", () => {
