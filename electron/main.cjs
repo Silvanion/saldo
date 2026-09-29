@@ -13,6 +13,10 @@ const fs = require("fs");
 log.transports.file.level = "info";
 log.transports.console.level = process.env.NODE_ENV === "production" ? false : "info";
 autoUpdater.logger = log;
+
+process.on('unhandledRejection', (reason) => {
+  log.error('[Main] Nieobsłużone odrzucenie obietnicy:', reason instanceof Error ? reason.stack : reason);
+});
 // The renderer (UpdateToast) asks before downloading — auto-downloading on
 // every startup check wasted bandwidth and produced a second, native
 // "restart and install" prompt on top of the in-app one.
@@ -909,6 +913,34 @@ async function createWindow(port) {
     }
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
+  // Without these handlers a crashed renderer leaves a blank, dead window with
+  // nothing in the logs. Reload it, but give up after repeated crashes so a
+  // deterministic crash can't loop forever.
+  const rendererCrashTimes = [];
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    log.error(`[Renderer] Proces renderera zakończył się: ${details.reason} (kod ${details.exitCode})`);
+    if (details.reason === 'clean-exit' || details.reason === 'killed') return;
+    const now = Date.now();
+    rendererCrashTimes.push(now);
+    while (rendererCrashTimes.length && now - rendererCrashTimes[0] > 60000) rendererCrashTimes.shift();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (rendererCrashTimes.length <= 3) {
+        mainWindow.webContents.reload();
+      } else {
+        dialog.showErrorBox(
+          'Saldo przestało odpowiadać',
+          'Aplikacja wielokrotnie uległa awarii. Zamknij ją i uruchom ponownie. Szczegóły zapisano w dzienniku aplikacji.'
+        );
+      }
+    }
+  });
+  mainWindow.webContents.on('unresponsive', () => {
+    log.warn('[Renderer] Okno przestało odpowiadać.');
+  });
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    if (isMainFrame) log.error(`[Renderer] Błąd ładowania ${validatedURL}: ${errorDescription} (${errorCode})`);
+  });
 
   mainWindow.webContents.on('did-finish-load', () => {
     if (pendingImportFilePath) {
