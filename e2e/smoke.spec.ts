@@ -107,7 +107,9 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#net-worth-title")).toBeVisible({ timeout: 5000 });
     await expect(page.getByText("Struktura Aktywów")).toBeVisible();
     await expect(page.getByText("Struktura Zobowiązań")).toBeVisible();
-    await expect(page.getByText("Trajektoria Majątku Netto")).toBeVisible();
+    // Świeży profil nie ma aktywów ani zobowiązań — zamiast wykresu samych zer jest stan pusty
+    // (wykres z danymi pokrywa test jednostkowy NetWorthView).
+    await expect(page.locator("#net-worth-empty-state")).toBeVisible();
 
     // Ten sam widok jest osiągalny z menu bocznego
     await page.locator("#nav-dashboard").click();
