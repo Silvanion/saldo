@@ -14,7 +14,7 @@ Najnowsza wersja: **[GitHub Releases → Latest](https://github.com/Silvanion/sa
 
 | System | Plik |
 | --- | --- |
-| macOS — Apple Silicon (M1–M4) | `Saldo-<wersja>-arm64.dmg` |
+| macOS — Apple Silicon (M1–M5) | `Saldo-<wersja>-arm64.dmg` |
 | macOS — Intel | `Saldo-<wersja>.dmg` |
 | Windows — instalator | `Saldo-Setup-<wersja>.exe` |
 | Windows — wersja przenośna | `Saldo-<wersja>-portable.exe` |
