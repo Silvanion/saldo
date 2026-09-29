@@ -13,6 +13,10 @@ Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 - **Import z banków**:
   - Naprawa: `FileReader.readAsText` zawsze czytał plik jako UTF-8, więc eksporty w Windows-1250 traciły polskie znaki. Nowe `decodeCsvBytes`: ścisłe UTF-8, a przy błędnych bajtach fallback do Windows-1250.
   - Alior Bank (CSV „Historia operacji” i PDF „Historia transakcji”), zweryfikowane na prawdziwym eksporcie: nazwą jest druga strona operacji (przy braku kontrahenta — „Szczegóły transakcji”); dedykowany parser bloków PDF (`aliorImport.ts`) zamiast sklejania linii; ostrzeżenia `credit-line` (wiersze `Nr transakcji:` / „Spłata kredytu”, domyślnie niezaznaczone) i `own-transfer` (nadawca = odbiorca). CSV i PDF dają identyczne sumy.
+  - **Naprawa krytyczna: import PDF nie działał w przeglądarce/Electronie** — pdf.js 6 wymaga `GlobalWorkerOptions.workerSrc`, którego nigdy nie ustawiono (w Node/Vitest działa zastępczy worker, więc testy tego nie łapały). Nowe `loadPdfjs()` ustawia worker z `?url`; test regresyjny w `pdfWorker.test.ts`.
+  - Zen (CSV „PLN – Account Statement” i PDF), zweryfikowane na prawdziwym eksporcie (`zenImport.ts`): czyste nazwy, ostrzeżenia `own-transfer` (zasilenie kartą, przelew od właściciela konta, wymiana walut), saldo z PDF do kontroli ciągłości. Sumy zgadzają się z podsumowaniem banku, CSV = PDF.
+  - Naprawa: `parseCsvDate("1 Sep 2026")` przechodziło przez `new Date().toISOString()` i w strefie +01/+02 dawało dzień wcześniej; fallback używa teraz składników lokalnych, a formaty „D Mon YYYY” są parsowane jawnie. `detectCsvSeparator` próbkuje 60 linii zamiast 15 (preambuła Zen ma 24 linie bez separatora).
+  - Wspólne typy ostrzeżeń w `importHints.ts`.
   - Wiersze z kategorią zaproponowaną przez lokalne AI (Ollama) są oznaczone w podglądzie importu.
 - **Aplikacja desktopowa**:
   - Obserwowanie wskazanego folderu z wyciągami (`electron/statementWatcher.cjs`, `fs.watch`, bez nowych zależności): nowy CSV/PDF po ustabilizowaniu rozmiaru wywołuje powiadomienie systemowe; import nadal wymaga potwierdzenia w podglądzie.

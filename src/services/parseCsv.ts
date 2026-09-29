@@ -10,7 +10,9 @@ import {
 } from "./directionDetector";
 import { generateEntityId } from "../utils/id";
 import { validateTransactionsBalanceContinuity } from "./balanceValidator";
-import { detectAliorLayout, aliorName, aliorImportHint, type ImportHint } from "./aliorImport";
+import { detectAliorLayout, aliorName, aliorImportHint } from "./aliorImport";
+import { detectZenLayout, zenOwnerFromPreamble, zenName, zenImportHint } from "./zenImport";
+import type { ImportHint } from "./importHints";
 
 export type BankPresetId =
   | "generic"
@@ -116,7 +118,9 @@ export function cleanCsvBomAndEncoding(text: string): string {
 // jest uwzględniony, bo część eksportów bankowych to de facto TSV.
 export function detectCsvSeparator(text: string): string {
   const candidates = [";", ",", "\t", "|"];
-  const sampleLines = text.split(/\r?\n/).slice(0, 15).filter((l) => l.trim().length > 0);
+  // Preambuła banku (np. Zen: 24 linie metadanych przed nagłówkiem) bywa dłuższa niż 15 linii i
+  // bez żadnego separatora — wtedy próbka bez tabeli dawała domyślne ";" i cały plik był jedną kolumną.
+  const sampleLines = text.split(/\r?\n/).slice(0, 60).filter((l) => l.trim().length > 0);
   const counts = new Map<string, number>(candidates.map((c) => [c, 0]));
 
   for (const line of sampleLines) {
@@ -138,6 +142,8 @@ export function detectCsvSeparator(text: string): string {
 
   return best;
 }
+
+const ENGLISH_MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
 export function parseCsvDate(rawDate: string): string | null {
   if (!rawDate) return null;
@@ -190,10 +196,23 @@ export function parseCsvDate(rawDate: string): string | null {
     return isoTimeMatch[1];
   }
 
-  // JS Date parse fallback
+  // "1 Sep 2026" / "1 September 2026" (angielskie eksporty, np. Zen). Nie przechodzimy przez
+  // new Date(): parsuje lokalnie, a toISOString() konwertuje do UTC, co w strefie +01/+02
+  // cofa datę o dzień.
+  const dMonYMatch = trimmed.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})$/);
+  if (dMonYMatch) {
+    const monthIndex = ENGLISH_MONTHS.indexOf(dMonYMatch[2].slice(0, 3).toLowerCase());
+    if (monthIndex !== -1) {
+      const normalized = `${dMonYMatch[3]}-${String(monthIndex + 1).padStart(2, "0")}-${dMonYMatch[1].padStart(2, "0")}`;
+      const check = new Date(`${normalized}T00:00:00Z`);
+      return !isNaN(check.getTime()) && check.toISOString().slice(0, 10) === normalized ? normalized : null;
+    }
+  }
+
+  // JS Date parse fallback — składniki lokalne, żeby uniknąć przesunięcia o dzień przez UTC.
   const parsed = new Date(trimmed);
   if (!isNaN(parsed.getTime())) {
-    return parsed.toISOString().split("T")[0];
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
   }
 
   return null;
@@ -797,6 +816,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const directions: ImportDirectionInfo[] = [];
   const importHints: Record<string, ImportHint> = {};
   const aliorLayout = detectAliorLayout(headers);
+  const zenLayout = detectZenLayout(headers);
+  const zenOwner = zenLayout ? zenOwnerFromPreamble(rawData.slice(0, headerIndex)) : "";
   const detectedCurrencies: Record<SupportedCurrency, number> = {
     PLN: 0,
     EUR: 0,
@@ -884,6 +905,9 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     if (aliorLayout && nameIsAliorField) {
       rawName = aliorName(row, aliorLayout, parsedAmount.isNegative) || rawName;
     }
+    if (zenLayout && (nameIdx === -1 || nameIdx === zenLayout.description)) {
+      rawName = zenName(row[zenLayout.description] || "", row[zenLayout.type] || "") || rawName;
+    }
 
     let type: "income" | "expense";
     let directionSource: ImportDirectionInfo["source"];
@@ -943,7 +967,11 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     }
 
     const transactionId = generateEntityId('csv');
-    const hint = aliorLayout ? aliorImportHint(row, aliorLayout) : null;
+    const hint = aliorLayout
+      ? aliorImportHint(row, aliorLayout)
+      : zenLayout
+        ? zenImportHint(row[zenLayout.type] || "", row[zenLayout.description] || "", zenOwner)
+        : null;
     if (hint) importHints[transactionId] = hint;
     transactions.push({
       id: transactionId,

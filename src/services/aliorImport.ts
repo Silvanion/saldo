@@ -4,17 +4,13 @@
 // Logika oparta na prawdziwym eksporcie, nie na dokumentacji banku — jeśli bank zmieni format,
 // detectAliorLayout zwróci null i import wróci do zwykłego mapowania kolumn.
 
+import { samePerson, type ImportHint } from "./importHints";
+export type { ImportHint };
+
 export interface AliorLayout {
   sender: number;
   recipient: number;
   details: number;
-}
-
-export interface ImportHint {
-  /** credit-line: operacja pomocnicza na koncie limitu/kredytu — dubluje inny wiersz i zawyża sumy.
-   *  own-transfer: ta sama osoba jako nadawca i odbiorca — przesunięcie własnych środków. */
-  kind: "credit-line" | "own-transfer";
-  reason: string;
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -33,23 +29,6 @@ export function detectAliorLayout(headers: string[]): AliorLayout | null {
 export function aliorName(row: string[], layout: AliorLayout, isNegative: boolean): string {
   const counterparty = (row[isNegative ? layout.recipient : layout.sender] || "").trim();
   return counterparty || (row[layout.details] || "").trim();
-}
-
-// NFD nie rozkłada "ł", a bank raz pisze "Pawłowski", raz "Pawlowski".
-const fold = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/ł/gi, "l")
-    .toLowerCase()
-    .trim();
-
-function samePerson(a: string, b: string): boolean {
-  const ta = fold(a).split(/\s+/).filter(Boolean);
-  const tb = fold(b).split(/\s+/).filter(Boolean);
-  if (ta.length < 2 || tb.length < 2) return false;
-  // Imię i nazwisko wystarczą — drugie imię bywa w jednym zapisie, a w drugim nie.
-  return ta[0] === tb[0] && ta[ta.length - 1] === tb[tb.length - 1];
 }
 
 export function aliorHintFromFields(sender: string, recipient: string, details: string): ImportHint | null {
