@@ -235,6 +235,8 @@ export function AppShell({
                   {activeView === "payments" && "Zaplanowane Opłaty"}
                   {activeView === "budget" && "Twoje Budżety"}
                   {activeView === "goals" && "Cele Finansowe i Inwestycje"}
+                  {activeView === "netWorth" && "Majątek Netto"}
+                  {activeView === "debts" && "Kredyty i Hipoteka"}
                   {activeView === "analysis" && "Twoje Finanse w Liczbach"}
                   {activeView === "settings" && "Konfiguracja Systemu"}
                   {activeView === "help" && "Centrum Pomocy"}

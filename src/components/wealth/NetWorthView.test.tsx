@@ -99,4 +99,18 @@ describe("NetWorthView", () => {
     fireEvent.click(screen.getByText("Zarządzaj długami i strategią spłat"));
     expect(onChangeView).toHaveBeenCalledWith("debts");
   });
+
+  it("pusty profil pokazuje stan pusty zamiast wykresu zer i kieruje do celów/kredytów", () => {
+    const emptyProfile = {
+      id: "p0", name: "Pusty", kind: "personal", currency: "PLN",
+      transactions: [], payments: [], goals: [], investments: [], budgets: {}, debts: [],
+    } as unknown as Profile;
+    const onChangeView = vi.fn();
+    render(<NetWorthView profile={emptyProfile} onChangeView={onChangeView} />);
+
+    expect(screen.getByText("Nie ma jeszcze czego wyliczyć")).toBeTruthy();
+    expect(screen.queryByTestId("area-chart")).toBeNull();
+    fireEvent.click(screen.getByText("Dodaj kredyt"));
+    expect(onChangeView).toHaveBeenCalledWith("debts");
+  });
 });

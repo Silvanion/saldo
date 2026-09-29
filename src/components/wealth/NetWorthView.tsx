@@ -76,6 +76,7 @@ export function NetWorthView({ profile, onChangeView }: NetWorthViewProps) {
   }, [simulatedPayoffDebtId, activeDebts, summary]);
 
 
+  const isEmpty = summary.assets.totalAssets === 0 && summary.liabilities.totalLiabilities === 0;
   const isNetPositive = summary.netWorth >= 0;
   const debtRatio = summary.debtToAssetsRatio;
 
@@ -178,99 +179,131 @@ export function NetWorthView({ profile, onChangeView }: NetWorthViewProps) {
             </div>
 
             {/* Timeline Area Chart */}
-            <div className="bg-surface border border-border/70 rounded-2xl p-5 shadow-xs">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <div>
-                  <h3 className="text-sm font-bold text-text-main tracking-tight">
-                    Trajektoria Majątku Netto
-                  </h3>
-                  <p className="text-xs text-text-muted">Historia akumulacji majątku w czasie</p>
-                </div>
-
-                {/* Period Selector */}
-                <div className="flex items-center bg-surface-2 p-1 rounded-xl border border-border/60 text-xs">
-                  {([3, 6, 12] as const).map((m) => (
+            {isEmpty ? (
+              <div
+                className="bg-surface border border-dashed border-border rounded-2xl p-8 text-center"
+                id="net-worth-empty-state"
+              >
+                <PiggyBank className="w-8 h-8 text-text-muted mx-auto mb-3" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold text-text-main">Nie ma jeszcze czego wyliczyć</h3>
+                <p className="text-xs text-text-muted mt-1 max-w-md mx-auto">
+                  Majątek netto to aktywa (oszczędności, inwestycje, nieruchomości) minus zobowiązania (kredyty, nieopłacone rachunki).
+                  Dodaj cel oszczędnościowy lub kredyt, a tu pojawi się bilans i jego trajektoria w czasie.
+                </p>
+                {onChangeView && (
+                  <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
                     <button
-                      key={m}
                       type="button"
-                      onClick={() => setPeriodMonths(m)}
-                      className={`px-3 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
-                        periodMonths === m
-                          ? "bg-brand text-white shadow-xs"
-                          : "text-text-muted hover:text-text-main"
-                      }`}
+                      onClick={() => onChangeView("goals")}
+                      className="text-xs font-semibold text-brand hover:underline cursor-pointer"
                     >
-                      {m}M
+                      Dodaj oszczędności i cele
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => onChangeView("debts")}
+                      className="text-xs font-semibold text-brand hover:underline cursor-pointer"
+                    >
+                      Dodaj kredyt
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-surface border border-border/70 rounded-2xl p-5 shadow-xs">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <div>
+                    <h3 className="text-sm font-bold text-text-main tracking-tight">
+                      Trajektoria Majątku Netto
+                    </h3>
+                    <p className="text-xs text-text-muted">Historia akumulacji majątku w czasie</p>
+                  </div>
+
+                  {/* Period Selector */}
+                  <div className="flex items-center bg-surface-2 p-1 rounded-xl border border-border/60 text-xs">
+                    {([3, 6, 12] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setPeriodMonths(m)}
+                        className={`px-3 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+                          periodMonths === m
+                            ? "bg-brand text-white shadow-xs"
+                            : "text-text-muted hover:text-text-main"
+                        }`}
+                      >
+                        {m}M
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="w-full h-60 sm:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={timelineData}
+                      margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                        </linearGradient>
+                        <linearGradient id="liabilitiesGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2} />
+                          <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.15)" />
+                      <XAxis
+                        dataKey="label"
+                        tick={{ fill: "#888888", fontSize: 11 }}
+                        axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fill: "#888888", fontSize: 11 }}
+                        axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
+                        tickLine={false}
+                        tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                      />
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (!active || !payload || !payload.length) return null;
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-surface p-3 rounded-xl border border-border shadow-lg text-xs space-y-1">
+                              <span className="font-bold text-text-main block">{data.label}</span>
+                              <div className="flex justify-between gap-4 text-emerald-500 font-semibold">
+                                <span>Majątek Netto:</span>
+                                <span>{formatMoney(data.netWorth, cur)}</span>
+                              </div>
+                              <div className="flex justify-between gap-4 text-text-muted">
+                                <span>Aktywa:</span>
+                                <span>{formatMoney(data.assets, cur)}</span>
+                              </div>
+                              <div className="flex justify-between gap-4 text-rose-500">
+                                <span>Zobowiązania:</span>
+                                <span>{formatMoney(data.liabilities, cur)}</span>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="netWorth"
+                        stroke="#10b981"
+                        strokeWidth={2.5}
+                        fillOpacity={1}
+                        fill="url(#netWorthGradient)"
+                        name="Majątek Netto"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-
-              <div className="w-full h-60 sm:h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={timelineData}
-                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                      </linearGradient>
-                      <linearGradient id="liabilitiesGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.15)" />
-                    <XAxis
-                      dataKey="label"
-                      tick={{ fill: "#888888", fontSize: 11 }}
-                      axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fill: "#888888", fontSize: 11 }}
-                      axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
-                      tickLine={false}
-                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                    />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (!active || !payload || !payload.length) return null;
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-surface p-3 rounded-xl border border-border shadow-lg text-xs space-y-1">
-                            <span className="font-bold text-text-main block">{data.label}</span>
-                            <div className="flex justify-between gap-4 text-emerald-500 font-semibold">
-                              <span>Majątek Netto:</span>
-                              <span>{formatMoney(data.netWorth, cur)}</span>
-                            </div>
-                            <div className="flex justify-between gap-4 text-text-muted">
-                              <span>Aktywa:</span>
-                              <span>{formatMoney(data.assets, cur)}</span>
-                            </div>
-                            <div className="flex justify-between gap-4 text-rose-500">
-                              <span>Zobowiązania:</span>
-                              <span>{formatMoney(data.liabilities, cur)}</span>
-                            </div>
-                          </div>
-                        );
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="netWorth"
-                      stroke="#10b981"
-                      strokeWidth={2.5}
-                      fillOpacity={1}
-                      fill="url(#netWorthGradient)"
-                      name="Majątek Netto"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            )}
 
             {/* Two-Column Assets vs Liabilities Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
