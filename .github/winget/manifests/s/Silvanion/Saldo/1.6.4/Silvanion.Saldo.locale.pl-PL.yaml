@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: Silvanion.Saldo
+PackageVersion: 1.6.4
+PackageLocale: pl-PL
+Publisher: Silvanion
+PublisherUrl: https://github.com/Silvanion
+PackageName: Saldo
+PackageUrl: https://github.com/Silvanion/saldo
+License: Proprietary
+ShortDescription: Aplikacja do zarządzania finansami osobistymi i domowymi.
+Moniker: saldo
+Tags:
+- finanse
+- budżet
+- finance
+ReleaseNotesUrl: https://github.com/Silvanion/saldo/releases/tag/v1.6.4
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
