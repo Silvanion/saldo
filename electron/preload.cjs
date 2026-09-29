@@ -25,6 +25,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('import-file-dropped', handler);
     return () => ipcRenderer.removeListener('import-file-dropped', handler);
   },
+  getImportWatchFolder: () => ipcRenderer.invoke('get-import-watch-folder'),
+  chooseImportWatchFolder: () => ipcRenderer.invoke('choose-import-watch-folder'),
+  clearImportWatchFolder: () => ipcRenderer.invoke('clear-import-watch-folder'),
   getLoginItem: () => ipcRenderer.invoke('get-login-item'),
   setLoginItem: (openAtLogin) => ipcRenderer.invoke('set-login-item', openAtLogin),
   setProgressBar: (progress) => ipcRenderer.invoke('set-progress-bar', progress),

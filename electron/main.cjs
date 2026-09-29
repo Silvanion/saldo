@@ -3,6 +3,7 @@ const path = require("path");
 const net = require("net");
 const { execFile } = require("child_process");
 const { autoUpdater } = require("electron-updater");
+const { createStatementWatcher } = require("./statementWatcher.cjs");
 const windowStateKeeper = require("electron-window-state");
 const log = require("electron-log");
 const fs = require("fs");
@@ -65,6 +66,51 @@ async function openImportFile(filePath) {
   } catch (err) {
     log.error("[OpenFile] Błąd odczytu pliku do zaimportowania:", err);
   }
+}
+
+// Optional: watch one user-chosen folder (e.g. where the browser saves bank
+// exports) and offer new statements via a system notification. Nothing is
+// imported automatically — clicking the notification opens the normal import
+// preview, so the user still confirms every import.
+const importWatchConfigPath = () => path.join(app.getPath('userData'), 'import-watch.json');
+const activeNotifications = new Set();
+
+function readImportWatchFolder() {
+  try {
+    const { folder } = JSON.parse(fs.readFileSync(importWatchConfigPath(), 'utf8'));
+    return typeof folder === 'string' && folder ? folder : null;
+  } catch {
+    return null;
+  }
+}
+
+function notifyNewStatement(filePath) {
+  if (!Notification.isSupported()) return;
+  const notification = new Notification({
+    title: 'Nowy wyciąg bankowy',
+    body: `${path.basename(filePath)} — kliknij, aby przejrzeć i zaimportować`
+  });
+  activeNotifications.add(notification); // held so it isn't GC'd before the click
+  notification.on('click', () => openImportFile(filePath));
+  notification.on('close', () => activeNotifications.delete(notification));
+  notification.show();
+}
+
+const statementWatcher = createStatementWatcher({ onNewFile: notifyNewStatement });
+
+function applyImportWatchFolder(folder) {
+  statementWatcher.stop();
+  if (!folder) return;
+  try {
+    statementWatcher.start(folder);
+  } catch (err) {
+    log.error("[ImportWatch] Nie udało się obserwować folderu:", err);
+  }
+}
+
+function saveImportWatchFolder(folder) {
+  fs.writeFileSync(importWatchConfigPath(), JSON.stringify({ folder }));
+  applyImportWatchFolder(folder);
 }
 
 // Registered before app.whenReady() — required on macOS to catch a file
@@ -348,6 +394,23 @@ ipcMain.handle('update-badge', (event, count) => {
       mainWindow.setOverlayIcon(null, "");
     }
   }
+});
+
+ipcMain.handle('get-import-watch-folder', () => readImportWatchFolder());
+
+ipcMain.handle('choose-import-watch-folder', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: 'Wybierz folder z wyciągami bankowymi',
+    properties: ['openDirectory']
+  });
+  if (canceled || !filePaths[0]) return readImportWatchFolder();
+  saveImportWatchFolder(filePaths[0]);
+  return filePaths[0];
+});
+
+ipcMain.handle('clear-import-watch-folder', () => {
+  saveImportWatchFolder(null);
+  return null;
 });
 
 ipcMain.handle('get-login-item', () => {
@@ -901,6 +964,8 @@ app.whenReady().then(async () => {
 
     // Initialize System Tray
     createTray();
+
+    applyImportWatchFolder(readImportWatchFolder());
 
     // Register global shortcut for quick expense
     try {
