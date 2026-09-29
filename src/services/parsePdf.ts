@@ -5,6 +5,7 @@ import { parseCsvAmount, parseCsvDate } from "./parseCsv";
 import { detectDirection, matchDirectionValue, type ImportDirectionInfo } from "./directionDetector";
 import { generateEntityId } from "../utils/id";
 import { validateTransactionsBalanceContinuity } from "./balanceValidator";
+import { parseAliorPdfText, type ImportHint } from "./aliorImport";
 
 // A too-large or too-long PDF (an adversarial file, or a merged multi-year
 // statement) could otherwise hang the import UI indefinitely with no
@@ -43,6 +44,8 @@ export interface PdfImportResult {
   transactions: Transaction[];
   rejectedRows: Array<{ row: number; reason: string; raw: string }>;
   extractedText: string;
+  /** Ostrzeżenia dla wierszy wyglądających na operacje pomocnicze/przelewy własne (klucz: id transakcji). */
+  importHints?: Record<string, ImportHint>;
   /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
   directions: ImportDirectionInfo[];
   balanceStats?: {
@@ -353,6 +356,36 @@ export function parsePdfTransactions(
   const transactions: Transaction[] = [];
   const rejectedRows: PdfImportResult["rejectedRows"] = [];
   const directions: ImportDirectionInfo[] = [];
+  // Wyciąg Aliora ma układ blokowy (Nadawca/Odbiorca/Opis w osobnych liniach) — ogólny parser
+  // wierszowy sklejał go w nazwy typu "Nadawca: … Numer rachunku …", więc ten układ ma własną ścieżkę.
+  const aliorRows = parseAliorPdfText(text);
+  if (aliorRows) {
+    const importHints: Record<string, ImportHint> = {};
+    aliorRows.forEach((row, index) => {
+      const isoDate = parseCsvDate(row.date);
+      if (!isoDate || row.name.length < 2) {
+        rejectedRows.push({ row: index + 1, reason: "Nie udało się jednoznacznie rozpoznać daty, kwoty lub opisu.", raw: row.raw });
+        return;
+      }
+      const transaction = buildTransaction(
+        row.name,
+        Math.abs(row.amount),
+        row.amount < 0 ? "expense" : "income",
+        isoDate,
+        options.currency,
+        options.account,
+        options.rules,
+        undefined,
+        row.raw,
+        "VALID"
+      );
+      transactions.push(transaction);
+      directions.push({ transactionId: transaction.id, source: "amount-sign", confident: true });
+      if (row.hint) importHints[transaction.id] = row.hint;
+    });
+    return { transactions, rejectedRows, extractedText: text, directions, importHints };
+  }
+
   const operationsIndex = text.search(/\bOperacje\b/i);
   const statementText = operationsIndex >= 0 ? text.slice(operationsIndex) : text;
   

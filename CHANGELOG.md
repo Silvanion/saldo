@@ -12,6 +12,7 @@ Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
   - Majątek netto jest osobnym widokiem (`wealth/NetWorthView`) zamiast modalu; usunięto `NetWorthModal` i typ modalu `netWorth`. Podatki B2B pozostają modalem (kalkulator przyjmujący dane z Analizy).
 - **Import z banków**:
   - Naprawa: `FileReader.readAsText` zawsze czytał plik jako UTF-8, więc eksporty w Windows-1250 traciły polskie znaki. Nowe `decodeCsvBytes`: ścisłe UTF-8, a przy błędnych bajtach fallback do Windows-1250.
+  - Alior Bank (CSV „Historia operacji” i PDF „Historia transakcji”), zweryfikowane na prawdziwym eksporcie: nazwą jest druga strona operacji (przy braku kontrahenta — „Szczegóły transakcji”); dedykowany parser bloków PDF (`aliorImport.ts`) zamiast sklejania linii; ostrzeżenia `credit-line` (wiersze `Nr transakcji:` / „Spłata kredytu”, domyślnie niezaznaczone) i `own-transfer` (nadawca = odbiorca). CSV i PDF dają identyczne sumy.
   - Wiersze z kategorią zaproponowaną przez lokalne AI (Ollama) są oznaczone w podglądzie importu.
 - **Aplikacja desktopowa**:
   - Obserwowanie wskazanego folderu z wyciągami (`electron/statementWatcher.cjs`, `fs.watch`, bez nowych zależności): nowy CSV/PDF po ustabilizowaniu rozmiaru wywołuje powiadomienie systemowe; import nadal wymaga potwierdzenia w podglądzie.

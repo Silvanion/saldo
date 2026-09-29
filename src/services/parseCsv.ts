@@ -10,6 +10,7 @@ import {
 } from "./directionDetector";
 import { generateEntityId } from "../utils/id";
 import { validateTransactionsBalanceContinuity } from "./balanceValidator";
+import { detectAliorLayout, aliorName, aliorImportHint, type ImportHint } from "./aliorImport";
 
 export type BankPresetId =
   | "generic"
@@ -613,6 +614,8 @@ export interface ProcessCsvResult {
   rejectedRows: RejectedCsvRow[];
   /** Skąd wzięła się decyzja o kierunku dla każdej zaimportowanej transakcji. */
   directions: ImportDirectionInfo[];
+  /** Ostrzeżenia dla wierszy, które wyglądają na operacje pomocnicze lub przelewy własne (klucz: id transakcji). */
+  importHints: Record<string, ImportHint>;
   /** Ustawione, gdy struktury pliku nie da się rozpoznać — zamiast lawiny odrzuceń. */
   structureError?: string;
   stats: {
@@ -654,6 +657,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
       directions: [],
+      importHints: {},
       stats: { totalRows: 0, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount: 0 }
     };
   }
@@ -725,6 +729,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
       directions: [],
+      importHints: {},
       structureError: `Kolumna kwoty i kolumna daty wskazują na tę samą kolumnę ("${headers[amountIdx]}"). Wskaż właściwe kolumny w mapowaniu.`,
       stats: { totalRows: rows.length, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount }
     };
@@ -739,6 +744,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
       directions: [],
+      importHints: {},
       structureError: `Kolumna kwoty i kolumna opisu/nazwy wskazują na tę samą kolumnę ("${headers[amountIdx]}"). Wskaż właściwe kolumny w mapowaniu.`,
       stats: { totalRows: rows.length, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount }
     };
@@ -753,6 +759,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
       directions: [],
+      importHints: {},
       structureError: `Kolumna kwoty i kolumna salda wskazują na tę samą kolumnę ("${headers[amountIdx]}"). Saldo po operacji nie może być kwotą transakcji.`,
       stats: { totalRows: rows.length, validCount: 0, invalidAmountCount: 0, invalidDateCount: 0, skippedEmptyCount: 0, truncatedCount }
     };
@@ -772,6 +779,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
       rejectedRows: [],
       directions: [],
+      importHints: {},
       structureError: `Nie rozpoznaliśmy kolumny: ${missingColumns.join(" i ")}. Wskaż ją ręcznie w mapowaniu kolumn.`,
       stats: {
         totalRows: rows.length,
@@ -787,6 +795,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const transactions: Transaction[] = [];
   const rejectedRows: RejectedCsvRow[] = [];
   const directions: ImportDirectionInfo[] = [];
+  const importHints: Record<string, ImportHint> = {};
+  const aliorLayout = detectAliorLayout(headers);
   const detectedCurrencies: Record<SupportedCurrency, number> = {
     PLN: 0,
     EUR: 0,
@@ -864,7 +874,16 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       continue;
     }
 
-    const rawName = nameIdx !== -1 && row[nameIdx] ? row[nameIdx] : "Transakcja bankowa";
+    let rawName = nameIdx !== -1 && row[nameIdx] ? row[nameIdx] : "Transakcja bankowa";
+    // Eksport Aliora ma osobno nadawcę, odbiorcę i szczegóły — nazwą jest druga strona operacji.
+    // Modal zawsze przekazuje wybraną kolumnę nazwy (domyślnie jedną z tych trzech), więc pierwszeństwo
+    // ma dopiero wskazanie kolumny spoza nich.
+    const nameIsAliorField =
+      nameIdx === -1 ||
+      (aliorLayout !== null && [aliorLayout.sender, aliorLayout.recipient, aliorLayout.details].includes(nameIdx));
+    if (aliorLayout && nameIsAliorField) {
+      rawName = aliorName(row, aliorLayout, parsedAmount.isNegative) || rawName;
+    }
 
     let type: "income" | "expense";
     let directionSource: ImportDirectionInfo["source"];
@@ -924,6 +943,8 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     }
 
     const transactionId = generateEntityId('csv');
+    const hint = aliorLayout ? aliorImportHint(row, aliorLayout) : null;
+    if (hint) importHints[transactionId] = hint;
     transactions.push({
       id: transactionId,
       name: rawName,
@@ -957,6 +978,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     detectedCurrencies,
     rejectedRows,
     directions,
+    importHints,
     stats: {
       totalRows: rows.length,
       validCount: transactions.length,

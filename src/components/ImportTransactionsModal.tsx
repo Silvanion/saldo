@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
 import { checkDuplicate, DuplicateCheckResult } from "../services/duplicateDetector";
+import type { ImportHint } from "../services/aliorImport";
 import {
   BANK_PRESETS,
   BankPreset,
@@ -99,6 +100,9 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [isAiCategorizing, setIsAiCategorizing] = useState(false);
   const [aiInconsistentIds, setAiInconsistentIds] = useState<Set<string>>(new Set());
   // Wiersze, którym kategorię zaproponowało lokalne AI — oznaczone w podglądzie do sprawdzenia.
+  // Ostrzeżenia parsera (np. operacje na koncie kredytowym Aliora, przelewy własne). Id transakcji
+  // są unikalne dla każdego przebiegu, więc stare wpisy po ponownym imporcie nic nie psują.
+  const [importHintsById, setImportHintsById] = useState<Record<string, ImportHint>>({});
   const [aiSuggestedIds, setAiSuggestedIds] = useState<Set<string>>(new Set());
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
@@ -311,9 +315,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       }
       setMappedTransactions(result.transactions);
       setRejectedRows(result.rejectedRows);
+      const pdfHints = result.importHints || {};
+      setImportHintsById(pdfHints);
       const duplicateIds = findPdfDuplicates(result.transactions, activeProfile?.transactions || []);
       setSelectedTxIds(new Set(result.transactions
-        .filter((transaction) => !duplicateIds.has(transaction.id))
+        .filter((transaction) => !duplicateIds.has(transaction.id) && pdfHints[transaction.id]?.kind !== "credit-line")
         .map((transaction) => transaction.id)));
       setImportStats({
         invalidAmount: result.rejectedRows.filter((row) => row.reason.includes("kwoty")).length,
@@ -375,8 +381,12 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
       setDuplicateWarningsByTxId(warningsMap);
 
       // If all were duplicates or 0 non-duplicates, default to select all so user can choose
-      const initialSelection = nonDuplicateIds.size > 0
-        ? nonDuplicateIds
+      const hints = result.importHints || {};
+      setImportHintsById(hints);
+      // Operacje pomocnicze na koncie kredytowym dublują inne wiersze — domyślnie niezaznaczone.
+      const selectable = new Set([...nonDuplicateIds].filter((id) => hints[id]?.kind !== "credit-line"));
+      const initialSelection = selectable.size > 0
+        ? selectable
         : new Set(result.transactions.map((tx) => tx.id));
       setSelectedTxIds(initialSelection);
 
@@ -1108,12 +1118,13 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                     {duplicateAnalysis.enriched.map(({ tx, warning }, idx) => {
                       const isSelected = selectedTxIds.has(tx.id);
                       const isAmountInconsistent = aiInconsistentIds.has(tx.id);
+                      const importHint = importHintsById[tx.id];
                       return (
                         <tr
                           key={tx.id || idx}
                           onClick={() => handleToggleRow(tx.id)}
                           className={`transition-colors cursor-pointer select-none ${
-                            warning || isAmountInconsistent
+                            warning || isAmountInconsistent || importHint
                               ? isSelected
                                 ? "bg-warning-subtle hover:bg-warning-subtle/80"
                                 : "bg-warning-subtle/40 opacity-70 hover:opacity-100"
@@ -1137,6 +1148,14 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                               {warning && (
                                 <DelayedTooltip label={warning.reason}>
                                   <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+                                </DelayedTooltip>
+                              )}
+                              {importHint && (
+                                <DelayedTooltip label={importHint.reason}>
+                                  <AlertTriangle
+                                    className="w-3.5 h-3.5 text-warning shrink-0"
+                                    aria-label={importHint.kind === "credit-line" ? "Operacja na koncie kredytowym" : "Przelew własny"}
+                                  />
                                 </DelayedTooltip>
                               )}
                               <span className="truncate block max-w-[140px] sm:max-w-xs" title={tx.name}>
