@@ -24,3 +24,6 @@ dist-electron/
 .tmp/
 .cache/
 scratch/
+
+# wynik pomiarów generowany przez scripts/benchmark_comprehensive.ts
+scripts/benchmark_results.json

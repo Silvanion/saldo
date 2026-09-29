@@ -1,6 +1,0 @@
-{
-  "name": "Saldo",
-  "description": "Aplikacja do domowego budżetu pozwalająca śledzić wydatki w czasie rzeczywistym, zarządzać opłatami i generować raporty PDF.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
