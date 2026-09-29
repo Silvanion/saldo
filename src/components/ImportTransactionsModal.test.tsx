@@ -335,5 +335,7 @@ Data;Kwota;Tytuł;Waluta
 
     await screen.findByText("Żywność");
     expect(categorizeDescriptionsWithLocalAi).toHaveBeenCalledWith(["Tajemniczy Sklep"], expect.any(Object));
+    // Zmieniony przez AI wiersz jest oznaczony do sprawdzenia
+    expect(screen.getByLabelText("Sugestia lokalnego AI")).toBeTruthy();
   });
 });

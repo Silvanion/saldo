@@ -98,6 +98,8 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [isAiExtracting, setIsAiExtracting] = useState(false);
   const [isAiCategorizing, setIsAiCategorizing] = useState(false);
   const [aiInconsistentIds, setAiInconsistentIds] = useState<Set<string>>(new Set());
+  // Wiersze, którym kategorię zaproponowało lokalne AI — oznaczone w podglądzie do sprawdzenia.
+  const [aiSuggestedIds, setAiSuggestedIds] = useState<Set<string>>(new Set());
 
   const [mappedTransactions, setMappedTransactions] = useState<Transaction[]>([]);
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
@@ -519,14 +521,22 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         return;
       }
 
+      const changedIds = new Set(
+        toCategorize
+          .filter((t) => {
+            const suggested = suggestions.get(t.name);
+            return suggested && suggested !== "Inne";
+          })
+          .map((t) => t.id)
+      );
       setMappedTransactions((prev) =>
         prev.map((t) => {
-          if (t.category !== "Inne") return t;
-          const suggested = suggestions.get(t.name);
-          if (!suggested) return t;
+          if (!changedIds.has(t.id)) return t;
+          const suggested = suggestions.get(t.name)!;
           return { ...t, category: suggested, categoryIcon: iconByCategory[suggested] || t.categoryIcon };
         })
       );
+      setAiSuggestedIds((prev) => new Set([...prev, ...changedIds]));
     } catch (err: any) {
       setTextError(err.message || "Wystąpił problem podczas sugerowania kategorii.");
     } finally {
@@ -1139,6 +1149,11 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                             <span className="inline-flex items-center gap-1 bg-surface-2 border border-border px-2 py-0.5 rounded-full text-xs">
                               <span>{tx.categoryIcon}</span>
                               {tx.category}
+                              {aiSuggestedIds.has(tx.id) && (
+                                <span title="Kategorię zaproponowało lokalne AI — sprawdź przed importem" aria-label="Sugestia lokalnego AI">
+                                  <Sparkles className="w-3 h-3 text-brand" />
+                                </span>
+                              )}
                             </span>
                           </td>
                           <td className="py-2 px-3 text-text-muted">{tx.account}</td>
