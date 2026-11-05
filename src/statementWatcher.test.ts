@@ -29,6 +29,7 @@ describe("statementWatcher", () => {
   it("zgłasza nowy plik CSV dokładnie raz i ignoruje inne rozszerzenia", async () => {
     const found = setup();
     fs.writeFileSync(path.join(dir, "stary.csv"), "a;b\n1;2");
+    await sleep(50);
     watcher.start(dir);
     fs.writeFileSync(path.join(dir, "wyciag.csv"), "a;b\n1;2");
     fs.writeFileSync(path.join(dir, "notatki.txt"), "nie wyciąg");

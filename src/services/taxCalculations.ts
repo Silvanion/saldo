@@ -43,24 +43,29 @@ export interface TaxComparisonSummary {
   recommendationReason: string;
 }
 
-// Stałe wskaźniki podatkowe Polska 2025/2026
+// Stałe wskaźniki podatkowe Polska 2026
+// Zaktualizowane na podstawie oficjalnych stawek ZUS/GUS na 2026 r. (płaca
+// minimalna 4806 zł, przeciętne wynagrodzenie w sektorze przedsiębiorstw za
+// IV kw. 2025 ogłoszone przez GUS 22.01.2026 = 9228,64 zł) — poprzednie
+// wartości pochodziły z 2025 r. i zaniżały wyliczaną rezerwę podatkową o
+// ok. 100-200 zł miesięcznie.
 export const TAX_CONSTANTS_PL = {
-  MIN_WAGE: 4666,
-  AVG_ENTERPRISE_WAGE: 8200,
-  // ZUS Pełny (podstawa 60% prognozowanego = 5200)
-  FULL_ZUS_WITH_SICK: 1774,
-  FULL_ZUS_WITHOUT_SICK: 1647,
-  // ZUS Preferencyjny (podstawa 30% min = 1400)
-  PREF_ZUS_WITH_SICK: 450,
-  PREF_ZUS_WITHOUT_SICK: 415,
-  // Zdrowotna Ryczałt 2025/2026 (60%, 100%, 180% przeciętnego * 9%)
-  RYCZALT_HEALTH_TIER_1: 460, // do 60k rocznie
-  RYCZALT_HEALTH_TIER_2: 770, // 60k - 300k rocznie
-  RYCZALT_HEALTH_TIER_3: 1380, // pow. 300k rocznie
-  // Minimalna zdrowotna (9% z min. wynagrodzenia)
-  MIN_HEALTH_INSURANCE: 420,
+  MIN_WAGE: 4806,
+  AVG_ENTERPRISE_WAGE: 9228.64,
+  // ZUS Pełny (podstawa 60% prognozowanego przeciętnego wynagrodzenia)
+  FULL_ZUS_WITH_SICK: 1926.76,
+  FULL_ZUS_WITHOUT_SICK: 1788.29,
+  // ZUS Preferencyjny (podstawa 30% minimalnego wynagrodzenia = 1441,80 zł)
+  PREF_ZUS_WITH_SICK: 456.18,
+  PREF_ZUS_WITHOUT_SICK: 420.87,
+  // Zdrowotna Ryczałt 2026 (60%, 100%, 180% przeciętnego wynagrodzenia * 9%)
+  RYCZALT_HEALTH_TIER_1: 498.35, // do 60k rocznie
+  RYCZALT_HEALTH_TIER_2: 830.58, // 60k - 300k rocznie
+  RYCZALT_HEALTH_TIER_3: 1495.04, // pow. 300k rocznie
+  // Minimalna zdrowotna (9% z pełnego minimalnego wynagrodzenia od 2026 r.)
+  MIN_HEALTH_INSURANCE: 432.54,
   // Limit odliczenia zdrowotnej na podatku liniowym (roczny)
-  LINEAR_HEALTH_DEDUCTION_ANNUAL_LIMIT: 11600,
+  LINEAR_HEALTH_DEDUCTION_ANNUAL_LIMIT: 14100,
   // Skala podatkowa
   SCALE_TAX_FREE_ALLOWANCE: 30000,
   SCALE_TAX_REDUCING_ANNUAL: 3600,

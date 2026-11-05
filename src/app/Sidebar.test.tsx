@@ -5,6 +5,35 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
 
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+if (typeof globalThis.localStorage === "undefined" || typeof globalThis.localStorage.clear !== "function") {
+  Object.defineProperty(globalThis, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+  });
+}
+if (typeof window !== "undefined" && (typeof window.localStorage === "undefined" || typeof window.localStorage.clear !== "function")) {
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+  });
+}
+
 const setActiveView = vi.fn();
 const setIsMobileMenuOpen = vi.fn();
 const openModal = vi.fn();

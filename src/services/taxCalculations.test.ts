@@ -72,11 +72,11 @@ describe("taxCalculations - Polski Silnik Podatkowy B2B / JDG", () => {
       expect(result.zusSocial).toBe(TAX_CONSTANTS_PL.FULL_ZUS_WITH_SICK);
       expect(result.healthInsurance).toBe(TAX_CONSTANTS_PL.RYCZALT_HEALTH_TIER_2); // 20k * 12 = 240k (próg 2)
 
-      // Podstawa = Przychód (20000) - ZUS (1774) - 50% zdrowotnej (385) = 17841
-      expect(result.taxBase).toBe(20000 - 1774 - 385);
+      // Podstawa = Przychód - ZUS pełny - 50% zdrowotnej (odliczalne w ryczałcie), zaokrąglona na końcu
+      expect(result.taxBase).toBe(Math.round(20000 - TAX_CONSTANTS_PL.FULL_ZUS_WITH_SICK - TAX_CONSTANTS_PL.RYCZALT_HEALTH_TIER_2 * 0.5));
       expect(result.incomeTax).toBe(Math.round(result.taxBase * 0.12));
       expect(result.netIncome).toBeGreaterThan(14000);
-      expect(result.taxBufferToSetAside).toBe(result.zusSocial + result.healthInsurance + result.incomeTax);
+      expect(result.taxBufferToSetAside).toBe(Math.round(result.zusSocial + result.healthInsurance + result.incomeTax));
     });
 
     it("poprawnie wylicza Podatek Liniowy 19% z limitem odliczenia zdrowotnej", () => {
@@ -92,7 +92,10 @@ describe("taxCalculations - Polski Silnik Podatkowy B2B / JDG", () => {
       expect(result.form).toBe("linear");
       expect(result.incomeTax).toBeGreaterThan(0);
       expect(result.vatDue).toBe(Math.round((25000 * 0.23) - (5000 * 0.23)));
-      expect(result.taxBufferToSetAside).toBe(result.zusSocial + result.healthInsurance + result.incomeTax + result.vatDue);
+      // taxBufferToSetAside jest zaokrąglane do pełnych złotych (kwota "do odłożenia"),
+      // podczas gdy poszczególne składowe (np. ZUS) mogą mieć grosze — porównanie musi
+      // więc zaokrąglić sumę składowych tak samo, zamiast oczekiwać równości co do grosza.
+      expect(result.taxBufferToSetAside).toBe(Math.round(result.zusSocial + result.healthInsurance + result.incomeTax + result.vatDue));
     });
 
     it("poprawnie wylicza Skalę Podatkową z kwotą wolną i progami", () => {
