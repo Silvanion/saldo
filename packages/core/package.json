@@ -1,0 +1,21 @@
+{
+  "name": "@saldo/core",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Czysty rdzeń domenowy Saldo: silniki obliczeniowe, modele, parsery i narzędzia (współdzielone między Web/Desktop i Mobile).",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "papaparse": "^5.5.4",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2",
+    "typescript": "~5.8.2",
+    "vitest": "^4.1.10"
+  }
+}
