@@ -4,6 +4,39 @@
 
 Legenda: ✅ zrobione · 🟡 w toku / częściowo · ⏳ czeka na decyzję · ⬜ zaplanowane
 
+## Decyzje właściciela (2026-11-12)
+
+| Temat | Decyzja |
+|---|---|
+| Licencja | AGPL-3.0-only |
+| Model kluczy (SEC-02) | hasło główne dla wszystkiego, obowiązkowe, z kluczem odzyskiwania (`DESIGN-HASLO-GLOWNE.md`) |
+| Wersja web | w pełni wspierana (priorytet bezpieczeństwa i wydajności web) |
+| Zgłoszenia (SEC-10) | GitHub Issues |
+| Biometria na Windows (SEC-07) | ukryta do czasu prawdziwego Windows Hello |
+| Kopia zapasowa (UX-01) | folder aplikacji, 7 dziennych (zaszyfrowane po SEC-02) |
+| AI | usunięte: suggest-event, explain; import skanu za zgodą; nazwy Wealthfolio/Claude Skills zmienione |
+
+## Wdrożone 2026-11-12 (po decyzjach)
+
+| ID | Status | Uwagi |
+|---|---|---|
+| SEC-18 CSV injection | ✅ | test z parserem, najpierw czerwony |
+| AI-11 Gemini | ✅ | modele 1.5 i 2.0 usunięte, zapisane ID zastępowane domyślnym (2.0-flash-lite nie potwierdzone osobno; domyślny `gemini-3.8-flash` NIE zweryfikowany) |
+| AI-02/03/04 | ✅ | klient i serwer; skan PDF przez AI tylko po zgodzie |
+| Nazwy cudzych produktów | ✅ | UI, pomoc, changelog, tytuły e2e |
+| SEC-07 Windows | ✅ | `biometricsPolicy.cjs` + testy; **nie uruchomione w Electronie** |
+| SEC-10 GitHub Issues | ✅ | szablony, formularz; **wymaga wdrożenia reguł Firestore** (`bug_reports` zamknięte) |
+| SEC-12 fuses | 🟡 | `runAsNode`, `NODE_OPTIONS`, `--inspect` wyłączone; config zwalidowany, instalator niebudowany; asar-integrity/cookie-encryption świadomie pominięte |
+| SEC-14 SECURITY.md | ✅ | wymaga włączenia „private vulnerability reporting” w ustawieniach repo |
+| A11Y-03 reduced motion | ✅ | |
+| ARCH-01 port | 🟡 | komunikat zamiast cichej zmiany originu; **nie uruchomione w Electronie** |
+| SEC-02 faza 1 | ✅ | `cryptoV2.ts`, 18 testów, mutacje wykrywane; **niepodpięte do aplikacji** |
+
+## Następne (kolejność)
+1. SEC-02 faza 2 (przechowywanie, UI, kreator) — wymaga wcześniejszego wydania „klienta rozpoznającego v2”.
+2. UX-01 auto-kopia (musi poczekać na format v2, by kopie były zaszyfrowane; wariant tymczasowy: kopia w formie bazy).
+3. PERF-02/03 (web), SEC-06 (web: klucz API tylko w pamięci/sessionStorage), PRIV-03 (fonty), SEC-11 (token lokalnego API), THIRD_PARTY_NOTICES, A11Y-04 (axe w CI).
+
 ## S0 — hotfix (wydanie 1.6.7) · 2026-11-12
 
 | ID | Status | Commit / uwagi |
