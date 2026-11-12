@@ -31,7 +31,6 @@ import {
 } from "lucide-react";
 import { generateMonthlyDigest } from "../services/monthlyDigest";
 import { ReasonCard } from "./shared/ReasonCard";
-import { useAiExplain } from "../hooks/useAiExplain";
 import type { CalculationReason } from "../types";
 import {
   calculate503020,
@@ -60,7 +59,6 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
   const currentYear = selectedDate.getFullYear();
   const currentMonthIdx = selectedDate.getMonth();
   const monthName = getMonthName(currentMonthIdx);
-  const { isAiEnabled, explainReason } = useAiExplain();
 
   // Strategic simulator mode ("cushion" vs "debt")
   const [simulatorMode, setSimulatorMode] = useState<"cushion" | "debt">("cushion");
@@ -314,7 +312,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
               title="Centrum Umiejętności Finansowych i Planów Działania"
             >
               <Brain className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand" />
-              <span>Plany i Umiejętności (Claude Skills)</span>
+              <span>Plany i Umiejętności</span>
             </button>
           )}
           {onOpenFinancialStory && (
@@ -420,7 +418,6 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
           return (
           <ReasonCard
             reason={budgetRuleReason}
-            onAskAi={isAiEnabled ? () => explainReason(budgetRuleReason) : undefined}
           />
           );
         })() : (

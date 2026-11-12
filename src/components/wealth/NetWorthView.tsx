@@ -92,7 +92,7 @@ export function NetWorthView({ profile, onChangeView }: NetWorthViewProps) {
               Bilans Majątku Netto
             </h2>
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-              Wealthfolio Core
+              Aktywa i pasywa
             </span>
           </div>
           <p className="text-xs text-text-muted mt-0.5">

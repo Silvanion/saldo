@@ -22,7 +22,6 @@ import { formatMoney, parseAmountInput } from "../../utils/format";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { ReasonCard } from "../shared/ReasonCard";
-import { useAiExplain } from "../../hooks/useAiExplain";
 import {
   ZusTier,
   RyczaltRate,
@@ -67,7 +66,6 @@ export function B2bTaxModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
-  const { isAiEnabled, explainReason } = useAiExplain();
 
   const [activeTab, setActiveTab] = useState<B2bTaxTab>("comparison");
   const [revenue, setRevenue] = useState<number>(initialRevenue);
@@ -362,7 +360,6 @@ export function B2bTaxModal({
                 {getB2bTaxReason(revenue) ? (
                   <ReasonCard
                     reason={getB2bTaxReason(revenue)!}
-                    onAskAi={isAiEnabled ? () => explainReason(getB2bTaxReason(revenue)!) : undefined}
                   />
                 ) : (
                 <>

@@ -8,7 +8,6 @@ import { calculateDebtOverpaymentScenario, calculateDebtAmortizationSchedule } f
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { ReasonCard } from "../shared/ReasonCard";
-import { useAiExplain } from "../../hooks/useAiExplain";
 import type { CalculationReason } from "../../types";
 
 export interface OverpaymentSimulatorModalProps {
@@ -29,7 +28,6 @@ export function OverpaymentSimulatorModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
-  const { isAiEnabled, explainReason } = useAiExplain();
 
   const [amount, setAmount] = useState(() => (initialAmount !== undefined ? String(initialAmount) : "1000"));
   const [frequency, setFrequency] = useState<"monthly" | "one_time" | "yearly">(() => initialFrequency || "monthly");
@@ -191,7 +189,6 @@ export function OverpaymentSimulatorModal({
                 return (
                   <ReasonCard
                     reason={notEligibleReason}
-                    onAskAi={isAiEnabled ? () => explainReason(notEligibleReason) : undefined}
                   />
                 );
               }
@@ -205,7 +202,6 @@ export function OverpaymentSimulatorModal({
                 return (
                   <ReasonCard
                     reason={zeroAmountReason}
-                    onAskAi={isAiEnabled ? () => explainReason(zeroAmountReason) : undefined}
                   />
                 );
               }

@@ -3,15 +3,12 @@ import { getLocalDateIso } from "../utils";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { buildCalendarReminder } from "../services/localParsers";
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Payment } from "../types";
-import { Calendar, Clock, Bell, AlertCircle, Check, Loader2, Sparkles, X } from "lucide-react";
+import { Calendar, Clock, Bell, AlertCircle, Check, Loader2, X } from "lucide-react";
 import { validateCalendarEventInput } from "../services/calendarValidation";
 import { formatMoney } from "../utils/format";
-import { AppContext } from "../app/providers/AppContext";
-import { callAiApi, getAiConfig } from "../services/aiClient";
-import { ReasonCard } from "./shared/ReasonCard";
 
 interface CalendarReminderModalProps {
   isOpen: boolean;
@@ -33,9 +30,6 @@ export function CalendarReminderModal({
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
   useFocusTrap(modalRef, isOpen, onClose);
-  const appCtx = useContext(AppContext);
-  const isAiEnabled = appCtx?.state?.aiMode === "local";
-  const [isAiSuggesting, setIsAiSuggesting] = useState(false);
 
   // Suggested event fields
   const [summary, setSummary] = useState("");
@@ -92,33 +86,6 @@ export function CalendarReminderModal({
     setEventDate(p.dueDate || getLocalDateIso());
     setEventTime(draft.suggestedTime.slice(0, 5));
     setReminders(draft.reminders);
-  };
-
-  // Optional AI-assisted version of the same suggestion, using the locally
-  // running Ollama model (see src/server/ai/providers/localProvider.ts::suggestEvent).
-  // Only ever pre-fills the form below — nothing is sent to Google Calendar here.
-  const handleAiSuggest = async () => {
-    if (!payment || isAiSuggesting) return;
-    setIsAiSuggesting(true);
-    setErrorMsg(null);
-    try {
-      const result = await callAiApi("suggest-event", {
-        payment: { name: payment.name, amount: payment.amount, dueDate: payment.dueDate },
-        currentDate: getLocalDateIso()
-      }, getAiConfig(appCtx?.state));
-
-      if (typeof result.summary === "string" && result.summary.trim()) setSummary(result.summary);
-      if (typeof result.description === "string" && result.description.trim()) setDescription(result.description);
-      if (typeof result.suggestedDate === "string" && result.suggestedDate.trim()) setEventDate(result.suggestedDate);
-      if (typeof result.suggestedTime === "string" && result.suggestedTime.trim()) setEventTime(result.suggestedTime.slice(0, 5));
-      if (Array.isArray(result.suggestedReminders) && result.suggestedReminders.length > 0) {
-        setReminders(result.suggestedReminders.filter((m: unknown) => typeof m === "number").slice(0, 5));
-      }
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Nie udało się uzyskać propozycji od AI.");
-    } finally {
-      setIsAiSuggesting(false);
-    }
   };
 
   const calculateEndTime = (timeStr: string): string => {
@@ -320,36 +287,7 @@ export function CalendarReminderModal({
                       <Calendar className="w-4 h-4 text-brand" />
                       <span className="text-xs font-medium text-text-muted">Szczegóły przypomnienia w Kalendarzu</span>
                     </div>
-                    {isAiEnabled && (
-                      <button
-                        type="button"
-                        onClick={handleAiSuggest}
-                        disabled={isAiSuggesting}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-brand-subtle hover:bg-brand-subtle/70 border border-brand/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-focus-ring"
-                        id="btn-ai-suggest-calendar-event"
-                      >
-                        {isAiSuggesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                        {isAiSuggesting ? "AI proponuje..." : "Zaproponuj przez AI"}
-                      </button>
-                    )}
                   </div>
-
-                  {!isAiEnabled && (
-                    <ReasonCard
-                      className="mb-1"
-                      reason={{
-                        code: "calendar-ai-suggest-disabled",
-                        severity: "info",
-                        title: "Chcesz, by AI dopracowało treść przypomnienia?",
-                        message: "Powyższa treść jest już wygenerowana lokalnie i działa od razu. Włącz lokalne AI (Ollama) w Ustawieniach → Automatyzacja, aby dodatkowo poprosić model o bardziej dopracowaną wersję.",
-                        actionLabel: "Przejdź do Ustawień",
-                        onAction: () => {
-                          onClose();
-                          appCtx?.setActiveView("settings");
-                        }
-                      }}
-                    />
-                  )}
 
                   {/* Event Summary */}
                   <div>

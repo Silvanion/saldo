@@ -114,7 +114,7 @@ export function FinancialSkillsModal({
                     Centrum Umiejętności Finansowych
                   </h2>
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-subtle text-brand border border-brand/20">
-                    Claude Skills
+                    Plany działania
                   </span>
                 </div>
                 <p className="text-xs text-text-muted mt-0.5">

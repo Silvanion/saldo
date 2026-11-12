@@ -363,3 +363,37 @@ Data;Kwota;Tytuł;Waluta
   });
 });
 
+
+describe("ImportTransactionsModal — skan PDF przez AI jest eksperymentalnym opt-inem (AI-04)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+    mockAppState.aiMode = "none";
+    localStorage.removeItem("saldo_experimental_image_import");
+  });
+
+  it("skan bez warstwy tekstowej: najpierw ostrzeżenie i przycisk, AI nie jest wołane bez zgody", async () => {
+    mockAppState.aiMode = "local";
+    const file = new File(["%PDF"], "skan.pdf", { type: "application/pdf" });
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} initialFile={file} onConsumeInitialFile={vi.fn()} />);
+
+    expect(await screen.findByText(/odczyt skanów przez AI jest eksperymentalny/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Włącz eksperymentalny odczyt skanów/i })).toBeTruthy();
+    expect(callAiApiMock).not.toHaveBeenCalled();
+  });
+
+  it("po kliknięciu przycisku zgoda jest zapamiętana i ponawiany jest odczyt", async () => {
+    mockAppState.aiMode = "local";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ selectedModelVisionAvailable: true }) }));
+    callAiApiMock.mockResolvedValue({ transactions: [] });
+    const file = new File(["%PDF"], "skan.pdf", { type: "application/pdf" });
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} initialFile={file} onConsumeInitialFile={vi.fn()} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /Włącz eksperymentalny odczyt skanów/i }));
+    await screen.findByText(/AI nie rozpoznało transakcji/i);
+
+    expect(localStorage.getItem("saldo_experimental_image_import")).toBe("1");
+    expect(callAiApiMock).toHaveBeenCalledWith("parse-statement-image", expect.anything(), expect.anything());
+    vi.unstubAllGlobals();
+  });
+});

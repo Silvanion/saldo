@@ -158,11 +158,11 @@ export const changelogData: ChangelogEntry[] = [
   {
     version: "v1.3.0",
     date: "Wrzesień 2026",
-    title: "Majątek Netto (Wealthfolio), Plany Działania, Saldo Wrapped i Doktor Saldo",
+    title: "Majątek Netto, Plany Działania, Saldo Wrapped i Doktor Saldo",
     icon: <Database className="w-5 h-5 text-brand" />,
     features: [
-      "[Majątek Netto — Wealthfolio] Pełny tracker aktywów i pasywów z podziałem na gotówkę, cele, nieruchomości, inwestycje oraz kredyty. Wyliczanie wskaźnika DTI (Debt-to-Assets), wskaźnika płynności (Runway) i historycznej trajektorii z dedykowanym widokiem i widgetem.",
-      "[Deterministyczne Plany Działania (Claude Skills)] Zestaw deterministycznych asystentów: Akcelerator Lawiny Długów, 3-Etapowa Poduszka Bezpieczeństwa, Audyt Subskrypcji i Rebalansowanie Budżetu 50/30/20 z interaktywną checklistą i śledzeniem postępów.",
+      "[Majątek Netto] Pełny tracker aktywów i pasywów z podziałem na gotówkę, cele, nieruchomości, inwestycje oraz kredyty. Wyliczanie wskaźnika DTI (Debt-to-Assets), wskaźnika płynności (Runway) i historycznej trajektorii z dedykowanym widokiem i widgetem.",
+      "[Deterministyczne Plany Działania] Zestaw deterministycznych asystentów: Akcelerator Lawiny Długów, 3-Etapowa Poduszka Bezpieczeństwa, Audyt Subskrypcji i Rebalansowanie Budżetu 50/30/20 z interaktywną checklistą i śledzeniem postępów.",
       "[Saldo Wrapped & Financial Stories] 6-slajdowe interaktywne podsumowanie miesiąca w stylu Stories z autoodtwarzaniem, analizą nawyków i bezpośrednim eksportem do grafiki PNG (format 9:16).",
       "[Doktor Saldo • Autonomiczny Audytor i Self-Healing] Inteligentne skanowanie bazy pod kątem 6 rodzajów anomalii (ukryte duplikaty, osierocone transakcje, desynchronizacja celów, brakujące kategorie) z automatyczną samonaprawą jednym kliknięciem i pełną historią cofania (Undo).",
       "[Centrum Raportów i Eksportu] Nowy panel pobierania zestawień w formatach PDF i CSV z opcją udostępniania Web Share oraz wyboru zakresu czasowego.",

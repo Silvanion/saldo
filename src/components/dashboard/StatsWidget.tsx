@@ -4,7 +4,6 @@ import { SafeToSpendBreakdown, RunwayCalculation, MoMTrend } from "../../service
 import { formatMoney } from "../../utils/format";
 import { TrendingUp, TrendingDown, Wallet, CalendarClock, ShieldCheck, Hourglass, AlertTriangle, ArrowRight, ChevronRight } from "lucide-react";
 import { ReasonCard } from "../shared/ReasonCard";
-import { useAiExplain } from "../../hooks/useAiExplain";
 import type { CalculationReason } from "../../types";
 
 interface StatsWidgetProps {
@@ -36,7 +35,6 @@ export const StatsWidget = memo(function StatsWidget({
   onChangeView,
   middleRowSlot
 }: StatsWidgetProps) {
-  const { isAiEnabled, explainReason } = useAiExplain();
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* LEVEL 1: Core Financial Metrics (3-column grid) */}
@@ -356,7 +354,6 @@ export const StatsWidget = memo(function StatsWidget({
               <div className="mt-4 pt-4 border-t border-border/60 relative z-10">
                 <ReasonCard
                   reason={runwayReason}
-                  onAskAi={isAiEnabled ? () => explainReason(runwayReason) : undefined}
                 />
               </div>
               );
