@@ -449,6 +449,7 @@ ipcMain.handle('set-progress-bar', (event, progress) => {
 });
 
 // --- Biometria / Touch ID & Bezpieczny Magazyn ---
+const biometricsPolicy = require("./biometricsPolicy.cjs");
 function loadBiometricsData() {
   try {
     const biometricsFilePath = path.join(app.getPath('userData'), 'biometrics.json');
@@ -472,21 +473,20 @@ function saveBiometricsData(data) {
 
 ipcMain.handle('biometrics-status', (event, profileId) => {
   const isMac = process.platform === 'darwin';
-  const isWin = process.platform === 'win32';
   const hasTouchID = isMac && typeof systemPreferences.canPromptTouchID === 'function' && systemPreferences.canPromptTouchID();
   const encryptionAvailable = typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable();
 
-  // On Windows, safeStorage uses DPAPI (backed by Windows Hello / Credential Manager / TPM)
-  const hasBiometricsHardware = isMac ? Boolean(hasTouchID) : isWin ? Boolean(encryptionAvailable) : false;
+  // Tylko macOS (Touch ID). Windows: brak realnego monitu Windows Hello — patrz biometricsPolicy.cjs.
+  const available = biometricsPolicy.isBiometricsAvailable({ platform: process.platform, canPromptTouchID: hasTouchID, encryptionAvailable });
 
   let isEnrolledForProfile = false;
-  if (profileId) {
+  if (profileId && available) {
     const data = loadBiometricsData();
     isEnrolledForProfile = Boolean(data[profileId]);
   }
 
   return {
-    available: Boolean(hasBiometricsHardware && encryptionAvailable),
+    available,
     isEnrolledForProfile,
     platform: process.platform
   };
@@ -524,6 +524,9 @@ ipcMain.handle('install-update', () => {
 });
 
 ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
+  if (!biometricsPolicy.isVaultKey(profileId) && !biometricsPolicy.canStoreProfilePin(process.platform)) {
+    return { success: false, error: 'Odblokowanie biometryczne nie jest obsługiwane na tej platformie.' };
+  }
   if (typeof safeStorage.isEncryptionAvailable !== 'function' || !safeStorage.isEncryptionAvailable()) {
     return { success: false, error: 'Szyfrowany magazyn systemowy nie jest dostępny.' };
   }
@@ -540,6 +543,9 @@ ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
 });
 
 ipcMain.handle('biometrics-prompt-unlock', async (event, profileId, promptReason) => {
+  if (!biometricsPolicy.isVaultKey(profileId) && !biometricsPolicy.canStoreProfilePin(process.platform)) {
+    return { success: false, error: 'Odblokowanie biometryczne nie jest obsługiwane na tej platformie.' };
+  }
   const data = loadBiometricsData();
   const encryptedBase64 = data[profileId];
   if (!encryptedBase64) {
@@ -959,6 +965,17 @@ async function createWindow(port) {
 }
 
 app.whenReady().then(async () => {
+  try {
+    // Usuń PIN-y profili zapisane przez wcześniejsze wersje tam, gdzie biometria nie jest już obsługiwana (SEC-07).
+    const stored = loadBiometricsData();
+    const kept = biometricsPolicy.purgeUnsupportedProfilePins(process.platform, stored);
+    if (Object.keys(kept).length !== Object.keys(stored).length) {
+      saveBiometricsData(kept);
+      log.info("[Biometrics] Usunięto zapisane PIN-y profili (platforma bez obsługi biometrii).");
+    }
+  } catch (err) {
+    log.warn("[Biometrics] Nie udało się wyczyścić zapisanych PIN-ów:", err);
+  }
   try {
     const freePort = await resolveServerPort();
 

@@ -40,7 +40,9 @@ describe("BiometricService - Detekcja platformy i sprzętu biometrii", () => {
 
     const info = BiometricService.getPlatformInfo();
     expect(info.label).toBe("Windows Hello");
-    expect(info.isSupported).toBe(true);
+    // SEC-07: brak realnego monitu Windows Hello w Electronie — odblokowanie biometryczne wyłączone.
+    expect(info.isSupported).toBe(false);
+    expect(info.unsupportedReason).toMatch(/PIN/);
     expect(info.storageBackend).toContain("Windows DPAPI");
   });
 
