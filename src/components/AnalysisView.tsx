@@ -437,7 +437,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                 {formatMoney(breakdown503020.needs.amount, profile.currency || "PLN")}
               </span>
             </div>
-            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-valuenow={breakdown503020.needs.percentage} aria-valuemin={0} aria-valuemax={100}>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-label="Potrzeby w regule 50/30/20" aria-valuenow={breakdown503020.needs.percentage} aria-valuemin={0} aria-valuemax={100}>
               <div
                 style={{ width: `${Math.min(100, breakdown503020.needs.percentage)}%` }}
                 className={`h-full rounded-full transition-all duration-300 ${
@@ -462,7 +462,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                 {formatMoney(breakdown503020.wants.amount, profile.currency || "PLN")}
               </span>
             </div>
-            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-valuenow={breakdown503020.wants.percentage} aria-valuemin={0} aria-valuemax={100}>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-label="Zachcianki w regule 50/30/20" aria-valuenow={breakdown503020.wants.percentage} aria-valuemin={0} aria-valuemax={100}>
               <div
                 style={{ width: `${Math.min(100, breakdown503020.wants.percentage)}%` }}
                 className={`h-full rounded-full transition-all duration-300 ${
@@ -487,7 +487,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                 {formatMoney(breakdown503020.savings.amount, profile.currency || "PLN")}
               </span>
             </div>
-            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-valuenow={breakdown503020.savings.percentage} aria-valuemin={0} aria-valuemax={100}>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-label="Oszczędności w regule 50/30/20" aria-valuenow={breakdown503020.savings.percentage} aria-valuemin={0} aria-valuemax={100}>
               <div
                 style={{ width: `${Math.min(100, breakdown503020.savings.percentage)}%` }}
                 className="h-full rounded-full bg-brand transition-all duration-300"
@@ -678,7 +678,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-valuenow={emergencySim.progressPercent} aria-valuemin={0} aria-valuemax={100}>
+              <div className="w-full bg-surface-2 h-2.5 rounded-full overflow-hidden border border-border/50" role="progressbar" aria-label="Postęp budowy poduszki bezpieczeństwa" aria-valuenow={emergencySim.progressPercent} aria-valuemin={0} aria-valuemax={100}>
                 <div
                   style={{ width: `${emergencySim.progressPercent}%` }}
                   className="h-full rounded-full bg-brand transition-all duration-500"
@@ -1249,7 +1249,7 @@ export function AnalysisView({ profile, selectedDate, recurringRules = [], showT
                           </span>
                         </div>
                       </div>
-                      <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border/40" role="progressbar" aria-valuenow={cat.pctOfExpense} aria-valuemin={0} aria-valuemax={100}>
+                      <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border/40" role="progressbar" aria-label={`Udział w wydatkach: ${cat.name}`} aria-valuenow={cat.pctOfExpense} aria-valuemin={0} aria-valuemax={100}>
                         <div
                           style={{ width: `${cat.pctOfExpense}%` }}
                           className={`${barColor} h-full rounded-full transition-all duration-300`}

@@ -186,7 +186,7 @@ export const StatsWidget = memo(function StatsWidget({
                 onClick={() => onChangeView("analysis")}
                 className="text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
                 title="Przejdź do analizy przepływów"
-                aria-label="Szczegóły prognozy"
+                aria-label="Analiza: szczegóły prognozy"
               >
                 <span>Analiza</span>
                 <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.75} />

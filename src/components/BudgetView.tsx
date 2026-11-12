@@ -157,7 +157,7 @@ export const BudgetView = memo(function BudgetView({ profile, selectedDate, onOp
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mt-3.5 border border-border/50" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="w-full bg-surface-2 h-2 rounded-full overflow-hidden mt-3.5 border border-border/50" role="progressbar" aria-label={`Wykorzystanie limitu: ${category}`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     style={{ width: `${limit > 0 ? percent : 0}%` }}
                     className={`h-full rounded-full transition-all duration-500 ${

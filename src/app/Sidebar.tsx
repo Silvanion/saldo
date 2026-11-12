@@ -213,7 +213,7 @@ export function Sidebar({ isElectron }: { isElectron: boolean }) {
           {NAV_GROUPS.map((group, index) => (
             <div key={group.title} className={index > 0 ? "mt-4" : ""} role="group" aria-label={group.title}>
               <p
-                className={`px-4 mb-1 text-[11px] font-bold uppercase tracking-wider text-text-muted/70 ${labelClass(collapsed)} ${
+                className={`px-4 mb-1 text-[11px] font-bold uppercase tracking-wider text-text-muted ${labelClass(collapsed)} ${
                   collapsed ? "lg:hidden" : ""
                 }`}
               >

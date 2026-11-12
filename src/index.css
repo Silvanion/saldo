@@ -74,17 +74,17 @@
   --color-text-faint: #939ba8; /* >=4.75:1 na wszystkich tłach ciemnych (WCAG AA) */
   --color-text-inverse: #111315;
 
-  --color-brand: #4ea38f; /* Wyraźna, dostępna zieleń akcentowa (WCAG AA > 5:1 na ciemnym tle) */
-  --color-brand-hover: #5ebb9f;
+  --color-brand: #55ad98; /* Wyraźna, dostępna zieleń akcentowa (WCAG AA > 5:1 na ciemnym tle) */
+  --color-brand-hover: #66c3aa;
 
-  --color-brand-subtle: rgba(78, 163, 143, 0.18);
+  --color-brand-subtle: rgba(85, 173, 152, 0.18);
   --color-success: #34d399; /* emerald-400 dla czytelnego sukcesu w dark mode */
   --color-success-subtle: rgba(52, 211, 153, 0.16);
   --color-warning: #e8a23a;
   --color-warning-subtle: rgba(232, 162, 58, 0.16);
   --color-danger: #e35b5b;
   --color-danger-subtle: rgba(227, 91, 91, 0.16);
-  --color-focus-ring: rgba(78, 163, 143, 0.45);
+  --color-focus-ring: rgba(85, 173, 152, 0.45);
 }
 
 .glass-panel {
