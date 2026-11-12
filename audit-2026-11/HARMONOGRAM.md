@@ -32,10 +32,24 @@ Legenda: ✅ zrobione · 🟡 w toku / częściowo · ⏳ czeka na decyzję · �
 | ARCH-01 port | 🟡 | komunikat zamiast cichej zmiany originu; **nie uruchomione w Electronie** |
 | SEC-02 faza 1 | ✅ | `cryptoV2.ts`, 18 testów, mutacje wykrywane; **niepodpięte do aplikacji** |
 
+## Wdrożone w kolejnej turze (2026-11-12)
+
+| ID | Status | Uwagi |
+|---|---|---|
+| PRIV-03 fonty lokalnie | ✅ | IBM Plex Sans + JetBrains Mono (OFL), zero żądań do Google Fonts; test e2e na buildzie produkcyjnym wykrył ukryte drugie ładowanie (nieużywane Plus Jakarta Sans/Inter) |
+| PERF-03 precache | ✅ | 4,6 → 3,5 MB; PDF/canvas/zrzuty pomocy z cache przy użyciu |
+| A11Y-04 axe w e2e | ✅ | 18 skanów (9 widoków × 2 motywy) w CI; naprawione: kontrast (menu, ciemny akcent), 7 etykiet `aria-label`, 15 pasków postępu. Sprawdzane tylko `serious`/`critical` |
+| SEC-06 web | ✅ | klucz BYOK tylko w `sessionStorage`; stare wpisy z `localStorage` usuwane; użytkownicy web wpiszą klucz ponownie |
+| SEC-11 token lokalnego API | ✅ | middleware + testy, sprawdzone na prawdziwym serwerze (401/401/200/403); **preload/IPC niezweryfikowane w Electronie** |
+| SEC-13 CSP bez `unsafe-inline` | ✅ | 52 testy e2e na serwerze produkcyjnym bez naruszeń CSP; **nie sprawdzono logowania Google** |
+| PERF-02 | 🟡 | 243 → 241 kB gzip; dalej wymaga decyzji o `LazyMotion` (patrz niżej) |
+| ARCH-07 | ✖ | dwa pliki `useAppActions.payment.test.ts` są **różne** (nie duplikat) — bez zmian |
+
 ## Następne (kolejność)
-1. SEC-02 faza 2 (przechowywanie, UI, kreator) — wymaga wcześniejszego wydania „klienta rozpoznającego v2”.
-2. UX-01 auto-kopia (musi poczekać na format v2, by kopie były zaszyfrowane; wariant tymczasowy: kopia w formie bazy).
-3. PERF-02/03 (web), SEC-06 (web: klucz API tylko w pamięci/sessionStorage), PRIV-03 (fonty), SEC-11 (token lokalnego API), THIRD_PARTY_NOTICES, A11Y-04 (axe w CI).
+1. **SEC-02 faza 2a (wydanie „rozpoznające v2”)** — wymaga decyzji projektowych (patrz DESIGN: osobny dokument `vault/v2`).
+2. UX-01 auto-kopia — po formacie v2.
+3. **Decyzja:** PERF-02 przez `LazyMotion` (41 plików) — pozwoliłoby zejść ok. 20–30 kB gzip; ryzyko wizualnych regresji.
+4. THIRD_PARTY_NOTICES, DEVOPS-01/02, TEST-03 (coverage), PERF-05 (test obciążeniowy), AI-05/06/07.
 
 ## S0 — hotfix (wydanie 1.6.7) · 2026-11-12
 
