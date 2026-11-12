@@ -12,7 +12,7 @@ Legenda: ✅ zrobione · 🟡 w toku / częściowo · ⏳ czeka na decyzję · �
 | SEC-03 + TEST-01 | ✅ | `c81f006` — wspólny moduł CSP, test parytetu z `firebase.json`, e2e na buildzie produkcyjnym w CI (mutacja potwierdza, że test wykrywa błąd) |
 | SEC-04 | ✅ | `fccc459` — usunięty nieistniejący `server-shell`, przypięty `filesystem@2.3.0` |
 | SEC-08 | ✅ | `0e76e0c` — audit 44 → 19 (critical 4 → 0; prod: 0 high/critical). Zostaje łańcuch `firebase` (jedyna „poprawka” to downgrade do v9 — odrzucona) oraz moderate w `electron-builder`/`vite-plugin-pwa` (zmiana major) |
-| LEGAL-01 | ⏳ | wybór licencji należy do właściciela (omówione w czacie; po decyzji: plik `LICENSE` + pole `license`) |
+| LEGAL-01 | ✅ | AGPL-3.0-only: plik `LICENSE` (tekst SPDX), pole `license` w `package.json`, sekcja w README. Zależności sprawdzone pod kątem zgodności (brak niezgodnych) |
 
 Uwaga operacyjna: lokalny npm 10.9.9 wywraca się na `npm update` (arborist); repo deklaruje npm 11.17.0 → używać `corepack npm …`.
 
