@@ -1,12 +1,6 @@
-import {
-  startRegistration,
-  startAuthentication,
-  platformAuthenticatorIsAvailable,
-  browserSupportsWebAuthn,
-  browserSupportsPasskeys,
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON
-} from "@simplewebauthn/browser";
+import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
+// @simplewebauthn/browser (~32 kB) ładujemy leniwie — potrzebny tylko przy wykrywaniu/użyciu passkeys, nie na starcie aplikacji.
+const loadWebAuthn = () => import("@simplewebauthn/browser");
 import { Profile } from "../types";
 import { deriveKeyFromPin, generateRandomSalt } from "./crypto";
 import { hashPin as realHashPin } from "../utils/security";
@@ -49,9 +43,10 @@ export class AuthService {
     }
 
     // 2. Jeśli działamy w przeglądarce WWW (WebAuthn Platform Authenticator)
-    if (typeof window !== "undefined" && browserSupportsWebAuthn()) {
+    const webauthn = typeof window !== "undefined" ? await loadWebAuthn() : null;
+    if (webauthn && webauthn.browserSupportsWebAuthn()) {
       try {
-        return await platformAuthenticatorIsAvailable();
+        return await webauthn.platformAuthenticatorIsAvailable();
       } catch {
         return false;
       }
@@ -65,6 +60,7 @@ export class AuthService {
    */
   static async supportsPasskeys(): Promise<boolean> {
     if (typeof window === "undefined") return false;
+    const { browserSupportsPasskeys } = await loadWebAuthn();
     return await browserSupportsPasskeys();
   }
 
@@ -76,6 +72,7 @@ export class AuthService {
     profileName: string,
     rpName: string = "Saldo"
   ): Promise<PasskeyRegistrationResult> {
+    const { browserSupportsWebAuthn, startRegistration } = await loadWebAuthn();
     if (!browserSupportsWebAuthn()) {
       return { success: false, error: "Przeglądarka lub platforma nie wspiera WebAuthn." };
     }
@@ -141,6 +138,7 @@ export class AuthService {
   static async authenticatePasskey(
     credentialId?: string
   ): Promise<PasskeyAuthResult> {
+    const { browserSupportsWebAuthn, startAuthentication } = await loadWebAuthn();
     if (!browserSupportsWebAuthn()) {
       return { success: false, error: "Brak wsparcia dla WebAuthn." };
     }
