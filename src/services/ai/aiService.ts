@@ -14,6 +14,21 @@ import { getLocalDateIso } from "../../utils";
 
 const METADATA_STORAGE_KEY_PREFIX = "saldo_ai_meta_";
 
+/**
+ * Metadane klucza (maska, wybrany model) leżą tam, gdzie sam klucz: w aplikacji desktopowej trwale
+ * (klucz jest w Keychain/DPAPI), w przeglądarce tylko na czas sesji — inaczej UI twierdziłby,
+ * że klucz jest, choć po zamknięciu karty już go nie ma (SEC-06).
+ */
+function metaStorage(): Storage | null {
+  try {
+    const desktop = typeof window !== "undefined" && Boolean((window as any).electronAPI?.saveBiometricsPin);
+    if (desktop) return typeof localStorage !== "undefined" ? localStorage : null;
+    return typeof sessionStorage !== "undefined" ? sessionStorage : null;
+  } catch {
+    return null;
+  }
+}
+
 export class AIService {
   /**
    * Bezpieczne maskowanie klucza do wyświetlenia w UI (np. ••••••••••••1234)
@@ -55,9 +70,7 @@ export class AIService {
     };
 
     try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`, JSON.stringify(meta));
-      }
+      metaStorage()?.setItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`, JSON.stringify(meta));
     } catch {
       // Ignoruj błąd zapisu metadanych
     }
@@ -73,9 +86,7 @@ export class AIService {
     await SecurityVault.removeSecret(vaultId);
 
     try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`);
-      }
+      metaStorage()?.removeItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`);
     } catch {
       // Ignoruj błąd
     }
@@ -89,19 +100,17 @@ export class AIService {
   static getStoredKeyMetadata(provider: AIProviderType): StoredAiKeyMetadata {
     const defaultModel = providerRegistry.getDefaultModel(provider);
     try {
-      if (typeof localStorage !== "undefined") {
-        const raw = localStorage.getItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          return {
-            hasKey: Boolean(parsed.hasKey),
-            maskedKey: parsed.maskedKey || "",
-            provider,
-            model: parsed.model || defaultModel,
-            lastTestedAt: parsed.lastTestedAt,
-            lastConnectionStatus: parsed.lastConnectionStatus
-          };
-        }
+      const raw = metaStorage()?.getItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          hasKey: Boolean(parsed.hasKey),
+          maskedKey: parsed.maskedKey || "",
+          provider,
+          model: parsed.model || defaultModel,
+          lastTestedAt: parsed.lastTestedAt,
+          lastConnectionStatus: parsed.lastConnectionStatus
+        };
       }
     } catch {
       // ignore
@@ -153,9 +162,7 @@ export class AIService {
     meta.lastConnectionStatus = status;
 
     try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`, JSON.stringify(meta));
-      }
+      metaStorage()?.setItem(`${METADATA_STORAGE_KEY_PREFIX}${provider}`, JSON.stringify(meta));
     } catch {
       // ignore
     }

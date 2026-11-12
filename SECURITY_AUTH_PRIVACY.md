@@ -82,7 +82,7 @@ Dokument opisuje to, co działa; poniżej to, czego **nie** gwarantuje:
 
 - **Siła klucza = siła PIN-u.** Klucz AES wynika z PBKDF2-SHA256 ×100 000 nad PIN-em o 4–8 cyfrach. Przy dostępie do zaszyfrowanych danych (dysk, kopia w Firestore) PIN można odgadnąć offline: zmierzone ok. 21 ms na próbę na jednym rdzeniu, czyli minuty (4 cyfry) do godzin (6 cyfr). Zmiana modelu kluczy jest w planie (SEC-02).
 - **Profile bez PIN nie są szyfrowane** — ani na urządzeniu, ani w Firestore po włączeniu synchronizacji. „Zero-knowledge” dotyczy wyłącznie profili z PIN-em (PRIV-01).
-- **Klucze API (BYOK) w wersji web** są zapisane w `localStorage` w postaci zaciemnionej, nie szyfrowanej kluczem tajnym (SEC-06). W aplikacji desktopowej trafiają do Keychain/DPAPI.
+- **Klucze API (BYOK) w wersji web** żyją tylko w `sessionStorage` (do zamknięcia karty) i nie są szyfrowane silnym kluczem — odczyta je złośliwe rozszerzenie lub kod wykonany na stronie. Starsze, trwałe wpisy z `localStorage` są usuwane. W aplikacji desktopowej klucze trafiają do Keychain/DPAPI.
 - **Windows:** odblokowanie biometryczne nie wyświetla monitu Windows Hello — PIN jest odszyfrowywany przez DPAPI po zalogowaniu na konto systemowe (SEC-07).
 - **Brak podpisu kodu** na Windows i notaryzacji na macOS: integralność aktualizacji opiera się na koncie GitHub projektu.
 - Passkeys/WebAuthn jako metoda odblokowania **nie są zaimplementowane** (wykrywana jest tylko dostępność autentykatora).

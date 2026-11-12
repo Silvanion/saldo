@@ -360,7 +360,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
           <p>
             {typeof window !== "undefined" && window.electronAPI?.saveBiometricsPin
               ? "Klucz API jest przechowywany lokalnie w systemowym magazynie kluczy (Keychain / Windows DPAPI)."
-              : "Klucz API jest przechowywany lokalnie w pamięci przeglądarki (localStorage) w postaci jedynie zaciemnionej — to nie jest silne szyfrowanie. Odczyta go każdy, kto ma dostęp do profilu tej przeglądarki, oraz złośliwe rozszerzenia. Do wrażliwego klucza użyj aplikacji desktopowej albo lokalnego AI (Ollama)."}
+              : "W przeglądarce klucz API jest przechowywany tylko na czas tej sesji (sessionStorage) i zniknie po zamknięciu karty — wpisz go ponownie przy następnym użyciu. Nie jest szyfrowany silnym kluczem, więc odczyta go złośliwe rozszerzenie lub kod wykonany na tej stronie. Trwały zapis w Keychain/DPAPI jest dostępny w aplikacji desktopowej; w pełni lokalna opcja to Ollama."}
             {" "}Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na serwery Saldo.
           </p>
         </div>
