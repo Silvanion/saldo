@@ -11,6 +11,16 @@ test.describe("CSP na buildzie produkcyjnym", () => {
     expect(violations).toEqual([]);
   });
 
+  test("start nie łączy się z Google Fonts (czcionka serwowana lokalnie) i ładuje polskie znaki", async ({ page }) => {
+    const external: string[] = [];
+    page.on("request", (r) => { if (/fonts\.(googleapis|gstatic)\.com/.test(r.url())) external.push(r.url()); });
+    await page.goto("/");
+    await page.waitForSelector("button", { state: "visible" });
+    await page.evaluate(async () => { await document.fonts.load("400 16px 'IBM Plex Sans'", "ąćęłńóśźż"); });
+    expect(external).toEqual([]);
+    expect(await page.evaluate(() => document.fonts.check("400 16px 'IBM Plex Sans'", "ąćęłńóśźż"))).toBe(true);
+  });
+
   // Połączenia, które aplikacja wykonuje z renderera. Sieć może być niedostępna —
   // liczy się wyłącznie to, że CSP ich nie blokuje.
   const allowed = [

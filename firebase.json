@@ -21,7 +21,7 @@
         "headers": [
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://apis.google.com https://*.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://api.anthropic.com https://api.nbp.pl http://localhost:11434 http://127.0.0.1:11434; frame-src 'self' https://*.firebaseapp.com; img-src 'self' data: blob: https://lh3.googleusercontent.com; worker-src 'self'; manifest-src 'self'"
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://apis.google.com https://*.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://api.anthropic.com https://api.nbp.pl http://localhost:11434 http://127.0.0.1:11434; frame-src 'self' https://*.firebaseapp.com; img-src 'self' data: blob: https://lh3.googleusercontent.com; worker-src 'self'; manifest-src 'self'"
           },
           { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
           { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },

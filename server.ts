@@ -56,8 +56,8 @@ export async function startServer(customPort?: number) {
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'"],
         connectSrc: getConnectSrc(process.env.IS_ELECTRON === "true"),
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],
