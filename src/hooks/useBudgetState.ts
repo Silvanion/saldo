@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import type { DocumentData, DocumentReference, Unsubscribe } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
@@ -103,6 +102,8 @@ export function useBudgetState(googleUser: User | null) {
 
     try {
       if (googleUser && db) {
+        // Dynamiczny import: statyczny wciągał ~174 kB gzip (Firestore) do każdego startu (PERF-01).
+        const { doc, getDoc } = await import("firebase/firestore");
         const snapshot = await getDoc(doc(db, "users", googleUser.uid));
         if (snapshot.exists()) {
           const incoming = validateAndMigrateState(snapshot.data(), googleUser.email || "chmura");
