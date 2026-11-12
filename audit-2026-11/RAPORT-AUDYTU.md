@@ -489,3 +489,12 @@ curl -sD - -o /dev/null http://127.0.0.1:3917/        # nagłówki CSP
 ```
 Graf importów: skrypt oparty o `typescript` (`createSourceFile`, algorytm Tarjana na SCC) — pomija importy `type`-only i dynamiczne.
 PBKDF2: `crypto.pbkdf2Sync(pin, salt, 100000, 32, 'sha256')` × 40, średnia.
+
+---
+
+## F. Errata i status po wdrożeniu S0/S1 (2026-11-12)
+
+* **AI-08 potwierdzone** (w raporcie jako hipoteza **[H]**): wg dokumentacji Anthropic wszystkie `claude-3-*` z listy aplikacji są wycofane; do tego provider wysyłał `temperature`, które modele 5.x odrzucają. Poprawione; bez żywego wywołania API.
+* **PERF-01:** zmierzony start po poprawce to **243 kB gzip** (w raporcie szacowano 254 kB).
+* **`npm audit`:** 44 → 19 (critical 4 → 0; w zależnościach produkcyjnych 0 high/critical). Pozostaje łańcuch `firebase` oraz moderate w `electron-builder`/`vite-plugin-pwa`.
+* Kolejność i status pozycji: `HARMONOGRAM.md`.
