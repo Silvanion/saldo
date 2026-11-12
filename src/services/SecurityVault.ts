@@ -1,7 +1,7 @@
 /**
  * SecurityVault - Architektura Zero-Leak & BYOK (Bring Your Own Key)
- * Bezpieczne szyfrowanie sekretów w OS Keychain / Windows DPAPI
- * z natychmiastowym czyszczeniem pamięci RAM (Zeroization).
+ * Sekrety w OS Keychain / Windows DPAPI (aplikacja desktopowa). W przeglądarce wyłącznie
+ * zaciemnienie w localStorage (nie jest to silne szyfrowanie — patrz komentarz w storeSecret).
  */
 
 export interface StoredSecretMetadata {
@@ -84,7 +84,10 @@ export class SecurityVault {
       }
     }
 
-    // 2. Web fallback: WebCrypto AES-GCM z nieeksportowalnym kluczem
+    // 2. Web fallback — UWAGA: to jest OBFUSKACJA, nie szyfrowanie. Klucz AES wynika ze stałej,
+    //    jawnej frazy (keyId + "_vault_salt"), a sól leży obok szyfrogramu w localStorage, więc
+    //    każdy z dostępem do localStorage odtworzy sekret. Chroni wyłącznie przed przypadkowym
+    //    podejrzeniem. Prawdziwa ochrona wymaga klucza z sekretu użytkownika (patrz audyt SEC-06).
     try {
       const cryptoObj = typeof window !== "undefined" && window.crypto ? window.crypto : globalThis.crypto;
       const enc = new TextEncoder();

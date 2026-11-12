@@ -96,7 +96,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
       setMetadata(meta);
       setIsEditingKey(false);
       setInputApiKey("");
-      showToast(`Klucz API dla ${ProviderRegistry.getProviderLabel(provider)} został bezpiecznie zapisany.`, "success");
+      showToast(`Klucz API dla ${ProviderRegistry.getProviderLabel(provider)} został zapisany.`, "success");
       onConfigChange?.(provider, effectiveModel);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Błąd podczas zapisywania klucza.", "error");
@@ -164,7 +164,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
               </span>
             </div>
             <p className="text-xs text-text-muted mt-0.5">
-              Bezpieczna integracja z Google Gemini i Claude. Twój klucz nigdy nie opuszcza urządzenia.
+              Integracja z Google Gemini i Claude na Twoim własnym kluczu. Klucz jest wysyłany wyłącznie do wybranego dostawcy.
             </p>
           </div>
         </div>
@@ -358,8 +358,10 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
         <div className="mt-3 p-3 bg-surface-2/40 border border-border/50 rounded-xl flex items-start gap-2.5 text-[11px] text-text-muted">
           <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
           <p>
-            Klucz API jest przechowywany wyłącznie lokalnie na Twoim urządzeniu w bezpiecznym magazynie (Keychain/Vault).
-            Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na zewnętrzne serwery Saldo.
+            {typeof window !== "undefined" && window.electronAPI?.saveBiometricsPin
+              ? "Klucz API jest przechowywany lokalnie w systemowym magazynie kluczy (Keychain / Windows DPAPI)."
+              : "Klucz API jest przechowywany lokalnie w pamięci przeglądarki (localStorage) w postaci jedynie zaciemnionej — to nie jest silne szyfrowanie. Odczyta go każdy, kto ma dostęp do profilu tej przeglądarki, oraz złośliwe rozszerzenia. Do wrażliwego klucza użyj aplikacji desktopowej albo lokalnego AI (Ollama)."}
+            {" "}Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na serwery Saldo.
           </p>
         </div>
 
