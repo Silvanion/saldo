@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  apiToken: ipcRenderer.sendSync('get-api-token'),
   exportData: (defaultPath, data) => ipcRenderer.invoke('export-data', defaultPath, data),
   importData: () => ipcRenderer.invoke('import-data'),
   showNotification: (title, body) => ipcRenderer.invoke('show-notification', title, body),

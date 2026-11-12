@@ -20,6 +20,8 @@ interface Window {
     getLoginItem?: () => Promise<boolean>;
     setLoginItem?: (openAtLogin: boolean) => Promise<boolean>;
     setProgressBar?: (progress: number) => Promise<void>;
+    /** Losowy token lokalnego API (SEC-11) — tylko aplikacja desktopowa. */
+    apiToken?: string;
     checkBiometricsStatus?: (profileId?: string) => Promise<{ available: boolean; isEnrolledForProfile: boolean; platform?: string }>;
     saveBiometricsPin?: (profileId: string, pin: string) => Promise<{ success: boolean; error?: string }>;
     promptBiometricsUnlock?: (profileId: string, promptReason?: string) => Promise<{ success: boolean; pin?: string; error?: string }>;

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
 import aiRouter from "./src/server/routes/ai";
 import { getConnectSrc } from "./src/server/csp";
+import { requireLocalApiToken } from "./src/server/middleware/security";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
@@ -118,7 +119,7 @@ export async function startServer(customPort?: number) {
   });
 
   // AI Routes
-  app.use("/api/ai", aiLimiter, aiRouter);
+  app.use("/api/ai", requireLocalApiToken, aiLimiter, aiRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

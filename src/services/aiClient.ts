@@ -1,5 +1,11 @@
 import { auth } from "../firebase";
 
+/** Nagłówek tokenu lokalnego API (tylko aplikacja desktopowa; w web pusty). */
+export function localApiHeaders(): Record<string, string> {
+  const token = typeof window !== "undefined" ? window.electronAPI?.apiToken : undefined;
+  return token ? { "x-saldo-token": token } : {};
+}
+
 export type CloudAiProvider = "gemini" | "openai" | "anthropic" | "custom";
 
 export interface CloudAiConfig {
@@ -63,6 +69,7 @@ export async function callAiApi(endpoint: string, payload: any, config: AiConfig
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-ai-mode": config.aiMode || "none",
+    ...localApiHeaders(),
   };
 
   if (config.aiMode === "local" && config.localAiEndpoint) {

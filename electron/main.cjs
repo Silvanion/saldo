@@ -27,6 +27,8 @@ const RELEASES_URL = "https://github.com/Silvanion/saldo/releases/latest";
 
 // Set environment flags so our server knows it's running inside Electron
 process.env.IS_ELECTRON = "true";
+// Token lokalnego API (SEC-11): losowy na każdy start, przekazywany tylko do okna aplikacji przez preload.
+process.env.SALDO_API_TOKEN = require("crypto").randomBytes(32).toString("hex");
 // Also default to production unless overridden
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "production";
@@ -365,6 +367,10 @@ app.setAboutPanelOptions({
 });
 
 // IPC handlers
+ipcMain.on('get-api-token', (event) => {
+  event.returnValue = process.env.SALDO_API_TOKEN || '';
+});
+
 ipcMain.handle('export-data', async (event, defaultPath, data) => {
   const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
     defaultPath,

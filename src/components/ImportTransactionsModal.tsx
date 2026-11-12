@@ -2,7 +2,7 @@
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { callAiApi, getAiConfig } from "../services/aiClient";
+import { callAiApi, getAiConfig, localApiHeaders } from "../services/aiClient";
 import { parseStatementText } from "../services/localParsers";
 import { resolveLocalAiConfig, extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
 import { useApp } from "../app/providers/AppContext";
@@ -281,6 +281,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         if (state.aiMode === "local") {
           const healthResponse = await fetch("/api/ai/health", {
             headers: {
+              ...localApiHeaders(),
               "x-ai-mode": "local",
               "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate",
               ...(state.localAiModel ? { "x-ai-local-model": state.localAiModel } : {})
