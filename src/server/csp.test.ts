@@ -28,3 +28,16 @@ describe("CSP connect-src", () => {
     expect(getConnectSrc(true)).toContain("https://api.github.com");
   });
 });
+
+describe("CSP script-src (SEC-13)", () => {
+  it("nie dopuszcza 'unsafe-inline' dla skryptów ani w serwerze, ani w firebase.json", () => {
+    const server = readFileSync(path.resolve(__dirname, "../../server.ts"), "utf-8");
+    const scriptSrcLine = server.split("\n").find((l) => l.includes("scriptSrc:"))!;
+    expect(scriptSrcLine).not.toContain("unsafe-inline");
+
+    const cfg = JSON.parse(readFileSync(path.resolve(__dirname, "../../firebase.json"), "utf-8"));
+    const csp: string = cfg.hosting.headers.flatMap((h: any) => h.headers).find((h: any) => h.key === "Content-Security-Policy").value;
+    const directive = csp.split(";").map((d) => d.trim()).find((d) => d.startsWith("script-src"))!;
+    expect(directive).not.toContain("unsafe-inline");
+  });
+});

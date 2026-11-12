@@ -56,7 +56,7 @@ export async function startServer(customPort?: number) {
     contentSecurityPolicy: process.env.NODE_ENV === "production" ? {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
+        scriptSrc: ["'self'", "https://apis.google.com", "https://www.gstatic.com"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         fontSrc: ["'self'"],
         connectSrc: getConnectSrc(process.env.IS_ELECTRON === "true"),
