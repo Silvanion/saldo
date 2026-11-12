@@ -156,3 +156,34 @@ To minimum jest uzasadnione tym, że repo ma obecnie rozbudowany zestaw testów:
 - `README.md` — onboarding techniczny projektu.
 - `SECURITY_AUTH_PRIVACY.md` — referencyjna dokumentacja security/privacy.
 - `RELEASE_QA_CHECKLIST.md` — ten dokument.
+
+---
+
+## Dodatkowe kontrole przed wydaniem 1.6.7 (zmiany, których nie dało się sprawdzić automatycznie)
+
+Zbuduj instalator lokalnie (`npm run build:desktop`) i sprawdź **na zainstalowanej aplikacji**, nie w trybie dev:
+
+**Electron — start i okno**
+- [ ] Aplikacja uruchamia się (fuses `runAsNode`/`NODE_OPTIONS`/`--inspect` wyłączone nie psują startu ani automatycznych aktualizacji).
+- [ ] Ikona w tray, szybkie „dodaj wydatek”, powiadomienia, przeciągnięcie pliku wyciągu na okno.
+- [ ] Zajęty port: uruchom inny program na porcie z `userData` (domyślnie 47819), uruchom Saldo → pojawia się okno z 3 przyciskami; „Spróbuj ponownie” po zwolnieniu portu otwiera Twoje dane; „Zamknij” kończy aplikację.
+
+**Lokalne API (token)**
+- [ ] Doradca AI z Ollamą działa (czat, import z kategoryzacją AI) — żądania do `/api/ai` przechodzą z tokenem.
+- [ ] `curl http://127.0.0.1:<port>/api/ai/health -H 'x-ai-mode: none'` z terminala → `401`.
+
+**Biometria**
+- [ ] macOS: Touch ID nadal włącza się i odblokowuje profil; zapisany klucz API AI nadal się odczytuje.
+- [ ] Windows: w Ustawieniach → Bezpieczeństwo biometria jest niedostępna z komunikatem o PIN-ie; klucz API AI (Gemini/Claude) nadal da się zapisać i użyć.
+
+**Blokada**
+- [ ] Profil z PIN-em: zablokuj ekran / odczekaj auto-lock → po powrocie wymagany PIN, a dane widoczne dopiero po odblokowaniu; po restarcie aplikacji dane są poprawne.
+
+**Web (po wdrożeniu hostingu)**
+- [ ] **Logowanie Google (popup Firebase)** działa przy `script-src` bez `'unsafe-inline'` — to jedyna część CSP, której nie zweryfikowano automatycznie.
+- [ ] Kursy walut (NBP) i czcionki ładują się, w konsoli brak naruszeń CSP.
+- [ ] Klucz API w przeglądarce znika po zamknięciu karty (komunikat w Ustawieniach AI zgodny).
+
+**Chmura**
+- [ ] Wdrożone reguły Firestore (`firebase deploy --only firestore:rules`); próba zapisu do `bug_reports` zwraca `permission-denied`.
+- [ ] W repozytorium włączone „Private vulnerability reporting” (link w `SECURITY.md` i szablonach zgłoszeń działa).

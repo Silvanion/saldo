@@ -1,7 +1,7 @@
 {
   "name": "saldo-app",
   "private": true,
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Aplikacja do zarządzania finansami osobistymi i domowymi.",
   "license": "AGPL-3.0-only",
   "author": "Silvanion",

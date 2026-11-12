@@ -11,6 +11,22 @@ export interface ChangelogEntry {
 
 export const changelogData: ChangelogEntry[] = [
   {
+    version: "v1.6.7",
+    date: "Listopad 2026",
+    title: "Poprawki Bezpieczeństwa i Prywatności po Audycie",
+    icon: <Shield className="w-5 h-5 text-brand" />,
+    features: [
+      "[Blokada Profilu] Po zablokowaniu (bezczynność, uśpienie, blokada ekranu) profil zabezpieczony PIN-em jest szyfrowany i usuwany z pamięci aplikacji. Naprawiono błąd, przez który zapis w stanie zablokowanym mógł trafić na dysk jawnym tekstem.",
+      "[Doradca AI — Claude i Gemini] Zaktualizowano listy modeli: wycofane modele Claude 3.x i Gemini 1.5/2.0 zniknęły, a Twoje zapisane ustawienia są automatycznie przenoszone na model domyślny (Claude Haiku 5.5). W przeglądarce klucz API jest teraz przechowywany tylko do zamknięcia karty — wpisz go ponownie przy następnym użyciu. Usunięto też funkcje AI o niskiej wartości (propozycje wydarzeń kalendarza i „Zapytaj AI” przy wyjaśnieniach); odczyt skanów PDF przez AI wymaga teraz Twojej zgody.",
+      "[Zgłaszanie Błędów] Formularz otwiera gotowe zgłoszenie na GitHubie (publiczne, wymaga konta GitHub) zamiast zapisywać dane w bazie projektu.",
+      "[Windows] Opcja „Windows Hello” została wyłączona, bo Electron nie pozwala na prawdziwe potwierdzenie biometryczne; używaj PIN-u. Zapisane wcześniej PIN-y są usuwane.",
+      "[Eksport CSV] Pola tekstowe zaczynające się od =, +, - lub @ są neutralizowane, by arkusz nie wykonał ich jako formuł.",
+      "[Dostępność] Lepszy kontrast kolorów kwot i ostrzeżeń, nazwy dla pasków postępu i przycisków oraz respektowanie ustawienia systemowego „ogranicz ruch”.",
+      "[Prywatność i Szybkość] Czcionki ładowane lokalnie (bez Google Fonts), szybszy start wersji web i lżejsza instalacja PWA.",
+      "[Przygotowanie na Hasło Główne] Ta wersja rozpoznaje profile zaszyfrowane przyszłym formatem i pokazuje komunikat „zaktualizuj aplikację” zamiast ich uszkodzić."
+    ]
+  },
+  {
     version: "v1.6.6",
     date: "Wrzesień 2026",
     title: "Poprawki Menu na macOS i Stabilniejsze AI z Własnym Kluczem",
