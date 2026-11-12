@@ -234,6 +234,11 @@ export function BugReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: 
                 <label className="mb-1.5 block text-sm font-medium text-text-main">
                   Zrzut ekranu (opcjonalnie)
                 </label>
+                <p id="bug-report-privacy-note" className="mb-2 text-xs text-text-muted">
+                  Zgłoszenie (tytuł, opis, wersja aplikacji, nazwa systemu/przeglądarki oraz opcjonalnie e-mail i zrzut ekranu)
+                  zapisujemy w bazie Google Firebase projektu Saldo i nie możesz go potem samodzielnie usunąć z aplikacji.
+                  Nie dołączaj zrzutów z kwotami, numerami kont ani danymi osobowymi.
+                </p>
                 {screenshot ? (
                   <div className="relative inline-block">
                     <img src={screenshot} alt="Podgląd" className="h-24 w-auto rounded-lg border border-border object-cover" />
