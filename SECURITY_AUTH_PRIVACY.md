@@ -23,8 +23,8 @@ Niniejszy dokument opisuje architekturę bezpieczeństwa, wdrożone moduły uwie
 - **Weryfikacja adresu email**: Wysyłka linku weryfikacyjnego po rejestracji (`sendEmailVerification`).
 
 ### Etap 2: Ochrona Przed Brute-Force i Auto-Lock (`useProfileSecurity.ts`, `useIdleLock.ts`)
-- **Ogranicznik prób PIN**: Blokada wprowadzania PIN po 5 nieudanych próbach z odliczaniem czasu (30 sekund blokady).
-- **Auto-lock po bezczynności (`useIdleLock`)**: Automatyczne blokowanie profilu i natychmiastowe usuwanie klucza deszyfrującego z `activeKeys` po zdefiniowanym w ustawieniach czasie (1, 5, 15, 30 min).
+- **Ogranicznik prób PIN**: po 5 nieudanych próbach blokada 30 s, potem czas podwaja się z każdą kolejną próbą (maks. ok. 32 min). Licznik żyje w pamięci aplikacji i zeruje się po przeładowaniu — chroni przed osobą przy odblokowanym komputerze, **nie** przed atakiem na same zaszyfrowane dane (patrz „Znane ograniczenia”).
+- **Blokada sesji (`lockSession`)**: przy bezczynności (`useIdleLock`, 1/5/15/30 min) oraz przy uśpieniu/zablokowaniu ekranu (`powerMonitor`, tylko aplikacja desktopowa) profil jest szyfrowany bieżącym kluczem, klucz znika z `activeKeys`, a w stanie aplikacji zostaje wyłącznie wersja zaszyfrowana. Zapis lokalny profilu z PIN nigdy nie trafia na dysk jawnym tekstem (zablokowany profil zachowuje ostatnią zaszyfrowaną wersję).
 
 ### Etap 3A: Zmiana Hasła w Ustawieniach (`SettingsView.tsx`, `firebase.ts`)
 - Samodzielna zmiana hasła dla zalogowanych użytkowników z re-autentykacją (`reauthenticateWithCredential`).
@@ -73,3 +73,16 @@ Przed wdrożeniem produkcyjnym należy przeprowadzić weryfikację poniższych s
   - [ ] Próba zatwierdzenia bez wpisania frazy `USUŃ KONTO` $\rightarrow$ blokada przycisku.
   - [ ] Wpisanie poprawnego hasła i frazy `USUŃ KONTO` $\rightarrow$ usunięcie danych z chmury, skasowanie konta Auth, wylogowanie i wyzerowanie aplikacji.
   - [ ] Próba ponownego zalogowania danymi usuniętego konta $\rightarrow$ błąd braku użytkownika.
+
+---
+
+## 4. Znane ograniczenia (audyt 2026-11, `audit-2026-11/RAPORT-AUDYTU.md`)
+
+Dokument opisuje to, co działa; poniżej to, czego **nie** gwarantuje:
+
+- **Siła klucza = siła PIN-u.** Klucz AES wynika z PBKDF2-SHA256 ×100 000 nad PIN-em o 4–8 cyfrach. Przy dostępie do zaszyfrowanych danych (dysk, kopia w Firestore) PIN można odgadnąć offline: zmierzone ok. 21 ms na próbę na jednym rdzeniu, czyli minuty (4 cyfry) do godzin (6 cyfr). Zmiana modelu kluczy jest w planie (SEC-02).
+- **Profile bez PIN nie są szyfrowane** — ani na urządzeniu, ani w Firestore po włączeniu synchronizacji. „Zero-knowledge” dotyczy wyłącznie profili z PIN-em (PRIV-01).
+- **Klucze API (BYOK) w wersji web** są zapisane w `localStorage` w postaci zaciemnionej, nie szyfrowanej kluczem tajnym (SEC-06). W aplikacji desktopowej trafiają do Keychain/DPAPI.
+- **Windows:** odblokowanie biometryczne nie wyświetla monitu Windows Hello — PIN jest odszyfrowywany przez DPAPI po zalogowaniu na konto systemowe (SEC-07).
+- **Brak podpisu kodu** na Windows i notaryzacji na macOS: integralność aktualizacji opiera się na koncie GitHub projektu.
+- Passkeys/WebAuthn jako metoda odblokowania **nie są zaimplementowane** (wykrywana jest tylko dostępność autentykatora).
