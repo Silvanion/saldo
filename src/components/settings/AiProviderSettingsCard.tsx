@@ -228,7 +228,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
                 id="ai-custom-model-input"
                 value={customModelInput}
                 onChange={(e) => handleCustomModelChange(e.target.value)}
-                placeholder="np. gemini-3.8-flash, claude-3-5-sonnet-20241022"
+                placeholder="np. gemini-3.8-flash, claude-haiku-5-5"
                 className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring font-mono"
               />
               <p className="text-[11px] text-text-muted mt-1">
