@@ -105,3 +105,37 @@ describe("useProfileSecurity - lockSession (SEC-05)", () => {
     expect(saveState).not.toHaveBeenCalled();
   });
 });
+
+
+describe("useProfileSecurity - profil z formatem v2 (SEC-02 faza 2a)", () => {
+  const v2Profile = () => makeProfile({ encryptedPayload: JSON.stringify({ v: 2, iv: "a", data: "b" }) });
+
+  it("profil z payloadem v2 jest traktowany jako zablokowany mimo braku pinHash", () => {
+    const profile = v2Profile();
+    const state: AppState = { profiles: [profile], activeProfileId: "p1" } as AppState;
+    const { result } = renderHook(() => useProfileSecurity({ state, activeProfile: profile, saveState: vi.fn() }));
+    expect(result.current.isProfileLocked).toBe(true);
+    expect(result.current.isNewerFormatProfile).toBe(true);
+  });
+
+  it("wybór takiego profilu go nie odblokowuje, ale ustawia go jako aktywny (by pokazać komunikat)", async () => {
+    const profile = v2Profile();
+    const state: AppState = { profiles: [profile], activeProfileId: null } as any;
+    const saveState = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useProfileSecurity({ state, activeProfile: profile, saveState }));
+    let ok = true;
+    await act(async () => { ok = await result.current.handleSelectAndUnlockProfile(profile); });
+    expect(ok).toBe(false);
+    expect(result.current.isProfileLocked).toBe(true);
+    expect(saveState.mock.calls[0][0].activeProfileId).toBe("p1");
+  });
+
+  it("odblokowanie PIN-em takiego profilu zawsze się nie udaje", async () => {
+    const profile = { ...v2Profile(), pinHash: "h", salt: "s" };
+    const state: AppState = { profiles: [profile], activeProfileId: "p1" } as AppState;
+    const { result } = renderHook(() => useProfileSecurity({ state, activeProfile: profile, saveState: vi.fn() }));
+    let ok = true;
+    await act(async () => { ok = await result.current.handleUnlockProfile("1234"); });
+    expect(ok).toBe(false);
+  });
+});

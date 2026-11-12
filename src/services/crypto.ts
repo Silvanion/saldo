@@ -1,4 +1,5 @@
 import { Profile, AppState } from "../types";
+import { detectPayloadVersion } from "./cryptoV2";
 
 export const activeKeys: Record<string, CryptoKey> = {};
 
@@ -41,6 +42,33 @@ function decodeIvOrData(value: unknown): Uint8Array {
     return new Uint8Array(value);
   }
   throw new Error("Nieprawidłowy format zaszyfrowanych danych.");
+}
+
+/**
+ * Profil zaszyfrowany formatem v2 (hasło główne, nowsza wersja aplikacji). Ta wersja nie umie go odczytać,
+ * więc musi go traktować jako zablokowany i nigdy nie zapisać na nim danych (SEC-02 faza 2a).
+ */
+export function isNewerFormatProfile(profile: Pick<Profile, "encryptedPayload"> | null | undefined): boolean {
+  return detectPayloadVersion(profile?.encryptedPayload) === 2;
+}
+
+/** Postać profilu „w kopercie”: metadane + zaszyfrowany payload, bez żadnych danych jawnych. */
+export function toEncryptedEnvelope(profile: Profile): Profile {
+  return {
+    ...profile,
+    transactions: [],
+    payments: [],
+    goals: [],
+    investments: [],
+    budgets: {},
+    recurringRules: [],
+    transactionRules: [],
+    settlements: [],
+    accounts: [],
+    smartRules: [],
+    debts: [],
+    debtPayoffScenarios: []
+  };
 }
 
 export function generateRandomSalt(): string {
@@ -126,6 +154,9 @@ export async function encryptProfile(profile: Profile, key: CryptoKey): Promise<
 
 export async function decryptProfile(profile: Profile, key: CryptoKey): Promise<Profile> {
   if (!profile.encryptedPayload) return profile;
+  if (isNewerFormatProfile(profile)) {
+    throw new Error("UNSUPPORTED_PAYLOAD_VERSION: Ten profil został zaszyfrowany nowszą wersją Saldo. Zaktualizuj aplikację.");
+  }
   try {
     const cryptoObj = getCrypto();
     const parsed = JSON.parse(profile.encryptedPayload);

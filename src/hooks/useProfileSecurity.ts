@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
-import { deriveKeyFromPin, activeKeys, decryptProfile, encryptProfile, generateRandomSalt } from "../services/crypto";
+import { deriveKeyFromPin, activeKeys, decryptProfile, encryptProfile, generateRandomSalt, isNewerFormatProfile } from "../services/crypto";
 import { BiometricService } from "../services/BiometricService";
 
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
@@ -71,17 +71,22 @@ export function useProfileSecurity({
 
   const checkAccess = useCallback((profile: Profile | null): boolean => {
     if (!profile) return false;
+    // Profil z nowszego formatu (v2) jest nieczytelny dla tej wersji — nigdy nie jest „otwarty”.
+    if (isNewerFormatProfile(profile)) return false;
     // Otwarty profil (brak PIN) lub profil poprawnie odblokowany
     return !profile.pinHash || unlockedProfileId === profile.id;
   }, [unlockedProfileId]);
 
+  const isNewerFormatActive = useMemo(() => isNewerFormatProfile(activeProfile), [activeProfile]);
+
   const isProfileLocked = useMemo(() => {
-    return !!(activeProfile?.pinHash && unlockedProfileId !== activeProfile.id);
-  }, [activeProfile, unlockedProfileId]);
+    return isNewerFormatActive || !!(activeProfile?.pinHash && unlockedProfileId !== activeProfile.id);
+  }, [activeProfile, unlockedProfileId, isNewerFormatActive]);
 
   const handleUnlockProfile = useCallback(
     async (pin: string): Promise<boolean> => {
       if (!activeProfile) return false;
+      if (isNewerFormatProfile(activeProfile)) return false;
 
       // Check lockout
       if (lockoutUntil && Date.now() < lockoutUntil) {
@@ -186,6 +191,11 @@ export function useProfileSecurity({
   // activeProfile z domknięcia) nie może być użyty bezpośrednio.
   const handleSelectAndUnlockProfile = useCallback(
     async (profile: Profile, pin?: string): Promise<boolean> => {
+      if (isNewerFormatProfile(profile)) {
+        // Ustawiamy profil jako aktywny, by pokazać komunikat o nowszej wersji, ale go nie odblokowujemy.
+        await saveState({ ...state, activeProfileId: profile.id }, true);
+        return false;
+      }
       if (!profile.pinHash || !pin) {
         await saveState({ ...state, activeProfileId: profile.id }, true);
         if (!profile.pinHash) unlockProfile(profile.id);
@@ -224,6 +234,7 @@ export function useProfileSecurity({
     toggleSecurityInfo,
     checkAccess,
     isProfileLocked,
+    isNewerFormatProfile: isNewerFormatActive,
     handleUnlockProfile,
     handleSetProfilePin,
     handleSelectAndUnlockProfile,

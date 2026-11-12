@@ -86,4 +86,15 @@ describe("SEC-01: zapis lokalny profilu z PIN", () => {
     await act(async () => { await h.current.saveState(makeState(SECRET), true); });
     expect(await diskDump()).not.toContain(SECRET);
   });
+
+  it("profil z payloadem v2 (nowsza wersja) nigdy nie dostaje jawnych danych na dysk (SEC-02 faza 2a)", async () => {
+    const v2 = JSON.stringify({ v: 2, iv: "aaaa", data: "bbbb" });
+    const state = makeState(SECRET);
+    state.profiles[0] = { ...state.profiles[0], pinHash: undefined, salt: undefined, encryptedPayload: v2 };
+    const h = mount();
+    await act(async () => { await h.current.saveState(state, true); });
+    const dump = await diskDump();
+    expect(dump).not.toContain(SECRET);
+    expect((await localDb.loadStateFromIDBOnly())!.profiles[0].encryptedPayload).toBe(v2);
+  });
 });

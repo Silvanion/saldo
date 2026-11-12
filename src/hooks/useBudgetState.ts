@@ -3,7 +3,7 @@ import type { User } from "firebase/auth";
 import type { DocumentData, DocumentReference, Unsubscribe } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
-import { decryptProfile, activeKeys, prepareStateForRemoteSave, prepareStateForLocalSaveWhileLocked, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
+import { decryptProfile, toEncryptedEnvelope, isNewerFormatProfile, activeKeys, prepareStateForRemoteSave, prepareStateForLocalSaveWhileLocked, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
 import * as localDb from "../services/localDb";
 import { getLocalDateIso } from "../utils";
 import { validateAndMigrateState, CURRENT_SCHEMA_VERSION, pickSyncableState, createEmptyState } from "../utils/stateMigration";
@@ -151,8 +151,15 @@ export function useBudgetState(googleUser: User | null) {
     const timestamp = new Date().toISOString();
     const userEmail = googleUser?.email || "lokalny";
 
-    const stampedState: AppState = {
+    // Profile z formatem v2 (nowsza wersja) są dla tej wersji tylko-do-odczytu: cokolwiek dopisano do ich
+    // danych jawnych (np. automaty) jest odrzucane, żeby nie zapisać jawnych danych obok zaszyfrowanego payloadu.
+    const guardedState: AppState = {
       ...newState,
+      profiles: newState.profiles.map((p) => (isNewerFormatProfile(p) ? toEncryptedEnvelope(p) : p))
+    };
+
+    const stampedState: AppState = {
+      ...guardedState,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       updatedAt: timestamp,
       lastModifiedBy: userEmail
@@ -178,7 +185,7 @@ export function useBudgetState(googleUser: User | null) {
     const cleanState = JSON.parse(JSON.stringify(preparedState));
 
     setState({
-      ...newState,
+      ...guardedState,
       updatedAt: timestamp,
       lastModifiedBy: userEmail
     });
