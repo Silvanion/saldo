@@ -47,31 +47,21 @@ export class GeminiProvider implements AIProviderAdapter {
       description: "Wysoka wydajność i niskie opóźnienia w ekonomicznej cenie"
     },
     {
-      id: "gemini-2.0-flash",
-      name: "Gemini 2.0 Flash",
-      description: "Powszechnie wspierany i stabilny model generacji 2.0"
-    },
-    {
-      id: "gemini-2.0-flash-lite",
-      name: "Gemini 2.0 Flash-Lite",
-      description: "Lekki i ekonomiczny model generacji 2.0"
-    },
-    {
-      id: "gemini-1.5-flash",
-      name: "Gemini 1.5 Flash",
-      description: "Sprawdzony i stabilny model generacji 1.5"
-    },
-    {
-      id: "gemini-1.5-pro",
-      name: "Gemini 1.5 Pro",
-      description: "Model o zwiększonej pojemności wnioskowania i głębszej analizy"
-    },
-    {
       id: "gemini-2.5-flash",
       name: "Gemini 2.5 Flash",
       description: "Model dostępny na wybranych kontach i poziomach subskrypcji"
     }
   ];
+
+  /**
+   * Wyłączone przez Google modele (rodzina 1.5 od 29.09.2025, gemini-2.0-flash od 01.06.2026;
+   * pozostałe 2.0 traktujemy tak samo — gemini-2.0-flash-lite nie został osobno potwierdzony)
+   * zapisane we wcześniejszych ustawieniach są zastępowane modelem domyślnym.
+   */
+  private resolveModel(model?: string): string {
+    const m = (model || "").trim();
+    return !m || /^gemini-(1\.5|2\.0)-/.test(m) ? this.defaultModel : m;
+  }
 
   /**
    * Minimalny test połączenia sprawdzający poprawność klucza i dostępność modelu.
@@ -87,7 +77,7 @@ export class GeminiProvider implements AIProviderAdapter {
     }
 
     const trimmedKey = apiKey.trim();
-    const cleanModel = (model || this.defaultModel).trim();
+    const cleanModel = this.resolveModel(model);
     const startTime = performance.now();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -199,7 +189,7 @@ export class GeminiProvider implements AIProviderAdapter {
       throw new AIError("Brak klucza API Gemini.", "INVALID_API_KEY", this.name);
     }
 
-    const model = request.model || this.defaultModel;
+    const model = this.resolveModel(request.model);
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     const controller = new AbortController();
     const timeoutMs = request.timeoutMs || 30000;

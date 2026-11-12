@@ -162,6 +162,25 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
     });
   });
 
+  // 4a. MODELE GEMINI (AI-11): wyłączone modele
+  describe("GeminiProvider: wyłączone modele", () => {
+    const provider = new GeminiProvider();
+    const okResponse = () => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "ok" }] } }] }) } as any);
+
+    it("lista nie zawiera modeli 1.5 i 2.0", () => {
+      expect(provider.availableModels.filter(m => /^gemini-(1\.5|2\.0)-/.test(m.id))).toEqual([]);
+      expect(provider.availableModels.some(m => m.id === provider.defaultModel)).toBe(true);
+    });
+
+    it("wyłączony model z ustawień jest zastępowany domyślnym (generate i testConnection)", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(okResponse());
+      await provider.generate({ prompt: "hej", model: "gemini-1.5-flash" } as any, "key");
+      expect(String(vi.mocked(globalThis.fetch).mock.calls.at(-1)![0])).toContain(`/models/${provider.defaultModel}:`);
+      await provider.testConnection("key", "gemini-2.0-flash");
+      expect(String(vi.mocked(globalThis.fetch).mock.calls.at(-1)![0])).toContain(`/models/${provider.defaultModel}:`);
+    });
+  });
+
   // 5a. MODELE ANTHROPIC (AI-08): wycofane ID, temperature i effort
   describe("AnthropicProvider: modele i parametry żądania", () => {
     const provider = new AnthropicProvider();
