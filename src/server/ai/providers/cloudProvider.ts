@@ -176,25 +176,15 @@ export class CloudProvider implements AiProvider {
   private getSystemPrompt(action: string): string {
     const base = "Jesteś asystentem finansowym w aplikacji Saldo. Odpowiadasz w języku polskim. ";
     const prompts: Record<string, string> = {
-      suggestEvent: base + "Zwróć JSON z polami: summary, description, suggestedDate, suggestedTime, suggestedReminders.",
       parseNatural: base + "Zwróć JSON z polami: type (income/expense), name, amount, category, dueDate, isoDate.",
       parseStatement: base + "Zwróć tablicę transakcji JSON: [{name, amount, type (income/expense), isoDate, category}].",
       parseStatementImage: base + "Przeanalizuj obraz wyciągu bankowego. Zwróć tablicę transakcji.",
       chat: base + "Odpowiadaj na pytania finansowe. Możesz propozykcjonować akcje (saveTransaction, createGoal, itp.). Zwróć JSON: {reply, action?}.",
-      scanInvoice: base + "Zwróć JSON: {name, amount, type (income/expense), dueDate, isoDate, category}.",
-      explain: base + "Wyjaśnij techniczny kod błędu w prostych słowach. Zwróć JSON: {explanation}."
+      scanInvoice: base + "Zwróć JSON: {name, amount, type (income/expense), dueDate, isoDate, category}."
     };
     return prompts[action] || base;
   }
 
-  async suggestEvent(payment: any, currentDate: string, uid?: string): Promise<any> {
-    return this.executeWithApiKey(async (apiKey) => {
-      const prompt = `Płatność: ${payment.name}, kwota: ${payment.amount} ${payment.currency || "PLN"}, termin: ${payment.dueDate || currentDate}. Kategoria: ${payment.category || "Rachunki"}.`;
-      const req = this.buildRequest(apiKey, prompt, this.getSystemPrompt("suggestEvent"));
-      const result = await this.doRequest(req);
-      return this.parseGeminiResponse(result) || result;
-    });
-  }
 
   async parseNatural(text: string, currentDate: string): Promise<any> {
     return this.executeWithApiKey(async (apiKey) => {
@@ -249,14 +239,6 @@ export class CloudProvider implements AiProvider {
     });
   }
 
-  async explain(reasonCode: string, title: string, message: string, missingFields?: string[]): Promise<any> {
-    return this.executeWithApiKey(async (apiKey) => {
-      const prompt = `Kod: ${reasonCode}\nTytuł: ${title}\nWiadomość: ${message}\nBrakujące pola: ${missingFields?.join(", ") || "brak"}`;
-      const req = this.buildRequest(apiKey, prompt, this.getSystemPrompt("explain"));
-      const result = await this.doRequest(req);
-      return this.parseGeminiResponse(result) || result;
-    });
-  }
 
   /**
    * Parsuje odpowiedź Gemini (candidates[0].content.parts[0].text) do JSON

@@ -306,15 +306,6 @@ router.post("/pull", async (req: any, res: Response) => {
 /**
  * Input schemas
  */
-const SuggestEventInput = z.object({
-  payment: z.object({
-    name: z.string(),
-    amount: z.number(),
-    dueDate: z.string().optional()
-  }),
-  currentDate: z.string()
-});
-
 const ParseNaturalInput = z.object({
   text: z.string().min(1),
   currentDate: z.string()
@@ -394,14 +385,6 @@ const ParseStatementImageInput = z.object({
 /**
  * Output schemas for strict output validation
  */
-const SuggestEventOutput = z.object({
-  summary: z.string().optional(),
-  description: z.string().optional(),
-  suggestedDate: z.string().optional(),
-  suggestedTime: z.string().optional(),
-  suggestedReminders: z.array(z.number()).optional()
-}).passthrough();
-
 const ParseNaturalOutput = z.object({
   type: z.string().optional(),
   name: z.string().optional(),
@@ -433,17 +416,6 @@ const ChatOutput = z.object({
 // dropped (and logged) so the user still gets the text reply. See
 // src/services/aiActions.ts for the shared client/server action contract.
 
-const ExplainInput = z.object({
-  reasonCode: z.string().min(1).max(100),
-  title: z.string().min(1).max(300),
-  message: z.string().min(1).max(1000),
-  missingFields: z.array(z.string().max(200)).max(10).optional()
-});
-
-const ExplainOutput = z.object({
-  explanation: z.string().min(1)
-}).passthrough();
-
 const ScanInvoiceOutput = z.object({
   name: z.string().optional(),
   amount: z.number().optional(),
@@ -461,35 +433,6 @@ const checkProductionAiMode = (req: any, res: Response, next: any) => {
   // Cloud mode is allowed in production (BYOK - klucz w SecurityVault)
   next();
 };
-
-/**
- * Endpoint 1: Suggest Calendar Event
- */
-router.post("/suggest-event", checkProductionAiMode, async (req: any, res: Response) => {
-  const uid = req.user?.uid;
-  const ip = req.ip || "unknown";
-  let parsedInput;
-  try {
-    parsedInput = SuggestEventInput.parse(req.body);
-  } catch (error) {
-    return res.status(400).json({ error: "Błędne dane wejściowe." });
-  }
-
-  try {
-    const provider = createAiProvider(req.aiConfig);
-    const rawResult = await provider.suggestEvent(parsedInput.payment, parsedInput.currentDate, uid);
-    const result = SuggestEventOutput.parse(rawResult);
-    logCostMetric("/suggest-event", uid, ip, 0, true);
-    res.json(result);
-  } catch (error: any) {
-    logCostMetric("/suggest-event", uid, ip, 0, false);
-    if (error instanceof z.ZodError) {
-      return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
-    }
-    const message = process.env.NODE_ENV === "production" ? "Błąd silnika AI." : (error.message || "Błąd silnika AI.");
-    res.status(500).json({ error: message });
-  }
-});
 
 /**
  * Endpoint 2: Parse Natural Language Text
@@ -608,37 +551,6 @@ router.post("/chat", checkProductionAiMode, async (req: any, res: Response) => {
     res.json({ reply: result.reply, action });
   } catch (error: any) {
     logCostMetric("/chat", uid, ip, 0, false);
-    if (error instanceof z.ZodError) {
-      return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
-    }
-    const message = process.env.NODE_ENV === "production" ? "Błąd silnika AI." : (error.message || "Błąd silnika AI.");
-    res.status(500).json({ error: message });
-  }
-});
-
-/**
- * Endpoint: Explain a deterministic CalculationReason in natural language.
- * Optional AI layer over the always-available deterministic reason text
- * shown by <ReasonCard> (src/components/shared/ReasonCard.tsx).
- */
-router.post("/explain", checkProductionAiMode, async (req: any, res: Response) => {
-  const uid = req.user?.uid;
-  const ip = req.ip || "unknown";
-  let parsedInput;
-  try {
-    parsedInput = ExplainInput.parse(req.body);
-  } catch (error) {
-    return res.status(400).json({ error: "Błędne dane wejściowe." });
-  }
-
-  try {
-    const provider = createAiProvider(req.aiConfig);
-    const rawResult = await provider.explain(parsedInput.reasonCode, parsedInput.title, parsedInput.message, parsedInput.missingFields);
-    const result = ExplainOutput.parse(rawResult);
-    logCostMetric("/explain", uid, ip, parsedInput.message.length, true);
-    res.json({ explanation: result.explanation });
-  } catch (error: any) {
-    logCostMetric("/explain", uid, ip, 0, false);
     if (error instanceof z.ZodError) {
       return res.status(502).json({ error: "Nieprawidłowa odpowiedź modelu AI." });
     }
