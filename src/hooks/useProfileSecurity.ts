@@ -1,7 +1,7 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
-import { deriveKeyFromPin, activeKeys, decryptProfile, generateRandomSalt } from "../services/crypto";
+import { deriveKeyFromPin, activeKeys, decryptProfile, encryptProfile, generateRandomSalt } from "../services/crypto";
 import { BiometricService } from "../services/BiometricService";
 
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
@@ -29,14 +29,41 @@ export function useProfileSecurity({
     setUnlockedProfileId(null);
   }, []);
 
+  // Najświeższy stan dla lockSession — wołanego z timerów i zdarzeń systemowych,
+  // gdzie domknięcie mogłoby trzymać nieaktualny stan.
+  const latestRef = useRef({ state, activeProfile, saveState });
+  latestRef.current = { state, activeProfile, saveState };
+
+  /**
+   * Pełna blokada sesji (SEC-05): szyfruje profil bieżącym kluczem, usuwa klucz z pamięci
+   * i podmienia profil w stanie na wersję zaszyfrowaną — dzięki temu odszyfrowane dane
+   * nie zostają w pamięci ani nie mogą trafić na dysk jawnym tekstem po zablokowaniu.
+   * Używana przy bezczynności i blokadzie systemu. (lockProfile ustawia samą flagę UI;
+   * zostaje dla resetu danych, gdzie nie wolno zapisywać starego stanu.)
+   */
+  const lockSession = useCallback(async () => {
+    const { state: s, activeProfile: profile, saveState: save } = latestRef.current;
+    setUnlockedProfileId(null);
+    if (!profile?.pinHash) return;
+    const key = activeKeys[profile.id];
+    delete activeKeys[profile.id];
+    if (!key) return;
+    try {
+      const sealed = await encryptProfile(profile, key);
+      await save({ ...s, profiles: s.profiles.map((p) => (p.id === profile.id ? sealed : p)) }, true);
+    } catch (err) {
+      console.error("lockSession: nie udało się zaszyfrować profilu przy blokadzie:", err);
+    }
+  }, []);
+
   // System lock listener (np. gdy PC zostaje uśpiony lub zablokowany)
   useEffect(() => {
     if (window.electronAPI?.onSystemLock) {
       return window.electronAPI.onSystemLock(() => {
-        lockProfile();
+        void lockSession();
       });
     }
-  }, [lockProfile]);
+  }, [lockSession]);
 
   const toggleSecurityInfo = useCallback((isOpen?: boolean) => {
     setIsSecurityInfoOpen((prev) => (isOpen !== undefined ? isOpen : !prev));
@@ -192,6 +219,7 @@ export function useProfileSecurity({
     unlockedProfileId,
     unlockProfile,
     lockProfile,
+    lockSession,
     isSecurityInfoOpen,
     toggleSecurityInfo,
     checkAccess,

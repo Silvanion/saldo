@@ -11,7 +11,6 @@ import { SecurityInfoModal } from "../components/SecurityInfoModal";
 import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
 import { useIdleLock } from "../hooks/useIdleLock";
-import { activeKeys } from "../services/crypto";
 
 export function AppContent() {
   const {
@@ -28,7 +27,7 @@ export function AppContent() {
     isGoogleLoading,
     failedAttempts,
     lockoutUntil,
-    lockProfile,
+    lockSession,
     isSecurityInfoOpen,
   } = useApp();
 
@@ -48,10 +47,7 @@ export function AppContent() {
     isEnabled: !!activeProfile?.pinHash && !isProfileLocked && autoLockMs > 0,
     timeoutMs: autoLockMs,
     onLock: () => {
-      if (activeProfile) {
-        delete activeKeys[activeProfile.id];
-      }
-      lockProfile();
+      void lockSession();
     },
   });
 
