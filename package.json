@@ -83,6 +83,7 @@
     "lint": "tsc --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "test:e2e": "playwright test",
+    "test:e2e:prod": "playwright test -c playwright.prod.config.ts",
     "dev:desktop": "npm run build && electron .",
     "build:desktop": "npm run build && electron-builder",
     "build:desktop:all": "npm run build && electron-builder --mac --win",

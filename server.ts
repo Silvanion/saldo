@@ -4,6 +4,7 @@ import fs from "fs";
 import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
 import aiRouter from "./src/server/routes/ai";
+import { getConnectSrc } from "./src/server/csp";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
@@ -57,22 +58,7 @@ export async function startServer(customPort?: number) {
         scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        connectSrc: [
-          "'self'",
-          "https://apis.google.com",
-          "https://*.googleapis.com",
-          "https://securetoken.googleapis.com",
-          "https://firestore.googleapis.com",
-          "https://identitytoolkit.googleapis.com",
-          // Kursy walut (src/services/currencyService.ts)
-          "https://api.nbp.pl",
-          "http://localhost:11434",
-          "http://127.0.0.1:11434",
-          // Sprawdzanie/pobieranie aktualizacji (UpdateManager/UpdateToast) łączy
-          // się bezpośrednio z GitHub z procesu renderera — potrzebne tylko w
-          // aplikacji desktopowej (hosting web nie ma tej funkcji), stąd warunek.
-          ...(process.env.IS_ELECTRON === "true" ? ["https://api.github.com", "https://github.com", "https://objects.githubusercontent.com"] : [])
-        ],
+        connectSrc: getConnectSrc(process.env.IS_ELECTRON === "true"),
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],
       }
