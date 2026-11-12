@@ -45,8 +45,17 @@ Legenda: ✅ zrobione · 🟡 w toku / częściowo · ⏳ czeka na decyzję · �
 | PERF-02 | 🟡 | 243 → 241 kB gzip; dalej wymaga decyzji o `LazyMotion` (patrz niżej) |
 | ARCH-07 | ✖ | dwa pliki `useAppActions.payment.test.ts` są **różne** (nie duplikat) — bez zmian |
 
+## SEC-02 — postęp
+| Faza | Status |
+|---|---|
+| 1 moduł kryptograficzny | ✅ |
+| 2a wersja rozpoznająca v2 (1.6.7) | ✅ gotowe do wydania |
+| 2b warstwa danych (keyring, sesja, szyfrowanie profili) | ✅ niepodpięta |
+| 2c podpięcie + UI | ⏳ czeka na decyzje (synchronizacja v2, kolejność wydań) |
+| 3 migracja / 4 szybkie odblokowanie / 5 chmura | ⬜ |
+
 ## Następne (kolejność)
-1. **SEC-02 faza 2a (wydanie „rozpoznające v2”)** — wymaga decyzji projektowych (patrz DESIGN: osobny dokument `vault/v2`).
+1. SEC-02 faza 2c — po decyzjach.
 2. UX-01 auto-kopia — po formacie v2.
 3. **Decyzja:** PERF-02 przez `LazyMotion` (41 plików) — pozwoliłoby zejść ok. 20–30 kB gzip; ryzyko wizualnych regresji.
 4. THIRD_PARTY_NOTICES, DEVOPS-01/02, TEST-03 (coverage), PERF-05 (test obciążeniowy), AI-05/06/07.

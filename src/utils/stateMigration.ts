@@ -192,6 +192,7 @@ export function validateAndMigrateState(raw: unknown, defaultEmail = "użytkowni
       pinHash: profileObj.pinHash ? String(profileObj.pinHash) : undefined,
       salt: profileObj.salt ? String(profileObj.salt) : undefined,
       encryptedPayload: profileObj.encryptedPayload ? String(profileObj.encryptedPayload) : undefined,
+      cryptoVersion: profileObj.cryptoVersion === 2 ? 2 : undefined,
       accounts: Array.isArray(profileObj.accounts) ? profileObj.accounts : [],
       transactions: Array.isArray(profileObj.transactions)
         ? profileObj.transactions.map((t: any) => {

@@ -3,8 +3,10 @@
 Decyzje właściciela (2026-11-12): **hasło główne dla wszystkiego**, **obowiązkowe** przy pierwszym uruchomieniu, **z kluczem odzyskiwania**.
 
 ## Stan
-**Faza 1 — zrobiona:** `src/services/cryptoV2.ts` + 18 testów (czysty moduł, niepodpięty do aplikacji; format v1 bez zmian).
-Faz 2–5 jeszcze nie ma. Dopóki nie są wdrożone, aplikacja nadal działa na PIN-ie (v1) z jego znanymi ograniczeniami.
+**Faza 1 — zrobiona:** `src/services/cryptoV2.ts` + 18 testów (czysty moduł; format v1 bez zmian).
+**Faza 2a — zrobiona (do wydania jako 1.6.7):** ta wersja rozpoznaje profile v2: odmawia ich odszyfrowania PIN-em, traktuje je jak zablokowane, `saveState` sprowadza je do „koperty” (zero danych jawnych), UI pokazuje „zaktualizuj aplikację” (`NewerVersionNotice`).
+**Faza 2b — zrobiona (warstwa danych, NIEPODPIĘTA):** `masterKey.ts` (DEK w pamięci), `vaultV2.ts` (utwórz/odblokuj/zmień hasło/odzyskaj, szyfrowanie profili), keyring w IndexedDB poza `AppState` (nie synchronizuje się; `clearState` go usuwa), pole `Profile.cryptoVersion`. 11 testów.
+**Pozostało:** 2c (podpięcie do `saveState`/odblokowania + UI), 3 (migracja), 4 (szybkie odblokowanie), 5 (chmura). Dopóki nie są wdrożone, aplikacja nadal działa na PIN-ie (v1) z jego znanymi ograniczeniami.
 
 ## Hierarchia kluczy (faza 1)
 ```
@@ -39,6 +41,12 @@ Dlatego:
 3. Migracja zachowuje poprzednie dane v1 w dokumencie kopii (`users/{uid}/vault/v1-backup`) przez okres karencji, a lokalnie w migawce (DATA-01), aż użytkownik potwierdzi poprawność.
 4. Nowy klient, który zobaczy, że `vault/v2` istnieje, nigdy nie zapisuje już do `users/{uid}` poza znacznikiem.
 5. Lokalnie (IndexedDB): profil z payloadem v2 w klientach bez obsługi v2 byłby traktowany jak profil bez PIN-u i mógłby zostać nadpisany. Wydanie „rozpoznające v2” (faza 2a) musi traktować taki profil jako tylko do odczytu z komunikatem „zaktualizuj aplikację”.
+
+## Ryzyka integracji 2c (zidentyfikowane przy 2b — wymagają decyzji)
+1. **Synchronizacja profili v2.** Dopóki nie ma osobnego dokumentu `vault/v2` (faza 5), profile v2 **nie mogą** trafić do `users/{uid}`: starsze klienty (1.6.6) uznałyby je za profile bez ochrony. Zatem profile v2 muszą być lokalne, a ścieżki synchronizacji muszą je pomijać.
+2. **Snapshot z chmury** (`onSnapshot` w `useBudgetState`) podmienia `profiles` danymi z chmury. Jeśli chmura nie zawiera lokalnych profili v2, naiwny kod je **skasuje**. Merge musi zachować lokalne profile v2.
+3. **Drive (backup/restore)** i import JSON serializują cały stan — profile v2 muszą być wtedy w kopercie (nigdy jawnie) i przywracane razem z keyringiem.
+4. `AppContent` blokuje UI na podstawie `isProfileLocked` (PIN) — dla v2 potrzebny osobny ekran odblokowania hasłem i stan „skarbiec zablokowany”.
 
 ## Otwarte pytania
 * Czy hasło ma mieć miernik siły (zxcvbn dodaje ~400 kB; lekka alternatywa to sama polityka długości)?
