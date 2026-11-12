@@ -13,8 +13,10 @@ export const securityFeatures: SecurityFeature[] = [
     title: "Szyfrowanie End-to-End",
     description: (
       <>
-        Twoje dane finansowe są w pełni szyfrowane na urządzeniu przed wysłaniem do chmury Firebase. 
-        Nawet administratorzy nie mają wglądu w kwoty, nazwy transakcji czy budżety.
+        Profile zabezpieczone PIN-em są szyfrowane na urządzeniu przed wysłaniem do chmury Firebase, więc
+        administratorzy nie mają wglądu w ich kwoty, nazwy transakcji czy budżety.{" "}
+        <strong>Profile bez PIN-u nie są szyfrowane</strong> — po włączeniu synchronizacji trafiają do chmury jawnym tekstem.
+        PIN ma 4–8 cyfr, więc kto zdobędzie zaszyfrowaną kopię, może go odgadnąć; planujemy hasło główne zamiast PIN-u.
       </>
     )
   },
