@@ -32,6 +32,9 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Dependency audit (production, high+)
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Type check (tsc)
         run: npx tsc --noEmit
 
