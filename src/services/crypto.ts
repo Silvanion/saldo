@@ -157,6 +157,51 @@ export async function decryptProfile(profile: Profile, key: CryptoKey): Promise<
   }
 }
 
+function hasSensitiveProfileData(profile: Profile): boolean {
+  return Boolean(
+    (profile.transactions && profile.transactions.length > 0) ||
+    (profile.payments && profile.payments.length > 0) ||
+    (profile.goals && profile.goals.length > 0) ||
+    (profile.investments && profile.investments.length > 0) ||
+    (profile.budgets && Object.keys(profile.budgets).length > 0) ||
+    (profile.recurringRules && profile.recurringRules.length > 0) ||
+    (profile.transactionRules && profile.transactionRules.length > 0) ||
+    (profile.settlements && profile.settlements.length > 0) ||
+    (profile.accounts && profile.accounts.length > 0) ||
+    (profile.smartRules && profile.smartRules.length > 0) ||
+    (profile.debts && profile.debts.length > 0) ||
+    (profile.debtPayoffScenarios && profile.debtPayoffScenarios.length > 0)
+  );
+}
+
+/**
+ * Stan do zapisu na dysk, gdy prepareStateForRemoteSave odmówił (jakiś profil z PIN
+ * jest zablokowany). Nigdy nie zwraca jawnych danych profilu z PIN:
+ * - odblokowany profil → szyfrowany bieżącym kluczem,
+ * - zablokowany profil → ostatnia zaszyfrowana wersja z dysku (`persisted`),
+ * - zablokowany profil bez takiej wersji → trafia do `unresolved`; wołający
+ *   musi wtedy pominąć zapis lokalny (zmiana zostaje w pamięci do odblokowania).
+ */
+export async function prepareStateForLocalSaveWhileLocked(
+  state: AppState,
+  persisted: AppState | null
+): Promise<{ state: AppState; unresolved: string[] }> {
+  const unresolved: string[] = [];
+  const profiles = await Promise.all(
+    state.profiles.map(async (profile) => {
+      if (!profile.pinHash) return profile;
+      const key = activeKeys[profile.id];
+      if (key) return encryptProfile(profile, key);
+      if (!hasSensitiveProfileData(profile)) return profile;
+      const previous = persisted?.profiles.find((p) => p.id === profile.id);
+      if (previous?.encryptedPayload) return previous;
+      unresolved.push(profile.id);
+      return profile;
+    })
+  );
+  return { state: { ...state, profiles }, unresolved };
+}
+
 export async function prepareStateForRemoteSave(state: AppState): Promise<AppState> {
   const updatedProfiles = await Promise.all(
     state.profiles.map(async (profile) => {
@@ -167,19 +212,7 @@ export async function prepareStateForRemoteSave(state: AppState): Promise<AppSta
       if (key) {
         return await encryptProfile(profile, key);
       }
-      const hasSensitiveData =
-        (profile.transactions && profile.transactions.length > 0) ||
-        (profile.payments && profile.payments.length > 0) ||
-        (profile.goals && profile.goals.length > 0) ||
-        (profile.investments && profile.investments.length > 0) ||
-        (profile.budgets && Object.keys(profile.budgets).length > 0) ||
-        (profile.recurringRules && profile.recurringRules.length > 0) ||
-        (profile.transactionRules && profile.transactionRules.length > 0) ||
-        (profile.settlements && profile.settlements.length > 0) ||
-        (profile.accounts && profile.accounts.length > 0) ||
-        (profile.smartRules && profile.smartRules.length > 0) ||
-        (profile.debts && profile.debts.length > 0) ||
-        (profile.debtPayoffScenarios && profile.debtPayoffScenarios.length > 0);
+      const hasSensitiveData = hasSensitiveProfileData(profile);
 
       if (profile.encryptedPayload && !hasSensitiveData) {
         return profile;
