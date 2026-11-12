@@ -70,6 +70,11 @@
     "portable": {
       "artifactName": "${productName}-${version}-portable.${ext}"
     },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false
+    },
     "publish": {
       "provider": "github",
       "owner": "Silvanion",

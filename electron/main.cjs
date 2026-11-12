@@ -316,11 +316,29 @@ function findLegacyDataPort() {
 async function resolveServerPort() {
   const saved = readSavedServerPort();
   if (saved) {
-    if (await isPortFree(saved)) return saved;
-    // Don't overwrite the saved port — next launch should return to the
-    // origin that holds the user's data.
-    log.warn(`[Port] Zapisany port ${saved} jest zajęty — używam tymczasowego portu (dane lokalne mogą być niewidoczne w tej sesji).`);
-    return getFreePort();
+    while (!(await isPortFree(saved))) {
+      // Dane lokalne (IndexedDB) są przypisane do originu localhost:<port>. Inny port = inny origin,
+      // więc użytkownik nie zobaczyłby swoich danych — dlatego pytamy, zamiast cicho zmieniać port (ARCH-01).
+      const choice = dialog.showMessageBoxSync({
+        type: 'warning',
+        title: 'Saldo — port jest zajęty',
+        message: `Port ${saved}, z którym są powiązane Twoje dane lokalne, jest zajęty przez inny program.`,
+        detail: 'Zamknij program, który go używa, i spróbuj ponownie. Jeśli uruchomisz Saldo na innym porcie, Twoje dane lokalne nie będą widoczne w tej sesji (nie zostaną usunięte).',
+        buttons: ['Spróbuj ponownie', 'Uruchom na innym porcie', 'Zamknij Saldo'],
+        defaultId: 0,
+        cancelId: 2,
+        noLink: true
+      });
+      if (choice === 0) continue;
+      if (choice === 1) {
+        // Don't overwrite the saved port — next launch should return to the origin that holds the user's data.
+        log.warn(`[Port] Zapisany port ${saved} jest zajęty — użytkownik wybrał port tymczasowy (dane lokalne mogą być niewidoczne w tej sesji).`);
+        return getFreePort();
+      }
+      app.quit();
+      return new Promise(() => {}); // aplikacja się zamyka — nie startujemy serwera
+    }
+    return saved;
   }
   const candidates = [findLegacyDataPort(), DEFAULT_SERVER_PORT].filter(Boolean);
   for (const candidate of candidates) {
