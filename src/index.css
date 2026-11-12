@@ -42,16 +42,16 @@
 
   --color-text-main: #111827; /* Bardzo ciemny szary/czarny (Gray 900), maksymalny kontrast */
   --color-text-muted: #4b5563; /* Neutralny szary (Gray 600) */
-  --color-text-faint: #6b7280; /* Neutralny szary (Gray 500) */
+  --color-text-faint: #5f6672; /* Neutralny szary; 5.3:1 na bg-base, 4.6:1 na surface-offset (WCAG AA) */
   --color-text-inverse: #ffffff;
 
   --color-brand: #2a4b41; /* Zdecydowany akcent (Shale Green), nie gryzie się już z bazą */
   --color-brand-hover: #17332a;
 
   --color-brand-subtle: rgba(42, 75, 65, 0.08); /* Subtelne tło dla brandu */
-  --color-success: #16a34a; /* green-600 dla pozytywnych stanów */
+  --color-success: #15803d; /* green-700; 5.0:1 na bieli (WCAG AA dla tekstu) */
   --color-success-subtle: #f0fdf4; /* green-50 dla subtelnego tła sukcesu */
-  --color-warning: #d97706; /* amber-600 dla mocnego ostrzeżenia */
+  --color-warning: #b45309; /* amber-700; 5.0:1 na bieli, 4.5:1 na warning-subtle (WCAG AA) */
   --color-warning-subtle: #fef3c7; /* amber-50 dla subtelnego tła ostrzeżenia */
   --color-danger: #dc2626; /* red-600 dla wyraźnych błędów/usunięć */
   --color-danger-subtle: #fef2f2; /* red-50 dla subtelnego tła błędów */
@@ -72,7 +72,7 @@
 
   --color-text-main: #f3f4f6;
   --color-text-muted: #b0b7c3;
-  --color-text-faint: #7b8491;
+  --color-text-faint: #939ba8; /* >=4.75:1 na wszystkich tłach ciemnych (WCAG AA) */
   --color-text-inverse: #111315;
 
   --color-brand: #4ea38f; /* Wyraźna, dostępna zieleń akcentowa (WCAG AA > 5:1 na ciemnym tle) */
