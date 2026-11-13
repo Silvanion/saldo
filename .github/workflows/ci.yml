@@ -84,6 +84,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Electron 44 nie ma już postinstall — binarkę trzeba pobrać jawnie.
+      - name: Download Electron binary
+        run: npx install-electron
+
       - name: Install Xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
