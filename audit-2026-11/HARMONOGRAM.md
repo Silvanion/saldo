@@ -56,7 +56,7 @@ Legenda: ✅ zrobione · 🟡 w toku / częściowo · ⏳ czeka na decyzję · �
 
 ## Następne (kolejność)
 1. SEC-02 faza 2c — po decyzjach.
-2. UX-01 auto-kopia — po formacie v2.
+2. ~~UX-01 auto-kopia~~ ✅ (wariant tymczasowy: forma jak w bazie; po haśle głównym kopie będą szyfrowane DEK-iem).
 3. **Decyzja:** PERF-02 przez `LazyMotion` (41 plików) — pozwoliłoby zejść ok. 20–30 kB gzip; ryzyko wizualnych regresji.
 4. THIRD_PARTY_NOTICES, DEVOPS-01/02, TEST-03 (coverage), PERF-05 (test obciążeniowy), AI-05/06/07.
 

@@ -12,6 +12,7 @@ import { NewerVersionNotice } from "../components/NewerVersionNotice";
 import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
 import { useIdleLock } from "../hooks/useIdleLock";
+import { useAutoBackup } from "../hooks/useAutoBackup";
 
 export function AppContent() {
   const {
@@ -52,6 +53,9 @@ export function AppContent() {
       void lockSession();
     },
   });
+
+  // Automatyczna kopia lokalna (tylko desktop) — hook musi być przed wczesnymi return poniżej.
+  useAutoBackup(state.updatedAt, state.profiles.length);
 
   // Main Authentication Gate
   if (isGoogleLoading) {

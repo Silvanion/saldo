@@ -84,5 +84,6 @@ Dokument opisuje to, co działa; poniżej to, czego **nie** gwarantuje:
 - **Profile bez PIN nie są szyfrowane** — ani na urządzeniu, ani w Firestore po włączeniu synchronizacji. „Zero-knowledge” dotyczy wyłącznie profili z PIN-em (PRIV-01).
 - **Klucze API (BYOK) w wersji web** żyją tylko w `sessionStorage` (do zamknięcia karty) i nie są szyfrowane silnym kluczem — odczyta je złośliwe rozszerzenie lub kod wykonany na stronie. Starsze, trwałe wpisy z `localStorage` są usuwane. W aplikacji desktopowej klucze trafiają do Keychain/DPAPI.
 - **Windows:** odblokowanie biometryczne nie wyświetla monitu Windows Hello — PIN jest odszyfrowywany przez DPAPI po zalogowaniu na konto systemowe (SEC-07).
+- **Automatyczna kopia lokalna** (desktop) leży w folderze danych aplikacji w takiej postaci jak baza: profile z PIN-em są zaszyfrowane, profile bez PIN-u nie. Kopia nie jest dodatkowo szyfrowana (to zmieni hasło główne).
 - **Brak podpisu kodu** na Windows i notaryzacji na macOS: integralność aktualizacji opiera się na koncie GitHub projektu.
 - Passkeys/WebAuthn jako metoda odblokowania **nie są zaimplementowane** (wykrywana jest tylko dostępność autentykatora).

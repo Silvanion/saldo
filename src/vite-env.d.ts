@@ -22,6 +22,11 @@ interface Window {
     setProgressBar?: (progress: number) => Promise<void>;
     /** Losowy token lokalnego API (SEC-11) — tylko aplikacja desktopowa. */
     apiToken?: string;
+    /** Automatyczna kopia lokalna (UX-01) — tylko aplikacja desktopowa. */
+    writeAutoBackup?: (json: string) => Promise<{ ok: boolean; skipped?: string | null; error?: string }>;
+    listAutoBackups?: () => Promise<Array<{ name: string; date: string; size: number; modifiedAt: string }>>;
+    readAutoBackup?: (name: string) => Promise<{ ok: boolean; json?: string; error?: string }>;
+    openBackupsFolder?: () => Promise<void>;
     checkBiometricsStatus?: (profileId?: string) => Promise<{ available: boolean; isEnrolledForProfile: boolean; platform?: string }>;
     saveBiometricsPin?: (profileId: string, pin: string) => Promise<{ success: boolean; error?: string }>;
     promptBiometricsUnlock?: (profileId: string, promptReason?: string) => Promise<{ success: boolean; pin?: string; error?: string }>;

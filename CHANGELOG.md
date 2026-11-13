@@ -12,6 +12,7 @@ Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 - **AI**: wycofane modele Claude 3.x i Gemini 1.5/2.0 usunięte (zapisane ustawienia przenoszone na model domyślny, Claude Haiku 5.5); bez `temperature` w żądaniach Claude; klucz API w przeglądarce tylko na czas sesji; usunięte `suggest-event` i `explain`; skan PDF przez AI za zgodą.
 - **CSP**: dodany `api.anthropic.com` (Claude nie działał w buildzie produkcyjnym), `api.nbp.pl` i Ollama w `firebase.json`; `script-src` bez `'unsafe-inline'`; czcionki lokalnie.
 - **Electron**: token i kontrola `Host` dla lokalnego API; fuses (`runAsNode`, `NODE_OPTIONS`, `--inspect` wyłączone); biometria na Windows wyłączona; komunikat przy zajętym porcie.
+- **Automatyczna kopia lokalna (desktop)**: jeden plik dziennie, ostatnie 7 dni, zapis atomowy; ochrona przed nadpisaniem dobrej kopii znacznie mniejszą; lista i przywracanie w Ustawieniach (przez istniejący podgląd importu).
 - **Zgłoszenia**: GitHub Issues zamiast anonimowego zapisu w Firestore (reguła `bug_reports` zamknięta — wymaga wdrożenia reguł).
 - **Eksport CSV**: neutralizacja formuł (CWE-1236).
 - **Zależności**: `npm audit` 44 → 19 (0 krytycznych); Electron 44.11.

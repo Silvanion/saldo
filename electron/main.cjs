@@ -371,6 +371,40 @@ ipcMain.on('get-api-token', (event) => {
   event.returnValue = process.env.SALDO_API_TOKEN || '';
 });
 
+// --- Automatyczna kopia lokalna (UX-01) ---
+const autoBackup = require("./autoBackup.cjs");
+const autoBackupDir = () => path.join(app.getPath('userData'), 'backups');
+// Tylko okno główne aplikacji może zapisywać i czytać kopie (okno potomne auth dziedziczy preload).
+const isMainWindowSender = (event) => Boolean(mainWindow && !mainWindow.isDestroyed() && event.sender === mainWindow.webContents);
+
+ipcMain.handle('auto-backup-write', (event, json) => {
+  if (!isMainWindowSender(event)) return { ok: false, error: 'Niedozwolony nadawca.' };
+  try {
+    const result = autoBackup.writeDailyBackup(autoBackupDir(), json);
+    return { ok: true, skipped: result.skipped };
+  } catch (err) {
+    log.warn('[AutoBackup] Zapis kopii nie powiódł się:', err.message);
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle('auto-backup-list', (event) => (isMainWindowSender(event) ? autoBackup.listBackups(autoBackupDir()) : []));
+
+ipcMain.handle('auto-backup-read', (event, name) => {
+  if (!isMainWindowSender(event)) return { ok: false, error: 'Niedozwolony nadawca.' };
+  try {
+    return { ok: true, json: autoBackup.readBackup(autoBackupDir(), name) };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle('auto-backup-open-folder', async (event) => {
+  if (!isMainWindowSender(event)) return;
+  fs.mkdirSync(autoBackupDir(), { recursive: true });
+  await shell.openPath(autoBackupDir());
+});
+
 ipcMain.handle('export-data', async (event, defaultPath, data) => {
   const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
     defaultPath,

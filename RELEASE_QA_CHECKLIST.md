@@ -172,6 +172,12 @@ Zbuduj instalator lokalnie (`npm run build:desktop`) i sprawdź **na zainstalowa
 - [ ] Doradca AI z Ollamą działa (czat, import z kategoryzacją AI) — żądania do `/api/ai` przechodzą z tokenem.
 - [ ] `curl http://127.0.0.1:<port>/api/ai/health -H 'x-ai-mode: none'` z terminala → `401`.
 
+**Automatyczna kopia lokalna (UX-01)**
+- [ ] Po pierwszej zmianie danych (ok. minuty) w `~/Library/Application Support/Saldo/backups` (macOS) lub `%APPDATA%\Saldo\backups` (Windows) powstaje `saldo-auto-RRRR-MM-DD.json`.
+- [ ] Ustawienia → Kopia zapasowa: karta „Automatyczna kopia lokalna” pokazuje listę; „Otwórz folder kopii” otwiera właściwy katalog.
+- [ ] „Przywróć” otwiera zwykły podgląd importu (z potwierdzeniem); po zatwierdzeniu dane wracają. Profil z PIN-em w pliku kopii ma pole `encryptedPayload` i puste tablice (brak danych jawnych).
+- [ ] Reset danych w ciągu tego samego dnia nie nadpisuje dobrej kopii (log: kopia pominięta).
+
 **Biometria**
 - [ ] macOS: Touch ID nadal włącza się i odblokowuje profil; zapisany klucz API AI nadal się odczytuje.
 - [ ] Windows: w Ustawieniach → Bezpieczeństwo biometria jest niedostępna z komunikatem o PIN-ie; klucz API AI (Gemini/Claude) nadal da się zapisać i użyć.

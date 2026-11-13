@@ -23,6 +23,7 @@ import { AppState, Profile } from "../../types";
 import { generateCsvContent, downloadFile, getMonthName } from "../../utils";
 import { prepareStateForRemoteSave } from "../../services/crypto";
 import { ConfirmModal } from "../ConfirmModal";
+import { AutoBackupCard } from "./AutoBackupCard";
 
 interface SettingsBackupSectionProps {
   state: AppState;
@@ -393,6 +394,8 @@ export function SettingsBackupSection({
             )}
           </div>
           
+          <AutoBackupCard onRestore={processJsonString} />
+
           <div className="bg-surface border border-border rounded-xl p-4 shadow-xs">
             <h4 className="text-sm font-bold text-text-main mb-3">Kopia zapasowa systemu</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

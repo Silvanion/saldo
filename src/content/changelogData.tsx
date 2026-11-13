@@ -23,6 +23,7 @@ export const changelogData: ChangelogEntry[] = [
       "[Eksport CSV] Pola tekstowe zaczynające się od =, +, - lub @ są neutralizowane, by arkusz nie wykonał ich jako formuł.",
       "[Dostępność] Lepszy kontrast kolorów kwot i ostrzeżeń, nazwy dla pasków postępu i przycisków oraz respektowanie ustawienia systemowego „ogranicz ruch”.",
       "[Prywatność i Szybkość] Czcionki ładowane lokalnie (bez Google Fonts), szybszy start wersji web i lżejsza instalacja PWA.",
+      "[Automatyczna Kopia Lokalna] Aplikacja desktopowa zapisuje jedną kopię dziennie (ostatnie 7 dni) w folderze danych aplikacji. W Ustawieniach → Kopia zapasowa możesz zobaczyć listę, otworzyć folder i przywrócić wybraną kopię przez zwykły podgląd importu. Kopie mają taką samą ochronę jak dane w aplikacji: profile z PIN-em są zaszyfrowane, bez PIN-u nie.",
       "[Przygotowanie na Hasło Główne] Ta wersja rozpoznaje profile zaszyfrowane przyszłym formatem i pokazuje komunikat „zaktualizuj aplikację” zamiast ich uszkodzić."
     ]
   },
