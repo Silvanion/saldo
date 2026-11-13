@@ -1,4 +1,5 @@
-import { platformAuthenticatorIsAvailable, browserSupportsWebAuthn } from "@simplewebauthn/browser";
+// @simplewebauthn/browser (~32 kB) ładujemy leniwie — potrzebny tylko przy wykrywaniu/użyciu passkeys, nie na starcie aplikacji.
+const loadWebAuthn = () => import("@simplewebauthn/browser");
 
 export type SupportedPlatform = "macos" | "windows" | "linux" | "web";
 
@@ -69,7 +70,8 @@ export class BiometricService {
           label: "Windows Hello",
           hardwareDescription: "Windows Hello & TPM Credential Guard",
           storageBackend: "Windows DPAPI (safeStorage)",
-          isSupported: true
+          isSupported: false,
+          unsupportedReason: "Odblokowanie Windows Hello nie jest jeszcze obsługiwane (Electron nie udostępnia monitu Windows Hello). Używaj PIN-u lub hasła."
         };
       case "linux":
         return {
@@ -125,9 +127,10 @@ export class BiometricService {
     }
 
     // 2. Środowisko przeglądarki WWW (WebAuthn Platform Authenticator)
-    if (typeof window !== "undefined" && browserSupportsWebAuthn()) {
+    const webauthn = typeof window !== "undefined" ? await loadWebAuthn() : null;
+    if (webauthn && webauthn.browserSupportsWebAuthn()) {
       try {
-        const hasPlatformAuth = await platformAuthenticatorIsAvailable();
+        const hasPlatformAuth = await webauthn.platformAuthenticatorIsAvailable();
         return {
           available: hasPlatformAuth,
           isEnrolledForProfile: false,

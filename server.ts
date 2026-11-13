@@ -4,8 +4,11 @@ import fs from "fs";
 import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
 import aiRouter from "./src/server/routes/ai";
+import { getConnectSrc } from "./src/server/csp";
+import { requireLocalApiToken } from "./src/server/middleware/security";
 import helmet from "helmet";
 import cors from "cors";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 
 dotenv.config();
@@ -54,25 +57,10 @@ export async function startServer(customPort?: number) {
     contentSecurityPolicy: process.env.NODE_ENV === "production" ? {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        connectSrc: [
-          "'self'",
-          "https://apis.google.com",
-          "https://*.googleapis.com",
-          "https://securetoken.googleapis.com",
-          "https://firestore.googleapis.com",
-          "https://identitytoolkit.googleapis.com",
-          // Kursy walut (src/services/currencyService.ts)
-          "https://api.nbp.pl",
-          "http://localhost:11434",
-          "http://127.0.0.1:11434",
-          // Sprawdzanie/pobieranie aktualizacji (UpdateManager/UpdateToast) łączy
-          // się bezpośrednio z GitHub z procesu renderera — potrzebne tylko w
-          // aplikacji desktopowej (hosting web nie ma tej funkcji), stąd warunek.
-          ...(process.env.IS_ELECTRON === "true" ? ["https://api.github.com", "https://github.com", "https://objects.githubusercontent.com"] : [])
-        ],
+        scriptSrc: ["'self'", "https://apis.google.com", "https://www.gstatic.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'"],
+        connectSrc: getConnectSrc(process.env.IS_ELECTRON === "true"),
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://lh3.googleusercontent.com"],
       }
@@ -132,7 +120,7 @@ export async function startServer(customPort?: number) {
   });
 
   // AI Routes
-  app.use("/api/ai", aiLimiter, aiRouter);
+  app.use("/api/ai", requireLocalApiToken, aiLimiter, aiRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
@@ -148,6 +136,8 @@ export async function startServer(customPort?: number) {
     const distPath = fs.existsSync(path.join(__dirname, "index.html"))
       ? __dirname
       : path.join(process.cwd(), "dist");
+    // Kompresja odpowiedzi (gzip/deflate) dla samodzielnego hostingu — Firebase Hosting robi to sam (PERF-04).
+    app.use(compression());
     app.use(express.static(distPath));
     app.get(/.*/, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

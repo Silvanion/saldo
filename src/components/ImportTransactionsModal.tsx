@@ -2,7 +2,7 @@
 import { formatMoney } from "../utils/format";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { callAiApi, getAiConfig } from "../services/aiClient";
+import { callAiApi, getAiConfig, localApiHeaders } from "../services/aiClient";
 import { parseStatementText } from "../services/localParsers";
 import { resolveLocalAiConfig, extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
 import { useApp } from "../app/providers/AppContext";
@@ -55,6 +55,13 @@ interface ImportTransactionsModalProps {
   onConsumeInitialFile?: () => void;
 }
 
+// Odczyt skanów PDF modelem AI (parse-statement-image) jest eksperymentalny: w przeciwieństwie do
+// parserów CSV/PDF nie ma kontroli ciągłości salda, więc model może przekłamać kwotę. Domyślnie wyłączony.
+const IMAGE_IMPORT_FLAG = "saldo_experimental_image_import";
+function isImageImportEnabled(): boolean {
+  try { return localStorage.getItem(IMAGE_IMPORT_FLAG) === "1"; } catch { return false; }
+}
+
 export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImport, initialFile, onConsumeInitialFile }: ImportTransactionsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useScrollLock(isOpen);
@@ -92,6 +99,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const [isTextProcessing, setIsTextProcessing] = useState(false);
   const [textError, setTextError] = useState("");
   const [pdfError, setPdfError] = useState("");
+  const [scanFileNeedingOptIn, setScanFileNeedingOptIn] = useState<File | null>(null);
   const [csvError, setCsvError] = useState("");
   const [isPdfProcessing, setIsPdfProcessing] = useState(false);
 
@@ -257,6 +265,7 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
   const handlePdfFile = async (file: File) => {
     setIsPdfProcessing(true);
     setPdfError("");
+    setScanFileNeedingOptIn(null);
     setFileName(file.name);
     try {
       const text = await extractPdfText(file);
@@ -264,10 +273,15 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
         if (!isAiAvailable) {
           throw new Error("Ten PDF nie zawiera warstwy tekstowej. Włącz lokalne AI (z modelem vision w Ustawieniach), aby przeanalizować skan.");
         }
+        if (!isImageImportEnabled()) {
+          setScanFileNeedingOptIn(file);
+          throw new Error("Ten PDF to skan bez warstwy tekstowej. Odczyt skanów przez AI jest eksperymentalny: nie ma kontroli sum, więc model może przekłamać kwoty — przed zapisem sprawdź każdą pozycję. Jeśli to wyciąg tekstowy z banku, pobierz CSV albo PDF z warstwą tekstową.");
+        }
         const pages = await renderPdfPages(file);
         if (state.aiMode === "local") {
           const healthResponse = await fetch("/api/ai/health", {
             headers: {
+              ...localApiHeaders(),
               "x-ai-mode": "local",
               "x-ai-local-endpoint": state.localAiEndpoint || "http://localhost:11434/api/generate",
               ...(state.localAiModel ? { "x-ai-local-model": state.localAiModel } : {})
@@ -810,6 +824,21 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 {isPdfProcessing ? "Odczytywanie PDF..." : "Wybierz plik PDF"}
               </button>
               {pdfError && <p className="text-xs text-danger font-medium">{pdfError}</p>}
+              {scanFileNeedingOptIn && (
+                <button
+                  type="button"
+                  id="btn-enable-experimental-scan-import"
+                  className="mt-2 text-xs font-bold text-brand bg-surface hover:bg-surface-2 border border-border px-3 py-2 rounded-xl cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  onClick={() => {
+                    try { localStorage.setItem(IMAGE_IMPORT_FLAG, "1"); } catch { /* brak localStorage — zostaje wyłączone */ }
+                    const file = scanFileNeedingOptIn;
+                    setScanFileNeedingOptIn(null);
+                    void handlePdfFile(file);
+                  }}
+                >
+                  Włącz eksperymentalny odczyt skanów i spróbuj ponownie
+                </button>
+              )}
             </div>
           )}
 

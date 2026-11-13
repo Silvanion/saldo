@@ -96,7 +96,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
       setMetadata(meta);
       setIsEditingKey(false);
       setInputApiKey("");
-      showToast(`Klucz API dla ${ProviderRegistry.getProviderLabel(provider)} został bezpiecznie zapisany.`, "success");
+      showToast(`Klucz API dla ${ProviderRegistry.getProviderLabel(provider)} został zapisany.`, "success");
       onConfigChange?.(provider, effectiveModel);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Błąd podczas zapisywania klucza.", "error");
@@ -164,7 +164,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
               </span>
             </div>
             <p className="text-xs text-text-muted mt-0.5">
-              Bezpieczna integracja z Google Gemini i Claude. Twój klucz nigdy nie opuszcza urządzenia.
+              Integracja z Google Gemini i Claude na Twoim własnym kluczu. Klucz jest wysyłany wyłącznie do wybranego dostawcy.
             </p>
           </div>
         </div>
@@ -228,7 +228,7 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
                 id="ai-custom-model-input"
                 value={customModelInput}
                 onChange={(e) => handleCustomModelChange(e.target.value)}
-                placeholder="np. gemini-3.8-flash, claude-3-5-sonnet-20241022"
+                placeholder="np. gemini-3.8-flash, claude-haiku-5-5"
                 className="w-full bg-surface border border-border rounded-xl p-2.5 text-xs text-text-main focus-visible:ring-2 focus-visible:ring-focus-ring font-mono"
               />
               <p className="text-[11px] text-text-muted mt-1">
@@ -358,8 +358,10 @@ export const AiProviderSettingsCard: React.FC<AiProviderSettingsCardProps> = ({
         <div className="mt-3 p-3 bg-surface-2/40 border border-border/50 rounded-xl flex items-start gap-2.5 text-[11px] text-text-muted">
           <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
           <p>
-            Klucz API jest przechowywany wyłącznie lokalnie na Twoim urządzeniu w bezpiecznym magazynie (Keychain/Vault).
-            Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na zewnętrzne serwery Saldo.
+            {typeof window !== "undefined" && window.electronAPI?.saveBiometricsPin
+              ? "Klucz API jest przechowywany lokalnie w systemowym magazynie kluczy (Keychain / Windows DPAPI)."
+              : "W przeglądarce klucz API jest przechowywany tylko na czas tej sesji (sessionStorage) i zniknie po zamknięciu karty — wpisz go ponownie przy następnym użyciu. Nie jest szyfrowany silnym kluczem, więc odczyta go złośliwe rozszerzenie lub kod wykonany na tej stronie. Trwały zapis w Keychain/DPAPI jest dostępny w aplikacji desktopowej; w pełni lokalna opcja to Ollama."}
+            {" "}Nigdy nie trafia do bazy Firestore ani nie jest wysyłany na serwery Saldo.
           </p>
         </div>
 

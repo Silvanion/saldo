@@ -1,7 +1,7 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
-import { deriveKeyFromPin, activeKeys, decryptProfile, generateRandomSalt } from "../services/crypto";
+import { deriveKeyFromPin, activeKeys, decryptProfile, encryptProfile, generateRandomSalt, isNewerFormatProfile } from "../services/crypto";
 import { BiometricService } from "../services/BiometricService";
 
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
@@ -29,14 +29,41 @@ export function useProfileSecurity({
     setUnlockedProfileId(null);
   }, []);
 
+  // Najświeższy stan dla lockSession — wołanego z timerów i zdarzeń systemowych,
+  // gdzie domknięcie mogłoby trzymać nieaktualny stan.
+  const latestRef = useRef({ state, activeProfile, saveState });
+  latestRef.current = { state, activeProfile, saveState };
+
+  /**
+   * Pełna blokada sesji (SEC-05): szyfruje profil bieżącym kluczem, usuwa klucz z pamięci
+   * i podmienia profil w stanie na wersję zaszyfrowaną — dzięki temu odszyfrowane dane
+   * nie zostają w pamięci ani nie mogą trafić na dysk jawnym tekstem po zablokowaniu.
+   * Używana przy bezczynności i blokadzie systemu. (lockProfile ustawia samą flagę UI;
+   * zostaje dla resetu danych, gdzie nie wolno zapisywać starego stanu.)
+   */
+  const lockSession = useCallback(async () => {
+    const { state: s, activeProfile: profile, saveState: save } = latestRef.current;
+    setUnlockedProfileId(null);
+    if (!profile?.pinHash) return;
+    const key = activeKeys[profile.id];
+    delete activeKeys[profile.id];
+    if (!key) return;
+    try {
+      const sealed = await encryptProfile(profile, key);
+      await save({ ...s, profiles: s.profiles.map((p) => (p.id === profile.id ? sealed : p)) }, true);
+    } catch (err) {
+      console.error("lockSession: nie udało się zaszyfrować profilu przy blokadzie:", err);
+    }
+  }, []);
+
   // System lock listener (np. gdy PC zostaje uśpiony lub zablokowany)
   useEffect(() => {
     if (window.electronAPI?.onSystemLock) {
       return window.electronAPI.onSystemLock(() => {
-        lockProfile();
+        void lockSession();
       });
     }
-  }, [lockProfile]);
+  }, [lockSession]);
 
   const toggleSecurityInfo = useCallback((isOpen?: boolean) => {
     setIsSecurityInfoOpen((prev) => (isOpen !== undefined ? isOpen : !prev));
@@ -44,17 +71,22 @@ export function useProfileSecurity({
 
   const checkAccess = useCallback((profile: Profile | null): boolean => {
     if (!profile) return false;
+    // Profil z nowszego formatu (v2) jest nieczytelny dla tej wersji — nigdy nie jest „otwarty”.
+    if (isNewerFormatProfile(profile)) return false;
     // Otwarty profil (brak PIN) lub profil poprawnie odblokowany
     return !profile.pinHash || unlockedProfileId === profile.id;
   }, [unlockedProfileId]);
 
+  const isNewerFormatActive = useMemo(() => isNewerFormatProfile(activeProfile), [activeProfile]);
+
   const isProfileLocked = useMemo(() => {
-    return !!(activeProfile?.pinHash && unlockedProfileId !== activeProfile.id);
-  }, [activeProfile, unlockedProfileId]);
+    return isNewerFormatActive || !!(activeProfile?.pinHash && unlockedProfileId !== activeProfile.id);
+  }, [activeProfile, unlockedProfileId, isNewerFormatActive]);
 
   const handleUnlockProfile = useCallback(
     async (pin: string): Promise<boolean> => {
       if (!activeProfile) return false;
+      if (isNewerFormatProfile(activeProfile)) return false;
 
       // Check lockout
       if (lockoutUntil && Date.now() < lockoutUntil) {
@@ -159,6 +191,11 @@ export function useProfileSecurity({
   // activeProfile z domknięcia) nie może być użyty bezpośrednio.
   const handleSelectAndUnlockProfile = useCallback(
     async (profile: Profile, pin?: string): Promise<boolean> => {
+      if (isNewerFormatProfile(profile)) {
+        // Ustawiamy profil jako aktywny, by pokazać komunikat o nowszej wersji, ale go nie odblokowujemy.
+        await saveState({ ...state, activeProfileId: profile.id }, true);
+        return false;
+      }
       if (!profile.pinHash || !pin) {
         await saveState({ ...state, activeProfileId: profile.id }, true);
         if (!profile.pinHash) unlockProfile(profile.id);
@@ -192,10 +229,12 @@ export function useProfileSecurity({
     unlockedProfileId,
     unlockProfile,
     lockProfile,
+    lockSession,
     isSecurityInfoOpen,
     toggleSecurityInfo,
     checkAccess,
     isProfileLocked,
+    isNewerFormatProfile: isNewerFormatActive,
     handleUnlockProfile,
     handleSetProfilePin,
     handleSelectAndUnlockProfile,

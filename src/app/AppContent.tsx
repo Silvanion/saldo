@@ -8,16 +8,18 @@ import { checkAndNotifyPayments } from "../utils";
 import { OnboardingWizard } from "./OnboardingWizard";
 import { ProfileSelectionScreen } from "../components/auth/ProfileSelectionScreen";
 import { SecurityInfoModal } from "../components/SecurityInfoModal";
+import { NewerVersionNotice } from "../components/NewerVersionNotice";
 import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
 import { useIdleLock } from "../hooks/useIdleLock";
-import { activeKeys } from "../services/crypto";
+import { useAutoBackup } from "../hooks/useAutoBackup";
 
 export function AppContent() {
   const {
     state, isDemoMode, setIsDemoMode, disconnectGoogle,
     activeProfile,
     isProfileLocked,
+    isNewerFormatProfile,
     modalState,
     handleUnlockProfile,
     handleAddProfile,
@@ -28,7 +30,7 @@ export function AppContent() {
     isGoogleLoading,
     failedAttempts,
     lockoutUntil,
-    lockProfile,
+    lockSession,
     isSecurityInfoOpen,
   } = useApp();
 
@@ -48,12 +50,12 @@ export function AppContent() {
     isEnabled: !!activeProfile?.pinHash && !isProfileLocked && autoLockMs > 0,
     timeoutMs: autoLockMs,
     onLock: () => {
-      if (activeProfile) {
-        delete activeKeys[activeProfile.id];
-      }
-      lockProfile();
+      void lockSession();
     },
   });
+
+  // Automatyczna kopia lokalna (tylko desktop) — hook musi być przed wczesnymi return poniżej.
+  useAutoBackup(state.updatedAt, state.profiles.length);
 
   // Main Authentication Gate
   if (isGoogleLoading) {
@@ -102,6 +104,8 @@ export function AppContent() {
             onOpenPinModal={() => openModal("pin")}
             openModal={openModal}
           />
+        ) : isNewerFormatProfile && activeProfile ? (
+          <NewerVersionNotice profileName={activeProfile.name} onSelectOtherProfile={() => openModal("profile")} />
         ) : (
           <div className="flex items-center justify-center h-full">
             <p className="text-sm font-bold text-text-muted">Profil jest zablokowany kodem PIN...</p>
@@ -110,7 +114,7 @@ export function AppContent() {
 
         <ModalManager />
 
-        {isProfileLocked && activeProfile && modalState.type !== "pin" && (
+        {isProfileLocked && !isNewerFormatProfile && activeProfile && modalState.type !== "pin" && (
           <UnlockModal
             isOpen={true}
             profileName={activeProfile.name}

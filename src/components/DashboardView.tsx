@@ -167,7 +167,7 @@ export function DashboardView({
 
   const DEFAULT_WIDGETS: Widget[] = [
     { id: "stats", name: "Podsumowanie finansowe i Runway", visible: true, icon: "stats" },
-    { id: "netWorth", name: "Majątek Netto (Wealthfolio)", visible: true, icon: "netWorth" },
+    { id: "netWorth", name: "Majątek Netto", visible: true, icon: "netWorth" },
     { id: "timeline", name: "Oś czasu płatności", visible: true, icon: "timeline" },
     { id: "bills", name: "Nadchodzące rachunki", visible: true, icon: "bills" },
     { id: "budget", name: "Plan budżetu i limity", visible: true, icon: "budget" },

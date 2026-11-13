@@ -744,7 +744,7 @@ describe("saveState — payload chmurowy i zablokowany profil", () => {
     expect(hookRef.current!.apiError).toBeNull();
   });
 
-  it("zablokowany profil z PIN: zapis lokalny działa, chmura pomijana, użytkownik dostaje komunikat", async () => {
+  it("zablokowany profil z PIN: brak jawnego zapisu na dysk (SEC-01), edycja zostaje w pamięci, chmura pomijana, użytkownik dostaje komunikat", async () => {
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
     const mockedSetDoc = vi.mocked(setDoc);
     mockedSetDoc.mockClear();
@@ -769,8 +769,9 @@ describe("saveState — payload chmurowy i zablokowany profil", () => {
       await vi.advanceTimersByTimeAsync(600);
     });
 
-    // Edycja nie może wyparować — musi wylądować na urządzeniu...
-    expect(localSaveSpy).toHaveBeenCalled();
+    // Bez zaszyfrowanej wersji do zachowania nic nie może trafić na dysk jawnie (SEC-01)...
+    expect(localSaveSpy).not.toHaveBeenCalled();
+    // ...ale edycja nie wyparowuje — zostaje w stanie i zapisze się zaszyfrowana po odblokowaniu.
     expect(hookRef.current!.state.profiles[0].debts?.[0].institution).toBe("PKO BP");
     // ...ale nie może wyjść jawnym tekstem do chmury.
     expect(mockedSetDoc).not.toHaveBeenCalled();

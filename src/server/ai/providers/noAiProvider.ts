@@ -2,21 +2,6 @@ import { getLocalDateIso } from "../../../utils";
 import { AiProvider } from "../types";
 
 export class NoAiProvider implements AiProvider {
-  /**
-   * Generates a calendar event suggestion using deterministic rules.
-   */
-  async suggestEvent(payment: any, currentDate: string): Promise<any> {
-    const name = payment.name || "Rachunek";
-    const amount = payment.amount ? `${payment.amount} ${payment.currency || 'PLN'}` : "nieznaną kwotę";
-    const refDate = payment.dueDate || currentDate || getLocalDateIso();
-
-    return {
-      summary: `💸 Płatność: ${name} (${amount})`,
-      description: `Przypomnienie o uregulowaniu rachunku/subskrypcji.\n\nNazwa: ${name}\nKwota: ${amount}\nTermin: ${refDate}\n\n[Wygenerowano automatycznie z aplikacji Saldo]`,
-      suggestedTime: "10:00:00",
-      reminders: [1440, 120] // 24h and 2h before
-    };
-  }
 
   /**
    * Parses natural language input using deterministic regex patterns, date logic, and auto-categorization.
@@ -180,7 +165,4 @@ export class NoAiProvider implements AiProvider {
     throw new Error("Skanowanie faktur wymaga włączenia lokalnego AI i modelu Ollama vision.");
   }
 
-  async explain(): Promise<any> {
-    throw new Error("Wyjaśnienia AI wymagają włączenia lokalnego AI (Ollama) w Ustawieniach.");
-  }
 }

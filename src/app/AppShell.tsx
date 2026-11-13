@@ -269,7 +269,7 @@ export function AppShell({
               className="flex items-center gap-2 py-1.5 px-2.5 sm:px-3 bg-surface border border-border/70 hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-medium rounded-lg active:scale-[0.98] transition-all cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
               id="btn-open-command-palette"
               title="Wyszukaj lub uruchom polecenie (⌘K / /)"
-              aria-label="Wyszukaj lub uruchom polecenie"
+              aria-label="Szukaj... ⌘K: wyszukaj lub uruchom polecenie"
             >
               <Search className="w-3.5 h-3.5 text-brand" strokeWidth={1.75} />
               <span className="hidden md:inline">Szukaj...</span>
@@ -284,7 +284,7 @@ export function AppShell({
               className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50 [-webkit-app-region:no-drag]"
               id="btn-open-ai-chat"
               title="Otwórz doradcę finansowego AI"
-              aria-label="Otwórz doradcę finansowego AI"
+              aria-label="Doradca AI: otwórz doradcę finansowego"
             >
               <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
               <span className="hidden lg:inline">Doradca AI</span>
@@ -296,7 +296,7 @@ export function AppShell({
                 onClick={onQuickAdd}
                 className="inline-flex items-center gap-1 bg-brand text-text-inverse font-semibold py-1.5 px-2.5 sm:px-3.5 rounded-lg hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring whitespace-nowrap"
                 id="btn-quick-add-tx"
-                aria-label="Dodaj nową transakcję"
+                aria-label="Dodaj wpis: nowa transakcja"
               >
                 <Plus className="w-3.5 h-3.5" strokeWidth={2} />
                 <span>Dodaj wpis</span>

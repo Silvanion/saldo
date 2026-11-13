@@ -121,7 +121,7 @@ export function FinancialHealthBridgeCard({
           onClick={() => onChangeView("analysis")}
           className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring shrink-0"
           id="btn-dashboard-to-health"
-          aria-label="Przejdź do pełnej analizy kondycji finansowej"
+          aria-label="Analiza: przejdź do pełnej analizy kondycji finansowej"
         >
           <span>Analiza</span>
           <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.75} />

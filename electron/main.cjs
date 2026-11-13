@@ -27,6 +27,8 @@ const RELEASES_URL = "https://github.com/Silvanion/saldo/releases/latest";
 
 // Set environment flags so our server knows it's running inside Electron
 process.env.IS_ELECTRON = "true";
+// Token lokalnego API (SEC-11): losowy na każdy start, przekazywany tylko do okna aplikacji przez preload.
+process.env.SALDO_API_TOKEN = require("crypto").randomBytes(32).toString("hex");
 // Also default to production unless overridden
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "production";
@@ -316,11 +318,29 @@ function findLegacyDataPort() {
 async function resolveServerPort() {
   const saved = readSavedServerPort();
   if (saved) {
-    if (await isPortFree(saved)) return saved;
-    // Don't overwrite the saved port — next launch should return to the
-    // origin that holds the user's data.
-    log.warn(`[Port] Zapisany port ${saved} jest zajęty — używam tymczasowego portu (dane lokalne mogą być niewidoczne w tej sesji).`);
-    return getFreePort();
+    while (!(await isPortFree(saved))) {
+      // Dane lokalne (IndexedDB) są przypisane do originu localhost:<port>. Inny port = inny origin,
+      // więc użytkownik nie zobaczyłby swoich danych — dlatego pytamy, zamiast cicho zmieniać port (ARCH-01).
+      const choice = dialog.showMessageBoxSync({
+        type: 'warning',
+        title: 'Saldo — port jest zajęty',
+        message: `Port ${saved}, z którym są powiązane Twoje dane lokalne, jest zajęty przez inny program.`,
+        detail: 'Zamknij program, który go używa, i spróbuj ponownie. Jeśli uruchomisz Saldo na innym porcie, Twoje dane lokalne nie będą widoczne w tej sesji (nie zostaną usunięte).',
+        buttons: ['Spróbuj ponownie', 'Uruchom na innym porcie', 'Zamknij Saldo'],
+        defaultId: 0,
+        cancelId: 2,
+        noLink: true
+      });
+      if (choice === 0) continue;
+      if (choice === 1) {
+        // Don't overwrite the saved port — next launch should return to the origin that holds the user's data.
+        log.warn(`[Port] Zapisany port ${saved} jest zajęty — użytkownik wybrał port tymczasowy (dane lokalne mogą być niewidoczne w tej sesji).`);
+        return getFreePort();
+      }
+      app.quit();
+      return new Promise(() => {}); // aplikacja się zamyka — nie startujemy serwera
+    }
+    return saved;
   }
   const candidates = [findLegacyDataPort(), DEFAULT_SERVER_PORT].filter(Boolean);
   for (const candidate of candidates) {
@@ -347,6 +367,44 @@ app.setAboutPanelOptions({
 });
 
 // IPC handlers
+ipcMain.on('get-api-token', (event) => {
+  event.returnValue = process.env.SALDO_API_TOKEN || '';
+});
+
+// --- Automatyczna kopia lokalna (UX-01) ---
+const autoBackup = require("./autoBackup.cjs");
+const autoBackupDir = () => path.join(app.getPath('userData'), 'backups');
+// Tylko okno główne aplikacji może zapisywać i czytać kopie (okno potomne auth dziedziczy preload).
+const isMainWindowSender = (event) => Boolean(mainWindow && !mainWindow.isDestroyed() && event.sender === mainWindow.webContents);
+
+ipcMain.handle('auto-backup-write', (event, json) => {
+  if (!isMainWindowSender(event)) return { ok: false, error: 'Niedozwolony nadawca.' };
+  try {
+    const result = autoBackup.writeDailyBackup(autoBackupDir(), json);
+    return { ok: true, skipped: result.skipped };
+  } catch (err) {
+    log.warn('[AutoBackup] Zapis kopii nie powiódł się:', err.message);
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle('auto-backup-list', (event) => (isMainWindowSender(event) ? autoBackup.listBackups(autoBackupDir()) : []));
+
+ipcMain.handle('auto-backup-read', (event, name) => {
+  if (!isMainWindowSender(event)) return { ok: false, error: 'Niedozwolony nadawca.' };
+  try {
+    return { ok: true, json: autoBackup.readBackup(autoBackupDir(), name) };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle('auto-backup-open-folder', async (event) => {
+  if (!isMainWindowSender(event)) return;
+  fs.mkdirSync(autoBackupDir(), { recursive: true });
+  await shell.openPath(autoBackupDir());
+});
+
 ipcMain.handle('export-data', async (event, defaultPath, data) => {
   const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
     defaultPath,
@@ -449,6 +507,7 @@ ipcMain.handle('set-progress-bar', (event, progress) => {
 });
 
 // --- Biometria / Touch ID & Bezpieczny Magazyn ---
+const biometricsPolicy = require("./biometricsPolicy.cjs");
 function loadBiometricsData() {
   try {
     const biometricsFilePath = path.join(app.getPath('userData'), 'biometrics.json');
@@ -472,21 +531,20 @@ function saveBiometricsData(data) {
 
 ipcMain.handle('biometrics-status', (event, profileId) => {
   const isMac = process.platform === 'darwin';
-  const isWin = process.platform === 'win32';
   const hasTouchID = isMac && typeof systemPreferences.canPromptTouchID === 'function' && systemPreferences.canPromptTouchID();
   const encryptionAvailable = typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable();
 
-  // On Windows, safeStorage uses DPAPI (backed by Windows Hello / Credential Manager / TPM)
-  const hasBiometricsHardware = isMac ? Boolean(hasTouchID) : isWin ? Boolean(encryptionAvailable) : false;
+  // Tylko macOS (Touch ID). Windows: brak realnego monitu Windows Hello — patrz biometricsPolicy.cjs.
+  const available = biometricsPolicy.isBiometricsAvailable({ platform: process.platform, canPromptTouchID: hasTouchID, encryptionAvailable });
 
   let isEnrolledForProfile = false;
-  if (profileId) {
+  if (profileId && available) {
     const data = loadBiometricsData();
     isEnrolledForProfile = Boolean(data[profileId]);
   }
 
   return {
-    available: Boolean(hasBiometricsHardware && encryptionAvailable),
+    available,
     isEnrolledForProfile,
     platform: process.platform
   };
@@ -524,6 +582,9 @@ ipcMain.handle('install-update', () => {
 });
 
 ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
+  if (!biometricsPolicy.isVaultKey(profileId) && !biometricsPolicy.canStoreProfilePin(process.platform)) {
+    return { success: false, error: 'Odblokowanie biometryczne nie jest obsługiwane na tej platformie.' };
+  }
   if (typeof safeStorage.isEncryptionAvailable !== 'function' || !safeStorage.isEncryptionAvailable()) {
     return { success: false, error: 'Szyfrowany magazyn systemowy nie jest dostępny.' };
   }
@@ -540,6 +601,9 @@ ipcMain.handle('biometrics-save-pin', async (event, profileId, pin) => {
 });
 
 ipcMain.handle('biometrics-prompt-unlock', async (event, profileId, promptReason) => {
+  if (!biometricsPolicy.isVaultKey(profileId) && !biometricsPolicy.canStoreProfilePin(process.platform)) {
+    return { success: false, error: 'Odblokowanie biometryczne nie jest obsługiwane na tej platformie.' };
+  }
   const data = loadBiometricsData();
   const encryptedBase64 = data[profileId];
   if (!encryptedBase64) {
@@ -959,6 +1023,17 @@ async function createWindow(port) {
 }
 
 app.whenReady().then(async () => {
+  try {
+    // Usuń PIN-y profili zapisane przez wcześniejsze wersje tam, gdzie biometria nie jest już obsługiwana (SEC-07).
+    const stored = loadBiometricsData();
+    const kept = biometricsPolicy.purgeUnsupportedProfilePins(process.platform, stored);
+    if (Object.keys(kept).length !== Object.keys(stored).length) {
+      saveBiometricsData(kept);
+      log.info("[Biometrics] Usunięto zapisane PIN-y profili (platforma bez obsługi biometrii).");
+    }
+  } catch (err) {
+    log.warn("[Biometrics] Nie udało się wyczyścić zapisanych PIN-ów:", err);
+  }
   try {
     const freePort = await resolveServerPort();
 

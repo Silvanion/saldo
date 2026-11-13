@@ -62,7 +62,7 @@ export function NetWorthWidget({
                 Majątek Netto
               </h3>
               <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-surface-2 text-text-muted border-border/60">
-                Wealthfolio
+                Aktywa i pasywa
               </span>
             </div>
             <p className="text-xs text-text-muted">Aktywa pomniejszone o pasywa</p>

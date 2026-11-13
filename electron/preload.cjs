@@ -1,6 +1,11 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  apiToken: ipcRenderer.sendSync('get-api-token'),
+  writeAutoBackup: (json) => ipcRenderer.invoke('auto-backup-write', json),
+  listAutoBackups: () => ipcRenderer.invoke('auto-backup-list'),
+  readAutoBackup: (name) => ipcRenderer.invoke('auto-backup-read', name),
+  openBackupsFolder: () => ipcRenderer.invoke('auto-backup-open-folder'),
   exportData: (defaultPath, data) => ipcRenderer.invoke('export-data', defaultPath, data),
   importData: () => ipcRenderer.invoke('import-data'),
   showNotification: (title, body) => ipcRenderer.invoke('show-notification', title, body),

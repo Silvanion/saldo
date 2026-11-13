@@ -47,34 +47,27 @@ export default defineConfig(() => {
         workbox: {
           maximumFileSizeToCacheInBytes: 5242880, // 5MB
           navigateFallbackDenylist: [/^\/api/],
+          // Precache tylko powłoki aplikacji i fontów. Ciężkie, leniwe paczki (PDF, eksport, canvas) NIE są
+          // pobierane w tle przy instalacji PWA (PERF-03) — trafiają do cache przy pierwszym użyciu.
+          globPatterns: ['**/*.{js,css,html,ico,svg,webmanifest,woff2}', '*.png'], // '*.png' = tylko ikony w katalogu głównym (nie zrzuty pomocy)
+          globIgnores: ['**/vendor-pdfjs-*', '**/vendor-jspdf-*', '**/vendor-html2canvas-*', '**/vendor-canvg-*', '**/vendor-dompurify-*', '**/vendor-fflate-*', '**/pdf.worker.min-*'],
           runtimeCaching: [
-            // Safe caching for external static assets like Google Fonts
             {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              urlPattern: /\/assets\/help\/.*\.png$/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
+                cacheName: 'help-images-cache',
+                expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 90 },
+                cacheableResponse: { statuses: [0, 200] }
               }
             },
             {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              urlPattern: /\/assets\/(vendor-(pdfjs|jspdf|html2canvas|canvg|dompurify|fflate)|pdf\.worker\.min)-.*/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
+                cacheName: 'lazy-vendor-cache',
+                expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 90 },
+                cacheableResponse: { statuses: [0, 200] }
               }
             }
           ]

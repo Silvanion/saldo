@@ -163,7 +163,7 @@ export function GoalsView({
 
                   <div className="min-w-0 pt-1">
                     {/* Progress */}
-                    <div className="w-full bg-surface-2/60 h-2 rounded-full overflow-hidden mb-2 border border-border/40" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="w-full bg-surface-2/60 h-2 rounded-full overflow-hidden mb-2 border border-border/40" role="progressbar" aria-label={`Postęp celu: ${g.name}`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
                       <div
                         style={{ width: `${percent}%` }}
                         className={`${isCompleted ? "bg-brand" : "bg-brand"} h-full rounded-full transition-all duration-500`}

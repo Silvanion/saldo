@@ -163,7 +163,7 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
   const activePinValue = pinStage === "enter" ? pin : pinConfirm;
 
   return (
-    <div className="min-h-screen bg-bg-base flex items-center justify-center p-4" id="onboarding-wizard">
+    <main className="min-h-screen bg-bg-base flex items-center justify-center p-4" id="onboarding-wizard">
       <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-6 sm:p-10">
         <AnimatePresence mode="popLayout" initial={false}>
           {step === "welcome" && (
@@ -459,6 +459,6 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </main>
   );
 }

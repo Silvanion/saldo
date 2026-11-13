@@ -152,7 +152,7 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
   // Reset password mini-form
   if (showResetForm) {
     return (
-      <div className="min-h-screen bg-bg-base flex items-center justify-center p-4">
+      <main className="min-h-screen bg-bg-base flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-6">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
@@ -221,13 +221,13 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
             <ArrowLeft className="w-4 h-4" /> Wróć do logowania
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   // Main auth form
   return (
-    <div className="min-h-screen bg-bg-base flex items-center justify-center p-4">
+    <main className="min-h-screen bg-bg-base flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-bg-base/95 backdrop-blur-2xl rounded-3xl shadow-sm border border-border p-8 sm:p-10 space-y-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
@@ -449,6 +449,6 @@ export function AuthScreen({ onDemoClick }: AuthScreenProps) {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
