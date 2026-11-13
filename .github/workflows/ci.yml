@@ -44,6 +44,13 @@ jobs:
       - name: Unit & Integration tests (Vitest + coverage thresholds)
         run: npm run test:coverage
 
+      # Emulator Firestore (firebase-tools 15) wymaga Javy 21+.
+      - name: Set up Java (emulator Firestore)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: Firestore rules tests (emulator)
         run: npm run test:rules
 
