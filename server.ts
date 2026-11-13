@@ -8,6 +8,7 @@ import { getConnectSrc } from "./src/server/csp";
 import { requireLocalApiToken } from "./src/server/middleware/security";
 import helmet from "helmet";
 import cors from "cors";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 
 dotenv.config();
@@ -135,6 +136,8 @@ export async function startServer(customPort?: number) {
     const distPath = fs.existsSync(path.join(__dirname, "index.html"))
       ? __dirname
       : path.join(process.cwd(), "dist");
+    // Kompresja odpowiedzi (gzip/deflate) dla samodzielnego hostingu — Firebase Hosting robi to sam (PERF-04).
+    app.use(compression());
     app.use(express.static(distPath));
     app.get(/.*/, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
