@@ -142,9 +142,8 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | **macOS** | Procesory Intel (x64) | `Saldo-1.6.7.dmg` |
 | **Windows** | Instalator (podpisany przez SignPath) | `Saldo-Setup-1.6.7.exe` |
 | **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
-| **Android** | Samodzielny instalator APK | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
-| **iOS / Mobile Dev** | iPhone, iPad & Symulatory | Kod źródłowy w `packages/mobile` (Expo SDK 52 / AltStore / Xcode) |
-| **Web / PWA** | Przeglądarka internetowa | Dostępna w trybie offline jako aplikacja PWA |
+| **Android** | Samodzielny instalator APK (pełna wersja Saldo) | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
+| **iOS / Web** | iPhone, iPad & Przeglądarka internetowa | Dostępna w 100% trybie offline jako aplikacja PWA (Zainstaluj na ekranie głównym) |
 
 > [!NOTE]
 > Windows installers are signed using free code signing provided by the [SignPath Foundation](https://signpath.org/) ([SignPath.io](https://about.signpath.io)).
@@ -157,10 +156,10 @@ Projekt jest zorganizowany jako nowoczesne monorepo (`npm workspaces`):
 
 ```
 saldo/
+├── android/             # Natywna powłoka Android (Capacitor) dla pełnej aplikacji Saldo
 ├── packages/
-│   ├── core/            # @saldo/core: Czysta logika biznesowa, finanse, podatki 2026, parsery (0 zależności UI)
-│   └── mobile/          # Saldo Mobile: Expo SDK 52, React Native 0.76, Expo Router v4, SQLite WAL
-├── src/                 # Aplikacja Desktop / Web: React 19, Vite, Tailwind CSS v4, Lucide
+│   └── core/            # @saldo/core: Czysta logika biznesowa, finanse, podatki 2026, parsery (0 zależności UI)
+├── src/                 # Aplikacja Desktop / Web / Mobile: React 19, Vite, Tailwind CSS v4, Lucide
 ├── electron/            # Główny proces Electrona, tray, auto-updater, integracja z OS
 ├── scripts/             # Narzędzia pomocnicze (aktualizacja manifestu SignPath, zrzuty ekranu)
 └── server.ts            # Wbudowany lokalny serwer Express 5 dla środowiska deweloperskiego
@@ -186,12 +185,9 @@ saldo/
    # Aplikacja dostępna pod adresem: http://localhost:3000
    ```
 
-3. **Uruchom aplikację mobilną (Expo):**
+3. **Zbuduj instalator Android APK:**
    ```bash
-   cd packages/mobile
-   npm run web          # Podgląd w przeglądarce: http://localhost:8081
-   # lub:
-   npx expo start       # Kod QR do zeskanowania w aplikacji Expo Go (iOS/Android)
+   npm run build:android # Kompiluje dist i buduje instalator Saldo-1.6.7.apk
    ```
 
 4. **Uruchom aplikację desktopową (Electron):**

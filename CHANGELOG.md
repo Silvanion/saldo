@@ -6,8 +6,8 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ## [v1.6.7] - Listopad 2026
-### Nowości: Saldo Mobile (Expo), Monorepo `@saldo/core` oraz podpisywanie kodu
-- **Aplikacja mobilna (Expo / React Native)**: nowa aplikacja mobilna Saldo Mobile w `packages/mobile` oparta o Expo SDK 52, Expo Router v4, lokalną bazę SQLite w trybie WAL (`expo-sqlite`) oraz biometrię (Face ID / Touch ID / BiometricPrompt z `expo-local-authentication`). Zawiera pulpit, szybki wydatek (Quick Add) w 3 sekundy z haptyką, historię z filtrowaniem, kalkulator rezerwy podatkowej B2B oraz monitor majątku netto i LTV hipoteki.
+### Nowości: Pełna aplikacja Android (Capacitor APK & PWA), Monorepo `@saldo/core` oraz podpisywanie kodu
+- **Aplikacja mobilna (Android APK & PWA)**: samodzielny instalator `.apk` (`Saldo-1.6.7.apk`) dla systemu Android oparty o natywną powłokę Capacitor, uruchamiający 100% pełnej aplikacji Saldo (wszystkie 15 modułów, baza IndexedDB, zaawansowane wykresy, importy wyciągów z 20+ banków, reguły, zero atrap i fikcyjnych danych). Na urządzeniach z systemem iOS i w przeglądarkach aplikacja działa w pełnym trybie offline jako PWA z możliwością dodania do ekranu głównego.
 - **Architektura Monorepo i pakiet `@saldo/core`**: wydzielenie logiki biznesowej, kalkulatorów (podatki B2B 2026, strategie spłaty długów Snowball/Avalanche, reguła 50/30/20, hipoteka LTV) oraz parserów bankowych do bezstanowego pakietu `@saldo/core` (`packages/core`) współdzielonego między webem, Electronem i mobilem.
 - **Podpisywanie kodu (SignPath Foundation)**: integracja pipeline'u CI z darmowym certyfikatem SignPath dla projektów Open Source (`SIGNPATH_SETUP.md`).
 

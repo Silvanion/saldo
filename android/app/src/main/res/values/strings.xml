@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Saldo</string>
+    <string name="title_activity_main">Saldo</string>
+    <string name="package_name">com.saldo.app</string>
+    <string name="custom_url_scheme">com.saldo.app</string>
+</resources>

@@ -20,7 +20,7 @@ export default defineConfig({
       '**/e2e-electron/**',
       '**/rules-tests/**',
       '**/rodoManualTest.integration.test.ts',
-      'packages/mobile/**',
+      'android/**',
     ],
     setupFiles: [path.resolve(__dirname, 'src/testSetup.ts')],
     fileParallelism: false,

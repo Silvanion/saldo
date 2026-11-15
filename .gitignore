@@ -30,5 +30,6 @@ scripts/benchmark_results.json
 .freebuff/
 .expo/
 .gemini/
+*.apk
 
 
