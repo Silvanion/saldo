@@ -80,3 +80,4 @@ export async function hasConfiguredPin(): Promise<boolean> {
   const storedPin = await SecureStore.getItemAsync(PIN_STORAGE_KEY);
   return Boolean(storedPin);
 }
+

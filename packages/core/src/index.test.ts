@@ -50,7 +50,7 @@ describe("@saldo/core - Shared Domain Core", () => {
   it("eksportuje i poprawnie wykrywa kierunek transakcji", () => {
     const decision = detectDirection(
       { explicitDirection: "WYDATEK" },
-      { hasNegativeAmounts: false, totalRows: 1 }
+      { hasNegativeAmounts: false }
     );
     expect(decision.type).toBe("expense");
     expect(decision.confident).toBe(true);

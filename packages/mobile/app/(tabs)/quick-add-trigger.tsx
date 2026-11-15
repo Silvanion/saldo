@@ -5,3 +5,4 @@ import { View } from 'react-native';
 export default function QuickAddTriggerScreen() {
   return <View style={{ flex: 1, backgroundColor: '#020617' }} />;
 }
+

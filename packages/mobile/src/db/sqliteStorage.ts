@@ -98,3 +98,4 @@ export async function getMonthlyTransactions(year: number, month: number): Promi
     isRecurring: Boolean(r.isRecurring),
   }));
 }
+

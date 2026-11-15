@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
@@ -10,14 +13,21 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./*"],
-      "@saldo/core": ["../core/src/index.ts"]
+      "@/*": [
+        "./*"
+      ],
+      "@saldo/core": [
+        "../core/src/index.ts"
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "declarations.d.ts",
-    "../../src/vite-env.d.ts"
-  ]
+    "../../src/vite-env.d.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "extends": "expo/tsconfig.base"
 }
