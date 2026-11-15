@@ -199,6 +199,6 @@ Szczegółowy opis polityki przetwarzania danych i architektury kryptograficznej
 
 ## 📄 Licencja & Autor
 
+* **Licencja:** [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
 * **Autor:** Seweryn Pawłowski ([Silvanion](https://github.com/Silvanion))
-* **Kod źródłowy:** Projekt o otwartym kodzie źródłowym.
 * **Zgłaszanie uwag:** [GitHub Issues](https://github.com/Silvanion/saldo/issues) lub dedykowany formularz w aplikacji.

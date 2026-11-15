@@ -5,7 +5,7 @@ SignPath Foundation oferuje darmowe certyfikaty i usługę podpisywania kodu dla
 ---
 
 ## 1. Wymagania wstępne (Spełnione w repozytorium)
-- [x] **Licencja Open Source:** W repozytorium dodano plik `LICENSE` (MIT) oraz pole `"license": "MIT"` w `package.json`.
+- [x] **Licencja Open Source:** W repozytorium znajduje się kanoniczny plik `LICENSE` (GNU AGPL v3.0) oraz pole `"license": "AGPL-3.0-only"` w `package.json`.
 - [x] **Publisher Name:** W `package.json` (`build.win.publisherName`) ustawiono `"SignPath Foundation"`, co zapewnia zgodność weryfikacji aktualizacji przez `electron-updater`.
 - [x] **Synchronizacja Manifestu:** Przygotowano skrypt `scripts/update-windows-manifest.mjs`, który automatycznie przelicza sumy SHA-512 i rozmiary plików po ich podpisaniu w chmurze SignPath.
 - [x] **Workflow GitHub Actions:** Zaktualizowano `.github/workflows/release-desktop.yml` o automatyczną wysyłkę artefaktów `.exe` do podpisu.
@@ -18,7 +18,7 @@ SignPath Foundation oferuje darmowe certyfikaty i usługę podpisywania kodu dla
 2. Wypełnij formularz zgłoszeniowy:
    - **Project Name:** Saldo
    - **Repository URL:** `https://github.com/Silvanion/saldo`
-   - **License:** MIT
+   - **License:** GNU Affero General Public License v3.0 (AGPL-3.0-only)
    - **Description:** Nowoczesna aplikacja do zarządzania finansami osobistymi (Electron/React/TypeScript).
 3. Po zaakceptowaniu wniosku przez SignPath Foundation zaloguj się na [https://signpath.io/](https://signpath.io/).
 
