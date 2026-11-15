@@ -4,5 +4,7 @@
 
 .expo/
 expo-env.d.ts
+android/
+ios/
 
 # @end expo-cli

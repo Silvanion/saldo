@@ -30,6 +30,7 @@
     "expo-splash-screen": "~0.29.22",
     "expo-sqlite": "~15.1.2",
     "expo-status-bar": "~2.0.1",
+    "expo-system-ui": "~4.0.9",
     "lucide-react-native": "^0.475.0",
     "query-string": "^9.1.1",
     "react": "18.3.1",
