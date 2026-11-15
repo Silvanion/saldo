@@ -7,8 +7,8 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// 1. Obserwuj folder główny repozytorium (w tym packages/core)
-config.watchFolders = [monorepoRoot];
+// 1. Obserwuj folder główny repozytorium (w tym packages/core), zachowując domyślne foldery Expo
+config.watchFolders = [...(config.watchFolders || []), monorepoRoot];
 
 // 2. Wyszukiwanie pakietów node_modules w obu poziomach
 config.resolver.nodeModulesPaths = [

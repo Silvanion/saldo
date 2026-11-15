@@ -2,8 +2,7 @@
   "name": "saldo-app",
   "private": true,
   "workspaces": [
-    "packages/core",
-    "packages/mobile"
+    "packages/core"
   ],
   "version": "1.6.7",
   "description": "Aplikacja do zarządzania finansami osobistymi i domowymi.",
@@ -149,8 +148,8 @@
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "pdfjs-dist": "^6.3.289",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "recharts": "^3.10.1",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.1.14",
