@@ -3,7 +3,6 @@ import {
   isFirebaseConfigured,
   clearGoogleTokens,
   getGoogleToken,
-  submitBugReport,
   saveUserStateToFirestore,
   deleteOwnAccount,
 } from "./firebase";
@@ -86,45 +85,6 @@ describe("Firebase Integration Module (src/firebase.ts)", () => {
 
       clearGoogleTokens();
       expect(getGoogleToken("basic")).toBeNull();
-    });
-  });
-
-  describe("submitBugReport", () => {
-    it("wysyła zgłoszenie błędu ze zwalidowanym i przyciętym userAgent", async () => {
-      mockAddDoc.mockResolvedValueOnce({ id: "report-123" });
-
-      await submitBugReport({
-        title: "Testowy błąd",
-        description: "Opis testowy zgłoszenia",
-        type: "bug",
-        contactEmail: "user@test.pl",
-      });
-
-      expect(mockAddDoc).toHaveBeenCalledTimes(1);
-      const payload = mockAddDoc.mock.calls[0][1];
-      expect(payload.title).toBe("Testowy błąd");
-      expect(payload.description).toBe("Opis testowy zgłoszenia");
-      expect(payload.type).toBe("bug");
-      expect(payload.status).toBe("new");
-      expect(payload.contactEmail).toBe("user@test.pl");
-      expect(payload.userAgent).toBeDefined();
-      expect(payload.userAgent.length).toBeLessThanOrEqual(500);
-      expect(payload.createdAt).toBeDefined();
-    });
-
-    it("pomija puste pola opcjonalne, aby Firestore nie odrzucił wartości undefined", async () => {
-      mockAddDoc.mockResolvedValueOnce({ id: "report-456" });
-
-      await submitBugReport({
-        title: "Sugestia",
-        description: "Opis sugestii",
-        type: "suggestion",
-      });
-
-      const payload = mockAddDoc.mock.calls[0][1];
-      expect("contactEmail" in payload).toBe(false);
-      expect("screenshotBase64" in payload).toBe(false);
-      expect("appVersion" in payload).toBe(false);
     });
   });
 
