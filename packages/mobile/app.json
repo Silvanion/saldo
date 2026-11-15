@@ -28,7 +28,9 @@
       "package": "com.saldo.mobile",
       "permissions": [
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "plugins": [
@@ -43,7 +45,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "541d037a-5e99-410f-ba6b-b2cdbaa731ad"
+      }
+    },
+    "owner": "sill47"
   }
 }
-
