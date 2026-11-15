@@ -1,5 +1,6 @@
 import { AppState } from "../types";
 import { validateAndMigrateState } from "../utils/stateMigration";
+import type { Keyring } from "./cryptoV2";
 
 export const LOCAL_STORAGE_KEY_V2 = "saldo-local-fallback-v2";
 export const LOCAL_STORAGE_KEY_V1 = "saldo-local-fallback";
@@ -8,6 +9,8 @@ const DB_NAME = "saldo-app-db";
 const DB_VERSION = 1;
 const STORE_NAME = "app_state";
 const STATE_KEY = "current";
+// Keyring (klucz danych opakowany hasłem i kluczem odzyskiwania) — osobny wpis, poza AppState, więc nie trafia do synchronizacji.
+const KEYRING_KEY = "keyring-v2";
 
 /**
  * Open IndexedDB database connection wrapped in Promise
@@ -178,6 +181,23 @@ export async function saveState(state: AppState): Promise<void> {
   }
 }
 
+async function idbRequest<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  const db = await openDb();
+  return new Promise<T>((resolve, reject) => {
+    const req = run(db.transaction(STORE_NAME, mode).objectStore(STORE_NAME));
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function saveKeyringLocal(keyring: Keyring): Promise<void> {
+  await idbRequest("readwrite", (store) => store.put(keyring, KEYRING_KEY));
+}
+
+export async function loadKeyringLocal(): Promise<Keyring | null> {
+  return ((await idbRequest("readonly", (store) => store.get(KEYRING_KEY))) as Keyring | undefined) || null;
+}
+
 /**
  * Clears state from IndexedDB and localStorage fallback keys
  */
@@ -188,6 +208,7 @@ export async function clearState(): Promise<void> {
       const tx = db.transaction(STORE_NAME, "readwrite");
       const store = tx.objectStore(STORE_NAME);
       const req = store.delete(STATE_KEY);
+      store.delete(KEYRING_KEY); // reset urządzenia usuwa też keyring (SEC-02)
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });

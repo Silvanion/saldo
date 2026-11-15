@@ -133,7 +133,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         id={triggerId}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label="Menu profilu i akcji"
+        aria-label={`${activeProfile.name}: menu profilu i akcji`}
       >
         {activeProfile.avatar ? (
           <ModernAvatar iconId={activeProfile.avatar} colorId={activeProfile.color} size="sm" className="border border-brand/20 shadow-2xs" />

@@ -232,7 +232,7 @@ export function AiChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div ref={endRef} />
         </div>
 
-        {/* Claude Skills Quick Triggers */}
+        {/* Szybkie wyzwalacze planów działania */}
         <div className="px-4 py-2 bg-surface-2/40 border-t border-border/60 flex items-center gap-1.5 overflow-x-auto custom-scrollbar text-[11px] shrink-0">
           <span className="text-text-muted font-bold flex items-center gap-1 shrink-0">
             <Sparkles className="w-3 h-3 text-brand" /> Skills:

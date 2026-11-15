@@ -4,15 +4,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "."
-      ]
-    },
-    "shell": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-shell",
+        "@modelcontextprotocol/server-filesystem@2.3.0",
         "."
       ]
     }

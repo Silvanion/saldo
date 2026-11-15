@@ -1,0 +1,3 @@
+# Aplikacja finansowa za logowaniem — nic do indeksowania poza stroną startową.
+User-agent: *
+Disallow: /api/

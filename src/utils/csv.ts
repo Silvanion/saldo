@@ -13,15 +13,15 @@ export function generateCsvContent(transactions: Transaction[]): string {
   transactions.forEach((tx) => {
     const tagsStr = tx.tags && tx.tags.length > 0 ? tx.tags.join("; ") : "";
     const row = [
-      tx.id || "",
-      tx.name || "",
+      safeText(tx.id),
+      safeText(tx.name),
       tx.amount?.toString() || "0",
       tx.currency || "PLN",
-      tx.category || "",
-      tx.account || "",
+      safeText(tx.category),
+      safeText(tx.account),
       tx.type || "",
       tx.isoDate || "",
-      tagsStr
+      safeText(tagsStr)
     ];
     csvContent += row.map(escapeCsvValue).join(",") + "\n";
   });
@@ -81,14 +81,14 @@ export function generateBudgetCsvContent(
         : "W normie";
 
     const row = [
-      cat,
+      safeText(cat),
       limit.toFixed(2),
       spent.toFixed(2),
       diff.toFixed(2),
       `${pct}%`,
       status,
       `${monthName} ${year}`,
-      profile.name
+      safeText(profile.name)
     ];
     csvContent += row.map(escapeCsvValue).join(",") + "\n";
   });
@@ -132,9 +132,9 @@ export function generateDebtsCsvContent(
         : "Inne";
 
     const row = [
-      debt.id || "",
-      debt.name || "",
-      debt.institution || "",
+      safeText(debt.id),
+      safeText(debt.name),
+      safeText(debt.institution),
       typeLabel,
       (debt.balance || 0).toFixed(2),
       debt.currency || currency,
@@ -142,12 +142,23 @@ export function generateDebtsCsvContent(
       (debt.monthlyPayment || 0).toFixed(2),
       debt.remainingMonths ? debt.remainingMonths.toString() : "-",
       debt.status === "active" ? "Aktywny" : "Spłacony",
-      debt.notes || ""
+      safeText(debt.notes)
     ];
     csvContent += row.map(escapeCsvValue).join(",") + "\n";
   });
 
   return csvContent;
+}
+
+/**
+ * Neutralizuje wstrzyknięcie formuł (CSV/Formula Injection, CWE-1236): pole tekstowe zaczynające się
+ * od = + - @ (lub tabulatora/CR) arkusz uruchomiłby jako formułę. Teksty pochodzą z importów bankowych,
+ * a tytuł przelewu przychodzącego kontroluje nadawca. Stosować WYŁĄCZNIE do pól tekstowych — nie do kwot.
+ */
+const FORMULA_START = /^[=+\-@\t\r]/;
+function safeText(val: string | undefined | null): string {
+  const str = val ?? "";
+  return FORMULA_START.test(str) ? `'${str}` : str;
 }
 
 function escapeCsvValue(val: string): string {

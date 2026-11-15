@@ -319,7 +319,7 @@ export function generateBudget503020Plan(profile: Profile): FinancialActionPlan 
 }
 
 /**
- * Zwraca katalog dostępnych umiejętności Claude Skills.
+ * Zwraca katalog dostępnych umiejętności (deterministycznych planów działania).
  */
 export function getAvailableFinancialSkills(): FinancialSkillMetadata[] {
   return [

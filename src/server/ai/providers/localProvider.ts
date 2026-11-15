@@ -204,35 +204,6 @@ export class LocalProvider implements AiProvider {
       date.getUTCDate() === day;
   }
 
-  async suggestEvent(payment: any, currentDate: string): Promise<any> {
-    const prompt = `Zaplanuj przypomnienie kalendarza w formacie JSON dla płatności:
-Nazwa: ${payment.name}
-Kwota: ${payment.amount}
-Termin: ${payment.dueDate}
-Dzisiejsza data: ${currentDate || getLocalDateIso()}
-
-Zwróć WYŁĄCZNIE JSON z dokładnie tymi polami:
-{
-  "summary": "np. 💸 Płatność: [Nazwa] ([Kwota])",
-  "description": "profesjonalny szablon z przypomnieniem o kwocie, dacie i krótką, przyjazną poradą finansową",
-  "suggestedDate": "YYYY-MM-DD, zwykle termin płatności",
-  "suggestedTime": "HH:MM:SS",
-  "suggestedReminders": [tablica liczb w minutach przed wydarzeniem, np. 1440, 120]
-}`;
-    const result = await this.callLocalApi(prompt, true);
-    // Normalize: tolerate a model that names the last field "reminders" (older
-    // prompt shape) and default suggestedDate to the payment's own due date.
-    const suggestedReminders = Array.isArray(result?.suggestedReminders)
-      ? result.suggestedReminders
-      : (Array.isArray(result?.reminders) ? result.reminders : undefined);
-    return {
-      summary: result?.summary,
-      description: result?.description,
-      suggestedDate: this.isRealIsoDate(result?.suggestedDate) ? result.suggestedDate : payment.dueDate,
-      suggestedTime: result?.suggestedTime,
-      suggestedReminders
-    };
-  }
 
   async parseNatural(text: string, currentDate: string): Promise<any> {
     const prompt = `Wyodrębnij informacje do formy JSON.
@@ -377,22 +348,4 @@ Pytanie użytkownika: ${message}`;
     };
   }
 
-  async explain(reasonCode: string, title: string, message: string, missingFields?: string[]): Promise<any> {
-    const fieldsBlock = missingFields && missingFields.length > 0
-      ? `\nBrakujące dane: ${missingFields.join(", ")}.`
-      : "";
-    const prompt = `Jesteś asystentem finansowym w aplikacji "Saldo". Użytkownik widzi w interfejsie następujący komunikat, tłumaczący dlaczego dane narzędzie nie pokazuje wyniku:
-
-Tytuł: ${title}
-Treść: ${message}${fieldsBlock}
-
-Napisz w 1-2 krótkich zdaniach (po polsku, bezpośrednio do użytkownika, bez powtarzania powyższego tytułu/treści słowo w słowo) dodatkowe, konkretne wyjaśnienie ORAZ następny krok, który użytkownik może wykonać. Zwróć wyłącznie JSON: {"explanation": "..."}.`;
-
-    const result = await this.callLocalApi(prompt, true);
-    const explanation = typeof result?.explanation === "string" ? result.explanation : null;
-    if (!explanation) {
-      throw new Error("Lokalny model nie zwrócił poprawnego wyjaśnienia.");
-    }
-    return { explanation };
-  }
 }

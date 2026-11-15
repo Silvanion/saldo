@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import type { DocumentData, DocumentReference, Unsubscribe } from "firebase/firestore";
 import { AppState, Profile, RecurringRule, TransactionRule } from "../types";
 import { db } from "../firebase";
-import { decryptProfile, activeKeys, prepareStateForRemoteSave, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
+import { decryptProfile, toEncryptedEnvelope, isNewerFormatProfile, activeKeys, prepareStateForRemoteSave, prepareStateForLocalSaveWhileLocked, estimateJsonSizeBytes, FIRESTORE_DOC_HARD_LIMIT_BYTES, FIRESTORE_DOC_WARNING_BYTES } from "../services/crypto";
 import * as localDb from "../services/localDb";
 import { getLocalDateIso } from "../utils";
 import { validateAndMigrateState, CURRENT_SCHEMA_VERSION, pickSyncableState, createEmptyState } from "../utils/stateMigration";
@@ -103,6 +102,8 @@ export function useBudgetState(googleUser: User | null) {
 
     try {
       if (googleUser && db) {
+        // Dynamiczny import: statyczny wciągał ~174 kB gzip (Firestore) do każdego startu (PERF-01).
+        const { doc, getDoc } = await import("firebase/firestore");
         const snapshot = await getDoc(doc(db, "users", googleUser.uid));
         if (snapshot.exists()) {
           const incoming = validateAndMigrateState(snapshot.data(), googleUser.email || "chmura");
@@ -150,34 +151,48 @@ export function useBudgetState(googleUser: User | null) {
     const timestamp = new Date().toISOString();
     const userEmail = googleUser?.email || "lokalny";
 
-    const stampedState: AppState = {
+    // Profile z formatem v2 (nowsza wersja) są dla tej wersji tylko-do-odczytu: cokolwiek dopisano do ich
+    // danych jawnych (np. automaty) jest odrzucane, żeby nie zapisać jawnych danych obok zaszyfrowanego payloadu.
+    const guardedState: AppState = {
       ...newState,
+      profiles: newState.profiles.map((p) => (isNewerFormatProfile(p) ? toEncryptedEnvelope(p) : p))
+    };
+
+    const stampedState: AppState = {
+      ...guardedState,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       updatedAt: timestamp,
       lastModifiedBy: userEmail
     };
 
     // Profil chroniony PIN-em, który jest zablokowany, nie da się zaszyfrować do wysyłki.
-    // Zmiana i tak musi trafić na urządzenie — inaczej użytkownik traci edycję bez ostrzeżenia.
+    // Na dysk NIGDY nie trafia wtedy jawny tekst (SEC-01): zablokowany profil zachowuje
+    // ostatnią zaszyfrowaną wersję, a gdy jej nie ma, zapis lokalny jest pomijany —
+    // zmiana zostaje w stanie Reacta i zapisze się zaszyfrowana po odblokowaniu.
     let preparedState = stampedState;
     let lockedProfileError: string | null = null;
+    let skipLocalWrite = false;
     try {
       preparedState = await prepareStateForRemoteSave(stampedState);
     } catch (err: any) {
       lockedProfileError = err?.message || "Odblokuj profil zabezpieczony PIN, aby zsynchronizować dane z chmurą.";
+      const persisted = await localDb.loadState().catch(() => null);
+      const local = await prepareStateForLocalSaveWhileLocked(stampedState, persisted);
+      preparedState = local.state;
+      skipLocalWrite = local.unresolved.length > 0;
     }
 
     const cleanState = JSON.parse(JSON.stringify(preparedState));
 
     setState({
-      ...newState,
+      ...guardedState,
       updatedAt: timestamp,
       lastModifiedBy: userEmail
     });
     localUpdatedAtRef.current = timestamp;
 
     try {
-      await localDb.saveState(cleanState);
+      if (!skipLocalWrite) await localDb.saveState(cleanState);
       setApiError(prev => (prev && prev.includes("Rozważ archiwizację") ? prev : null));
     } catch (err: any) {
       if (err?.message?.includes("QUOTA_EXCEEDED")) {

@@ -199,6 +199,8 @@ Szczegółowy opis polityki przetwarzania danych i architektury kryptograficznej
 
 ## 📄 Licencja & Autor
 
-* **Licencja:** [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
 * **Autor:** Seweryn Pawłowski ([Silvanion](https://github.com/Silvanion))
+* **Licencja:** [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`). Copyright © 2026 Silvanion.
 * **Zgłaszanie uwag:** [GitHub Issues](https://github.com/Silvanion/saldo/issues) lub dedykowany formularz w aplikacji.
+
+Saldo jest wolnym oprogramowaniem. Możesz używać, studiować, zmieniać i rozpowszechniać program, także komercyjnie. Jeśli udostępnisz zmodyfikowaną wersję innym osobom — również jako usługę przez sieć — musisz udostępnić im kod źródłowy tej wersji na tej samej licencji (sekcja 13 AGPLv3). Wiążący jest tekst w pliku [LICENSE](LICENSE).

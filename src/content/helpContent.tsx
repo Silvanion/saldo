@@ -252,7 +252,7 @@ export const helpSectionsData: HelpSectionData[] = [
           badge="Zrzut ekranu aplikacji"
           src="/assets/help/11-analysis.png"
           alt="Widok Analizy z oceną Kondycji finansowej oraz skrótami do kalkulatora B2B, Planów Działania i Saldo Wrapped"
-          caption="Górny pasek widoku Analiza daje dostęp do eksportu raportu PDF, Planów Działania (Claude Skills), Saldo Wrapped oraz Kalkulatora B2B i Podatków."
+          caption="Górny pasek widoku Analiza daje dostęp do eksportu raportu PDF, Planów Działania, Saldo Wrapped oraz Kalkulatora B2B i Podatków."
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -923,14 +923,14 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "net-worth-wealthfolio",
     cat: "Analizy i Symulatory",
-    title: "Majątek Netto (Wealthfolio) — Aktywa, Pasywa i Wskaźniki Płynności",
+    title: "Majątek Netto — Aktywa, Pasywa i Wskaźniki Płynności",
     icon: <Landmark className="w-5 h-5" />,
     badge: "Nowość v1.3",
     keywords: ["majątek", "net worth", "wealthfolio", "aktywa", "pasywa", "dti", "runway", "wartość netto", "kapitał"],
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Moduł <strong className="text-text-main">Majątku Netto (Wealthfolio)</strong> pozwala spojrzeć na Twoje finanse z lotu ptaka, precyzyjnie rozdzielając to, co posiadasz (aktywa), od tego, co jesteś winien instytucjom finansowym (pasywa).
+          Moduł <strong className="text-text-main">Majątku Netto</strong> pozwala spojrzeć na Twoje finanse z lotu ptaka, precyzyjnie rozdzielając to, co posiadasz (aktywa), od tego, co jesteś winien instytucjom finansowym (pasywa).
         </p>
 
         <ul className="list-disc pl-5 space-y-2 text-xs">
@@ -964,14 +964,14 @@ export const helpSectionsData: HelpSectionData[] = [
   {
     id: "financial-skills-plans",
     cat: "Automatyzacja lokalna",
-    title: "Deterministyczne Plany Działania (Claude Skills) i Skarbonki",
+    title: "Deterministyczne Plany Działania i Skarbonki",
     icon: <ListTodo className="w-5 h-5" />,
     badge: "Asystenci Finansowi",
     keywords: ["plany działania", "skills", "umiejętności", "lawina", "poduszka", "subskrypcje", "50/30/20", "checklist"],
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Zamiast ogólnych porad, Saldo oferuje deterministycznych asystentów taktycznych inspirowanych architekturą Claude Skills. Generują oni gotowe, skrojone pod Twój profil plany z konkretnymi krokami do odhaczenia:
+          Zamiast ogólnych porad, Saldo oferuje deterministycznych asystentów taktycznych (bez udziału modelu AI). Generują oni gotowe, skrojone pod Twój profil plany z konkretnymi krokami do odhaczenia:
         </p>
 
         <ul className="list-disc pl-5 space-y-2 text-xs">
@@ -999,8 +999,8 @@ export const helpSectionsData: HelpSectionData[] = [
           title="Wejście do Planów Działania"
           badge="Zrzut ekranu aplikacji"
           src="/assets/help/11-analysis.png"
-          alt="Przycisk Plany i Umiejętności (Claude Skills) w górnym pasku widoku Analiza"
-          caption="Przycisk 'Plany i Umiejętności (Claude Skills)' w widoku Analiza otwiera centrum planów działania — możesz go też wywołać wpisując '+ Nowy plan' w Palecie Komend."
+          alt="Przycisk Plany i Umiejętności w górnym pasku widoku Analiza"
+          caption="Przycisk 'Plany i Umiejętności' w widoku Analiza otwiera centrum planów działania — możesz go też wywołać wpisując '+ Nowy plan' w Palecie Komend."
         />
       </div>
     )
@@ -1144,7 +1144,7 @@ export const faqData: FaqEntry[] = [
     answer: "Majątek Netto to suma wszystkich Twoich aktywów (gotówka na kontach, oszczędności w celach, nieruchomości, inwestycje) minus suma wszystkich pasywów (kredyty hipoteczne, pożyczki, karty kredytowe, niezapłacone rachunki). Wskaźnik DTI (Debt-to-Assets) to stosunek łącznego długu do łącznych aktywów — wartość poniżej 30% oznacza bardzo bezpieczny poziom."
   },
   {
-    question: "Czym są Plany Działania (Claude Skills) i jak powiązać je ze Skarbonkami?",
+    question: "Czym są Plany Działania i jak powiązać je ze Skarbonkami?",
     answer: "Plany Działania to deterministyczne scenariusze krok-po-kroku (np. budowa poduszki finansowej lub eliminacja zbędnych subskrypcji). Każdy wygenerowany plan z kwotą docelową posiada przycisk 'Utwórz cel w Skarbonkach', który automatycznie zakłada cel oszczędnościowy w module Cele. Najbliższy krok planu możesz odznaczać bezpośrednio z Pulpitu."
   },
   {

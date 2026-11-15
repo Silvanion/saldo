@@ -1,7 +1,7 @@
 /**
  * SecurityVault - Architektura Zero-Leak & BYOK (Bring Your Own Key)
- * Bezpieczne szyfrowanie sekretów w OS Keychain / Windows DPAPI
- * z natychmiastowym czyszczeniem pamięci RAM (Zeroization).
+ * Sekrety w OS Keychain / Windows DPAPI (aplikacja desktopowa). W przeglądarce wyłącznie
+ * zaciemnienie w localStorage (nie jest to silne szyfrowanie — patrz komentarz w storeSecret).
  */
 
 export interface StoredSecretMetadata {
@@ -16,24 +16,50 @@ export class SecurityVault {
 
   private static memoryStore: Map<string, string> = new Map();
 
-  private static setStorageItem(key: string, value: string): void {
+  /**
+   * Przeglądarka: sekrety żyją wyłącznie w sessionStorage, czyli do zamknięcia karty (SEC-06).
+   * Wcześniej lądowały trwale w localStorage zaszyfrowane kluczem z jawnej stałej, co nie było
+   * ochroną — dlatego stare wpisy są usuwane, a użytkownik wpisuje klucz API na nowo.
+   */
+  private static purgeLegacyLocalStorage(): void {
     try {
-      if (typeof localStorage !== "undefined" && typeof localStorage.setItem === "function") {
-        localStorage.setItem(key, value);
+      if (typeof localStorage === "undefined") return;
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith(this.STORAGE_PREFIX) || key.startsWith("saldo_ai_meta_")) localStorage.removeItem(key);
+      }
+    } catch {
+      // Ignoruj błąd
+    }
+  }
+
+  private static session(): Storage | null {
+    try {
+      if (typeof sessionStorage !== "undefined" && typeof sessionStorage.getItem === "function") return sessionStorage;
+    } catch {
+      // sessionStorage zablokowane — zostaje pamięć procesu
+    }
+    return null;
+  }
+
+  private static setStorageItem(key: string, value: string): void {
+    this.purgeLegacyLocalStorage();
+    try {
+      const store = this.session();
+      if (store) {
+        store.setItem(key, value);
         return;
       }
     } catch {
-      // Ignoruj błąd localStorage i zapisz w memoryStore
+      // Ignoruj błąd sessionStorage i zapisz w memoryStore
     }
     this.memoryStore.set(key, value);
   }
 
   private static getStorageItem(key: string): string | null {
+    this.purgeLegacyLocalStorage();
     try {
-      if (typeof localStorage !== "undefined" && typeof localStorage.getItem === "function") {
-        const item = localStorage.getItem(key);
-        if (item !== null) return item;
-      }
+      const item = this.session()?.getItem(key);
+      if (item != null) return item;
     } catch {
       // Ignoruj błąd
     }
@@ -42,9 +68,7 @@ export class SecurityVault {
 
   private static removeStorageItem(key: string): void {
     try {
-      if (typeof localStorage !== "undefined" && typeof localStorage.removeItem === "function") {
-        localStorage.removeItem(key);
-      }
+      this.session()?.removeItem(key);
     } catch {
       // Ignoruj błąd
     }
@@ -84,7 +108,10 @@ export class SecurityVault {
       }
     }
 
-    // 2. Web fallback: WebCrypto AES-GCM z nieeksportowalnym kluczem
+    // 2. Web fallback (sekret trafia do sessionStorage, nie do localStorage) — UWAGA: to jest OBFUSKACJA, nie szyfrowanie. Klucz AES wynika ze stałej,
+    //    jawnej frazy (keyId + "_vault_salt"), a sól leży obok szyfrogramu w localStorage, więc
+    //    każdy z dostępem do localStorage odtworzy sekret. Chroni wyłącznie przed przypadkowym
+    //    podejrzeniem. Prawdziwa ochrona wymaga klucza z sekretu użytkownika (patrz audyt SEC-06).
     try {
       const cryptoObj = typeof window !== "undefined" && window.crypto ? window.crypto : globalThis.crypto;
       const enc = new TextEncoder();
