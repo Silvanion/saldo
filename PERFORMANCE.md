@@ -51,3 +51,16 @@ Dokumentacja pomiarów wydajnościowych, analizy wielkości paczek produkcyjnych
 - W `src/utils/performance.ts` wdrożono bezkosztowe w trybie produkcyjnym narzędzia:
   - `measurePerformance(name, fn)`
   - `measureAsyncPerformance(name, fn)`
+
+---
+
+## 5. Aktualizacja 2026-11 (v1.6.6 + poprawki audytu)
+
+Pomiary powyżej pochodzą ze Sprintu 91 i są historyczne. Stan po audycie (build produkcyjny, JS+CSS ładowane na starcie, gzip):
+
+| Moment | Start (gzip) |
+| :--- | :--- |
+| v1.6.6 przed poprawkami | 424 kB (w tym `vendor-firebase-firestore` 174 kB — statyczny import w `useBudgetState`) |
+| Po PERF-01 (dynamiczny import Firestore) | 243 kB |
+
+Cel < 200 kB (web/PWA) nadal niespełniony; dla aplikacji desktopowej (ładowanej z localhost) FCP zmierzono na ok. 0,9 s przy 4× throttlingu CPU.

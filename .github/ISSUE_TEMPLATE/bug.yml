@@ -1,0 +1,21 @@
+name: Błąd
+description: Coś w Saldo nie działa jak powinno
+title: "[Błąd] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Zgłoszenia na GitHubie są **publiczne**. Nie wklejaj kwot, numerów kont, nazw kontrahentów ani zrzutów ekranu z danymi finansowymi.
+  - type: textarea
+    id: description
+    attributes:
+      label: Co się stało?
+      description: Kroki do odtworzenia, czego oczekiwałeś(-aś) i co zobaczyłeś(-aś).
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Wersja aplikacji
+      description: Ustawienia → O programie / Historia zmian.

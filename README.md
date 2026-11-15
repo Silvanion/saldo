@@ -164,3 +164,13 @@ Aplikacja Electron uruchamia wbudowany serwer Express (`dist/server.cjs`) wyłą
 ## Status
 
 Projekt rozwijany prywatnie, kod publicznie dostępny. Zgłoszenia błędów: [Issues](https://github.com/Silvanion/saldo/issues) lub formularz „Zgłoś błąd” w aplikacji.
+
+## Licencja
+
+Saldo jest wolnym oprogramowaniem na licencji [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
+Copyright © 2026 Silvanion.
+
+W skrócie: możesz używać, studiować, zmieniać i rozpowszechniać program, także komercyjnie. Jeśli udostępnisz zmodyfikowaną wersję
+innym osobom — również jako usługę przez sieć — musisz udostępnić im kod źródłowy tej wersji na tej samej licencji (sekcja 13).
+To nie jest porada prawna; wiążący jest tekst w pliku [LICENSE](LICENSE).
+

@@ -1,0 +1,20 @@
+name: Sugestia
+description: Pomysł na nową funkcję lub zmianę
+title: "[Sugestia] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Zgłoszenia na GitHubie są **publiczne**. Nie wklejaj danych finansowych ani osobowych.
+  - type: textarea
+    id: description
+    attributes:
+      label: Co miałoby działać inaczej lub co dodać?
+      description: Opisz problem, który to rozwiązuje, i jak wyobrażasz sobie działanie.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Wersja aplikacji

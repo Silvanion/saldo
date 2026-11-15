@@ -5,6 +5,21 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
+## [v1.6.7] - Listopad 2026
+### Poprawki bezpieczeństwa i prywatności po audycie (szczegóły: `audit-2026-11/`)
+- **Szyfrowanie lokalne**: zapis profilu z PIN-em w stanie zablokowanym nie trafia już na dysk jawnym tekstem; blokada sesji (`lockSession`) szyfruje profil i usuwa klucz oraz dane z pamięci także przy uśpieniu/blokadzie ekranu.
+- **Przygotowanie pod hasło główne**: profil w formacie v2 jest rozpoznawany, traktowany jako tylko do odczytu i nigdy nadpisywany; zamiast okna PIN-u pojawia się komunikat „zaktualizuj aplikację”.
+- **AI**: wycofane modele Claude 3.x i Gemini 1.5/2.0 usunięte (zapisane ustawienia przenoszone na model domyślny, Claude Haiku 5.5); bez `temperature` w żądaniach Claude; klucz API w przeglądarce tylko na czas sesji; usunięte `suggest-event` i `explain`; skan PDF przez AI za zgodą.
+- **CSP**: dodany `api.anthropic.com` (Claude nie działał w buildzie produkcyjnym), `api.nbp.pl` i Ollama w `firebase.json`; `script-src` bez `'unsafe-inline'`; czcionki lokalnie.
+- **Electron**: token i kontrola `Host` dla lokalnego API; fuses (`runAsNode`, `NODE_OPTIONS`, `--inspect` wyłączone); biometria na Windows wyłączona; komunikat przy zajętym porcie.
+- **Automatyczna kopia lokalna (desktop)**: jeden plik dziennie, ostatnie 7 dni, zapis atomowy; ochrona przed nadpisaniem dobrej kopii znacznie mniejszą; lista i przywracanie w Ustawieniach (przez istniejący podgląd importu).
+- **Zgłoszenia**: GitHub Issues zamiast anonimowego zapisu w Firestore (reguła `bug_reports` zamknięta — wymaga wdrożenia reguł).
+- **Eksport CSV**: neutralizacja formuł (CWE-1236).
+- **Zależności**: `npm audit` 44 → 19 (0 krytycznych); Electron 44.11.
+- **Dostępność**: kontrast WCAG AA, nazwy pasków postępu i przycisków, `prefers-reduced-motion`; skan axe w CI.
+- **Wydajność**: start 424 → 241 kB gzip; precache PWA 4,6 → 3,5 MB.
+- **Projekt**: licencja AGPL-3.0, `SECURITY.md`, Dependabot, CodeQL, bramka `npm audit` w CI.
+
 ## [v1.6.6] - Wrzesień 2026
 ### Poprawki: menu na macOS, przeciążenie dostawców AI, tryb doradcy
 - **Interfejs (macOS)**: zwinięte menu boczne wjeżdżało pod przyciski zamykania/minimalizowania okna — `lg:p-3` (zwinięte) nadpisywało `pt-12`. Dodano `lg:pt-12` dla Electrona i test regresyjny.

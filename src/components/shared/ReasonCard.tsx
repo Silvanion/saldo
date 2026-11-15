@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { AlertCircle, AlertTriangle, Info, Sparkles, Loader2 } from "lucide-react";
+import React from "react";
+import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import type { CalculationReason, ReasonSeverity } from "../../types";
 
 const SEVERITY_STYLES: Record<ReasonSeverity, {
@@ -31,12 +31,6 @@ const SEVERITY_STYLES: Record<ReasonSeverity, {
 export interface ReasonCardProps {
   reason: CalculationReason;
   className?: string;
-  /**
-   * Optional: when provided, renders a "Zapytaj AI o szczegóły" button. The
-   * deterministic reason above always renders immediately regardless — this
-   * only adds an AI-generated elaboration underneath once the user asks for it.
-   */
-  onAskAi?: () => Promise<string>;
 }
 
 /**
@@ -46,23 +40,9 @@ export interface ReasonCardProps {
  * For the debt-payoff simulator's richer, domain-specific empty states, see
  * DebtScenarioFallbackState — this component is for new call sites instead.
  */
-export function ReasonCard({ reason, className, onAskAi }: ReasonCardProps) {
-  const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [aiText, setAiText] = useState("");
+export function ReasonCard({ reason, className }: ReasonCardProps) {
   const style = SEVERITY_STYLES[reason.severity];
   const Icon = style.Icon;
-
-  const handleAskAi = async () => {
-    if (!onAskAi || aiState === "loading") return;
-    setAiState("loading");
-    try {
-      const text = await onAskAi();
-      setAiText(text);
-      setAiState("done");
-    } catch {
-      setAiState("error");
-    }
-  };
 
   return (
     <div
@@ -87,7 +67,7 @@ export function ReasonCard({ reason, className, onAskAi }: ReasonCardProps) {
         </ul>
       )}
 
-      {(reason.actionLabel && reason.onAction) || onAskAi ? (
+      {reason.actionLabel && reason.onAction ? (
         <div className="flex items-center gap-2 flex-wrap pt-1">
           {reason.actionLabel && reason.onAction && (
             <button
@@ -98,33 +78,9 @@ export function ReasonCard({ reason, className, onAskAi }: ReasonCardProps) {
               {reason.actionLabel}
             </button>
           )}
-          {onAskAi && aiState !== "done" && (
-            <button
-              type="button"
-              onClick={handleAskAi}
-              disabled={aiState === "loading"}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand bg-surface hover:bg-surface-2 border border-border px-3.5 py-2 rounded-xl transition-all shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {aiState === "loading" ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="w-3.5 h-3.5" />
-              )}
-              {aiState === "loading" ? "Pytam AI..." : "Zapytaj AI o szczegóły"}
-            </button>
-          )}
         </div>
       ) : null}
 
-      {aiState === "done" && (
-        <p className="text-xs text-text-main bg-surface border border-border/70 rounded-xl p-3 leading-relaxed">
-          <Sparkles className="w-3 h-3 text-brand inline mr-1.5 -mt-0.5" />
-          {aiText}
-        </p>
-      )}
-      {aiState === "error" && (
-        <p className="text-xs text-danger">Nie udało się uzyskać wyjaśnienia od lokalnego AI. Spróbuj ponownie.</p>
-      )}
     </div>
   );
 }

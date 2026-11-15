@@ -225,6 +225,8 @@ export interface Profile {
   failedAttempts?: number; // Liczba kolejnych błędnych prób wprowadzenia PIN
   lockedUntil?: string | null; // Znacznik czasu ISO do kiedy profil jest zablokowany (antibrute-force)
   encryptedPayload?: string;
+  /** 2 = dane zaszyfrowane kluczem z hasła głównego (format v2, patrz services/vaultV2.ts). Brak = PIN (v1) lub bez szyfrowania. */
+  cryptoVersion?: 2;
   accounts?: BankAccount[];
   transactions: Transaction[];
   payments: Payment[];

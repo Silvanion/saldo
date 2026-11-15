@@ -66,7 +66,7 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
       expect(gemini.availableModels.some(m => m.recommended)).toBe(true);
 
       const anthropic = providerRegistry.getAdapter("anthropic")!;
-      expect(anthropic.defaultModel).toBe("claude-3-7-sonnet-latest");
+      expect(anthropic.defaultModel).toBe("claude-haiku-5-5");
       expect(anthropic.availableModels.some(m => m.recommended)).toBe(true);
     });
   });
@@ -162,6 +162,60 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
     });
   });
 
+  // 4a. MODELE GEMINI (AI-11): wyłączone modele
+  describe("GeminiProvider: wyłączone modele", () => {
+    const provider = new GeminiProvider();
+    const okResponse = () => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "ok" }] } }] }) } as any);
+
+    it("lista nie zawiera modeli 1.5 i 2.0", () => {
+      expect(provider.availableModels.filter(m => /^gemini-(1\.5|2\.0)-/.test(m.id))).toEqual([]);
+      expect(provider.availableModels.some(m => m.id === provider.defaultModel)).toBe(true);
+    });
+
+    it("wyłączony model z ustawień jest zastępowany domyślnym (generate i testConnection)", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(okResponse());
+      await provider.generate({ prompt: "hej", model: "gemini-1.5-flash" } as any, "key");
+      expect(String(vi.mocked(globalThis.fetch).mock.calls.at(-1)![0])).toContain(`/models/${provider.defaultModel}:`);
+      await provider.testConnection("key", "gemini-2.0-flash");
+      expect(String(vi.mocked(globalThis.fetch).mock.calls.at(-1)![0])).toContain(`/models/${provider.defaultModel}:`);
+    });
+  });
+
+  // 5a. MODELE ANTHROPIC (AI-08): wycofane ID, temperature i effort
+  describe("AnthropicProvider: modele i parametry żądania", () => {
+    const provider = new AnthropicProvider();
+    const okResponse = () => ({ ok: true, status: 200, json: async () => ({ content: [{ type: "text", text: "ok" }], usage: {} }) } as any);
+    const lastBody = () => JSON.parse((vi.mocked(globalThis.fetch).mock.calls.at(-1)![1] as any).body);
+
+    it("lista modeli nie zawiera wycofanych modeli claude-3-*", () => {
+      expect(provider.availableModels.filter(m => /^claude-3-/.test(m.id))).toEqual([]);
+      expect(provider.availableModels.some(m => m.id === provider.defaultModel)).toBe(true);
+    });
+
+    it("nie wysyła temperature (nowe modele odrzucają niedomyślne wartości kodem 400)", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(okResponse());
+      await provider.generate({ prompt: "hej", temperature: 0.2 } as any, "sk-ant-test");
+      expect(lastBody()).not.toHaveProperty("temperature");
+    });
+
+    it("dla modeli 5.x ustawia output_config.effort=low, dla Haiku 4.5 go nie wysyła", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(okResponse());
+      await provider.generate({ prompt: "hej", model: "claude-haiku-5-5" } as any, "sk-ant-test");
+      expect(lastBody().output_config).toEqual({ effort: "low" });
+      await provider.generate({ prompt: "hej", model: "claude-haiku-4-5" } as any, "sk-ant-test");
+      expect(lastBody()).not.toHaveProperty("output_config");
+    });
+
+    it("wycofany model zapisany w ustawieniach jest zastępowany domyślnym", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(okResponse());
+      const res = await provider.generate({ prompt: "hej", model: "claude-3-5-sonnet-latest" } as any, "sk-ant-test");
+      expect(lastBody().model).toBe(provider.defaultModel);
+      expect(res.model).toBe(provider.defaultModel);
+      await provider.testConnection("sk-ant-test", "claude-3-7-sonnet-latest");
+      expect(lastBody().model).toBe(provider.defaultModel);
+    });
+  });
+
   // 5. TEST CONNECTION — ANTHROPIC (CLAUDE)
   describe("AnthropicProvider: testConnection", () => {
     const provider = new AnthropicProvider();
@@ -178,7 +232,7 @@ describe("AIService & Providers — Audyt i Testy Jednostkowe (FAZA 19)", () => 
         json: async () => ({ content: [{ type: "text", text: "pong" }] })
       } as any);
 
-      const res = await provider.testConnection("sk-ant-test", "claude-3-5-sonnet-latest");
+      const res = await provider.testConnection("sk-ant-test", "claude-sonnet-5-5");
       expect(res.status).toBe("SUCCESS");
       expect(res.message).toContain("Połączono pomyślnie");
     });

@@ -54,7 +54,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
             {formatMoney(totalActualSpentInBudget, currency)} <span className="text-text-faint font-normal">/ {formatMoney(totalPlannedBudget, currency)}</span>
           </span>
         </div>
-        <div className="h-2 w-full bg-surface rounded-full overflow-hidden border border-border" role="progressbar" aria-valuenow={Math.round(globalBudgetRatio)} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-2 w-full bg-surface rounded-full overflow-hidden border border-border" role="progressbar" aria-label="Łączny limit miesięczny: wykorzystanie" aria-valuenow={Math.round(globalBudgetRatio)} aria-valuemin={0} aria-valuemax={100}>
           <div 
             className={`h-full rounded-full transition-all duration-500 ${globalBudgetRatio > 100 ? 'bg-danger' : globalBudgetRatio > 80 ? 'bg-warning' : 'bg-brand'}`}
             style={{ width: `${Math.min(globalBudgetRatio, 100)}%` }}
@@ -99,7 +99,7 @@ export const BudgetWarningsWidget = memo(function BudgetWarningsWidget({
                     <span className="truncate tabular-nums" title={formatMoney(w.spent, currency)}>{formatMoney(w.spent, currency)}</span>
                     <span className="truncate shrink-0 text-text-faint tabular-nums" title={`Limit: ${formatMoney(w.limit, currency)}`}>Limit: {formatMoney(w.limit, currency)}</span>
                   </div>
-                  <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden border border-border shrink-0" role="progressbar" aria-valuenow={Math.round(w.ratio * 100)} aria-valuemin={0} aria-valuemax={100}>
+                  <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden border border-border shrink-0" role="progressbar" aria-label={`Wykorzystanie limitu: ${w.category}`} aria-valuenow={Math.round(w.ratio * 100)} aria-valuemin={0} aria-valuemax={100}>
                     <div 
                       className={`h-full rounded-full transition-all duration-500 ${bgClass}`}
                       style={{ width: `${Math.min(w.ratio * 100, 100)}%` }}

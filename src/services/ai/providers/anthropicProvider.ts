@@ -12,61 +12,49 @@ import { fetchWithRetry, isTransientStatus } from "../fetchRetry";
 export class AnthropicProvider implements AIProviderAdapter {
   readonly name: AIProviderType = "anthropic";
   readonly displayName = "Anthropic (Claude)";
-  readonly defaultModel = "claude-3-7-sonnet-latest";
+  readonly defaultModel = "claude-haiku-5-5";
 
+  // Modele claude-3-* zostały wycofane przez Anthropic (m.in. 3.5 Sonnet 28.10.2025,
+  // 3 Opus 05.01.2026, 3.7 Sonnet i 3.5 Haiku 19.02.2026) — zapytania zwracają błąd.
   readonly availableModels: AIModelDefinition[] = [
     {
-      id: "claude-3-7-sonnet-latest",
-      name: "Claude 3.7 Sonnet",
-      description: "Flagowy model z hybrydowym wnioskowaniem i trybem myślenia (zalecany)",
+      id: "claude-haiku-5-5",
+      name: "Claude Haiku 5.5",
+      description: "Najtańszy i najszybszy model aktualnej generacji — domyślny wybór do czatu o budżecie (zalecany)",
       recommended: true
     },
     {
-      id: "claude-3-5-sonnet-latest",
-      name: "Claude 3.5 Sonnet",
-      description: "Sprawdzony model o wysokim poziomie wnioskowania i analizy finansowej"
-    },
-    {
-      id: "claude-3-5-haiku-latest",
-      name: "Claude 3.5 Haiku",
-      description: "Błyskawiczny, lekki i bardzo ekonomiczny model"
-    },
-    {
-      id: "claude-sonnet-5",
-      name: "Claude Sonnet 5",
-      description: "Nowa generacja do zaawansowanych i długich zadań analitycznych"
+      id: "claude-sonnet-5-5",
+      name: "Claude Sonnet 5.5",
+      description: "Zrównoważony model do dłuższych analiz finansowych"
     },
     {
       id: "claude-opus-5-5",
       name: "Claude Opus 5.5",
-      description: "Flagowy model nowej generacji do najgłębszych analiz"
+      description: "Najmocniejszy model do najgłębszych analiz (najdroższy)"
+    },
+    {
+      id: "claude-sonnet-5",
+      name: "Claude Sonnet 5",
+      description: "Poprzednia generacja Sonnet w tej samej cenie"
     },
     {
       id: "claude-haiku-4-5",
       name: "Claude Haiku 4.5",
-      description: "Ultraszybki i oszczędny model nowej generacji"
-    },
-    {
-      id: "claude-3-opus-latest",
-      name: "Claude 3 Opus",
-      description: "Model do złożonej analizy bardzo długich kontekstów"
-    },
-    {
-      id: "claude-3-7-sonnet-20250219",
-      name: "Claude 3.7 Sonnet (2025-02-19)",
-      description: "Wersja ze stałym identyfikatorem daty"
-    },
-    {
-      id: "claude-3-5-sonnet-20241022",
-      name: "Claude 3.5 Sonnet v2 (2024-10-22)",
-      description: "Wersja ze stałym identyfikatorem daty"
-    },
-    {
-      id: "claude-3-5-haiku-20241022",
-      name: "Claude 3.5 Haiku (2024-10-22)",
-      description: "Wersja ze stałym identyfikatorem daty"
+      description: "Poprzednia generacja Haiku (droższa od 5.5)"
     }
   ];
+
+  /** Wycofane modele claude-3-* (np. zapisane we wcześniejszych ustawieniach) → model domyślny. */
+  private resolveModel(model?: string): string {
+    const m = (model || "").trim();
+    return !m || /^claude-3-/.test(m) ? this.defaultModel : m;
+  }
+
+  /** Parametr effort jest akceptowany tylko przez modele 5.x (starsze zwracają błąd). */
+  private supportsEffort(model: string): boolean {
+    return /^claude-(haiku-5|sonnet-5|opus-5|fable-5|mythos-5)/.test(model);
+  }
 
   /**
    * Minimalny test połączenia sprawdzający poprawność klucza i dostępność modelu.
@@ -81,7 +69,7 @@ export class AnthropicProvider implements AIProviderAdapter {
     }
 
     const trimmedKey = apiKey.trim();
-    const cleanModel = (model || this.defaultModel).trim();
+    const cleanModel = this.resolveModel(model);
     const startTime = performance.now();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -190,7 +178,7 @@ export class AnthropicProvider implements AIProviderAdapter {
       throw new AIError("Brak klucza API Anthropic.", "INVALID_API_KEY", this.name);
     }
 
-    const model = request.model || this.defaultModel;
+    const model = this.resolveModel(request.model);
     const controller = new AbortController();
     const timeoutMs = request.timeoutMs || 30000;
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -198,9 +186,14 @@ export class AnthropicProvider implements AIProviderAdapter {
     const body: Record<string, any> = {
       model,
       max_tokens: request.maxTokens ?? 2048,
-      temperature: request.temperature ?? 0.2,
       messages: [{ role: "user", content: request.prompt }]
     };
+    // Bez `temperature`: modele 5.x odrzucają niedomyślne wartości (400), a od wersji API
+    // 2026-10-21 pole jest odrzucane na każdym modelu.
+    if (this.supportsEffort(model)) {
+      // Czat o budżecie nie potrzebuje głębokiego rozumowania — niski effort to tańsze i szybsze odpowiedzi.
+      body.output_config = { effort: "low" };
+    }
 
     if (request.systemPrompt) {
       body.system = request.systemPrompt;

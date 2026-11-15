@@ -4,16 +4,8 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/sewerynpawlowski/Documents/PROJEKT APKA/saldo"
-      ]
-    },
-    "shell": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-shell",
-        "/Users/sewerynpawlowski/Documents/PROJEKT APKA/saldo"
+        "@modelcontextprotocol/server-filesystem@2.3.0",
+        "."
       ]
     }
   }

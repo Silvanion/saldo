@@ -90,7 +90,7 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#budget-view-container")).toBeVisible();
   });
 
-  test("D. Net Worth Tracker (Wealthfolio): displays Net Worth widget and opens the Net Worth view", async ({ page }) => {
+  test("D. Net Worth Tracker: displays Net Worth widget and opens the Net Worth view", async ({ page }) => {
     await setupApp(page);
 
     // Verify Net Worth widget is present on Dashboard
@@ -117,7 +117,7 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#net-worth-title")).toBeVisible({ timeout: 5000 });
   });
 
-  test("E. Financial Skills & Action Planner (Claude Skills): generates multi-step plan from skills catalog", async ({ page }) => {
+  test("E. Financial Skills & Action Planner: generates multi-step plan from skills catalog", async ({ page }) => {
     await setupApp(page);
 
     // Navigate to Analysis
@@ -148,7 +148,7 @@ test.describe("Smoke: Core Application Flow", () => {
     await expect(page.locator("#financial-skills-modal-title")).not.toBeVisible({ timeout: 5000 });
   });
 
-  test("F. Saldo Wrapped & Financial Story Cards (MoneyPrinterTurbo): opens and navigates story slides", async ({ page }) => {
+  test("F. Saldo Wrapped & Financial Story Cards: opens and navigates story slides", async ({ page }) => {
     await setupApp(page);
 
     // Navigate to Analysis
