@@ -16,5 +16,8 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// 3. Włącz obsługę "exports" w package.json dla React Native 0.76+
+config.resolver.unstable_enablePackageExports = true;
+
 module.exports = config;
 
