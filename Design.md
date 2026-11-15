@@ -78,7 +78,6 @@ Aplikacja jest zaimplementowana w przejrzystej i modularnej strukturze plików:
 
 ```
 ├── Design.md                       # Niniejszy opis funkcjonalny i architektury
-├── firebase-blueprint.json         # Definicja schematu bazy danych Firestore
 ├── firestore.rules                 # Reguły bezpieczeństwa dla bazy Firestore
 ├── package.json                    # Konfiguracja pakietów NPM i zależności
 ├── server.ts                       # Serwer Express dla frontendu, resetu stanu i endpointów AI

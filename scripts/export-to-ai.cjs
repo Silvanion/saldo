@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DIRECTORIES_TO_SCAN = ['src', 'public'];
-const FILES_TO_INCLUDE = ['package.json', 'firestore.rules', 'firebase-blueprint.json', 'vite.config.ts', 'server.ts', 'tsconfig.json', 'README.md', 'Design.md'];
+const FILES_TO_INCLUDE = ['package.json', 'firestore.rules', 'vite.config.ts', 'server.ts', 'tsconfig.json', 'README.md', 'Design.md'];
 const EXTENSIONS_TO_INCLUDE = ['.ts', '.tsx', '.json', '.md', '.css', '.html', '.rules'];
 
 const OUTPUT_FILE = 'saldo-ai-studio-dump.md';
