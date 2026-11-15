@@ -146,6 +146,9 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | **iOS / Mobile Dev** | iPhone, iPad & Symulatory | Kod źródłowy w `packages/mobile` (Expo SDK 52 / AltStore / Xcode) |
 | **Web / PWA** | Przeglądarka internetowa | Dostępna w trybie offline jako aplikacja PWA |
 
+> [!NOTE]
+> Windows installers are signed using free code signing provided by the [SignPath Foundation](https://signpath.org/) ([SignPath.io](https://about.signpath.io)).
+
 ---
 
 ## 🛠️ Architektura i deweloperzy
