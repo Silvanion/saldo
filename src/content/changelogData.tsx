@@ -16,6 +16,7 @@ export const changelogData: ChangelogEntry[] = [
     title: "Poprawki Bezpieczeństwa i Prywatności po Audycie",
     icon: <Shield className="w-5 h-5 text-brand" />,
     features: [
+      "[Aplikacja Mobilna i Rdzeń @saldo/core] Premiera Saldo Mobile (React Native / Expo) oraz współdzielonego pakietu domenowego @saldo/core. Wygodne rejestrowanie wydatków w 3 sekundy na telefonie z biometrią i lokalną bazą SQLite.",
       "[Blokada Profilu] Po zablokowaniu (bezczynność, uśpienie, blokada ekranu) profil zabezpieczony PIN-em jest szyfrowany i usuwany z pamięci aplikacji. Naprawiono błąd, przez który zapis w stanie zablokowanym mógł trafić na dysk jawnym tekstem.",
       "[Doradca AI — Claude i Gemini] Zaktualizowano listy modeli: wycofane modele Claude 3.x i Gemini 1.5/2.0 zniknęły, a Twoje zapisane ustawienia są automatycznie przenoszone na model domyślny (Claude Haiku 5.5). W przeglądarce klucz API jest teraz przechowywany tylko do zamknięcia karty — wpisz go ponownie przy następnym użyciu. Usunięto też funkcje AI o niskiej wartości (propozycje wydarzeń kalendarza i „Zapytaj AI” przy wyjaśnieniach); odczyt skanów PDF przez AI wymaga teraz Twojej zgody.",
       "[Zgłaszanie Błędów] Formularz otwiera gotowe zgłoszenie na GitHubie (publiczne, wymaga konta GitHub) zamiast zapisywać dane w bazie projektu.",

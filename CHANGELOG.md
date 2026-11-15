@@ -6,6 +6,11 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ## [v1.6.7] - Listopad 2026
+### Nowości: Saldo Mobile (Expo), Monorepo `@saldo/core` oraz podpisywanie kodu
+- **Aplikacja mobilna (Expo / React Native)**: nowa aplikacja mobilna Saldo Mobile w `packages/mobile` oparta o Expo SDK 52, Expo Router v4, lokalną bazę SQLite w trybie WAL (`expo-sqlite`) oraz biometrię (Face ID / Touch ID / BiometricPrompt z `expo-local-authentication`). Zawiera pulpit, szybki wydatek (Quick Add) w 3 sekundy z haptyką, historię z filtrowaniem, kalkulator rezerwy podatkowej B2B oraz monitor majątku netto i LTV hipoteki.
+- **Architektura Monorepo i pakiet `@saldo/core`**: wydzielenie logiki biznesowej, kalkulatorów (podatki B2B 2026, strategie spłaty długów Snowball/Avalanche, reguła 50/30/20, hipoteka LTV) oraz parserów bankowych do bezstanowego pakietu `@saldo/core` (`packages/core`) współdzielonego między webem, Electronem i mobilem.
+- **Podpisywanie kodu (SignPath Foundation)**: integracja pipeline'u CI z darmowym certyfikatem SignPath dla projektów Open Source (`SIGNPATH_SETUP.md`).
+
 ### Poprawki bezpieczeństwa i prywatności po audycie (szczegóły: `audit-2026-11/`)
 - **Szyfrowanie lokalne**: zapis profilu z PIN-em w stanie zablokowanym nie trafia już na dysk jawnym tekstem; blokada sesji (`lockSession`) szyfruje profil i usuwa klucz oraz dane z pamięci także przy uśpieniu/blokadzie ekranu.
 - **Przygotowanie pod hasło główne**: profil w formacie v2 jest rozpoznawany, traktowany jako tylko do odczytu i nigdy nadpisywany; zamiast okna PIN-u pojawia się komunikat „zaktualizuj aplikację”.
