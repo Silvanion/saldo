@@ -2,7 +2,8 @@
   "name": "saldo-app",
   "private": true,
   "workspaces": [
-    "packages/core"
+    "packages/core",
+    "packages/mobile"
   ],
   "version": "1.6.7",
   "description": "Aplikacja do zarządzania finansami osobistymi i domowymi.",
