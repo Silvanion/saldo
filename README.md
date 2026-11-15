@@ -142,8 +142,9 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | **macOS** | Procesory Intel (x64) | `Saldo-1.6.7.dmg` |
 | **Windows** | Instalator (podpisany przez SignPath) | `Saldo-Setup-1.6.7.exe` |
 | **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
+| **Android** | Samodzielny instalator APK | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
+| **iOS / Mobile Dev** | iPhone, iPad & Symulatory | Kod źródłowy w `packages/mobile` (Expo SDK 52 / AltStore / Xcode) |
 | **Web / PWA** | Przeglądarka internetowa | Dostępna w trybie offline jako aplikacja PWA |
-| **Mobile** | iOS & Android | Kod źródłowy w `packages/mobile` (Expo SDK 52) |
 
 ---
 
