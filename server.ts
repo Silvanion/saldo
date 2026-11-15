@@ -17,16 +17,15 @@ const PORT = Number(process.env.PORT ?? 3000);
 
 // Initialize Firebase Admin safely
 if (getApps().length === 0) {
-  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
-  if (process.env.NODE_ENV === "production" && !projectId && process.env.IS_ELECTRON !== "true") {
-    console.error("FIREBASE_PROJECT_ID missing");
-    process.exit(1);
-  }
-  if (!projectId) {
-    console.warn("FIREBASE_PROJECT_ID not set. Firebase Admin initialized with default project credentials.");
-  }
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.GCLOUD_PROJECT ||
+    process.env.GCP_PROJECT ||
+    process.env.VITE_FIREBASE_PROJECT_ID ||
+    "saldoapp-70f93";
+
   try {
-    initializeApp(projectId ? { projectId } : undefined);
+    initializeApp({ projectId });
   } catch (err) {
     console.warn("Failed to initialize Firebase Admin SDK:", err);
   }

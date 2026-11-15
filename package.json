@@ -1,10 +1,13 @@
 {
   "name": "saldo-app",
   "private": true,
+  "workspaces": [
+    "packages/core"
+  ],
   "version": "1.6.7",
   "description": "Aplikacja do zarządzania finansami osobistymi i domowymi.",
-  "license": "AGPL-3.0-only",
   "author": "Silvanion",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "packageManager": "npm@11.17.0",
   "engines": {
@@ -48,6 +51,11 @@
       "entitlementsInherit": "build/entitlements.mac.inherit.plist"
     },
     "win": {
+      "signtoolOptions": {
+        "publisherName": [
+          "SignPath Foundation"
+        ]
+      },
       "target": [
         {
           "target": "nsis",

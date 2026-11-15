@@ -12,7 +12,17 @@ export default defineConfig({
   test: {
     // rodoManualTest hits a real production Firebase project (live signup/delete) and must
     // only run manually (e.g. `npx vitest run src/rodoManualTest.integration.test.ts`), never in CI/`npm test`.
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/e2e-prod/**', '**/e2e-electron/**', '**/rules-tests/**', '**/rodoManualTest.integration.test.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**',
+      '**/e2e-prod/**',
+      '**/e2e-electron/**',
+      '**/rules-tests/**',
+      '**/rodoManualTest.integration.test.ts',
+      'packages/mobile/**',
+    ],
+    setupFiles: [path.resolve(__dirname, 'src/testSetup.ts')],
     fileParallelism: false,
     coverage: {
       provider: 'v8',

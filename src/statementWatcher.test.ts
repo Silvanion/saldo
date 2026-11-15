@@ -31,9 +31,10 @@ describe("statementWatcher", () => {
     fs.writeFileSync(path.join(dir, "stary.csv"), "a;b\n1;2");
     await sleep(50);
     watcher.start(dir);
+    await sleep(50);
     fs.writeFileSync(path.join(dir, "wyciag.csv"), "a;b\n1;2");
     fs.writeFileSync(path.join(dir, "notatki.txt"), "nie wyciąg");
-    await sleep(500);
+    await sleep(700);
     expect(found).toEqual([path.join(dir, "wyciag.csv")]);
   });
 

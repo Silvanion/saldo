@@ -1,176 +1,230 @@
 <div align="center">
 
+<img src="public/pwa-512x512.png" alt="Saldo Logo" width="100" height="100">
+
 # Saldo
 
-**Prywatne finanse osobiste i domowe — lokalnie, bez konta, z doradcą AI pod Twoją kontrolą.**
+**Prywatne finanse osobiste i domowe — 100% offline & local-first. Z aplikacją mobilną (Expo), silnikiem domenowym `@saldo/core` i prywatnym AI (Ollama) pod Twoją kontrolą.**
 
-[![Najnowsze wydanie](https://img.shields.io/github/v/release/Silvanion/saldo?label=wydanie)](https://github.com/Silvanion/saldo/releases/latest)
-[![CI](https://github.com/Silvanion/saldo/actions/workflows/ci.yml/badge.svg)](https://github.com/Silvanion/saldo/actions/workflows/ci.yml)
-![Platformy](https://img.shields.io/badge/platformy-macOS%20%7C%20Windows%20%7C%20Web-137566)
-![Local-first](https://img.shields.io/badge/dane-local--first-137566)
-
-[Pobierz](#pobierz) · [Dlaczego Saldo](#dlaczego-saldo) · [Funkcje](#funkcje) · [Import z banków](#import-z-banków) · [Dla deweloperów](#dla-deweloperów)
+[![Wydanie](https://img.shields.io/badge/wersja-v1.6.7-137566?style=for-the-badge&logo=github)](https://github.com/Silvanion/saldo/releases/latest)
+[![Licencja](https://img.shields.io/badge/licencja-GNU%20AGPL%20v3.0-blue?style=for-the-badge)](LICENSE)
+[![Platformy](https://img.shields.io/badge/platformy-macOS%20%7C%20Windows%20%7C%20iOS%20%7C%20Android%20%7C%20PWA-7c3aed?style=for-the-badge)](https://github.com/Silvanion/saldo/releases/latest)
+[![Prywatność](https://img.shields.io/badge/architektura-local--first%20%7C%20zero--cloud-green?style=for-the-badge)](SECURITY_AUTH_PRIVACY.md)
+[![Dostępność](https://img.shields.io/badge/dostępność-WCAG%202.1%20AA-059669?style=for-the-badge)](e2e/axe.spec.ts)
 
 <br>
 
-<img src="public/assets/help/02-dashboard.png" alt="Pulpit Saldo — bilans miesiąca, kondycja finansowa i prognoza" width="900">
+[Pobierz aplikację](#-pobierz-i-zainstaluj) · [Nowości w v1.6.7](#-nowości-w-wersji-167) · [Kluczowe moduły](#-przegląd-modułów-aplikacji) · [Import z banków](#-import-wyciągów-bankowych) · [Architektura](#-architektura-i-deweloperzy) · [Bezpieczeństwo](#-bezpieczeństwo-i-prywatność)
+
+<br>
+
+<img src="public/assets/help/02-dashboard.png" alt="Pulpit Saldo — bilans miesiąca, kondycja finansowa i prognoza" width="950" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
 
 </div>
 
-<br>
+---
 
-Saldo to aplikacja do budżetu, płatności cyklicznych, celów oszczędnościowych i długów (w tym Kredyt Hipoteczny Pro). Startuje w 100% offline i nie wymusza logowania Google ani e-maila — synchronizacja w chmurze jest w pełni opcjonalna. Dostępna jako aplikacja webowa (PWA) oraz natywna aplikacja desktopowa na macOS i Windows.
+## 💡 Dlaczego Saldo?
 
-## Dlaczego Saldo
+Większość aplikacji finansowych wymaga połączenia z bankiem przez zewnętrznych agregatorów, zakłada obowiązkowe konta w chmurze i przetwarza poufne dane transakcyjne na obcych serwerach. **Saldo powstało w opozycji do tego modelu.**
 
-| | |
-| --- | --- |
-| **Local-first** | Kreator tworzy lokalny profil (nazwa, awatar, waluta, opcjonalny PIN) bez konta. Dane zostają na Twoim urządzeniu; chmura jest dostępna później, wyłącznie w Ustawieniach. |
-| **AI, które wybierasz Ty** | Lokalny model przez Ollama (nic nie opuszcza komputera) albo własny klucz Gemini lub Claude. Klucz jest przechowywany w bezpiecznym magazynie systemu, a aplikacja pokazuje, co dokładnie trafia do dostawcy. |
-| **Polskie banki** | Import wyciągów CSV i PDF z dedykowanymi parserami Alior Banku i Zen oraz ostrzeżeniami o przelewach własnych i operacjach na koncie kredytowym. |
-| **Bezpieczeństwo** | Szyfrowanie profilu kluczem z PIN-u, odblokowanie Touch ID / Windows Hello, automatyczna blokada po zablokowaniu ekranu. |
+| Filar | Jak to działa w Saldo? |
+| :--- | :--- |
+| 🛡️ **100% Local-First & Zero-Cloud** | Twoje finanse należą wyłącznie do Ciebie. Zapisywane są lokalnie w szyfrowanej bazie IndexedDB (desktop/web) oraz SQLite WAL (mobile). Aplikacja nie wymaga konta ani internetu do pełnego działania. |
+| 📱 **Ekosystem Mobile + Desktop** | Jedno spójne doświadczenie: natywna aplikacja desktopowa (macOS, Windows), PWA oraz nowoczesna aplikacja mobilna (iOS & Android via Expo SDK 52) z natywną biometrią Face ID / Touch ID. |
+| 🧠 **Współdzielony silnik domenowy** | Pakiet `@saldo/core` gwarantuje identyczne, deterministyczne wyliczenia hipoteki, podatków B2B 2026 i budżetu 50/30/20 na każdej platformie, bez zależności od środowiska wykonawczego. |
+| 🤖 **Prywatne AI na Twoich warunkach** | Doradca finansowy AI działa w 100% lokalnie przez **Ollama** (żaden bajt nie opuszcza urządzenia) lub z Twoim własnym kluczem Gemini / Claude zapisanym w systemowym Keychain / SecureStore. |
+| 🔏 **Bezpieczeństwo Windows (SignPath)** | Oficjalne binarki Windows są podpisywane cyfrowo w chmurze **SignPath Foundation** z certyfikatem open-source i automatyczną weryfikacją aktualizacji `electron-updater`. |
+| 🇵🇱 **Polskie banki i Podatki B2B 2026** | Dedykowane parsery Alior Bank, Zen oraz uniwersalny parser CSV z autodetekcją przelewów wewnętrznych. Aktualny kalkulator rezerw podatkowych 2026 (ZUS, składka zdrowotna, ryczałt, liniowy, skala). |
 
-## Pobierz
+---
 
-Najnowsza wersja: **[GitHub Releases → Latest](https://github.com/Silvanion/saldo/releases/latest)**
+## 🚀 Nowości w wersji 1.6.7
 
-| System | Plik |
-| --- | --- |
-| macOS — Apple Silicon (M1–M5) | `Saldo-<wersja>-arm64.dmg` |
-| macOS — Intel | `Saldo-<wersja>.dmg` |
-| Windows — instalator | `Saldo-Setup-<wersja>.exe` |
-| Windows — wersja przenośna | `Saldo-<wersja>-portable.exe` |
+- 🛡️ **Kompleksowy Audyt Bezpieczeństwa & Architektury 2026-11:**
+  - **SEC-01 / SEC-05:** Blokada sesji PIN chroni przed wyciekiem jawnym tekstem do pamięci i na dysk; natychmiastowe szyfrowanie po wygaśnięciu sesji.
+  - **SEC-06:** Bezpieczne przechowywanie kluczy API (desktop: macOS Keychain; web: `sessionStorage` — klucz znika po zamknięciu karty).
+  - **UX-01:** Automatyczne, rotacyjne lokalne kopie zapasowe na pulpicie (do 30 wersji historii).
+  - **A11Y-01..04:** Pełna zgodność z normą **WCAG 2.1 AA** (kontrast, nawigacja klawiaturą, skany axe-core dla 9 widoków w obu motywach).
+  - **LEGAL-01:** Kanoniczna licencja **GNU Affero General Public License v3.0** (`AGPL-3.0-only`).
+- 📱 **Monorepo i Saldo Mobile (Expo SDK 52 / React Native 0.76):**
+  - Nowa aplikacja mobilna w `packages/mobile` z obsługą iOS, Android i podglądu Web.
+  - Szybkie dodawanie wydatków (Quick Add) w 3 sekundy z haptyczną informacją zwrotną.
+  - Zabezpieczenie biometryczne (Face ID / Touch ID / BiometricPrompt) oraz szyfrowany PIN w bezpiecznej enklawie (`SecureStore`).
+  - Baza danych SQLite w trybie transakcyjnym WAL (`expo-sqlite`).
+- 🧩 **Czysty pakiet domenowy (`@saldo/core`):**
+  - Wyodrębnienie czystej logiki finansowej do `packages/core` — podatki 2026, algorytmy spłaty zadłużenia (Kula śnieżna, Lawina), MortgagePro LTV oraz parsery bankowe.
+- 🇵🇱 **Aktualizacja stawek podatkowych 2026:**
+  - Nowe oficjalne parametry ZUS i składki zdrowotnej dla jednoosobowych działalności gospodarczych (JDG).
+- ⚡ **Niezrównany rygor testowy:**
+  - **155 plików testowych (1435 testów jednostkowych i integracyjnych)** w aplikacji głównej + dedykowane testy domenowe `@saldo/core` i testy biometrii mobilnej (100% PASS).
 
-<details>
-<summary><b>Pierwsze uruchomienie i aktualizacje</b></summary>
+---
 
-<br>
+## 📸 Przegląd modułów aplikacji
 
-**macOS.** Wydania nie są jeszcze notaryzowane przez Apple (podpis ad-hoc), dlatego przy pierwszym otwarciu system pokaże ostrzeżenie. Otwórz **Ustawienia systemowe → Prywatność i ochrona**, w sekcji *Ochrona* kliknij **„Otwórz mimo to”** przy Saldo — wystarczy raz. Z tego samego powodu aktualizacje na macOS instaluje się ręcznie: aplikacja informuje o nowej wersji i otwiera stronę wydania.
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
+  <h3>📊 Pulpit i Budżet 50/30/20</h3>
+  <p>Kompleksowy przegląd kondycji finansowej, prognoza do końca miesiąca, bezpieczna kwota do wydania (Safe-to-Spend) oraz dynamiczny podział budżetu wg zasady 50/30/20 (Potrzeby / Zachcianki / Oszczędności).</p>
+  <img src="public/assets/help/08-budget.png" alt="Budżet i limity" width="100%" style="border-radius: 8px;">
+</td>
+<td width="50%" valign="top">
+  <h3>💳 Historia Transakcji & Szybkie Dodawanie</h3>
+  <p>Błyskawiczne dodawanie wydatków za pomocą skrótów klawiszowych lub palety poleceń (<code>Cmd+K</code>). Normalizacja polskich znaków diakrytycznych, autokategoryzacja oraz filtry zaawansowane.</p>
+  <img src="public/assets/help/06-transactions.png" alt="Transakcje" width="100%" style="border-radius: 8px;">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+  <h3>🏠 Kredyty i Hipoteka Pro</h3>
+  <p>Symulator nadpłat, test warunków skrajnych KNF (+100 do +400 pb.), harmonogramy rat malejących i równych, symulacje wakacji kredytowych oraz bieżący monitoring wskaźnika LTV.</p>
+  <img src="public/assets/help/10-debts.png" alt="Moduł Hipoteka Pro" width="100%" style="border-radius: 8px;">
+</td>
+<td width="50%" valign="top">
+  <h3>⚡ Strategie Spłaty Zobowiązań</h3>
+  <p>Wizualne porównanie strategii Kuli Śnieżnej (najmniejszy dług najpierw) oraz Lawiny (najwyższy procent najpierw). Oszczędność na odsetkach i symulacja przyspieszenia wolności finansowej.</p>
+  <img src="public/assets/help/14-debts-strategies.png" alt="Strategie spłaty" width="100%" style="border-radius: 8px;">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+  <h3>🤖 Doradca Finansowy AI</h3>
+  <p>Prywatny doradca AI oparty o rzeczywiste dane z Twojego budżetu. Wsparcie dla modeli w 100% lokalnych (Ollama) oraz chmurowych (Gemini / Claude). Pomaga zoptymalizować koszty bez wysyłania wrażliwych danych.</p>
+  <img src="public/assets/help/05-ai-chat.png" alt="Doradca AI" width="100%" style="border-radius: 8px;">
+</td>
+<td width="50%" valign="top">
+  <h3>📈 Analizy, Trendy i Majątek Netto</h3>
+  <p>Struktura wydatków, trendy miesięczne i roczne, weryfikator płynności oraz monitorowanie majątku netto (aktywa płynne, nieruchomości, inwestycje vs. zobowiązania).</p>
+  <img src="public/assets/help/11-analysis.png" alt="Analiza finansowa" width="100%" style="border-radius: 8px;">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+  <h3>📱 Saldo Mobile (iOS / Android)</h3>
+  <p>Kieszonkowe centrum finansowe: błyskawiczne wprowadzanie paragonów z haptyką, wgląd w limity 50/30/20, podgląd rezerwy podatkowej B2B i zabezpieczenie Face ID / Touch ID.</p>
+  <img src="public/assets/help/mobile-dashboard.png" alt="Saldo Mobile" width="100%" style="border-radius: 8px;">
+</td>
+<td width="50%" valign="top">
+  <h3>🔒 Centrum Bezpieczeństwa & Kopie Zapasowe</h3>
+  <p>Wygodne zarządzanie profilami, ochrona kodem PIN, blokada sesji bezczynności, automatyczne lokalne kopie zapasowe na dysku oraz pełny eksport/import bazy danych.</p>
+  <img src="public/assets/help/12-settings.png" alt="Ustawienia i kopie zapasowe" width="100%" style="border-radius: 8px;">
+</td>
+</tr>
+</table>
 
-**Windows.** Wydania nie są jeszcze podpisane cyfrowo, więc SmartScreen może pokazać ostrzeżenie przy pierwszym uruchomieniu instalatora. Aktualizacje instalują się automatycznie po potwierdzeniu w aplikacji.
+---
 
-</details>
+## 🏦 Import wyciągów bankowych
 
-## Funkcje
+Saldo posiada wbudowany silnik inteligentnego przetwarzania wyciągów bankowych z automatyczną deduplikacją w czasie $O(n)$:
 
-Menu boczne grupuje funkcje według sposobu użycia.
+| Bank / Źródło | Obsługiwany format | Status parsera | Cechy specjalne |
+| :--- | :--- | :---: | :--- |
+| **Alior Bank** | CSV, PDF | Dedykowany | Identyczne sumy kontrolne dla CSV i PDF, obsługa kodowania Windows-1250 i UTF-8. |
+| **Zen.com** | CSV, PDF | Dedykowany | Weryfikacja salda początkowego i końcowego, automatyczna detekcja walut. |
+| **mBank / PKO / ING** | CSV | Uniwersalny | Interaktywny kreator mapowania kolumn z natychmiastowym podglądem. |
+| **Inne banki** | PDF (tekstowy) | Eksperymentalny | Parsowanie lokalne przez bibliotekę PDF.js bez wysyłania plików na obcy serwer. |
 
-**Codzienne**
-- **Przegląd** — bieżący bilans, trendy wydatków, kondycja finansowa, prognoza na koniec miesiąca, bezpieczna kwota do wydania i skrócony przegląd płatności oraz celów.
-- **Historia** — transakcje z kategoriami, tagami i wykrywaniem duplikatów, import wyciągów CSV/PDF.
-- **Płatności** — cykliczne rachunki, przypomnienia o terminach, natywne powiadomienia systemowe.
+> [!NOTE]
+> **Bezpieczeństwo importu:** Wyciągi bankowe są parsowane **wyłącznie w przeglądarce / procesie lokalnym**. Przed zatwierdzeniem transakcji użytkownik ma pełny wgląd w podgląd operacji oraz oznaczenia transferów wewnętrznych (np. spłata karty, zasilenie konta oszczędnościowego).
 
-**Planowanie**
-- **Budżet** — kategorie z limitami.
-- **Cele i oszczędności** — śledzenie postępu, scenariusze dojścia do celu.
-- **Analiza** — wykresy i podsumowania wydatków.
+---
 
-**Majątek**
-- **Majątek netto** — aktywa i zobowiązania w jednym widoku.
-- **Kredyty i Hipoteka** — strategie spłaty (lawina / kula śnieżna), Kredyt Hipoteczny Pro (test warunków skrajnych KNF, wakacje kredytowe, raty malejące, monitoring LTV).
-- **Podatki B2B** — kalkulator przyjmujący dane z Analizy.
+## 📦 Pobierz i zainstaluj
 
-**Doradca AI** — czat uziemiony w deterministycznym silniku finansowym aplikacji; może zaproponować i zapisać konkretny plan działania. Działa z lokalnym modelem (Ollama) albo z własnym kluczem Gemini/Claude. Przy niedostępności dostawcy chmurowego aplikacja ponawia zapytanie i pokazuje czytelny komunikat.
+Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](https://github.com/Silvanion/saldo/releases/latest)**:
 
-**Dane i kopie zapasowe** — kopia zapasowa i synchronizacja przez Google Drive (opcjonalnie), eksport i import JSON.
+| Platforma | Wariant | Plik instalacyjny |
+| :--- | :--- | :--- |
+| **macOS** | Apple Silicon (M1/M2/M3/M4/M5) | `Saldo-1.6.7-arm64.dmg` |
+| **macOS** | Procesory Intel (x64) | `Saldo-1.6.7.dmg` |
+| **Windows** | Instalator (podpisany przez SignPath) | `Saldo-Setup-1.6.7.exe` |
+| **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
+| **Web / PWA** | Przeglądarka internetowa | Dostępna w trybie offline jako aplikacja PWA |
+| **Mobile** | iOS & Android | Kod źródłowy w `packages/mobile` (Expo SDK 52) |
 
-## Import z banków
+---
 
-| Bank | Format | Status |
-| --- | --- | --- |
-| Alior Bank | CSV „Historia operacji”, PDF „Historia transakcji” | Dedykowany parser, sprawdzony na prawdziwym eksporcie; CSV i PDF dają te same sumy |
-| Zen | CSV „Account Statement”, PDF | Dedykowany parser, sprawdzony na prawdziwym eksporcie; saldo z PDF służy do kontroli ciągłości |
-| Pozostałe banki (m.in. mBank) | CSV, PDF | Ogólne mapowanie kolumn z podglądem przed importem |
+## 🛠️ Architektura i deweloperzy
 
-Import zawsze przechodzi przez podgląd i wymaga Twojego potwierdzenia. Aplikacja czyta kodowanie plików (UTF-8 i Windows-1250) i oznacza wiersze, które mogą dublować inne pozycje — przelewy między własnymi rachunkami i operacje na koncie limitu lub kredytu. Kategorie zaproponowane przez lokalne AI są wyraźnie oznaczone.
+Projekt jest zorganizowany jako nowoczesne monorepo (`npm workspaces`):
 
-## Aplikacja desktopowa
-
-- **Folder z wyciągami** (Ustawienia → Kopia i raporty): nowy plik CSV/PDF wywołuje powiadomienie systemowe, a import wymaga potwierdzenia w podglądzie. Można też przeciągnąć wyciąg z Findera/Eksploratora na okno lub ikonę Docka/paska zadań.
-- **Aktualizacje** przez `electron-updater`: powiadomienie w aplikacji, pobranie dopiero po potwierdzeniu, ręczne sprawdzanie z menu i z widoku „Historia Zmian”.
-- **Integracja z systemem**: ikona w tray z szybkim dodawaniem wydatku, dock badge, natywne powiadomienia, autostart, zapamiętywanie rozmiaru i pozycji okna, natywne okna dialogowe kopii zapasowej.
-- **Odporność na awarie**: automatyczne odświeżenie okna po awarii procesu renderującego i dziennik zdarzeń diagnostycznych.
-
-Pełna lista i status wdrożenia: [TODO_DESKTOP.md](TODO_DESKTOP.md).
-
-## Dla deweloperów
-
-**Stos:** React 19, TypeScript, Vite, Tailwind CSS, Framer Motion, Recharts · Express 5 (serwer webowy i wbudowany w Electron) · Firebase (Auth, Firestore) + lokalny cache offline · Electron, electron-builder, electron-updater · Vitest i Playwright.
-
-### Szybki start
-
-Wymagania: Node.js ≥ 22 (rekomendowane 22 LTS), npm ≥ 10.
-
-```bash
-# opcjonalnie przez nvm
-nvm install
-nvm use
-
-npm ci
-cp .env.example .env   # uzupełnij własnymi kluczami/konfiguracją
-
-npm run dev            # aplikacja webowa (Vite + Express)
-npm run dev:desktop    # to samo, opakowane w okno Electron
+```
+saldo/
+├── packages/
+│   ├── core/            # @saldo/core: Czysta logika biznesowa, finanse, podatki 2026, parsery (0 zależności UI)
+│   └── mobile/          # Saldo Mobile: Expo SDK 52, React Native 0.76, Expo Router v4, SQLite WAL
+├── src/                 # Aplikacja Desktop / Web: React 19, Vite, Tailwind CSS v4, Lucide
+├── electron/            # Główny proces Electrona, tray, auto-updater, integracja z OS
+├── scripts/             # Narzędzia pomocnicze (aktualizacja manifestu SignPath, zrzuty ekranu)
+└── server.ts            # Wbudowany lokalny serwer Express 5 dla środowiska deweloperskiego
 ```
 
-### Skrypty npm
+### ⚡ Wymagania środowiskowe
+- **Node.js:** `^22.0.0` (zalecany Node 22 LTS)
+- **npm:** `^10.0.0`
 
-| Skrypt | Opis |
-| --- | --- |
-| `npm run dev` | Serwer deweloperski (web) |
-| `npm run build` | Build produkcyjny (frontend + embedded server) |
-| `npm run start` | Uruchomienie zbudowanej wersji produkcyjnej |
-| `npm run lint` | Sprawdzenie typów (`tsc --noEmit`) |
-| `npm run test` | Testy jednostkowe/integracyjne (Vitest) |
-| `npm run test:e2e` | Testy E2E (Playwright) |
-| `npm run dev:desktop` | Aplikacja desktopowa w trybie deweloperskim |
-| `npm run build:desktop` | Pakowanie aplikacji desktopowej na bieżącą platformę |
-| `npm run build:desktop:all` | Pakowanie na macOS i Windows |
-| `npm run release:desktop` | Build + publikacja wydania (GitHub Releases) |
+### 💻 Szybki start deweloperski
 
-<details>
-<summary><b>Architektura desktopu</b></summary>
+1. **Sklonuj repozytorium i zainstaluj zależności:**
+   ```bash
+   git clone https://github.com/Silvanion/saldo.git
+   cd saldo
+   npm ci
+   cp .env.example .env
+   ```
 
-<br>
+2. **Uruchom wersję webową (Vite + Express):**
+   ```bash
+   npm run dev
+   # Aplikacja dostępna pod adresem: http://localhost:3000
+   ```
 
-Aplikacja Electron uruchamia wbudowany serwer Express (`dist/server.cjs`) wyłącznie na `127.0.0.1` i ładuje interfejs z `http://localhost:<port>`. Dane użytkownika trzymane są w IndexedDB/localStorage, które są izolowane per origin — dlatego port jest wybierany raz i zapisywany w `userData/server-port.json` (macOS: `~/Library/Application Support/saldo-app/`), aby origin, a więc i dane, był stały między uruchomieniami. Logi: `~/Library/Logs/saldo-app/main.log` (macOS), `%APPDATA%\saldo-app\logs` (Windows).
+3. **Uruchom aplikację mobilną (Expo):**
+   ```bash
+   cd packages/mobile
+   npm run web          # Podgląd w przeglądarce: http://localhost:8081
+   # lub:
+   npx expo start       # Kod QR do zeskanowania w aplikacji Expo Go (iOS/Android)
+   ```
 
-</details>
+4. **Uruchom aplikację desktopową (Electron):**
+   ```bash
+   npm run dev:desktop
+   ```
 
-<details>
-<summary><b>Wydanie aplikacji desktopowej</b></summary>
+### 🧪 Testy i jakość kodu
 
-<br>
+Repozytorium utrzymuje 100% dyscyplinę testową:
+```bash
+npm run lint         # Sprawdzenie typów TypeScript we wszystkich modułach (0 błędów)
+npm test -- --run    # 155 plików testowych Vitest (1435 testów jednostkowych/integracyjnych)
+npm run test:e2e     # Kompleksowe testy E2E Playwright
+npm run build        # Produkcyjny build aplikacji web i serwera
+```
 
-1. Podbij wersję (`npm version <x.y.z> --no-git-tag-version`) i dodaj wpis w [CHANGELOG.md](CHANGELOG.md) oraz `src/content/changelogData.tsx` (widok „Co nowego” w aplikacji). Wersję widoczną w aplikacji wyznacza `package.json`.
-2. Po scaleniu do `main` wypchnij tag `v*` (np. `git tag -a v1.6.2 -m "Saldo v1.6.2" && git push origin v1.6.2`).
-3. [.github/workflows/release-desktop.yml](.github/workflows/release-desktop.yml) buduje macOS (arm64 + x64) i Windows, sprawdza zgodność `latest*.yml` z zbudowanymi plikami, tworzy **szkic** wydania i dołącza artefakty.
-4. Uzupełnij opis i opublikuj szkic — dopiero opublikowane wydanie widzą aplikacje sprawdzające aktualizacje.
+---
 
-**Podpisywanie.** Z sekretami `CSC_LINK`, `CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` build macOS jest podpisywany Developer ID i notaryzowany (pełne auto-aktualizacje, brak ostrzeżeń Gatekeepera); bez nich — podpis ad-hoc. Podpisywanie wydań Windows jest na razie wstrzymane.
+## 🔒 Bezpieczeństwo i prywatność
 
-</details>
+Szczegółowy opis polityki przetwarzania danych i architektury kryptograficznej znajdziesz w dokumentach:
+- 📄 **[SECURITY_AUTH_PRIVACY.md](SECURITY_AUTH_PRIVACY.md)**
+- 📄 **[SECURITY.md](SECURITY.md)**
+- 📄 **[SIGNPATH_SETUP.md](SIGNPATH_SETUP.md)**
 
-## Dokumentacja
+* **Brak telemetrii komercyjnej:** Zero trackerów Google Analytics, Meta Pixel czy zewnętrznych skryptów śledzących.
+* **Kryptografia profilu:** Szyfrowanie bazy danych kluczem AES-GCM derywowanym z PIN-u za pomocą PBKDF2/Argon2.
+* **Odporność na awarie:** Transakcyjny zapis bazy SQLite (WAL) na telefonie i atomowe aktualizacje profili na komputerze.
+* **Automatyczne kopie:** Wersja desktopowa tworzy rotacyjne, lokalne backupy bazy w katalogu danych użytkownika.
 
-- [Design.md](Design.md) — system projektowy i decyzje UI
-- [SECURITY_AUTH_PRIVACY.md](SECURITY_AUTH_PRIVACY.md) — model bezpieczeństwa, autoryzacja, prywatność
-- [PERFORMANCE.md](PERFORMANCE.md) — uwagi o wydajności
-- [RELEASE_QA_CHECKLIST.md](RELEASE_QA_CHECKLIST.md) — lista kontrolna przed wydaniem
-- [CHANGELOG.md](CHANGELOG.md) — historia zmian
-- [TODO_DESKTOP.md](TODO_DESKTOP.md) — status funkcji specyficznych dla desktopu
+---
 
-## Status
+## 📄 Licencja & Autor
 
-Projekt rozwijany prywatnie, kod publicznie dostępny. Zgłoszenia błędów: [Issues](https://github.com/Silvanion/saldo/issues) lub formularz „Zgłoś błąd” w aplikacji.
+* **Autor:** Seweryn Pawłowski ([Silvanion](https://github.com/Silvanion))
+* **Licencja:** [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`). Copyright © 2026 Silvanion.
+* **Zgłaszanie uwag:** [GitHub Issues](https://github.com/Silvanion/saldo/issues).
 
-## Licencja
-
-Saldo jest wolnym oprogramowaniem na licencji [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
-Copyright © 2026 Silvanion.
-
-W skrócie: możesz używać, studiować, zmieniać i rozpowszechniać program, także komercyjnie. Jeśli udostępnisz zmodyfikowaną wersję
-innym osobom — również jako usługę przez sieć — musisz udostępnić im kod źródłowy tej wersji na tej samej licencji (sekcja 13).
-To nie jest porada prawna; wiążący jest tekst w pliku [LICENSE](LICENSE).
-
+Saldo jest wolnym oprogramowaniem. Możesz używać, studiować, zmieniać i rozpowszechniać program, także komercyjnie. Jeśli udostępnisz zmodyfikowaną wersję innym osobom — również jako usługę przez sieć — musisz udostępnić im kod źródłowy tej wersji na tej samej licencji (sekcja 13 AGPLv3). Wiążący jest tekst w pliku [LICENSE](LICENSE).

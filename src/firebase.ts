@@ -2,6 +2,7 @@ import type { FirebaseApp } from "firebase/app";
 import type { Auth, User } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
 import { AppState } from "./types";
+import { pickSyncableState } from "./utils/stateMigration";
 
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyBBsBsPAJ0vt_s8hsUVf2b6DBy0Vl56nCA",
@@ -433,8 +434,20 @@ export const deleteOwnAccount = async (currentPassword?: string): Promise<void> 
       throw new Error(error?.message || "Błąd uwierzytelnienia przed usunięciem konta.");
     }
   } else {
-    // Google-only account
-    throw new Error("Usuwanie kont powiązanych wyłącznie z Google nie jest obsługiwane z poziomu hasła. Zarządzaj dostępem na koncie Google.");
+    // Google-only account: ponowna autoryzacja przed operacją usunięcia
+    try {
+      const provider = new authMod.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      await authMod.reauthenticateWithPopup(user, provider);
+    } catch (reauthErr: any) {
+      const code = reauthErr?.code || "";
+      if (code === "auth/popup-closed-by-user") {
+        throw new Error("Okno autoryzacji Google zostało zamknięte przed ukończeniem weryfikacji tożsamości.");
+      } else if (code === "auth/popup-blocked") {
+        throw new Error("Okno autoryzacji Google zostało zablokowane przez przeglądarkę.");
+      }
+      // Jeżeli reauthenticateWithPopup nie jest wymagane lub sesja jest świeża, kontynuujemy do próby usunięcia
+    }
   }
 
   // 2. Krok 1 usuwania: Usunięcie dokumentu użytkownika z Firestore
@@ -510,8 +523,10 @@ export const saveUserStateToFirestore = async (uid: string, state: AppState): Pr
   if (!ready || !firestoreMod || !db) return;
   const path = `users/${uid}`;
 
+  // Filtrujemy payload przez pickSyncableState, aby zagwarantować zgodność z firestore.rules
+  const syncableState = pickSyncableState(state);
   const payloadToSave = {
-    ...state,
+    ...syncableState,
     updatedAt: new Date().toISOString()
   };
 
