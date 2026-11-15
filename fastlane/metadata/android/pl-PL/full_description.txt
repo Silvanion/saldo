@@ -1,0 +1,9 @@
+Saldo to nowoczesna, w 100% otwarta (AGPL-3.0) i działająca w trybie offline aplikacja do zarządzania finansami osobistymi, budżetem i majątkiem.
+
+Główne funkcje:
+• 100% Offline & Prywatność: Wszystkie Twoje dane finansowe są przechowywane wyłącznie na Twoim urządzeniu w bazie IndexedDB. Zero wysyłania do chmury, zero analityki, zero reklam.
+• Import wyciągów bankowych: Wygodny import plików CSV i PDF z ponad 20 polskich banków (m.in. PKO BP, Pekao, mBank, Santander, ING, Alior, Millennium, Zen, Revolut).
+• Planowanie budżetu: Reguła 50/30/20, monitorowanie wydatków i celów oszczędnościowych.
+• Redukcja zadłużenia: Kalkulator strategii spłaty kredytów (Kula Śnieżna / Lawina) oraz analiza kredytu hipotecznego z nadpłatami i wskaźnikiem LTV.
+• Podatki B2B: Podręczny kalkulator podatków na rok 2026 (ryczałt, podatek liniowy, skala podatkowa, składki ZUS i zdrowotna).
+• Bezpieczeństwo: Opcjonalne zabezpieczenie kodem PIN z bezpiecznym szyfrowaniem danych.
