@@ -142,6 +142,7 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | **macOS** | Procesory Intel (x64) | `Saldo-1.6.7.dmg` |
 | **Windows** | Instalator klasyczny (.exe) | `Saldo-Setup-1.6.7.exe` |
 | **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
+| **Windows (Winget)** | Menedżer pakietów systemu Windows | `winget install Silvanion.Saldo` |
 | **Android** | Samodzielny instalator APK (pełna wersja Saldo) | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
 | **iOS / Web** | iPhone, iPad & Przeglądarka internetowa | Dostępna w 100% trybie offline jako aplikacja PWA (Zainstaluj na ekranie głównym) |
 
