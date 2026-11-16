@@ -9,4 +9,5 @@ export {
 export type { RecommendedAiModel } from "./SettingsAutomationSection";
 export { SettingsBackupSection } from "./SettingsBackupSection";
 export { SettingsSecuritySection } from "./SettingsSecuritySection";
+export { VaultV2Card } from "./VaultV2Card";
 export { SettingsGoogleHubSection } from "./SettingsGoogleHubSection";

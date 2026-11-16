@@ -25,6 +25,7 @@ import { clearState } from "../../services/localDb";
 import { activeKeys } from "../../services/crypto";
 import { ConfirmModal } from "../ConfirmModal";
 import { BiometricService, BiometricHardwareStatus } from "../../services/BiometricService";
+import { VaultV2Card } from "./VaultV2Card";
 
 function getPasswordStrength(password: string): { level: 0 | 1 | 2 | 3; label: string; color: string } {
   if (!password || password.length < 6) return { level: 0, label: "Za krótkie (min. 6 znaków)", color: "bg-border" };
@@ -55,6 +56,7 @@ interface SettingsSecuritySectionProps {
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
   showPinCard?: boolean;
   showAccountSecurity?: boolean;
+  showVaultCard?: boolean;
 }
 
 export function SettingsSecuritySection({
@@ -73,8 +75,11 @@ export function SettingsSecuritySection({
   onOpenPinModal,
   showToast,
   showPinCard = true,
-  showAccountSecurity = true
+  showAccountSecurity = true,
+  showVaultCard
 }: SettingsSecuritySectionProps) {
+  const shouldShowVaultCard = showVaultCard !== undefined ? showVaultCard : showAccountSecurity;
+
   // Biometrics state (macOS Touch ID / Windows Hello / WebAuthn)
   const [biometricsStatus, setBiometricsStatus] = useState<BiometricHardwareStatus>({
     available: false,
@@ -411,6 +416,11 @@ export function SettingsSecuritySection({
             </div>
           )}
         </div>
+      )}
+
+      {/* SECTION: VAULT V2 (MASTER PASSWORD & CRYPTOGRAPHIC ENGINE) */}
+      {shouldShowVaultCard && (
+        <VaultV2Card showToast={showToast} />
       )}
 
       {/* SECTION: SYNC & SECURITY */}

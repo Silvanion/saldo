@@ -20,7 +20,7 @@ import {
   Database
 } from "lucide-react";
 import { AppState, Profile } from "../../types";
-import { generateCsvContent, downloadFile, getMonthName } from "../../utils";
+import { generateCsvContent, downloadFile, shareOrDownloadBlob, getMonthName } from "../../utils";
 import { prepareStateForRemoteSave } from "../../services/crypto";
 import { ConfirmModal } from "../ConfirmModal";
 import { AutoBackupCard } from "./AutoBackupCard";
@@ -412,7 +412,8 @@ export function SettingsBackupSection({
                       window.electronAPI.setProgressBar?.(-1);
                     }
                   } else {
-                    downloadFile(json, `saldo-kopia-zaszyfrowana.json`, "application/json");
+                    const blob = new Blob([json], { type: "application/json" });
+                    await shareOrDownloadBlob(blob, `saldo-kopia-zaszyfrowana.json`, "Zaszyfrowana kopia Saldo");
                   }
                 }}
                 className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
@@ -469,7 +470,8 @@ export function SettingsBackupSection({
                       window.electronAPI.setProgressBar?.(-1);
                     }
                   } else {
-                    downloadFile(json, `saldo-kopia-czytelna.json`, "application/json");
+                    const blob = new Blob([json], { type: "application/json" });
+                    await shareOrDownloadBlob(blob, `saldo-kopia-czytelna.json`, "Kopia czytelna Saldo");
                   }
                   if (onExportData) {
                     onExportData();
