@@ -131,7 +131,7 @@
     "@testing-library/react": "^16.3.2",
     "@types/cors": "^2.8.19",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^22.14.0",
+    "@types/node": "^26.6.6",
     "@types/papaparse": "^5.5.2",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/coverage-v8": "^4.1.12",
