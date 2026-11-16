@@ -6,10 +6,10 @@ Wewnątrz aplikacji, treść "Co nowego" jest generowana z pliku `src/content/ch
 Zasady bazują na [Keep a Changelog](https://keepachangelog.com/pl/1.0.0/).
 
 ## [v1.6.7] - Listopad 2026
-### Nowości: Pełna aplikacja Android (Capacitor APK & PWA), Monorepo `@saldo/core` oraz podpisywanie kodu
+### Nowości: Pełna aplikacja Android (Capacitor APK & PWA), Monorepo `@saldo/core` oraz weryfikacja wydań
 - **Aplikacja mobilna (Android APK & PWA)**: samodzielny instalator `.apk` (`Saldo-1.6.7.apk`) dla systemu Android oparty o natywną powłokę Capacitor, uruchamiający 100% pełnej aplikacji Saldo (wszystkie 15 modułów, baza IndexedDB, zaawansowane wykresy, importy wyciągów z 20+ banków, reguły, zero atrap i fikcyjnych danych). Na urządzeniach z systemem iOS i w przeglądarkach aplikacja działa w pełnym trybie offline jako PWA z możliwością dodania do ekranu głównego.
 - **Architektura Monorepo i pakiet `@saldo/core`**: wydzielenie logiki biznesowej, kalkulatorów (podatki B2B 2026, strategie spłaty długów Snowball/Avalanche, reguła 50/30/20, hipoteka LTV) oraz parserów bankowych do bezstanowego pakietu `@saldo/core` (`packages/core`) współdzielonego między webem, Electronem i mobilem.
-- **Podpisywanie kodu (SignPath Foundation)**: integracja pipeline'u CI z darmowym certyfikatem SignPath dla projektów Open Source (`SIGNPATH_SETUP.md`).
+- **Dystrybucja Windows i weryfikacja wydań**: wdrożenie skryptów automatycznej weryfikacji sum kontrolnych SHA-512 dla `electron-updater`, dystrybucja instalatora oraz wersji Portable na Windows, integracja z repozytorium `winget`.
 
 ### Poprawki bezpieczeństwa i prywatności po audycie (szczegóły: `audit-2026-11/`)
 - **Szyfrowanie lokalne**: zapis profilu z PIN-em w stanie zablokowanym nie trafia już na dysk jawnym tekstem; blokada sesji (`lockSession`) szyfruje profil i usuwa klucz oraz dane z pamięci także przy uśpieniu/blokadzie ekranu.

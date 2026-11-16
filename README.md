@@ -34,7 +34,7 @@ Większość aplikacji finansowych wymaga połączenia z bankiem przez zewnętrz
 | 📱 **Ekosystem Mobile + Desktop** | Jedno spójne doświadczenie: natywna aplikacja desktopowa (macOS, Windows), PWA oraz nowoczesna aplikacja mobilna (iOS & Android via Expo SDK 52) z natywną biometrią Face ID / Touch ID. |
 | 🧠 **Współdzielony silnik domenowy** | Pakiet `@saldo/core` gwarantuje identyczne, deterministyczne wyliczenia hipoteki, podatków B2B 2026 i budżetu 50/30/20 na każdej platformie, bez zależności od środowiska wykonawczego. |
 | 🤖 **Prywatne AI na Twoich warunkach** | Doradca finansowy AI działa w 100% lokalnie przez **Ollama** (żaden bajt nie opuszcza urządzenia) lub z Twoim własnym kluczem Gemini / Claude zapisanym w systemowym Keychain / SecureStore. |
-| 🔏 **Bezpieczeństwo Windows (SignPath)** | Oficjalne binarki Windows są podpisywane cyfrowo w chmurze **SignPath Foundation** z certyfikatem open-source i automatyczną weryfikacją aktualizacji `electron-updater`. |
+| 🔏 **Bezpieczeństwo i Przejrzystość** | Kod w 100% otwarty (AGPL-3.0), automatyczna weryfikacja sum kontrolnych SHA-512 przy aktualizacji przez `electron-updater` i zero telemetrycznych bibliotek śledzących. |
 | 🇵🇱 **Polskie banki i Podatki B2B 2026** | Dedykowane parsery Alior Bank, Zen oraz uniwersalny parser CSV z autodetekcją przelewów wewnętrznych. Aktualny kalkulator rezerw podatkowych 2026 (ZUS, składka zdrowotna, ryczałt, liniowy, skala). |
 
 ---
@@ -140,13 +140,13 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | :--- | :--- | :--- |
 | **macOS** | Apple Silicon (M1/M2/M3/M4/M5) | `Saldo-1.6.7-arm64.dmg` |
 | **macOS** | Procesory Intel (x64) | `Saldo-1.6.7.dmg` |
-| **Windows** | Instalator (podpisany przez SignPath) | `Saldo-Setup-1.6.7.exe` |
+| **Windows** | Instalator klasyczny (.exe) | `Saldo-Setup-1.6.7.exe` |
 | **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
 | **Android** | Samodzielny instalator APK (pełna wersja Saldo) | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
 | **iOS / Web** | iPhone, iPad & Przeglądarka internetowa | Dostępna w 100% trybie offline jako aplikacja PWA (Zainstaluj na ekranie głównym) |
 
-> [!NOTE]
-> Windows installers are signed using free code signing provided by the [SignPath Foundation](https://signpath.org/) ([SignPath.io](https://about.signpath.io)).
+> [!TIP]
+> **Pierwsze uruchomienie na Windowsie:** Ponieważ Saldo jest nowym, w 100% niezależnym projektem Open Source bez wykupionego certyfikatu komercyjnego, filtr Windows Defender SmartScreen może przy pierwszym uruchomieniu wyświetlić informacyjny komunikat. Aby uruchomić aplikację, kliknij: **Więcej informacji** (*More info*) → **Uruchom mimo to** (*Run anyway*). Wraz ze wzrostem liczby pobrań na świecie SmartScreen automatycznie buduje reputację pliku. Alternatywnie możesz użyć wersji Portable lub zainstalować przez `winget install Silvanion.Saldo`.
 
 ---
 

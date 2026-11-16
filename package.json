@@ -51,11 +51,6 @@
       "entitlementsInherit": "build/entitlements.mac.inherit.plist"
     },
     "win": {
-      "signtoolOptions": {
-        "publisherName": [
-          "SignPath Foundation"
-        ]
-      },
       "target": [
         {
           "target": "nsis",

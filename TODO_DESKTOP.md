@@ -3,7 +3,7 @@
 ## 🔴 Krytyczne — blokują "prawdziwe" wydanie
 - [x] 1. Auto-aktualizacja (`electron-updater`, `latest-mac.yml`).
 - [ ] 2. Podpisywanie kodu i notaryzacja na macOS — hardenedRuntime i entitlements są skonfigurowane, ale bez płatnego konta Apple Developer wydania mają podpis ad-hoc i nie są notaryzowane.
-- [x] 3. Podpisywanie kodu na Windows — przygotowano integrację z SignPath Foundation (dodano licencję AGPL-3.0-only, publisherName "SignPath Foundation", workflow GitHub Actions oraz synchronizator sum SHA-512 `scripts/update-windows-manifest.mjs`). Wymaga jedynie podłączenia sekretów w repozytorium GitHub po akceptacji projektu przez SignPath Foundation.
+- [x] 3. Dystrybucja na Windows — instalator NSIS oraz wersja Portable, weryfikacja sum SHA-512 dla electron-updater, integracja z Winget. Zgłoszenie do SignPath Foundation odrzucone ze względu na wczesny etap rozpoznawalności projektu (wymaga zewnętrznych wzmianek/stars); ponowne złożenie możliwe po wzroście bazy użytkowników.
 - [x] 4. Blokada pojedynczej instancji (`app.requestSingleInstanceLock()`).
 - [x] 5. Ikona okna (odkomentowana w `main.cjs`).
 
