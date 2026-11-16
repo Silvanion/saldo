@@ -201,15 +201,34 @@ html.high-dpi {
   text-rendering: optimizeLegibility;
 }
 
-/* Dynamic window safe areas & desktop titlebar integration */
+/* Dynamic window safe areas, mobile notch/gesture bar insets & desktop titlebar integration */
 :root {
   --titlebar-safe-left: 0px;
   --titlebar-safe-right: 0px;
   --app-height: 100dvh;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 }
 
 #top-bar-header {
-  padding-left: max(1rem, var(--titlebar-safe-left));
-  padding-right: max(1rem, var(--titlebar-safe-right));
+  padding-top: max(0.625rem, var(--safe-area-top));
+  padding-left: max(1rem, var(--titlebar-safe-left), var(--safe-area-left));
+  padding-right: max(1rem, var(--titlebar-safe-right), var(--safe-area-right));
+}
+
+#offline-worker-status-banner {
+  padding-bottom: max(0.25rem, var(--safe-area-bottom));
+  padding-left: max(1rem, var(--safe-area-left));
+  padding-right: max(1rem, var(--safe-area-right));
+  min-height: calc(1.75rem + var(--safe-area-bottom));
+  height: auto;
+}
+
+#sidebar-panel {
+  padding-top: max(1.5rem, var(--safe-area-top));
+  padding-bottom: max(1.5rem, var(--safe-area-bottom));
+  padding-left: max(1.5rem, var(--safe-area-left));
 }
 

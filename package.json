@@ -99,13 +99,16 @@
     "dev:desktop": "npm run build && electron .",
     "build:desktop": "npm run build && electron-builder",
     "build:desktop:all": "npm run build && electron-builder --mac --win",
-    "build:android": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
+    "build:android": "npm run build && npx cap sync android && cd android && JAVA_HOME=${JAVA_HOME:-/opt/homebrew/opt/openjdk@21} ANDROID_HOME=${ANDROID_HOME:-/opt/homebrew/share/android-commandlinetools} ./gradlew assembleRelease",
     "release:desktop": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
     "@capacitor/android": "8.6.2",
+    "@capacitor/app": "8.1.2",
     "@capacitor/cli": "8.6.2",
     "@capacitor/core": "8.6.2",
+    "@capacitor/keyboard": "8.0.6",
+    "@capacitor/status-bar": "8.0.4",
     "@types/compression": "^1.8.1",
     "compression": "^1.8.2",
     "cors": "^2.8.6",

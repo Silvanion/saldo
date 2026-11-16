@@ -9,6 +9,8 @@ import { ProfileDropdown } from "../components/profile/ProfileDropdown";
 import { UpdateToast } from "../components/update/UpdateToast";
 import { Sidebar } from "./Sidebar";
 import { useWindowScale } from "../services/WindowScaleManager";
+import { useMobileHardwareBack } from "../hooks/useMobileHardwareBack";
+import { useMobileStatusBar } from "../hooks/useMobileStatusBar";
 
 const CommandPaletteModal = lazy(() => import("../components/CommandPaletteModal").then(m => ({ default: m.CommandPaletteModal })));
 import {
@@ -60,6 +62,9 @@ export function AppShell({
     isDemoMode,
     setIsDemoMode,
     openModal,
+    modalState,
+    closeModal,
+    isSecurityInfoOpen,
     googleUser,
     disconnectGoogle,
     showToast
@@ -70,6 +75,30 @@ export function AppShell({
   const [showDemoBanner, setShowDemoBanner] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isTopUserMenuOpen, setIsTopUserMenuOpen] = useState(false);
+
+  // Android Capacitor hardware back button handling
+  useMobileHardwareBack(
+    {
+      isCommandPaletteOpen,
+      isTopUserMenuOpen,
+      isSecurityInfoOpen,
+      isModalOpen: modalState.type !== null,
+      isMobileMenuOpen,
+      activeView,
+    },
+    {
+      closeCommandPalette: () => setIsCommandPaletteOpen(false),
+      closeTopUserMenu: () => setIsTopUserMenuOpen(false),
+      closeSecurityInfo: () => toggleSecurityInfo(false),
+      closeModal,
+      closeMobileMenu: () => setIsMobileMenuOpen(false),
+      goToDashboard: () => setActiveView("dashboard"),
+      showToast,
+    }
+  );
+
+  // Android Capacitor dynamic status bar style and color synchronization
+  useMobileStatusBar(theme === "dark" ? "dark" : "light");
 
   const handleLogoutClick = async () => {
     setIsMobileMenuOpen(false);
