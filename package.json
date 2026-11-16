@@ -147,7 +147,7 @@
     "esbuild": "^0.25.0",
     "fake-indexeddb": "^6.2.5",
     "firebase": "^12.16.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^31.0.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
