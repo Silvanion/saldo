@@ -281,12 +281,37 @@ export function SettingsBackupSection({
                   {filePreview.profiles?.map((p) => p.name).join(", ") || "Brak"}
                 </strong>
               </div>
-              <div className="flex justify-between text-xs text-text-muted">
-                <span>Łączna liczba wpisów transakcji:</span>
-                <strong className="text-text-muted tabular-nums">
-                  {filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0}
-                </strong>
-              </div>
+              {filePreview.profiles?.some((p) => Boolean(p.encryptedPayload || p.cryptoVersion === 2 || p.pinHash)) ? (
+                <>
+                  <div className="flex justify-between text-xs text-text-muted">
+                    <span>Ochrona danych:</span>
+                    <strong className="text-brand flex items-center gap-1 font-semibold">
+                      <Lock className="w-3 h-3" />
+                      Zaszyfrowana (PIN / Skarbiec v2)
+                    </strong>
+                  </div>
+                  {(filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0) > 0 ? (
+                    <div className="flex justify-between text-xs text-text-muted">
+                      <span>Jawne wpisy transakcji:</span>
+                      <strong className="text-text-muted tabular-nums">
+                        {filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0}
+                      </strong>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-xs text-text-muted">
+                      <span>Transakcje:</span>
+                      <span className="text-text-muted italic">Bezpiecznie zaszyfrowane w profilu</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex justify-between text-xs text-text-muted">
+                  <span>Łączna liczba wpisów transakcji:</span>
+                  <strong className="text-text-muted tabular-nums">
+                    {filePreview.profiles?.reduce((acc: number, p) => acc + (p.transactions?.length || 0), 0) || 0}
+                  </strong>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -321,8 +346,10 @@ export function SettingsBackupSection({
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
+                type="button"
+                id="btn-backup-export-csv"
                 onClick={() => {
                   if (onOpenExportReports) {
                     onOpenExportReports("csv");
@@ -338,8 +365,34 @@ export function SettingsBackupSection({
                 <FileSpreadsheet className="w-4 h-4 text-brand" />
                 <span>Pobierz CSV</span>
               </button>
+              <button
+                type="button"
+                id="btn-backup-export-excel"
+                onClick={async () => {
+                  if (onOpenExportReports) {
+                    onOpenExportReports("csv");
+                    return;
+                  }
+                  if (activeProfile && activeProfile.transactions) {
+                    try {
+                      const { generateTransactionsExcelBlob } = await import("../../services/excelGenerator");
+                      const blob = generateTransactionsExcelBlob(activeProfile.transactions, activeProfile.currency || "PLN");
+                      await shareOrDownloadBlob(blob, `saldo-${activeProfile.name}-transakcje.xlsx`, "Eksport transakcji Excel (.xlsx)");
+                    } catch (error) {
+                      console.error("Błąd podczas generowania pliku Excel:", error);
+                      showToast("Nie udało się wygenerować pliku Excel. Spróbuj ponownie.", "error");
+                    }
+                  }
+                }}
+                className="bg-surface border border-border text-text-muted hover:border-brand/50 hover:text-brand active:scale-[0.98] transition-all py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-2 justify-center focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                <span>Pobierz Excel (.xlsx)</span>
+              </button>
               <div className="flex flex-col gap-1">
                 <button
+                  type="button"
+                  id="btn-backup-export-pdf"
                   onClick={async () => {
                     if (onOpenExportReports) {
                       onOpenExportReports("pdf");

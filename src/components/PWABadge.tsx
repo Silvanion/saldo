@@ -2,11 +2,12 @@ import React from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { WifiOff, RefreshCw } from 'lucide-react';
 import { DelayedTooltip } from './dashboard/DelayedTooltip';
+import { Capacitor } from '@capacitor/core';
 
 const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
 
 export function PWABadge() {
-  if (isElectron) return null;
+  if (isElectron || Capacitor.isNativePlatform()) return null;
   const {
     offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],

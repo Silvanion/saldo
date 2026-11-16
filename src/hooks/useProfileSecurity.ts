@@ -3,6 +3,7 @@ import { Profile, AppState } from "../types";
 import { hashPin } from "../utils";
 import { deriveKeyFromPin, activeKeys, decryptProfile, encryptProfile, generateRandomSalt, isNewerFormatProfile } from "../services/crypto";
 import { BiometricService } from "../services/BiometricService";
+import { lockVault } from "../services/vaultV2";
 
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 5;
 const BASE_LOCKOUT_MS = 30_000; // 30 seconds
@@ -44,6 +45,7 @@ export function useProfileSecurity({
   const lockSession = useCallback(async () => {
     const { state: s, activeProfile: profile, saveState: save } = latestRef.current;
     setUnlockedProfileId(null);
+    lockVault();
     if (!profile?.pinHash) return;
     const key = activeKeys[profile.id];
     delete activeKeys[profile.id];

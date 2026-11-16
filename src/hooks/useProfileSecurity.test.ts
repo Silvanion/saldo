@@ -104,6 +104,21 @@ describe("useProfileSecurity - lockSession (SEC-05)", () => {
     await act(async () => { await result.current.lockSession(); });
     expect(saveState).not.toHaveBeenCalled();
   });
+
+  it("lockSession kasuje również klucz sesji skarbca v2 (masterKey) jeśli był odblokowany", async () => {
+    const { setMasterKey, hasMasterKey } = await import("../services/masterKey");
+    setMasterKey({ type: "secret" } as CryptoKey);
+    expect(hasMasterKey()).toBe(true);
+
+    const profile = makeProfile();
+    const state: AppState = { profiles: [profile], activeProfileId: "p1" } as AppState;
+    const saveState = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useProfileSecurity({ state, activeProfile: profile, saveState }));
+
+    await act(async () => { await result.current.lockSession(); });
+
+    expect(hasMasterKey()).toBe(false);
+  });
 });
 
 

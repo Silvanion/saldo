@@ -13,6 +13,7 @@ import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
 import { useIdleLock } from "../hooks/useIdleLock";
 import { useAutoBackup } from "../hooks/useAutoBackup";
+import { isVaultUnlocked } from "../services/vaultV2";
 import { validateAndMigrateState } from "../utils/stateMigration";
 
 export function AppContent() {
@@ -49,7 +50,7 @@ export function AppContent() {
     : 5 * 60_000; // default 5 min
 
   useIdleLock({
-    isEnabled: !!activeProfile?.pinHash && !isProfileLocked && autoLockMs > 0,
+    isEnabled: (Boolean(activeProfile?.pinHash) || isVaultUnlocked()) && !isProfileLocked && autoLockMs > 0,
     timeoutMs: autoLockMs,
     onLock: () => {
       void lockSession();
