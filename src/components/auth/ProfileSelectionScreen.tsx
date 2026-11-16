@@ -225,7 +225,7 @@ export const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                 Kto dzisiaj zarządza budżetem?
               </h1>
               <p className="text-sm sm:text-base text-text-muted max-w-md mx-auto">
-                Wybierz profil, aby odblokować swoje finanse za pomocą Touch ID, Passkey lub kodu PIN.
+                Wybierz profil, aby odblokować swoje finanse za pomocą biometrii, Passkey lub kodu PIN.
               </p>
             </div>
 

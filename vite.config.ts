@@ -50,7 +50,7 @@ export default defineConfig(() => {
           // Precache tylko powłoki aplikacji i fontów. Ciężkie, leniwe paczki (PDF, eksport, canvas) NIE są
           // pobierane w tle przy instalacji PWA (PERF-03) — trafiają do cache przy pierwszym użyciu.
           globPatterns: ['**/*.{js,css,html,ico,svg,webmanifest,woff2}', '*.png'], // '*.png' = tylko ikony w katalogu głównym (nie zrzuty pomocy)
-          globIgnores: ['**/vendor-pdfjs-*', '**/vendor-jspdf-*', '**/vendor-html2canvas-*', '**/vendor-canvg-*', '**/vendor-dompurify-*', '**/vendor-fflate-*', '**/pdf.worker.min-*'],
+          globIgnores: ['**/vendor-pdfjs-*', '**/vendor-jspdf-*', '**/vendor-html2canvas-*', '**/vendor-canvg-*', '**/vendor-dompurify-*', '**/vendor-fflate-*', '**/pdf.worker.min-*', '**/vendor-firebase-*'],
           runtimeCaching: [
             {
               urlPattern: /\/assets\/help\/.*\.png$/i,

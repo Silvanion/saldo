@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { WalletCards, ShieldCheck, ArrowRight, ArrowLeft, Delete, Check, Fingerprint } from "lucide-react";
+import { WalletCards, ShieldCheck, ArrowRight, ArrowLeft, Delete, Check, Fingerprint, UploadCloud } from "lucide-react";
 import { AvatarPicker } from "../components/avatar/AvatarPicker";
 import { DEFAULT_AVATAR_ICON, DEFAULT_AVATAR_COLOR, type AvatarIconId, type AvatarColorId } from "../constants/avatars";
 import { BiometricService, type BiometricPlatformInfo } from "../services/BiometricService";
@@ -18,6 +18,7 @@ interface OnboardingWizardProps {
     currency: SupportedCurrency;
   }) => void | Promise<void>;
   onEnterDemo: () => void;
+  onImportBackup?: (file: File) => void;
 }
 
 type Step = "welcome" | "profile" | "pin" | "biometric" | "done";
@@ -31,7 +32,7 @@ const CURRENCIES: { value: SupportedCurrency; label: string }[] = [
 
 const cardTransition = { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const };
 
-export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardProps) {
+export function OnboardingWizard({ onComplete, onEnterDemo, onImportBackup }: OnboardingWizardProps) {
   const [profileId] = useState(() => "profile-" + Date.now());
   const [step, setStep] = useState<Step>("welcome");
   const [name, setName] = useState("");
@@ -189,25 +190,51 @@ export function OnboardingWizard({ onComplete, onEnterDemo }: OnboardingWizardPr
               <div className="rounded-xl bg-surface-2 p-4 text-left">
                 <p className="text-xs text-text-main leading-relaxed flex gap-2">
                   <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  <span>Dane zostają lokalnie na tym komputerze. Nie musisz logować się kontem e-mail ani Google, żeby zacząć korzystać z aplikacji.</span>
+                  <span>Dane zostają lokalnie na tym urządzeniu. Nie musisz logować się kontem e-mail ani Google, żeby zacząć korzystać z aplikacji.</span>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setStep("profile")}
-                className="w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
+                className="w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-text-inverse shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 cursor-pointer"
                 id="btn-onboarding-start"
               >
                 Rozpocznij <ArrowRight className="w-4 h-4" />
               </button>
-              <button
-                type="button"
-                onClick={onEnterDemo}
-                className="text-xs font-medium text-text-muted hover:text-text-main transition-colors cursor-pointer"
-                id="btn-onboarding-demo"
-              >
-                Wypróbuj tryb demonstracyjny
-              </button>
+              <div className="pt-2 border-t border-border/60 flex flex-col gap-2">
+                {onImportBackup && (
+                  <>
+                    <label
+                      htmlFor="onboarding-backup-input"
+                      className="w-full rounded-xl border border-border/80 bg-surface py-2.5 px-4 text-xs font-semibold text-text-main hover:bg-surface-2 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                      id="btn-onboarding-import-backup"
+                    >
+                      <UploadCloud className="w-4 h-4 text-brand" />
+                      <span>Przywróć kopię zapasową (.json)</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept=".json,application/json"
+                      id="onboarding-backup-input"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          onImportBackup(file);
+                        }
+                      }}
+                    />
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={onEnterDemo}
+                  className="text-xs font-medium text-text-muted hover:text-text-main transition-colors cursor-pointer py-1"
+                  id="btn-onboarding-demo"
+                >
+                  Wypróbuj tryb demonstracyjny
+                </button>
+              </div>
             </motion.div>
           )}
 

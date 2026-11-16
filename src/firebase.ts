@@ -144,6 +144,18 @@ export const initAuth = (
     return () => {};
   }
 
+  // PERF-04: Jeśli użytkownik nie łączył wcześniej konta Google, nie ładuj ciężkich
+  // modułów Firebase Auth/Firestore (~860 kB) na starcie aplikacji.
+  const hasGoogleHint =
+    typeof localStorage !== "undefined" &&
+    (localStorage.getItem("saldo.googleConnected") === "true" ||
+      Object.keys(localStorage).some((k) => k.startsWith("firebase:authUser:")));
+
+  if (!hasGoogleHint) {
+    onAuthFailure?.();
+    return () => {};
+  }
+
   let cancelled = false;
   let unsubscribe: (() => void) | null = null;
 
@@ -279,6 +291,9 @@ const requestGoogleAccess = async (kind: GoogleScopeSet, scopes: string[]): Prom
       tokens[kind] = credential.accessToken;
     }
     cachedUser = result.user;
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("saldo.googleConnected", "true");
+    }
     return { user: result.user, accessToken: tokens[kind] || '' };
   } catch (error: any) {
     console.error("Firebase Sign-in Error:", error);
@@ -505,6 +520,9 @@ export const getCurrentUser = (): User | null => {
 // Log out and clear cached token
 export const logout = async () => {
   try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem("saldo.googleConnected");
+    }
     if (authMod && auth?.app) {
       await authMod.signOut(auth);
     }
@@ -512,6 +530,9 @@ export const logout = async () => {
     cachedUser = null;
   } catch (error) {
     console.error("Firebase Sign-out Error:", error);
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem("saldo.googleConnected");
+    }
     tokens = { basic: null, drive: null, calendar: null };
     cachedUser = null;
   }

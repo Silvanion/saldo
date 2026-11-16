@@ -13,6 +13,7 @@ import { PWABadge } from "../components/PWABadge";
 import { ToastContainer } from "../components/ToastContainer";
 import { useIdleLock } from "../hooks/useIdleLock";
 import { useAutoBackup } from "../hooks/useAutoBackup";
+import { validateAndMigrateState } from "../utils/stateMigration";
 
 export function AppContent() {
   const {
@@ -32,6 +33,7 @@ export function AppContent() {
     lockoutUntil,
     lockSession,
     isSecurityInfoOpen,
+    showToast,
   } = useApp();
 
   // Check and display browser notifications for upcoming payments
@@ -71,6 +73,21 @@ export function AppContent() {
       <OnboardingWizard
         onEnterDemo={() => setIsDemoMode(true)}
         onComplete={handleAddProfile}
+        onImportBackup={async (file: File) => {
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            if (parsed && Array.isArray(parsed.profiles)) {
+              const validated = validateAndMigrateState(parsed);
+              await saveState(validated);
+              showToast("Baza danych została pomyślnie wczytana!", "success");
+            } else {
+              showToast("Plik JSON nie zawiera prawidłowej bazy danych Saldo.", "error");
+            }
+          } catch {
+            showToast("Błąd podczas odczytu pliku kopii zapasowej.", "error");
+          }
+        }}
       />
     );
   }

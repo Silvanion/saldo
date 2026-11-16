@@ -50,6 +50,18 @@ describe('OnboardingWizard', () => {
     expect(onEnterDemo).toHaveBeenCalledTimes(1);
   });
 
+  it('calls onImportBackup when a JSON backup file is selected from the welcome screen', () => {
+    const onImportBackup = vi.fn();
+    render(<OnboardingWizard onComplete={vi.fn()} onEnterDemo={vi.fn()} onImportBackup={onImportBackup} />);
+
+    const file = new File(['{"profiles":[]}'], 'backup.json', { type: 'application/json' });
+    const input = document.getElementById('onboarding-backup-input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(onImportBackup).toHaveBeenCalledWith(file);
+  });
+
   it('completes the full flow with a matching PIN and calls onComplete with the right payload', async () => {
     const onComplete = vi.fn().mockResolvedValue(undefined);
     render(<OnboardingWizard onComplete={onComplete} onEnterDemo={vi.fn()} />);
