@@ -93,16 +93,16 @@ describe("ExportReportsModal", () => {
 
     expect(screen.getByText("Centrum Raportów i Eksportu")).toBeDefined();
     expect(screen.getByText("Raporty PDF")).toBeDefined();
-    expect(screen.getByText("Eksporty CSV")).toBeDefined();
+    expect(screen.getByText("Eksporty CSV & Excel")).toBeDefined();
     expect(screen.getByText("Kopia bazy")).toBeDefined();
     expect(screen.getByText("Pobierz raport PDF")).toBeDefined();
     expect(screen.getByText("Udostępnij")).toBeDefined();
   });
 
-  it("przełącza się na zakładkę Eksporty CSV i umożliwia wybór typu danych", () => {
+  it("przełącza się na zakładkę Eksporty CSV & Excel i umożliwia wybór typu danych oraz pobranie Excela", () => {
     render(<ExportReportsModal {...defaultProps} />);
 
-    const csvTabBtn = screen.getByText("Eksporty CSV");
+    const csvTabBtn = screen.getByText("Eksporty CSV & Excel");
     fireEvent.click(csvTabBtn);
 
     expect(screen.getByText("Wybierz zbiór danych do eksportu CSV")).toBeDefined();
@@ -110,6 +110,7 @@ describe("ExportReportsModal", () => {
     expect(screen.getByText("Limity i wykonanie")).toBeDefined();
     expect(screen.getByText("Portfel zadłużenia")).toBeDefined();
     expect(screen.getByText("Pobierz plik CSV")).toBeDefined();
+    expect(screen.getByText("Pobierz Excel (.xlsx)")).toBeDefined();
   });
 
   it("przełącza się na zakładkę Kopia bazy i uruchamia onExportData po kliknięciu", () => {

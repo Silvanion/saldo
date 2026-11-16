@@ -653,6 +653,14 @@ export interface ProcessCsvResult {
 // żeby UI mógł to pokazać użytkownikowi.
 export const MAX_IMPORT_ROWS = 2000;
 
+const createEmptyDetectedCurrencies = (): Record<SupportedCurrency, number> => ({
+  PLN: 0,
+  EUR: 0,
+  USD: 0,
+  GBP: 0,
+  CHF: 0
+});
+
 export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const cleanedText = cleanCsvBomAndEncoding(params.rawCsvText);
   const detectedSeparator = params.presetId && params.presetId !== "generic"
@@ -673,7 +681,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: [],
       detectedSeparator,
       transactions: [],
-      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      detectedCurrencies: createEmptyDetectedCurrencies(),
       rejectedRows: [],
       directions: [],
       importHints: {},
@@ -745,7 +753,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: rows,
       detectedSeparator,
       transactions: [],
-      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      detectedCurrencies: createEmptyDetectedCurrencies(),
       rejectedRows: [],
       directions: [],
       importHints: {},
@@ -760,7 +768,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: rows,
       detectedSeparator,
       transactions: [],
-      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      detectedCurrencies: createEmptyDetectedCurrencies(),
       rejectedRows: [],
       directions: [],
       importHints: {},
@@ -775,7 +783,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: rows,
       detectedSeparator,
       transactions: [],
-      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      detectedCurrencies: createEmptyDetectedCurrencies(),
       rejectedRows: [],
       directions: [],
       importHints: {},
@@ -795,7 +803,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
       parsedRows: rows,
       detectedSeparator,
       transactions: [],
-      detectedCurrencies: { PLN: 0, EUR: 0, USD: 0, GBP: 0 },
+      detectedCurrencies: createEmptyDetectedCurrencies(),
       rejectedRows: [],
       directions: [],
       importHints: {},
@@ -818,12 +826,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
   const aliorLayout = detectAliorLayout(headers);
   const zenLayout = detectZenLayout(headers);
   const zenOwner = zenLayout ? zenOwnerFromPreamble(rawData.slice(0, headerIndex)) : "";
-  const detectedCurrencies: Record<SupportedCurrency, number> = {
-    PLN: 0,
-    EUR: 0,
-    USD: 0,
-    GBP: 0
-  };
+  const detectedCurrencies: Record<SupportedCurrency, number> = createEmptyDetectedCurrencies();
 
   let invalidAmountCount = 0;
   let invalidDateCount = 0;
@@ -950,7 +953,7 @@ export function parseAndMapCsv(params: ProcessCsvParams): ProcessCsvResult {
     let rowCurrency: SupportedCurrency = params.currency || "PLN";
     if (currIdx !== -1 && row[currIdx]) {
       const candidateCurr = row[currIdx].trim().toUpperCase();
-      if (candidateCurr === "PLN" || candidateCurr === "EUR" || candidateCurr === "USD" || candidateCurr === "GBP") {
+      if (candidateCurr === "PLN" || candidateCurr === "EUR" || candidateCurr === "USD" || candidateCurr === "GBP" || candidateCurr === "CHF") {
         rowCurrency = candidateCurr;
       }
     }

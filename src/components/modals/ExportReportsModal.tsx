@@ -232,6 +232,59 @@ export function ExportReportsModal({
     }
   };
 
+  // Handler for Excel (.xlsx) Export
+  const handleDownloadExcel = async (shouldShare = false) => {
+    try {
+      const {
+        generateTransactionsExcelBlob,
+        generateBudgetExcelBlob,
+        generateDebtsExcelBlob
+      } = await import("../../services/excelGenerator");
+
+      let blob: Blob;
+      let filename = "";
+      let title = "";
+
+      if (csvDataType === "transactions") {
+        blob = generateTransactionsExcelBlob(filteredCsvTransactions, activeProfile.currency || "PLN");
+        filename = `transakcje_saldo_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        title = `Transakcje Saldo (${filteredCsvTransactions.length})`;
+      } else if (csvDataType === "budget") {
+        blob = generateBudgetExcelBlob(activeProfile, budgetCsvYear, budgetCsvMonth);
+        const monthName = getMonthName(budgetCsvMonth);
+        filename = `budzet_saldo_${monthName}_${budgetCsvYear}.xlsx`;
+        title = `Budżet Saldo: ${monthName} ${budgetCsvYear}`;
+      } else {
+        const debts = activeProfile.debts || [];
+        blob = generateDebtsExcelBlob(debts, activeProfile.currency || "PLN");
+        filename = `zobowiazania_saldo_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        title = `Zobowiązania Saldo (${debts.length})`;
+      }
+
+      if (shouldShare) {
+        const result = await shareOrDownloadBlob(blob, filename, title);
+        if (result.shared) {
+          showToast?.("Arkusz Excel został pomyślnie udostępniony", "success");
+        } else {
+          showToast?.("Arkusz Excel został pobrany", "success");
+        }
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast?.("Pobrano arkusz Excel (.xlsx)", "success");
+      }
+    } catch (err) {
+      console.error("Excel export failed:", err);
+      showToast?.("Wystąpił błąd podczas generowania arkusza Excel", "error");
+    }
+  };
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -298,7 +351,7 @@ export function ExportReportsModal({
                 }`}
               >
                 <FileSpreadsheet className="w-4 h-4" />
-                <span>Eksporty CSV</span>
+                <span>Eksporty CSV & Excel</span>
               </button>
 
               <button
@@ -711,15 +764,35 @@ export function ExportReportsModal({
                   </div>
                 )}
 
-                {/* CSV Actions */}
-                <div className="pt-2">
+                {/* CSV & Excel Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadExcel(false)}
+                    className="flex-1 min-h-[44px] px-4 py-2.5 bg-brand hover:bg-brand-dark text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Pobierz Excel (.xlsx)</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={handleDownloadCsv}
-                    className="w-full min-h-[44px] px-5 py-2.5 bg-brand hover:bg-brand-dark text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
+                    className="min-h-[44px] px-4 py-2.5 bg-surface-hover hover:bg-surface-hover/80 text-text-main border border-border rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
                   >
                     <Download className="w-4 h-4" />
                     <span>Pobierz plik CSV</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadExcel(true)}
+                    className="min-h-[44px] px-3.5 py-2.5 bg-surface-hover hover:bg-surface-hover/80 text-text-muted hover:text-text-main border border-border rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
+                    title="Udostępnij arkusz (np. na telefonie)"
+                    aria-label="Udostępnij arkusz"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Udostępnij</span>
                   </button>
                 </div>
               </div>
@@ -748,17 +821,43 @@ export function ExportReportsModal({
                     komputer, smartfon lub przywrócenie w razie wyczyszczenia pamięci przeglądarki.
                   </p>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onExportData?.();
-                      showToast?.("Kopia zapasowa JSON została wygenerowana", "success");
-                    }}
-                    className="min-h-[44px] px-5 py-2.5 bg-brand hover:bg-brand-dark text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Pobierz pełną kopię zapasową (.json)</span>
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onExportData?.();
+                        showToast?.("Kopia zapasowa JSON została wygenerowana", "success");
+                      }}
+                      className="flex-1 min-h-[44px] px-5 py-2.5 bg-brand hover:bg-brand-dark text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Pobierz pełną kopię zapasową (.json)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const stateJson = JSON.stringify(activeProfile, null, 2);
+                          const blob = new Blob([stateJson], { type: "application/json" });
+                          const filename = `saldo-profil-${activeProfile.name || "backup"}-${new Date().toISOString().slice(0, 10)}.json`;
+                          const res = await shareOrDownloadBlob(blob, filename, `Kopia profilu Saldo: ${activeProfile.name}`);
+                          if (res.shared) {
+                            showToast?.("Kopia została pomyślnie udostępniona", "success");
+                          } else {
+                            showToast?.("Kopia została pobrana na dysk", "success");
+                          }
+                        } catch (err) {
+                          console.error("Backup share failed:", err);
+                          showToast?.("Nie udało się udostępnić kopii", "error");
+                        }
+                      }}
+                      className="min-h-[44px] px-4 py-2.5 bg-surface-hover hover:bg-surface-hover/80 text-text-main border border-border rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none active:scale-[0.98]"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>Udostępnij kopię</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="p-4 rounded-2xl border border-border/80 bg-surface flex items-start gap-3">

@@ -267,7 +267,7 @@ export interface AppState {
 }
 
 export type AppLanguage = "pl" | "en";
-export type SupportedCurrency = "PLN" | "EUR" | "USD" | "GBP";
+export type SupportedCurrency = "PLN" | "EUR" | "USD" | "GBP" | "CHF";
 
 /**
  * Severity of a CalculationReason — drives the icon/color of ReasonCard.

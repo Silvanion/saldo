@@ -59,7 +59,8 @@ export function formatMoney(value: number, currency: string) {
     "PLN": "pl-PL",
     "EUR": "de-DE", // Europe-style formatting
     "USD": "en-US",
-    "GBP": "en-GB"
+    "GBP": "en-GB",
+    "CHF": "de-CH"
   };
   const locale = localeMap[currency] || "pl-PL";
 

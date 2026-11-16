@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { AppState } from "../../types";
 import { ConfirmPayload } from "../../uiTypes";
-import { getLocalDateIso } from "../../utils";
+import { getLocalDateIso, shareOrDownloadBlob } from "../../utils";
 import { validateAndMigrateState, createEmptyState } from "../../utils/stateMigration";
 
 interface UseDataSyncActionsProps {
@@ -33,16 +33,11 @@ export function useDataSyncActions({
   showToast,
   openModal
 }: UseDataSyncActionsProps) {
-  const handleExportData = useCallback(() => {
+  const handleExportData = useCallback(async () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `saldo-kopia-zapasowa-${getLocalDateIso()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const filename = `saldo-kopia-zapasowa-${getLocalDateIso()}.json`;
+    const title = `Kopia zapasowa Saldo ${getLocalDateIso()}`;
+    await shareOrDownloadBlob(blob, filename, title);
   }, [state]);
 
   const handleResetData = useCallback(async () => {

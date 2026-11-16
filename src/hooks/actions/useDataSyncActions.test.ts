@@ -343,4 +343,15 @@ describe("useDataSyncActions with ConfirmModal and showToast", () => {
       expect(mockShowToast).not.toHaveBeenCalledWith("Kopia lokalna została pomyślnie wczytana!", "success");
     });
   });
+
+  describe("handleExportData", () => {
+    it("wykonuje eksport stanu bez błędów", async () => {
+      const { result } = getHook();
+      await expect(
+        act(async () => {
+          await result.current.handleExportData();
+        })
+      ).resolves.not.toThrow();
+    });
+  });
 });

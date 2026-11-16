@@ -27,7 +27,8 @@ export const FALLBACK_RATES: Record<SupportedCurrency, number> = {
   PLN: 1.0,
   EUR: 4.25,
   USD: 3.90,
-  GBP: 5.00
+  GBP: 5.00,
+  CHF: 4.55
 };
 
 export function getCachedRates(): RatesCache | null {

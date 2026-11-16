@@ -28,6 +28,7 @@ const CURRENCIES: { value: SupportedCurrency; label: string }[] = [
   { value: "EUR", label: "EUR (Euro)" },
   { value: "USD", label: "USD (Dolar amerykański)" },
   { value: "GBP", label: "GBP (Funt brytyjski)" },
+  { value: "CHF", label: "CHF (Frank szwajcarski)" },
 ];
 
 const cardTransition = { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const };

@@ -165,6 +165,7 @@ export function SettingsProfileSection({
                         <option value="EUR">EUR (Euro)</option>
                         <option value="USD">USD (Dolar amerykański)</option>
                         <option value="GBP">GBP (Funt brytyjski)</option>
+                        <option value="CHF">CHF (Frank szwajcarski)</option>
                       </select>
                     </div>
 
