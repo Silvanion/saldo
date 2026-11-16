@@ -1,7 +1,9 @@
+import { Capacitor } from "@capacitor/core";
+
 // @simplewebauthn/browser (~32 kB) ładujemy leniwie — potrzebny tylko przy wykrywaniu/użyciu passkeys, nie na starcie aplikacji.
 const loadWebAuthn = () => import("@simplewebauthn/browser");
 
-export type SupportedPlatform = "macos" | "windows" | "linux" | "web";
+export type SupportedPlatform = "macos" | "windows" | "linux" | "android" | "web";
 
 export interface BiometricPlatformInfo {
   platform: SupportedPlatform;
@@ -32,6 +34,10 @@ export class BiometricService {
    * Wykrywa platformę uruchomieniową w runtime
    */
   static getPlatform(): SupportedPlatform {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+      return "android";
+    }
+
     if (typeof window !== "undefined" && window.electronAPI?.platform) {
       const p = window.electronAPI.platform.toLowerCase();
       if (p === "darwin") return "macos";
@@ -62,6 +68,14 @@ export class BiometricService {
           label: "Touch ID / Apple Biometrics",
           hardwareDescription: "Apple Secure Enclave & Biometrics",
           storageBackend: "macOS Keychain (safeStorage)",
+          isSupported: true
+        };
+      case "android":
+        return {
+          platform: "android",
+          label: "Biometria Android (BiometricPrompt)",
+          hardwareDescription: "Czytnik linii papilarnych / Face Unlock",
+          storageBackend: "Android Keystore (Hardware-backed EncryptedSharedPreferences)",
           isSupported: true
         };
       case "windows":
@@ -99,6 +113,45 @@ export class BiometricService {
    */
   static async checkHardwareStatus(profileId?: string): Promise<BiometricHardwareStatus> {
     const info = this.getPlatformInfo();
+
+    // 0. Środowisko natywne Android (Capacitor Native Biometric)
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+      try {
+        const { NativeBiometric } = await import("@capgo/capacitor-native-biometric");
+        const res = await NativeBiometric.isAvailable({ useFallback: false });
+        const available = Boolean(res?.isAvailable);
+        let isEnrolled = false;
+        if (profileId && available) {
+          try {
+            const creds = await NativeBiometric.getCredentials({
+              server: `com.saldo.app.biometrics.${profileId}`,
+            });
+            isEnrolled = Boolean(creds?.password);
+          } catch {
+            isEnrolled = false;
+          }
+        }
+        return {
+          available,
+          isEnrolledForProfile: isEnrolled,
+          platform: "android",
+          label: info.label,
+          hardwareDescription: info.hardwareDescription,
+          storageBackend: info.storageBackend,
+          unsupportedReason: available ? undefined : "Brak czytnika biometrycznego lub nie zarejestrowano odcisku palca w ustawieniach systemu Android."
+        };
+      } catch (err: any) {
+        return {
+          available: false,
+          isEnrolledForProfile: false,
+          platform: "android",
+          label: info.label,
+          hardwareDescription: info.hardwareDescription,
+          storageBackend: info.storageBackend,
+          unsupportedReason: err?.message || "Błąd podsystemu biometrii Android."
+        };
+      }
+    }
 
     // 1. Środowisko natywne Electron (macOS / Windows)
     if (typeof window !== "undefined" && window.electronAPI?.checkBiometricsStatus) {
@@ -166,13 +219,27 @@ export class BiometricService {
   }
 
   /**
-   * Rejestruje klucz biometryczny dla danego profilu (zapisuje zaszyfrowany sekret w Keychain/DPAPI)
+   * Rejestruje klucz biometryczny dla danego profilu (zapisuje zaszyfrowany sekret w Keychain/DPAPI/Android Keystore)
    */
   static async enrollBiometrics(profileId: string, secretPin: string): Promise<{ success: boolean; error?: string }> {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+      try {
+        const { NativeBiometric } = await import("@capgo/capacitor-native-biometric");
+        await NativeBiometric.setCredentials({
+          username: profileId,
+          password: secretPin,
+          server: `com.saldo.app.biometrics.${profileId}`,
+        });
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: err?.message || "Nie udało się zapisać danych biometrycznych w Android Keystore." };
+      }
+    }
+
     if (typeof window !== "undefined" && window.electronAPI?.saveBiometricsPin) {
       return await window.electronAPI.saveBiometricsPin(profileId, secretPin);
     }
-    return { success: false, error: "Zapis biometrii jest dostępny wyłącznie w wersji aplikacji desktopowej." };
+    return { success: false, error: "Zapis biometrii nie jest wspierany na tej platformie." };
   }
 
   /**
@@ -182,7 +249,30 @@ export class BiometricService {
     const info = this.getPlatformInfo();
     const defaultReason = info.platform === "macos"
       ? "Użyj Touch ID, aby odblokować profil Saldo"
+      : info.platform === "android"
+      ? "Potwierdź tożsamość, aby odblokować profil Saldo"
       : "Zezwól Windows Hello na odblokowanie profilu Saldo";
+
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+      try {
+        const { NativeBiometric } = await import("@capgo/capacitor-native-biometric");
+        await NativeBiometric.verifyIdentity({
+          reason: promptReason || defaultReason,
+          title: "Odblokowanie biometryczne",
+          subtitle: "Saldo — finanse osobiste",
+          description: "Przyłóż palec do czytnika lub użyj rozpoznawania twarzy",
+        });
+        const creds = await NativeBiometric.getCredentials({
+          server: `com.saldo.app.biometrics.${profileId}`,
+        });
+        if (creds?.password) {
+          return { success: true, pin: creds.password };
+        }
+        return { success: false, error: "Brak zapisanego klucza w Android Keystore." };
+      } catch (err: any) {
+        return { success: false, error: err?.message || "Weryfikacja biometryczna anulowana lub nie powiodła się." };
+      }
+    }
 
     if (typeof window !== "undefined" && window.electronAPI?.promptBiometricsUnlock) {
       return await window.electronAPI.promptBiometricsUnlock(profileId, promptReason || defaultReason);
@@ -194,6 +284,18 @@ export class BiometricService {
    * Usuwa powiązanie biometrii z profilem
    */
   static async removeBiometrics(profileId: string): Promise<{ success: boolean; error?: string }> {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+      try {
+        const { NativeBiometric } = await import("@capgo/capacitor-native-biometric");
+        await NativeBiometric.deleteCredentials({
+          server: `com.saldo.app.biometrics.${profileId}`,
+        });
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: err?.message || "Błąd usuwania danych z Android Keystore." };
+      }
+    }
+
     if (typeof window !== "undefined" && window.electronAPI?.removeBiometricsPin) {
       return await window.electronAPI.removeBiometricsPin(profileId);
     }

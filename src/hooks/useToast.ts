@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { HapticsService } from "../services/HapticsService";
 
 export type ToastType = "success" | "error" | "info";
 
@@ -21,6 +22,15 @@ export const useToast = () => {
       if (!trimmed) return;
 
       const id = Math.random().toString(36).substring(2, 9);
+
+      if (type === "success") {
+        void HapticsService.success();
+      } else if (type === "error") {
+        void HapticsService.error();
+      } else {
+        void HapticsService.lightImpact();
+      }
+
       setToasts((current) => {
         // Prevent stacking identical active toasts
         if (current.some((t) => t.message === trimmed && t.type === type)) {

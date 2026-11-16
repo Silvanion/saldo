@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { BiometricService } from "./BiometricService";
+import { Capacitor } from "@capacitor/core";
 
 describe("BiometricService - Detekcja platformy i sprzętu biometrii", () => {
   const originalWindow = globalThis.window;
@@ -94,5 +95,18 @@ describe("BiometricService - Detekcja platformy i sprzętu biometrii", () => {
 
     const removeRes = await BiometricService.removeBiometrics("prof_123");
     expect(removeRes.success).toBe(true);
+  });
+
+  it("wykrywa platformę Android i zwraca metadane Biometria Android z Keystore", () => {
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");
+
+    const platform = BiometricService.getPlatform();
+    expect(platform).toBe("android");
+
+    const info = BiometricService.getPlatformInfo();
+    expect(info.label).toContain("Biometria Android");
+    expect(info.isSupported).toBe(true);
+    expect(info.storageBackend).toContain("Android Keystore");
   });
 });
