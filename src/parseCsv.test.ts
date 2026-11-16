@@ -285,7 +285,8 @@ Data transakcji;Data rozliczenia;Opis transakcji;Kwota transakcji;Waluta
       EUR: 1,
       PLN: 1,
       USD: 1,
-      GBP: 1
+      GBP: 1,
+      CHF: 0
     });
   });
 
