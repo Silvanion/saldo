@@ -4,7 +4,8 @@ import { useFocusTrap } from "../hooks/useFocusTrap";
 import { motion } from "motion/react";
 import { useApp } from "../app/providers/AppContext";
 import { getLocalDateIso, parseAmountInput } from "../utils";
-import { X } from "lucide-react";
+import { X, ClipboardPaste, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { parseInvoiceText } from "../services/invoiceParser";
 
 export interface PaymentModalProps {
   isOpen: boolean;
@@ -27,6 +28,30 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
   
   const [paidBy, setPaidBy] = useState<"me" | "partner" | "joint">("me");
   const [splitMode, setSplitMode] = useState<"none" | "equal">("equal");
+
+  const [showPasteBox, setShowPasteBox] = useState(false);
+  const [pastedInvoiceText, setPastedInvoiceText] = useState("");
+  const [parseNotice, setParseNotice] = useState<string | null>(null);
+
+  const handleParseInvoice = () => {
+    if (!pastedInvoiceText.trim()) return;
+    const parsed = parseInvoiceText(pastedInvoiceText);
+    if (parsed.name) setName(parsed.name);
+    if (parsed.amount) setAmount(String(parsed.amount));
+    if (parsed.dueDate) setDueDate(parsed.dueDate);
+
+    const detectedParts: string[] = [];
+    if (parsed.name) detectedParts.push(`odbiorcę: ${parsed.name}`);
+    if (parsed.amount) detectedParts.push(`kwotę: ${parsed.amount} ${currency}`);
+    if (parsed.dueDate) detectedParts.push(`termin: ${parsed.dueDate}`);
+
+    if (detectedParts.length > 0) {
+      setParseNotice(`Rozpoznano ${detectedParts.join(", ")}.`);
+      setShowPasteBox(false);
+    } else {
+      setParseNotice("Nie udało się rozpoznać kwoty ani terminu w podanym tekście.");
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -108,6 +133,53 @@ export function PaymentModal({ isOpen, onClose, initialData, onSave }: PaymentMo
         
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 min-w-0">
           <div className="flex-1 overflow-y-auto min-w-0 p-6 space-y-4 custom-scrollbar">
+          {/* Szybkie uzupełnienie z tekstu faktury/przelewu */}
+          <div className="bg-surface-2/60 border border-border/80 rounded-2xl p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowPasteBox(!showPasteBox)}
+                className="text-xs font-semibold text-brand hover:text-brand flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+                id="btn-toggle-paste-invoice"
+              >
+                <ClipboardPaste className="w-3.5 h-3.5" />
+                <span>{showPasteBox ? "Ukryj rozpoznawanie z tekstu" : "Wklej tekst faktury lub przelewu"}</span>
+                {showPasteBox ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              <span className="text-[10px] text-text-muted font-medium">100% offline</span>
+            </div>
+
+            {showPasteBox && (
+              <div className="space-y-2 pt-1">
+                <textarea
+                  rows={3}
+                  placeholder="Wklej treść faktury, maila lub SMS-a (np. PGE Obrót S.A., do zapłaty: 145,50 zł, termin: 2026-05-10)..."
+                  value={pastedInvoiceText}
+                  onChange={(e) => setPastedInvoiceText(e.target.value)}
+                  className="w-full text-xs rounded-xl border border-border p-2.5 bg-surface text-text-main placeholder:text-text-faint focus-visible:ring-2 focus-visible:ring-focus-ring custom-scrollbar"
+                  id="textarea-paste-invoice"
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={handleParseInvoice}
+                    disabled={!pastedInvoiceText.trim()}
+                    className="text-xs font-semibold bg-brand text-text-inverse px-3 py-1.5 rounded-lg hover:bg-brand-hover disabled:opacity-50 transition-all cursor-pointer"
+                    id="btn-apply-parsed-invoice"
+                  >
+                    Wypełnij formularz
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {parseNotice && (
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                <Check className="w-3.5 h-3.5 shrink-0" /> {parseNotice}
+              </p>
+            )}
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-text-main mb-1.5" htmlFor="input-payment-name">
               Nazwa (np. Internet Orange)

@@ -267,4 +267,23 @@ invalid_date;100;Błędna data;PLN
 
     expect(await screen.findByText(/Ten PDF nie zawiera warstwy tekstowej/i)).toBeTruthy();
   });
+
+  it("przycisk 'Dopasuj kategorie' automatycznie przypisuje kategorie dla nieznanych wierszy", async () => {
+    const CSV = [
+      "Data;Kwota;Tytuł",
+      "2026-08-01;-120,00;Sklep Spożywczy Biedronka",
+      "2026-08-02;-50,00;Apteka Gemini"
+    ].join("\n");
+
+    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
+      target: { value: CSV }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
+
+    // Obie pozycje są poprawnie rozpoznane
+    expect(screen.getByText("Sklep Spożywczy Biedronka")).toBeTruthy();
+    expect(screen.getByText("Apteka Gemini")).toBeTruthy();
+  });
 });

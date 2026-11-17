@@ -27,7 +27,8 @@ import {
   FileSpreadsheet,
   Plus,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Compass
 } from "lucide-react";
 
 
@@ -306,6 +307,20 @@ export function AppShell({
               </kbd>
             </button>
 
+            {/* Doradca Finansowy (Plany Taktyczne & Analiza) */}
+            {activeProfile && !isProfileLocked && (
+              <button
+                onClick={() => openModal("financialSkills")}
+                className="hidden sm:inline-flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 bg-surface border border-border/70 hover:bg-surface-2 hover:border-brand/30 text-text-muted hover:text-text-main text-xs font-semibold rounded-lg active:scale-[0.98] transition-all cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-focus-ring [-webkit-app-region:no-drag]"
+                id="btn-open-financial-advisor"
+                title="Doradca Finansowy: Plany taktyczne (spłata długów, poduszka, optymalizacja subskrypcji)"
+                aria-label="Otwórz Doradcę Finansowego"
+              >
+                <Compass className="w-3.5 h-3.5 text-brand" strokeWidth={1.75} />
+                <span className="hidden xl:inline">Doradca Finansowy</span>
+              </button>
+            )}
+
             {/* Primary Action 2: Quick Add CTA Button */}
             {activeProfile && !isProfileLocked && (
               <button
@@ -418,6 +433,7 @@ export function AppShell({
               onOpenPaymentModal={(prefill) => openModal("payment", prefill)}
               onOpenCalendarReminder={(prefill) => openModal("calendarReminder", prefill)}
               onOpenGoalModal={() => openModal("goal")}
+              onOpenFinancialSkills={() => openModal("financialSkills")}
               onOpenSmartRulesManager={() => openModal("smartRulesManager")}
               onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
               onExportData={handleExportData}

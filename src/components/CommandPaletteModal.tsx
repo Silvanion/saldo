@@ -23,7 +23,8 @@ import {
   ArrowUpRight,
   Sparkles,
   Landmark,
-  Zap
+  Zap,
+  Compass
 } from "lucide-react";
 import { Payment, Profile, Transaction, SupportedCurrency } from "../types";
 import { AppView } from "../uiTypes";
@@ -45,6 +46,7 @@ export interface CommandPaletteModalProps {
   onOpenPaymentModal: (prefill?: Partial<Payment>) => void;
   onOpenCalendarReminder?: (prefill: Partial<Payment>) => void;
   onOpenGoalModal: () => void;
+  onOpenFinancialSkills?: () => void;
   onOpenSmartRulesManager?: () => void;
   onOpenExportReports?: (tab?: "pdf" | "csv" | "backup") => void;
   onOpenImportCsvModal?: () => void;
@@ -77,6 +79,7 @@ export function CommandPaletteModal({
   onOpenPaymentModal,
   onOpenCalendarReminder,
   onOpenGoalModal,
+  onOpenFinancialSkills,
   onOpenSmartRulesManager,
   onOpenExportReports,
   onOpenImportCsvModal,
@@ -225,6 +228,21 @@ export function CommandPaletteModal({
         icon: <Target className="w-4 h-4 text-brand" />,
         keywords: ["cel", "skarbonka", "oszczędzanie", "zbiórka"],
         onSelect: () => onOpenGoalModal()
+      },
+      {
+        id: "action-financial-advisor",
+        category: "actions",
+        title: "Doradca Finansowy i Plany Działania",
+        subtitle: "Spłata długów, poduszka finansowa, optymalizacja subskrypcji i budżet 50/30/20",
+        icon: <Compass className="w-4 h-4 text-brand" />,
+        keywords: ["doradca", "asystent", "plany", "skills", "taktyka", "porady", "analiza", "rekomendacje", "długi", "poduszka"],
+        onSelect: () => {
+          if (onOpenFinancialSkills) {
+            onOpenFinancialSkills();
+          } else {
+            setActiveView("dashboard");
+          }
+        }
       },
       {
         id: "action-cashflow-forecast",

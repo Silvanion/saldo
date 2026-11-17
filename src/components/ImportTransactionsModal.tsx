@@ -22,9 +22,11 @@ import {
   CheckSquare,
   Square,
   Globe,
-  Check
+  Check,
+  Sparkles
 } from "lucide-react";
 import { DelayedTooltip } from "./dashboard/DelayedTooltip";
+import { autoCategorizeDetailed } from "../services/autoCategorizer";
 import { checkDuplicate, DuplicateCheckResult } from "../services/duplicateDetector";
 import type { ImportHint } from "../services/aliorImport";
 import {
@@ -152,6 +154,40 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
     () => mappedTransactions.filter((t) => t.category === "Inne").length,
     [mappedTransactions]
   );
+
+  const [categorizedCountBanner, setCategorizedCountBanner] = useState<number | null>(null);
+
+  const handleAutoCategorizeRows = () => {
+    let matchedCount = 0;
+    const rules = activeProfile?.transactionRules || [];
+    const history = activeProfile?.transactions || [];
+
+    const updated = mappedTransactions.map((tx) => {
+      if (!tx.category || tx.category === "Inne") {
+        const catRes = autoCategorizeDetailed(tx.name, {
+          rules,
+          history,
+          fallback: "Inne"
+        });
+        if (catRes.category !== "Inne") {
+          matchedCount++;
+          return {
+            ...tx,
+            category: catRes.category,
+            categoryIcon: catRes.categoryIcon
+          };
+        }
+      }
+      return tx;
+    });
+
+    if (matchedCount > 0) {
+      setMappedTransactions(updated);
+      setCategorizedCountBanner(matchedCount);
+    } else {
+      setCategorizedCountBanner(0);
+    }
+  };
 
   const processRawCsvString = (text: string, name: string = "Wklejony tekst CSV") => {
     setFileName(name);
@@ -871,9 +907,32 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                 </div>
               )}
 
+              {/* Categorization notification banner */}
+              {categorizedCountBanner !== null && (
+                <div className={`p-2.5 rounded-xl text-xs flex items-center justify-between shrink-0 border ${
+                  categorizedCountBanner > 0
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                    : "bg-surface-2 border-border text-text-muted"
+                }`}>
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Sparkles className="w-3.5 h-3.5 text-brand" />
+                    {categorizedCountBanner > 0
+                      ? `Dopasowano kategorie dla ${categorizedCountBanner} transakcji na podstawie reguł, historii i słownika.`
+                      : "Wszystkie transakcje posiadają już przypisane kategorie."}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCategorizedCountBanner(null)}
+                    className="text-[10px] font-bold hover:underline cursor-pointer ml-2"
+                  >
+                    Zamknij
+                  </button>
+                </div>
+              )}
+
               {/* 2. Selection Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2.5 shrink-0">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={handleToggleSelectAll}
@@ -883,6 +942,18 @@ export function ImportTransactionsModal({ isOpen, onClose, onImport, onBeforeImp
                     {selectedTxIds.size === mappedTransactions.length ? <CheckSquare className="w-3.5 h-3.5 text-brand" /> : <Square className="w-3.5 h-3.5" />}
                     {selectedTxIds.size === mappedTransactions.length ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
                   </button>
+
+                  {uncategorizedCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleAutoCategorizeRows}
+                      className="text-xs font-semibold text-brand hover:text-brand px-2.5 py-1 rounded-lg bg-brand-subtle hover:bg-brand-subtle/80 border border-brand/20 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-focus-ring cursor-pointer"
+                      id="btn-import-auto-categorize"
+                      title="Dopasuj kategorie na podstawie reguł, historii i polskiego słownika"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-brand" /> Dopasuj kategorie ({uncategorizedCount})
+                    </button>
+                  )}
 
                   {duplicateAnalysis.duplicateCount > 0 && (
                     <button

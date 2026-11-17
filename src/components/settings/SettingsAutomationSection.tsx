@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sliders, Trash2, Calendar } from "lucide-react";
+import { Sliders, Trash2, Calendar, Sparkles } from "lucide-react";
 import { AppState, RecurringRule, TransactionRule, SupportedCurrency } from "../../types";
 import { expenseCategories, incomeCategories, iconByCategory } from "../../utils";
 
@@ -28,6 +28,36 @@ export function TransactionRulesManager({
 
   const handleDeleteTransactionRule = (id: string) => {
     onSaveTransactionRules(transactionRules.filter((r) => r.id !== id));
+  };
+
+  const handleLoadStarterRules = () => {
+    const starters: Array<{ pattern: string; category: string }> = [
+      { pattern: "biedronka", category: "Żywność" },
+      { pattern: "lidl", category: "Żywność" },
+      { pattern: "orlen", category: "Transport" },
+      { pattern: "shell", category: "Transport" },
+      { pattern: "netflix", category: "Rozrywka" },
+      { pattern: "spotify", category: "Rozrywka" },
+      { pattern: "pge", category: "Dom i rachunki" },
+      { pattern: "tauron", category: "Dom i rachunki" },
+      { pattern: "orange", category: "Dom i rachunki" },
+      { pattern: "apteka", category: "Zdrowie" },
+      { pattern: "rossmann", category: "Zdrowie" }
+    ];
+
+    const existingPatterns = new Set(transactionRules.map(r => r.pattern.toLowerCase()));
+    const newRules: TransactionRule[] = starters
+      .filter(s => !existingPatterns.has(s.pattern.toLowerCase()))
+      .map(s => ({
+        id: `rule-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        pattern: s.pattern,
+        category: s.category,
+        categoryIcon: iconByCategory[s.category] || "✨"
+      }));
+
+    if (newRules.length > 0) {
+      onSaveTransactionRules([...transactionRules, ...newRules]);
+    }
   };
 
   return (
@@ -85,12 +115,23 @@ export function TransactionRulesManager({
       </form>
 
       {transactionRules.length === 0 ? (
-        <div className="p-8 bg-surface-2/30 rounded-xl border border-dashed border-border/70 text-center flex flex-col items-center justify-center space-y-2">
+        <div className="p-8 bg-surface-2/30 rounded-xl border border-dashed border-border/70 text-center flex flex-col items-center justify-center space-y-3">
           <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-text-muted border border-border/70">
             <Sliders className="w-5 h-5" />
           </div>
-          <p className="text-xs text-text-main font-bold">Brak zapisanych dopasowań</p>
-          <p className="text-[11px] text-text-muted max-w-sm">Zdefiniuj własne słowa kluczowe, by automatycznie przypisywać kategorie wydatków.</p>
+          <div>
+            <p className="text-xs text-text-main font-bold">Brak zapisanych dopasowań</p>
+            <p className="text-[11px] text-text-muted max-w-sm mt-0.5">Zdefiniuj własne słowa kluczowe lub załaduj popularny zestaw polskich reguł.</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLoadStarterRules}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand text-text-inverse hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-focus-ring"
+            id="btn-load-starter-rules"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Załaduj popularne reguły (Biedronka, Orlen, Netflix...)</span>
+          </button>
         </div>
       ) : (
         <div className="border border-border/70 rounded-xl overflow-hidden shadow-xs">

@@ -200,4 +200,28 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
 
     expect(screen.getByText(/Uzupełnij imię partnera w ustawieniach profilu/i)).toBeTruthy();
   });
+
+  it("pozwala wkleić i automatycznie rozpoznać dane faktury z tekstu", () => {
+    render(
+      <PaymentModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    // Otwórz panel wklejania
+    fireEvent.click(screen.getByText(/Wklej tekst faktury lub przelewu/i));
+    const textarea = screen.getByPlaceholderText(/Wklej treść faktury/i);
+
+    fireEvent.change(textarea, {
+      target: { value: "PGE Obrót S.A., do zapłaty: 185,50 zł, termin: 2026-05-20" }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Wypełnij formularz/i }));
+
+    expect(screen.getByDisplayValue("PGE Obrót")).toBeTruthy();
+    expect(screen.getByDisplayValue("185.5")).toBeTruthy();
+    expect(screen.getByDisplayValue("2026-05-20")).toBeTruthy();
+  });
 });
