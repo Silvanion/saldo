@@ -35,7 +35,7 @@ export function AppViewRouter({
   onOpenTxModal,
   onOpenBudgetModal,
   onOpenPaymentModal,
-  onTriggerCalendarAi,
+  onTriggerCalendarReminder,
   onOpenGoalModal,
   onOpenGoalDepositModal,
   onOpenProfileModal,
@@ -45,7 +45,7 @@ export function AppViewRouter({
   onOpenTxModal: (tx?: import("../types").Transaction) => void;
   onOpenBudgetModal: () => void;
   onOpenPaymentModal: (payment?: Payment) => void;
-  onTriggerCalendarAi: (p: Payment) => void;
+  onTriggerCalendarReminder: (p: Payment) => void;
   onOpenGoalModal: () => void;
   onOpenGoalDepositModal: (g: Goal) => void;
   onOpenProfileModal: () => void;
@@ -302,7 +302,7 @@ export function AppViewRouter({
             onAddPayment={handleAddPayment}
             onDeletePayment={onDeletePayment}
             calendarToken={calendarToken}
-            onTriggerCalendarAi={onTriggerCalendarAi}
+            onTriggerCalendarReminder={onTriggerCalendarReminder}
           />
         );
       case "budget":

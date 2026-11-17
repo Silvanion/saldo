@@ -41,7 +41,7 @@ describe("PaymentsView (Urgency badges & Empty state)", () => {
     onAddPayment: vi.fn(),
     onDeletePayment: vi.fn(),
     calendarToken: null,
-    onTriggerCalendarAi: vi.fn(),
+    onTriggerCalendarReminder: vi.fn(),
   };
 
   it("renders unified empty state card when there are no payments in profile", () => {

@@ -21,7 +21,6 @@ import {
   BankAccountsManager,
   SettingsAutomationSection,
   TransactionRulesManager,
-  RECOMMENDED_AI_MODELS,
   SettingsBackupSection,
   SettingsSecuritySection,
   SettingsGoogleHubSection
@@ -29,8 +28,7 @@ import {
 import { DriveIntegrityReport } from "../hooks/useDriveSync";
 import { ModernAvatar } from "./avatar/ModernAvatar";
 
-export { BankAccountsManager, TransactionRulesManager, RECOMMENDED_AI_MODELS };
-export type { RecommendedAiModel } from "./settings";
+export { BankAccountsManager, TransactionRulesManager };
 
 export type SettingsTab =
   | "cloud"
@@ -319,7 +317,7 @@ export function SettingsView({
                 )}
                 <div className="relative z-10 flex items-center gap-2.5 truncate">
                   <Cpu className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Automatyzacja & AI</span>
+                  <span className="truncate">Automatyzacja & Reguły</span>
                 </div>
               </button>
 
@@ -487,7 +485,7 @@ export function SettingsView({
             />
           )}
 
-          {/* TAB 4: AUTOMATION & AI */}
+          {/* TAB 4: AUTOMATION & RULES */}
           {(settingsTab === "all" || settingsTab === "automation") && (
             <SettingsAutomationSection
               state={state}

@@ -9,14 +9,14 @@ export function useModalManager() {
   function openModal(type: "goal", payload?: { name?: string; target?: number }): void;
   function openModal(type: "profile" | "pin" | "budget" | "changelog" | "smartRulesManager"): void;
   function openModal(type: "goalDeposit", payload: import("../types").Goal): void;
-  function openModal(type: "calendarAi", payload?: import("../types").Payment | Partial<import("../types").Payment>): void;
+  function openModal(type: "calendarReminder", payload?: import("../types").Payment | Partial<import("../types").Payment>): void;
   function openModal(type: "confirm", payload: import("../uiTypes").ConfirmPayload): void;
   function openModal(type: "exportReports", payload?: { initialTab?: "pdf" | "csv" | "backup" }): void;
   function openModal(type: "bugReport"): void;
   function openModal(type: ModalType, payload?: any) {
     if (type === "goalDeposit") {
       setModalState({ type, payload });
-    } else if (type === "calendarAi") {
+    } else if (type === "calendarReminder") {
       setModalState({ type, payload });
     } else if (type === "transaction") {
       setModalState({ type, payload });

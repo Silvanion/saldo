@@ -16,10 +16,11 @@ describe("CSP connect-src", () => {
     expect([...firebaseHostingConnectSrc()].sort()).toEqual([...getConnectSrc(false)].sort());
   });
 
-  it("zawiera hosty dostawców AI i usług używanych z renderera", () => {
+  it("zawiera dozwolone usługi zewnętrzne i nie zawiera usuniętych hostów AI", () => {
     const list = getConnectSrc(false);
-    for (const host of ["https://api.anthropic.com", "https://api.nbp.pl", "http://localhost:11434"]) {
-      expect(list).toContain(host);
+    expect(list).toContain("https://api.nbp.pl");
+    for (const host of ["https://api.anthropic.com", "http://localhost:11434", "http://127.0.0.1:11434"]) {
+      expect(list).not.toContain(host);
     }
   });
 

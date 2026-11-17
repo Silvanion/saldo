@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findPdfDuplicates, normalizeAiPdfTransactions, parsePdfTransactions } from "./parsePdf";
+import { findPdfDuplicates, parsePdfTransactions } from "./parsePdf";
 
 describe("parsePdfTransactions", () => {
   const options = {
@@ -149,29 +149,5 @@ describe("parsePdfTransactions", () => {
     expect(result.transactions).toHaveLength(3);
     expect(result.rejectedRows).toHaveLength(0);
     expect(totals).toEqual({ income: 84000.14, expense: 88068.13 });
-  });
-
-  it("rejects incomplete OCR rows instead of importing guessed values", () => {
-    const result = normalizeAiPdfTransactions([
-      { name: "Sklep", amount: 12.5, type: "expense", isoDate: "2026-09-11" },
-      { name: "Brak kwoty", amount: 0, type: "expense", isoDate: "2026-09-11" },
-      { name: "Brak daty", amount: 5, type: "expense" }
-    ], options);
-
-    expect(result.transactions).toHaveLength(1);
-    expect(result.rejectedRows).toHaveLength(2);
-    expect(result.transactions[0]).toMatchObject({ amount: 12.5, type: "expense" });
-  });
-
-  it("removes identical OCR rows repeated across PDF pages", () => {
-    const result = normalizeAiPdfTransactions([
-      { name: "Biedronka", amount: 25.5, type: "expense", isoDate: "2026-09-11", category: "Żywność" },
-      { name: "Biedronka", amount: 25.5, type: "expense", isoDate: "2026-09-11", category: "Żywność" }
-    ], options);
-
-    expect(result.transactions).toHaveLength(1);
-    expect(result.rejectedRows).toEqual([
-      expect.objectContaining({ reason: "Powielony rekord OCR — pominięto go przed importem." })
-    ]);
   });
 });

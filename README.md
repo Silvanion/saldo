@@ -4,7 +4,7 @@
 
 # Saldo
 
-**Prywatne finanse osobiste i domowe — 100% offline & local-first. Z aplikacją mobilną (Expo), silnikiem domenowym `@saldo/core` i prywatnym AI (Ollama) pod Twoją kontrolą.**
+**Prywatne finanse osobiste i domowe — 100% offline, local-first i deterministyczne (FOSS). Z aplikacją mobilną, silnikiem domenowym `@saldo/core` i zerową zależnością od modeli LLM.**
 
 [![Wydanie](https://img.shields.io/badge/wersja-v1.6.7-137566?style=for-the-badge&logo=github)](https://github.com/Silvanion/saldo/releases/latest)
 [![Licencja](https://img.shields.io/badge/licencja-GNU%20AGPL%20v3.0-blue?style=for-the-badge)](LICENSE)
@@ -33,7 +33,7 @@ Większość aplikacji finansowych wymaga połączenia z bankiem przez zewnętrz
 | 🛡️ **100% Local-First & Zero-Cloud** | Twoje finanse należą wyłącznie do Ciebie. Zapisywane są lokalnie w szyfrowanej bazie IndexedDB (desktop/web) oraz SQLite WAL (mobile). Aplikacja nie wymaga konta ani internetu do pełnego działania. |
 | 📱 **Ekosystem Mobile + Desktop** | Jedno spójne doświadczenie: natywna aplikacja desktopowa (macOS, Windows), PWA oraz nowoczesna aplikacja mobilna (iOS & Android via Expo SDK 52) z natywną biometrią Face ID / Touch ID. |
 | 🧠 **Współdzielony silnik domenowy** | Pakiet `@saldo/core` gwarantuje identyczne, deterministyczne wyliczenia hipoteki, podatków B2B 2026 i budżetu 50/30/20 na każdej platformie, bez zależności od środowiska wykonawczego. |
-| 🤖 **Prywatne AI na Twoich warunkach** | Doradca finansowy AI działa w 100% lokalnie przez **Ollama** (żaden bajt nie opuszcza urządzenia) lub z Twoim własnym kluczem Gemini / Claude zapisanym w systemowym Keychain / SecureStore. |
+| ⚡ **100% Deterministyczna matematyka** | Zero czarnych skrzynek i modeli LLM. Wszystkie wyliczenia budżetowe, harmonogramy kredytowe i reguły kategoryzacji są w 100% przejrzyste, powtarzalne i działają natychmiast offline. |
 | 🔏 **Bezpieczeństwo i Przejrzystość** | Kod w 100% otwarty (AGPL-3.0), automatyczna weryfikacja sum kontrolnych SHA-512 przy aktualizacji przez `electron-updater` i zero telemetrycznych bibliotek śledzących. |
 | 🇵🇱 **Polskie banki i Podatki B2B 2026** | Dedykowane parsery Alior Bank, Zen oraz uniwersalny parser CSV z autodetekcją przelewów wewnętrznych. Aktualny kalkulator rezerw podatkowych 2026 (ZUS, składka zdrowotna, ryczałt, liniowy, skala). |
 
@@ -90,9 +90,9 @@ Większość aplikacji finansowych wymaga połączenia z bankiem przez zewnętrz
 </tr>
 <tr>
 <td width="50%" valign="top">
-  <h3>🤖 Doradca Finansowy AI</h3>
-  <p>Prywatny doradca AI oparty o rzeczywiste dane z Twojego budżetu. Wsparcie dla modeli w 100% lokalnych (Ollama) oraz chmurowych (Gemini / Claude). Pomaga zoptymalizować koszty bez wysyłania wrażliwych danych.</p>
-  <img src="public/assets/help/05-ai-chat.png" alt="Doradca AI" width="100%" style="border-radius: 8px;">
+  <h3>📅 Rachunki i Płatności Cykliczne</h3>
+  <p>Pełna kontrola nad stałymi opłatami, subskrypcjami i terminami płatności. Automatyczne oznaczanie zapłaconych rachunków, powiązania z transakcjami oraz integracja z Kalendarzem.</p>
+  <img src="public/assets/help/07-payments.png" alt="Rachunki i płatności cykliczne" width="100%" style="border-radius: 8px;">
 </td>
 <td width="50%" valign="top">
   <h3>📈 Analizy, Trendy i Majątek Netto</h3>

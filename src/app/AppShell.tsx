@@ -17,7 +17,6 @@ import {
   Menu,
   X,
   RefreshCw,
-  Sparkles,
   Wifi,
   WifiOff,
   ShieldCheck,
@@ -307,18 +306,6 @@ export function AppShell({
               </kbd>
             </button>
 
-            <button
-              onClick={() => openModal("aiChat")}
-              disabled={isProfileLocked}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50 [-webkit-app-region:no-drag]"
-              id="btn-open-ai-chat"
-              title="Otwórz doradcę finansowego AI"
-              aria-label="Doradca AI: otwórz doradcę finansowego"
-            >
-              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
-              <span className="hidden lg:inline">Doradca AI</span>
-            </button>
-
             {/* Primary Action 2: Quick Add CTA Button */}
             {activeProfile && !isProfileLocked && (
               <button
@@ -429,18 +416,13 @@ export function AppShell({
               onSelectProfile={(id) => handleSelectProfile(id)}
               onOpenTransactionModal={(tx) => openModal("transaction", tx)}
               onOpenPaymentModal={(prefill) => openModal("payment", prefill)}
-              onOpenCalendarReminder={(prefill) => openModal("calendarAi", prefill)}
+              onOpenCalendarReminder={(prefill) => openModal("calendarReminder", prefill)}
               onOpenGoalModal={() => openModal("goal")}
               onOpenSmartRulesManager={() => openModal("smartRulesManager")}
               onOpenExportReports={(tab) => openModal("exportReports", { initialTab: tab })}
               onExportData={handleExportData}
               theme={theme === "dark" ? "dark" : "light"}
               onToggleTheme={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
-              aiConfig={{
-                aiMode: state.aiMode || "none",
-                localAiEndpoint: state.localAiEndpoint,
-                localAiModel: state.localAiModel
-              }}
             />
           </Suspense>
         </ErrorBoundary>

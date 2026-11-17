@@ -3,9 +3,7 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
-import aiRouter from "./src/server/routes/ai";
 import { getConnectSrc } from "./src/server/csp";
-import { requireLocalApiToken } from "./src/server/middleware/security";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
@@ -106,20 +104,7 @@ export async function startServer(customPort?: number) {
   });
   app.use("/api", globalLimiter);
 
-  app.use(express.json({ limit: "5mb" })); // Increased payload size to accommodate 3MB base64 images
-
-  // Specific Rate Limiting for AI Endpoint
-  const aiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 min
-    max: 50, // Strict limit for AI API
-    message: { error: "Zbyt wiele zapytań do API AI. Spróbuj ponownie później." },
-    standardHeaders: true,
-    legacyHeaders: false,
-    validate: { xForwardedForHeader: false, trustProxy: false }
-  });
-
-  // AI Routes
-  app.use("/api/ai", requireLocalApiToken, aiLimiter, aiRouter);
+  app.use(express.json({ limit: "2mb" }));
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

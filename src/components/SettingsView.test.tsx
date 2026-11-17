@@ -8,8 +8,7 @@ import React from 'react';
 
 const mockState = {
   profiles: [],
-  activeProfileId: 'p1',
-  aiMode: 'none'
+  activeProfileId: 'p1'
 };
 
 const mockProfiles = [

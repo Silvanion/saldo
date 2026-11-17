@@ -122,16 +122,11 @@ async function main() {
     await wait(1500);
     await snap("12-settings.png");
 
-    // 8. AI Chat
-    console.log("Capturing AI Chat...");
-    const aiBtn = page.locator("#btn-open-ai-chat, button[title*='AI'], button:has-text('AI')").first();
-    if (await aiBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await aiBtn.click();
-      await wait(1000);
-      await snap("05-ai-chat.png");
-      const closeAi = page.locator("button:has-text('Zamknij'), button[aria-label='Zamknij']").first();
-      if (await closeAi.isVisible().catch(() => false)) await closeAi.click();
-    }
+    // 8. Payments
+    console.log("Capturing Payments...");
+    await page.locator("#nav-payments").click();
+    await wait(1500);
+    await snap("07-payments.png");
 
     // 9. Mobile Mockup
     console.log("Capturing Mobile viewport...");

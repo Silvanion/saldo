@@ -5,17 +5,10 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { PaymentModal } from "./PaymentModal";
-const { callAiApiMock } = vi.hoisted(() => ({ callAiApiMock: vi.fn() }));
-
-vi.mock("../services/aiClient", () => ({
-  callAiApi: callAiApiMock,
-  getAiConfig: vi.fn(() => ({ aiMode: "local" }))
-}));
 
 let mockAppState: {
   profiles: any[];
   activeProfileId: string;
-  aiMode: "none" | "local";
 } = {
   profiles: [
     {
@@ -27,7 +20,6 @@ let mockAppState: {
     },
   ],
   activeProfileId: "p1",
-  aiMode: "none" as const,
 };
 
 vi.mock("../app/providers/AppContext", () => ({
@@ -49,7 +41,6 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
         },
       ],
       activeProfileId: "p1",
-      aiMode: "none" as const,
     };
   });
 
@@ -150,7 +141,6 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
         } as any,
       ],
       activeProfileId: "p-shared",
-      aiMode: "none",
     };
 
     const onSave = vi.fn();
@@ -198,7 +188,6 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
         } as any,
       ],
       activeProfileId: "p-shared-nopartner",
-      aiMode: "none",
     };
 
     render(
@@ -210,28 +199,5 @@ describe("PaymentModal (Header, Footer, Labels & Currency)", () => {
     );
 
     expect(screen.getByText(/Uzupełnij imię partnera w ustawieniach profilu/i)).toBeTruthy();
-  });
-
-  it("scans an invoice image and fills fields without saving automatically", async () => {
-    mockAppState.aiMode = "local";
-    callAiApiMock.mockResolvedValueOnce({
-      name: "Faktura Orange",
-      amount: 129.99,
-      dueDate: "2026-09-20",
-      category: "Dom i rachunki"
-    });
-    const onSave = vi.fn();
-    render(<PaymentModal isOpen={true} onClose={vi.fn()} onSave={onSave} />);
-
-    const file = new File(["invoice"], "invoice.png", { type: "image/png" });
-    fireEvent.change(screen.getByLabelText(/Wybierz obraz faktury/i), { target: { files: [file] } });
-
-    await waitFor(() => {
-      expect(screen.getByDisplayValue("Faktura Orange")).toBeTruthy();
-      expect(screen.getByDisplayValue("129.99")).toBeTruthy();
-      expect(screen.getByDisplayValue("2026-09-20")).toBeTruthy();
-    });
-    expect(onSave).not.toHaveBeenCalled();
-    expect(callAiApiMock).toHaveBeenCalledWith("scan-invoice", expect.objectContaining({ mimeType: "image/png" }), expect.anything());
   });
 });

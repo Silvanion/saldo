@@ -34,7 +34,6 @@ import {
   MockScreenShot,
   MockCurrencyVisual,
   MockSettlementVisual,
-  MockLocalAiVisual,
   Screenshot
 } from "../components/help/HelpVisuals";
 
@@ -852,71 +851,40 @@ export const helpSectionsData: HelpSectionData[] = [
     )
   },
   {
-    id: "ai",
+    id: "automation",
     cat: "Automatyzacja lokalna",
-    title: "Jak działa rozpoznawanie tekstu, szybkie dodawanie i opcjonalne lokalne AI",
-    icon: <Sparkles className="w-5 h-5" />,
-    badge: "Zero danych w chmurze",
-    keywords: ["parser", "automatyzacja", "lokalne", "prywatność", "szybki wpis", "wklej tekst", "wyciąg", "ollama", "ai", "sztuczna inteligencja", "kategoryzacja"],
+    title: "Jak działa rozpoznawanie tekstu, szybkie dodawanie i reguły kategoryzacji",
+    icon: <Sliders className="w-5 h-5" />,
+    badge: "100% offline & deterministycznie",
+    keywords: ["parser", "automatyzacja", "lokalne", "prywatność", "szybki wpis", "wklej tekst", "wyciąg", "reguły", "kategoryzacja", "csv", "pdf"],
     content: (
       <div className="space-y-4 text-sm text-text-muted">
         <p className="leading-relaxed">
-          Podstawowe rozpoznawanie kwot, dat i kategorii działa w całości na Twoim urządzeniu — bez modeli AI i bez połączeń sieciowych. Opcjonalne lokalne AI (Ollama) działa na Twoim komputerze. Jeśli używasz trybu chmurowego na własnym wdrożeniu, dane są wysyłane do skonfigurowanego dostawcy AI — przed użyciem sprawdź ustawienia prywatności.
+          Wszystkie mechanizmy rozpoznawania kwot, dat, kategoryzacji oraz reguł działają w 100% lokalnie i deterministycznie na Twoim urządzeniu. Aplikacja nie korzysta z żadnych zewnętrznych modeli językowych (LLM) ani chmurowych silników AI — zero wysyłania danych, zerowe opóźnienia, maksymalna niezawodność i prywatność.
         </p>
-
-        <Screenshot
-          title="Doradca finansowy AI"
-          badge="Zrzut ekranu aplikacji"
-          src="/assets/help/05-ai-chat.png"
-          alt="Otwarte okno Doradcy finansowego AI z polem do wpisania pytania oraz skrótami Skills"
-          caption="Przycisk 'Doradca AI' w górnym pasku otwiera czat, który odpowiada na pytania o Twój budżet i może zaproponować konkretną akcję (np. dodanie transakcji) do Twojej akceptacji. Przyciski 'Skills' u dołu to gotowe podpowiedzi pytań."
-        />
 
         <ul className="list-disc pl-5 space-y-3 text-xs">
           <li>
+            <strong>Reguły kategoryzacji (Transaction Rules):</strong><br />
+            Możesz zdefiniować własne reguły automatycznego przypisywania kategorii (np. „Biedronka” → Żywność, „Orlen” → Transport). Każdy zaimportowany wiersz pasujący do reguły otrzymuje kategorię automatycznie.
+          </li>
+          <li>
             <strong>Wklej tekst wyciągu:</strong><br />
-            W imporcie transakcji możesz wkleić historię skopiowaną z banku — separator, daty i znak kwoty są wykrywane automatycznie, a kategorie przypisywane na podstawie nazwy transakcji.
+            W oknie importu transakcji możesz wkleić historię operacji skopiowaną ze strony banku lub maila — separator, format daty oraz znak kwoty są wykrywane automatycznie przez lokalny parser.
           </li>
           <li>
             <strong>Szybki wpis w palecie poleceń (⌘K):</strong><br />
-            Zdanie w rodzaju „prąd 340 zł za 3 dni” zamienia się w gotowy rachunek — bez otwierania osobnego formularza.
+            Wpisanie frazy w rodzaju „prąd 340 zł za 3 dni” lub „kawa 18 zł” błyskawicznie zamienia się w gotową płatność lub wydatek — bez konieczności ręcznego wypełniania formularzy.
           </li>
           <li>
-            <strong>Import PDF i OCR:</strong><br />
-            Tekstowy PDF jest parsowany lokalnie. Skanowany PDF wymaga włączonego AI i modelu multimodalnego z obsługą obrazów. Aplikacja analizuje maksymalnie 10 pierwszych stron, odrzuca niepełne rekordy i zawsze pokazuje podgląd przed zapisaniem.
+            <strong>Import wyciągów CSV i PDF:</strong><br />
+            Saldo posiada wbudowane presety dla głównych polskich banków (PKO BP, mBank, ING, Santander, Millennium, Alior, Pekao) oraz uniwersalny parser tabelaryczny dla wyciągów PDF z warstwą tekstową. Zawsze widzisz pełny podgląd transakcji przed zatwierdzeniem.
+          </li>
+          <li>
+            <strong>Harmonogram transakcji cyklicznych:</strong><br />
+            W Ustawieniach → Automatyzacja możesz skonfigurować stałe koszty i wpływy (np. pensję, czynsz, abonamenty) z określoną częstotliwością, dzięki czemu budżet planuje się sam.
           </li>
         </ul>
-
-        <div className="pt-1">
-          <h5 className="font-bold text-text-main text-xs sm:text-sm flex items-center gap-2 mb-2">
-            <Cpu className="w-4 h-4 text-brand" />
-            Lokalne AI (Ollama) — opcjonalne wsparcie dla trudniejszych przypadków
-          </h5>
-          <p className="text-xs text-text-muted leading-relaxed mb-3">
-            Gdy wbudowany parser nie poradzi sobie z nietypowym formatem wyciągu, możesz włączyć w Ustawieniach dodatkową warstwę rozpoznawania opartą o model językowy uruchomiony lokalnie na Twoim komputerze przez <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" className="text-brand underline font-medium">Ollama</a>. Przeglądarka łączy się bezpośrednio z <code className="bg-surface-2 px-1 py-0.5 rounded border border-border text-brand">localhost</code> — nic nie opuszcza urządzenia.
-          </p>
-
-          <h5 className="font-bold text-text-main text-xs sm:text-sm flex items-center gap-2 mb-2 mt-4">
-            <ShieldCheck className="w-4 h-4 text-brand" />
-            Zewnętrzne modele AI (Gemini, Claude) i Bring Your Own Key
-          </h5>
-          <p className="text-xs text-text-muted leading-relaxed mb-3">
-            Możesz podłączyć zaawansowane modele <strong>Google Gemini</strong> lub <strong>Anthropic Claude</strong>, podając własny klucz API w Ustawieniach. Klucz jest bezpiecznie szyfrowany na Twoim urządzeniu. Co ważne, z modelem wymieniane są jedynie zagregowane statystyki – aplikacja chroni Twoją prywatność i ukrywa historię transakcji, PESEL czy dokładne numery kont.
-          </p>
-
-          <MockScreenShot title="Lokalne AI — sugestia kategorii z wyciągu" badge="Ollama / API">
-            <MockLocalAiVisual />
-          </MockScreenShot>
-
-          <ul className="list-disc pl-5 space-y-2 text-xs mt-3">
-            <li><strong>Sugestie kategorii:</strong> dla transakcji, których nie rozpoznały Twoje reguły, model zaproponuje kategorię na podstawie opisu.</li>
-            <li><strong>Odczyt wklejonego tekstu:</strong> gdy deterministyczny parser nie wyodrębni poprawnie kwot lub dat z nietypowego formatu wyciągu, lokalne AI spróbuje je odczytać.</li>
-            <li><strong>Skanowane PDF-y:</strong> wybierz model vision (np. gemma4:12b-mlx), ponieważ zwykły model tekstowy nie odczyta obrazu. Dla każdego skanu sprawdź kwoty, daty i opisy w podglądzie — OCR może wymagać ręcznej korekty.</li>
-            <li><strong>Skanowanie faktur:</strong> w formularzu płatności możesz wybrać obraz faktury (JPG, PNG lub WebP do 3 MB). Ta funkcja korzysta z lokalnego modelu wizyjnego (Ollama vision), działa w pełni na Twoim urządzeniu i wstępnie wypełnia formularz — zapis następuje dopiero po Twoim zatwierdzeniu.</li>
-            <li><strong>Zawsze do akceptacji:</strong> każda sugestia trafia do podglądu przed importem — nic nie zapisuje się automatycznie bez Twojej zgody.</li>
-            <li><strong>Wyłączone domyślnie:</strong> włączasz to ręcznie w Ustawieniach → Automatyzacja, w każdej chwili możesz wyłączyć.</li>
-          </ul>
-        </div>
       </div>
     )
   },
@@ -1132,8 +1100,8 @@ export const faqData: FaqEntry[] = [
     answer: "W szczegółach zobowiązania możesz wskazać kwotę nadpłaty (jednorazową, miesięczną lub roczną) i strategię (skrócenie okresu spłaty lub zmniejszenie raty). Symulator natychmiast pokazuje realne porównanie: nową ratę, nowy czas spłaty i sumę zaoszczędzonych odsetek."
   },
   {
-    question: "Czy lokalne AI (Ollama) wysyła moje dane finansowe do internetu?",
-    answer: "Nie. Lokalne AI to opcjonalna funkcja wymagająca zainstalowanej aplikacji Ollama na Twoim komputerze — model językowy działa wyłącznie lokalnie, a przeglądarka łączy się bezpośrednio z localhost. Żadne dane nie są wysyłane na żaden serwer, także nie do twórców Saldo. Funkcja jest domyślnie wyłączona i włączasz ją ręcznie w Ustawieniach."
+    question: "Czy aplikacja korzysta ze sztucznej inteligencji (LLM / AI)?",
+    answer: "Nie. Saldo jest w 100% aplikacją deterministyczną i wolną od modeli językowych (LLM). Wszystkie obliczenia (symulacje kredytów, wskaźniki majątku, plany taktyczne, podział 50/30/20) oraz reguły kategoryzacji transakcji bazują na czystej, przejrzystej i weryfikowalnej matematyce finansowej. Żadne dane nie są przesyłane do zewnętrznych modeli sztucznej inteligencji."
   },
   {
     question: "Czy transakcja spłaty raty może zostać automatycznie powiązana z kredytem?",
@@ -1152,8 +1120,8 @@ export const faqData: FaqEntry[] = [
     answer: "Doktor Saldo analizuje bazę pod kątem 6 typów anomalii (np. przypadkowe duplikaty po imporcie CSV czy desynchronizacja kwot celów). Kliknięcie przycisku 'Napraw wszystko automatycznie' koryguje znalezione problemy w ułamku sekundy, a system automatycznie zapisuje kopię cofania (Undo), dzięki czemu możesz odwrócić operację w dowolnym momencie."
   },
   {
-    question: "Czy mogę używać modeli AI z chmury jak Gemini lub Claude (BYOK)?",
-    answer: "Tak. Aplikacja wspiera najnowsze modele Google Gemini (w tym Gemini 3.8 Flash, 3.7 Flash, 3.5 Flash, 3.1 Pro, a także 2.0 Flash i 1.5 Pro) oraz Anthropic Claude (w tym Claude 3.7 Sonnet z trybem myślenia, Claude 3.5 Sonnet, 3.5 Haiku, Sonnet 5) poprzez integrację własnego klucza API (Bring Your Own Key). Twój klucz jest bezpiecznie szyfrowany w magazynie kluczy (macOS Keychain lub WebCrypto) i nigdy nie opuszcza urządzenia. AI otrzymuje jedynie zagregowane podsumowania bez historii transakcji, gwarantując maksymalną prywatność."
+    question: "Gdzie są przechowywane moje dane finansowe?",
+    answer: "Twoje dane są przechowywane w 100% lokalnie w bezpiecznej bazie IndexedDB Twojej przeglądarki lub urządzenia. Jeśli włączysz szyfrowaną synchronizację w chmurze, dane są zabezpieczone silnym algorytmem AES-GCM z kluczem wyprowadzonym za pomocą PBKDF2 — nikt poza Tobą nie ma dostępu do Twoich finansów."
   },
   {
     question: "Dlaczego mój profil ma status Kondycji 'Brak wystarczających danych'?",

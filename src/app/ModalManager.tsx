@@ -21,7 +21,6 @@ const ChangelogModal = lazy(() => import("../components/ChangelogModal").then(m 
 const DriveConflictModal = lazy(() => import("../components/DriveConflictModal").then(m => ({ default: m.DriveConflictModal })));
 const SmartRulesManagerModal = lazy(() => import("../components/modals/SmartRulesManagerModal").then(m => ({ default: m.SmartRulesManagerModal })));
 const ExportReportsModal = lazy(() => import("../components/modals/ExportReportsModal").then(m => ({ default: m.ExportReportsModal })));
-const AiChatModal = lazy(() => import("../components/AiChatModal").then(m => ({ default: m.AiChatModal })));
 const FinancialSkillsModal = lazy(() => import("../components/modals/FinancialSkillsModal").then(m => ({ default: m.FinancialSkillsModal })));
 const FinancialStoryModal = lazy(() => import("../components/modals/FinancialStoryModal").then(m => ({ default: m.FinancialStoryModal })));
 const DataAuditorModal = lazy(() => import("../components/modals/DataAuditorModal").then(m => ({ default: m.DataAuditorModal })));
@@ -132,7 +131,7 @@ export function ModalManager() {
           onSave={onSaveBudgets}
         />
       )}
-      {modalState.type === "calendarAi" && (
+      {modalState.type === "calendarReminder" && (
         <ErrorBoundary onReset={closeModal} title="Nie udało się załadować przypomnień kalendarza">
           <Suspense fallback={<ModalFallback />}>
             <CalendarReminderModal
@@ -143,13 +142,6 @@ export function ModalManager() {
               onConnectCalendar={() => connectGoogle("calendar")}
               onCalendarAuthInvalid={invalidateCalendarToken}
             />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {modalState.type === "aiChat" && (
-        <ErrorBoundary onReset={closeModal} title="Nie udało się załadować doradcy AI">
-          <Suspense fallback={<ModalFallback />}>
-            <AiChatModal isOpen={true} onClose={closeModal} />
           </Suspense>
         </ErrorBoundary>
       )}

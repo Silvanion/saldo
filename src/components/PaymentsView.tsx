@@ -35,7 +35,7 @@ interface PaymentsViewProps {
   onAddPayment: (payment: any) => void;
   onDeletePayment: (paymentId: string, mode?: "payment-only" | "payment-and-linked-transaction") => void;
   calendarToken: string | null;
-  onTriggerCalendarAi: (p: Payment) => void;
+  onTriggerCalendarReminder: (p: Payment) => void;
 }
 
 export function PaymentsView({
@@ -47,7 +47,7 @@ export function PaymentsView({
   onAddPayment,
   onDeletePayment,
   calendarToken,
-  onTriggerCalendarAi
+  onTriggerCalendarReminder
 }: PaymentsViewProps) {
   const [viewMode, setViewMode] = useState<"all" | "subscriptions">("all");
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
@@ -539,13 +539,13 @@ export function PaymentsView({
                     <div className="flex items-center gap-2 shrink-0">
                       {!isPaid && (
                         <button
-                          onClick={() => onTriggerCalendarAi(p)}
+                          onClick={() => onTriggerCalendarReminder(p)}
                           className="bg-surface hover:bg-surface-2 text-text-main font-semibold px-2.5 py-1.5 rounded-lg active:scale-[0.98] transition-all text-xs flex items-center gap-1.5 cursor-pointer border border-border/70 shrink-0 focus-visible:ring-2 focus-visible:ring-focus-ring"
-                          title="Dodaj przypomnienie do Kalendarza Google (AI)"
-                          id={`btn-calendar-ai-${p.id}`}
+                          title="Dodaj przypomnienie do Kalendarza Google"
+                          id={`btn-calendar-reminder-${p.id}`}
                         >
                           <Calendar className="w-3.5 h-3.5 text-brand shrink-0" />
-                          <span className="truncate max-w-[120px]">Zaplanuj AI</span>
+                          <span className="truncate max-w-[120px]">Kalendarz</span>
                         </button>
                       )}
                       <button

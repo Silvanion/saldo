@@ -57,15 +57,6 @@ export interface PdfImportResult {
   };
 }
 
-export interface AiPdfTransaction {
-  name?: unknown;
-  amount?: unknown;
-  type?: unknown;
-  isoDate?: unknown;
-  category?: unknown;
-  account?: unknown;
-}
-
 /**
  * Odtwarza wiersze strony z fragmentów tekstu zwracanych przez pdfjs.
  *
@@ -167,35 +158,6 @@ export async function extractPdfText(file: File): Promise<string> {
   }
 }
 
-export async function renderPdfPages(file: File, maxPages = 10): Promise<string[]> {
-  assertPdfFileSizeOk(file);
-  const pdfjsLib = await loadPdfjs();
-  const loadingTask = pdfjsLib.getDocument({
-    data: new Uint8Array(await file.arrayBuffer()),
-    useWorkerFetch: false
-  });
-  const pdfDocument = await loadingTask.promise;
-  try {
-    const images: string[] = [];
-    for (let pageNumber = 1; pageNumber <= Math.min(pdfDocument.numPages, maxPages); pageNumber++) {
-      const page = await pdfDocument.getPage(pageNumber);
-      try {
-        const viewport = page.getViewport({ scale: 2 });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
-        images.push(canvas.toDataURL("image/png").split(",", 2)[1]);
-      } finally {
-        page.cleanup();
-      }
-    }
-    return images;
-  } finally {
-    await loadingTask.destroy();
-  }
-}
-
 function buildTransaction(
   name: string,
   amount: number,
@@ -223,79 +185,6 @@ function buildTransaction(
     rawSource,
     validationStatus
   };
-}
-
-export function normalizeAiPdfTransactions(
-  rawTransactions: unknown[],
-  options: {
-    currency: SupportedCurrency;
-    account: string;
-    rules: TransactionRule[];
-  }
-): Pick<PdfImportResult, "transactions" | "rejectedRows" | "directions"> {
-  const transactions: Transaction[] = [];
-  const rejectedRows: PdfImportResult["rejectedRows"] = [];
-  const directions: ImportDirectionInfo[] = [];
-  const seen = new Set<string>();
-
-  rawTransactions.forEach((raw, index) => {
-    const candidate = raw && typeof raw === "object" ? raw as AiPdfTransaction : {};
-    const name = typeof candidate.name === "string" ? candidate.name.trim() : "";
-    const amount = typeof candidate.amount === "number" ? candidate.amount : Number(candidate.amount);
-    const date = typeof candidate.isoDate === "string" ? parseCsvDate(candidate.isoDate) : null;
-
-    if (!name || name.length < 2 || !Number.isFinite(amount) || amount === 0 || !date) {
-      rejectedRows.push({
-        row: index + 1,
-        reason: "AI zwróciło niepełną lub nieprawidłową transakcję. Sprawdź opis, datę i kwotę.",
-        raw: JSON.stringify(raw)
-      });
-      return;
-    }
-
-    // Model potrafi pominąć "type" albo nazwać go po polsku ("Wydatek", "Debit").
-    // Brak typu nie jest powodem do wyrzucenia całego wiersza — kierunek da się
-    // wywnioskować, a gdy się nie da, rekord trafia do potwierdzenia, nie do kosza.
-    const explicitDirection = typeof candidate.type === "string" ? candidate.type : "";
-    const amountMagnitude = Math.abs(amount);
-    const decision = matchDirectionValue(explicitDirection)
-      ? { type: matchDirectionValue(explicitDirection)!, source: "direction-column" as const, confident: true }
-      : detectDirection(
-          { amountNegative: amount < 0, description: name },
-          { hasNegativeAmounts: false }
-        );
-    const type = decision.type;
-
-    const categorized = autoCategorizeTransaction(
-      name,
-      options.rules,
-      typeof candidate.category === "string" ? candidate.category : "Inne"
-    );
-    const duplicateKey = [
-      name.toLocaleLowerCase(),
-      amountMagnitude.toFixed(2),
-      type,
-      date
-    ].join("|");
-    if (seen.has(duplicateKey)) {
-      rejectedRows.push({
-        row: index + 1,
-        reason: "Powielony rekord OCR — pominięto go przed importem.",
-        raw: JSON.stringify(raw)
-      });
-      return;
-    }
-    seen.add(duplicateKey);
-    const transaction = {
-      ...buildTransaction(name, amountMagnitude, type, date, options.currency, options.account, options.rules),
-      category: categorized.category,
-      categoryIcon: categorized.categoryIcon
-    };
-    transactions.push(transaction);
-    directions.push({ transactionId: transaction.id, source: decision.source, confident: decision.confident });
-  });
-
-  return { transactions, rejectedRows, directions };
 }
 
 export type PdfTableLayout =

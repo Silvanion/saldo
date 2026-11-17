@@ -32,7 +32,6 @@ import { formatDate, getLocalDateIso } from "../utils/date";
 import { parseQuickEntry } from "../services/localParsers";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { callAiApi, getAiConfig } from "../services/aiClient";
 
 export interface CommandPaletteModalProps {
   isOpen: boolean;
@@ -52,7 +51,6 @@ export interface CommandPaletteModalProps {
   onExportData?: () => void;
   theme?: "dark" | "light";
   onToggleTheme?: () => void;
-  aiConfig?: { aiMode: "none" | "local"; localAiEndpoint?: string; localAiModel?: string };
 }
 
 interface PaletteItem {
@@ -84,12 +82,10 @@ export function CommandPaletteModal({
   onOpenImportCsvModal,
   onExportData,
   theme = "dark",
-  onToggleTheme,
-  aiConfig = { aiMode: "none" }
+  onToggleTheme
 }: CommandPaletteModalProps) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isAiParsing, setIsAiParsing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -191,7 +187,7 @@ export function CommandPaletteModal({
       id: "view-help",
       category: "views",
       title: "Centrum pomocy",
-      subtitle: "Przewodnik, skróty i instrukcje Ollama / AI",
+      subtitle: "Przewodnik i skróty klawiszowe",
       icon: <HelpCircle className="w-4 h-4 text-brand" />,
       badge: activeView === "help" ? "Aktywny" : undefined,
       keywords: ["pomoc", "faq", "skróty", "instrukcja", "poradnik"],
@@ -391,51 +387,6 @@ export function CommandPaletteModal({
     };
   }, [query, activeProfile, onOpenPaymentModal, onOpenCalendarReminder]);
 
-  const aiEntryItem: PaletteItem | null = useMemo(() => {
-    const text = query.trim();
-    if (text.length < 4 || aiConfig.aiMode === "none") return null;
-    return {
-      id: "ai-natural-entry",
-      category: "actions",
-      title: isAiParsing ? "Rozpoznawanie wpisu przez AI..." : "Rozpoznaj wpis przez AI",
-      subtitle: `Przeanalizuj: „${text}”`,
-      icon: <Sparkles className="w-4 h-4 text-brand" />,
-      badge: "Ollama",
-      onSelect: async () => {
-        if (isAiParsing) return;
-        setIsAiParsing(true);
-        try {
-          const result = await callAiApi("parse-natural", {
-            text,
-            currentDate: getLocalDateIso()
-          }, getAiConfig(aiConfig));
-          const payment = result?.payment;
-          const event = result?.event;
-          if (payment?.name && Number(payment.amount) > 0 && payment.dueDate) {
-            onOpenPaymentModal({
-              name: String(payment.name),
-              amount: Number(payment.amount),
-              dueDate: String(payment.dueDate),
-              status: "Do opłacenia"
-            });
-          } else if (event?.summary && onOpenCalendarReminder) {
-            onOpenCalendarReminder({
-              name: String(event.summary),
-              amount: Number(payment?.amount) || 0,
-              dueDate: String(event.suggestedDate || getLocalDateIso())
-            });
-          } else {
-            throw new Error("AI nie rozpoznało płatności ani terminu.");
-          }
-        } catch (error) {
-          console.error("AI natural entry error:", error);
-        } finally {
-          setIsAiParsing(false);
-        }
-      }
-    };
-  }, [query, aiConfig, onOpenPaymentModal, onOpenCalendarReminder, isAiParsing]);
-
   // Combined and filtered items
   const filteredItems = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -455,13 +406,12 @@ export function CommandPaletteModal({
     // Szybki wpis na czele — to najczęstsza intencja przy wpisaniu kwoty.
     return [
       ...(quickEntryItem ? [quickEntryItem] : []),
-      ...(aiEntryItem ? [aiEntryItem] : []),
       ...matchedActions,
       ...transactionItems,
       ...matchedViews,
       ...matchedProfiles
     ];
-  }, [query, actionItems, viewItems, profileItems, transactionItems, quickEntryItem, aiEntryItem]);
+  }, [query, actionItems, viewItems, profileItems, transactionItems, quickEntryItem]);
 
   // Clamp selection index
   useEffect(() => {

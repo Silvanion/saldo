@@ -315,42 +315,6 @@ export function MockCommandPaletteVisual() {
   );
 }
 
-/**
- * Mock UI: Lokalne AI (Ollama) — sugestie kategorii i odczyt tekstu wyciągu
- */
-export function MockLocalAiVisual() {
-  return (
-    <div className="p-4 bg-surface rounded-xl border border-border shadow-xs space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Cpu className="w-4 h-4 text-brand" />
-          <span className="text-xs font-bold text-text-main">Lokalne AI (Ollama) — działa offline na Twoim komputerze</span>
-        </div>
-        <span className="text-[10px] font-bold bg-success-subtle text-success border border-success/20 px-2 py-0.5 rounded-md">
-          Opcjonalne
-        </span>
-      </div>
-
-      <div className="p-3 bg-surface-2 rounded-xl border border-border text-xs space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-text-muted">Wklejony wiersz wyciągu:</span>
-        </div>
-        <div className="font-mono text-[11px] text-text-main bg-bg-base p-2 rounded-lg border border-border">
-          "ŻABKA Z0512 WARSZAWA — 23,40"
-        </div>
-        <div className="flex items-center gap-2 text-text-main">
-          <ArrowRight className="w-3.5 h-3.5 text-brand shrink-0" />
-          <span>Sugestia: <strong className="text-brand">Żywność</strong>, kwota <strong className="tabular-nums">23,40 PLN</strong></span>
-        </div>
-      </div>
-
-      <p className="text-[11px] text-text-muted leading-relaxed">
-        Sugestia zawsze trafia do podglądu przed importem — nic nie zapisuje się automatycznie, a żadne dane nie opuszczają urządzenia.
-      </p>
-    </div>
-  );
-}
-
 export function Terminal(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg

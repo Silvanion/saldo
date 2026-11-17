@@ -54,7 +54,7 @@ const TestHarness = () => {
       onOpenTxModal={vi.fn()}
       onOpenBudgetModal={vi.fn()}
       onOpenPaymentModal={vi.fn()}
-      onTriggerCalendarAi={vi.fn()}
+      onTriggerCalendarReminder={vi.fn()}
       onOpenGoalModal={vi.fn()}
       onOpenGoalDepositModal={vi.fn()}
       onOpenProfileModal={vi.fn()}
@@ -165,7 +165,7 @@ describe('Full App Diagnostic Loop - Forms', () => {
           onOpenTxModal={vi.fn()}
           onOpenBudgetModal={vi.fn()}
           onOpenPaymentModal={vi.fn()}
-          onTriggerCalendarAi={vi.fn()}
+          onTriggerCalendarReminder={vi.fn()}
           onOpenGoalModal={vi.fn()}
           onOpenGoalDepositModal={vi.fn()}
           onOpenProfileModal={vi.fn()}

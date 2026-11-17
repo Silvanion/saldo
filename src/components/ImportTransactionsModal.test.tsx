@@ -8,9 +8,7 @@ import { ImportTransactionsModal } from "./ImportTransactionsModal";
 import { Profile, Transaction } from "../types";
 import { MAX_IMPORT_ROWS } from "../services/parseCsv";
 
-let mockAppState: { aiMode: "none" | "local" } = {
-  aiMode: "none",
-};
+let mockAppState = {};
 
 let mockActiveProfile: Profile = {
   id: "prof-1",
@@ -38,19 +36,11 @@ let mockActiveProfile: Profile = {
   transactionRules: []
 };
 
-const { callAiApiMock } = vi.hoisted(() => ({ callAiApiMock: vi.fn() }));
-
-vi.mock("../services/aiClient", async () => {
-  const actual = await vi.importActual<typeof import("../services/aiClient")>("../services/aiClient");
-  return { ...actual, callAiApi: callAiApiMock };
-});
-
 vi.mock("../services/parsePdf", async () => {
   const actual = await vi.importActual<typeof import("../services/parsePdf")>("../services/parsePdf");
   return {
     ...actual,
-    extractPdfText: vi.fn().mockResolvedValue(""),
-    renderPdfPages: vi.fn().mockResolvedValue(["rendered-page"])
+    extractPdfText: vi.fn().mockResolvedValue("")
   };
 });
 
@@ -65,8 +55,6 @@ describe("ImportTransactionsModal — Import Quality & Data Trust v1", () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
-    mockAppState = { aiMode: "none" };
-    callAiApiMock.mockReset();
   });
 
   const SAMPLE_CSV = `
@@ -249,95 +237,6 @@ invalid_date;100;Błędna data;PLN
 
     expect(screen.queryByText(/Plik zawierał więcej wierszy niż limit/i)).toBeNull();
   });
-});
-
-vi.mock("../services/localAi", () => ({
-  resolveLocalAiConfig: vi.fn(() => ({ endpoint: "http://localhost:11434/api/generate", model: "qwen2.5:7b" })),
-  extractTransactionsWithLocalAi: vi.fn(),
-  categorizeDescriptionsWithLocalAi: vi.fn()
-}));
-
-import { extractTransactionsWithLocalAi, categorizeDescriptionsWithLocalAi } from "../services/localAi";
-
-describe("ImportTransactionsModal — lokalne AI (aiMode: local)", () => {
-  afterEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-    mockAppState.aiMode = "none";
-  });
-
-  it("przycisk 'Spróbuj z lokalnym AI' pojawia się tylko gdy lokalne AI jest włączone", () => {
-    mockAppState.aiMode = "none";
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
-    expect(screen.queryByRole("button", { name: /Spróbuj z lokalnym AI/i })).toBeNull();
-
-    cleanup();
-    mockAppState.aiMode = "local";
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
-    expect(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i })).toBeTruthy();
-  });
-
-  it("ekstrakcja przez AI: wiersz z niespójną kwotą jest oznaczony i domyślnie odznaczony", async () => {
-    mockAppState.aiMode = "local";
-    vi.mocked(extractTransactionsWithLocalAi).mockResolvedValue([
-      { name: "Wynagrodzenie", amount: 720, type: "income", isoDate: "2026-08-01", category: "Wynagrodzenie", categoryIcon: "💰", amountConsistent: false },
-      { name: "Biedronka", amount: 89.9, type: "expense", isoDate: "2026-08-03", category: "Inne", categoryIcon: "✨", amountConsistent: true }
-    ]);
-
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Wklej historię transakcji z banku/i), {
-      target: { value: "dowolny tekst wyciągu" }
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i }));
-
-    await screen.findByTitle("Wynagrodzenie");
-    expect(screen.getByTitle("Biedronka")).toBeTruthy();
-
-    // Do zaimportowania: tylko spójny wiersz (1), niespójny odznaczony domyślnie.
-    expect(screen.getByRole("button", { name: /Zaimportuj wybrane \(1\)/i })).toBeTruthy();
-  });
-
-  it("brak rozpoznanych transakcji przez AI pokazuje komunikat błędu", async () => {
-    mockAppState.aiMode = "local";
-    vi.mocked(extractTransactionsWithLocalAi).mockResolvedValue([]);
-
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /Wklej tekst wyciągu/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Wklej historię transakcji z banku/i), {
-      target: { value: "tekst bez transakcji" }
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Spróbuj z lokalnym AI/i }));
-
-    await screen.findByText(/nie rozpoznało żadnej transakcji/i);
-  });
-
-  it("przycisk sugestii kategorii pojawia się tylko gdy są wiersze 'Inne', i aktualizuje kategorię", async () => {
-    mockAppState.aiMode = "local";
-    vi.mocked(categorizeDescriptionsWithLocalAi).mockResolvedValue(new Map([["Tajemniczy Sklep", "Żywność"]]));
-
-    const SAMPLE_CSV = `
-Data;Kwota;Tytuł;Waluta
-2026-07-25;-30,00;Tajemniczy Sklep;PLN
-`.trim();
-
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} />);
-    fireEvent.change(screen.getByPlaceholderText(/Tutaj możesz wkleić skopiowane wiersze/i), {
-      target: { value: SAMPLE_CSV }
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Przetwórz wklejony tekst CSV/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Generuj podgląd/i }));
-
-    const suggestBtn = screen.getByRole("button", { name: /Zasugeruj kategorie \(AI\)/i });
-    fireEvent.click(suggestBtn);
-
-    await screen.findByText("Żywność");
-    expect(categorizeDescriptionsWithLocalAi).toHaveBeenCalledWith(["Tajemniczy Sklep"], expect.any(Object));
-    // Zmieniony przez AI wiersz jest oznaczony do sprawdzenia
-    expect(screen.getByLabelText("Sugestia lokalnego AI")).toBeTruthy();
-  });
 
   it("Alior: wiersze konta kredytowego są domyślnie niezaznaczone i oznaczone ostrzeżeniem", async () => {
     const H = "Data transakcji;Data księgowania;Nazwa nadawcy;Nazwa odbiorcy;Szczegóły transakcji;Kwota operacji;Waluta operacji;Kwota w walucie rachunku;Waluta rachunku;Numer rachunku nadawcy;Numer rachunku odbiorcy";
@@ -361,39 +260,11 @@ Data;Kwota;Tytuł;Waluta
     // nazwą jest kontrahent, a nie własne imię z kolumny nadawcy
     expect(screen.getByText("Autopay S.A.")).toBeTruthy();
   });
-});
 
-
-describe("ImportTransactionsModal — skan PDF przez AI jest eksperymentalnym opt-inem (AI-04)", () => {
-  afterEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-    mockAppState.aiMode = "none";
-    localStorage.removeItem("saldo_experimental_image_import");
-  });
-
-  it("skan bez warstwy tekstowej: najpierw ostrzeżenie i przycisk, AI nie jest wołane bez zgody", async () => {
-    mockAppState.aiMode = "local";
+  it("skan PDF bez warstwy tekstowej wyświetla czytelny komunikat błędu", async () => {
     const file = new File(["%PDF"], "skan.pdf", { type: "application/pdf" });
     render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} initialFile={file} onConsumeInitialFile={vi.fn()} />);
 
-    expect(await screen.findByText(/odczyt skanów przez AI jest eksperymentalny/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Włącz eksperymentalny odczyt skanów/i })).toBeTruthy();
-    expect(callAiApiMock).not.toHaveBeenCalled();
-  });
-
-  it("po kliknięciu przycisku zgoda jest zapamiętana i ponawiany jest odczyt", async () => {
-    mockAppState.aiMode = "local";
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ selectedModelVisionAvailable: true }) }));
-    callAiApiMock.mockResolvedValue({ transactions: [] });
-    const file = new File(["%PDF"], "skan.pdf", { type: "application/pdf" });
-    render(<ImportTransactionsModal isOpen={true} onClose={vi.fn()} onImport={vi.fn()} initialFile={file} onConsumeInitialFile={vi.fn()} />);
-
-    fireEvent.click(await screen.findByRole("button", { name: /Włącz eksperymentalny odczyt skanów/i }));
-    await screen.findByText(/AI nie rozpoznało transakcji/i);
-
-    expect(localStorage.getItem("saldo_experimental_image_import")).toBe("1");
-    expect(callAiApiMock).toHaveBeenCalledWith("parse-statement-image", expect.anything(), expect.anything());
-    vi.unstubAllGlobals();
+    expect(await screen.findByText(/Ten PDF nie zawiera warstwy tekstowej/i)).toBeTruthy();
   });
 });

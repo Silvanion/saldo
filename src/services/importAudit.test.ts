@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseCsvAmount, parseCsvDate, parseAndMapCsv, autoDetectBankColumns } from "./parseCsv";
 import { detectDirection, matchDirectionValue, looksLikeDebitColumn, looksLikeCreditColumn } from "./directionDetector";
-import { parsePdfTransactions, normalizeAiPdfTransactions } from "./parsePdf";
+import { parsePdfTransactions } from "./parsePdf";
 import { parseStatementText } from "./localParsers";
 import { computeTransactionFingerprint } from "./duplicateDetector";
 import { auditProfileTransactions } from "./corruptedDataAuditor";
@@ -231,25 +231,6 @@ describe("ETAP 14 & 15 — Kompleksowy audyt i testy importu transakcji (Saldo)"
       expect(res.transactions.length).toBe(1);
       expect(res.transactions[0].amount).toBe(850);
       expect(res.transactions[0].name).toContain("Spółdzielnia Mieszkaniowa");
-    });
-
-    // 17. OCR / AI PDF
-    it("17. poprawnie normalizuje i weryfikuje rekordy z OCR/AI", () => {
-      const rawAiRows = [
-        { name: "Zakupy spożywcze", amount: 145.20, type: "Wydatek", isoDate: "2026-05-15" },
-        { name: "Niepoprawny rekord", amount: "NaN", type: "income", isoDate: "2026-05-15" }
-      ];
-
-      const res = normalizeAiPdfTransactions(rawAiRows, {
-        currency: "PLN",
-        account: "Konto główne",
-        rules: []
-      });
-
-      expect(res.transactions.length).toBe(1);
-      expect(res.transactions[0].amount).toBe(145.20);
-      expect(res.transactions[0].type).toBe("expense");
-      expect(res.rejectedRows.length).toBe(1);
     });
 
     // 18. Refundacja / Zwrot
