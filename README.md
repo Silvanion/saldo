@@ -144,7 +144,11 @@ Wszystkie oficjalne paczki instalacyjne są dostępne w sekcji **[Releases](http
 | **Windows** | Wersja Portable (bez instalacji) | `Saldo-1.6.7-portable.exe` |
 | **Windows (Winget)** | Menedżer pakietów systemu Windows | `winget install Silvanion.Saldo` |
 | **Android** | Samodzielny instalator APK (pełna wersja Saldo) | **[Saldo-1.6.7.apk](https://github.com/Silvanion/saldo/releases/download/v1.6.7/Saldo-1.6.7.apk)** |
+| **Android (Obtainium)** | Automatyczne aktualizacje wydań GitHub | [![Obtainium](https://img.shields.io/badge/Obtainium-Auto--Update-2563eb?style=flat-square&logo=android)](obtainium://add/https://github.com/Silvanion/saldo) |
 | **iOS / Web** | iPhone, iPad & Przeglądarka internetowa | Dostępna w 100% trybie offline jako aplikacja PWA (Zainstaluj na ekranie głównym) |
+
+> [!TIP]
+> **Automatyczne aktualizacje na Androidzie (Obtainium):** Jeśli preferujesz instalowanie aplikacji Open Source z automatycznymi aktualizacjami w tle (jak w F-Droid), zalecamy darmową aplikację [Obtainium](https://github.com/ImranR98/Obtainium). Możesz dodać Saldo bezpośrednio linkiem: [Dodaj Saldo do Obtainium](obtainium://add/https://github.com/Silvanion/saldo) (adres repozytorium: `https://github.com/Silvanion/saldo`).
 
 > [!TIP]
 > **Pierwsze uruchomienie na Windowsie:** Ponieważ Saldo jest nowym, w 100% niezależnym projektem Open Source bez wykupionego certyfikatu komercyjnego, filtr Windows Defender SmartScreen może przy pierwszym uruchomieniu wyświetlić informacyjny komunikat. Aby uruchomić aplikację, kliknij: **Więcej informacji** (*More info*) → **Uruchom mimo to** (*Run anyway*). Wraz ze wzrostem liczby pobrań na świecie SmartScreen automatycznie buduje reputację pliku. Alternatywnie możesz użyć wersji Portable lub zainstalować przez `winget install Silvanion.Saldo`.
